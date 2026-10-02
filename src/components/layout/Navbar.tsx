@@ -63,6 +63,12 @@ export default function Navbar() {
 
           {/* Right Action buttons - Text Only, 1 Single Row */}
           <div className="hidden sm:flex items-center gap-2.5 whitespace-nowrap">
+            <Link
+              href="/profile"
+              className="px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:text-[#059669] transition-colors"
+            >
+              Hồ sơ
+            </Link>
             <button
               type="button"
               className="px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
@@ -98,6 +104,13 @@ export default function Navbar() {
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
           <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1">
+            <Link
+              href="/profile"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
+            >
+              Hồ sơ của tôi
+            </Link>
             <a
               href="#tim-xe"
               onClick={() => setMobileMenuOpen(false)}
