@@ -1,26 +1,352 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #059669;
+  --color-primary-hover: #047857;
+  --color-primary-light: #ecfdf5;
+
+  --color-text: #222222;
+  --color-text-secondary: #666666;
+  --color-text-muted: #999999;
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --container-width: 1280px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: #059669;
+  --color-primary-hover: #047857;
+  --color-primary-light: #ecfdf5;
+  --color-surface: #f8fafc;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Authentic Glassmorphism Primitives per glassmorphism skill */
+
+/* Floating Navigation Pill */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 16px 36px -10px rgba(15, 23, 42, 0.08),
+    0 2px 8px -2px rgba(0, 0, 0, 0.04),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* Hero Search Console */
+.glass-search {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(36px) saturate(210%);
+  -webkit-backdrop-filter: blur(36px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 28px 64px -14px rgba(15, 23, 42, 0.12),
+    0 8px 24px -4px rgba(5, 150, 105, 0.1),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Translucent Frosted Glass Cards (Vehicles, Bento, Facilities, Plans, Steps) */
+.glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 14px 34px -8px rgba(15, 23, 42, 0.07),
+    0 4px 12px -2px rgba(5, 150, 105, 0.04),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+/* Prominent / Featured Glass Card (Popular Plan, Selected Items) */
+.glass-card-elevated {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1.5px solid rgba(5, 150, 105, 0.6);
+  box-shadow:
+    0 24px 60px -12px rgba(5, 150, 105, 0.22),
+    0 8px 20px -4px rgba(15, 23, 42, 0.08),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 1px 0 rgba(5, 150, 105, 0.1);
+  position: relative;
+}
+
+/* Glass Card Motion & Lifting on Hover */
+.glass-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(32px) saturate(220%);
+  -webkit-backdrop-filter: blur(32px) saturate(220%);
+  transform: translateY(-6px);
+  border-color: rgba(5, 150, 105, 0.45);
+  box-shadow:
+    0 28px 60px -12px rgba(5, 150, 105, 0.2),
+    0 10px 28px -4px rgba(15, 23, 42, 0.08),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 1);
+}
+
+/* Glass Pill Buttons, Badges & Inputs */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 4px 16px -2px rgba(15, 23, 42, 0.04),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* Sub-card Translucent Container inside Glass Cards */
+.glass-sub {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* Dark Glass (Inspection Certificate & Mobile Section) */
+.glass-dark {
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 30px 70px -15px rgba(0, 0, 0, 0.6),
+    0 0 45px -5px rgba(5, 150, 105, 0.25),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Digital Certificate Frosted Light Glass */
+.glass-certificate {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(36px) saturate(210%);
+  -webkit-backdrop-filter: blur(36px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 24px 60px -12px rgba(0, 0, 0, 0.25),
+    0 4px 16px -2px rgba(5, 150, 105, 0.12),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 1);
+}
+
+/* Masked Specular Rim Highlight (Lit Corner Effect) */
+.specular-border {
+  position: relative;
+}
+
+.specular-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.4) 40%,
+    rgba(255, 255, 255, 0.05) 65%,
+    rgba(5, 150, 105, 0.45)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Emerald Specular Border for Featured Cards */
+.specular-emerald::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1),
+    rgba(16, 185, 129, 0.8) 35%,
+    rgba(5, 150, 105, 0.3) 65%,
+    rgba(255, 255, 255, 0.7)
+  );
+}
+
+/* Liquid Ambient Background Blur Orbs */
+.ambient-glow-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Slow aurora drift so color visibly moves behind the frosted panels */
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 40px) scale(1.12); }
+}
+.orb-drift { animation: orb-drift 18s ease-in-out infinite; }
+.orb-drift-reverse { animation: orb-drift 26s ease-in-out infinite reverse; }
+
+/* Infinite Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ===== Kinetic Character Reveal Animation (Bouncy Spring Dynamics) ===== */
+@keyframes kineticCharJump {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.82) rotateX(-12deg);
+    filter: blur(3px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.06) rotateX(0deg);
+    filter: blur(0);
+  }
+  85% {
+    transform: translateY(1.5px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.char-kinetic-jump {
+  display: inline-block;
+  opacity: 0;
+  animation: kineticCharJump 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--char-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+/* ===== Card & Layout Div Reveal System ===== */
+.reveal-ready .reveal,
+.reveal-ready .reveal-group > * {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal-ready .reveal.is-visible,
+.reveal-ready .reveal[data-revealed="true"],
+.reveal-ready .reveal-group.is-visible > *,
+.reveal-ready .reveal-group[data-revealed="true"] > * {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Staggered cascades for cards inside a reveal group */
+.reveal-ready .reveal-group.is-visible > *:nth-child(1),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(1) { transition-delay: 0.04s; }
+
+.reveal-ready .reveal-group.is-visible > *:nth-child(2),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(2) { transition-delay: 0.11s; }
+
+.reveal-ready .reveal-group.is-visible > *:nth-child(3),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(3) { transition-delay: 0.18s; }
+
+.reveal-ready .reveal-group.is-visible > *:nth-child(4),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(4) { transition-delay: 0.25s; }
+
+.reveal-ready .reveal-group.is-visible > *:nth-child(5),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(5) { transition-delay: 0.32s; }
+
+.reveal-ready .reveal-group.is-visible > *:nth-child(6),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(6) { transition-delay: 0.39s; }
+
+.reveal-ready .reveal-group.is-visible > *:nth-child(n + 7),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(n + 7) { transition-delay: 0.46s; }
+
+/* Backward compatibility for legacy reveal-word */
+.reveal-ready .reveal-text .reveal-word {
+  display: inline-block;
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Accessibility: Accessible Keyboard Focus Rings (Priority 1 in ui-ux-pro-max) */
+:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}
+
+/* Accessibility: Prefers Reduced Motion (Priority 7 in ui-ux-pro-max) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee {
+    animation: none !important;
+  }
+  .glass-hover:hover {
+    transform: none !important;
+  }
 }
