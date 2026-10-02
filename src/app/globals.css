@@ -59,6 +59,15 @@ body {
   padding-left: 2.5rem;
 }
 
+.admin-sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .admin-input::placeholder {
   color: #94a3b8;
 }

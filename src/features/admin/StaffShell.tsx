@@ -13,6 +13,9 @@ import {
   KeyRound,
   LayoutDashboard,
   Menu,
+  ReceiptText,
+  Tags,
+  WalletCards,
   UsersRound,
   X,
 } from "lucide-react";
@@ -20,10 +23,17 @@ import {
 const navigation = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/admin/vehicles", label: "Quản lý phương tiện", icon: CarFront },
-  { href: "/admin/departments", label: "Departments", icon: Building2 },
-  { href: "/admin/facilities", label: "Facilities", icon: Building2 },
-  { href: "/admin/staffs", label: "Staffs", icon: UsersRound },
-  { href: "/admin/roles", label: "Role", icon: KeyRound },
+  { href: "/admin/vehicle-types", label: "Loại phương tiện", icon: Tags },
+  { href: "/admin/policies", label: "Chính sách thuê xe", icon: ReceiptText },
+  {
+    href: "/admin/subscription-plans",
+    label: "Gói Đăng Ký",
+    icon: WalletCards,
+  },
+  { href: "/admin/departments", label: "Phòng Ban", icon: Building2 },
+  { href: "/admin/facilities", label: "Cơ Sở", icon: Building2 },
+  { href: "/admin/staffs", label: "Nhân Viên", icon: UsersRound },
+  { href: "/admin/roles", label: "Vai Trò", icon: KeyRound },
   { href: "/admin/profile", label: "Hồ sơ nhân viên", icon: CircleUserRound },
 ];
 
@@ -39,13 +49,21 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const sidebar = (
     <>
       <div className="flex h-[76px] items-center justify-between border-b border-white/10 px-6">
-        <Link href="/admin" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
+        <Link
+          href="/admin"
+          className="flex items-center gap-3"
+          onClick={() => setMobileMenuOpen(false)}
+        >
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400 text-emerald-950">
             <CarFront className="h-6 w-6" />
           </span>
           <span>
-            <span className="block text-lg font-bold tracking-tight text-white">Thong Dong</span>
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Staff portal</span>
+            <span className="block text-lg font-bold tracking-tight text-white">
+              Thong Dong
+            </span>
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Staff portal
+            </span>
           </span>
         </Link>
         <button
@@ -58,11 +76,16 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-7">
-        <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Không gian làm việc</p>
+      <div className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 pt-7">
+        <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+          Không gian làm việc
+        </p>
         <nav aria-label="Điều hướng nhân viên" className="space-y-1.5">
           {navigation.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || (href === "/admin/vehicles" && pathname.startsWith("/admin/vehicles/"));
+            const active =
+              pathname === href ||
+              (href === "/admin/vehicles" &&
+                pathname.startsWith("/admin/vehicles/"));
             return (
               <Link
                 key={href}
@@ -75,9 +98,13 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                     : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
                 }`}
               >
-                <Icon className={`h-[18px] w-[18px] ${active ? "text-emerald-950" : "text-slate-400 group-hover:text-emerald-300"}`} />
+                <Icon
+                  className={`h-[18px] w-[18px] ${active ? "text-emerald-950" : "text-slate-400 group-hover:text-emerald-300"}`}
+                />
                 {label}
-                {active && <ChevronLeft className="ml-auto h-4 w-4 rotate-180" />}
+                {active && (
+                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180" />
+                )}
               </Link>
             );
           })}
@@ -87,10 +114,16 @@ export default function StaffShell({ children }: { children: ReactNode }) {
       <div className="mt-auto p-4">
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">MA</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">
+              MA
+            </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-white">Nguyễn Minh Anh</span>
-              <span className="block text-xs text-slate-400">Quản lý chi nhánh</span>
+              <span className="block truncate text-sm font-semibold text-white">
+                Nguyễn Minh Anh
+              </span>
+              <span className="block text-xs text-slate-400">
+                Quản lý chi nhánh
+              </span>
             </span>
           </div>
           <Link
@@ -137,8 +170,12 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               <Menu className="h-5 w-5" />
             </button>
             <div>
-              <p className="text-xs font-medium text-slate-400">Cổng quản trị / Nhân viên</p>
-              <h1 className="mt-0.5 text-base font-bold text-slate-900">{currentPage}</h1>
+              <p className="text-xs font-medium text-slate-400">
+                Cổng quản trị / Nhân viên
+              </p>
+              <h1 className="mt-0.5 text-base font-bold text-slate-900">
+                {currentPage}
+              </h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -153,12 +190,18 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               <Bell className="h-[18px] w-[18px]" />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
             </button>
-            <Link href="/admin/profile" className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900" aria-label="Hồ sơ nhân viên">
+            <Link
+              href="/admin/profile"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900"
+              aria-label="Hồ sơ nhân viên"
+            >
               MA
             </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9">{children}</main>
+        <main className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9">
+          {children}
+        </main>
       </div>
     </div>
   );
