@@ -5,22 +5,42 @@ import Image from "next/image";
 import { Phone, Mail, MapPin, ShieldCheck } from "lucide-react";
 
 export default function Footer() {
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+        if (window.location.hash) {
+          window.history.pushState(null, "", "/");
+        }
+      }
+    }
+  };
+
   return (
     <footer className="glass-dark border-t border-white/10 text-neutral-300 pt-20 pb-12 px-4 sm:px-6 relative z-10 backdrop-blur-3xl">
       <div className="max-w-7xl mx-auto">
         <div className="reveal-group grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 pb-16 border-b border-white/10">
           {/* Brand & Introduction */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <Image
+            <Link
+              href="/"
+              onClick={handleLogoClick}
+              className="inline-flex items-center gap-2.5 group"
+            >
+              {/* <Image
                 src="/logo-car-white.png"
                 alt="Thong Dong Logo"
                 width={56}
                 height={26}
                 className="h-7 sm:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-              />
+              /> */}
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
-                Thong Dong
+                ThongDong.
               </span>
             </Link>
             <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-sm">

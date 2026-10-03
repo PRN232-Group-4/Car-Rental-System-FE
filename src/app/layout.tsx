@@ -30,9 +30,9 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${manrope.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${manrope.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
-      <body className="min-h-full flex flex-col text-neutral-800">
+      <body className="min-h-full flex flex-col text-neutral-800 font-sans">
         {/* On reload, reset to the top instead of letting the browser restore the
             old scroll position (or re-jump to a leftover #anchor). Runs before the
             browser restores scroll, so there is no visible jump. */}

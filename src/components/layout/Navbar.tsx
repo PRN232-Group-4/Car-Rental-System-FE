@@ -11,22 +11,44 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+        if (window.location.hash) {
+          window.history.pushState(null, "", "/");
+        }
+      }
+    }
+  };
+
   return (
     <header className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6">
       <nav className="glass-nav specular-border w-full max-w-6xl rounded-2xl px-5 py-3 transition-all duration-300">
         <div className="flex items-center justify-between gap-4">
           {/* Brand Name & Logo - Unified Single Row Lockup without rounded box */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group whitespace-nowrap py-0.5 select-none">
-            <Image
+          <Link
+            href="/"
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 sm:gap-2.5 group whitespace-nowrap py-0.5 select-none"
+          >
+            {/* <Image
               src="/logo-car.png"
               alt="Thong Dong Logo"
               width={48}
               height={22}
               className="h-5 sm:h-6 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               priority
-            />
+            /> */}
             <span className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 group-hover:text-[#059669] transition-colors">
-              Thong Dong
+              ThongDong.
             </span>
           </Link>
 
@@ -108,8 +130,8 @@ export default function Navbar() {
                           {user.roles.includes("Admin")
                             ? "Quản trị viên"
                             : user.roles.includes("Staff")
-                            ? "Nhân viên"
-                            : "Khách hàng"}
+                              ? "Nhân viên"
+                              : "Khách hàng"}
                         </span>
                       </div>
                     </div>
