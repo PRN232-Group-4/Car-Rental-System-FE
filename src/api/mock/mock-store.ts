@@ -30,12 +30,54 @@ export interface MockRentalRecord {
   createdAt: string;
 }
 
+export interface MockUser {
+  id: string;
+  email: string;
+  fullName: string;
+  gender?: string;
+  phone?: string;
+  avatarUrl?: string;
+  roles: string[];
+}
+
+export const MOCK_USERS: MockUser[] = [
+  {
+    id: "usr-cust-001",
+    email: "customer@example.com",
+    fullName: "Nguyễn Văn An",
+    gender: "Nam",
+    phone: "0901 234 567",
+    avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    roles: ["Customer"],
+  },
+  {
+    id: "usr-admin-001",
+    email: "admin@thongdong.vn",
+    fullName: "Lê Hoàng Quân",
+    gender: "Nam",
+    phone: "0988 888 999",
+    avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+    roles: ["Admin", "Staff"],
+  },
+  {
+    id: "usr-staff-001",
+    email: "staff@thongdong.vn",
+    fullName: "Trần Thị Mai",
+    gender: "Nữ",
+    phone: "0912 345 678",
+    avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+    roles: ["Staff"],
+  },
+];
+
 export class MockDataStore {
   private facilities: FacilityCatalogItem[] = [];
   private vehicles: VehicleCatalogItem[] = [];
   private subscriptionPlans: SubscriptionPlanCatalogItem[] = [];
   private inspectionRecords: Map<string, InspectionRecordItem> = new Map();
   private rentals: MockRentalRecord[] = [];
+  private users: MockUser[] = [];
+  private currentUser: MockUser | null = null;
 
   constructor() {
     this.reset();
@@ -49,6 +91,21 @@ export class MockDataStore {
     this.inspectionRecords.set("latest", JSON.parse(JSON.stringify(MOCK_INSPECTION_RECORD)));
     this.inspectionRecords.set(MOCK_INSPECTION_RECORD.rentalId, JSON.parse(JSON.stringify(MOCK_INSPECTION_RECORD)));
     this.rentals = [];
+    this.users = JSON.parse(JSON.stringify(MOCK_USERS));
+    this.currentUser = null;
+  }
+
+  // --- Auth / User ---
+  public findUserByEmail(email: string): MockUser | undefined {
+    return this.users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+  }
+
+  public getCurrentUser(): MockUser | null {
+    return this.currentUser;
+  }
+
+  public setCurrentUser(user: MockUser | null): void {
+    this.currentUser = user;
   }
 
   // --- Facilities ---

@@ -1,6 +1,6 @@
 # Design Specification — Hệ Thống Thuê Xe Thong Dong (Vehicle Rental System)
 
-> A design and UX specification for Thong Dong — a **single-operator** vehicle rental business (ô tô, xe máy, ô tô điện, xe máy điện) offering thuê theo giờ (tự lái / có tài xế), thuê dài hạn và gói thuê bao trả trước.
+> A design and UX specification for Thong Dong — a **single-operator** vehicle rental business (ô tô, xe máy, ô tô điện, xe máy điện) offering thuê theo giờ (kèm tài xế), thuê dài hạn và gói thuê bao trả trước.
 >
 > **Nguồn xác thực:** `docs/SRS_CarRental.md` (SRS v2.0), `Car-Rental-System-BE/specs` (FR/NFR), `Car-Rental-System-BE/docs/db/Init.sql` (DDL v2 — 26 bảng).
 >
@@ -12,7 +12,7 @@
 
 The system serves:
 
-* **Customers** — thuê xe (tự lái hoặc có tài xế) và/hoặc mua gói thuê bao
+* **Customers** — thuê xe theo giờ (kèm tài xế) hoặc dài hạn, và/hoặc mua gói thuê bao
 * **Staff** của đơn vị vận hành — điều phối/bán hàng, tài xế (`staffs.is_driver = true`) và nhân viên bảo dưỡng
 * **Admin** — tài khoản Staff có role `Admin`, cấu hình policy/plan/RBAC
 
@@ -218,21 +218,25 @@ Do not make the entire interface green.
 
 # 5. Typography
 
-Use a modern sans-serif font.
+Use **Manrope** as the primary font — a modern geometric/humanist sans-serif typeface with exceptional legibility for both Latin and Vietnamese diacritics.
 
-Preferred:
+### Primary Font
 
 ```text
-Inter
+Manrope (Google Font)
+Subsets: latin, vietnamese
+Variable: --font-manrope
+Weights: 300, 400, 500, 600, 700, 800
 ```
 
-Fallback:
+### Fallback
 
 ```text
 system-ui
 -apple-system
 BlinkMacSystemFont
 "Segoe UI"
+Roboto
 sans-serif
 ```
 
@@ -251,8 +255,8 @@ Caption:   11–12px
 Use:
 
 * 700–800 weight for headings
-* 500–600 for important labels
-* 400 for normal text
+* 500–600 for important labels, tabs, and buttons
+* 400 for normal copy and descriptions
 
 ---
 
@@ -292,153 +296,128 @@ Use large vertical spacing between major homepage sections.
 
 # 7. Navigation
 
-## Desktop Header
+## Floating Glass Header (Glassmorphic Navigation)
 
 Structure:
 
 ```text
-┌────────────────────────────────────────────────────────────┐
-│ VRS     Thuê xe   Gói thuê bao   Hướng dẫn   Cổng nhân viên │
-│                                         Đăng nhập  Đăng ký  │
-└────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│ [Logo] Thong Dong    Thuê xe  Chi nhánh  Gói thuê bao  Hướng dẫn  Kiểm định │
+│                      [Đăng nhập] / [User Pill + Dropdown]  [Đăng ký]  │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 Header requirements:
 
-* White background
-* Sticky on scroll
-* Logo on left
-* Main navigation center/left
-* User actions right
-* Subtle bottom border or shadow
-
-Primary navigation:
-
-```text
-Thuê xe
-Gói thuê bao
-Hướng dẫn
-Cổng nhân viên (Staff/Admin)
-```
-
-Account:
-
-```text
-Đăng nhập
-Đăng ký
-```
-
-"Cổng nhân viên" chỉ hiển thị với user có role `Staff`, `Admin` hoặc `Maintenance` (RBAC).
+* **Glassmorphism pill layout**: `glass-nav specular-border` (translucent frosted backdrop `backdrop-filter: blur(28px)`, specular rim highlight, rounded-2xl).
+* Fixed floating positioned at top (`fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6`).
+* Brand logo + typography lockup on the left (`/logo-car.png` + "Thong Dong").
+* Text-only navigation links in 1 single horizontal row.
+* **Authentication State**:
+  * **Unauthenticated**:
+    * Button "Đăng nhập" linking directly to `/login`.
+    * CTA "Đăng ký" linking to `/#tim-xe`.
+  * **Authenticated** (`useAuth` context synchronized with backend cookie session):
+    * User profile pill button showing avatar (or initials avatar) + Full Name + ChevronDown.
+    * Interactive glass dropdown menu with: Full Name, Email, Role badge (`Khách hàng`, `Nhân viên`, `Quản trị viên`), and "Đăng xuất" action.
+* Responsive Mobile Menu: Hamburger toggle button opening full-width frosted dropdown sheet.
 
 ---
 
-# 8. Homepage
+# 8. Homepage & Hero Banner
 
-## 8.1 Hero
+## 8.1 Hero Banner (Mioto-inspired Card Layout)
 
-The hero is the most important section.
-
-Suggested structure:
+The hero section utilizes a bounded card layout with a high-impact scenic automotive backdrop:
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│                                                     │
-│              Thuê xe cho mọi hành trình             │
-│                                                     │
-│     Tự do khám phá. Chủ động từng chuyến đi.        │
-│                                                     │
-│ ┌───────────────────────────────────────────────┐   │
-│ │ Địa điểm                                      │   │
-│ │ TP. Hồ Chí Minh                               │   │
-│ ├──────────────────────┬────────────────────────┤   │
-│ │ Nhận xe              │ Trả xe                 │   │
-│ │ Date / Time           │ Date / Time            │   │
-│ ├──────────────────────┴────────────────────────┤   │
-│ │                 TÌM XE                         │   │
-│ └───────────────────────────────────────────────┘   │
-│                                                     │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│ ┌─────────────────────────────────────────────────────────────────┐ │
+│ │                                                                 │ │
+│ │            Thong Dong - Cùng Bạn Trên Mọi Hành Trình            │ │
+│ │            ─────────────────────────────────────────            │ │
+│ │   Trải nghiệm sự khác biệt từ hơn 50+ xe tiêu chuẩn kiểm định   │ │
+│ │                     đời mới khắp Việt Nam                       │ │
+│ │                                                                 │ │
+│ └─┬─────────────────────────────────────────────────────────────┬─┘ │
+│   │ [🚗 Xe tự lái]  [👤 Xe có tài xế]  [📅 Thuê xe dài hạn]     │   │
+│   │ ┌─────────────────────────┬───────────────────┬───────────┐ │   │
+│   │ │ 📍 Địa điểm: TP.HCM (v) │ 📅 Thời gian thuê │  [TÌM XE] │ │   │
+│   │ └─────────────────────────┴───────────────────┴───────────┘ │   │
+│   └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-Hero background should use a high-quality vehicle/travel image.
+Hero Banner requirements:
 
-Do not let the background overpower the search interface.
+* **Bounded Hero Card**: `max-w-7xl mx-auto`, `rounded-3xl sm:rounded-[36px]`, `shadow-2xl`, `overflow-hidden`.
+* **Background Image**: Scenic automotive journey photo — **Đèo Hải Vân** (`/assets/hero-hai-van.jpg`).
+* **Cinematic Scrim Overlay**: Multi-stop dark gradient (`bg-gradient-to-b from-black/50 via-black/30 to-black/60`) and subtle emerald wash (`bg-emerald-950/15`) ensuring high-contrast readability for white typography while retaining the rich beauty of the mountain and coastal highway.
+* **Typography**:
+  * H1: "Thong Dong - Cùng Bạn Trên Mọi Hành Trình" (font-extrabold text-white text-3xl sm:text-5xl lg:text-6xl drop-shadow-md).
+  * Divider: Horizontal subtle white gradient line (`h-0.5 w-48 sm:w-64 mx-auto`).
+  * Subtitle: "Trải nghiệm sự khác biệt từ hơn 50+ xe tiêu chuẩn kiểm định đời mới khắp Việt Nam".
 
 ---
 
-# 9. Search Widget
+# 9. Search Console (Floating Docked Bar)
 
-The search component is the core interaction.
+The search console is docked halfway over the bottom edge of the hero card (`-mt-14` to `-mt-16`), creating a seamless transition into the page below.
 
-## Fields
+## Structure & Fields
 
-### Chi nhánh nhận xe
+### 1. Rental Mode Tabs (Platter Header)
+Positioned directly atop the search console:
+* **Xe tự lái** (Active default: emerald `#059669` pill with car icon `Car`).
+* **Xe có tài xế** (Frosted white pill with `UserCheck` icon).
+* **Thuê xe dài hạn** (Frosted white pill with `CalendarRange` icon).
 
-```text
-Chi nhánh nhận xe
-Chi nhánh Quận 1, TP. Hồ Chí Minh
-```
+### 2. Search Console (Single Row Bar)
+Glassmorphic container (`glass-search specular-border`, `bg-white/95 backdrop-blur-2xl shadow-2xl rounded-2xl sm:rounded-3xl`):
 
-Allow:
-
-* Chi nhánh (`facilities`) trong danh mục
-* Giao xe tận nơi (`pick_up_method`, `pickup_location`)
-* Sân bay / địa chỉ cụ thể nếu chi nhánh hỗ trợ
-
----
-
-### Start date/time
-
-```text
-Nhận xe
-02/10/2026
-09:00
-```
-
----
-
-### End date/time
-
-```text
-Trả xe
-04/10/2026
-18:00
-```
-
----
-
-### Search CTA
-
-```text
-Tìm xe
-```
-
-Primary button.
+1. **Địa điểm / Chi nhánh**:
+   * Icon `MapPin` (emerald `#059669`).
+   * Label "ĐỊA ĐIỂM" (uppercase, text-[11px] font-semibold text-neutral-500).
+   * Dropdown selector: "TP. Hồ Chí Minh (Tất cả chi nhánh)", or specific branches: Q.1 (Bến Thành), Thủ Đức (Thảo Điền), Tân Bình (Sân bay TSN), Giao tận nơi TP.HCM.
+2. **Vách ngăn mờ (Divider)**:
+   * Vertical separator `w-px h-10 bg-neutral-200/80` (desktop only).
+3. **Thời gian thuê**:
+   * Icon `Calendar` (emerald `#059669`).
+   * Label "THỜI GIAN THUÊ".
+   * Formatted summary: `21:00 T7, 03/10 - 20:00 CN, 04/10`.
+   * Quick inline date & time editor popover for modifying start/end dates and times.
+4. **Nút Tìm Xe**:
+   * Icon `Search` + Label "Tìm Xe".
+   * Primary button: Emerald `#059669`, rounded-xl sm:rounded-2xl, shadow-lg, active scale effect.
+   * Smoothly scrolls to the vehicle catalog section (`#danh-sach-xe`).
 
 ---
 
 # 10. Rental Modes
 
-The product supports several orthogonal choices:
+Hệ thống hỗ trợ 3 hình thức thuê linh hoạt:
 
-```text
-Tự lái             (hour_rental_detail.has_driver = false)
-Có tài xế          (hour_rental_detail.has_driver = true)
-Theo giờ           (rentals.rental_type = 'hourly')
-Dài hạn            (rentals.rental_type = 'longterm', không kèm tài xế)
-Trả trực tiếp      (is_subscription = false → có Invoice)
-Dùng gói thuê bao  (is_subscription = true → trừ remaining_hours)
-```
+1. **Xe tự lái** (`mode = 'self_drive'`): Khách hàng tự điều khiển xe đã kiểm định an toàn, nhận tại chi nhánh hoặc giao tận nơi.
+2. **Xe có tài xế** (`mode = 'with_driver'`, `rentals.rental_type = 'hourly'`): Thuê theo giờ kèm tài xế chuyên nghiệp của đơn vị vận hành.
+3. **Thuê xe dài hạn** (`mode = 'long_term'`, `rentals.rental_type = 'longterm'`): Hợp đồng thuê theo tháng cho cá nhân và doanh nghiệp, có thể kết hợp gói thuê bao trả trước (`is_subscription = true`).
 
-Use tabs:
+---
 
-```text
-┌──────────────┬─────────────────┐
-│ 🚗 Tự lái    │ 👨‍✈️ Có tài xế   │
-└──────────────┴─────────────────┘
-```
+# 10.1 Authentication & Login Portal (`/login`)
 
-Changing mode should change the search form. `Dài hạn` không có lựa chọn tài xế (bảng `longterm_rental_contract` không có cột driver).
+Trang đăng nhập chuyên biệt phục vụ khách hàng, nhân viên và quản trị viên:
+
+### Layout
+* **Split Layout**:
+  * **Cột trái (Cinematic Showcase)**: Nhận diện thương hiệu Thong Dong, 4 cam kết cốt lõi (*Kiểm định minh bạch 4 cấp, nhận xe 15 phút, gói thuê bao linh hoạt, cứu hộ 24/7 toàn quốc*), thẻ đánh giá uy tín (*4.9/5★ từ 12,500+ khách hàng*).
+  * **Cột phải (Glassmorphism Login Card)**: Khung kính mờ (`glass-card specular-border`), viền phản quang, nền aurora ambient orbs.
+* **Tính năng xác thực**:
+  * **1-Click Demo Account Picker**: Thẻ bấm nhanh cho Khách hàng (`customer@example.com`), Quản trị viên (`admin@thongdong.vn`), Nhân viên điều phối (`staff@thongdong.vn`).
+  * **Validation**: Kiểm tra email hợp lệ, đếm và bắt buộc mật khẩu tối thiểu 12 ký tự theo đúng chuẩn backend `SessionController.cs`.
+  * **Nút ẩn/hiện mật khẩu**: Toggle eye icon.
+  * **Ghi nhớ đăng nhập**: Checkbox lưu phiên.
+  * **Google OAuth**: Nút đăng nhập Google qua `/api/auth/google`.
+  * **Tương thích backend**: Đăng nhập bằng session cookie (Redis Ticket Store), đồng bộ với `GET /api/account/profile` và `POST /api/auth/logout`.
 
 ---
 
@@ -539,7 +518,6 @@ Primary component:
 Optional badges:
 
 ```text
-Có tài xế
 Xe điện
 Dùng được gói thuê bao
 Sẵn sàng
@@ -595,8 +573,7 @@ Mức giá (theo giờ / theo tháng)
 Loại phương tiện  (Ô tô / Xe máy / Ô tô điện / Xe máy điện)
 Hãng xe (brand)
 Chi nhánh (facility)
-Hình thức (Tự lái / Có tài xế)
-Thời hạn (Theo giờ / Dài hạn)
+Hình thức (Thuê theo giờ / Thuê dài hạn)
 ```
 
 ### Vehicle
@@ -751,21 +728,21 @@ Chỉ một policy `is_active` được áp dụng mặc định; nếu có nhi�
 Price must be highly visible.
 
 ```text
-900.000đ / ngày
+90.000đ / giờ
 ```
 
-Booking summary:
+Booking summary (thuê theo giờ, kèm tài xế):
 
 ```text
-3 ngày
-× 900.000đ
+24 giờ
+× (90.000đ + 40.000đ phí tài xế/giờ)
 ────────────────
-Tiền thuê        2.700.000đ
-VAT (10%)          270.000đ
-Đặt cọc (10%)      297.000đ
+Tiền thuê        3.120.000đ
+VAT (10%)          312.000đ
+Đặt cọc (10%)      343.200đ
 Phí trả trễ        (nếu có)
 ────────────────
-Tổng cộng        3.267.000đ
+Tổng cộng        3.432.000đ
 ```
 
 Do not hide mandatory fees until the final step.
@@ -778,7 +755,7 @@ Desktop:
 
 ```text
 ┌───────────────────────────────┐
-│ 900.000đ / ngày              │
+│ 90.000đ / giờ              │
 │                               │
 │       ĐẶT XE                  │
 └───────────────────────────────┘
@@ -790,7 +767,7 @@ Mobile:
 
 ```text
 ┌─────────────────────────────────┐
-│ 900.000đ/ngày   [ĐẶT XE]       │
+│ 90.000đ/giờ   [ĐẶT XE]       │
 └─────────────────────────────────┘
 ```
 
@@ -819,7 +796,7 @@ Search
   ↓
 Vehicle
   ↓
-Rental information (thời gian, tự lái / có tài xế, chi nhánh nhận xe)
+Rental information (thời gian, hình thức theo giờ / dài hạn, chi nhánh nhận xe)
   ↓
 Customer information + GPLX
   ↓
@@ -1136,7 +1113,6 @@ DỊCH VỤ
 Thuê theo giờ
 Thuê dài hạn
 Gói thuê bao
-Thuê xe có tài xế
 
 HỖ TRỢ
 
@@ -1159,7 +1135,7 @@ components/
 ├── SearchBox
 ├── FacilityPicker
 ├── DateTimePicker
-├── RentalModeTabs        (tự lái / có tài xế, theo giờ / dài hạn)
+├── RentalModeTabs        (thuê theo giờ / thuê dài hạn)
 ├── VehicleCard
 ├── VehicleGallery
 ├── VehicleSpecs          (render theo vehicle_type)
@@ -1438,36 +1414,89 @@ for normal users.
 
 # 48. Design Tokens
 
+### Core CSS Variables
+
 ```css
 :root {
+  /* Typography */
+  --font-manrope: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Primary Brand Colors */
   --color-primary: #059669;
   --color-primary-hover: #047857;
   --color-primary-light: #ecfdf5;
 
+  /* Neutrals */
   --color-text: #222222;
   --color-text-secondary: #666666;
   --color-text-muted: #999999;
 
-  --color-background: #ffffff;
-  --color-surface: #f8f8f8;
-  --color-border: #e5e5e5;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
 
+  /* Semantic Feedback */
   --color-success: #16a34a;
   --color-warning: #f59e0b;
   --color-error: #dc2626;
   --color-info: #2563eb;
 
+  /* Radius */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+  /* Shadows & Elevation */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-glass: 0 28px 64px -14px rgba(15, 23, 42, 0.12), 0 8px 24px -4px rgba(5, 150, 105, 0.1);
 
   --container-width: 1280px;
 }
 ```
+
+### Glassmorphism System Primitives
+
+```css
+/* Floating Navigation Pill */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+/* Floating Search Console */
+.glass-search {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(36px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+/* Specular Rim Highlight */
+.specular-border {
+  position: relative;
+}
+.specular-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.4) 40%, rgba(5, 150, 105, 0.45));
+  mask-composite: exclude;
+  pointer-events: none;
+}
+```
+
+### Static Asset Storage
+
+All client image assets are organized under `/assets/` (served from `public/assets/`):
+* Hero background: `/assets/hero-hai-van.jpg`
+* Brand logos: `/assets/logo-car.png`, `/assets/logo-car-emerald.png`, `/assets/logo-car-white.png`
+* Module source mirror: `src/assets/`
 
 ---
 

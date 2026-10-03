@@ -169,6 +169,82 @@ export function handleMockRoute(
     };
   }
 
+  // 7. Auth: Login
+  if (upperMethod === "POST" && (path === "auth/login" || path === "login")) {
+    const payload = (body ?? {}) as { email?: string; password?: string; rememberMe?: boolean };
+    const email = payload.email?.trim().toLowerCase();
+    const password = payload.password;
+
+    if (!email || !password) {
+      return {
+        status: 400,
+        data: { message: "Vui lòng nhập đầy đủ Email và Mật khẩu." },
+      };
+    }
+
+    if (password.length < 12) {
+      return {
+        status: 400,
+        data: { message: "Mật khẩu phải có độ dài tối thiểu 12 ký tự." },
+      };
+    }
+
+    const user = mockStore.findUserByEmail(email);
+    if (!user) {
+      return {
+        status: 401,
+        data: { message: "Email hoặc mật khẩu không chính xác." },
+      };
+    }
+
+    mockStore.setCurrentUser(user);
+
+    return {
+      status: 200,
+      data: {
+        email: user.email,
+        fullName: user.fullName,
+        gender: user.gender,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        roles: user.roles,
+        message: "Đăng nhập thành công!",
+      },
+    };
+  }
+
+  // 8. Auth: Profile
+  if (upperMethod === "GET" && (path === "account/profile" || path === "auth/profile")) {
+    const user = mockStore.getCurrentUser();
+    if (!user) {
+      return {
+        status: 401,
+        data: { message: "Chưa đăng nhập." },
+      };
+    }
+
+    return {
+      status: 200,
+      data: {
+        email: user.email,
+        fullName: user.fullName,
+        gender: user.gender,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        roles: user.roles,
+      },
+    };
+  }
+
+  // 9. Auth: Logout
+  if (upperMethod === "POST" && (path === "auth/logout" || path === "logout")) {
+    mockStore.setCurrentUser(null);
+    return {
+      status: 204,
+      data: null,
+    };
+  }
+
   return {
     status: 404,
     data: { message: `Route [${upperMethod}] /${path} not found in mock handlers` },

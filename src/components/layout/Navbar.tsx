@@ -3,10 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { useAuth } from "@/features/auth";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6">
@@ -29,52 +32,118 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links - Text Only, 1 Single Row */}
           <div className="hidden md:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
-            <a
-              href="#tim-xe"
+            <Link
+              href="/#tim-xe"
               className="px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:text-[#059669] rounded-xl hover:bg-white/60 transition-colors"
             >
               Thuê xe
-            </a>
-            <a
-              href="#chi-nhanh"
+            </Link>
+            <Link
+              href="/#chi-nhanh"
               className="px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:text-[#059669] rounded-xl hover:bg-white/60 transition-colors"
             >
               Chi nhánh
-            </a>
-            <a
-              href="#goi-thue-bao"
+            </Link>
+            <Link
+              href="/#goi-thue-bao"
               className="px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:text-[#059669] rounded-xl hover:bg-white/60 transition-colors"
             >
               Gói thuê bao
-            </a>
-            <a
-              href="#quy-trinh"
+            </Link>
+            <Link
+              href="/#quy-trinh"
               className="px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:text-[#059669] rounded-xl hover:bg-white/60 transition-colors"
             >
               Hướng dẫn
-            </a>
-            <a
-              href="#kiem-dinh"
+            </Link>
+            <Link
+              href="/#kiem-dinh"
               className="px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:text-[#059669] rounded-xl hover:bg-white/60 transition-colors"
             >
               Kiểm định
-            </a>
+            </Link>
           </div>
 
-          {/* Right Action buttons - Text Only, 1 Single Row */}
+          {/* Right Action buttons */}
           <div className="hidden sm:flex items-center gap-2.5 whitespace-nowrap">
-            <button
-              type="button"
-              className="px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
-            >
-              Đăng nhập
-            </button>
-            <a
-              href="#tim-xe"
-              className="px-4 py-2 text-sm font-semibold text-white bg-[#059669] hover:bg-[#047857] rounded-xl shadow-md shadow-[#059669]/25 hover:shadow-lg hover:shadow-[#059669]/35 transition-all duration-300 cursor-pointer"
-            >
-              Đăng ký
-            </a>
+            {isAuthenticated && user ? (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/70 hover:bg-white border border-neutral-200/80 text-sm font-medium text-neutral-800 transition-all cursor-pointer shadow-sm"
+                >
+                  {user.avatarUrl ? (
+                    <Image
+                      src={user.avatarUrl}
+                      alt={user.fullName}
+                      width={24}
+                      height={24}
+                      unoptimized
+                      className="w-6 h-6 rounded-full object-cover ring-1 ring-emerald-500/40"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center text-xs font-bold">
+                      {user.fullName.charAt(0)}
+                    </div>
+                  )}
+                  <span className="max-w-[120px] truncate font-semibold text-xs sm:text-sm">
+                    {user.fullName}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+                </button>
+
+                {/* User dropdown menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 rounded-2xl p-2 glass-card border border-white/80 bg-white/95 shadow-xl backdrop-blur-xl z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-3 py-2 border-b border-neutral-100 mb-1">
+                      <p className="text-xs font-bold text-neutral-900 truncate">
+                        {user.fullName}
+                      </p>
+                      <p className="text-[11px] text-neutral-500 truncate mt-0.5">
+                        {user.email}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1.5">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                          {user.roles.includes("Admin")
+                            ? "Quản trị viên"
+                            : user.roles.includes("Staff")
+                            ? "Nhân viên"
+                            : "Khách hàng"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer text-left"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Đăng xuất</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href="/#tim-xe"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-[#059669] hover:bg-[#047857] rounded-xl shadow-md shadow-[#059669]/25 hover:shadow-lg hover:shadow-[#059669]/35 transition-all duration-300 cursor-pointer"
+                >
+                  Đăng ký
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu toggle button */}
@@ -98,55 +167,93 @@ export default function Navbar() {
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
           <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1">
-            <a
-              href="#tim-xe"
+            <Link
+              href="/#tim-xe"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
             >
               Thuê xe
-            </a>
-            <a
-              href="#chi-nhanh"
+            </Link>
+            <Link
+              href="/#chi-nhanh"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
             >
               Chi nhánh
-            </a>
-            <a
-              href="#goi-thue-bao"
+            </Link>
+            <Link
+              href="/#goi-thue-bao"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
             >
               Gói thuê bao
-            </a>
-            <a
-              href="#quy-trinh"
+            </Link>
+            <Link
+              href="/#quy-trinh"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
             >
               Hướng dẫn
-            </a>
-            <a
-              href="#kiem-dinh"
+            </Link>
+            <Link
+              href="/#kiem-dinh"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
             >
               Phiếu kiểm định xe
-            </a>
+            </Link>
             <div className="pt-3 border-t border-neutral-200/60 flex flex-col gap-2">
-              <button
-                type="button"
-                className="w-full py-2.5 text-sm font-semibold text-neutral-700 bg-neutral-100 rounded-xl"
-              >
-                Đăng nhập
-              </button>
-              <a
-                href="#tim-xe"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-sm font-semibold text-center text-white bg-[#059669] rounded-xl"
-              >
-                Đăng ký tài khoản
-              </a>
+              {isAuthenticated && user ? (
+                <div className="p-3 bg-white/80 rounded-xl border border-neutral-200/80">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    {user.avatarUrl ? (
+                      <Image
+                        src={user.avatarUrl}
+                        alt={user.fullName}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center font-bold text-xs">
+                        {user.fullName.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-sm font-bold text-neutral-900">{user.fullName}</div>
+                      <div className="text-xs text-neutral-500">{user.email}</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-sm font-semibold text-center text-neutral-700 bg-neutral-100 rounded-xl block"
+                  >
+                    Đăng nhập
+                  </Link>
+                  <Link
+                    href="/#tim-xe"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-sm font-semibold text-center text-white bg-[#059669] rounded-xl block"
+                  >
+                    Đăng ký tài khoản
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
