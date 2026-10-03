@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { AuthProvider } from "@/features/auth";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -36,14 +38,18 @@ export default function RootLayout({
         {/* On reload, reset to the top instead of letting the browser restore the
             old scroll position (or re-jump to a leftover #anchor). Runs before the
             browser restores scroll, so there is no visible jump. */}
-        <script
+        <Script
+          id="scroll-restoration"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html:
               "(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'){if(location.hash)history.replaceState(null,'',location.pathname+location.search);var h=document.documentElement,p=h.style.scrollBehavior;h.style.scrollBehavior='auto';window.scrollTo(0,0);h.style.scrollBehavior=p;}}catch(e){}})();",
           }}
         />
         <ScrollReveal />
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

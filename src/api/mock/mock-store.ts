@@ -70,6 +70,55 @@ export const MOCK_USERS: MockUser[] = [
   },
 ];
 
+export interface MockInvoiceRecord {
+  id: number;
+  rentalId: number;
+  invoiceNumber: string;
+  amount: number;
+  vatAmount: number;
+  status: "pending" | "paid" | "cancelled";
+  issuedAt: string;
+  dueAt?: string | null;
+}
+
+export interface MockPaymentRecord {
+  id: number;
+  rentalId: number;
+  invoiceId: number | null;
+  type: string;
+  amount: number;
+  status: "paid" | "requested" | "failed";
+  method: string;
+  providerReference: string | null;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+export interface MockCustomerSubscriptionRecord {
+  id: number;
+  customerId: number;
+  planId: number;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  totalHours: number;
+  remainingHours: number;
+  status: "active" | "expired" | "exhausted";
+}
+
+export interface MockCustomerLicenseRecord {
+  licenseNumber: string;
+  fullName: string;
+  dateOfBirth: string;
+  class: string;
+  expiryDate: string;
+  frontPhotoUrl: string;
+  backPhotoUrl: string;
+  verificationStatus: "unsubmitted" | "pending" | "approved" | "rejected";
+  rejectionReason: string | null;
+  verifiedAt: string | null;
+}
+
 export class MockDataStore {
   private facilities: FacilityCatalogItem[] = [];
   private vehicles: VehicleCatalogItem[] = [];
@@ -78,6 +127,10 @@ export class MockDataStore {
   private rentals: MockRentalRecord[] = [];
   private users: MockUser[] = [];
   private currentUser: MockUser | null = null;
+  private invoices: MockInvoiceRecord[] = [];
+  private payments: MockPaymentRecord[] = [];
+  private customerSubscriptions: MockCustomerSubscriptionRecord[] = [];
+  private customerLicense: MockCustomerLicenseRecord | null = null;
 
   constructor() {
     this.reset();
@@ -92,7 +145,96 @@ export class MockDataStore {
     this.inspectionRecords.set(MOCK_INSPECTION_RECORD.rentalId, JSON.parse(JSON.stringify(MOCK_INSPECTION_RECORD)));
     this.rentals = [];
     this.users = JSON.parse(JSON.stringify(MOCK_USERS));
-    this.currentUser = null;
+    this.currentUser = this.users[0]; // Nguyễn Văn An default for mock dev mode
+
+    this.invoices = [
+      {
+        id: 1,
+        rentalId: 101,
+        invoiceNumber: "INV-2026-00101",
+        amount: 3200000,
+        vatAmount: 200000,
+        status: "pending",
+        issuedAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+        dueAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: 2,
+        rentalId: 98,
+        invoiceNumber: "INV-2026-00098",
+        amount: 1980000,
+        vatAmount: 180000,
+        status: "paid",
+        issuedAt: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString(),
+        dueAt: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString(),
+      },
+    ];
+
+    this.payments = [
+      {
+        id: 1,
+        rentalId: 98,
+        invoiceId: 2,
+        type: "rental",
+        amount: 1980000,
+        status: "paid",
+        method: "payos",
+        providerReference: "PAYOS-9812401",
+        paidAt: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: 2,
+        rentalId: 98,
+        invoiceId: 2,
+        type: "refund",
+        amount: 2000000,
+        status: "paid",
+        method: "deposit",
+        providerReference: "REFUND-DEP-98",
+        paidAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: 3,
+        rentalId: 101,
+        invoiceId: 1,
+        type: "deposit",
+        amount: 2000000,
+        status: "requested",
+        method: "deposit",
+        providerReference: null,
+        paidAt: null,
+        createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+      },
+    ];
+
+    this.customerSubscriptions = [
+      {
+        id: 1,
+        customerId: 1,
+        planId: 2,
+        planName: "Gói Đô Thị 20 Giờ",
+        startDate: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+        endDate: new Date(Date.now() + 25 * 24 * 3600 * 1000).toISOString(),
+        totalHours: 20,
+        remainingHours: 14.5,
+        status: "active",
+      },
+    ];
+
+    this.customerLicense = {
+      licenseNumber: "079095012345",
+      fullName: "Nguyễn Văn An",
+      dateOfBirth: "1995-05-15",
+      class: "B2",
+      expiryDate: "2032-05-15",
+      frontPhotoUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80",
+      backPhotoUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80",
+      verificationStatus: "approved",
+      rejectionReason: null,
+      verifiedAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
+    };
   }
 
   // --- Auth / User ---
@@ -225,6 +367,82 @@ export class MockDataStore {
 
   public getRentalById(id: string): MockRentalRecord | undefined {
     return this.rentals.find((r) => r.id === id);
+  }
+
+  // --- Invoices ---
+  public getInvoices(): MockInvoiceRecord[] {
+    return [...this.invoices];
+  }
+
+  public getInvoiceById(id: number | string): MockInvoiceRecord | undefined {
+    return this.invoices.find((inv) => String(inv.id) === String(id));
+  }
+
+  public markInvoicePaid(id: number | string): MockInvoiceRecord | undefined {
+    const inv = this.getInvoiceById(id);
+    if (inv) {
+      inv.status = "paid";
+    }
+    return inv;
+  }
+
+  // --- Payments ---
+  public getPayments(invoiceId?: number | string): MockPaymentRecord[] {
+    if (invoiceId) {
+      return this.payments.filter((p) => String(p.invoiceId) === String(invoiceId));
+    }
+    return [...this.payments];
+  }
+
+  // --- Subscriptions ---
+  public getCustomerSubscriptions(): MockCustomerSubscriptionRecord[] {
+    return [...this.customerSubscriptions];
+  }
+
+  public addCustomerSubscription(planId: number | string): MockCustomerSubscriptionRecord {
+    const plan = this.getSubscriptionPlanById(String(planId));
+    const newSub: MockCustomerSubscriptionRecord = {
+      id: Date.now(),
+      customerId: 1,
+      planId: Number(planId),
+      planName: plan?.name || `Gói thuê bao #${planId}`,
+      startDate: new Date().toISOString(),
+      endDate: new Date(Date.now() + (plan?.validityDays || 30) * 24 * 3600 * 1000).toISOString(),
+      totalHours: plan ? plan.hours : 20,
+      remainingHours: plan ? plan.hours : 20,
+      status: "active",
+    };
+    this.customerSubscriptions.unshift(newSub);
+    return newSub;
+  }
+
+  // --- License ---
+  public getCustomerLicense(): MockCustomerLicenseRecord | null {
+    return this.customerLicense;
+  }
+
+  public saveCustomerLicense(data: Partial<MockCustomerLicenseRecord>): MockCustomerLicenseRecord {
+    if (!this.customerLicense) {
+      this.customerLicense = {
+        licenseNumber: data.licenseNumber || "",
+        fullName: data.fullName || "",
+        dateOfBirth: data.dateOfBirth || "1995-01-01",
+        class: data.class || "B2",
+        expiryDate: data.expiryDate || "2035-01-01",
+        frontPhotoUrl: data.frontPhotoUrl || "",
+        backPhotoUrl: data.backPhotoUrl || "",
+        verificationStatus: "pending",
+        rejectionReason: null,
+        verifiedAt: null,
+      };
+    } else {
+      this.customerLicense = {
+        ...this.customerLicense,
+        ...data,
+        verificationStatus: data.verificationStatus || "pending",
+      };
+    }
+    return this.customerLicense;
   }
 }
 

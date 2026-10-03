@@ -103,6 +103,13 @@ export function handleMockRoute(
     };
   }
 
+  if (upperMethod === "GET" && path.startsWith("subscription-plans/purchases/")) {
+    return {
+      status: 200,
+      data: { orderCode: Number(path.split("/")[2]) || 0, status: "paid" },
+    };
+  }
+
   if (upperMethod === "GET" && path.startsWith("subscription-plans/")) {
     const id = path.split("/")[1];
     const plan = mockStore.getSubscriptionPlanById(id);
@@ -242,6 +249,103 @@ export function handleMockRoute(
     return {
       status: 204,
       data: null,
+    };
+  }
+
+  // 10. Invoices & Checkout
+  if (upperMethod === "GET" && path === "invoices") {
+    return {
+      status: 200,
+      data: mockStore.getInvoices(),
+    };
+  }
+
+  if (upperMethod === "POST" && path.startsWith("invoices/") && path.endsWith("/checkout")) {
+    const id = path.split("/")[1];
+    mockStore.markInvoicePaid(id);
+    return {
+      status: 200,
+      data: {
+        orderCode: Number(id) || Date.now(),
+        paymentLinkId: `payos_mock_${id}`,
+        checkoutUrl: `/payment/result?orderCode=${id}&status=PAID`,
+      },
+    };
+  }
+
+  if (upperMethod === "GET" && path.startsWith("invoices/")) {
+    const id = path.split("/")[1];
+    // If status=PAID is passed in query or previously paid, ensure it is marked paid
+    if (params.get("status")?.toUpperCase() === "PAID") {
+      mockStore.markInvoicePaid(id);
+    }
+    const invoice = mockStore.getInvoiceById(id);
+    if (!invoice) {
+      return {
+        status: 404,
+        data: { message: `Invoice '${id}' not found` },
+      };
+    }
+    return {
+      status: 200,
+      data: invoice,
+    };
+  }
+
+  // 11. Payments Ledger
+  if (upperMethod === "GET" && path === "payments") {
+    const invoiceId = params.get("invoiceId") || undefined;
+    return {
+      status: 200,
+      data: mockStore.getPayments(invoiceId),
+    };
+  }
+
+  // 12. Subscriptions: Customer & Purchase
+  if (upperMethod === "GET" && (path === "customer-subscriptions" || path === "subscriptions/customer" || path === "customer/subscriptions")) {
+    return {
+      status: 200,
+      data: mockStore.getCustomerSubscriptions(),
+    };
+  }
+
+  if (upperMethod === "POST" && path.startsWith("subscription-plans/") && path.endsWith("/purchase")) {
+    const planId = path.split("/")[1];
+    const sub = mockStore.addCustomerSubscription(planId);
+    const orderCode = 1_000_000_000 + Number(sub.id);
+    return {
+      status: 200,
+      data: {
+        orderCode,
+        paymentLinkId: `payos_mock_${sub.id}`,
+        checkoutUrl: `/payment/result?orderCode=${orderCode}&type=subscription&status=PAID`,
+      },
+    };
+  }
+
+  // 13. Customer License (GPLX)
+  if (upperMethod === "GET" && (path === "customer/license" || path === "driver-license")) {
+    return {
+      status: 200,
+      data: mockStore.getCustomerLicense(),
+    };
+  }
+
+  if (upperMethod === "PUT" && (path === "customer/license" || path === "driver-license")) {
+    const payload = (body ?? {}) as Record<string, unknown>;
+    const updated = mockStore.saveCustomerLicense(payload);
+    return {
+      status: 200,
+      data: updated,
+    };
+  }
+
+  if (upperMethod === "POST" && (path === "customer/license/upload" || path === "upload/license")) {
+    return {
+      status: 200,
+      data: {
+        secure_url: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80",
+      },
     };
   }
 

@@ -1,48 +1,36 @@
+import { describe, it, expect } from "vitest";
 import { handleMockRoute } from "./mock-handlers";
 import { mockStore } from "./mock-store";
 
-describeMockHandlers();
-
-function describeMockHandlers() {
-  function assert(condition: boolean, message: string) {
-    if (!condition) {
-      throw new Error(`Test assertion failed: ${message}`);
-    }
-  }
-
-  // 1. Health check test
-  {
+describe("Mock Handlers Suite", () => {
+  it("GET /api/health returns 200 ok", () => {
     const res = handleMockRoute("GET", "http://localhost/api/health");
-    assert(res.status === 200, "Health status should be 200");
-    assert((res.data as { status: string }).status === "ok", "Health status payload should be ok");
-  }
+    expect(res.status).toBe(200);
+    expect((res.data as { status: string }).status).toBe("ok");
+  });
 
-  // 2. Facilities test
-  {
+  it("GET /api/facilities returns non-empty list", () => {
     const res = handleMockRoute("GET", "http://localhost/api/facilities");
-    assert(res.status === 200, "Facilities status should be 200");
-    assert(Array.isArray(res.data) && res.data.length > 0, "Facilities should return a non-empty array");
-  }
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.data)).toBe(true);
+    expect((res.data as unknown[]).length).toBeGreaterThan(0);
+  });
 
-  // 3. Vehicles with query parameters test
-  {
+  it("GET /api/vehicles?category=electric_car filters correctly", () => {
     const res = handleMockRoute("GET", "http://localhost/api/vehicles?category=electric_car");
-    assert(res.status === 200, "Vehicles query status should be 200");
-    assert(
-      (res.data as { category: string }[]).every((v) => v.category === "electric_car"),
-      "All returned vehicles should match electric_car category"
-    );
-  }
+    expect(res.status).toBe(200);
+    expect(
+      (res.data as { category: string }[]).every((v) => v.category === "electric_car")
+    ).toBe(true);
+  });
 
-  // 4. Subscription plans test
-  {
+  it("GET /api/subscription-plans returns plans array", () => {
     const res = handleMockRoute("GET", "http://localhost/api/subscription-plans");
-    assert(res.status === 200, "Subscription plans status should be 200");
-    assert(Array.isArray(res.data), "Subscription plans should be an array");
-  }
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.data)).toBe(true);
+  });
 
-  // 5. Rentals booking test
-  {
+  it("POST /api/rentals/hourly creates rental booking", () => {
     mockStore.reset();
     const payload = {
       vehicleId: "v-01",
@@ -53,8 +41,63 @@ function describeMockHandlers() {
       totalHours: 4,
     };
     const res = handleMockRoute("POST", "http://localhost/api/rentals/hourly", payload);
-    assert(res.status === 201, "Rental creation status should be 201");
-    assert((res.data as { success: boolean }).success === true, "Rental creation should be successful");
-    assert(Boolean((res.data as { bookingId?: string }).bookingId), "Rental creation should generate a bookingId");
-  }
-}
+    expect(res.status).toBe(201);
+    expect((res.data as { success: boolean }).success).toBe(true);
+    expect(Boolean((res.data as { bookingId?: string }).bookingId)).toBe(true);
+  });
+
+  it("GET /api/invoices and GET /api/invoices/1 return invoices", () => {
+    mockStore.reset();
+    const listRes = handleMockRoute("GET", "http://localhost/api/invoices");
+    expect(listRes.status).toBe(200);
+    expect(Array.isArray(listRes.data)).toBe(true);
+
+    const singleRes = handleMockRoute("GET", "http://localhost/api/invoices/1");
+    expect(singleRes.status).toBe(200);
+    expect((singleRes.data as { id: number }).id).toBe(1);
+  });
+
+  it("POST /api/invoices/1/checkout marks paid and returns checkoutUrl", () => {
+    mockStore.reset();
+    const checkoutRes = handleMockRoute("POST", "http://localhost/api/invoices/1/checkout");
+    expect(checkoutRes.status).toBe(200);
+    expect((checkoutRes.data as { checkoutUrl: string }).checkoutUrl).toContain("status=PAID");
+
+    const afterRes = handleMockRoute("GET", "http://localhost/api/invoices/1");
+    expect((afterRes.data as { status: string }).status).toBe("paid");
+  });
+
+  it("GET /api/payments returns payment records", () => {
+    mockStore.reset();
+    const payRes = handleMockRoute("GET", "http://localhost/api/payments?invoiceId=2");
+    expect(payRes.status).toBe(200);
+    expect(Array.isArray(payRes.data)).toBe(true);
+    expect((payRes.data as { invoiceId: number }[])[0].invoiceId).toBe(2);
+  });
+
+  it("GET & POST customer subscriptions work properly", () => {
+    mockStore.reset();
+    const getRes = handleMockRoute("GET", "http://localhost/api/customer-subscriptions");
+    expect(getRes.status).toBe(200);
+    expect(Array.isArray(getRes.data)).toBe(true);
+
+    const postRes = handleMockRoute("POST", "http://localhost/api/subscription-plans/1/purchase");
+    expect(postRes.status).toBe(200);
+    const checkout = postRes.data as { orderCode: number; checkoutUrl: string };
+    expect(checkout.checkoutUrl).toContain("type=subscription");
+    expect(checkout.orderCode).toBeGreaterThanOrEqual(1_000_000_000);
+  });
+
+  it("GET & PUT customer/license work properly", () => {
+    mockStore.reset();
+    const getRes = handleMockRoute("GET", "http://localhost/api/customer/license");
+    expect(getRes.status).toBe(200);
+    expect((getRes.data as { verificationStatus: string }).verificationStatus).toBe("approved");
+
+    const putRes = handleMockRoute("PUT", "http://localhost/api/customer/license", {
+      licenseNumber: "123456789012",
+    });
+    expect(putRes.status).toBe(200);
+    expect((putRes.data as { licenseNumber: string }).licenseNumber).toBe("123456789012");
+  });
+});

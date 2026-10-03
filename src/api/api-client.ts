@@ -1,3 +1,5 @@
+import { refreshSessionToken, handleAuthFailure } from "./token-refresh";
+
 export interface ApiClientConfig {
   baseUrl?: string;
   customFetch?: typeof fetch;
@@ -7,6 +9,14 @@ export interface ApiClientConfig {
 
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined | null>;
+  _isRetry?: boolean;
+  skipAuthRefresh?: boolean;
+}
+
+export interface ApiEnvelope<T = unknown> {
+  message?: string;
+  is_success?: boolean;
+  data?: T;
 }
 
 export class ApiClientError extends Error {
@@ -15,10 +25,33 @@ export class ApiClientError extends Error {
   public data: unknown;
 
   constructor(status: number, statusText: string, data: unknown) {
-    const message =
-      typeof data === "object" && data !== null && "message" in data
-        ? String((data as { message: unknown }).message)
-        : `API Error [${status}]: ${statusText}`;
+    let message = `API Error [${status}]: ${statusText}`;
+
+    if (typeof data === "object" && data !== null) {
+      const d = data as Record<string, unknown>;
+      if (typeof d.detail === "string" && d.detail) {
+        message = d.detail;
+      } else if (typeof d.message === "string" && d.message) {
+        message = d.message;
+      } else if (typeof d.title === "string" && d.title) {
+        message = d.title;
+      } else if (d.errors && typeof d.errors === "object") {
+        const errorList: string[] = [];
+        for (const err of Object.values(d.errors as Record<string, unknown>)) {
+          if (Array.isArray(err)) {
+            errorList.push(...err.map(String));
+          } else if (typeof err === "string") {
+            errorList.push(err);
+          }
+        }
+        if (errorList.length > 0) {
+          message = errorList.join("; ");
+        }
+      }
+    } else if (typeof data === "string" && data.trim()) {
+      message = data;
+    }
+
     super(message);
     this.name = "ApiClientError";
     this.status = status;
@@ -67,7 +100,7 @@ export class ApiClient {
   }
 
   public async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { params, headers, ...restOptions } = options;
+    const { params, headers, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
     const url = this.buildUrl(path, params);
 
     const mergedHeaders: HeadersInit = {
@@ -84,8 +117,30 @@ export class ApiClient {
       const response = await this.fetchFn(url, {
         ...restOptions,
         headers: mergedHeaders,
+        credentials, // credentials: "include" for same-origin session cookies
         signal: controller ? controller.signal : undefined,
       });
+
+      // Handle 401 Unauthorized with token refresh mechanism
+      const isAuthEndpoint =
+        path.includes("auth/login") ||
+        path.includes("auth/refresh") ||
+        path.includes("auth/logout");
+
+      if (response.status === 401 && !_isRetry && !skipAuthRefresh && !isAuthEndpoint) {
+        const refreshed = await refreshSessionToken(this.fetchFn, this.baseUrl);
+        if (refreshed) {
+          return this.request<T>(path, {
+            ...options,
+            _isRetry: true,
+          });
+        } else {
+          handleAuthFailure();
+          throw new ApiClientError(401, "Phiên đăng nhập đã hết hạn.", {
+            detail: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+          });
+        }
+      }
 
       if (!response.ok) {
         let errorData: unknown;
@@ -101,7 +156,18 @@ export class ApiClient {
         return undefined as unknown as T;
       }
 
-      return (await response.json()) as T;
+      const json = await response.json();
+
+      // Unwrap standard BE envelope { is_success, message, data }
+      if (typeof json === "object" && json !== null && "is_success" in json) {
+        const envelope = json as ApiEnvelope<T>;
+        if (envelope.is_success === false) {
+          throw new ApiClientError(response.status, response.statusText, envelope);
+        }
+        return envelope.data as T;
+      }
+
+      return json as T;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
