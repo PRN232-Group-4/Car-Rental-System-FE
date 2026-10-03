@@ -17,8 +17,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => getCachedUser());
-  const [isLoading, setIsLoading] = useState<boolean>(() => !getCachedUser());
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Verify and refresh profile from backend or mock session on mount
   useEffect(() => {
@@ -30,11 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (profile) {
           setUser(profile);
         } else {
-          setUser(null);
+          const cached = getCachedUser();
+          setUser(cached);
         }
       })
       .catch(() => {
         // In offline/mock fallback, retain cached user if any
+        if (!isMounted) return;
+        const cached = getCachedUser();
+        setUser(cached);
       })
       .finally(() => {
         if (isMounted) {

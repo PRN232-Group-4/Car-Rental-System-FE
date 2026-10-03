@@ -20,21 +20,7 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen w-full relative flex flex-col justify-between overflow-x-hidden bg-gradient-to-br from-[#eafff4] via-[#f6faf8] to-[#eef3ff] selection:bg-[#059669]/15 selection:text-[#059669]">
-      {/* Ambient Aurora Orbs */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="ambient-glow-orb orb-drift w-[700px] h-[700px] -top-32 -right-32 bg-gradient-to-br from-emerald-400/60 via-teal-300/40 to-emerald-200/20" />
-        <div className="ambient-glow-orb orb-drift-reverse w-[650px] h-[650px] top-1/3 -left-40 bg-gradient-to-tr from-cyan-400/40 via-teal-300/35 to-transparent" />
-        <div className="ambient-glow-orb w-[600px] h-[600px] -bottom-32 right-1/4 bg-gradient-to-t from-emerald-400/40 via-teal-200/30 to-transparent" />
-        {/* Subtle dot matrix pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: "radial-gradient(#059669 2px, transparent 2px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-      </div>
+    <div className="min-h-dvh w-full relative flex flex-col justify-between overflow-x-hidden bg-slate-50 selection:bg-[#059669]/15 selection:text-[#059669]">
 
       {/* Top Header Bar */}
       <header className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-2 flex items-center justify-between">
@@ -76,7 +62,7 @@ export default function LoginPage() {
 
             <h1 className="text-4xl xl:text-5xl font-extrabold text-neutral-900 tracking-tight leading-[1.15] mb-5">
               Hành trình thong dong, <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#059669] via-teal-600 to-emerald-500">
+              <span className="text-emerald-700">
                 trải nghiệm đẳng cấp.
               </span>
             </h1>
@@ -173,7 +159,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Right Column: Glassmorphism Login Form */}
+          {/* Login form */}
           <div className="lg:col-span-6 xl:col-span-5 w-full flex justify-center">
             <Suspense
               fallback={

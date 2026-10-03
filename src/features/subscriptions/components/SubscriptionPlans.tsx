@@ -1,21 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, Clock, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
-import { getSubscriptionPlans, getInitialSubscriptionPlans } from "../api";
+import { useRouter } from "next/navigation";
+import { Check, Clock, Sparkles, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
+import { getSubscriptionPlans, getInitialSubscriptionPlans, purchaseSubscriptionPlan } from "../api";
 import type { SubscriptionPlan } from "../types";
+import { useAuth } from "@/features/auth";
 import RevealText from "@/components/ui/RevealText";
 
 export default function SubscriptionPlans() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [plans, setPlans] = useState<SubscriptionPlan[]>(getInitialSubscriptionPlans());
+  const [purchasingId, setPurchasingId] = useState<number | string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    getSubscriptionPlans().then(setPlans);
+    getSubscriptionPlans()
+      .then(setPlans)
+      .catch(() => setPlans([]));
   }, []);
+
+  const handlePurchase = async (plan: SubscriptionPlan) => {
+    if (!isAuthenticated) {
+      router.push(`/login?next=${encodeURIComponent("/my-subscriptions")}`);
+      return;
+    }
+
+    setPurchasingId(plan.id);
+    setNotice(null);
+    try {
+      const checkout = await purchaseSubscriptionPlan(plan.id);
+      if (!checkout?.checkoutUrl) throw new Error("Không nhận được liên kết thanh toán từ PayOS.");
+      setNotice(`Đang chuyển đến cổng thanh toán PayOS cho gói ${plan.name}...`);
+      window.location.assign(checkout.checkoutUrl);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Đăng ký gói không thành công. Vui lòng thử lại.";
+      setNotice(msg);
+      setPurchasingId(null);
+    }
+  };
 
   return (
     <section id="goi-thue-bao" className="scroll-mt-28 py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto">
-      {/* Section Header matching DESIGN.md Section 29 headline */}
+      {/* Section Header */}
       <div className="reveal text-center max-w-3xl mx-auto mb-16">
         <span className="text-xs font-bold uppercase tracking-wider text-[#059669] mb-2 block">
           Luồng chuyển đổi đặc quyền
@@ -28,6 +56,12 @@ export default function SubscriptionPlans() {
         <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
           Trả trước một lần, dùng dần theo số giờ thực tế và theo dõi số dư giờ di chuyển trực tiếp trong tài khoản người dùng mà không cần lập hoá đơn lẻ từng lần thuê.
         </p>
+
+        {notice && (
+          <div className="mt-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold max-w-lg mx-auto">
+            {notice}
+          </div>
+        )}
       </div>
 
       {/* Pricing Cards */}
@@ -37,12 +71,12 @@ export default function SubscriptionPlans() {
             key={plan.id}
             className={`rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 relative ${
               plan.popular
-                ? "glass-card-elevated glass-hover specular-border specular-emerald md:-translate-y-2 pt-11"
-                : "glass-card glass-hover specular-border"
+                ? "glass-card-elevated glass-hover md:-translate-y-2 pt-11"
+                : "glass-card glass-hover"
             }`}
           >
             {plan.popular && (
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#059669] text-white text-[11px] uppercase tracking-wider font-extrabold px-4 py-1 rounded-full shadow-lg shadow-[#059669]/30 flex items-center gap-1.5 border border-emerald-400/40 z-20">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#059669] text-white text-xs uppercase tracking-wider font-extrabold px-4 py-1 rounded-full shadow-lg shadow-[#059669]/30 flex items-center gap-1.5 border border-emerald-400/40 z-20">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
                 <span>Lựa chọn phổ biến nhất</span>
               </div>
@@ -71,7 +105,7 @@ export default function SubscriptionPlans() {
                   <span className="text-sm font-bold text-neutral-600">đ / gói</span>
                 </div>
                 <span className="text-xs text-neutral-500 block mt-1 font-normal">
-                  Khoảng {Math.round(plan.price / plan.hours).toLocaleString("vi-VN")} đ / giờ sử dụng
+                  Khoảng {plan.hours > 0 ? Math.round(plan.price / plan.hours).toLocaleString("vi-VN") : 0} đ / giờ sử dụng
                 </span>
               </div>
 
@@ -93,14 +127,25 @@ export default function SubscriptionPlans() {
             <div>
               <button
                 type="button"
-                className={`w-full py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${
+                onClick={() => handlePurchase(plan)}
+                disabled={purchasingId !== null}
+                className={`w-full py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                   plan.popular
                     ? "bg-[#059669] hover:bg-[#047857] text-white shadow-lg shadow-[#059669]/30 hover:shadow-xl hover:shadow-[#059669]/40 border border-emerald-400/30"
                     : "bg-neutral-900 hover:bg-[#059669] text-white shadow-sm"
                 }`}
               >
-                <span>Đăng ký mua gói</span>
-                <ArrowRight className="w-4 h-4" />
+                {purchasingId === plan.id ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Đang kích hoạt...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Đăng ký mua gói</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -108,7 +153,7 @@ export default function SubscriptionPlans() {
       </div>
 
       {/* Subscription Trust Banner */}
-      <div className="reveal mt-12 glass-card specular-border rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-700">
+      <div className="reveal mt-12 glass-card rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-700">
         <div className="flex items-center gap-2.5">
           <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
           <span>
@@ -116,7 +161,7 @@ export default function SubscriptionPlans() {
           </span>
         </div>
         <a
-          href="#tim-xe"
+          href="/subscriptions"
           className="text-[#059669] font-bold hover:underline shrink-0"
         >
           Tìm hiểu thêm về chính sách gói

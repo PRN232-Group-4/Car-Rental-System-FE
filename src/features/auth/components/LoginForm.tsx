@@ -49,7 +49,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect") || "/";
+  const redirectUrl = searchParams.get("next") || searchParams.get("redirect") || "/";
 
   const { login } = useAuth();
 
@@ -140,9 +140,9 @@ export default function LoginForm() {
                     : "bg-white/80 hover:bg-white text-neutral-700 hover:text-emerald-700 border border-neutral-200/60"
                 }`}
               >
-                <div className="text-[11px] font-bold truncate leading-tight">{account.label}</div>
+                <div className="text-xs font-bold truncate leading-tight">{account.label}</div>
                 <div
-                  className={`text-[9px] truncate mt-0.5 ${
+                  className={`text-xs truncate mt-0.5 ${
                     isSelected ? "text-emerald-100" : "text-neutral-500"
                   }`}
                 >
@@ -155,7 +155,7 @@ export default function LoginForm() {
       </div>
 
       {/* Main Glass Form Container */}
-      <div className="glass-card specular-border rounded-3xl p-7 sm:p-9 shadow-2xl relative overflow-hidden bg-white/75 backdrop-blur-2xl">
+      <div className="glass-card rounded-3xl p-7 sm:p-9 shadow-2xl relative overflow-hidden bg-white/75 backdrop-blur-2xl">
         <div className="mb-6 text-center sm:text-left">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
             Đăng nhập
@@ -247,12 +247,12 @@ export default function LoginForm() {
               </button>
             </div>
             <div className="flex items-center justify-between mt-1 px-1">
-              <span className="text-[11px] text-neutral-400">
+              <span className="text-xs text-neutral-400">
                 Tiêu chuẩn an toàn: tối thiểu 12 ký tự
               </span>
               {password.length > 0 && (
                 <span
-                  className={`text-[11px] font-medium ${
+                  className={`text-xs font-medium ${
                     password.length >= 12 ? "text-emerald-600" : "text-amber-600"
                   }`}
                 >
@@ -343,7 +343,7 @@ export default function LoginForm() {
         </div>
 
         {/* Security badge note */}
-        <div className="mt-6 pt-4 border-t border-neutral-200/60 flex items-center justify-center gap-1.5 text-[11px] text-neutral-400">
+        <div className="mt-6 pt-4 border-t border-neutral-200/60 flex items-center justify-center gap-1.5 text-xs text-neutral-400">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Phiên đăng nhập bảo mật với SSL 256-bit & Redis Token Store</span>
         </div>

@@ -1,8 +1,10 @@
 export type VehicleCategory = "car" | "electric_car" | "motorbike" | "electric_motorbike";
 
 export interface Vehicle {
-  id: string;
+  id: number | string;
   name: string;
+  brand?: string;
+  model?: string;
   category: VehicleCategory;
   categoryLabel: string;
   year: number;
@@ -14,16 +16,20 @@ export interface Vehicle {
   storageCapacity?: string;
   hourlyPrice: number;
   monthlyPrice: number;
-  facilityId: string;
+  facilityId: number | string;
   facilityName: string;
   imageUrl: string;
   badges: string[];
   isAvailable: boolean;
   supportsSubscription: boolean;
+  status?: string;
+  description?: string;
+  galleryImages?: string[];
 }
 
 export interface VehicleFilterParams {
   category?: string;
-  facilityId?: string;
+  facilityId?: number | string;
   search?: string;
+  status?: string;
 }
