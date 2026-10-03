@@ -1,38 +1,64 @@
 @import "tailwindcss";
 
+/* ==================================================================
+   Design tokens
+   Direction: restrained emerald-on-white for a trust-first rental
+   product. One accent, hairline structure, real photography, quiet
+   motion. Surfaces are solid; translucency is reserved for the one
+   element that genuinely floats over content (the nav).
+   ================================================================== */
 :root {
-  --color-primary: #059669;
-  --color-primary-hover: #047857;
-  --color-primary-light: #ecfdf5;
+  --color-primary: #047857;
+  --color-primary-hover: #065f46;
+  --color-primary-soft: #ecfdf5;
 
-  --color-text: #222222;
-  --color-text-secondary: #666666;
-  --color-text-muted: #999999;
+  --page: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #f1f5f9;
+  --surface-inverse: #0f172a;
 
-  --color-background: #f8fafc;
-  --color-surface: #ffffff;
-  --color-border: #e2e8f0;
+  --hairline: rgba(15, 23, 42, 0.08);
+  --hairline-strong: rgba(15, 23, 42, 0.16);
 
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-error: #dc2626;
-  --color-info: #2563eb;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #b91c1c;
 
-  --container-width: 1280px;
+  /* Concentric radius scale: outer = inner + padding. */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-2: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-3: 0 12px 32px -12px rgba(15, 23, 42, 0.18);
+
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+
+  /* Fixed z-index scale - never use arbitrary z-* values. */
+  --z-base: 0;
+  --z-sticky: 30;
+  --z-nav: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+
+  --container: 1200px;
 }
 
 @theme inline {
   --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
-  --color-primary: #059669;
-  --color-primary-hover: #047857;
-  --color-primary-light: #ecfdf5;
-  --color-surface: #f8fafc;
+  --color-primary: #047857;
+  --color-surface: #ffffff;
 }
 
 html,
@@ -46,189 +72,114 @@ textarea {
 }
 
 body {
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: var(--page);
+  color: var(--text);
   overflow-x: hidden;
-  position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Authentic Glassmorphism Primitives per glassmorphism skill */
+:where(h1, h2, h3, h4) {
+  text-wrap: balance;
+}
 
-/* Floating Navigation Pill */
+:where(p) {
+  text-wrap: pretty;
+}
+
+/* ==================================================================
+   Surfaces
+   Class names are kept for compatibility with existing call sites.
+   ================================================================== */
+
+/* Floating nav: the only element that earns translucency. */
 .glass-nav {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow:
-    0 16px 36px -10px rgba(15, 23, 42, 0.08),
-    0 2px 8px -2px rgba(0, 0, 0, 0.04),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-2);
 }
 
-/* Hero Search Console */
+/* Search console: solid surface that sits over photography. */
 .glass-search {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(36px) saturate(210%);
-  -webkit-backdrop-filter: blur(36px) saturate(210%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow:
-    0 28px 64px -14px rgba(15, 23, 42, 0.12),
-    0 8px 24px -4px rgba(5, 150, 105, 0.1),
-    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.04);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-3);
 }
 
-/* Translucent Frosted Glass Cards (Vehicles, Bento, Facilities, Plans, Steps) */
+/* Default card: solid surface, hairline border, single small shadow. */
 .glass-card {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  box-shadow:
-    0 14px 34px -8px rgba(15, 23, 42, 0.07),
-    0 4px 12px -2px rgba(5, 150, 105, 0.04),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.02);
-  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-1);
 }
 
-/* Prominent / Featured Glass Card (Popular Plan, Selected Items) */
+/* Emphasised card (selected / popular): accent ring instead of a glow. */
 .glass-card-elevated {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1.5px solid rgba(5, 150, 105, 0.6);
-  box-shadow:
-    0 24px 60px -12px rgba(5, 150, 105, 0.22),
-    0 8px 20px -4px rgba(15, 23, 42, 0.08),
-    inset 0 2px 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 1px 0 rgba(5, 150, 105, 0.1);
-  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--color-primary);
+  box-shadow: var(--shadow-2);
 }
 
-/* Glass Card Motion & Lifting on Hover */
+/* Nested panel inside a card: flat tint, no shadow, no blur. */
+.glass-sub {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+}
+
+/* Pills, badges and inputs: flat white with a hairline. */
+.glass-pill {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+}
+
+/* Dark section surface (inspection certificate, app section). */
+.glass-dark {
+  background: var(--surface-inverse);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-certificate {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-2);
+}
+
+/* Interactive cards: feedback only, compositor properties only. */
 .glass-hover {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
 }
 
 .glass-hover:hover {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(32px) saturate(220%);
-  -webkit-backdrop-filter: blur(32px) saturate(220%);
-  transform: translateY(-6px);
-  border-color: rgba(5, 150, 105, 0.45);
-  box-shadow:
-    0 28px 60px -12px rgba(5, 150, 105, 0.2),
-    0 10px 28px -4px rgba(15, 23, 42, 0.08),
-    inset 0 2px 2px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-3);
 }
 
-/* Glass Pill Buttons, Badges & Inputs */
-.glass-pill {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  box-shadow:
-    0 4px 16px -2px rgba(15, 23, 42, 0.04),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95);
+.glass-hover:active {
+  transform: translateY(0);
 }
 
-/* Sub-card Translucent Container inside Glass Cards */
-.glass-sub {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(16px) saturate(170%);
-  -webkit-backdrop-filter: blur(16px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.85);
+/* Hide scrollbars on horizontal pill rails without disabling scrolling. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Dark Glass (Inspection Certificate & Mobile Section) */
-.glass-dark {
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(32px) saturate(190%);
-  -webkit-backdrop-filter: blur(32px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow:
-    0 30px 70px -15px rgba(0, 0, 0, 0.6),
-    0 0 45px -5px rgba(5, 150, 105, 0.25),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* Digital Certificate Frosted Light Glass */
-.glass-certificate {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(36px) saturate(210%);
-  -webkit-backdrop-filter: blur(36px) saturate(210%);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow:
-    0 24px 60px -12px rgba(0, 0, 0, 0.25),
-    0 4px 16px -2px rgba(5, 150, 105, 0.12),
-    inset 0 2px 2px 0 rgba(255, 255, 255, 1);
-}
-
-/* Masked Specular Rim Highlight (Lit Corner Effect) */
-.specular-border {
-  position: relative;
-}
-
-.specular-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.4) 40%,
-    rgba(255, 255, 255, 0.05) 65%,
-    rgba(5, 150, 105, 0.45)
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Emerald Specular Border for Featured Cards */
-.specular-emerald::before {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 1),
-    rgba(16, 185, 129, 0.8) 35%,
-    rgba(5, 150, 105, 0.3) 65%,
-    rgba(255, 255, 255, 0.7)
-  );
-}
-
-/* Liquid Ambient Background Blur Orbs */
-.ambient-glow-orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(100px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Slow aurora drift so color visibly moves behind the frosted panels */
-@keyframes orb-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, 40px) scale(1.12); }
-}
-.orb-drift { animation: orb-drift 18s ease-in-out infinite; }
-.orb-drift-reverse { animation: orb-drift 26s ease-in-out infinite reverse; }
-
-/* Infinite Marquee Animation */
+/* ==================================================================
+   Motion
+   One marquee, one reveal. Nothing loops decoratively.
+   ================================================================== */
 @keyframes marquee {
-  0% {
-    transform: translateX(0%);
+  from {
+    transform: translateX(0);
   }
-  100% {
+  to {
     transform: translateX(-50%);
   }
 }
@@ -236,51 +187,19 @@ body {
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 35s linear infinite;
+  animation: marquee 45s linear infinite;
 }
 
 .animate-marquee:hover {
   animation-play-state: paused;
 }
 
-/* ===== Kinetic Character Reveal Animation (Bouncy Spring Dynamics) ===== */
-@keyframes kineticCharJump {
-  0% {
-    opacity: 0;
-    transform: translateY(22px) scale(0.82) rotateX(-12deg);
-    filter: blur(3px);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(-4px) scale(1.06) rotateX(0deg);
-    filter: blur(0);
-  }
-  85% {
-    transform: translateY(1.5px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-.char-kinetic-jump {
-  display: inline-block;
-  opacity: 0;
-  animation: kineticCharJump 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: var(--char-delay, 0ms);
-  will-change: transform, opacity;
-}
-
-/* ===== Card & Layout Div Reveal System ===== */
+/* Reveal on scroll: opacity + translate only, once, no will-change. */
 .reveal-ready .reveal,
 .reveal-ready .reveal-group > * {
   opacity: 0;
-  transform: translateY(28px) scale(0.98);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
+  transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
 }
 
 .reveal-ready .reveal.is-visible,
@@ -288,61 +207,66 @@ body {
 .reveal-ready .reveal-group.is-visible > *,
 .reveal-ready .reveal-group[data-revealed="true"] > * {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: none;
 }
 
-/* Staggered cascades for cards inside a reveal group */
-.reveal-ready .reveal-group.is-visible > *:nth-child(1),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(1) { transition-delay: 0.04s; }
-
+/* Short stagger for grid children; capped so nothing arrives late. */
 .reveal-ready .reveal-group.is-visible > *:nth-child(2),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(2) { transition-delay: 0.11s; }
-
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(2) {
+  transition-delay: 60ms;
+}
 .reveal-ready .reveal-group.is-visible > *:nth-child(3),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(3) { transition-delay: 0.18s; }
-
-.reveal-ready .reveal-group.is-visible > *:nth-child(4),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(4) { transition-delay: 0.25s; }
-
-.reveal-ready .reveal-group.is-visible > *:nth-child(5),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(5) { transition-delay: 0.32s; }
-
-.reveal-ready .reveal-group.is-visible > *:nth-child(6),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(6) { transition-delay: 0.39s; }
-
-.reveal-ready .reveal-group.is-visible > *:nth-child(n + 7),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(n + 7) { transition-delay: 0.46s; }
-
-/* Backward compatibility for legacy reveal-word */
-.reveal-ready .reveal-text .reveal-word {
-  display: inline-block;
-  opacity: 1;
-  translate: 0 0;
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(3) {
+  transition-delay: 120ms;
+}
+.reveal-ready .reveal-group.is-visible > *:nth-child(n + 4),
+.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(n + 4) {
+  transition-delay: 180ms;
 }
 
-/* Custom Scrollbar */
+/* Per-character reveal: fade + small rise, no blur, no rotate. */
+@keyframes charRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.char-kinetic-jump {
+  display: inline-block;
+  opacity: 0;
+  animation: charRise 0.4s var(--ease-out) forwards;
+  animation-delay: var(--char-delay, 0ms);
+}
+
+/* ==================================================================
+   Chrome
+   ================================================================== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--surface-3);
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 999px;
+  border: 2px solid var(--surface-3);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* Accessibility: Accessible Keyboard Focus Rings (Priority 1 in ui-ux-pro-max) */
 :focus-visible {
-  outline: 2px solid #059669;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-/* Accessibility: Prefers Reduced Motion (Priority 7 in ui-ux-pro-max) */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -357,5 +281,14 @@ body {
   }
   .glass-hover:hover {
     transform: none !important;
+  }
+}
+
+/* Solid fallback where translucency is unwanted or unsupported. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-nav {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

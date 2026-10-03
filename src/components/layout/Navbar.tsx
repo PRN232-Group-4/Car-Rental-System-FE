@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
 import { useAuth } from "@/features/auth";
+import { useMounted } from "@/hooks/use-mounted";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const mounted = useMounted();
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -31,7 +33,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6">
-      <nav className="glass-nav specular-border w-full max-w-6xl rounded-2xl px-5 py-3 transition-all duration-300">
+      <nav className="glass-nav w-full max-w-6xl rounded-2xl px-5 py-3 transition-all duration-300">
         <div className="flex items-center justify-between gap-4">
           {/* Brand Name & Logo - Unified Single Row Lockup without rounded box */}
           <Link
@@ -39,14 +41,6 @@ export default function Navbar() {
             onClick={handleLogoClick}
             className="flex items-center gap-2 sm:gap-2.5 group whitespace-nowrap py-0.5 select-none"
           >
-            {/* <Image
-              src="/logo-car.png"
-              alt="Thong Dong Logo"
-              width={48}
-              height={22}
-              className="h-5 sm:h-6 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-              priority
-            /> */}
             <span className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 group-hover:text-[#059669] transition-colors">
               ThongDong.
             </span>
@@ -88,7 +82,7 @@ export default function Navbar() {
 
           {/* Right Action buttons */}
           <div className="hidden sm:flex items-center gap-2.5 whitespace-nowrap">
-            {isAuthenticated && user ? (
+            {mounted && isAuthenticated && user ? (
               <div className="relative">
                 <button
                   type="button"
@@ -122,11 +116,11 @@ export default function Navbar() {
                       <p className="text-xs font-bold text-neutral-900 truncate">
                         {user.fullName}
                       </p>
-                      <p className="text-[11px] text-neutral-500 truncate mt-0.5">
+                      <p className="text-xs text-neutral-500 truncate mt-0.5">
                         {user.email}
                       </p>
                       <div className="flex items-center gap-1 mt-1.5">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                           {user.roles.includes("Admin")
                             ? "Quản trị viên"
                             : user.roles.includes("Staff")
@@ -134,6 +128,49 @@ export default function Navbar() {
                               : "Khách hàng"}
                         </span>
                       </div>
+                    </div>
+
+                    <div className="py-1 border-b border-neutral-100 mb-1 space-y-0.5">
+                      <Link
+                        href="/booking"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:text-emerald-700 hover:bg-emerald-50/70 rounded-xl transition-colors"
+                      >
+                        <Car className="size-3.5" />
+                        <span>Đặt xe mới</span>
+                      </Link>
+                      <Link
+                        href="/my-subscriptions"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:text-emerald-700 hover:bg-emerald-50/70 rounded-xl transition-colors"
+                      >
+                        <Package className="size-3.5" />
+                        <span>Gói thuê của tôi</span>
+                      </Link>
+                      <Link
+                        href="/invoices"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:text-emerald-700 hover:bg-emerald-50/70 rounded-xl transition-colors"
+                      >
+                        <FileText className="size-3.5" />
+                        <span>Danh sách hoá đơn</span>
+                      </Link>
+                      <Link
+                        href="/payment-history"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:text-emerald-700 hover:bg-emerald-50/70 rounded-xl transition-colors"
+                      >
+                        <CreditCard className="size-3.5" />
+                        <span>Lịch sử thanh toán</span>
+                      </Link>
+                      <Link
+                        href="/driver-license"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:text-emerald-700 hover:bg-emerald-50/70 rounded-xl transition-colors"
+                      >
+                        <FileCheck className="size-3.5" />
+                        <span>Giấy phép lái xe (GPLX)</span>
+                      </Link>
                     </div>
 
                     <button
@@ -225,7 +262,7 @@ export default function Navbar() {
               Phiếu kiểm định xe
             </Link>
             <div className="pt-3 border-t border-neutral-200/60 flex flex-col gap-2">
-              {isAuthenticated && user ? (
+              {mounted && isAuthenticated && user ? (
                 <div className="p-3 bg-white/80 rounded-xl border border-neutral-200/80">
                   <div className="flex items-center gap-2.5 mb-2">
                     {user.avatarUrl ? (

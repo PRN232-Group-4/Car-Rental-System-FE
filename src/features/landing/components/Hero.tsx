@@ -17,17 +17,11 @@ interface HeroProps {
 
 export default function Hero({ onSearchCriteriaChange }: HeroProps) {
   return (
-    <section className="relative w-full pt-24 sm:pt-28 pb-16 px-4 sm:px-6 flex flex-col items-center">
-      {/* Ambient Aurora Orbs */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="ambient-glow-orb orb-drift w-[650px] h-[450px] top-8 left-1/2 -translate-x-1/2 bg-gradient-to-b from-emerald-500/25 via-teal-400/15 to-transparent" />
-        <div className="ambient-glow-orb orb-drift-reverse w-[400px] h-[400px] top-24 -left-20 bg-emerald-400/15" />
-        <div className="ambient-glow-orb orb-drift w-[400px] h-[400px] top-24 -right-20 bg-teal-400/15" />
-      </div>
+    <section className="relative w-full pt-24 pb-16 px-4 sm:px-6 flex flex-col items-center">
 
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center">
         {/* Rounded Hero Banner Card (Mioto Layout) with Hai Van Pass */}
-        <div className="relative w-full rounded-3xl sm:rounded-[36px] overflow-hidden shadow-2xl min-h-[440px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-between pt-16 sm:pt-20 pb-20 sm:pb-24 px-6 sm:px-12 text-center border border-white/20">
+        <div className="relative w-full rounded-3xl sm:rounded-[32px] overflow-hidden shadow-xl min-h-[440px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-between pt-16 sm:pt-20 pb-20 sm:pb-24 px-6 sm:px-12 text-center border border-white/20">
           {/* Scenic Background Image: Hai Van Pass */}
           <Image
             src="/assets/hero-hai-van.jpg"
@@ -47,8 +41,8 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
               Thong Dong - Cùng Bạn Trên Mọi Hành Trình
             </h1>
 
-            {/* Subtle Divider Line */}
-            <div className="w-48 sm:w-64 h-0.5 bg-gradient-to-r from-transparent via-white/70 to-transparent my-3.5 sm:my-4.5 rounded-full" />
+            {/* Divider */}
+            <div className="w-48 sm:w-64 h-px bg-white/40 my-4 rounded-full" />
 
             <p className="text-white/95 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium drop-shadow leading-relaxed">
               Trải nghiệm sự khác biệt từ hơn 50+ xe tiêu chuẩn kiểm định đời mới khắp Việt Nam
