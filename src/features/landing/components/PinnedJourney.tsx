@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { KeyRound, BatteryCharging, RefreshCw, ChevronRight, CheckCircle2, Zap } from "lucide-react";
+import { KeyRound, BatteryCharging, RefreshCw, ChevronRight, CheckCircle2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/motion/register";
 
@@ -97,7 +97,7 @@ export default function PinnedJourney() {
         {/* Left Column: Pinned Narrative on Desktop */}
         <div ref={leftColRef} className="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold uppercase tracking-wider">
-            <Zap className="w-3.5 h-3.5 fill-[#b45309]" />
+            <KeyRound className="w-3.5 h-3.5 text-[#b45309]" />
             <span>CINEMATIC SCROLL EXPERIENCE</span>
           </div>
 

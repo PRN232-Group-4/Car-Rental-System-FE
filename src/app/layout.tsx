@@ -31,6 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
+      data-scroll-behavior="smooth"
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col text-ink bg-canvas font-sans">

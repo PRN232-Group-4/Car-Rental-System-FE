@@ -6,11 +6,9 @@ import {
   CreditCard, 
   Clock, 
   CheckCircle2, 
-  Zap, 
   ArrowUpRight, 
   ShieldCheck, 
   QrCode,
-  Sparkles,
   Loader2
 } from "lucide-react";
 import { getSubscriptionPlans, getInitialSubscriptionPlans, purchaseSubscriptionPlan } from "@/features/subscriptions/api";
@@ -88,7 +86,7 @@ export default function MembershipPasses() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-widest uppercase mb-4">
-              <Zap className="w-3.5 h-3.5 text-[#b45309]" />
+              <CreditCard className="w-3.5 h-3.5 text-[#b45309]" />
               <span>DIGITAL WALLET MEMBERSHIP PASSES</span>
             </div>
             <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink max-w-2xl leading-[1.15]">
@@ -128,7 +126,7 @@ export default function MembershipPasses() {
                 {/* Featured Badge */}
                 {isFeatured && (
                   <div className="absolute -top-3.5 left-8 px-3.5 py-1 rounded-full bg-[#b45309] text-white text-[11px] font-mono font-bold uppercase tracking-wider shadow-md flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <ShieldCheck className="w-3.5 h-3.5" />
                     <span>PRIORITY SELECTION</span>
                   </div>
                 )}

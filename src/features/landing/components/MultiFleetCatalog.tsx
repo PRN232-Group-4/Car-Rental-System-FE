@@ -5,7 +5,7 @@ import Image from "next/image";
 import { 
   Car, 
   Bike, 
-  Zap, 
+  BatteryCharging, 
   Fuel, 
   Users, 
   Gauge, 
@@ -195,9 +195,25 @@ export default function MultiFleetCatalog() {
   };
 
   return (
-    <section id="doi-xe" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
+    <section id="doi-xe" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
+      {/* Background Automotive Blueprint Vectors */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <svg className="w-full h-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="56" x2="100%" y2="56" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
+          <line x1="0" y1="140" x2="100%" y2="140" stroke="#b45309" strokeWidth="0.8" />
+          <g stroke="#0f172a" strokeWidth="0.8">
+            <line x1="40" y1="130" x2="40" y2="150" />
+            <line x1="180" y1="130" x2="180" y2="150" />
+            <text x="110" y="136" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle">FLEET CATALOG METRICS</text>
+          </g>
+        </svg>
+      </div>
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
             <SlidersHorizontal className="w-4 h-4 text-[#b45309]" />
@@ -344,7 +360,7 @@ export default function MultiFleetCatalog() {
 
                   <div className="flex items-center gap-2 text-ink-2">
                     {vehicle.isElectric ? (
-                      <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                      <BatteryCharging className="w-3.5 h-3.5 text-emerald-600" />
                     ) : (
                       <Fuel className="w-3.5 h-3.5 text-amber-600" />
                     )}

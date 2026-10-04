@@ -7,9 +7,9 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Button } from "@/components/ui/Button";
 import { 
   Rotate3d, 
-  Sparkles, 
+  Car, 
   Gauge, 
-  Zap, 
+  Cpu, 
   Calendar, 
   Loader2, 
   RefreshCw,
@@ -76,6 +76,16 @@ export default function InteractiveStudio3D() {
   const controlsRef = useRef<OrbitControls | null>(null);
   const currentObjectRef = useRef<THREE.Group | null>(null);
   const animFrameIdRef = useRef<number | null>(null);
+  const isVisibleRef = useRef<boolean>(false);
+  const isScrollingRef = useRef<boolean>(false);
+  const isAutoRotateRef = useRef<boolean>(isAutoRotate);
+
+  useEffect(() => {
+    isAutoRotateRef.current = isAutoRotate;
+    if (controlsRef.current) {
+      controlsRef.current.autoRotate = isAutoRotate;
+    }
+  }, [isAutoRotate]);
 
   const activeModel = MODELS.find((m) => m.id === selectedModelId) || MODELS[0];
 
@@ -96,12 +106,12 @@ export default function InteractiveStudio3D() {
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
     camera.position.set(4.5, 2.0, 5.0);
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    // Renderer (capped at 1.5 pixel ratio for optimal GPU fillrate)
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
 
@@ -116,7 +126,7 @@ export default function InteractiveStudio3D() {
     controls.maxPolarAngle = Math.PI / 2 - 0.05; // Do not go under the ground
     controls.minDistance = 3.2;
     controls.maxDistance = 9.0;
-    controls.autoRotate = true;
+    controls.autoRotate = isAutoRotateRef.current;
     controls.autoRotateSpeed = 1.2;
     controlsRef.current = controls;
 
@@ -149,13 +159,66 @@ export default function InteractiveStudio3D() {
     shadowPlane.receiveShadow = true;
     scene.add(shadowPlane);
 
-    // Animation Loop
+    // Performance-Optimized Animation Loop (Only runs when visible in viewport)
+    let isLoopRunning = false;
     const animate = () => {
+      if (!isVisibleRef.current) {
+        isLoopRunning = false;
+        return;
+      }
       animFrameIdRef.current = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
-    animate();
+
+    const startLoop = () => {
+      if (!isLoopRunning && isVisibleRef.current) {
+        isLoopRunning = true;
+        animate();
+      }
+    };
+
+    const stopLoop = () => {
+      isLoopRunning = false;
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+        animFrameIdRef.current = null;
+      }
+    };
+
+    // IntersectionObserver to pause loop when scrolled out of view
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    // Scroll listener: pause autoRotate during active page scroll to free GPU compositor
+    let scrollDebounceTimer: NodeJS.Timeout | null = null;
+    const handleScroll = () => {
+      if (!controlsRef.current) return;
+      if (!isScrollingRef.current) {
+        isScrollingRef.current = true;
+        controlsRef.current.autoRotate = false;
+      }
+      if (scrollDebounceTimer) {
+        clearTimeout(scrollDebounceTimer);
+      }
+      scrollDebounceTimer = setTimeout(() => {
+        isScrollingRef.current = false;
+        if (controlsRef.current && isAutoRotateRef.current) {
+          controlsRef.current.autoRotate = true;
+        }
+      }, 150);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     // Handle Resize
     const handleResize = () => {
@@ -169,10 +232,11 @@ export default function InteractiveStudio3D() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
-      if (animFrameIdRef.current) {
-        cancelAnimationFrame(animFrameIdRef.current);
-      }
+      if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
+      stopLoop();
       controls.dispose();
       renderer.dispose();
       scene.clear();
@@ -262,9 +326,23 @@ export default function InteractiveStudio3D() {
   };
 
   return (
-    <section id="showroom-3d" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
+    <section id="showroom-3d" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
+      {/* Background Automotive Blueprint & Calibration Vectors */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <svg className="w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="48" x2="100%" y2="48" stroke="#0f172a" strokeWidth="1" strokeDasharray="8 8" />
+          <line x1="0" y1="180" x2="100%" y2="180" stroke="#b45309" strokeWidth="0.8" />
+          <path d="M 80 320 C 350 280, 600 360, 950 310 C 1150 280, 1300 340, 1400 360" stroke="#0f172a" strokeWidth="1" strokeDasharray="4 6" />
+          <circle cx="92%" cy="180" r="32" stroke="#b45309" strokeWidth="1" strokeDasharray="3 3" />
+          <text x="92%" y="184" fill="#b45309" fontSize="9" fontFamily="monospace" textAnchor="middle">STUDIO-Z0</text>
+        </svg>
+      </div>
+
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
             <Rotate3d className="w-4 h-4 text-[#b45309]" />
@@ -386,7 +464,7 @@ export default function InteractiveStudio3D() {
         <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-[11px] font-mono font-bold uppercase tracking-wider mb-4">
-              <Sparkles className="w-3 h-3" />
+              <Car className="w-3.5 h-3.5" />
               <span>{activeModel.tag}</span>
             </div>
 
@@ -409,7 +487,7 @@ export default function InteractiveStudio3D() {
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f7f7f4]">
                 <div className="flex items-center gap-2.5 text-xs text-ink-3">
-                  <Zap className="w-4 h-4 text-[#b45309]" />
+                  <Cpu className="w-4 h-4 text-[#b45309]" />
                   <span>Cấu hình động cơ</span>
                 </div>
                 <span className="font-mono text-xs font-bold text-ink">{activeModel.engine}</span>
