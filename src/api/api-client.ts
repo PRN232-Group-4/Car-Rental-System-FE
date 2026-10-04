@@ -99,14 +99,33 @@ export class ApiClient {
     return query ? `${base}?${query}` : base;
   }
 
+  private serializeBody(body: BodyInit | null | undefined): BodyInit | null | undefined {
+    if (
+      body === undefined ||
+      body === null ||
+      typeof body === "string" ||
+      (typeof FormData !== "undefined" && body instanceof FormData) ||
+      (typeof Blob !== "undefined" && body instanceof Blob) ||
+      (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) ||
+      (typeof ArrayBuffer !== "undefined" && body instanceof ArrayBuffer)
+    ) {
+      return body;
+    }
+    return JSON.stringify(body);
+  }
+
   public async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { params, headers, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
+    const { params, headers, body, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
     const url = this.buildUrl(path, params);
 
     const mergedHeaders: HeadersInit = {
       ...this.defaultHeaders,
       ...headers,
     };
+    const serializedBody = this.serializeBody(body);
+    if (typeof FormData !== "undefined" && serializedBody instanceof FormData) {
+      delete (mergedHeaders as Record<string, string>)["Content-Type"];
+    }
 
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
     const timeoutId = controller
@@ -116,12 +135,12 @@ export class ApiClient {
     try {
       const response = await this.fetchFn(url, {
         ...restOptions,
+        body: serializedBody,
         headers: mergedHeaders,
-        credentials, // credentials: "include" for same-origin session cookies
+        credentials,
         signal: controller ? controller.signal : undefined,
       });
 
-      // Handle 401 Unauthorized with token refresh mechanism
       const isAuthEndpoint =
         path.includes("auth/login") ||
         path.includes("auth/refresh") ||
@@ -134,12 +153,12 @@ export class ApiClient {
             ...options,
             _isRetry: true,
           });
-        } else {
-          handleAuthFailure();
-          throw new ApiClientError(401, "Phiên đăng nhập đã hết hạn.", {
-            detail: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-          });
         }
+
+        handleAuthFailure();
+        throw new ApiClientError(401, "Phiên đăng nhập đã hết hạn.", {
+          detail: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+        });
       }
 
       if (!response.ok) {
@@ -158,13 +177,11 @@ export class ApiClient {
 
       const json = await response.json();
 
-      // Unwrap standard BE envelope { is_success, message, data }
-      if (typeof json === "object" && json !== null && "is_success" in json) {
-        const envelope = json as ApiEnvelope<T>;
-        if (envelope.is_success === false) {
-          throw new ApiClientError(response.status, response.statusText, envelope);
+      if (isApiEnvelope(json)) {
+        if (!json.is_success) {
+          throw new ApiClientError(response.status, response.statusText, json);
         }
-        return envelope.data as T;
+        return json.data as T;
       }
 
       return json as T;
@@ -181,7 +198,7 @@ export class ApiClient {
     return this.request<T>(path, {
       ...options,
       method: "POST",
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body as BodyInit | undefined,
     });
   }
 
@@ -189,7 +206,7 @@ export class ApiClient {
     return this.request<T>(path, {
       ...options,
       method: "PUT",
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body as BodyInit | undefined,
     });
   }
 
@@ -197,11 +214,23 @@ export class ApiClient {
     return this.request<T>(path, {
       ...options,
       method: "PATCH",
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body as BodyInit | undefined,
     });
   }
 
   public delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
+}
+
+function isApiEnvelope(
+  value: unknown,
+): value is { message: string; is_success: boolean; data: unknown } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "is_success" in value &&
+    "data" in value &&
+    typeof value.is_success === "boolean"
+  );
 }

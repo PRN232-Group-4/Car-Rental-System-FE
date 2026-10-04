@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ApiClientError } from "@/api/api-client";
+import { getAccountProfile } from "@/features/profile/api";
+import { getLoginPortalPath } from "../portal-routing";
 
 interface DemoAccount {
   label: string;
@@ -49,7 +51,7 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("next") || searchParams.get("redirect") || "/";
+  const redirectUrl = searchParams.get("next") || searchParams.get("redirect");
 
   const { login } = useAuth();
 
@@ -98,9 +100,29 @@ export default function LoginForm() {
         rememberMe,
       });
 
+      let destination = redirectUrl;
+      if (!destination) {
+        const roles = user.roles ?? [];
+        const needsStaffProfile = roles.some((role) =>
+          ["staff", "driver"].includes(role.toLocaleLowerCase()),
+        );
+        let staffAccount = null;
+        if (needsStaffProfile && !roles.some((role) => role.toLocaleLowerCase() === "admin")) {
+          try {
+            staffAccount = await getAccountProfile();
+          } catch {
+            setErrorMessage(
+              "Đăng nhập thành công nhưng không thể tải thông tin phòng ban để xác định cổng nhân viên. Vui lòng tải lại trang hoặc thử lại.",
+            );
+            return;
+          }
+        }
+        destination = getLoginPortalPath(roles, staffAccount);
+      }
+
       setSuccessMessage(`Chào mừng trở lại, ${user.fullName}! Đang chuyển hướng...`);
       setTimeout(() => {
-        router.push(redirectUrl);
+        router.push(destination);
       }, 1000);
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {

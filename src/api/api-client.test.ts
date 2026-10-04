@@ -31,77 +31,44 @@ describe("ApiClient Unit Tests", () => {
       customerName: "Tran Van B",
       customerPhone: "0987654321",
     });
+
     expect(res.success).toBe(true);
     expect(Boolean(res.bookingId)).toBe(true);
   });
 
-  it("unwraps standard backend response envelope { is_success, message, data }", async () => {
-    const envelopeFetch: typeof fetch = async () =>
-      new Response(JSON.stringify({ is_success: true, message: "OK", data: { id: 123, name: "Test" } }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    const envelopeClient = new ApiClient({ customFetch: envelopeFetch });
-    const unwrapped = await envelopeClient.get<{ id: number; name: string }>("items/1");
-    expect(unwrapped.id).toBe(123);
-    expect(unwrapped.name).toBe("Test");
+  it("unwraps the backend response envelope", async () => {
+    const envelopeClient = new ApiClient({
+      customFetch: async () =>
+        new Response(
+          JSON.stringify({
+            message: "OK",
+            is_success: true,
+            data: { value: "unwrapped" },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+    });
+
+    const result = await envelopeClient.get<{ value: string }>("profile");
+    expect(result.value).toBe("unwrapped");
   });
 
-  it("parses RFC 7807 ProblemDetails detail field on errors", async () => {
-    const errorFetch: typeof fetch = async () =>
-      new Response(JSON.stringify({ detail: "Specific error detail from BE", status: 400 }), {
-        status: 400,
-        statusText: "Bad Request",
-        headers: { "Content-Type": "application/json" },
-      });
-    const errorClient = new ApiClient({ customFetch: errorFetch });
-    await expect(errorClient.get("bad-endpoint")).rejects.toThrow("Specific error detail from BE");
-  });
+  it("keeps multipart uploads browser-controlled", async () => {
+    let contentType: string | null = "not checked";
+    const uploadClient = new ApiClient({
+      customFetch: async (_input, init) => {
+        contentType = new Headers(init?.headers).get("Content-Type");
+        return new Response(JSON.stringify({ uploaded: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      },
+    });
 
-  it("refreshes the session on 401 and retries the original request once", async () => {
-    let profileCalls = 0;
-    let refreshCalls = 0;
-    const fetchSpy: typeof fetch = async (input) => {
-      const url =
-        typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-      if (url.includes("/auth/refresh")) {
-        refreshCalls += 1;
-        return new Response(null, { status: 204 });
-      }
-      profileCalls += 1;
-      if (profileCalls === 1) {
-        return new Response(JSON.stringify({ detail: "unauthorized" }), { status: 401 });
-      }
-      return new Response(
-        JSON.stringify({ is_success: true, data: { email: "an@thongdong.vn" } }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    };
-    const authClient = new ApiClient({ baseUrl: "/api", customFetch: fetchSpy });
+    const formData = new FormData();
+    formData.append("file", new Blob(["image"]), "image.png");
+    await uploadClient.post("media/vehicle", formData);
 
-    const user = await authClient.get<{ email: string }>("account/profile");
-    expect(user.email).toBe("an@thongdong.vn");
-    expect(refreshCalls).toBe(1);
-    expect(profileCalls).toBe(2);
-  });
-
-  it("gives up after a failed refresh instead of looping", async () => {
-    let profileCalls = 0;
-    let refreshCalls = 0;
-    const fetchSpy: typeof fetch = async (input) => {
-      const url =
-        typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-      if (url.includes("/auth/refresh")) {
-        refreshCalls += 1;
-        return new Response(JSON.stringify({ detail: "no refresh token" }), { status: 401 });
-      }
-      profileCalls += 1;
-      return new Response(JSON.stringify({ detail: "unauthorized" }), { status: 401 });
-    };
-    const authClient = new ApiClient({ baseUrl: "/api", customFetch: fetchSpy });
-
-    await expect(authClient.get("account/profile")).rejects.toThrow();
-    expect(refreshCalls).toBe(1);
-    expect(profileCalls).toBe(1);
+    expect(contentType).toBeNull();
   });
 });

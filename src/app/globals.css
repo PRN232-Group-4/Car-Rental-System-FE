@@ -81,6 +81,41 @@ body {
 :where(h1, h2, h3, h4) {
   text-wrap: balance;
 }
+.admin-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background-color: #fff;
+  padding: 0.75rem 1rem;
+  color: #1e293b;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.admin-search-input {
+  padding-left: 2.5rem;
+}
+
+.admin-sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 4px rgb(5 150 105 / 10%);
+}
+
+/* Authentic Glassmorphism Primitives per glassmorphism skill */
 
 :where(p) {
   text-wrap: pretty;
