@@ -31,7 +31,7 @@ export default function Footer() {
               onClick={handleLogoClick}
               className="inline-flex items-center gap-2.5 group"
             >
-              <span className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+              <span className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-amber-400 transition-colors">
                 ThongDong.
               </span>
             </Link>
@@ -39,7 +39,7 @@ export default function Footer() {
               Hệ thống cho thuê phương tiện theo giờ và dài hạn, kèm tài xế chuyên nghiệp. Đơn vị sở hữu và vận hành trực tiếp toàn bộ đội xe ô tô, xe máy, xe điện với quy trình kiểm định 2 chiều minh bạch.
             </p>
             <div className="flex items-center gap-2 text-xs text-white/80 pt-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
               <span>Thanh toán an toàn tích hợp cổng PayOS</span>
             </div>
           </div>
@@ -51,12 +51,12 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <a href="#gioi-thieu" className="hover:text-emerald-400 transition-colors">
+                <a href="#gioi-thieu" className="hover:text-amber-400 transition-colors">
                   Giới thiệu vận hành
                 </a>
               </li>
               <li>
-                <a href="#chi-nhanh" className="hover:text-emerald-400 transition-colors">
+                <a href="#chi-nhanh" className="hover:text-amber-400 transition-colors">
                   Hệ thống chi nhánh
                 </a>
               </li>

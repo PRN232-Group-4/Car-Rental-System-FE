@@ -6,63 +6,61 @@ import Footer from "@/components/layout/Footer";
 import {
   Hero,
   Marquee,
-  SpatialFleetShowcase,
-  DiagnosticDeck,
+  InteractiveStudio3D,
+  MultiFleetCatalog,
+  InspectionSection,
   PinnedJourney,
   MembershipPasses,
 } from "@/features/landing";
 
 export default function Home() {
-  const [activeFacilityFilter, setActiveFacilityFilter] = useState<string>("all");
+  const [, setActiveFacilityFilter] = useState<string>("all");
 
   const handleSearchCriteria = (criteria: { facilityId: string }) => {
     setActiveFacilityFilter(criteria.facilityId);
   };
 
   return (
-    <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-emerald-500/20 selection:text-emerald-900 bg-[#0A0F0D]">
-      {/* Structural base backdrop */}
-      <div className="absolute inset-0 pointer-events-none z-0 bg-[#0A0F0D]" />
+    <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-amber-500/20 selection:text-amber-900 bg-[var(--canvas)]">
+      {/* Background Architectural Canvas & Subtle Depth */}
+      <div className="absolute inset-0 pointer-events-none z-0 bg-[var(--canvas)]" />
 
       <div className="relative z-10 flex flex-col w-full">
         {/* Navigation */}
         <Navbar />
 
-        {/* 1. Hero with Single-Deck Search Console */}
+        {/* 1. Warm Editorial Hero with Single-Deck Search Console */}
         <div id="gioi-thieu">
           <Hero onSearchCriteriaChange={handleSearchCriteria} />
         </div>
 
-        {/* 2. Infinite Automotive & Telemetry Marquee */}
+        {/* 2. System Trust & Capability Marquee */}
         <Marquee />
 
-        {/* 3. Avant-Garde Spatial Fleet Showcase (Replaces Vehicle Catalog) */}
-        <div id="doi-xe" className="scroll-mt-24">
-          <div id="tim-xe" className="scroll-mt-24">
-            <div id="chi-nhanh" className="scroll-mt-24">
-              <SpatialFleetShowcase initialFacilityFilter={activeFacilityFilter} />
-            </div>
-          </div>
+        {/* 3. Dedicated Interactive 3D WebGL Studio (Porsche 1975 Classic vs 2026 Carrera 4S) */}
+        <InteractiveStudio3D />
+
+        {/* 4. Multi-Category Vehicle Catalog (4 Groups: Electric/Petrol, Cars/Bikes, Chauffeur/Self-Drive) */}
+        <div id="chi-nhanh" className="scroll-mt-24">
+          <MultiFleetCatalog />
         </div>
 
-        {/* 4. Interactive 6-Point Vehicle Telemetry & Inspection Radar */}
+        {/* 5. Dual Inspection & Automated PayOS Refund Terminal */}
         <div id="cong-nghe" className="scroll-mt-24">
-          <div id="kiem-dinh" className="scroll-mt-24">
-            <DiagnosticDeck />
-          </div>
+          <InspectionSection />
         </div>
 
-        {/* 5. Cinematic GSAP Pinned Journey Narrative (Replaces How It Works) */}
-        <div id="quy-trinh">
+        {/* 6. Cinematic GSAP Pinned Journey Narrative */}
+        <div id="quy-trinh" className="scroll-mt-24">
           <PinnedJourney />
         </div>
 
-        {/* 6. Apple Wallet / NFC Digital Membership Passes (Replaces Subscription Plans) */}
-        <div id="goi-thue-bao" className="scroll-mt-28">
+        {/* 7. Apple Wallet & NFC Digital Membership Passes */}
+        <div id="goi-thue-bao" className="scroll-mt-24">
           <MembershipPasses />
         </div>
 
-        {/* 7. Comprehensive Tech & Legal Footer */}
+        {/* 8. Comprehensive Legal & Network Footer */}
         <div id="lien-he">
           <Footer />
         </div>

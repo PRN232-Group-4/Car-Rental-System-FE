@@ -32,11 +32,14 @@ function startStaticServer(port = 4173) {
 
     let filePath = path.join(outDir, reqPath);
 
-    // If file doesn't exist, check if filePath.html exists (static export routing)
-    if (!fs.existsSync(filePath) && fs.existsSync(filePath + ".html")) {
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+      if (fs.existsSync(path.join(filePath, "index.html"))) {
+        filePath = path.join(filePath, "index.html");
+      } else if (fs.existsSync(filePath + ".html")) {
+        filePath = filePath + ".html";
+      }
+    } else if (!fs.existsSync(filePath) && fs.existsSync(filePath + ".html")) {
       filePath = filePath + ".html";
-    } else if (fs.existsSync(path.join(filePath, "index.html"))) {
-      filePath = path.join(filePath, "index.html");
     }
 
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
@@ -185,8 +188,8 @@ async function main() {
     console.log("\n--- KIỂM TRA TRẠNG THÁI MODAL/DIALOG ---");
     const dialogPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     await dialogPage.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    // Click the first "Đặt xe ngay" button in the catalog
-    const bookBtn = dialogPage.locator("button:has-text('Đặt xe ngay')").first();
+    // Click the first "Đặt xe" button in the catalog
+    const bookBtn = dialogPage.locator("button:has-text('Đặt xe')").first();
     if (await bookBtn.isVisible()) {
       await bookBtn.click();
       await dialogPage.waitForTimeout(300);

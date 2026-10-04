@@ -96,17 +96,17 @@ export default function PinnedJourney() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left Column: Pinned Narrative on Desktop */}
         <div ref={leftColRef} className="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider">
-            <Zap className="w-3.5 h-3.5 fill-primary" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold uppercase tracking-wider">
+            <Zap className="w-3.5 h-3.5 fill-[#b45309]" />
             <span>CINEMATIC SCROLL EXPERIENCE</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.08]">
-            Hành Trình 3 Pha Thuần Điện
+          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08]">
+            Hành Trình 3 Pha Thuê Xe Tối Giản
           </h2>
 
-          <p className="text-sm sm:text-base text-white/70 font-normal leading-relaxed">
-            Chúng tôi định nghĩa lại trải nghiệm thuê xe ô tô: Nhanh hơn, minh bạch hơn và triệt tiêu hoàn toàn rào cản thủ tục truyền thống.
+          <p className="text-sm sm:text-base text-ink-2 font-normal leading-relaxed">
+            Chúng tôi định nghĩa lại trải nghiệm thuê phương tiện: Nhanh hơn, minh bạch hơn và triệt tiêu hoàn toàn rào cản thủ tục truyền thống.
           </p>
 
           {/* Quick indicators */}
@@ -114,15 +114,15 @@ export default function PinnedJourney() {
             {phases.map((phase) => (
               <div
                 key={phase.index}
-                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#13221E] border border-white/10"
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-surface border border-line shadow-sm"
               >
-                <span className="w-8 h-8 rounded-xl bg-primary text-white font-mono text-xs font-black flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-xl bg-[#0f172a] text-white font-mono text-xs font-black flex items-center justify-center shrink-0">
                   {phase.index}
                 </span>
-                <span className="text-xs font-bold text-white truncate">
+                <span className="text-xs font-bold text-ink truncate">
                   {phase.title}
                 </span>
-                <span className="ml-auto text-[10px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/20 shrink-0">
+                <span className="ml-auto text-[10px] font-mono text-[#b45309] font-bold px-2 py-0.5 rounded bg-amber-50 border border-amber-500/20 shrink-0">
                   {phase.tag}
                 </span>
               </div>
@@ -137,45 +137,45 @@ export default function PinnedJourney() {
             return (
               <div
                 key={phase.index}
-                className="phase-card rounded-[36px] p-8 sm:p-10 bg-[#12221E] border border-white/10 shadow-2xl flex flex-col justify-between"
+                className="phase-card rounded-[36px] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-line">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-xs font-mono font-black uppercase text-emerald-400 bg-emerald-950/80 border border-emerald-500/20 px-3 py-1 rounded-xl">
+                      <span className="text-xs font-mono font-black uppercase text-[#b45309] bg-amber-50 border border-amber-600/20 px-3 py-1 rounded-xl">
                         PHA {phase.index}
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/60 px-2 py-0.5 rounded bg-white/5">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
                         {phase.tag}
                       </span>
                     </div>
 
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-600/20 text-[#b45309] flex items-center justify-center">
                       <Icon className="w-6 h-6 stroke-[2]" />
                     </div>
                   </div>
 
-                  <h3 className="text-2xl sm:text-3xl font-black text-white mb-3 tracking-tight">
+                  <h3 className="font-display text-2xl sm:text-3xl font-black text-ink mb-3 tracking-tight">
                     {phase.title}
                   </h3>
 
-                  <p className="text-sm sm:text-base text-white/70 font-normal leading-relaxed mb-8">
+                  <p className="text-sm sm:text-base text-ink-2 font-normal leading-relaxed mb-8">
                     {phase.description}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-emerald-400 bg-emerald-950/80 border border-emerald-500/20 px-3 py-1 rounded-lg">
+                <div className="pt-4 border-t border-line flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[#b45309] bg-amber-50 border border-amber-600/20 px-3 py-1 rounded-lg">
                     {phase.highlight}
                   </span>
 
                   {idx < phases.length - 1 ? (
-                    <span className="font-semibold text-white/60 flex items-center gap-1">
+                    <span className="font-semibold text-ink-3 flex items-center gap-1">
                       Tiếp theo
                       <ChevronRight className="w-4 h-4" />
                     </span>
                   ) : (
-                    <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                    <span className="font-bold text-emerald-600 flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4" />
                       Sẵn sàng khởi hành
                     </span>

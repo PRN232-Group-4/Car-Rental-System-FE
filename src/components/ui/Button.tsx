@@ -3,7 +3,15 @@
 import React, { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 
-export type ButtonVariant = "primary" | "secondary" | "secondary-stage" | "ghost" | "danger";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "secondary-stage"
+  | "ghost"
+  | "danger"
+  | "sticky-morph"
+  | "amber-hero"
+  | "filter-pill";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonBaseProps {
@@ -46,6 +54,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const variantClasses = {
     primary:
       "bg-primary hover:bg-primary-hover active:bg-primary-press text-white shadow-e1 hover:shadow-e2 active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none border border-white/20",
+    "amber-hero":
+      "bg-[#b45309] hover:bg-[#92400e] active:bg-[#78350f] text-white shadow-[0_8px_20px_-4px_rgba(180,83,9,0.35)] hover:shadow-[0_12px_24px_-6px_rgba(180,83,9,0.45)] active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none border border-white/25",
+    "sticky-morph":
+      "bg-[#0f172a] hover:bg-[#b45309] active:bg-[#92400e] text-white shadow-e1 hover:shadow-[0_8px_20px_-4px_rgba(180,83,9,0.35)] active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer border border-white/20",
+    "filter-pill":
+      "bg-surface hover:bg-[#0f172a] hover:text-white text-ink border border-line-strong hover:border-[#0f172a] rounded-full shadow-e1 active:scale-[0.96] transition-all duration-200 cursor-pointer",
     secondary:
       "bg-surface hover:bg-sunken text-ink border border-line-strong hover:border-ink-2 shadow-e1 active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none",
     "secondary-stage":

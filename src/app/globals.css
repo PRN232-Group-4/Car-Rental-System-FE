@@ -7,22 +7,32 @@
    ================================================================== */
 
 :root {
-  /* Neutrals (Một họ trung tính xanh-xám) */
-  --canvas: #f2f5f3;
-  --sunken: #e8eeeb;
+  /* Neutrals: Warm Contemporary Editorial (Nền kem ấm cao cấp) */
+  --canvas: #fbfbf9;
+  --sunken: #f2f2ee;
   --surface: #ffffff;
-  --ink: #0e1a16;
-  --ink-2: #34443d;
-  --ink-3: #566860;
-  --line: rgba(14, 26, 22, 0.10);
-  --line-strong: rgba(14, 26, 22, 0.18);
+  --surface-raised: #f7f7f4;
+  --ink: #0f172a;
+  --ink-2: #334155;
+  --ink-3: #64748b;
+  --line: rgba(15, 23, 42, 0.08);
+  --line-strong: rgba(15, 23, 42, 0.16);
 
-  /* Single Accent: Emerald Deep (>= 5.5:1 WCAG AA) */
-  --primary: #047857;
-  --primary-hover: #065f46;
-  --primary-press: #064e3b;
-  --primary-tint: #e3f4ec;
-  --primary-graphic: #059669;
+  /* Primary Accent: Amber Gold / Bronze (#B45309) & Deep Emerald Secondary */
+  --amber: #b45309;
+  --amber-hover: #92400e;
+  --amber-press: #78350f;
+  --amber-tint: #fef3c7;
+
+  --primary: #b45309;
+  --primary-hover: #92400e;
+  --primary-press: #78350f;
+  --primary-tint: #fef3c7;
+  --primary-graphic: #d97706;
+
+  /* Classic Performance Teal / Emerald */
+  --emerald-deep: #047857;
+  --emerald-tint: #e3f4ec;
 
   /* Status Pairs (text / bg >= 5.0:1) */
   --success: #166534;
@@ -35,9 +45,10 @@
   --info-bg: #dbeafe;
 
   /* Stages & Scrim (Phẳng tuyệt đối, không gradient) */
-  --stage-ink: #0e1a16;
+  --stage-ink: #0f172a;
   --stage-emerald: #047857;
-  --scrim: rgba(14, 26, 22, 0.38);
+  --stage-amber: #b45309;
+  --scrim: rgba(15, 23, 42, 0.45);
 
   /* Shape tokens */
   --r-control: 10px;

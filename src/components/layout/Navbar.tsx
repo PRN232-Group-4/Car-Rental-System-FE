@@ -237,7 +237,7 @@ export default function Navbar() {
                 >
                   Đăng nhập
                 </Link>
-                <Button as={Link} href="/#tim-xe" variant="primary" size="sm">
+                <Button as={Link} href="/#tim-xe" variant="sticky-morph" size="sm">
                   Đăng ký
                 </Button>
               </>

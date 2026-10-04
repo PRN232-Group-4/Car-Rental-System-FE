@@ -107,13 +107,15 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           onClick={() => setMode("hourly")}
           className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "hourly"
-              ? "bg-primary text-white shadow-e2 border border-white/20"
+              ? "bg-[#0f172a] text-white shadow-e2 border border-white/20"
               : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
           <Clock className="w-4 h-4 text-inherit" />
           <span>Thuê theo giờ</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider opacity-85 px-1.5 py-0.5 rounded bg-sunken text-ink">
+          <span className={`text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
+            mode === "hourly" ? "bg-white/20 text-white" : "bg-sunken text-ink"
+          }`}>
             HOURLY
           </span>
         </button>
@@ -123,13 +125,15 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           onClick={() => setMode("longterm")}
           className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "longterm"
-              ? "bg-primary text-white shadow-e2 border border-white/20"
+              ? "bg-[#0f172a] text-white shadow-e2 border border-white/20"
               : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
           <CalendarRange className="w-4 h-4 text-inherit" />
           <span>Thuê dài hạn</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider opacity-85 px-1.5 py-0.5 rounded bg-sunken text-ink">
+          <span className={`text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
+            mode === "longterm" ? "bg-white/20 text-white" : "bg-sunken text-ink"
+          }`}>
             FLEX
           </span>
         </button>
@@ -203,7 +207,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           <div className="shrink-0 pt-1 md:pt-0">
             <Button
               type="submit"
-              variant="primary"
+              variant="amber-hero"
               size="lg"
               className="w-full md:w-auto px-9 py-4 font-bold shadow-e2"
             >
