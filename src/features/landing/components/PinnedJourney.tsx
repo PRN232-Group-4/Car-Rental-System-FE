@@ -91,9 +91,70 @@ export default function PinnedJourney() {
     <section
       id="hanh-trinh"
       ref={containerRef}
-      className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative"
+      className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative overflow-hidden"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      {/* Background Topographic Elevation & GPS Waypoints Route Blueprint */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <svg 
+          className="w-full h-full opacity-[0.06]" 
+          viewBox="0 0 1280 1000" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMin slice"
+        >
+          {/* Engineering Boundary Marks */}
+          <line x1="0" y1="40" x2="1280" y2="40" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
+          <line x1="0" y1="90" x2="1280" y2="90" stroke="#b45309" strokeWidth="0.8" />
+          
+          <g stroke="#0f172a" strokeWidth="0.8">
+            <line x1="40" y1="80" x2="40" y2="100" />
+            <line x1="320" y1="80" x2="320" y2="100" />
+            <text x="180" y="86" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
+              TOPOGRAPHIC ROUTE SURVEY // GPS TELEMETRY
+            </text>
+          </g>
+
+          {/* Topographic Contour Elevation Curves */}
+          <path d="M -60 280 C 180 240, 420 320, 680 260 C 940 200, 1120 280, 1340 240" stroke="#0f172a" strokeWidth="1" strokeDasharray="4 4" />
+          <path d="M -40 380 C 220 310, 480 410, 720 340 C 960 270, 1160 360, 1360 320" stroke="#b45309" strokeWidth="1.2" />
+          <path d="M -20 480 C 240 400, 520 500, 780 430 C 1020 360, 1200 440, 1380 400" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
+          <path d="M 0 620 C 280 540, 560 640, 840 570 C 1080 500, 1240 580, 1400 540" stroke="#0f172a" strokeWidth="1" strokeDasharray="4 4" />
+          <path d="M -40 760 C 260 680, 600 780, 880 710 C 1120 640, 1280 720, 1420 680" stroke="#b45309" strokeWidth="1.2" strokeDasharray="8 6" />
+          <path d="M -60 900 C 240 820, 640 920, 920 850 C 1160 780, 1320 860, 1440 820" stroke="#0f172a" strokeWidth="0.8" />
+
+          {/* Elevation Level Labels */}
+          <text x="70" y="270" fill="#0f172a" fontSize="9" fontFamily="monospace">ELEV: +250M</text>
+          <text x="70" y="370" fill="#b45309" fontSize="9" fontFamily="monospace">ELEV: +580M [HIGHWAY 1A]</text>
+          <text x="70" y="470" fill="#0f172a" fontSize="9" fontFamily="monospace">ELEV: +920M [PASS CLIMB]</text>
+          <text x="70" y="750" fill="#b45309" fontSize="9" fontFamily="monospace">ELEV: +1500M [DALAT PLATEAU]</text>
+
+          {/* Geodetic Waypoint Nodes (SGN -> DL -> CR) */}
+          <g stroke="#b45309" strokeWidth="1">
+            {/* Waypoint 1: SGN */}
+            <circle cx="220" cy="820" r="14" strokeDasharray="3 3" />
+            <circle cx="220" cy="820" r="4" fill="#b45309" />
+            <text x="245" y="824" fill="#0f172a" fontSize="10" fontFamily="monospace" fontWeight="bold">WP-01: SGN HUB [000 KM]</text>
+
+            {/* Connecting Route Line */}
+            <path d="M 220 820 L 480 620 L 820 480 L 1080 340" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="6 6" />
+
+            {/* Waypoint 2: DL */}
+            <circle cx="820" cy="480" r="14" strokeDasharray="3 3" />
+            <circle cx="820" cy="480" r="4" fill="#b45309" />
+            <text x="845" y="484" fill="#0f172a" fontSize="10" fontFamily="monospace" fontWeight="bold">WP-02: DL PLATEAU [305 KM]</text>
+
+            {/* Waypoint 3: CAM RANH */}
+            <circle cx="1080" cy="340" r="14" strokeDasharray="3 3" />
+            <circle cx="1080" cy="340" r="4" fill="#b45309" />
+            <text x="1105" y="344" fill="#0f172a" fontSize="10" fontFamily="monospace" fontWeight="bold">WP-03: CR COAST [440 KM]</text>
+          </g>
+        </svg>
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
         <div ref={leftColRef} className="lg:col-span-5 space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold uppercase tracking-wider">

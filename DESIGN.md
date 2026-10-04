@@ -1,11 +1,11 @@
 # Design System — Hệ Thống Thuê Xe Thong Dong (Vehicle Rental System)
 
-> **Phiên bản 3.0 — Glass + Motion, nền sáng, không gradient.**
+> **Phiên bản 3.1 — Light Editorial Automotive Blueprint, Warm Canvas, Zero-Gradient.**
 >
 > Tài liệu gồm hai phần:
 >
-> - **Phần A — Design System** (mục A1–A13): vật liệu kính, màu, chữ, chuyển động 2D (GSAP), 3D (R3F), khu vực admin, truy cập, các điều cấm. Đây là nguồn xác thực cho mọi quyết định thị giác.
-> - **Phần B — Product & UX Specification** (mục 1–54): nghiệp vụ, luồng, trạng thái, quy tắc sản phẩm. Giữ nguyên tinh thần v2.0; các mục xung đột với Phần A đã được viết lại và trỏ về Phần A.
+> - **Phần A — Design System** (mục A1–A13): vật liệu kính, màu sắc, chữ, hệ thống đồ họa kỹ thuật Blueprint đa phân vùng, chuyển động 2D (GSAP), 3D (Three.js/WebGL), khu vực admin, truy cập, các điều cấm tuyệt đối. Đây là nguồn xác thực duy nhất cho mọi quyết định thị giác.
+> - **Phần B — Product & UX Specification** (mục 1–54): nghiệp vụ, luồng, trạng thái, quy tắc sản phẩm. Giữ nguyên 100% tinh thần v2.0/v3.0; các mục xung đột với Phần A đã được chuẩn hóa và trỏ về Phần A.
 >
 > **Khi Phần A và Phần B mâu thuẫn, Phần A thắng.**
 >
@@ -21,84 +21,66 @@
 
 ## A1. Bầu không khí & thang đo
 
-Một showroom ô tô lúc ban ngày: nền trung tính xanh-xám nhạt **phẳng**, ảnh xe thật và những khối màu đặc làm "hậu cảnh", còn giao diện là những **tấm kính mờ** đứng trước hậu cảnh đó. Kính là vật liệu của lớp điều khiển (thanh điều hướng, bảng tìm kiếm, hộp thoại, bảng đặt xe), không phải lớp trang trí phủ lên mọi thứ. Chuyển động giống ánh sáng trượt qua mặt kính và cơ cấu cơ khí chính xác: ngắn, có trọng lượng, không nảy lung tung.
+Một studio thiết kế & showroom ô tô kỹ thuật đương đại: nền giấy phác thảo ấm (**Warm Editorial Canvas `#FBFBF9`**) phẳng và chuẩn xác, các đồ họa vector phác thảo kỹ thuật CAD/Aero chuyên ngành làm hậu cảnh, còn giao diện là những **tấm kính mờ** (`.glass-1`, `.glass-2`, `.glass-3`) đứng trước hậu cảnh đó. Kính là vật liệu của lớp điều khiển (thanh điều hướng, bảng tìm kiếm, hộp thoại, bảng đặt xe), không phải lớp trang trí phủ lên mọi thứ. Chuyển động cơ khí chính xác, có trọng lượng, phản hồi dứt khoát.
 
-| Chiều                        | Khu công khai (khách)                         | Khu admin / staff                                                           |
-| ---------------------------- | --------------------------------------------- | --------------------------------------------------------------------------- |
-| Mật độ (Density)             | 4 — "Daily App Balanced"                      | 7 — "Cockpit Dense có kiểm soát"                                            |
-| Biến thiên bố cục (Variance) | 6 — bất đối xứng có kỷ luật                   | 3 — đối xứng, dễ đoán                                                       |
-| Chuyển động (Motion)         | 7 — "Fluid + Cinematic có chọn lọc"           | 3 — chỉ phản hồi chức năng                                                  |
-| Vật liệu kính                | Kính thật (blur + saturate) trên ảnh/khối đặc | Kính nhẹ "Clean Minimal Frosted" trên canvas phẳng; vùng nhập liệu luôn đặc |
+| Chiều                        | Khu công khai (khách)                                    | Khu admin / staff                                                           |
+| ---------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Mật độ (Density)             | 4 — "Daily App Balanced"                                 | 7 — "Cockpit Dense có kiểm soát"                                            |
+| Biến thiên bố cục (Variance) | 6 — bất đối xứng có kỷ luật, watermark editorial         | 3 — đối xứng, dễ đoán                                                       |
+| Chuyển động (Motion)         | 7 — "Fluid + Cinematic có chọn lọc (GSAP ScrollTrigger)" | 3 — chỉ phản hồi chức năng                                                  |
+| Vật liệu kính                | Kính thật (blur + saturate) trên hậu cảnh Blueprint      | Kính nhẹ "Clean Minimal Frosted" trên canvas phẳng; vùng nhập liệu luôn đặc |
 
 Nguyên tắc chủ đạo:
 
-1. **Kính cần hậu cảnh thật.** `backdrop-filter` chỉ có tác dụng khi có thứ gì đó phía sau: ảnh, khối màu đặc, hoặc nội dung cuộn. Trên nền phẳng, kính phải tự đứng được bằng viền sáng + đổ bóng; không được giả lập hậu cảnh bằng gradient.
+1. **Kính cần hậu cảnh thật.** `backdrop-filter` chỉ có tác dụng khi có thứ gì đó phía sau: ảnh xe, khối màu đặc, hoặc nội dung cuộn. Trên nền phẳng, kính phải tự đứng được bằng viền sáng + đổ bóng; không được giả lập hậu cảnh bằng gradient.
 2. **Đọc được trước, đẹp sau.** Văn bản trên kính luôn đạt WCAG AA tính trên vùng hậu cảnh sáng nhất (xem bảng tương phản A2).
-3. **Một điểm nhấn duy nhất:** Emerald Deep. Không có màu thứ hai làm điểm nhấn.
-4. **Chuyển động có lý do.** Mỗi animation trả lời một câu hỏi: "cái gì vừa xuất hiện / thay đổi / có thể bấm?".
+3. **Điểm nhấn màu chính:** Precision Amber `#B45309` (tông màu vàng đồng kỹ thuật ô tô, thay thế hoàn toàn màu xanh lá EV slop). Không lạm dụng màu, diện tích điểm nhấn <= 10% mỗi màn hình.
+4. **Hệ thống Blueprint Đa Phân Vùng:** Mỗi phân vùng sở hữu đồ họa kỹ thuật chuyên ngành tương ứng (Khí động học, Khung gầm phẳng, Radar 360°, Trắc địa GPS, Vi mạch NFC).
+5. **Chuyển động có lý do.** Mỗi animation trả lời một câu hỏi: "cái gì vừa xuất hiện / thay đổi / có thể bấm?".
 
 ---
 
 ## A2. Bảng màu & vai trò
 
-Một họ trung tính duy nhất (xanh-xám pha lục), một điểm nhấn duy nhất (Emerald). Không dùng `#000000`; không dùng `#FFFFFF` làm nền trang (chỉ làm bề mặt thẻ/ô nhập).
+Một họ trung tính ấm cao cấp (Warm Paper / Slate Ink), một điểm nhấn kỹ thuật chính (Precision Amber). Không dùng `#000000`; không dùng `#FFFFFF` làm nền trang (chỉ làm bề mặt thẻ/ô nhập).
 
-| Tên                 | Hex                   | Vai trò                                                                            |
-| ------------------- | --------------------- | ---------------------------------------------------------------------------------- |
-| **Showroom Mist**   | `#F2F5F3`             | Canvas — nền trang                                                                 |
-| **Sunken Bay**      | `#E8EEEB`             | Giếng/đáy: đầu bảng, vùng lõm, skeleton, ô disabled                                |
-| **Pure Surface**    | `#FFFFFF`             | Bề mặt đặc: thân bảng, ô nhập, thẻ cần tối đa độ đọc                               |
-| **Garage Ink**      | `#0E1A16`             | Chữ chính; khối "stage" tối; sidebar admin                                         |
-| **Ink Secondary**   | `#34443D`             | Chữ phụ, mô tả                                                                     |
-| **Ink Muted**       | `#566860`             | Metadata, placeholder, nhãn nhỏ (>= 5.0:1 trên canvas)                             |
-| **Hairline**        | `rgba(14,26,22,0.10)` | Đường kẻ cấu trúc 1px                                                              |
-| **Hairline Strong** | `rgba(14,26,22,0.18)` | Viền ô nhập, viền thẻ trên nền sáng                                                |
-| **Emerald Deep**    | `#047857`             | **Điểm nhấn duy nhất**: CTA chính, link, trạng thái chọn, focus ring               |
-| Emerald Hover       | `#065F46`             | Hover CTA                                                                          |
-| Emerald Press       | `#064E3B`             | Active CTA                                                                         |
-| Emerald Tint        | `#E3F4EC`             | Nền hàng/chip được chọn                                                            |
-| Emerald Graphic     | `#059669`             | Chỉ cho icon/đồ họa lớn (>= 3:1); **không** dùng làm màu chữ hay nền nút chữ trắng |
-| Success / bg        | `#166534` / `#DCFCE7` | Trạng thái — luôn đi kèm icon + nhãn chữ                                           |
-| Warning / bg        | `#92400E` / `#FEF3C7` | Trạng thái                                                                         |
-| Danger / bg         | `#B91C1C` / `#FEE2E2` | Trạng thái                                                                         |
-| Info / bg           | `#1D4ED8` / `#DBEAFE` | Trạng thái                                                                         |
-| Scrim               | `rgba(14,26,22,0.38)` | Lớp phủ **phẳng** trên ảnh để chữ/kính đọc được (không phải gradient)              |
-
-Ghi chú về độ bão hòa: Emerald `#047857` có độ bão hòa HSL cao nhưng độ sáng thấp (L ≈ 24%); được giữ lại có chủ đích để nhất quán với logo/bộ nhận diện hiện có (`logo-car-emerald.png`). Giảm rủi ro "neon" bằng cách dùng tiết kiệm (<= 10% diện tích mỗi màn hình), không tạo glow, không dùng cho chữ lớn.
+| Tên                  | Hex                   | Vai trò                                                                                |
+| -------------------- | --------------------- | -------------------------------------------------------------------------------------- |
+| **Warm Canvas**      | `#FBFBF9`             | Canvas — nền trang ấm cao cấp (thay cho Showroom Mist xanh xám)                        |
+| **Sunken Bay**       | `#F2F2EE`             | Giếng/đáy: đầu bảng, vùng lõm, skeleton, ô disabled                                    |
+| **Pure Surface**     | `#FFFFFF`             | Bề mặt đặc: thân bảng, ô nhập, thẻ cần tối đa độ đọc                                   |
+| **Slate Ink**        | `#0F172A`             | Chữ chính; khối "stage" tối; sidebar admin                                             |
+| **Ink Secondary**    | `#334155`             | Chữ phụ, mô tả                                                                         |
+| **Ink Muted**        | `#64748B`             | Metadata, placeholder, nhãn nhỏ (>= 5.0:1 trên canvas)                                 |
+| **Hairline**         | `rgba(15,23,42,0.08)` | Đường kẻ cấu trúc 1px                                                                  |
+| **Hairline Strong**  | `rgba(15,23,42,0.16)` | Viền ô nhập, viền thẻ trên nền sáng                                                    |
+| **Precision Amber**  | `#B45309`             | **Điểm nhấn chính**: CTA chính, link, trạng thái chọn, focus ring                      |
+| Amber Hover          | `#92400E`             | Hover CTA                                                                              |
+| Amber Press          | `#78350F`             | Active CTA                                                                             |
+| Amber Tint           | `#FEF3C7`             | Nền hàng/chip được chọn                                                                |
+| Amber Graphic        | `#D97706`             | Chỉ cho icon/đồ họa lớn (>= 3:1); **không** dùng làm màu chữ hay nền nút chữ trắng     |
+| Success / bg         | `#166534` / `#DCFCE7` | Trạng thái — luôn đi kèm icon + nhãn chữ                                               |
+| Warning / bg         | `#92400E` / `#FEF3C7` | Trạng thái                                                                             |
+| Danger / bg          | `#B91C1C` / `#FEE2E2` | Trạng thái                                                                             |
+| Info / bg            | `#1D4ED8` / `#DBEAFE` | Trạng thái                                                                             |
+| Scrim                | `rgba(15,23,42,0.45)` | Lớp phủ **phẳng** trên ảnh để chữ/kính đọc được (không phải gradient)                  |
 
 **Bảng tương phản đã đo (WCAG 2.x):**
 
 | Cặp                          | Tỉ lệ                                 | Dùng cho                                                                                    |
 | ---------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Ink / Canvas                 | 16.2:1                                | Chữ chính                                                                                   |
-| Ink Secondary / Canvas       | 9.4:1                                 | Chữ phụ                                                                                     |
-| Ink Muted / Canvas           | 5.4:1 · / Sunken 5.0:1 · / Tint 5.2:1 | Metadata                                                                                    |
-| White / Emerald Deep         | 5.5:1                                 | Chữ trên nút chính                                                                          |
-| Emerald Deep / Canvas        | 5.0:1                                 | Link, chữ nhấn                                                                              |
-| Emerald Deep / Emerald Tint  | 4.8:1                                 | Chip được chọn                                                                              |
-| Mỗi cặp trạng thái (text/bg) | 5.3–6.5:1                             | Badge, alert                                                                                |
-| White / Garage Ink           | 17.8:1                                | Chữ trên khối tối                                                                           |
-| `#6EE7B7` / Garage Ink       | 11.7:1                                | Link trên nền tối (Emerald Deep chỉ đạt 3.3:1 trên tối — **cấm** dùng làm chữ trên nền tối) |
+| Slate Ink / Warm Canvas      | 16.5:1                                | Chữ chính (đạt AAA)                                                                         |
+| Ink Secondary / Warm Canvas  | 9.6:1                                 | Chữ phụ (đạt AAA)                                                                           |
+| Ink Muted / Warm Canvas      | 5.2:1                                 | Metadata (đạt AA)                                                                           |
+| White / Precision Amber      | 5.2:1                                 | Chữ trên nút chính (đạt AA)                                                                 |
+| Precision Amber / Canvas     | 5.1:1                                 | Link, chữ nhấn (đạt AA)                                                                     |
+| White / Slate Ink            | 17.8:1                                | Chữ trên khối tối (đạt AAA)                                                                 |
 
-**Hệ quả với DESIGN.md v2 cũ (đã bị thay thế):** `#059669` + chữ trắng chỉ đạt 3.77:1 (trượt AA); `#999999` chữ nhỏ trên nền trắng 2.85:1; `#F59E0B` làm chữ 2.15:1. Ba giá trị này bị cấm làm màu chữ/nút chữ.
-
-**Chữ trên từng tầng kính (đã tính hợp thành trên hậu cảnh xấu nhất):**
-
-| Tầng kính                              | Hậu cảnh xấu nhất         | Chữ được phép                                                                    |
-| -------------------------------------- | ------------------------- | -------------------------------------------------------------------------------- |
-| `glass-1` (alpha .55)                  | khối Garage Ink           | Chỉ Ink (6.1:1) hoặc chữ lớn >= 24px Ink Secondary (3.5:1). **Không** Ink Muted. |
-| `glass-2` (alpha .72)                  | khối Garage Ink / Emerald | Ink (9.6:1+), Ink Secondary (5.6:1+). Ink Muted chỉ >= 18px bold.                |
-| `glass-3` (alpha .88)                  | khối Garage Ink           | Ink, Ink Secondary, Ink Muted (4.6:1).                                           |
-| `glass-ink` (alpha .72)                | ảnh trắng                 | Chữ trắng (7.1:1); chữ `rgba(255,255,255,.72)` chỉ >= 16px (4.6:1).              |
-| `glass-admin` / `glass-lite` / Surface | canvas                    | Mọi token chữ.                                                                   |
-
-Quy tắc kèm theo: nếu hậu cảnh là **ảnh**, luôn đặt Scrim phẳng dưới kính/chữ và kiểm tra tương phản trên vùng sáng nhất của ảnh.
-
-**Màu biểu đồ (Recharts/SVG), tất cả >= 3:1 trên Surface, kèm họa tiết/nhãn để không chỉ phân biệt bằng màu:**
+**Màu biểu đồ (Recharts/SVG), tất cả >= 3:1 trên Surface:**
 
 ```text
---chart-1: #047857   (5.5:1)   --chart-2: #0E1A16 (17.8:1)   --chart-3: #66796F (4.6:1)
---chart-4: #7A8F86   (3.4:1)   --chart-5: #B45309 (5.0:1, nhấn cảnh báo)
+--chart-1: #B45309 (Amber 5.2:1)     --chart-2: #0F172A (Slate 17.8:1)   --chart-3: #64748B (Muted 5.2:1)
+--chart-4: #047857 (Emerald 5.5:1)   --chart-5: #D97706 (Amber Graphic 3.5:1)
 ```
 
 ---

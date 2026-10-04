@@ -66,18 +66,72 @@ export default function MembershipPasses() {
       id="goi-thue-bao" 
       className="relative py-28 px-4 sm:px-6 lg:px-8 bg-[#f7f7f4] text-ink border-t border-line overflow-hidden scroll-mt-24"
     >
-      {/* Structural Ambient Grid & Tech Accents */}
+      {/* Structural Ambient Grid & Secure Enclave NFC Circuit Blueprint */}
       <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
         aria-hidden="true"
       >
-        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="member-grid-light" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#0f172a" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#member-grid-light)" />
+        <svg 
+          className="w-full h-full opacity-[0.06]" 
+          viewBox="0 0 1280 900" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMin slice"
+        >
+          {/* Engineering Boundary Marks */}
+          <line x1="0" y1="40" x2="1280" y2="40" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
+          <line x1="0" y1="90" x2="1280" y2="90" stroke="#b45309" strokeWidth="0.8" />
+          
+          <g stroke="#0f172a" strokeWidth="0.8">
+            <line x1="40" y1="80" x2="40" y2="100" />
+            <line x1="320" y1="80" x2="320" y2="100" />
+            <text x="180" y="86" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
+              SECURE ENCLAVE NFC // PKPASS ISO-7810
+            </text>
+          </g>
+
+          {/* NFC Antenna Loop Array & Smartcard Geometry */}
+          <g transform="translate(640, 480)">
+            {/* ISO-7810 Smartcard Perimeter Blueprint Frame */}
+            <rect x="-420" y="-260" width="840" height="520" rx="32" stroke="#0f172a" strokeWidth="1.2" strokeDasharray="8 6" />
+            <rect x="-390" y="-230" width="780" height="460" rx="20" stroke="#b45309" strokeWidth="0.8" />
+            
+            {/* NFC Concentric Induction Antenna Coils */}
+            <rect x="-370" y="-210" width="740" height="420" rx="16" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+            <rect x="-350" y="-190" width="700" height="380" rx="12" stroke="#b45309" strokeWidth="0.6" strokeDasharray="6 4" />
+            
+            {/* Center Microchip Package & PCB Gold Contacts */}
+            <rect x="-80" y="-80" width="160" height="160" rx="12" stroke="#0f172a" strokeWidth="1.5" />
+            <circle cx="0" cy="0" r="28" stroke="#b45309" strokeWidth="1.2" strokeDasharray="3 3" />
+            <circle cx="0" cy="0" r="5" fill="#b45309" />
+
+            {/* Chip Contact Baffles (8-pin Smartcard standard) */}
+            <line x1="-80" y1="-26" x2="80" y2="-26" stroke="#0f172a" strokeWidth="0.8" />
+            <line x1="-80" y1="26" x2="80" y2="26" stroke="#0f172a" strokeWidth="0.8" />
+            <line x1="0" y1="-80" x2="0" y2="-26" stroke="#0f172a" strokeWidth="0.8" />
+            <line x1="0" y1="26" x2="0" y2="80" stroke="#0f172a" strokeWidth="0.8" />
+
+            {/* Circuit Traces Extending from Chip to Edge */}
+            <path d="M -80 -40 L -240 -40 L -280 -80 M 80 -40 L 240 -40 L 280 -80" stroke="#0f172a" strokeWidth="0.8" />
+            <path d="M -80 40 L -240 40 L -280 80 M 80 40 L 240 40 L 280 80" stroke="#b45309" strokeWidth="0.8" strokeDasharray="4 4" />
+
+            {/* Security Telemetry Labels */}
+            <text x="0" y="-110" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle" letterSpacing="1.5">
+              EAL 6+ HARDWARE ROOT-OF-TRUST // ECC P-256
+            </text>
+            <text x="0" y="125" fill="#b45309" fontSize="9" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
+              CONTACTLESS MIFARE DESFIRE EV3 COMPATIBLE
+            </text>
+          </g>
+
+          {/* Corner Precision Measurement Crosshairs */}
+          <g stroke="#0f172a" strokeWidth="0.8">
+            <line x1="80" y1="460" x2="100" y2="460" /><line x1="90" y1="450" x2="90" y2="470" />
+            <text x="110" y="464" fill="#0f172a" fontSize="9" fontFamily="monospace">ISO/IEC 14443-A</text>
+
+            <line x1="1180" y1="460" x2="1200" y2="460" /><line x1="1190" y1="450" x2="1190" y2="470" />
+            <text x="1080" y="464" fill="#0f172a" fontSize="9" fontFamily="monospace">13.56 MHZ RF</text>
+          </g>
         </svg>
       </div>
 

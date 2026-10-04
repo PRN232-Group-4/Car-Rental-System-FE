@@ -95,15 +95,15 @@ async function verifyLayout() {
     await page.waitForTimeout(300);
   }
 
-  // 3. Scroll tới PinnedJourney để xác nhận không còn bị cắt ngang
-  console.log("3. Kiểm tra phân vùng Hành trình tối giản (PinnedJourney)...");
+  // 3. Scroll tới Fleet Catalog
+  console.log("3. Kiểm tra phân vùng Đội xe (MultiFleetCatalog)...");
   await page.evaluate(() => {
-    const el = document.getElementById("hanh-trinh") || document.getElementById("quy-trinh");
+    const el = document.getElementById("doi-xe") || document.getElementById("chi-nhanh");
     if (el) el.scrollIntoView({ behavior: "instant" });
   });
   await page.waitForTimeout(800);
-  await page.screenshot({ path: path.join(screenshotsDir, "pinned-journey-fixed.png") });
-  console.log("-> Đã lưu screenshots/pinned-journey-fixed.png");
+  await page.screenshot({ path: path.join(screenshotsDir, "fleet-catalog-blueprint.png") });
+  console.log("-> Đã lưu screenshots/fleet-catalog-blueprint.png");
 
   // 4. Scroll tới InspectionSection
   console.log("4. Kiểm tra phân vùng Kiểm định (InspectionSection)...");
@@ -112,8 +112,32 @@ async function verifyLayout() {
     if (el) el.scrollIntoView({ behavior: "instant" });
   });
   await page.waitForTimeout(800);
-  await page.screenshot({ path: path.join(screenshotsDir, "inspection-fixed.png") });
-  console.log("-> Đã lưu screenshots/inspection-fixed.png");
+  await page.screenshot({ path: path.join(screenshotsDir, "inspection-blueprint.png") });
+  console.log("-> Đã lưu screenshots/inspection-blueprint.png");
+
+  // 5. Scroll tới PinnedJourney
+  console.log("5. Kiểm tra phân vùng Hành trình tối giản (PinnedJourney)...");
+  await page.evaluate(() => {
+    const el = document.getElementById("hanh-trinh") || document.getElementById("quy-trinh");
+    if (el) el.scrollIntoView({ behavior: "instant" });
+  });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: path.join(screenshotsDir, "journey-blueprint.png") });
+  console.log("-> Đã lưu screenshots/journey-blueprint.png");
+
+  // 6. Scroll tới MembershipPasses
+  console.log("6. Kiểm tra phân vùng Thẻ hội viên (MembershipPasses)...");
+  await page.evaluate(() => {
+    const el = document.getElementById("goi-thue-bao");
+    if (el) el.scrollIntoView({ behavior: "instant" });
+  });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: path.join(screenshotsDir, "membership-blueprint.png") });
+  console.log("-> Đã lưu screenshots/membership-blueprint.png");
+
+  // 7. Chụp ảnh toàn trang
+  await page.screenshot({ path: path.join(screenshotsDir, "blueprint-full-page.png"), fullPage: true });
+  console.log("-> Đã lưu screenshots/blueprint-full-page.png (Full page)");
 
   await browser.close();
   server.close();

@@ -38,7 +38,7 @@ export default function ContinuousBlueprint() {
       </svg>
 
       {/* 2. Left Vertical Datum Axis (Travel Millimeter Ruler: 0000 MM -> 6000 MM) */}
-      <div className="hidden 2xl:flex flex-col justify-between absolute left-6 top-32 bottom-40 w-12 border-l border-ink/10 pl-2 font-mono text-[9px] text-ink-3 opacity-40">
+      <div className="hidden xl:flex flex-col justify-between absolute left-2 xl:left-3 2xl:left-6 top-32 bottom-40 w-12 border-l border-ink/10 pl-1.5 font-mono text-[9px] text-ink-3 opacity-40">
         <div>
           <span className="block font-bold text-[#b45309]">0000 MM</span>
           <span className="text-[8px] text-ink-3">SYS-INIT</span>
@@ -66,7 +66,7 @@ export default function ContinuousBlueprint() {
       </div>
 
       {/* 3. Right Vertical Technical Datum Axis (Coordinates & System Standard) */}
-      <div className="hidden 2xl:flex flex-col justify-between absolute right-6 top-32 bottom-40 w-24 border-r border-ink/10 pr-2 text-right font-mono text-[9px] text-ink-3 opacity-40">
+      <div className="hidden xl:flex flex-col justify-between absolute right-2 xl:right-3 2xl:right-6 top-32 bottom-40 w-24 border-r border-ink/10 pr-1.5 text-right font-mono text-[9px] text-ink-3 opacity-40">
         <div>
           <span className="block font-bold text-ink">10.7626° N</span>
           <span className="text-[8px] text-ink-3">106.6602° E</span>

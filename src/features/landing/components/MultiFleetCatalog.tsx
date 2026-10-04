@@ -196,18 +196,82 @@ export default function MultiFleetCatalog() {
 
   return (
     <section id="doi-xe" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
-      {/* Background Automotive Blueprint Vectors */}
+      {/* Background Automotive Blueprint Vectors (Flat Chassis Cutaway & Wind-Tunnel Streamlines) */}
       <div 
         className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
         aria-hidden="true"
       >
-        <svg className="w-full h-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0" y1="56" x2="100%" y2="56" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
-          <line x1="0" y1="140" x2="100%" y2="140" stroke="#b45309" strokeWidth="0.8" />
+        <svg 
+          className="w-full h-full opacity-[0.06]" 
+          viewBox="0 0 1280 1200" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMin slice"
+        >
+          {/* Engineering Boundary Marks */}
+          <line x1="0" y1="40" x2="1280" y2="40" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
+          <line x1="0" y1="120" x2="1280" y2="120" stroke="#b45309" strokeWidth="0.8" />
+          
+          {/* Section Blueprint Stamp */}
           <g stroke="#0f172a" strokeWidth="0.8">
-            <line x1="40" y1="130" x2="40" y2="150" />
-            <line x1="180" y1="130" x2="180" y2="150" />
-            <text x="110" y="136" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle">FLEET CATALOG METRICS</text>
+            <line x1="40" y1="110" x2="40" y2="130" />
+            <line x1="280" y1="110" x2="280" y2="130" />
+            <text x="160" y="116" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
+              FLEET PLATFORM: SKATEBOARD CHASSIS 1:1
+            </text>
+          </g>
+
+          {/* Wind-Tunnel Aerodynamic Streamlines */}
+          <path d="M -40 240 C 300 200, 680 160, 980 230 C 1140 270, 1240 310, 1320 340" stroke="#b45309" strokeWidth="1.2" strokeDasharray="8 6" />
+          <path d="M -20 320 C 320 280, 720 230, 1020 300 C 1180 340, 1260 380, 1340 410" stroke="#0f172a" strokeWidth="1" />
+          <path d="M 0 420 C 360 380, 760 340, 1060 390 C 1200 420, 1280 460, 1360 490" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+          <path d="M 20 780 C 380 730, 740 680, 1040 740 C 1180 770, 1260 820, 1340 850" stroke="#b45309" strokeWidth="1" strokeDasharray="6 6" />
+          <path d="M -40 920 C 340 880, 780 840, 1080 890 C 1220 920, 1300 960, 1380 990" stroke="#0f172a" strokeWidth="1.2" />
+
+          {/* Center Skateboard Chassis & Battery Pack Structural Perimeter */}
+          <g transform="translate(340, 360)">
+            {/* Outer Chassis Frame */}
+            <rect x="0" y="0" width="600" height="520" rx="28" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="8 4" />
+            <rect x="24" y="24" width="552" height="472" rx="16" stroke="#b45309" strokeWidth="1" />
+            
+            {/* Battery Cell Structural Baffles */}
+            <line x1="24" y1="140" x2="576" y2="140" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+            <line x1="24" y1="260" x2="576" y2="260" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+            <line x1="24" y1="380" x2="576" y2="380" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+            <line x1="160" y1="24" x2="160" y2="496" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+            <line x1="300" y1="24" x2="300" y2="496" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+            <line x1="440" y1="24" x2="440" y2="496" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="4 4" />
+
+            {/* Front & Rear e-AWD Drive Unit Cylinders */}
+            <circle cx="300" cy="80" r="32" stroke="#b45309" strokeWidth="1.2" />
+            <circle cx="300" cy="80" r="4" fill="#b45309" />
+            <circle cx="300" cy="440" r="36" stroke="#b45309" strokeWidth="1.2" />
+            <circle cx="300" cy="440" r="5" fill="#b45309" />
+
+            {/* Front Suspension Wishbone Arms */}
+            <path d="M 240 80 L 120 40 M 360 80 L 480 40" stroke="#0f172a" strokeWidth="1.2" />
+            <path d="M 240 80 L 120 120 M 360 80 L 480 120" stroke="#0f172a" strokeWidth="1.2" />
+
+            {/* Rear Suspension Multi-Link Geometry */}
+            <path d="M 230 440 L 110 400 M 370 440 L 490 400" stroke="#0f172a" strokeWidth="1.2" />
+            <path d="M 230 440 L 110 480 M 370 440 L 490 480" stroke="#0f172a" strokeWidth="1.2" />
+
+            {/* Chassis Telemetry Spec Label */}
+            <text x="300" y="255" fill="#0f172a" fontSize="11" fontFamily="monospace" textAnchor="middle" letterSpacing="1.5">
+              800V HIGH-VOLTAGE ARCHITECTURE // CATL CELL-TO-PACK
+            </text>
+            <text x="300" y="275" fill="#b45309" fontSize="9" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
+              MAX TORQUE DUAL-MOTOR TORQUE VECTORING
+            </text>
+          </g>
+
+          {/* Precision Alignment Crosshairs */}
+          <g stroke="#0f172a" strokeWidth="0.8">
+            <line x1="80" y1="560" x2="100" y2="560" /><line x1="90" y1="550" x2="90" y2="570" />
+            <text x="110" y="564" fill="#0f172a" fontSize="9" fontFamily="monospace">DATUM: F-AXLE</text>
+
+            <line x1="1180" y1="560" x2="1200" y2="560" /><line x1="1190" y1="550" x2="1190" y2="570" />
+            <text x="1090" y="564" fill="#0f172a" fontSize="9" fontFamily="monospace">TRACK 1,640 MM</text>
           </g>
         </svg>
       </div>

@@ -64,9 +64,72 @@ export default function InspectionSection() {
   const activePoint = INSPECTION_POINTS.find((p) => p.id === activePointId) || INSPECTION_POINTS[0];
 
   return (
-    <section id="kiem-dinh" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
+    <section id="kiem-dinh" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
+      {/* Background Optical LiDAR & 360° Diagnostic Radar Blueprint */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <svg 
+          className="w-full h-full opacity-[0.06]" 
+          viewBox="0 0 1280 900" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMin slice"
+        >
+          {/* Engineering Boundary Marks */}
+          <line x1="0" y1="40" x2="1280" y2="40" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="6 6" />
+          <line x1="0" y1="100" x2="1280" y2="100" stroke="#b45309" strokeWidth="0.8" />
+          
+          <g stroke="#0f172a" strokeWidth="0.8">
+            <line x1="40" y1="90" x2="40" y2="110" />
+            <line x1="280" y1="90" x2="280" y2="110" />
+            <text x="160" y="96" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
+              OPTICAL LIDAR &amp; 360° TELEMETRY
+            </text>
+          </g>
+
+          {/* Concentric Radar Range Rings & Azimuth Crosshairs */}
+          <g transform="translate(640, 520)">
+            <circle cx="0" cy="0" r="120" stroke="#0f172a" strokeWidth="1" strokeDasharray="4 4" />
+            <circle cx="0" cy="0" r="220" stroke="#b45309" strokeWidth="1" />
+            <circle cx="0" cy="0" r="320" stroke="#0f172a" strokeWidth="1.2" strokeDasharray="8 6" />
+            <circle cx="0" cy="0" r="420" stroke="#0f172a" strokeWidth="0.8" strokeDasharray="2 4" />
+            <circle cx="0" cy="0" r="6" fill="#b45309" />
+
+            {/* Radar Sweep Rays & Angle Guides */}
+            <line x1="-460" y1="0" x2="460" y2="0" stroke="#0f172a" strokeWidth="0.8" />
+            <line x1="0" y1="-460" x2="0" y2="460" stroke="#0f172a" strokeWidth="0.8" />
+            <line x1="-320" y1="-320" x2="320" y2="320" stroke="#0f172a" strokeWidth="0.6" strokeDasharray="4 4" />
+            <line x1="-320" y1="320" x2="320" y2="-320" stroke="#0f172a" strokeWidth="0.6" strokeDasharray="4 4" />
+
+            {/* Range Annotations */}
+            <text x="125" y="-8" fill="#0f172a" fontSize="9" fontFamily="monospace">R: 10M</text>
+            <text x="225" y="-8" fill="#b45309" fontSize="9" fontFamily="monospace">R: 25M</text>
+            <text x="325" y="-8" fill="#0f172a" fontSize="9" fontFamily="monospace">R: 50M</text>
+            
+            {/* Azimuth Angle Marks */}
+            <text x="0" y="-430" fill="#0f172a" fontSize="9" fontFamily="monospace" textAnchor="middle">000° [N]</text>
+            <text x="430" y="4" fill="#0f172a" fontSize="9" fontFamily="monospace">090° [E]</text>
+            <text x="0" y="445" fill="#0f172a" fontSize="9" fontFamily="monospace" textAnchor="middle">180° [S]</text>
+            <text x="-430" y="4" fill="#0f172a" fontSize="9" fontFamily="monospace" textAnchor="end">270° [W]</text>
+          </g>
+
+          {/* Sensor Alignment Target Marks */}
+          <g stroke="#b45309" strokeWidth="0.8">
+            <circle cx="180" cy="400" r="16" strokeDasharray="2 2" />
+            <circle cx="180" cy="400" r="2" fill="#b45309" />
+            <text x="180" y="430" fill="#0f172a" fontSize="9" fontFamily="monospace" textAnchor="middle">CAM-01 [F-FOV 120°]</text>
+
+            <circle cx="1100" cy="400" r="16" strokeDasharray="2 2" />
+            <circle cx="1100" cy="400" r="2" fill="#b45309" />
+            <text x="1100" y="430" fill="#0f172a" fontSize="9" fontFamily="monospace" textAnchor="middle">CAM-02 [R-FOV 120°]</text>
+          </g>
+        </svg>
+      </div>
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
             <ShieldCheck className="w-4 h-4 text-[#b45309]" />
