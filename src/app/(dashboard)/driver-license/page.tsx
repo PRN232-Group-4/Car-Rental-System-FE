@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   FileCheck,
   ShieldCheck,
@@ -261,10 +262,13 @@ function LicenseEditForm({
         <div className="mt-2 flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50/50 hover:bg-neutral-50 transition-colors">
           {imagePreview ? (
             <div className="relative w-48 h-32 rounded-xl overflow-hidden border border-neutral-200 bg-white shrink-0 shadow-xs">
-              <img
+              <Image
                 src={imagePreview}
                 alt="Ảnh GPLX"
-                className="w-full h-full object-cover"
+                fill
+                sizes="192px"
+                className="object-cover"
+                unoptimized
               />
             </div>
           ) : (

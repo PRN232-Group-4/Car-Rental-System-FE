@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Car,
@@ -425,10 +426,12 @@ function DatXeForm() {
                       }`}
                     >
                       <div className="relative w-24 h-20 rounded-xl overflow-hidden bg-neutral-100 shrink-0">
-                        <img
+                        <Image
                           src={v.imageUrl}
                           alt={v.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="96px"
+                          className="object-cover"
                         />
                       </div>
                       <div className="min-w-0 flex-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ApiClientError } from "@/api/api-client";
+import { getAccountProfile } from "@/features/profile/api";
+import { getLoginPortalPath } from "../portal-routing";
 
 interface DemoAccount {
   label: string;
@@ -46,21 +48,59 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
   },
 ];
 
+/** Cổng đích sau khi đăng nhập: ưu tiên ?next, còn lại suy ra từ role/phòng ban. */
+async function resolveDestination(
+  roles: string[],
+  redirectUrl: string | null,
+): Promise<string> {
+  if (redirectUrl) return redirectUrl;
+  const normalized = roles.map((role) => role.toLocaleLowerCase());
+  const isStaffLike = normalized.some((role) => role === "staff" || role === "driver");
+  let staffAccount = null;
+  if (isStaffLike && !normalized.includes("admin")) {
+    staffAccount = await getAccountProfile();
+  }
+  return getLoginPortalPath(roles, staffAccount);
+}
+
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("next") || searchParams.get("redirect") || "/";
+  const redirectUrl = searchParams.get("next") || searchParams.get("redirect");
 
-  const { login } = useAuth();
+  const { login, user, isLoading: authLoading, isAuthenticated } = useAuth();
+
+  // Đã có phiên (vd: vừa quay về từ Google OAuth với) → vào thẳng cổng tương ứng.
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || !user) return;
+    let active = true;
+    void resolveDestination(user.roles ?? [], redirectUrl)
+      .then((destination) => {
+        if (active) router.replace(destination);
+      })
+      .catch(() => {
+        // Không xác định được cổng → để người dùng ở lại trang đăng nhập.
+      });
+    return () => {
+      active = false;
+    };
+  }, [authLoading, isAuthenticated, user, redirectUrl, router]);
 
   const registeredEmail = searchParams.get("registered");
+  const googleStatus = searchParams.get("google");
   const [email, setEmail] = useState(() => registeredEmail || "");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(() =>
+    googleStatus === "unavailable"
+      ? "Đăng nhập Google chưa được cấu hình trên hệ thống. Vui lòng đăng nhập bằng email và mật khẩu."
+      : googleStatus === "error"
+        ? "Đăng nhập Google thất bại: tài khoản Google này chưa tồn tại trong hệ thống Thong Dong."
+        : null,
+  );
   const [successMessage, setSuccessMessage] = useState<string | null>(() =>
     registeredEmail ? "Đăng ký thành công! Vui lòng nhập mật khẩu để đăng nhập." : null
   );
@@ -98,9 +138,19 @@ export default function LoginForm() {
         rememberMe,
       });
 
+      let destination: string;
+      try {
+        destination = await resolveDestination(user.roles ?? [], redirectUrl);
+      } catch {
+        setErrorMessage(
+          "Đăng nhập thành công nhưng không thể tải thông tin phòng ban để xác định cổng nhân viên. Vui lòng tải lại trang hoặc thử lại.",
+        );
+        return;
+      }
+
       setSuccessMessage(`Chào mừng trở lại, ${user.fullName}! Đang chuyển hướng...`);
       setTimeout(() => {
-        router.push(redirectUrl);
+        router.push(destination);
       }, 1000);
     } catch (err: unknown) {
       if (err instanceof ApiClientError) {

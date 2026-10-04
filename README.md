@@ -216,7 +216,11 @@ Hệ thống kiểm thử của dự án bao gồm:
 
 ---
 
-## 🚢 Quy trình Triển khai (Deployment)
+## Backend API
+
+The Admin portal and customer Profile pages use the Vehicle Rental backend. The API base defaults to the production backend and can be overridden with `NEXT_PUBLIC_API_URL`, including the `/api` path (for example, `https://your-api.example/api`). Authentication is not wired yet; backend authorization errors are shown in the affected page. Other site features continue to use the existing API client.
+
+## Learn More
 
 Dự án được cấu hình triển khai dưới dạng **Cloudflare Workers Assets**:
 

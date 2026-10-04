@@ -3,7 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  ChevronDown,
+  Car,
+  Package,
+  FileText,
+  CreditCard,
+  FileCheck,
+} from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useMounted } from "@/hooks/use-mounted";
 
@@ -11,7 +21,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const mounted = useMounted();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, hasRole } = useAuth();
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     setMobileMenuOpen(false);
@@ -42,7 +52,7 @@ export default function Navbar() {
             className="flex items-center gap-2 sm:gap-2.5 group whitespace-nowrap py-0.5 select-none"
           >
             <span className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 group-hover:text-[#059669] transition-colors">
-              ThongDong.
+              ThongDong
             </span>
           </Link>
 
@@ -121,9 +131,9 @@ export default function Navbar() {
                       </p>
                       <div className="flex items-center gap-1 mt-1.5">
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                          {user.roles.includes("Admin")
+                          {hasRole("admin")
                             ? "Quản trị viên"
-                            : user.roles.includes("Staff")
+                            : hasRole("staff") || hasRole("driver")
                               ? "Nhân viên"
                               : "Khách hàng"}
                         </span>
@@ -225,7 +235,10 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1">
+          <div
+            id="mobile-nav-menu"
+            className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1"
+          >
             <Link
               href="/#tim-xe"
               onClick={() => setMobileMenuOpen(false)}
@@ -280,10 +293,21 @@ export default function Navbar() {
                       </div>
                     )}
                     <div>
-                      <div className="text-sm font-bold text-neutral-900">{user.fullName}</div>
-                      <div className="text-xs text-neutral-500">{user.email}</div>
+                      <div className="text-sm font-bold text-neutral-900">
+                        {user.fullName}
+                      </div>
+                      <div className="text-xs text-neutral-500">
+                        {user.email}
+                      </div>
                     </div>
                   </div>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full py-2 mb-2 text-xs font-semibold text-center text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
+                  >
+                    Hồ sơ của tôi
+                  </Link>
                   <button
                     type="button"
                     onClick={() => {
