@@ -83,7 +83,7 @@ export default function Navbar() {
             onClick={handleLogoClick}
             className="flex items-center gap-2 group whitespace-nowrap py-0.5 select-none"
           >
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-ink group-hover:text-primary transition-colors">
+            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink group-hover:text-primary transition-colors">
               ThongDong.
             </span>
           </Link>

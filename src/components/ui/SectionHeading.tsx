@@ -39,7 +39,7 @@ export function SectionHeading({
     <div className={`flex flex-col max-w-3xl mb-8 sm:mb-12 ${alignClass} ${className}`.trim()}>
       {tagText && (
         <span
-          className={`inline-flex items-center text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-pill mb-3 ${
+          className={`inline-flex items-center text-xs font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-pill mb-3 ${
             dark
               ? "bg-white/10 text-white border border-white/15"
               : "bg-primary-tint text-primary border border-primary/20"
@@ -51,7 +51,7 @@ export function SectionHeading({
       <h2
         ref={headingRef}
         aria-label={title}
-        className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight ${titleColor}`}
+        className={`font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight ${titleColor}`}
       >
         {title}
       </h2>

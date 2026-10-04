@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Search, FileCheck2, Compass, RotateCcw, ChevronRight } from "lucide-react";
+import { Search, FileCheck2, Compass, RotateCcw, ChevronRight, CheckCircle2 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/motion/register";
@@ -9,39 +9,44 @@ import { gsap, ScrollTrigger } from "@/lib/motion/register";
 export default function HowItWorks() {
   const containerRef = useRef<HTMLDivElement>(null);
   const leftColRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   const steps = [
     {
       step: "01",
-      title: "Đặt xe trực tuyến",
+      tag: "ONLINE RESERVATION",
+      title: "Đặt xe trực tuyến & chọn gói cước",
       description:
-        "Chọn chi nhánh, thời gian nhận xe và dịch vụ kèm tài xế chuyên nghiệp. Tải ảnh GPLX để nhân viên duyệt nhanh.",
+        "Chọn chi nhánh nhận xe thuận tiện, lịch trình di chuyển và gói thuê linh hoạt (theo giờ hoặc dài hạn). Tải ảnh GPLX để hệ thống xác thực tức thì.",
       icon: Search,
       highlight: "Duyệt nhanh trong 5 phút",
     },
     {
       step: "02",
-      title: "Kiểm định & bàn giao",
+      tag: "DIGITAL HANDOVER",
+      title: "Kiểm định thực tế & bàn giao số hoá",
       description:
-        "Kỹ thuật viên cùng bạn kiểm tra xe thực tế, chốt số km và dung tích pin/nhiên liệu trên biên bản số hoá.",
+        "Kỹ thuật viên cùng bạn đối soát xe qua ứng dụng: kiểm tra 6 góc ngoại quan, chốt số Odometer và dung lượng pin SoH lưu trực tiếp lên hợp đồng điện tử.",
       icon: FileCheck2,
       highlight: "Biên bản số hoá có ảnh",
     },
     {
       step: "03",
-      title: "Tự do hành trình",
+      tag: "ZERO-EMISSION TOURING",
+      title: "Tự do khám phá hành trình",
       description:
-        "Tận hưởng chuyến đi riêng tư, an tâm với chính sách bảo hiểm và đội ngũ kỹ thuật hỗ trợ cứu hộ 24/7.",
+        "Tận hưởng chuyến đi êm ái, tiện nghi trên đội xe thuần điện chất lượng cao. Đội ngũ kỹ thuật và cứu hộ pin trực chiến hỗ trợ 24/7 trên toàn tuyến.",
       icon: Compass,
       highlight: "Bảo hiểm & cứu hộ 24/7",
     },
     {
       step: "04",
-      title: "Trả xe & hoàn cọc",
+      tag: "PAYOS INSTANT REFUND",
+      title: "Trả xe & hoàn cọc tự động tức thì",
       description:
-        "Trả xe tại chi nhánh hoặc yêu cầu thu hồi tận nơi. Quyết toán chi phí minh bạch và hoàn cọc tự động qua PayOS.",
+        "Trả xe tại Smart EV Hub hoặc yêu cầu thu hồi tận nơi. Quyết toán chi phí minh bạch không phí ẩn, tiền cọc hoàn tự động qua PayOS về tài khoản của bạn.",
       icon: RotateCcw,
-      highlight: "Hoàn cọc tức thì qua PayOS",
+      highlight: "Hoàn cọc tự động qua PayOS",
     },
   ];
 
@@ -63,6 +68,29 @@ export default function HowItWorks() {
           pin: leftColRef.current,
           pinSpacing: false,
         });
+
+        // Scrubbed card reveals
+        if (cardsRef.current) {
+          const cards = cardsRef.current.querySelectorAll(".step-card");
+          cards.forEach((card) => {
+            gsap.fromTo(
+              card,
+              { opacity: 0.5, y: 20 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: card,
+                  start: "top 80%",
+                  end: "top 50%",
+                  scrub: 0.5,
+                },
+              }
+            );
+          });
+        }
       });
 
       return () => mm.revert();
@@ -80,9 +108,9 @@ export default function HowItWorks() {
         {/* Left Column: Pinned on Desktop (>= 1024px) */}
         <div ref={leftColRef} className="lg:col-span-5 lg:sticky lg:top-28">
           <SectionHeading
-            kicker="Quy trình 4 bước"
-            title="Trải nghiệm thuê xe nhanh chóng & minh bạch"
-            subtitle="Đơn giản hoá thủ tục giấy tờ, số hoá toàn bộ biên bản bàn giao giúp bạn bắt đầu chuyến đi chỉ trong 5 phút."
+            kicker="QUY TRÌNH 4 BƯỚC"
+            title="Trải nghiệm thuê xe số hoá nhanh chóng & minh bạch"
+            subtitle="Đơn giản hoá thủ tục giấy tờ, số hoá toàn bộ biên bản bàn giao giúp bạn khởi hành tự tin chỉ sau 3 phút."
           />
 
           {/* Quick Step Indicators */}
@@ -90,15 +118,15 @@ export default function HowItWorks() {
             {steps.map((item) => (
               <div
                 key={item.step}
-                className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border"
+                className="flex items-center gap-3 p-3.5 rounded-xl bg-surface border border-line shadow-e1"
               >
-                <span className="w-8 h-8 rounded-lg bg-primary text-white text-xs font-black flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-lg bg-primary text-white text-xs font-mono font-black flex items-center justify-center shrink-0">
                   {item.step}
                 </span>
-                <span className="text-xs font-bold text-ink">
+                <span className="text-xs font-bold text-ink truncate">
                   {item.title}
                 </span>
-                <span className="ml-auto text-[11px] text-primary font-semibold">
+                <span className="ml-auto text-[11px] font-mono text-primary font-bold px-2 py-0.5 rounded bg-primary-tint shrink-0">
                   {item.highlight}
                 </span>
               </div>
@@ -107,44 +135,50 @@ export default function HowItWorks() {
         </div>
 
         {/* Right Column: Detailed Scrolling Steps */}
-        <div className="lg:col-span-7 space-y-6">
+        <div ref={cardsRef} className="lg:col-span-7 space-y-6">
           {steps.map((item, index) => {
             const Icon = item.icon;
             return (
               <div
                 key={item.step}
-                className="glass-lite rounded-3xl p-6 sm:p-8 flex flex-col justify-between group border border-border shadow-elevation-1"
+                className="step-card glass-lite rounded-3xl p-6 sm:p-8 flex flex-col justify-between group border border-line shadow-e1 hover:shadow-e2 transition-all duration-300"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-black tracking-wider uppercase text-primary bg-emerald-50 border border-primary/20 px-3 py-1 rounded-lg">
-                      Bước {item.step}
-                    </span>
-                    <div className="w-10 h-10 rounded-xl bg-canvas border border-border text-ink-muted group-hover:text-primary transition-colors flex items-center justify-center">
-                      <Icon className="w-5 h-5 stroke-[1.8]" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-black tracking-wider uppercase text-primary bg-primary-tint border border-primary/20 px-3 py-1 rounded-lg">
+                        BƯỚC {item.step}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
+                        {item.tag}
+                      </span>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-canvas border border-line text-ink-3 group-hover:text-primary transition-colors flex items-center justify-center shadow-e1">
+                      <Icon className="w-5 h-5 stroke-[2]" />
                     </div>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-bold text-ink mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-ink mb-2 group-hover:text-primary transition-colors">
                     {item.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-ink-muted leading-relaxed font-normal">
+                  <p className="text-sm text-ink-2 leading-relaxed font-normal">
                     {item.description}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs">
-                  <span className="text-xs font-semibold text-primary bg-emerald-50 px-2.5 py-1 rounded-md">
+                <div className="mt-6 pt-4 border-t border-line flex items-center justify-between text-xs">
+                  <span className="text-xs font-semibold text-primary bg-primary-tint px-2.5 py-1 rounded-md">
                     {item.highlight}
                   </span>
                   {index < steps.length - 1 ? (
-                    <span className="text-xs font-semibold text-ink-subtle group-hover:text-primary transition-colors flex items-center gap-1">
+                    <span className="text-xs font-semibold text-ink-3 group-hover:text-primary transition-colors flex items-center gap-1">
                       Tiếp theo
                       <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   ) : (
-                    <span className="text-xs font-bold text-primary">
-                      Hoàn tất
+                    <span className="text-xs font-bold text-primary flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Sẵn sàng khởi hành
                     </span>
                   )}
                 </div>

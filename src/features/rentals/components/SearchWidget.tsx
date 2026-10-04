@@ -55,9 +55,9 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
       const endMonth = String(end.getMonth() + 1).padStart(2, "0");
       const endD = String(end.getDate()).padStart(2, "0");
 
-      return `${startTime} ${startDay}, ${startD}/${startMonth} - ${endTime} ${endDay}, ${endD}/${endMonth}`;
+      return `${startTime} ${startDay}, ${startD}/${startMonth} — ${endTime} ${endDay}, ${endD}/${endMonth}`;
     } catch {
-      return `${startTime} - ${endTime}`;
+      return `${startTime} — ${endTime}`;
     }
   };
 
@@ -82,49 +82,55 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
   return (
     <div className="w-full max-w-5xl mx-auto">
       {/* 2 Rental Mode Tabs */}
-      <div className="flex items-center gap-2 mb-2 pl-1">
+      <div className="flex items-center gap-2.5 mb-2.5 pl-1">
         <button
           type="button"
           onClick={() => setMode("hourly")}
-          className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "hourly"
-              ? "bg-primary text-white shadow-elevation-1"
-              : "bg-surface hover:bg-surface-elevated text-ink-muted hover:text-ink border border-border"
+              ? "bg-primary text-white shadow-e1"
+              : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
-          <Clock className="w-4 h-4" />
+          <Clock className="w-4 h-4 text-inherit" />
           <span>Thuê theo giờ</span>
+          <span className="text-[10px] uppercase font-mono tracking-wider opacity-75 px-1.5 py-0.5 rounded bg-sunken text-ink">
+            Hourly
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setMode("longterm")}
-          className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "longterm"
-              ? "bg-primary text-white shadow-elevation-1"
-              : "bg-surface hover:bg-surface-elevated text-ink-muted hover:text-ink border border-border"
+              ? "bg-primary text-white shadow-e1"
+              : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
-          <CalendarRange className="w-4 h-4" />
-          <span>Thuê xe dài hạn</span>
+          <CalendarRange className="w-4 h-4 text-inherit" />
+          <span>Thuê dài hạn</span>
+          <span className="text-[10px] uppercase font-mono tracking-wider opacity-75 px-1.5 py-0.5 rounded bg-sunken text-ink">
+            Flex
+          </span>
         </button>
       </div>
 
       {/* Main Single-Bar Search Console with .glass-2 */}
-      <div className="glass-2 rounded-2xl sm:rounded-3xl p-3 sm:p-4">
+      <div className="glass-2 rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-shadow">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Column 1: Địa điểm / Chi nhánh */}
-          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-canvas transition-colors">
+          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-white/60 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-primary flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0">
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <label
                   htmlFor="facility-select"
-                  className="block text-xs font-semibold text-ink-muted uppercase tracking-wider cursor-pointer"
+                  className="block text-xs font-bold text-ink-3 uppercase tracking-wider cursor-pointer mb-0.5"
                 >
-                  Địa điểm nhận xe
+                  Trạm nhận xe (Smart EV Hub)
                 </label>
                 <div className="relative flex items-center">
                   <select
@@ -136,29 +142,29 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                     <option value="all">TP. Hồ Chí Minh (Tất cả chi nhánh)</option>
                     {facilities.map((fac) => (
                       <option key={fac.id} value={fac.id}>
-                        {fac.shortName} ({fac.availableVehicles} xe)
+                        {fac.shortName} ({fac.availableVehicles} xe sẵn sàng)
                       </option>
                     ))}
-                    <option value="delivery">Giao tận nơi TP.HCM</option>
+                    <option value="delivery">Giao tận nơi nội thành TP.HCM</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-ink-subtle absolute right-0 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-ink-3 absolute right-0 pointer-events-none" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Vertical Separator */}
-          <div className="hidden md:block w-px h-10 bg-border" />
+          <div className="hidden md:block w-px h-10 bg-line" />
 
           {/* Column 2: Thời gian thuê */}
-          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-canvas transition-colors">
+          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-white/60 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-primary flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0">
                 <Calendar className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-xs font-semibold text-ink-muted uppercase tracking-wider">
-                  Thời gian thuê
+                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                  Lịch trình di chuyển
                 </span>
                 <button
                   type="button"
@@ -166,18 +172,18 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                   className="w-full text-left font-bold text-sm sm:text-base text-ink truncate flex items-center justify-between cursor-pointer"
                 >
                   <span className="truncate">{formatVietnameseDateSummary()}</span>
-                  <ChevronDown className="w-4 h-4 text-ink-subtle shrink-0 ml-1" />
+                  <ChevronDown className="w-4 h-4 text-ink-3 shrink-0 ml-1" />
                 </button>
               </div>
             </div>
 
             {/* Quick Inline Datetime Editor Popover */}
             {showTimePicker && (
-              <div className="mt-3 pt-3 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="p-2.5 bg-surface rounded-xl border border-border">
-                  <div className="text-xs font-semibold text-ink-muted mb-1 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-primary" />
-                    <span>Bắt đầu</span>
+              <div className="mt-3 pt-3 border-t border-line grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-2.5 bg-surface rounded-xl border border-line shadow-e1">
+                  <div className="text-xs font-bold text-ink-3 mb-1 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span>Nhận xe</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <input
@@ -187,21 +193,21 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                         setStartDate(e.target.value);
                         if (endDate < e.target.value) setEndDate(e.target.value);
                       }}
-                      className="bg-canvas px-2 py-1 rounded-md text-xs font-medium border border-border outline-none w-full text-ink"
+                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-full text-ink focus:border-primary"
                     />
                     <input
                       type="time"
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
-                      className="bg-canvas px-1.5 py-1 rounded-md text-xs font-medium border border-border outline-none w-18 text-ink"
+                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-20 text-ink focus:border-primary"
                     />
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-surface rounded-xl border border-border">
-                  <div className="text-xs font-semibold text-ink-muted mb-1 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-primary" />
-                    <span>Kết thúc</span>
+                <div className="p-2.5 bg-surface rounded-xl border border-line shadow-e1">
+                  <div className="text-xs font-bold text-ink-3 mb-1 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span>Trả xe</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <input
@@ -209,13 +215,13 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                       value={endDate}
                       min={startDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="bg-canvas px-2 py-1 rounded-md text-xs font-medium border border-border outline-none w-full text-ink"
+                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-full text-ink focus:border-primary"
                     />
                     <input
                       type="time"
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
-                      className="bg-canvas px-1.5 py-1 rounded-md text-xs font-medium border border-border outline-none w-18 text-ink"
+                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-20 text-ink focus:border-primary"
                     />
                   </div>
                 </div>
@@ -229,7 +235,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full md:w-auto px-7"
+              className="w-full md:w-auto px-8"
             >
               <Search className="w-4 h-4 stroke-[2.5]" />
               <span>Tìm Xe</span>

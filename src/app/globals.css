@@ -88,6 +88,7 @@
 
 @theme inline {
   --font-sans: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-outfit), var(--font-be-vietnam), sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --color-canvas: var(--canvas);

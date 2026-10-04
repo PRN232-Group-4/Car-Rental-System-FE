@@ -64,7 +64,9 @@ export default function Home() {
         <HowItWorks />
 
         {/* Action & Conversion: Subscription Plans */}
-        <SubscriptionPlans />
+        <div id="goi-thue-bao" className="scroll-mt-28">
+          <SubscriptionPlans />
+        </div>
 
         {/* Ecosystem: Mobile App (Flutter) */}
         <MobileAppSection />

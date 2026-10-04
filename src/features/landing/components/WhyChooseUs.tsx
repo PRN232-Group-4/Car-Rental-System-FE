@@ -1,6 +1,6 @@
 "use client";
 
-import { Key, RefreshCw, Truck, FileCheck, CheckCircle2, Award, ShieldCheck } from "lucide-react";
+import { Key, RefreshCw, Truck, FileCheck, CheckCircle2, Award, Zap, ShieldCheck } from "lucide-react";
 import { Stage } from "@/components/ui/Stage";
 
 export default function WhyChooseUs() {
@@ -10,112 +10,134 @@ export default function WhyChooseUs() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 block">
-              Tiêu chuẩn Thong Dong
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              Nền tảng vận hành chuẩn mực & đáng tin cậy
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+              <Zap className="w-3.5 h-3.5" />
+              <span>CORE COMMITMENTS</span>
+            </div>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
+              Nền Tảng Vận Hành Chuẩn Mực & Đáng Tin Cậy
             </h2>
           </div>
           <p className="max-w-md text-sm sm:text-base text-white/80 leading-relaxed font-normal">
-            Không đơn thuần là nền tảng kết nối, Thong Dong trực tiếp bảo đảm chất lượng từng chiếc xe, từng hợp đồng và từng giao dịch hoàn cọc.
+            Không đơn thuần là nền tảng kết nối, Thong Dong trực tiếp bảo đảm chất lượng từng chiếc xe, từng hợp đồng và từng giao dịch hoàn cọc tức thì.
           </p>
         </div>
 
         {/* Gapless Bento Grid with mathematical interlocking (grid-auto-flow: dense) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 [grid-auto-flow:dense]">
-          {/* Card 1: 2-column span */}
-          <div className="md:col-span-2 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
+          {/* Card 1: 2-column span — Kiểm định 2 chiều Telemetry */}
+          <div className="md:col-span-2 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1">
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-border-dim text-emerald-400 flex items-center justify-center mb-6">
-                <FileCheck className="w-6 h-6 stroke-[2.2]" />
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-white/10 text-emerald-400 flex items-center justify-center shadow-e1">
+                  <FileCheck className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  TELEMETRY VERIFIED
+                </span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
-                Kiểm định 2 chiều trước và sau thuê
+              <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
+                Kiểm Định 2 Chiều Trước & Sau Thuê
               </h3>
-              <p className="text-sm sm:text-base text-white/80 leading-relaxed mb-6 max-w-xl">
-                Mỗi lượt bàn giao đều đi kèm biên bản kiểm tra số km thực tế, mức nhiên liệu/pin, áp suất lốp và ảnh chụp ngoại quan. Không có tình trạng tranh chấp hay đổ lỗi trầy xước không rõ nguyên nhân.
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed mb-6 max-w-xl font-normal">
+                Mỗi lượt bàn giao đều đi kèm biên bản điện tử: số km thực tế, mức pin SoH, áp suất 4 lốp và ảnh chụp 6 góc xe. Không có tình trạng tranh chấp hay đổ lỗi trầy xước không rõ nguyên nhân.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-border-dim text-xs font-semibold text-white/90">
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stage-ink border border-border-dim">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-5 border-t border-white/10 text-xs font-semibold text-white/90">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-stage-ink border border-white/10">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Chụp ảnh 6 góc xe</span>
               </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stage-ink border border-border-dim">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-stage-ink border border-white/10">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Chốt km & pin/xăng</span>
+                <span>Chốt Odometer & Pin</span>
               </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stage-ink border border-border-dim">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-stage-ink border border-white/10">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Ký biên bản điện tử</span>
               </div>
             </div>
           </div>
 
-          {/* Card 2: 1-column span */}
-          <div className="md:col-span-1 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
+          {/* Card 2: 1-column span — 100% Đội xe chính chủ */}
+          <div className="md:col-span-1 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1">
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-border-dim text-white flex items-center justify-center mb-6">
-                <Key className="w-6 h-6 stroke-[2.2]" />
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-white/10 text-white flex items-center justify-center shadow-e1">
+                  <Key className="w-6 h-6 stroke-[2.2] text-emerald-400" />
+                </div>
+                <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-white/10 text-white/90 border border-white/10">
+                  ALL-ELECTRIC FLEET
+                </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3 tracking-tight">
-                100% Đội xe chính chủ
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
+                100% Đội Xe Chính Chủ
               </h3>
-              <p className="text-sm text-white/80 leading-relaxed mb-4">
-                Không có vai trò đối tác cá nhân, không chia hoa hồng và tuyệt đối không có trường hợp chủ xe tự ý huỷ chuyến sát giờ.
+              <p className="text-sm text-white/80 leading-relaxed mb-4 font-normal">
+                Không có vai trò đối tác cá nhân, không chia hoa hồng và tuyệt đối không có trường hợp chủ xe tự ý huỷ chuyến sát giờ khởi hành.
               </p>
             </div>
 
-            <div className="pt-4 border-t border-border-dim flex items-center gap-2 text-xs font-bold text-emerald-400">
-              <Award className="w-4 h-4" />
-              <span>Cam kết giữ xe 100% khi đơn duyệt</span>
+            <div className="pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-bold text-emerald-400">
+              <Award className="w-4 h-4 shrink-0" />
+              <span>Cam kết giữ xe 100% khi duyệt đơn</span>
             </div>
           </div>
 
-          {/* Card 3: 1-column span */}
-          <div className="md:col-span-1 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
+          {/* Card 3: 1-column span — Hoàn cọc tự động qua PayOS */}
+          <div className="md:col-span-1 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1">
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-border-dim text-emerald-400 flex items-center justify-center mb-6">
-                <RefreshCw className="w-6 h-6 stroke-[2.2]" />
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-white/10 text-emerald-400 flex items-center justify-center shadow-e1">
+                  <RefreshCw className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  PAYOS INSTANT
+                </span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-3 tracking-tight">
-                Hoàn cọc tự động qua PayOS
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
+                Hoàn Cọc Tự Động Minh Bạch
               </h3>
-              <p className="text-sm text-white/80 leading-relaxed mb-4">
-                Sau khi biên bản kiểm định sau thuê (post-rental inspection) đạt chuẩn, tiền cọc được lệnh hoàn trả tự động về tài khoản nguồn.
+              <p className="text-sm text-white/80 leading-relaxed mb-4 font-normal">
+                Ngay sau khi biên bản bàn giao trả xe được xác nhận đạt chuẩn, lệnh hoàn cọc được kích hoạt tự động qua cổng thanh toán PayOS về tài khoản nguồn.
               </p>
             </div>
 
-            <div className="pt-4 border-t border-border-dim text-xs font-semibold text-white/60">
-              Chuẩn thời gian quyết toán · Không giữ cọc
+            <div className="pt-4 border-t border-white/10 text-xs font-mono font-semibold text-white/70">
+              Quyết toán tức thì · 0 ngày giam tiền
             </div>
           </div>
 
-          {/* Card 4: 2-column span */}
-          <div className="md:col-span-2 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
+          {/* Card 4: 2-column span — Nhận xe tại trạm hoặc giao tận nơi */}
+          <div className="md:col-span-2 glass-ink rounded-3xl p-7 sm:p-9 flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1">
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center mb-6 shadow-elevation-1">
-                <Truck className="w-6 h-6 stroke-[2.2]" />
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-e1">
+                  <Truck className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-primary/30 text-emerald-300 border border-primary/50">
+                  24/7 DISPATCH
+                </span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
-                Linh hoạt nhận tại trạm hoặc giao xe tận nơi
+              <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
+                Nhận Xe Tại Smart Hub Hoặc Giao Tận Nơi 24/7
               </h3>
-              <p className="text-sm sm:text-base text-white/80 leading-relaxed mb-6 max-w-xl">
-                Chủ động nhận xe tại chuỗi chi nhánh trung tâm, sân bay Tân Sơn Nhất hoạt động 24/7, hoặc đặt dịch vụ giao tận cửa nhà và khách sạn theo khung giờ yêu cầu.
+              <p className="text-sm sm:text-base text-white/80 leading-relaxed mb-6 max-w-xl font-normal">
+                Chủ động nhận xe tại các trung tâm điều phối quận trung tâm hoặc yêu cầu kỹ thuật viên lái xe giao tận sảnh nhà, khách sạn hoặc sân bay đúng giờ hẹn.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-border-dim text-xs font-semibold text-white/90">
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stage-ink border border-border-dim">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Mọi chuyến thuê đều kèm tài xế chuyên nghiệp</span>
-              </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stage-ink border border-border-dim">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Gói thuê bao trừ dần theo số giờ thực tế</span>
-              </div>
+            <div className="pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 text-xs font-semibold text-white/90">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                Hỗ trợ kỹ thuật & cứu hộ pin 24/7
+              </span>
+              <span className="text-white/30 hidden sm:inline">|</span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                Xe sạc đầy pin $\ge 90\%$ trước giờ giao
+              </span>
             </div>
           </div>
         </div>

@@ -31,7 +31,7 @@ export default function Footer() {
               onClick={handleLogoClick}
               className="inline-flex items-center gap-2.5 group"
             >
-              <span className="text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+              <span className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-emerald-400 transition-colors">
                 ThongDong.
               </span>
             </Link>
