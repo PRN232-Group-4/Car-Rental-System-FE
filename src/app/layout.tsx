@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro, Geist_Mono, Outfit } from "next/font/google";
+import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { AuthProvider } from "@/features/auth";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
-  display: "swap",
-});
 
 const beVietnamPro = Be_Vietnam_Pro({
   variable: "--font-be-vietnam",
@@ -38,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${outfit.variable} ${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
+      className={`${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col text-ink bg-canvas font-sans">
         {/* On reload, reset to the top instead of letting the browser restore the

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MapPin,
   Calendar,
@@ -8,6 +8,8 @@ import {
   Search,
   CalendarRange,
   ChevronDown,
+  X,
+  Check,
 } from "lucide-react";
 import { getFacilities, getInitialFacilities } from "@/features/facilities";
 import type { Facility } from "@/features/facilities";
@@ -36,11 +38,28 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
   const [endTime, setEndTime] = useState<string>("20:00");
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
+  const popoverRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     getFacilities()
       .then(setFacilities)
       .catch(() => setFacilities([]));
   }, []);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        setShowTimePicker(false);
+      }
+    }
+    if (showTimePicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showTimePicker]);
 
   const formatVietnameseDateSummary = () => {
     try {
@@ -73,29 +92,29 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
         endTime,
       });
     }
-    const element = document.getElementById("danh-sach-xe");
+    const element = document.getElementById("trien-lam-xe");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      {/* 2 Rental Mode Tabs */}
-      <div className="flex items-center gap-2.5 mb-2.5 pl-1">
+    <div className="w-full max-w-5xl mx-auto relative">
+      {/* 2 Rental Mode Segmented Switchers */}
+      <div className="flex items-center gap-2 mb-2.5 pl-1">
         <button
           type="button"
           onClick={() => setMode("hourly")}
           className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "hourly"
-              ? "bg-primary text-white shadow-e1"
+              ? "bg-primary text-white shadow-e2 border border-white/20"
               : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
           <Clock className="w-4 h-4 text-inherit" />
           <span>Thuê theo giờ</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider opacity-75 px-1.5 py-0.5 rounded bg-sunken text-ink">
-            Hourly
+          <span className="text-[10px] uppercase font-mono tracking-wider opacity-85 px-1.5 py-0.5 rounded bg-sunken text-ink">
+            HOURLY
           </span>
         </button>
 
@@ -104,31 +123,31 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           onClick={() => setMode("longterm")}
           className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "longterm"
-              ? "bg-primary text-white shadow-e1"
+              ? "bg-primary text-white shadow-e2 border border-white/20"
               : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
           <CalendarRange className="w-4 h-4 text-inherit" />
           <span>Thuê dài hạn</span>
-          <span className="text-[10px] uppercase font-mono tracking-wider opacity-75 px-1.5 py-0.5 rounded bg-sunken text-ink">
-            Flex
+          <span className="text-[10px] uppercase font-mono tracking-wider opacity-85 px-1.5 py-0.5 rounded bg-sunken text-ink">
+            FLEX
           </span>
         </button>
       </div>
 
-      {/* Main Single-Bar Search Console with .glass-2 */}
-      <div className="glass-2 rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-shadow">
+      {/* Main Single-Deck Floating Console with .glass-2 */}
+      <div className="glass-2 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-e3 border border-white/80">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-          {/* Column 1: Địa điểm / Chi nhánh */}
-          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-white/60 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0">
-                <MapPin className="w-5 h-5" />
+          {/* Column 1: Trạm nhận xe */}
+          <div className="flex-1 relative group px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0 shadow-e1">
+                <MapPin className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <label
                   htmlFor="facility-select"
-                  className="block text-xs font-bold text-ink-3 uppercase tracking-wider cursor-pointer mb-0.5"
+                  className="block text-[11px] font-bold text-ink-3 uppercase tracking-wider cursor-pointer mb-0.5"
                 >
                   Trạm nhận xe (Smart EV Hub)
                 </label>
@@ -156,77 +175,28 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           {/* Vertical Separator */}
           <div className="hidden md:block w-px h-10 bg-line" />
 
-          {/* Column 2: Thời gian thuê */}
-          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-white/60 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0">
-                <Calendar className="w-5 h-5" />
+          {/* Column 2: Thời gian di chuyển (Mở Dedicated Popover) */}
+          <div className="flex-1 relative group px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0 shadow-e1">
+                <Calendar className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-0.5">
                   Lịch trình di chuyển
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowTimePicker(!showTimePicker)}
                   className="w-full text-left font-bold text-sm sm:text-base text-ink truncate flex items-center justify-between cursor-pointer"
+                  aria-expanded={showTimePicker}
+                  aria-haspopup="dialog"
                 >
                   <span className="truncate">{formatVietnameseDateSummary()}</span>
-                  <ChevronDown className="w-4 h-4 text-ink-3 shrink-0 ml-1" />
+                  <ChevronDown className={`w-4 h-4 text-ink-3 shrink-0 ml-1 transition-transform ${showTimePicker ? "rotate-180 text-primary" : ""}`} />
                 </button>
               </div>
             </div>
-
-            {/* Quick Inline Datetime Editor Popover */}
-            {showTimePicker && (
-              <div className="mt-3 pt-3 border-t border-line grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="p-2.5 bg-surface rounded-xl border border-line shadow-e1">
-                  <div className="text-xs font-bold text-ink-3 mb-1 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-primary" />
-                    <span>Nhận xe</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => {
-                        setStartDate(e.target.value);
-                        if (endDate < e.target.value) setEndDate(e.target.value);
-                      }}
-                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-full text-ink focus:border-primary"
-                    />
-                    <input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-20 text-ink focus:border-primary"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-2.5 bg-surface rounded-xl border border-line shadow-e1">
-                  <div className="text-xs font-bold text-ink-3 mb-1 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-primary" />
-                    <span>Trả xe</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="date"
-                      value={endDate}
-                      min={startDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-full text-ink focus:border-primary"
-                    />
-                    <input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="bg-sunken px-2 py-1.5 rounded-lg text-xs font-semibold border border-line outline-none w-20 text-ink focus:border-primary"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Column 3: Nút Tìm Xe */}
@@ -235,7 +205,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full md:w-auto px-8"
+              className="w-full md:w-auto px-9 py-4 font-bold shadow-e2"
             >
               <Search className="w-4 h-4 stroke-[2.5]" />
               <span>Tìm Xe</span>
@@ -243,6 +213,102 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           </div>
         </form>
       </div>
+
+      {/* Dedicated Floating Glass Popover for Date & Time Selection (.glass-3) */}
+      {showTimePicker && (
+        <div
+          ref={popoverRef}
+          role="dialog"
+          aria-label="Chọn thời gian nhận và trả xe"
+          className="absolute z-50 top-full mt-3 right-0 left-0 sm:left-auto sm:right-28 w-full sm:w-[480px] glass-3 rounded-3xl p-6 shadow-e3 border border-white/90 animate-in fade-in zoom-in-95 duration-200"
+        >
+          <div className="flex items-center justify-between pb-3.5 border-b border-line mb-4">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
+              <h4 className="text-sm font-bold text-ink">Thiết lập thời gian nhận & trả xe</h4>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowTimePicker(false)}
+              className="w-7 h-7 rounded-full bg-sunken hover:bg-canvas text-ink-3 hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            {/* Start Datetime */}
+            <div className="p-3.5 bg-surface rounded-2xl border border-line shadow-e1 space-y-2">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider block">
+                Thời gian nhận xe
+              </span>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-ink-3 block">Ngày nhận</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    if (endDate < e.target.value) setEndDate(e.target.value);
+                  }}
+                  className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-ink-3 block">Giờ nhận</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                />
+              </div>
+            </div>
+
+            {/* End Datetime */}
+            <div className="p-3.5 bg-surface rounded-2xl border border-line shadow-e1 space-y-2">
+              <span className="text-xs font-bold text-ink-2 uppercase tracking-wider block">
+                Thời gian trả xe
+              </span>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-ink-3 block">Ngày trả</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-ink-3 block">Giờ trả</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-xs text-ink-3 font-medium">
+              Chính xác theo múi giờ Việt Nam (GMT+7)
+            </span>
+            <Button
+              type="button"
+              onClick={() => setShowTimePicker(false)}
+              variant="primary"
+              size="sm"
+              className="px-5 shadow-e1"
+            >
+              <Check className="w-3.5 h-3.5 mr-1" />
+              <span>Xác nhận</span>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

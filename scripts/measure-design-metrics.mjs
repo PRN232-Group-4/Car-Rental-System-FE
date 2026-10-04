@@ -146,6 +146,12 @@ async function main() {
       await page.screenshot({ path: screenshotPath, fullPage: false });
       console.log(`  -> Đã lưu ảnh: screenshots/${vp.filename}`);
 
+      if (vp.width === 1280) {
+        const fullScreenshotPath = path.join(screenshotsDir, "landing-full-1280.png");
+        await page.screenshot({ path: fullScreenshotPath, fullPage: true });
+        console.log(`  -> Đã lưu ảnh toàn trang: screenshots/landing-full-1280.png`);
+      }
+
       await page.close();
     }
 
