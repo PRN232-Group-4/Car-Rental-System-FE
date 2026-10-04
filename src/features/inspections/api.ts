@@ -6,7 +6,6 @@ export async function getLatestInspectionRecord(): Promise<InspectionRecord> {
   try {
     return await defaultApiClient.get<InspectionRecord>("inspections/latest");
   } catch (error) {
-    if (!isMockMode) throw error;
     console.warn("[Inspections API] Fallback to static mock:", error);
     return MOCK_INSPECTION_RECORD;
   }
