@@ -32,7 +32,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
   });
 
   return (
-    <section className="relative w-full pt-28 pb-16 px-4 sm:px-6 flex flex-col items-center overflow-hidden">
+    <section className="relative w-full pt-28 pb-16 px-4 sm:px-6 flex flex-col items-center overflow-visible">
       {/* 1. Automotive Blueprint & Aero Vector Background SVGs */}
       <div 
         className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"

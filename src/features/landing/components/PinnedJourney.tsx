@@ -94,8 +94,8 @@ export default function PinnedJourney() {
       className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative"
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Left Column: Pinned Narrative on Desktop */}
-        <div ref={leftColRef} className="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
+        {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
+        <div ref={leftColRef} className="lg:col-span-5 space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold uppercase tracking-wider">
             <KeyRound className="w-3.5 h-3.5 text-[#b45309]" />
             <span>CINEMATIC SCROLL EXPERIENCE</span>
@@ -109,37 +109,48 @@ export default function PinnedJourney() {
             Chúng tôi định nghĩa lại trải nghiệm thuê phương tiện: Nhanh hơn, minh bạch hơn và triệt tiêu hoàn toàn rào cản thủ tục truyền thống.
           </p>
 
-          {/* Quick indicators */}
-          <div className="space-y-3 pt-2 hidden sm:block">
-            {phases.map((phase) => (
-              <div
-                key={phase.index}
-                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-surface border border-line shadow-sm"
-              >
-                <span className="w-8 h-8 rounded-xl bg-[#0f172a] text-white font-mono text-xs font-black flex items-center justify-center shrink-0">
-                  {phase.index}
-                </span>
-                <span className="text-xs font-bold text-ink truncate">
-                  {phase.title}
-                </span>
-                <span className="ml-auto text-[10px] font-mono text-[#b45309] font-bold px-2 py-0.5 rounded bg-amber-50 border border-amber-500/20 shrink-0">
-                  {phase.tag}
-                </span>
-              </div>
-            ))}
+          {/* Interactive Vertical Progress Rail (Slim ~130px, 0% clipping on any laptop screen) */}
+          <div className="pt-2 hidden sm:block">
+            <div className="relative pl-6 space-y-4 border-l-2 border-line">
+              {phases.map((phase) => (
+                <div key={phase.index} className="relative group cursor-default">
+                  {/* Rail Node Dot */}
+                  <div className="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-surface border-2 border-line group-hover:border-[#b45309] group-hover:bg-amber-500 transition-colors flex items-center justify-center">
+                    <span className="w-1 h-1 rounded-full bg-[#0f172a]" />
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-xs font-black text-ink group-hover:text-[#b45309] transition-colors">
+                      PHA {phase.index}
+                    </span>
+                    <span className="text-ink-3 text-xs">/</span>
+                    <span className="text-xs font-semibold text-ink-2 truncate">
+                      {phase.title}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Detailed Scrolling Phase Cards */}
+        {/* Right Column: Detailed Scrolling Phase Cards with Subtle Avant-Garde Watermark */}
         <div ref={cardsRef} className="lg:col-span-7 space-y-8">
           {phases.map((phase, idx) => {
             const Icon = phase.icon;
             return (
               <div
                 key={phase.index}
-                className="phase-card rounded-[36px] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
+                className="phase-card relative overflow-hidden rounded-[36px] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
               >
-                <div>
+                {/* Subtle Editorial Watermark Number */}
+                <div
+                  aria-hidden="true"
+                  className="absolute -right-2 -bottom-6 font-mono font-black text-8xl sm:text-9xl text-ink/[0.04] pointer-events-none select-none tracking-tighter"
+                >
+                  {phase.index}
+                </div>
+
+                <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-line">
                     <div className="flex items-center gap-2.5">
                       <span className="text-xs font-mono font-black uppercase text-[#b45309] bg-amber-50 border border-amber-600/20 px-3 py-1 rounded-xl">
@@ -164,7 +175,7 @@ export default function PinnedJourney() {
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-line flex items-center justify-between text-xs">
+                <div className="relative z-10 pt-4 border-t border-line flex items-center justify-between text-xs">
                   <span className="font-semibold text-[#b45309] bg-amber-50 border border-amber-600/20 px-3 py-1 rounded-lg">
                     {phase.highlight}
                   </span>

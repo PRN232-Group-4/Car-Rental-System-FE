@@ -14,43 +14,48 @@ interface InspectionPoint {
   id: string;
   name: string;
   code: string;
+  tag: string;
   desc: string;
   status: string;
-  detail: string;
+  specs: string[];
 }
 
 const INSPECTION_POINTS: InspectionPoint[] = [
   {
     id: "p1",
-    name: "Ảnh chụp 6 góc thân vỏ ngoại quan",
+    name: "Ngoại Quan 360°",
     code: "ISO-VISUAL-360",
-    desc: "Đầu xe, đuôi xe, sườn trái, sườn phải, nóc và gầm được chụp ảnh HD lưu trữ vào hợp đồng số.",
+    tag: "4K CAMERA SCAN",
+    desc: "Chụp 6 góc thân vỏ lưu trữ đám mây. Triệt tiêu tranh chấp trầy xước.",
     status: "ĐÃ ĐỐI SOÁT",
-    detail: "Độ phân giải 4K · Chống đổ lỗi trầy xước",
+    specs: ["Độ phân giải 4K", "Lưu trữ WORM", "0 phụ phí vô lý"],
   },
   {
     id: "p2",
-    name: "Chốt Odometer điện tử & Mức pin/xăng",
+    name: "ECU Odometer & Pin",
     code: "METROLOGY-LOCK",
-    desc: "Ghi nhận chính xác số km lăn bánh thực tế và mức năng lượng ban đầu để tính toán minh bạch.",
+    tag: "OBD-II CAN-BUS",
+    desc: "Khóa điện tử số km lăn bánh và mức năng lượng thực tế lúc nhận - trả xe.",
     status: "KHÓA ĐIỆN TỬ",
-    detail: "Đồng bộ tức thì từ ECU xe lên hệ thống",
+    specs: ["Đồng bộ tức thì", "Chính xác 100%", "Bảo mật phần cứng"],
   },
   {
     id: "p3",
-    name: "Áp suất 4 lốp (TPMS) & Phanh ADAS",
+    name: "Áp Suất Lốp & Phanh",
     code: "SAFETY-BRAKE-TPMS",
-    desc: "Kiểm tra cảm biến áp suất 4 bánh tiêu chuẩn và quét chẩn đoán hệ thống an toàn phanh khẩn cấp.",
-    status: "TIÊU CHUẨN AN TOÀN",
-    detail: "Áp suất 2.3 Bar · Má phanh đạt 98%",
+    tag: "TPMS 2.4 BAR",
+    desc: "Đo 4 bánh và quét chẩn đoán má phanh đạt chuẩn an toàn trước giờ lăn bánh.",
+    status: "CHUẨN AN TOÀN",
+    specs: ["Áp suất 2.4 Bar", "Má phanh 98%", "Cảm biến ADAS"],
   },
   {
     id: "p4",
-    name: "Biên bản bàn giao ký số điện tử",
+    name: "Ký Số Điện Tử",
     code: "E-CONTRACT-SIGN",
-    desc: "Khách hàng duyệt biên bản trên ứng dụng di động chỉ với 1 chạm trước khi nhận chìa khóa thông minh.",
+    tag: "SHA-256 SIGN",
+    desc: "1 chạm duyệt biên bản bàn giao trên điện thoại. Giá trị pháp lý công chứng.",
     status: "SHA-256 VERIFIED",
-    detail: "Giá trị pháp lý ngang văn bản công chứng",
+    specs: ["Ký số 1 chạm", "Thời gian thực", "Bảo chứng pháp lý"],
   },
 ];
 
@@ -61,7 +66,7 @@ export default function InspectionSection() {
   return (
     <section id="kiem-dinh" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
             <ShieldCheck className="w-4 h-4 text-[#b45309]" />
@@ -72,73 +77,71 @@ export default function InspectionSection() {
           </h2>
         </div>
         <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
-          Triệt tiêu hoàn toàn nỗi lo tranh chấp hư hỏng. Mọi lượt thuê đều được ghi nhận bằng dữ liệu cảm biến thực tế và ảnh chụp gốc độ phân giải cao.
+          Triệt tiêu hoàn toàn tranh chấp hư hỏng. Mọi lượt thuê đều được định danh bằng dữ liệu cảm biến thực tế và ảnh chụp gốc độ phân giải cao.
         </p>
       </div>
 
       {/* Main Feature Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        {/* Left Column: Interactive Inspection Checklist (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Left Column: Visual Diagnostic Checklist with Specs Chips (7 cols) */}
+        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {INSPECTION_POINTS.map((point) => {
             const isSelected = activePointId === point.id;
             return (
               <div
                 key={point.id}
                 onClick={() => setActivePointId(point.id)}
-                className={`p-6 rounded-3xl border transition-all duration-300 cursor-pointer select-none ${
+                className={`p-5 rounded-3xl border transition-all duration-300 cursor-pointer select-none flex flex-col justify-between ${
                   isSelected
-                    ? "bg-surface border-[#b45309]/50 shadow-[0_8px_24px_-4px_rgba(180,83,9,0.12)]"
+                    ? "bg-surface border-[#b45309]/50 shadow-[0_8px_24px_-4px_rgba(180,83,9,0.12)] ring-1 ring-[#b45309]/20"
                     : "bg-[#f7f7f4] border-line hover:border-line-strong hover:bg-white"
                 }`}
               >
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center font-mono text-xs font-black transition-colors ${
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <span className="font-mono text-[10px] font-black uppercase text-[#b45309] bg-amber-50 border border-amber-600/20 px-2.5 py-0.5 rounded-lg">
+                      {point.tag}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
                         isSelected
-                          ? "bg-[#b45309] text-white"
+                          ? "bg-amber-100 text-[#b45309]"
                           : "bg-sunken text-ink-3"
                       }`}
                     >
-                      {point.id.toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="font-display text-base sm:text-lg font-bold text-ink">
-                        {point.name}
-                      </h3>
-                      <span className="font-mono text-[10px] text-ink-3 uppercase tracking-wider">
-                        {point.code}
-                      </span>
-                    </div>
+                      {point.status}
+                    </span>
                   </div>
 
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 ${
-                      isSelected
-                        ? "bg-amber-100 text-[#b45309]"
-                        : "bg-sunken text-ink-3"
-                    }`}
-                  >
-                    {point.status}
-                  </span>
+                  <h3 className="font-display text-base font-bold text-ink mb-1.5">
+                    {point.name}
+                  </h3>
+
+                  <p className="text-xs text-ink-2 leading-relaxed mb-4">
+                    {point.desc}
+                  </p>
                 </div>
 
-                <p className="text-xs sm:text-sm text-ink-2 leading-relaxed pl-12">
-                  {point.desc}
-                </p>
+                {/* Telemetry Chips (Concise Visual Proof) */}
+                <div className="pt-3 border-t border-line flex flex-wrap gap-1.5">
+                  {point.specs.map((spec, sIdx) => (
+                    <span
+                      key={sIdx}
+                      className="text-[10px] font-mono text-ink-3 bg-sunken px-2 py-0.5 rounded-md"
+                    >
+                      {spec}
+                    </span>
+                  ))}
+                </div>
               </div>
             );
           })}
         </div>
 
         {/* Right Column: Live Certificate & PayOS Guarantee Terminal (5 cols) */}
-        <div className="lg:col-span-5 rounded-3xl bg-[#0f172a] text-white p-7 sm:p-9 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-          {/* Subtle Ambient Background */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="lg:col-span-5 rounded-3xl bg-[#0f172a] text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center justify-between pb-5 border-b border-white/10 mb-6">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
               <div className="flex items-center gap-2">
                 <FileCheck2 className="w-5 h-5 text-[#f59e0b]" />
                 <span className="font-mono text-xs font-bold uppercase tracking-wider text-white/80">
@@ -150,26 +153,37 @@ export default function InspectionSection() {
               </span>
             </div>
 
-            <div className="mb-6">
-              <span className="text-[11px] font-mono text-white/50 uppercase tracking-widest block mb-1">
-                TIÊU CHUẨN ĐANG XEM
+            {/* Current Active Point Telemetry Focus */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-5">
+              <span className="text-[10px] font-mono text-amber-400 uppercase tracking-widest block mb-1">
+                TIÊU CHUẨN ĐANG CHỌN // {activePoint.code}
               </span>
-              <h4 className="font-display text-xl sm:text-2xl font-bold text-white mb-2">
+              <h4 className="font-display text-lg font-bold text-white mb-1">
                 {activePoint.name}
               </h4>
               <p className="text-xs text-white/70 leading-relaxed">
-                {activePoint.detail}
+                {activePoint.desc}
               </p>
             </div>
 
             {/* PayOS Automated Refund Guarantee Card */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-6">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-5">
               <div className="flex items-center gap-2 text-xs font-mono text-[#f59e0b] font-bold uppercase tracking-wider mb-2">
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4 text-[#f59e0b]" />
                 <span>CƠ CHẾ HOÀN CỌC PAYOS TỨC THÌ</span>
               </div>
-              <p className="text-xs text-white/80 leading-relaxed">
-                Sau khi ký số biên bản trả xe, lệnh hoàn tiền cọc được hệ thống đẩy trực tiếp qua cổng thanh toán PayOS trong vòng <strong className="text-white">5 phút</strong>. Khách hàng nhận lại cọc đúng số tiền ban đầu mà không bị giam vốn.
+              <div className="grid grid-cols-2 gap-2 text-center my-3">
+                <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-[10px] font-mono text-white/50 block">THỜI GIAN</span>
+                  <strong className="text-sm font-mono text-emerald-400">&lt; 5 PHÚT</strong>
+                </div>
+                <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-[10px] font-mono text-white/50 block">CỔNG THANH TOÁN</span>
+                  <strong className="text-sm font-mono text-white">PayOS API</strong>
+                </div>
+              </div>
+              <p className="text-[11px] text-white/80 leading-relaxed">
+                Tiền cọc được giải ngân tự động về tài khoản ngân hàng ngay khi ký số biên bản trả xe mà không giam vốn.
               </p>
             </div>
 
@@ -177,15 +191,15 @@ export default function InspectionSection() {
             <div className="space-y-2 text-xs text-white/70">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Không phát sinh phụ phí vệ sinh vô lý</span>
+                <span>Không phụ phí phát sinh ngoài thỏa thuận</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Ảnh chụp 6 góc được mã hóa chống can thiệp</span>
+                <span>Ảnh 6 góc mã hóa chống sửa đổi</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Hỗ trợ cứu hộ kỹ thuật 24/7 toàn quốc</span>
+                <span>Hỗ trợ kỹ thuật và cứu hộ 24/7 toàn quốc</span>
               </div>
             </div>
           </div>
@@ -193,7 +207,7 @@ export default function InspectionSection() {
           <div className="pt-6 border-t border-white/10 relative z-10">
             <Button
               as="a"
-              href="#doi-xe"
+              href="#chi-nhanh"
               variant="amber-hero"
               className="w-full flex items-center justify-center gap-2 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider"
             >

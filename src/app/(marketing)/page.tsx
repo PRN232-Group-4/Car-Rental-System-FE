@@ -11,6 +11,7 @@ import {
   InspectionSection,
   PinnedJourney,
   MembershipPasses,
+  ContinuousBlueprint,
 } from "@/features/landing";
 
 export default function Home() {
@@ -24,6 +25,9 @@ export default function Home() {
     <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-amber-500/20 selection:text-amber-900 bg-[var(--canvas)]">
       {/* Background Architectural Canvas & Subtle Depth */}
       <div className="absolute inset-0 pointer-events-none z-0 bg-[var(--canvas)]" />
+
+      {/* Full Page Engineering Continuous Blueprint Dossier Background */}
+      <ContinuousBlueprint />
 
       <div className="relative z-10 flex flex-col w-full">
         {/* Navigation */}
