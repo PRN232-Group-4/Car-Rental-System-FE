@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Geist_Mono } from "next/font/google";
+import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { AuthProvider } from "@/features/auth";
@@ -7,10 +7,10 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin", "vietnamese"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+const beVietnamPro = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam",
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${manrope.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
+      className={`${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col text-neutral-800 font-sans">
         {/* On reload, reset to the top instead of letting the browser restore the
