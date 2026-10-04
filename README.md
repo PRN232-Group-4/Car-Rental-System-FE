@@ -32,8 +32,9 @@
 - **Quy trình & Đánh giá**: Hướng dẫn quy trình 5 bước thuê xe đơn giản, các câu hỏi thường gặp (FAQ) và phản hồi khách hàng.
 
 ### 2. Xác thực & Quản lý phiên (Authentication & Guards)
-- Đăng nhập an toàn bằng Email / Password.
-- Cơ chế Same-Origin Session Cookie (`SameSite=Lax; HttpOnly; Secure`).
+- **Đăng ký tài khoản (`/register`)**: Quy trình 2 bước hiện đại — điền thông tin cá nhân kèm mật khẩu an toàn, nhận và xác thực mã OTP 6 chữ số gửi qua email (`/api/account/registrations` & `/api/account/registrations/verify`), có đếm ngược gửi lại OTP.
+- **Đăng nhập (`/login`)**: Xác thực an toàn bằng Email / Password, hỗ trợ tài khoản mẫu thử nghiệm nhanh (Demo Accounts).
+- **Cơ chế Same-Origin Session Cookie**: Sử dụng cookie bảo mật (`SameSite=Lax; HttpOnly; Secure`).
 - **Tự động làm mới Token (Silent Refresh)**: Interceptor tự động bắt mã lỗi `401 Unauthorized` để gọi `POST /api/auth/refresh` và thử lại request liền mạch.
 - **Route Guard**: Bảo vệ các trang Dashboard, tự động điều hướng về `/login?next=...` nếu chưa đăng nhập.
 
@@ -210,6 +211,7 @@ Hệ thống kiểm thử của dự án bao gồm:
 - **End-to-End Test (Playwright)**: Kiểm thử toàn bộ luồng trải nghiệm người dùng thực tế trên trình duyệt (`npm run test:e2e`), bao gồm:
   - `e2e/smoke.spec.ts`: Tải trang chủ, kiểm tra các liên kết menu điều hướng, trang gói cước, form đăng nhập và Route Guard chặn truy cập dashboard chưa đăng nhập.
   - `e2e/auth.spec.ts`: Kiểm tra form validation mật khẩu, tính năng điền nhanh tài khoản mẫu (Demo accounts) và thao tác ẩn/hiện mật khẩu.
+  - `e2e/register.spec.ts`: Kiểm tra toàn diện quy trình đăng ký, validation mật khẩu, bước nhập mã OTP xác thực và điều hướng qua lại giữa các trang.
 - **Typecheck**: Đảm bảo không có lỗi type `any` không mong muốn và tuân thủ chặt chẽ schema được sinh từ BE (`npm run typecheck`).
 
 ---

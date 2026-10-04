@@ -100,4 +100,34 @@ describe("Mock Handlers Suite", () => {
     expect(putRes.status).toBe(200);
     expect((putRes.data as { licenseNumber: string }).licenseNumber).toBe("123456789012");
   });
+
+  it("POST /api/account/registrations flow works properly", () => {
+    mockStore.reset();
+    const startRes = handleMockRoute("POST", "http://localhost/api/account/registrations", {
+      email: "newuser@example.com",
+      fullName: "Tran Van Moi",
+      password: "password123456!",
+    });
+    expect(startRes.status).toBe(202);
+    expect(Boolean((startRes.data as { message: string }).message)).toBe(true);
+
+    // Verify registration with correct OTP
+    const verifyRes = handleMockRoute("POST", "http://localhost/api/account/registrations/verify", {
+      email: "newuser@example.com",
+      otp: "123456",
+    });
+    expect(verifyRes.status).toBe(201);
+
+    // The user should now exist in mockStore
+    const user = mockStore.findUserByEmail("newuser@example.com");
+    expect(user).toBeDefined();
+    expect(user?.fullName).toBe("Tran Van Moi");
+
+    // Resend test
+    const resendRes = handleMockRoute("POST", "http://localhost/api/account/registrations/resend", {
+      email: "newuser@example.com",
+    });
+    expect(resendRes.status).toBe(202);
+  });
 });
+

@@ -196,7 +196,7 @@ export default function Navbar() {
                   Đăng nhập
                 </Link>
                 <Link
-                  href="/#tim-xe"
+                  href="/register"
                   className="px-4 py-2 text-sm font-semibold text-white bg-[#059669] hover:bg-[#047857] rounded-xl shadow-md shadow-[#059669]/25 hover:shadow-lg hover:shadow-[#059669]/35 transition-all duration-300 cursor-pointer"
                 >
                   Đăng ký
@@ -305,7 +305,7 @@ export default function Navbar() {
                     Đăng nhập
                   </Link>
                   <Link
-                    href="/#tim-xe"
+                    href="/register"
                     onClick={() => setMobileMenuOpen(false)}
                     className="w-full py-2.5 text-sm font-semibold text-center text-white bg-[#059669] rounded-xl block"
                   >

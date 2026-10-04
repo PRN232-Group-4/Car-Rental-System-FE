@@ -53,14 +53,17 @@ export default function LoginForm() {
 
   const { login } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const registeredEmail = searchParams.get("registered");
+  const [email, setEmail] = useState(() => registeredEmail || "");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(() =>
+    registeredEmail ? "Đăng ký thành công! Vui lòng nhập mật khẩu để đăng nhập." : null
+  );
 
   const handleSelectDemo = (account: DemoAccount) => {
     setEmail(account.email);
@@ -335,7 +338,7 @@ export default function LoginForm() {
         <div className="mt-6 text-center text-xs sm:text-sm text-neutral-500">
           Chưa có tài khoản Thong Dong?{" "}
           <Link
-            href="/#tim-xe"
+            href="/register"
             className="font-semibold text-[#059669] hover:text-[#047857] hover:underline"
           >
             Đăng ký tài khoản mới

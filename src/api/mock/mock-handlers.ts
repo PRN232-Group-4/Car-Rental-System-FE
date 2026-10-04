@@ -176,6 +176,74 @@ export function handleMockRoute(
     };
   }
 
+  // 6.5. Auth: Registrations
+  if (upperMethod === "POST" && (path === "account/registrations" || path === "registrations")) {
+    const payload = (body ?? {}) as { email?: string; fullName?: string; password?: string };
+    const email = payload.email?.trim().toLowerCase();
+    const fullName = payload.fullName?.trim();
+    const password = payload.password;
+
+    if (!email || !fullName || !password) {
+      return {
+        status: 400,
+        data: { message: "Vui lòng nhập đầy đủ Họ tên, Email và Mật khẩu." },
+      };
+    }
+
+    if (password.length < 6) {
+      return {
+        status: 400,
+        data: { message: "Mật khẩu phải có độ dài tối thiểu 6 ký tự." },
+      };
+    }
+
+    const { otp } = mockStore.startRegistration(email, fullName, password);
+    return {
+      status: 202,
+      data: {
+        message: `Mã OTP đã được gửi đến ${email}. (Mã mẫu test: ${otp})`,
+        otp,
+      },
+    };
+  }
+
+  if (upperMethod === "POST" && (path === "account/registrations/verify" || path === "registrations/verify")) {
+    const payload = (body ?? {}) as { email?: string; otp?: string };
+    const email = payload.email?.trim().toLowerCase();
+    const otp = payload.otp?.trim();
+
+    if (!email || !otp) {
+      return {
+        status: 400,
+        data: { message: "Vui lòng cung cấp Email và mã OTP." },
+      };
+    }
+
+    const success = mockStore.verifyRegistration(email, otp);
+    if (!success) {
+      return {
+        status: 400,
+        data: { message: "Mã OTP không chính xác hoặc đã hết hạn." },
+      };
+    }
+
+    return {
+      status: 201,
+      data: {
+        message: "Xác thực tài khoản thành công!",
+      },
+    };
+  }
+
+  if (upperMethod === "POST" && (path === "account/registrations/resend" || path === "registrations/resend")) {
+    return {
+      status: 202,
+      data: {
+        message: "Mã xác thực mới đã được gửi thành công.",
+      },
+    };
+  }
+
   // 7. Auth: Login
   if (upperMethod === "POST" && (path === "auth/login" || path === "login")) {
     const payload = (body ?? {}) as { email?: string; password?: string; rememberMe?: boolean };

@@ -36,3 +36,10 @@ npx playwright show-report
 - **Validation**: Kiểm tra thông báo lỗi khi mật khẩu nhập dưới 12 ký tự theo chuẩn an toàn.
 - **Tài khoản mẫu (Demo Accounts)**: Kiểm tra tính năng tự động điền form khi bấm vào các tài khoản mẫu ("Khách hàng", "Quản trị viên").
 - **Tương tác UI**: Kiểm tra nút toggle ẩn/hiện mật khẩu thay đổi đúng thuộc tính `type="password"` và `type="text"`.
+
+### 3. `register.spec.ts` (Đăng ký tài khoản)
+- **Giao diện & Thông tin**: Kiểm tra các trường thông tin đăng ký (Họ tên, Email, Mật khẩu, Xác nhận mật khẩu, Điều khoản) và các lợi ích thành viên Thong Dong.
+- **Validation**: Báo lỗi chi tiết khi mật khẩu dưới 6 ký tự hoặc hai mật khẩu không khớp nhau.
+- **Quy trình 2 bước**: Sử dụng tính năng "Điền mẫu tự động" (Quick Fill), submit thông tin sang màn hình nhập mã OTP 6 số, xác thực và chuyển sang màn hình chúc mừng thành công.
+- **Điều hướng liên kết**: Chuyển đổi qua lại mượt mà giữa trang `/login` và `/register`.
+

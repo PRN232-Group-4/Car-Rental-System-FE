@@ -24,3 +24,15 @@ export interface LoginResponse {
   roles?: string[];
   message?: string;
 }
+
+export interface StartRegistrationData {
+  email: string;
+  fullName: string;
+  password: string;
+}
+
+export interface VerifyRegistrationData {
+  email: string;
+  otp: string;
+}
+

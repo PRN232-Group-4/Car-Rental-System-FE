@@ -1,5 +1,11 @@
 import { defaultApiClient } from "@/api/default-api-client";
-import { AuthUser, LoginCredentials, LoginResponse } from "./types";
+import {
+  AuthUser,
+  LoginCredentials,
+  LoginResponse,
+  StartRegistrationData,
+  VerifyRegistrationData,
+} from "./types";
 
 const LOCAL_STORAGE_USER_KEY = "thongdong_auth_user";
 
@@ -96,3 +102,25 @@ export function getCachedUser(): AuthUser | null {
     return null;
   }
 }
+
+export async function startRegistration(data: StartRegistrationData): Promise<void> {
+  await defaultApiClient.post("account/registrations", {
+    email: data.email.trim(),
+    fullName: data.fullName.trim(),
+    password: data.password,
+  });
+}
+
+export async function verifyRegistration(data: VerifyRegistrationData): Promise<void> {
+  await defaultApiClient.post("account/registrations/verify", {
+    email: data.email.trim(),
+    otp: data.otp.trim(),
+  });
+}
+
+export async function resendRegistrationOtp(email: string): Promise<void> {
+  await defaultApiClient.post("account/registrations/resend", {
+    email: email.trim(),
+  });
+}
+

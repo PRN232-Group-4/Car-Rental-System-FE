@@ -250,6 +250,37 @@ export class MockDataStore {
     this.currentUser = user;
   }
 
+  private pendingRegistrations: Map<
+    string,
+    { email: string; fullName: string; password: string; otp: string }
+  > = new Map();
+
+  public startRegistration(email: string, fullName: string, password: string): { otp: string } {
+    const otp = "123456";
+    this.pendingRegistrations.set(email.toLowerCase(), { email, fullName, password, otp });
+    return { otp };
+  }
+
+  public verifyRegistration(email: string, otp: string): boolean {
+    const pending = this.pendingRegistrations.get(email.toLowerCase());
+    if (!pending) return false;
+    if (pending.otp !== otp && otp !== "123456") return false;
+
+    const existing = this.findUserByEmail(email);
+    if (!existing) {
+      const newUser: MockUser = {
+        id: `usr-cust-${Date.now()}`,
+        email: pending.email,
+        fullName: pending.fullName,
+        roles: ["Customer"],
+      };
+      this.users.push(newUser);
+    }
+    this.pendingRegistrations.delete(email.toLowerCase());
+    return true;
+  }
+
+
   // --- Facilities ---
   public getFacilities(): FacilityCatalogItem[] {
     return [...this.facilities];
