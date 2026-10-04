@@ -3,7 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  ChevronDown,
+  Car,
+  Package,
+  FileText,
+  CreditCard,
+  FileCheck,
+} from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useMounted } from "@/hooks/use-mounted";
 
@@ -42,7 +52,7 @@ export default function Navbar() {
             className="flex items-center gap-2 sm:gap-2.5 group whitespace-nowrap py-0.5 select-none"
           >
             <span className="text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 group-hover:text-[#059669] transition-colors">
-              ThongDong.
+              ThongDong
             </span>
           </Link>
 
@@ -225,7 +235,10 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1">
+          <div
+            id="mobile-nav-menu"
+            className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1"
+          >
             <Link
               href="/profile"
               onClick={() => setMobileMenuOpen(false)}
@@ -287,8 +300,12 @@ export default function Navbar() {
                       </div>
                     )}
                     <div>
-                      <div className="text-sm font-bold text-neutral-900">{user.fullName}</div>
-                      <div className="text-xs text-neutral-500">{user.email}</div>
+                      <div className="text-sm font-bold text-neutral-900">
+                        {user.fullName}
+                      </div>
+                      <div className="text-xs text-neutral-500">
+                        {user.email}
+                      </div>
                     </div>
                   </div>
                   <button
