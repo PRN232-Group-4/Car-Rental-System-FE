@@ -2209,22 +2209,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/subscription-plans/{id}/purchase": {
+    "/api/customer-subscriptions": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path: {
-                    id: number;
-                };
+                path?: never;
                 cookie?: never;
             };
             requestBody?: never;
@@ -2235,17 +2231,33 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
+                        "text/plain": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["CustomerSubscription"][];
+                        };
                         "application/json": {
                             /** @example Vehicle created successfully. */
                             message: string;
                             /** @example true */
                             is_success: boolean;
-                            data: unknown;
+                            data: components["schemas"]["CustomerSubscription"][];
+                        };
+                        "text/json": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["CustomerSubscription"][];
                         };
                     };
                 };
             };
         };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2506,6 +2518,138 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription-plans/{planId}/purchase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Successful response. The body uses the standard API response envelope. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["CheckoutResult"];
+                        };
+                        "application/json": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["CheckoutResult"];
+                        };
+                        "text/json": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["CheckoutResult"];
+                        };
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription-plans/purchases/{orderCode}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    orderCode: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Successful response. The body uses the standard API response envelope. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["PlanPurchaseStatus"];
+                        };
+                        "application/json": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["PlanPurchaseStatus"];
+                        };
+                        "text/json": {
+                            /** @example Vehicle created successfully. */
+                            message: string;
+                            /** @example true */
+                            is_success: boolean;
+                            data: components["schemas"]["PlanPurchaseStatus"];
+                        };
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3726,6 +3870,24 @@ export interface components {
             imageUrl?: string | null;
             status?: string | null;
         };
+        CustomerSubscription: {
+            /** Format: int32 */
+            id?: number;
+            /** Format: int32 */
+            customerId?: number;
+            /** Format: int32 */
+            planId?: number;
+            planName?: string | null;
+            /** Format: date */
+            startDate?: string;
+            /** Format: date */
+            endDate?: string;
+            /** Format: double */
+            totalHours?: number | null;
+            /** Format: double */
+            remainingHours?: number | null;
+            status?: string | null;
+        };
         DriverScheduleEntry: {
             /** Format: int32 */
             assignmentId?: number;
@@ -3873,7 +4035,7 @@ export interface components {
             /** Format: int32 */
             id?: number;
             /** Format: int32 */
-            rentalId?: number;
+            rentalId?: number | null;
             /** Format: int32 */
             invoiceId?: number | null;
             type?: string | null;
@@ -3886,6 +4048,11 @@ export interface components {
             paidAt?: string | null;
             /** Format: date-time */
             createdAt?: string;
+        };
+        PlanPurchaseStatus: {
+            /** Format: int64 */
+            orderCode?: number;
+            status?: string | null;
         };
         PlanRequest: {
             name?: string | null;
