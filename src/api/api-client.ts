@@ -115,8 +115,7 @@ export class ApiClient {
   }
 
   public async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { params, headers, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
-    const { params, headers, body, ...restOptions } = options;
+    const { params, headers, body, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
     const url = this.buildUrl(path, params);
 
     const mergedHeaders: HeadersInit = {
@@ -138,11 +137,10 @@ export class ApiClient {
         ...restOptions,
         body: serializedBody,
         headers: mergedHeaders,
-        credentials, // credentials: "include" for same-origin session cookies
+        credentials,
         signal: controller ? controller.signal : undefined,
       });
 
-      // Handle 401 Unauthorized with token refresh mechanism
       const isAuthEndpoint =
         path.includes("auth/login") ||
         path.includes("auth/refresh") ||
@@ -155,12 +153,12 @@ export class ApiClient {
             ...options,
             _isRetry: true,
           });
-        } else {
-          handleAuthFailure();
-          throw new ApiClientError(401, "Phiên đăng nhập đã hết hạn.", {
-            detail: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-          });
         }
+
+        handleAuthFailure();
+        throw new ApiClientError(401, "Phiên đăng nhập đã hết hạn.", {
+          detail: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+        });
       }
 
       if (!response.ok) {
@@ -179,24 +177,14 @@ export class ApiClient {
 
       const json = await response.json();
 
-      // Unwrap standard BE envelope { is_success, message, data }
-      if (typeof json === "object" && json !== null && "is_success" in json) {
-        const envelope = json as ApiEnvelope<T>;
-        if (envelope.is_success === false) {
-          throw new ApiClientError(response.status, response.statusText, envelope);
+      if (isApiEnvelope(json)) {
+        if (!json.is_success) {
+          throw new ApiClientError(response.status, response.statusText, json);
         }
-        return envelope.data as T;
+        return json.data as T;
       }
 
       return json as T;
-      const responseData: unknown = await response.json();
-      if (isApiEnvelope(responseData)) {
-        if (!responseData.is_success) {
-          throw new ApiClientError(response.status, response.statusText, responseData);
-        }
-        return responseData.data as T;
-      }
-      return responseData as T;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }

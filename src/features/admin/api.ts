@@ -123,6 +123,7 @@ export interface StaffDto {
   licenseIssueDate: string | null;
   licenseExpiryDate: string | null;
   licenseImageUrl: string | null;
+  licenseStatus?: string | null;
   rating: number | null;
   isActive: boolean;
   staffRole: string | null;

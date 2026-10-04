@@ -153,6 +153,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         if (editing) await updateFacility(editing.id, body);
         else await createFacility(body);
       } else if (directory === "staffs") {
+        const existingStaff = editing?.source;
         const common = {
           fullName: values.fullName.trim(),
           phone: values.phone.trim(),
@@ -161,10 +162,10 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           hiredDate: values.hiredDate || null,
           isDriver: values.isDriver === "true",
           licenseNumber: values.licenseNumber.trim() || null,
-          licenseType: null,
-          licenseIssueDate: null,
-          licenseExpiryDate: null,
-          licenseImageUrl: null,
+          licenseType: existingStaff?.licenseType ?? null,
+          licenseIssueDate: existingStaff?.licenseIssueDate ?? null,
+          licenseExpiryDate: existingStaff?.licenseExpiryDate ?? null,
+          licenseImageUrl: existingStaff?.licenseImageUrl ?? null,
           staffRole: values.staffRole.trim(),
         };
         if (editing) await updateStaff(editing.id, common);

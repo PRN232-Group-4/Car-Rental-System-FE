@@ -203,24 +203,6 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-            <Link
-              href="/profile"
-              className="px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:text-[#059669] transition-colors"
-            >
-              Hồ sơ
-            </Link>
-            <button
-              type="button"
-              className="px-3.5 py-2 text-sm font-semibold text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
-            >
-              Đăng nhập
-            </button>
-            <a
-              href="#tim-xe"
-              className="px-4 py-2 text-sm font-semibold text-white bg-[#059669] hover:bg-[#047857] rounded-xl shadow-md shadow-[#059669]/25 hover:shadow-lg hover:shadow-[#059669]/35 transition-all duration-300 cursor-pointer"
-            >
-              Đăng ký
-            </a>
           </div>
 
           {/* Mobile menu toggle button */}
@@ -245,7 +227,6 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-neutral-200/60 mt-3 space-y-1">
             <Link
-              href="/#tim-xe"
               href="/profile"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
@@ -258,7 +239,7 @@ export default function Navbar() {
               className="block px-3 py-2 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-100"
             >
               Thuê xe
-            </Link>
+            </a>
             <Link
               href="/#chi-nhanh"
               onClick={() => setMobileMenuOpen(false)}

@@ -31,12 +31,12 @@ describe("ApiClient Unit Tests", () => {
       customerName: "Tran Van B",
       customerPhone: "0987654321",
     });
-    assert(res.success === true, "Client POST rental should return success");
-    assert(Boolean(res.bookingId), "Client POST rental should have bookingId");
-  }
 
-  // 5. Unwrap the backend's standard response envelope.
-  {
+    expect(res.success).toBe(true);
+    expect(Boolean(res.bookingId)).toBe(true);
+  });
+
+  it("unwraps the backend response envelope", async () => {
     const envelopeClient = new ApiClient({
       customFetch: async () =>
         new Response(
@@ -48,12 +48,12 @@ describe("ApiClient Unit Tests", () => {
           { status: 200, headers: { "Content-Type": "application/json" } },
         ),
     });
-    const result = await envelopeClient.get<{ value: string }>("profile");
-    assert(result.value === "unwrapped", "Client should return envelope data");
-  }
 
-  // 6. Multipart uploads must let the browser set the boundary header.
-  {
+    const result = await envelopeClient.get<{ value: string }>("profile");
+    expect(result.value).toBe("unwrapped");
+  });
+
+  it("keeps multipart uploads browser-controlled", async () => {
     let contentType: string | null = "not checked";
     const uploadClient = new ApiClient({
       customFetch: async (_input, init) => {
@@ -64,9 +64,11 @@ describe("ApiClient Unit Tests", () => {
         });
       },
     });
+
     const formData = new FormData();
     formData.append("file", new Blob(["image"]), "image.png");
     await uploadClient.post("media/vehicle", formData);
-    assert(contentType === null, "Multipart request should not force Content-Type");
-  }
-}
+
+    expect(contentType).toBeNull();
+  });
+});
