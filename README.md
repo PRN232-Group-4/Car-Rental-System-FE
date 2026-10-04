@@ -6,6 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![TanStack Query](https://img.shields.io/badge/TanStack_Query-v5-FF4154?logo=react-query&logoColor=white)](https://tanstack.com/query)
 [![Vitest](https://img.shields.io/badge/Vitest-v5-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-Wrangler-F38020?logo=cloudflare)](https://workers.cloudflare.com/)
 
 Ứng dụng web Frontend dành cho khách hàng của **Hệ thống thuê xe Thong Dong** (Single-operator Vehicle Rental System). Hệ thống phục vụ nhu cầu thuê ô tô, xe máy, xe điện linh hoạt theo giờ (kèm tài xế), thuê tự lái/dài hạn và gói thuê bao trả trước (Subscription), tích hợp thanh toán trực tuyến qua cổng PayOS.
@@ -75,6 +76,7 @@
 | **Lucide React** | `^1.49` | Bộ icon giao diện thống nhất |
 | **openapi-typescript** | `^7.13` | Tự động sinh TypeScript Types từ Swagger schema của Backend |
 | **Vitest** | `^5.0` | Framework chạy Unit & Integration Test |
+| **Playwright** | `^1.63` | Framework kiểm thử luồng người dùng thực tế (E2E Test) |
 | **Wrangler / Cloudflare Workers** | `^4.145` | Reverse proxy Same-Origin `/api/*` và phục vụ Static SPA |
 
 ---
@@ -187,21 +189,28 @@ Mở trình duyệt tại [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Khởi chạy máy chủ production từ bản build |
 | `npm run lint` | Kiểm tra lỗi cú pháp và quy chuẩn code với ESLint |
 | `npm run typecheck` | Kiểm tra tĩnh kiểu dữ liệu TypeScript (`tsc --noEmit`) |
-| `npm run test` | Chạy bộ kiểm thử tự động với Vitest |
+| `npm run test` | Chạy bộ kiểm thử tự động Unit/Integration với Vitest |
+| `npm run test:e2e` | Chạy toàn bộ kiểm thử E2E với Playwright (Headless mode) |
+| `npm run test:e2e:ui` | Mở giao diện tương tác Playwright UI để debug trực quan |
 | `npm run gen:api` | Sinh lại TypeScript types từ Swagger OpenAPI schema của Backend |
 
 ---
 
 ## 🧪 Kiểm thử & Tiêu chuẩn chất lượng (Quality Gates)
 
-Quy trình CI (`.github/workflows/ci.yml`) tự động thực thi 4 bước kiểm tra nghiêm ngặt trên mọi Pull Request. Trước khi commit, hãy đảm bảo các lệnh sau đều vượt qua:
+Quy trình CI (`.github/workflows/ci.yml`) tự động thực thi các bước kiểm tra nghiêm ngặt trên mọi Pull Request. Trước khi commit, hãy đảm bảo các lệnh sau đều vượt qua:
 
 ```bash
 npm run lint && npm run typecheck && npm test && npm run build
 ```
 
-- **Unit Test (Vitest)**: Kiểm thử bộ giải nén envelope `ApiClient`, cơ chế xử lý lỗi `ProblemDetails`, cơ chế tự động refresh token 401, các hàm mappers dữ liệu từ BE sang UI, và các mock handlers.
-- **Typecheck**: Đảm bảo không có lỗi type `any` không mong muốn và tuân thủ chặt chẽ schema được sinh từ BE.
+Hệ thống kiểm thử của dự án bao gồm:
+
+- **Unit & Integration Test (Vitest)**: Kiểm thử bộ giải nén envelope `ApiClient`, cơ chế xử lý lỗi `ProblemDetails`, cơ chế tự động refresh token 401, các hàm mappers dữ liệu từ BE sang UI, và các mock handlers (`npm run test`).
+- **End-to-End Test (Playwright)**: Kiểm thử toàn bộ luồng trải nghiệm người dùng thực tế trên trình duyệt (`npm run test:e2e`), bao gồm:
+  - `e2e/smoke.spec.ts`: Tải trang chủ, kiểm tra các liên kết menu điều hướng, trang gói cước, form đăng nhập và Route Guard chặn truy cập dashboard chưa đăng nhập.
+  - `e2e/auth.spec.ts`: Kiểm tra form validation mật khẩu, tính năng điền nhanh tài khoản mẫu (Demo accounts) và thao tác ẩn/hiện mật khẩu.
+- **Typecheck**: Đảm bảo không có lỗi type `any` không mong muốn và tuân thủ chặt chẽ schema được sinh từ BE (`npm run typecheck`).
 
 ---
 

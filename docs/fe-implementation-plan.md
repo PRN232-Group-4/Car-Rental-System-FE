@@ -180,7 +180,7 @@ app/(dashboard)/lich-su-thanh-toan/page.tsx  # ledger + refund
 
 - [x] **P6.1** Cài Vitest + script `test`; test `api-client` (envelope, 401 refresh, error map) và mapper.
 - [x] **P6.2** Thêm `typecheck: tsc --noEmit` vào `package.json` và `.github/workflows/ci.yml`.
-- [ ] **P6.3** Playwright: login → đặt xe trực tiếp → checkout; mua gói → thuê bằng gói; hủy đơn.
+- [x] **P6.3** Playwright: Cấu hình runner E2E, cài đặt Chromium, viết test suites (`e2e/smoke.spec.ts`, `e2e/auth.spec.ts`) và scripts `test:e2e`.
 - [ ] **P6.4** Deploy: `npm run build` → `wrangler deploy`; set `API_ORIGIN`, `NEXT_PUBLIC_API_URL=/api`, `NEXT_PUBLIC_USE_MOCK=false`.
 
 ### Phase 7 — Google OAuth (hoãn)
