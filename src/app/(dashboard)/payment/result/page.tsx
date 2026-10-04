@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -16,6 +16,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, Invoice } from "@/features/invoices";
 import { getPlanPurchaseStatus, PlanPurchaseStatus } from "@/features/subscriptions";
+import { cancelCheckout } from "@/features/payments";
 
 export default function PaymentResultPage() {
   return (
@@ -31,7 +32,7 @@ function PaymentResultContent() {
   const orderCode = searchParams.get("orderCode") || searchParams.get("invoiceId") || "";
   const hasOrderCode = orderCode.length > 0;
   const urlStatus = (searchParams.get("status") || "").toUpperCase();
-  const isCancelled = searchParams.get("cancel") === "true" || urlStatus === "CANCELLED";
+  const urlCancelled = searchParams.get("cancel") === "true" || urlStatus === "CANCELLED";
   // Plan purchases reuse this page: PayOS returns their orderCode in a high range, and the BE
   // also marks the return URL with type=subscription.
   const isPlanPurchase = searchParams.get("type") === "subscription" || Number(orderCode) >= 1_000_000_000;
@@ -43,20 +44,49 @@ function PaymentResultContent() {
     queryKey: ["invoice-poll", orderCode],
     queryFn: () => getInvoiceById(orderCode),
     enabled: !isPlanPurchase && hasOrderCode,
-    refetchInterval: (query) => (query.state.data?.status === "paid" || isCancelled || pollCount >= 15 ? false : 2500),
+    refetchInterval: (query) =>
+      query.state.data?.status === "paid" ||
+      query.state.data?.status === "cancelled" ||
+      urlCancelled ||
+      pollCount >= 15
+        ? false
+        : 2500,
   });
 
   const planQuery = useQuery<PlanPurchaseStatus>({
     queryKey: ["plan-purchase-poll", orderCode],
     queryFn: () => getPlanPurchaseStatus(orderCode),
     enabled: isPlanPurchase && hasOrderCode,
-    refetchInterval: (query) => (query.state.data?.status === "paid" || isCancelled || pollCount >= 15 ? false : 2500),
+    refetchInterval: (query) =>
+      query.state.data?.status === "paid" ||
+      query.state.data?.status === "cancelled" ||
+      urlCancelled ||
+      pollCount >= 15
+        ? false
+        : 2500,
   });
 
   const invoice = invoiceQuery.data;
-  const isPaid = isPlanPurchase ? planQuery.data?.status === "paid" : invoice?.status === "paid";
+  const planPurchase = planQuery.data;
+  const serverStatus = isPlanPurchase ? planPurchase?.status : invoice?.status;
+  const isCancelled = urlCancelled || serverStatus === "cancelled";
+  const isPaid = serverStatus === "paid";
   const refetch = isPlanPurchase ? planQuery.refetch : invoiceQuery.refetch;
   const isFetching = isPlanPurchase ? planQuery.isFetching : invoiceQuery.isFetching;
+
+  // payOS không gửi webhook khi khách huỷ link → báo BE xác minh với payOS rồi chuyển giao dịch
+  // sang 'cancelled' (BE không tin query param của FE).
+  const cancelSyncedRef = useRef(false);
+  const refetchInvoice = invoiceQuery.refetch;
+  const refetchPlan = planQuery.refetch;
+  useEffect(() => {
+    if (!urlCancelled || !hasOrderCode || cancelSyncedRef.current) return;
+    cancelSyncedRef.current = true;
+    void (async () => {
+      await cancelCheckout(orderCode);
+      await (isPlanPurchase ? refetchPlan() : refetchInvoice());
+    })();
+  }, [urlCancelled, hasOrderCode, orderCode, isPlanPurchase, refetchInvoice, refetchPlan]);
 
   useEffect(() => {
     if (!isCancelled && !isPaid && pollCount < 15) {

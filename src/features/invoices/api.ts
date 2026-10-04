@@ -24,6 +24,12 @@ const MOCK_INVOICES: Invoice[] = [
   },
 ];
 
+/** BE dùng 'unpaid' cho hoá đơn chưa trả, FE dùng 'pending' — quy về một giá trị để badge/filter khớp. */
+function normalizeInvoiceStatus(status: string): string {
+  const value = status.toLowerCase();
+  return value === "unpaid" ? "pending" : value;
+}
+
 export function mapInvoiceFromBE(raw: Record<string, unknown>): Invoice {
   return {
     id: (raw.id ?? raw.Id) as number | string,
@@ -31,7 +37,7 @@ export function mapInvoiceFromBE(raw: Record<string, unknown>): Invoice {
     invoiceNumber: String(raw.invoiceNumber ?? raw.InvoiceNumber ?? `INV-${raw.id}`),
     amount: Number(raw.amount ?? raw.Amount ?? 0),
     vatAmount: Number(raw.vatAmount ?? raw.VatAmount ?? 0),
-    status: String(raw.status ?? raw.Status ?? "pending").toLowerCase(),
+    status: normalizeInvoiceStatus(String(raw.status ?? raw.Status ?? "pending")),
     issuedAt: String(raw.issuedAt ?? raw.IssuedAt ?? new Date().toISOString()),
     dueAt: (raw.dueAt ?? raw.DueAt) as string | null | undefined,
   };
