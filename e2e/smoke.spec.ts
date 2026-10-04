@@ -8,7 +8,7 @@ test.describe("Smoke Tests — Hệ Thống Thuê Xe Thong Dong", () => {
     await expect(page).toHaveTitle(/Thong Dong/i);
 
     // Kiểm tra Navbar và thương hiệu
-    const brand = page.locator("header").getByText("ThongDong.");
+    const brand = page.locator("header").getByRole("link", { name: /ThongDong/i }).first();
     await expect(brand).toBeVisible();
 
     // Kiểm tra các liên kết điều hướng chính trên Desktop Navbar

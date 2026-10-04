@@ -141,10 +141,9 @@ export class ApiClient {
         signal: controller ? controller.signal : undefined,
       });
 
-      const isAuthEndpoint =
-        path.includes("auth/login") ||
-        path.includes("auth/refresh") ||
-        path.includes("auth/logout");
+      const isAuthEndpoint = AUTH_ENDPOINTS.some((endpoint) =>
+        toCleanPath(path).startsWith(endpoint),
+      );
 
       if (response.status === 401 && !_isRetry && !skipAuthRefresh && !isAuthEndpoint) {
         const refreshed = await refreshSessionToken(this.fetchFn, this.baseUrl);
@@ -222,6 +221,13 @@ export class ApiClient {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
 }
+
+function toCleanPath(path: string): string {
+  return path.split("?")[0].replace(/^\/+/, "");
+}
+
+/** Endpoint tự xử lý 401 của mình — không được kích hoạt refresh token. */
+const AUTH_ENDPOINTS = ["auth/login", "auth/refresh", "auth/logout", "auth/google"];
 
 function isApiEnvelope(
   value: unknown,

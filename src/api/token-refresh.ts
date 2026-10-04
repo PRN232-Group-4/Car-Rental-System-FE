@@ -1,3 +1,7 @@
+/** Khoá localStorage lưu user đã đăng nhập. Khai báo ở đây (module không import gì)
+ *  để cả auth/api.ts và token-refresh dùng chung mà không tạo vòng import. */
+export const AUTH_USER_STORAGE_KEY = "thongdong_auth_user";
+
 let refreshPromise: Promise<boolean> | null = null;
 
 export async function refreshSessionToken(fetchFn: typeof fetch, baseUrl: string): Promise<boolean> {
@@ -38,8 +42,8 @@ export function handleAuthFailure(nextPath?: string) {
     // authenticated session actually died.
     let hadUser = false;
     try {
-      hadUser = !!localStorage.getItem("thongdong_auth_user");
-      localStorage.removeItem("thongdong_auth_user");
+      hadUser = !!localStorage.getItem(AUTH_USER_STORAGE_KEY);
+      localStorage.removeItem(AUTH_USER_STORAGE_KEY);
     } catch {
       // ignore
     }
@@ -48,6 +52,8 @@ export function handleAuthFailure(nextPath?: string) {
     const currentPath = window.location.pathname;
     if (!currentPath.startsWith("/login")) {
       const target = nextPath || currentPath + window.location.search;
+      // Full reload là chủ đích: xoá sạch state auth còn sót trong RAM sau khi phiên chết.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = `/login?next=${encodeURIComponent(target)}`;
     }
   }

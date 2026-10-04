@@ -28,7 +28,8 @@ export default function PaymentResultPage() {
 function PaymentResultContent() {
   const searchParams = useSearchParams();
 
-  const orderCode = searchParams.get("orderCode") || searchParams.get("invoiceId") || "1";
+  const orderCode = searchParams.get("orderCode") || searchParams.get("invoiceId") || "";
+  const hasOrderCode = orderCode.length > 0;
   const urlStatus = (searchParams.get("status") || "").toUpperCase();
   const isCancelled = searchParams.get("cancel") === "true" || urlStatus === "CANCELLED";
   // Plan purchases reuse this page: PayOS returns their orderCode in a high range, and the BE
@@ -41,14 +42,14 @@ function PaymentResultContent() {
   const invoiceQuery = useQuery<Invoice | null>({
     queryKey: ["invoice-poll", orderCode],
     queryFn: () => getInvoiceById(orderCode),
-    enabled: !isPlanPurchase,
+    enabled: !isPlanPurchase && hasOrderCode,
     refetchInterval: (query) => (query.state.data?.status === "paid" || isCancelled || pollCount >= 15 ? false : 2500),
   });
 
   const planQuery = useQuery<PlanPurchaseStatus>({
     queryKey: ["plan-purchase-poll", orderCode],
     queryFn: () => getPlanPurchaseStatus(orderCode),
-    enabled: isPlanPurchase,
+    enabled: isPlanPurchase && hasOrderCode,
     refetchInterval: (query) => (query.state.data?.status === "paid" || isCancelled || pollCount >= 15 ? false : 2500),
   });
 
@@ -128,7 +129,7 @@ function PaymentResultContent() {
               ) : (
                 <>
                   <Link
-                    href={`/invoices/${orderCode}`}
+                    href={hasOrderCode ? `/invoices/${orderCode}` : "/invoices"}
                     className="px-6 py-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
@@ -162,7 +163,13 @@ function PaymentResultContent() {
 
             <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href={isPlanPurchase ? "/subscriptions" : `/invoices/${orderCode}`}
+                href={
+                  isPlanPurchase
+                    ? "/subscriptions"
+                    : hasOrderCode
+                      ? `/invoices/${orderCode}`
+                      : "/invoices"
+                }
                 className="px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-md"
               >
                 Thử thanh toán lại

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   Building2,
@@ -18,7 +18,11 @@ import {
   WalletCards,
   UsersRound,
   X,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/features/auth";
+import { usePortalAccess } from "@/features/auth/use-portal-access";
+import { initialsFor, isAdminOrStaffAccount } from "@/features/profile/api";
 
 const navigation = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
@@ -39,7 +43,19 @@ const navigation = [
 
 export default function StaffShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { account, checkingAccess, accessError } = usePortalAccess(isAdminOrStaffAccount);
+  const initials = useMemo(() => initialsFor(account?.fullName), [account?.fullName]);
+
+  const handleLogout = () => {
+    void (async () => {
+      await logout();
+      router.replace("/login");
+    })();
+  };
+
   const currentPage =
     navigation.find((item) => item.href === pathname)?.label ??
     (pathname === "/admin/vehicles/new" || pathname.endsWith("/edit")
@@ -115,14 +131,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">
-              MA
+              {initials}
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-white">
-                Nguyễn Minh Anh
+                {account?.fullName ?? "Nhân viên"}
               </span>
-              <span className="block text-xs text-slate-400">
-                Quản lý chi nhánh
+              <span className="block truncate text-xs text-slate-400">
+                {account?.departmentName ?? "Nhân viên hệ thống"}
               </span>
             </span>
           </div>
@@ -133,10 +149,41 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           >
             Xem hồ sơ nhân viên
           </Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
+          >
+            <LogOut className="h-4 w-4" />
+            Đăng xuất
+          </button>
         </div>
       </div>
     </>
   );
+
+  if (checkingAccess) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+        <p role="status" className="text-sm font-medium text-slate-600">
+          Đang xác thực tài khoản nhân viên...
+        </p>
+      </div>
+    );
+  }
+
+  if (accessError || !account) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+        <p
+          role="alert"
+          className="max-w-xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          {accessError || "Tài khoản không có quyền truy cập cổng quản trị."}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f4f7f6] text-slate-800">
@@ -179,9 +226,11 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
-              Chi nhánh Quận 1
-            </span>
+            {account.facilityId !== null && (
+              <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
+                Cơ sở #{account.facilityId}
+              </span>
+            )}
             <button
               type="button"
               aria-label="Thông báo"
@@ -195,7 +244,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900"
               aria-label="Hồ sơ nhân viên"
             >
-              MA
+              {initials}
             </Link>
           </div>
         </header>

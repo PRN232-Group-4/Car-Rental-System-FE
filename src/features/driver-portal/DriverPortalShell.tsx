@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -17,8 +17,9 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
-import { getAccountProfile } from "@/features/profile/api";
-import { initialsFor, isDriverStaffAccount } from "./api";
+import { usePortalAccess } from "@/features/auth/use-portal-access";
+import { initialsFor } from "@/features/profile/api";
+import { isDriverStaffAccount } from "./api";
 import type { DriverPortalAccount } from "./api";
 
 const navigation = [
@@ -42,46 +43,11 @@ export function useDriverPortalAccount(): DriverPortalAccount {
 export default function DriverPortalShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isLoading: authLoading, isAuthenticated, logout } = useAuth();
-  const [account, setAccount] = useState<DriverPortalAccount | null>(null);
-  const [checkingAccess, setCheckingAccess] = useState(true);
-  const [accessError, setAccessError] = useState("");
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      router.replace("/login");
-      return;
-    }
-
-    let active = true;
-    void getAccountProfile()
-      .then((profile) => {
-        if (!active) return;
-        if (!isDriverStaffAccount(profile)) {
-          router.replace("/");
-          return;
-        }
-        setAccount(profile);
-      })
-      .catch((error: unknown) => {
-        if (active) {
-          setAccessError(
-            error instanceof Error
-              ? error.message
-              : "Không thể xác thực quyền truy cập cổng tài xế.",
-          );
-        }
-      })
-      .finally(() => {
-        if (active) setCheckingAccess(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [authLoading, isAuthenticated, router]);
+  const { account, checkingAccess, accessError } = usePortalAccess<DriverPortalAccount>(
+    isDriverStaffAccount,
+  );
 
   const currentPage =
     navigation.find((item) => item.href === pathname)?.label ?? "Cổng tài xế";
@@ -170,16 +136,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
           <button
             type="button"
             onClick={() => {
-              void (async () => {
-                try {
-                  await logout();
-                  router.replace("/login");
-                } catch (error) {
-                  setAccessError(
-                    error instanceof Error ? error.message : "Không thể đăng xuất.",
-                  );
-                }
-              })();
+              void logout().finally(() => router.replace("/login"));
             }}
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
           >
@@ -191,7 +148,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
     </>
   );
 
-  if (authLoading || checkingAccess) {
+  if (checkingAccess) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
         <p role="status" className="text-sm font-medium text-slate-600">

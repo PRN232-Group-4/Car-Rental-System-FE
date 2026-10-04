@@ -1,4 +1,6 @@
 import { defaultApiClient } from "@/api/default-api-client";
+import { ApiClientError } from "@/api/api-client";
+import { AUTH_USER_STORAGE_KEY } from "@/api/token-refresh";
 import {
   AuthUser,
   LoginCredentials,
@@ -7,7 +9,25 @@ import {
   VerifyRegistrationData,
 } from "./types";
 
-const LOCAL_STORAGE_USER_KEY = "thongdong_auth_user";
+const LOCAL_STORAGE_USER_KEY = AUTH_USER_STORAGE_KEY;
+
+function cacheUser(user: AuthUser): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
+  } catch {
+    // Ignore localStorage errors (e.g. private mode)
+  }
+}
+
+function clearCachedUser(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+  } catch {
+    // Ignore
+  }
+}
 
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser> {
   const response = await defaultApiClient.post<LoginResponse | undefined>(
@@ -33,7 +53,9 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
     };
   } else {
     // Backend standard behavior (returns 204 No Content with Set-Cookie)
-    // Fetch user profile using session cookie
+    // Fetch user profile using session cookie. Xoá cache cũ trước để nếu bước này
+    // lỗi thì không "đăng nhập" nhầm bằng hồ sơ của tài khoản trước đó.
+    clearCachedUser();
     const profile = await getProfile();
     if (!profile) {
       throw new Error("Không thể tải thông tin hồ sơ người dùng.");
@@ -42,13 +64,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
   }
 
   // Cache user info in localStorage for seamless client-side state
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
-    } catch {
-      // Ignore localStorage errors (e.g. private mode)
-    }
-  }
+  cacheUser(user);
 
   return user;
 }
@@ -56,24 +72,16 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
 export async function getProfile(): Promise<AuthUser | null> {
   try {
     const profile = await defaultApiClient.get<AuthUser>("account/profile");
-    if (typeof window !== "undefined" && profile) {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(profile));
-      } catch {
-        // Ignore
-      }
-    }
+    if (profile) cacheUser(profile);
     return profile;
-  } catch {
-    // If not authenticated or profile fails, clear cached user
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-      } catch {
-        // Ignore
-      }
+  } catch (error) {
+    // 401 = phiên thực sự chết → xoá cache.
+    // Lỗi mạng/offline → giữ cache để người dùng không bị đăng xuất oan.
+    if (error instanceof ApiClientError && error.status === 401) {
+      clearCachedUser();
+      return null;
     }
-    return null;
+    return getCachedUser();
   }
 }
 
@@ -83,13 +91,7 @@ export async function logoutUser(): Promise<void> {
   } catch (err) {
     console.warn("[Auth API] Logout API warning:", err);
   } finally {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-      } catch {
-        // Ignore
-      }
-    }
+    clearCachedUser();
   }
 }
 
