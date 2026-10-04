@@ -20,7 +20,7 @@ export default function StaffProfileForm() {
       void (async () => {
         try {
           const account = await getAccountProfile();
-          if (account.staffId === null) throw new Error("Tài khoản hiện tại chưa được liên kết với hồ sơ nhân viên.");
+          if (account.staffId == null) throw new Error("Tài khoản hiện tại chưa được liên kết với hồ sơ nhân viên.");
           setStaff(await getStaffById(account.staffId));
         } catch (loadError) {
           setError(messageOf(loadError, "Không thể tải hồ sơ nhân viên."));
