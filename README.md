@@ -20,6 +20,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Backend API
+
+The Admin portal and customer Profile pages use the Vehicle Rental backend. The API base defaults to the production backend and can be overridden with `NEXT_PUBLIC_API_URL`, including the `/api` path (for example, `https://your-api.example/api`). Authentication is not wired yet; backend authorization errors are shown in the affected page. Other site features continue to use the existing API client.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

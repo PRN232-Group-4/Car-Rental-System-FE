@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
   BadgeCheck,
-  CalendarDays,
   Check,
   Clock3,
   FileText,
@@ -19,15 +18,23 @@ import {
 } from "lucide-react";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
+import {
+  getAccountProfile,
+  getCustomerLicense,
+  updateAccountProfile,
+  updateCustomerLicense,
+  uploadLicenseImage,
+} from "../api";
+import { ApiClientError } from "@/api/api-client";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 type ProfileDetails = {
   fullName: string;
   email: string;
   phone: string;
-  dateOfBirth: string;
+  gender: string;
 };
 
 export default function ProfileManager() {
@@ -36,13 +43,60 @@ export default function ProfileManager() {
     fullName: "",
     email: "",
     phone: "",
-    dateOfBirth: "",
+    gender: "",
   });
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [licenseType, setLicenseType] = useState("");
+  const [issueDate, setIssueDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [licenseImageUrl, setLicenseImageUrl] = useState("");
+  const [licenseStatus, setLicenseStatus] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [fileError, setFileError] = useState("");
   const [profileSaved, setProfileSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSubmittingLicense, setIsSubmittingLicense] = useState(false);
+  const [pageError, setPageError] = useState("");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const profile = await getAccountProfile();
+          let license = null;
+          try {
+            license = await getCustomerLicense();
+          } catch (licenseError) {
+            if (!(licenseError instanceof ApiClientError) || licenseError.status !== 404) {
+              throw licenseError;
+            }
+          }
+          setDetails({
+            fullName: profile.fullName ?? "",
+            email: profile.email ?? "",
+            phone: profile.phone ?? "",
+            gender: profile.gender ?? "",
+          });
+          if (license) {
+            setLicenseNumber(license.number ?? "");
+            setLicenseType(license.type ?? "");
+            setIssueDate(license.issueDate?.slice(0, 10) ?? "");
+            setExpiryDate(license.expiryDate?.slice(0, 10) ?? "");
+            setLicenseImageUrl(license.imageUrl ?? "");
+            setLicenseStatus(license.status ?? "");
+          }
+        } catch (loadError) {
+          setPageError(messageOf(loadError, "Không thể tải hồ sơ từ máy chủ."));
+        } finally {
+          setIsLoading(false);
+        }
+      })();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const updateDetails = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.currentTarget;
@@ -56,7 +110,7 @@ export default function ProfileManager() {
 
     if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
       setSelectedFile(null);
-      setFileError("Vui lòng chọn ảnh JPG, PNG, WEBP hoặc tệp PDF.");
+      setFileError("Vui lòng chọn ảnh JPG, PNG hoặc WEBP.");
       return;
     }
 
@@ -67,7 +121,7 @@ export default function ProfileManager() {
     }
 
     setSelectedFile(file);
-    setIsPending(false);
+    setFileError("");
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -81,26 +135,71 @@ export default function ProfileManager() {
     selectFile(event.dataTransfer.files[0]);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedFile) {
+    if (!selectedFile && !licenseImageUrl) {
       setFileError("Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt.");
       return;
     }
-    setIsPending(true);
+    setIsSubmittingLicense(true);
+    setFileError("");
+    try {
+      let imageUrl = licenseImageUrl;
+      if (selectedFile) {
+        imageUrl = extractImageUrl(await uploadLicenseImage(selectedFile));
+        if (!imageUrl) throw new Error("API tải ảnh không trả về URL.");
+      }
+      const license = await updateCustomerLicense({
+        number: licenseNumber.trim(),
+        type: licenseType.trim(),
+        issueDate: issueDate || null,
+        expiryDate,
+        imageUrl,
+      });
+      setLicenseImageUrl(license.imageUrl ?? imageUrl);
+      const status = license.status ?? "pending";
+      setLicenseStatus(status);
+      setSelectedFile(null);
+      setIsPending(isPendingStatus(status));
+    } catch (submitError) {
+      setFileError(messageOf(submitError, "Không thể gửi giấy phép để xét duyệt."));
+    } finally {
+      setIsSubmittingLicense(false);
+    }
   };
 
-  const handleSaveProfile = (event: FormEvent<HTMLFormElement>) => {
+  const handleSaveProfile = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setProfileSaved(true);
+    setIsSavingProfile(true);
+    setPageError("");
+    try {
+      const profile = await updateAccountProfile({
+        fullName: details.fullName.trim(),
+        gender: details.gender,
+        phone: details.phone.trim(),
+      });
+      setDetails((current) => ({
+        ...current,
+        fullName: profile.fullName ?? current.fullName,
+        email: profile.email ?? current.email,
+        phone: profile.phone ?? current.phone,
+        gender: profile.gender ?? current.gender,
+      }));
+      setProfileSaved(true);
+    } catch (saveError) {
+      setPageError(messageOf(saveError, "Không thể lưu thông tin hồ sơ."));
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const removeFile = () => {
     setSelectedFile(null);
-    setIsPending(false);
     setFileError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+  const statusLabel = formatLicenseStatus(licenseStatus);
+  const hasPendingStatus = isPendingStatus(licenseStatus) || isPending;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f4f8f6] text-slate-800">
@@ -131,14 +230,19 @@ export default function ProfileManager() {
             </p>
           </div>
           <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${
-            isPending
+            hasPendingStatus
               ? "border-amber-200 bg-amber-50 text-amber-800"
-              : "border-slate-200 bg-white/80 text-slate-600"
+              : licenseStatus.toLowerCase().includes("approved")
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                : "border-slate-200 bg-white/80 text-slate-600"
           }`}>
-            {isPending ? <Clock3 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-            {isPending ? "Chờ phê duyệt" : "Chưa xác minh"}
+            {hasPendingStatus ? <Clock3 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+            {statusLabel}
           </div>
         </div>
+
+        {isLoading && <p role="status" className="mb-5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">Đang tải hồ sơ...</p>}
+        {pageError && <p role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{pageError}</p>}
 
         <section aria-label="Tiến trình xác minh hồ sơ" className="glass-card mb-8 rounded-3xl p-5 sm:p-7">
           <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
@@ -147,9 +251,9 @@ export default function ProfileManager() {
               <p className="mt-1 text-sm text-slate-500">Hoàn tất các bước dưới đây để xác minh tài khoản.</p>
             </div>
             <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
-              isPending ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-600"
+              hasPendingStatus ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-600"
             }`}>
-              {isPending ? "PENDING APPROVAL" : "CHƯA HOÀN TẤT"}
+              {licenseStatus ? licenseStatus.toLocaleUpperCase().replaceAll("_", " ") : "CHƯA HOÀN TẤT"}
             </span>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
@@ -162,15 +266,15 @@ export default function ProfileManager() {
             <ProgressStep
               number="02"
               title="Giấy phép lái xe"
-              description={isPending ? "Đã gửi tài liệu" : "Tải lên ảnh hoặc PDF"}
-              complete={isPending}
+              description={licenseStatus ? "Đã gửi tài liệu" : "Tải lên ảnh giấy phép"}
+              complete={Boolean(licenseStatus)}
             />
             <ProgressStep
               number="03"
               title="Phê duyệt"
-              description={isPending ? "Đang được đội ngũ kiểm tra" : "Chờ gửi hồ sơ"}
-              complete={false}
-              active={isPending}
+              description={statusLabel}
+              complete={licenseStatus.toLowerCase().includes("approved")}
+              active={hasPendingStatus}
             />
           </div>
         </section>
@@ -211,8 +315,11 @@ export default function ProfileManager() {
                   placeholder="name@example.com"
                   className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                   required
+                  readOnly
+                  aria-describedby="email-readonly-help"
                 />
               </FormField>
+              <p id="email-readonly-help" className="-mt-3 text-xs text-slate-500">Email tài khoản không thể thay đổi qua API hồ sơ.</p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <FormField label="Số điện thoại" htmlFor="phone" icon={<Phone className="h-4 w-4" />}>
                   <input
@@ -227,17 +334,13 @@ export default function ProfileManager() {
                     required
                   />
                 </FormField>
-                <FormField label="Ngày sinh" htmlFor="dateOfBirth" icon={<CalendarDays className="h-4 w-4" />}>
-                  <input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    value={details.dateOfBirth}
-                    onChange={updateDetails}
-                    autoComplete="bday"
-                    className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
-                    required
-                  />
+                <FormField label="Giới tính" htmlFor="gender" icon={<UserRound className="h-4 w-4" />}>
+                  <select id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10">
+                    <option value="">Chọn giới tính</option>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
+                    <option value="Other">Khác</option>
+                  </select>
                 </FormField>
               </div>
               <div className="flex flex-col items-start justify-between gap-3 border-t border-slate-200/70 pt-5 sm:flex-row sm:items-center">
@@ -246,9 +349,10 @@ export default function ProfileManager() {
                 </p>
                 <button
                   type="submit"
+                  disabled={isSavingProfile || isLoading}
                   className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-700/15 transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
                 >
-                  Lưu thông tin
+                  {isSavingProfile ? "Đang lưu..." : "Lưu thông tin"}
                 </button>
               </div>
             </form>
@@ -267,6 +371,12 @@ export default function ProfileManager() {
               </div>
 
               <form onSubmit={handleSubmit}>
+                <div className="mb-5 grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-semibold text-slate-700">Số giấy phép lái xe<input name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Hạng giấy phép<input name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Ngày cấp<input name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Ngày hết hạn<input name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                </div>
                 <label
                   htmlFor="license-file"
                   onDragOver={(event) => {
@@ -285,7 +395,7 @@ export default function ProfileManager() {
                     ref={fileInputRef}
                     id="license-file"
                     type="file"
-                    accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                     onChange={handleFileChange}
                     className="sr-only"
                   />
@@ -295,26 +405,26 @@ export default function ProfileManager() {
                   <span className="text-sm font-bold text-slate-800">
                     {selectedFile ? "Chọn tệp khác" : "Nhấn để tải lên hoặc kéo thả tệp"}
                   </span>
-                  <span className="mt-2 text-xs text-slate-500">JPG, PNG, WEBP hoặc PDF · Tối đa 10 MB</span>
+                  <span className="mt-2 text-xs text-slate-500">JPG, PNG hoặc WEBP · Tối đa 10 MB</span>
                 </label>
 
-                {selectedFile && (
+                {(selectedFile || licenseImageUrl) && (
                   <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/70 p-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
                       <FileText className="h-5 w-5" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800">{selectedFile.name}</p>
-                      <p className="text-xs text-slate-500">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                      <p className="truncate text-sm font-semibold text-slate-800">{selectedFile?.name ?? "Ảnh giấy phép đã tải lên"}</p>
+                      <p className="text-xs text-slate-500">{selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : licenseStatus || "Đã lưu"}</p>
                     </div>
-                    <button
+                    {selectedFile && <button
                       type="button"
                       onClick={removeFile}
                       className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                       aria-label="Xóa tệp đã chọn"
                     >
                       <X className="h-4 w-4" />
-                    </button>
+                    </button>}
                   </div>
                 )}
 
@@ -325,7 +435,7 @@ export default function ProfileManager() {
                   </p>
                 )}
 
-                {isPending && (
+                {hasPendingStatus && (
                   <div role="status" className="mt-4 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
                     <Clock3 className="mt-0.5 h-5 w-5 shrink-0" />
                     <div>
@@ -339,11 +449,11 @@ export default function ProfileManager() {
 
                 <button
                   type="submit"
-                  disabled={!selectedFile || isPending}
+                  disabled={(!selectedFile && !licenseImageUrl) || isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-700/15 transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                 >
-                  {isPending ? <Check className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
-                  {isPending ? "Đã gửi xét duyệt" : "Gửi giấy phép để xét duyệt"}
+                  {isSubmittingLicense ? <Clock3 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+                  {isSubmittingLicense ? "Đang gửi..." : hasPendingStatus ? "Đang chờ phê duyệt" : "Gửi giấy phép để xét duyệt"}
                 </button>
               </form>
             </section>
@@ -366,6 +476,32 @@ export default function ProfileManager() {
       <Footer />
     </div>
   );
+}
+
+function isPendingStatus(status: string | null | undefined): boolean {
+  return Boolean(status && /pending|review|approval/i.test(status));
+}
+
+function formatLicenseStatus(status: string): string {
+  if (!status) return "Chưa xác minh";
+  if (isPendingStatus(status)) return "Chờ phê duyệt";
+  if (/approved|verified/i.test(status)) return "Đã phê duyệt";
+  if (/reject/i.test(status)) return "Chưa được phê duyệt";
+  return status.replaceAll("_", " ");
+}
+
+function extractImageUrl(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (typeof value !== "object" || value === null) return "";
+  const data = value as Record<string, unknown>;
+  for (const key of ["url", "imageUrl", "fileUrl", "mainImageUrl"]) {
+    if (typeof data[key] === "string") return data[key];
+  }
+  return "";
+}
+
+function messageOf(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
 function ProgressStep({
