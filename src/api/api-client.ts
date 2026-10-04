@@ -99,14 +99,34 @@ export class ApiClient {
     return query ? `${base}?${query}` : base;
   }
 
+  private serializeBody(body: BodyInit | null | undefined): BodyInit | null | undefined {
+    if (
+      body === undefined ||
+      body === null ||
+      typeof body === "string" ||
+      (typeof FormData !== "undefined" && body instanceof FormData) ||
+      (typeof Blob !== "undefined" && body instanceof Blob) ||
+      (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) ||
+      (typeof ArrayBuffer !== "undefined" && body instanceof ArrayBuffer)
+    ) {
+      return body;
+    }
+    return JSON.stringify(body);
+  }
+
   public async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { params, headers, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
+    const { params, headers, body, ...restOptions } = options;
     const url = this.buildUrl(path, params);
 
     const mergedHeaders: HeadersInit = {
       ...this.defaultHeaders,
       ...headers,
     };
+    const serializedBody = this.serializeBody(body);
+    if (typeof FormData !== "undefined" && serializedBody instanceof FormData) {
+      delete (mergedHeaders as Record<string, string>)["Content-Type"];
+    }
 
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
     const timeoutId = controller
@@ -116,6 +136,7 @@ export class ApiClient {
     try {
       const response = await this.fetchFn(url, {
         ...restOptions,
+        body: serializedBody,
         headers: mergedHeaders,
         credentials, // credentials: "include" for same-origin session cookies
         signal: controller ? controller.signal : undefined,
@@ -168,6 +189,14 @@ export class ApiClient {
       }
 
       return json as T;
+      const responseData: unknown = await response.json();
+      if (isApiEnvelope(responseData)) {
+        if (!responseData.is_success) {
+          throw new ApiClientError(response.status, response.statusText, responseData);
+        }
+        return responseData.data as T;
+      }
+      return responseData as T;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
@@ -181,7 +210,7 @@ export class ApiClient {
     return this.request<T>(path, {
       ...options,
       method: "POST",
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body as BodyInit | undefined,
     });
   }
 
@@ -189,7 +218,7 @@ export class ApiClient {
     return this.request<T>(path, {
       ...options,
       method: "PUT",
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body as BodyInit | undefined,
     });
   }
 
@@ -197,11 +226,23 @@ export class ApiClient {
     return this.request<T>(path, {
       ...options,
       method: "PATCH",
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body as BodyInit | undefined,
     });
   }
 
   public delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
+}
+
+function isApiEnvelope(
+  value: unknown,
+): value is { message: string; is_success: boolean; data: unknown } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "is_success" in value &&
+    "data" in value &&
+    typeof value.is_success === "boolean"
+  );
 }
