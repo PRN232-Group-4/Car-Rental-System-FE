@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:design": "node scripts/check-design-rules.mjs",
+    "test:visual": "node scripts/measure-design-metrics.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "gen:api": "openapi-typescript https://car-rental-system-be-production.up.railway.app/swagger/v1/swagger.json -o src/api/generated/schema.d.ts"
@@ -22,6 +23,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
