@@ -1,7 +1,12 @@
 import { ApiClient } from "./api-client";
 import { mockFetch } from "./mock";
 
-const isMockMode =
+/**
+ * True when the app should serve in-memory mock data.
+ * Defaults to mock unless explicitly disabled with NEXT_PUBLIC_USE_MOCK=false.
+ * Feature APIs use this to decide whether an error may fall back to mock data.
+ */
+export const isMockMode =
   process.env.NEXT_PUBLIC_USE_MOCK !== "false" || !process.env.NEXT_PUBLIC_API_URL;
 
 /**

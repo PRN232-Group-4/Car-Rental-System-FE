@@ -7,15 +7,17 @@ import type { InspectionRecord } from "../types";
 import RevealText from "@/components/ui/RevealText";
 
 export default function InspectionShowcase() {
-  const [record, setRecord] = useState<InspectionRecord>(getInitialInspectionRecord());
+  const [record, setRecord] = useState<InspectionRecord | null>(getInitialInspectionRecord());
 
   useEffect(() => {
-    getLatestInspectionRecord().then(setRecord);
+    getLatestInspectionRecord()
+      .then(setRecord)
+      .catch(() => setRecord(null));
   }, []);
 
   return (
     <section id="kiem-dinh" className="scroll-mt-28 py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto">
-      <div className="glass-dark specular-border rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
+      <div className="glass-dark rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
         {/* Subtle Ambient Radial Lighting */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[radial-gradient(ellipse_at_top_right,rgba(5,150,105,0.18),transparent_70%)] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[radial-gradient(ellipse_at_bottom_left,rgba(37,99,235,0.12),transparent_70%)] pointer-events-none" />
@@ -59,8 +61,9 @@ export default function InspectionShowcase() {
           </div>
 
           {/* Right Column: Realistic Inspection Digital Certificate */}
+          {record && (
           <div className="reveal lg:col-span-6">
-            <div className="glass-certificate specular-border rounded-3xl p-6 sm:p-7 relative overflow-hidden">
+            <div className="glass-certificate rounded-3xl p-6 sm:p-7 relative overflow-hidden">
               {/* Header Badge */}
               <div className="flex items-center justify-between border-b border-neutral-200/60 pb-4 mb-5">
                 <div className="flex items-center gap-2.5">
@@ -76,7 +79,7 @@ export default function InspectionShowcase() {
                     </span>
                   </div>
                 </div>
-                <span className="text-[11px] font-bold text-neutral-600 glass-pill px-3 py-1 rounded-full">
+                <span className="text-xs font-bold text-neutral-600 glass-pill px-3 py-1 rounded-full">
                   {record.inspectedAt}
                 </span>
               </div>
@@ -142,6 +145,7 @@ export default function InspectionShowcase() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </section>

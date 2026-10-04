@@ -20,9 +20,11 @@ export default function FacilityExplorer({
   const [activeId, setActiveId] = useState<string>(selectedFacilityId);
 
   useEffect(() => {
-    getFacilities().then((data) => {
-      setFacilities(data);
-    });
+    getFacilities()
+      .then((data) => {
+        setFacilities(data);
+      })
+      .catch(() => setFacilities([]));
   }, []);
 
   const handleSelect = (id: string) => {
@@ -33,15 +35,12 @@ export default function FacilityExplorer({
   };
 
   const currentFacility =
-    facilities.find((f) => f.id === activeId) || facilities[0] || getInitialFacilities()[0];
+    facilities.find((f) => f.id === activeId) || facilities[0];
 
   return (
     <section id="chi-nhanh" className="scroll-mt-28 py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto">
       <div className="reveal flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#059669] mb-2 block">
-            Mạng lưới trạm xe chính thức
-          </span>
           <RevealText
             as="h2"
             text="Điểm nhận xe & trung tâm điều phối"
@@ -63,9 +62,9 @@ export default function FacilityExplorer({
                 key={facility.id}
                 onClick={() => handleSelect(facility.id)}
                 type="button"
-                className={`w-full text-left p-5 rounded-2xl specular-border transition-all duration-300 cursor-pointer flex items-start justify-between gap-4 group ${
+                className={`w-full text-left p-5 rounded-2xl transition-all duration-300 cursor-pointer flex items-start justify-between gap-4 group ${
                   isSelected
-                    ? "glass-card-elevated specular-emerald shadow-lg shadow-[#059669]/15"
+                    ? "glass-card-elevated shadow-lg shadow-[#059669]/15"
                     : "glass-card glass-hover hover:border-emerald-300/60"
                 }`}
               >
@@ -79,7 +78,7 @@ export default function FacilityExplorer({
                       {facility.shortName}
                     </span>
                     {isSelected && (
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#059669] text-white shadow-xs">
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#059669] text-white shadow-xs">
                         Đang chọn
                       </span>
                     )}
@@ -113,8 +112,9 @@ export default function FacilityExplorer({
         </div>
 
         {/* Right Side: Detailed Card of Selected Facility */}
+        {currentFacility && (
         <div className="reveal lg:col-span-7">
-          <div className="glass-card specular-border rounded-3xl overflow-hidden shadow-xl group">
+          <div className="glass-card rounded-3xl overflow-hidden shadow-xl group">
             <div className="relative h-64 sm:h-80 w-full overflow-hidden">
               <Image
                 src={currentFacility.imageUrl}
@@ -182,6 +182,7 @@ export default function FacilityExplorer({
             </div>
           </div>
         </div>
+        )}
       </div>
     </section>
   );

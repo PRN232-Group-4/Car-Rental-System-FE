@@ -6,16 +6,12 @@ import RevealText from "@/components/ui/RevealText";
 export default function MobileAppSection() {
   return (
     <section className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto">
-      <div className="glass-dark specular-border text-white rounded-3xl p-8 sm:p-14 overflow-hidden relative shadow-2xl">
+      <div className="glass-dark text-white rounded-3xl p-8 sm:p-14 overflow-hidden relative shadow-2xl">
         <div className="absolute top-0 right-0 w-[550px] h-[550px] bg-[radial-gradient(ellipse_at_top_right,rgba(5,150,105,0.28),transparent_70%)] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-[radial-gradient(ellipse_at_bottom_left,rgba(16,185,129,0.15),transparent_70%)] pointer-events-none" />
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
           <div className="reveal lg:col-span-7 space-y-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block">
-              Hệ sinh thái di động Flutter
-            </span>
-
             <RevealText
               as="h2"
               text="Thuê xe & quản lý hành trình dễ dàng mọi lúc, mọi nơi"
@@ -49,7 +45,7 @@ export default function MobileAppSection() {
               >
                 <Smartphone className="w-5 h-5 text-[#059669]" />
                 <div className="text-left">
-                  <span className="text-[10px] text-neutral-500 uppercase block leading-none font-semibold">
+                  <span className="text-xs text-neutral-500 uppercase block leading-none font-semibold">
                     Tải về trên
                   </span>
                   <span className="text-xs font-extrabold">Apple App Store</span>
@@ -62,7 +58,7 @@ export default function MobileAppSection() {
               >
                 <Download className="w-5 h-5 text-emerald-400" />
                 <div className="text-left">
-                  <span className="text-[10px] text-neutral-400 uppercase block leading-none font-medium">
+                  <span className="text-xs text-neutral-400 uppercase block leading-none font-medium">
                     Cài đặt từ
                   </span>
                   <span className="text-xs font-extrabold">Google Play Store</span>
@@ -78,17 +74,17 @@ export default function MobileAppSection() {
                   <div className="w-16 h-4 bg-neutral-800 rounded-full mx-auto mb-6" />
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold text-emerald-400">Thong Dong App</span>
-                    <span className="text-[10px] text-neutral-400">Phiên bản 2.0</span>
+                    <span className="text-xs text-neutral-400">Phiên bản 2.0</span>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-neutral-900 border border-neutral-800 mb-3">
-                    <span className="text-[10px] text-neutral-400 block mb-1">Gói thuê bao hiện có</span>
+                    <span className="text-xs text-neutral-400 block mb-1">Gói thuê bao hiện có</span>
                     <span className="text-lg font-bold text-white block">38 giờ còn lại</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold">Đang hoạt động · Hạn 42 ngày</span>
+                    <span className="text-xs text-emerald-400 font-semibold">Đang hoạt động · Hạn 42 ngày</span>
                   </div>
                   <div className="p-3.5 rounded-2xl bg-neutral-900 border border-neutral-800">
-                    <span className="text-[10px] text-neutral-400 block mb-1">Chuyến sắp tới</span>
+                    <span className="text-xs text-neutral-400 block mb-1">Chuyến sắp tới</span>
                     <span className="text-xs font-bold text-white block">Toyota Corolla Cross</span>
-                    <span className="text-[10px] text-neutral-400">Nhận tại Chi nhánh Q1 · 09:00</span>
+                    <span className="text-xs text-neutral-400">Nhận tại Chi nhánh Q1 · 09:00</span>
                   </div>
                 </div>
 

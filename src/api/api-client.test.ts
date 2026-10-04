@@ -1,41 +1,31 @@
+import { describe, it, expect } from "vitest";
 import { ApiClient } from "./api-client";
 import { mockFetch } from "./mock/mock-fetch";
 
-describeApiClient();
-
-async function describeApiClient() {
-  function assert(condition: boolean, message: string) {
-    if (!condition) {
-      throw new Error(`Test assertion failed: ${message}`);
-    }
-  }
-
+describe("ApiClient Unit Tests", () => {
   const client = new ApiClient({
     baseUrl: "http://localhost/api",
     customFetch: mockFetch,
   });
 
-  // 1. Test GET /health
-  {
+  it("GET /health returns status ok", async () => {
     const data = await client.get<{ status: string }>("health");
-    assert(data.status === "ok", "Client GET health should return ok");
-  }
+    expect(data.status).toBe("ok");
+  });
 
-  // 2. Test GET /facilities
-  {
+  it("GET /facilities returns list of facilities", async () => {
     const facilities = await client.get<unknown[]>("facilities");
-    assert(Array.isArray(facilities) && facilities.length > 0, "Client GET facilities should return array");
-  }
+    expect(Array.isArray(facilities)).toBe(true);
+    expect(facilities.length).toBeGreaterThan(0);
+  });
 
-  // 3. Test GET /vehicles with query params
-  {
+  it("GET /vehicles with query params returns filtered items", async () => {
     const vehicles = await client.get<{ category: string }[]>("vehicles", { category: "car" });
-    assert(Array.isArray(vehicles), "Client GET vehicles should return array");
-    assert(vehicles.every((v) => v.category === "car"), "Filtered vehicles should be cars");
-  }
+    expect(Array.isArray(vehicles)).toBe(true);
+    expect(vehicles.every((v) => v.category === "car")).toBe(true);
+  });
 
-  // 4. Test POST /rentals/hourly
-  {
+  it("POST /rentals/hourly creates booking with id", async () => {
     const res = await client.post<{ success: boolean; bookingId?: string }>("rentals/hourly", {
       vehicleId: "v-01",
       customerName: "Tran Van B",

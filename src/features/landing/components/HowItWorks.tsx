@@ -44,9 +44,6 @@ export default function HowItWorks() {
       {/* Section Header */}
       <div className="reveal flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#059669] mb-2 block">
-            Quy trình vận hành
-          </span>
           <RevealText
             as="h2"
             text="Trải nghiệm thuê xe 4 bước nhanh chóng"
@@ -60,7 +57,7 @@ export default function HowItWorks() {
 
       {/* Unified Workflow Journey Bar on Desktop */}
       <div className="reveal hidden lg:block mb-8">
-        <div className="glass-card specular-border rounded-2xl p-2.5 flex items-center justify-between">
+        <div className="glass-card rounded-2xl p-2.5 flex items-center justify-between">
           {steps.map((item, idx) => (
             <div key={item.step} className="flex-1 flex items-center">
               <div className="flex items-center gap-3 px-3 py-2 w-full">
@@ -88,7 +85,7 @@ export default function HowItWorks() {
           return (
             <div
               key={item.step}
-              className="glass-card glass-hover specular-border rounded-3xl p-7 flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1"
+              className="glass-card glass-hover rounded-3xl p-7 flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1"
             >
               <div>
                 {/* Header: Step Pill & Clean Minimal Icon */}
@@ -111,16 +108,16 @@ export default function HowItWorks() {
 
               {/* Bottom Feature Tag & Next Hint */}
               <div className="mt-8 pt-4 border-t border-neutral-200/60 flex items-center justify-between text-xs">
-                <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg">
+                <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg">
                   {item.highlight}
                 </span>
                 {index < steps.length - 1 ? (
-                  <span className="text-[11px] font-semibold text-neutral-400 group-hover:text-[#059669] transition-colors flex items-center gap-1">
+                  <span className="text-xs font-semibold text-neutral-400 group-hover:text-[#059669] transition-colors flex items-center gap-1">
                     Tiếp theo
                     <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 ) : (
-                  <span className="text-[11px] font-bold text-[#059669]">
+                  <span className="text-xs font-bold text-[#059669]">
                     Hoàn tất
                   </span>
                 )}

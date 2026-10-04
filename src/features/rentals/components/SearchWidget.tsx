@@ -6,16 +6,17 @@ import {
   Calendar,
   Clock,
   Search,
-  UserCheck,
-  Clock3,
   CalendarRange,
+  ChevronDown,
 } from "lucide-react";
 import { getFacilities, getInitialFacilities } from "@/features/facilities";
 import type { Facility } from "@/features/facilities";
 
+export type RentalMode = "hourly" | "longterm";
+
 interface SearchWidgetProps {
   onSearch?: (criteria: {
-    mode: "with_driver" | "long_term";
+    mode: RentalMode;
     facilityId: string;
     startDate: string;
     startTime: string;
@@ -26,16 +27,38 @@ interface SearchWidgetProps {
 
 export default function SearchWidget({ onSearch }: SearchWidgetProps) {
   const [facilities, setFacilities] = useState<Facility[]>(getInitialFacilities());
-  const [mode, setMode] = useState<"with_driver" | "long_term">("with_driver");
+  const [mode, setMode] = useState<RentalMode>("hourly");
   const [facilityId, setFacilityId] = useState<string>("all");
-  const [startDate, setStartDate] = useState<string>("2026-10-02");
-  const [startTime, setStartTime] = useState<string>("09:00");
+  const [startDate, setStartDate] = useState<string>("2026-10-03");
+  const [startTime, setStartTime] = useState<string>("21:00");
+  const [endDate, setEndDate] = useState<string>("2026-10-04");
+  const [endTime, setEndTime] = useState<string>("20:00");
+  const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
 
   useEffect(() => {
-    getFacilities().then(setFacilities);
+    getFacilities()
+      .then(setFacilities)
+      .catch(() => setFacilities([]));
   }, []);
-  const [endDate, setEndDate] = useState<string>("2026-10-04");
-  const [endTime, setEndTime] = useState<string>("18:00");
+
+  const formatVietnameseDateSummary = () => {
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+      const startDay = days[start.getDay()] || "T7";
+      const endDay = days[end.getDay()] || "CN";
+
+      const startMonth = String(start.getMonth() + 1).padStart(2, "0");
+      const startD = String(start.getDate()).padStart(2, "0");
+      const endMonth = String(end.getMonth() + 1).padStart(2, "0");
+      const endD = String(end.getDate()).padStart(2, "0");
+
+      return `${startTime} ${startDay}, ${startD}/${startMonth} - ${endTime} ${endDay}, ${endD}/${endMonth}`;
+    } catch {
+      return `${startTime} - ${endTime}`;
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,159 +79,157 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto relative">
-      {/* Subtle back-glow for glass depth */}
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-teal-300/10 to-emerald-500/20 rounded-3xl blur-2xl -z-10 opacity-70" />
+    <div className="w-full max-w-5xl mx-auto">
+      {/* 2 Rental Mode Tabs (Mioto Style) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 overflow-x-auto no-scrollbar pl-1">
+        <button
+          type="button"
+          onClick={() => setMode("hourly")}
+          className={`px-4 sm:px-5 py-2.5 rounded-t-xl sm:rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer shadow-sm ${
+            mode === "hourly"
+              ? "bg-[#059669] text-white shadow-[#059669]/30"
+              : "bg-white/90 hover:bg-white text-neutral-700 hover:text-neutral-900 backdrop-blur-md border border-white/60"
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>Thuê theo giờ</span>
+        </button>
 
-      <div className="glass-search specular-border rounded-3xl p-5 sm:p-8">
-        {/* Rental Mode Tabs with Glass Pill styling */}
-        <div className="flex flex-wrap items-center gap-2 mb-6 border-b border-white/50 pb-4">
-          <button
-            type="button"
-            onClick={() => setMode("with_driver")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
-              mode === "with_driver"
-                ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30 border border-emerald-400/30"
-                : "glass-pill text-neutral-700 hover:text-neutral-900 hover:bg-white/60"
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Thuê theo giờ (kèm tài xế)</span>
-          </button>
+        <button
+          type="button"
+          onClick={() => setMode("longterm")}
+          className={`px-4 sm:px-5 py-2.5 rounded-t-xl sm:rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer shadow-sm ${
+            mode === "longterm"
+              ? "bg-[#059669] text-white shadow-[#059669]/30"
+              : "bg-white/90 hover:bg-white text-neutral-700 hover:text-neutral-900 backdrop-blur-md border border-white/60"
+          }`}
+        >
+          <CalendarRange className="w-4 h-4" />
+          <span>Thuê xe dài hạn</span>
+        </button>
+      </div>
 
-          <button
-            type="button"
-            onClick={() => setMode("long_term")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
-              mode === "long_term"
-                ? "bg-[#059669] text-white shadow-lg shadow-[#059669]/30 border border-emerald-400/30"
-                : "glass-pill text-neutral-700 hover:text-neutral-900 hover:bg-white/60"
-            }`}
-          >
-            <CalendarRange className="w-4 h-4" />
-            <span>Thuê dài hạn (Tháng)</span>
-          </button>
-
-          <div className="ml-auto hidden lg:flex items-center gap-1.5 text-xs text-neutral-600 font-medium glass-pill px-3 py-1 rounded-full">
-            <Clock3 className="w-3.5 h-3.5 text-[#059669]" />
-            <span>Thuê linh hoạt từ 1 giờ</span>
-          </div>
-        </div>
-
-        {/* Search Form Fields with Frosted Glass Panels */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
-            {/* Facility picker */}
-            <div className="md:col-span-4 glass-pill rounded-2xl p-3.5 hover:bg-white/70 transition-all focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-[#059669]/40 focus-within:border-[#059669]">
-              <label htmlFor="search-facility" className="text-xs font-bold uppercase tracking-wider text-neutral-700 flex items-center gap-1.5 mb-1.5 cursor-pointer">
-                <MapPin className="w-3.5 h-3.5 text-[#059669]" />
-                <span>Chi nhánh nhận xe</span>
-              </label>
-              <select
-                id="search-facility"
-                name="facility"
-                value={facilityId}
-                onChange={(e) => setFacilityId(e.target.value)}
-                className="w-full min-h-[40px] bg-transparent text-sm font-semibold text-neutral-900 outline-none cursor-pointer"
-              >
-                <option value="all">Tất cả chi nhánh hệ thống</option>
-                {facilities.map((fac) => (
-                  <option key={fac.id} value={fac.id}>
-                    {fac.shortName} ({fac.availableVehicles} xe)
-                  </option>
-                ))}
-                <option value="delivery">Giao xe tận nơi (TP.HCM / Hà Nội)</option>
-              </select>
-            </div>
-
-            {/* Start Date & Time */}
-            <div className="md:col-span-4 glass-pill rounded-2xl p-3.5 hover:bg-white/70 transition-all focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-[#059669]/40 focus-within:border-[#059669]">
-              <label htmlFor="start-date" className="text-xs font-bold uppercase tracking-wider text-neutral-700 flex items-center gap-1.5 mb-1.5 cursor-pointer">
-                <Calendar className="w-3.5 h-3.5 text-[#059669]" />
-                <span>Thời gian nhận xe</span>
-              </label>
-              <div className="flex items-center gap-2 min-h-[40px]">
-                <input
-                  id="start-date"
-                  name="startDate"
-                  type="date"
-                  value={startDate}
-                  aria-label="Ngày nhận xe"
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
-                    if (endDate < e.target.value) setEndDate(e.target.value);
-                  }}
-                  className="bg-transparent text-sm font-semibold text-neutral-900 outline-none w-full cursor-pointer min-h-[40px]"
-                />
-                <span className="text-neutral-400">|</span>
-                <div className="flex items-center gap-1 text-sm font-semibold text-neutral-800">
-                  <Clock className="w-3.5 h-3.5 text-neutral-500" />
-                  <input
-                    id="start-time"
-                    name="startTime"
-                    type="time"
-                    aria-label="Giờ nhận xe"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="bg-transparent text-sm font-semibold text-neutral-900 outline-none w-18 cursor-pointer min-h-[40px]"
-                  />
-                </div>
+      {/* Main Single-Bar Search Console with Glassmorphic Refraction */}
+      <div className="glass-search rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl bg-white/95 backdrop-blur-2xl">
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+          {/* Column 1: Địa điểm / Chi nhánh */}
+          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-neutral-50/80 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#059669] flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5" />
               </div>
-            </div>
-
-            {/* End Date & Time */}
-            <div className="md:col-span-4 glass-pill rounded-2xl p-3.5 hover:bg-white/70 transition-all focus-within:bg-white/95 focus-within:ring-2 focus-within:ring-[#059669]/40 focus-within:border-[#059669]">
-              <label htmlFor="end-date" className="text-xs font-bold uppercase tracking-wider text-neutral-700 flex items-center gap-1.5 mb-1.5 cursor-pointer">
-                <Calendar className="w-3.5 h-3.5 text-[#059669]" />
-                <span>Thời gian trả xe</span>
-              </label>
-              <div className="flex items-center gap-2 min-h-[40px]">
-                <input
-                  id="end-date"
-                  name="endDate"
-                  type="date"
-                  value={endDate}
-                  aria-label="Ngày trả xe"
-                  min={startDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-transparent text-sm font-semibold text-neutral-900 outline-none w-full cursor-pointer min-h-[40px]"
-                />
-                <span className="text-neutral-400">|</span>
-                <div className="flex items-center gap-1 text-sm font-semibold text-neutral-800">
-                  <Clock className="w-3.5 h-3.5 text-neutral-500" />
-                  <input
-                    id="end-time"
-                    name="endTime"
-                    type="time"
-                    aria-label="Giờ trả xe"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="bg-transparent text-sm font-semibold text-neutral-900 outline-none w-18 cursor-pointer min-h-[40px]"
-                  />
+              <div className="flex-1 min-w-0">
+                <label
+                  htmlFor="facility-select"
+                  className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider cursor-pointer"
+                >
+                  Địa điểm
+                </label>
+                <div className="relative flex items-center">
+                  <select
+                    id="facility-select"
+                    value={facilityId}
+                    onChange={(e) => setFacilityId(e.target.value)}
+                    className="w-full bg-transparent font-bold text-sm sm:text-base text-neutral-900 outline-none cursor-pointer appearance-none pr-6 truncate"
+                  >
+                    <option value="all">TP. Hồ Chí Minh (Tất cả chi nhánh)</option>
+                    {facilities.map((fac) => (
+                      <option key={fac.id} value={fac.id}>
+                        {fac.shortName} ({fac.availableVehicles} xe)
+                      </option>
+                    ))}
+                    <option value="delivery">Giao tận nơi TP.HCM</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-0 pointer-events-none" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Action Row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3">
-            <div className="flex items-center gap-4 text-xs text-neutral-600 font-medium">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Bảo dưỡng chính hãng định kỳ
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
-                Kiểm định 2 chiều trước khi giao
-              </span>
+          {/* Vertical Separator */}
+          <div className="hidden md:block w-px h-10 bg-neutral-200/80" />
+
+          {/* Column 2: Thời gian thuê */}
+          <div className="flex-1 relative group px-3.5 py-2.5 rounded-xl hover:bg-neutral-50/80 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#059669] flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  Thời gian thuê
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowTimePicker(!showTimePicker)}
+                  className="w-full text-left font-bold text-sm sm:text-base text-neutral-900 truncate flex items-center justify-between cursor-pointer"
+                >
+                  <span className="truncate">{formatVietnameseDateSummary()}</span>
+                  <ChevronDown className="w-4 h-4 text-neutral-400 shrink-0 ml-1" />
+                </button>
+              </div>
             </div>
 
+            {/* Quick Inline Datetime Editor Popover */}
+            {showTimePicker && (
+              <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-1 sm:grid-cols-2 gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="p-2 bg-neutral-50 rounded-lg">
+                  <div className="text-xs font-semibold text-neutral-500 mb-1 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-[#059669]" />
+                    <span>Bắt đầu</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => {
+                        setStartDate(e.target.value);
+                        if (endDate < e.target.value) setEndDate(e.target.value);
+                      }}
+                      className="bg-white px-2 py-1 rounded text-xs font-medium border border-neutral-200 outline-none w-full"
+                    />
+                    <input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="bg-white px-1.5 py-1 rounded text-xs font-medium border border-neutral-200 outline-none w-18"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-2 bg-neutral-50 rounded-lg">
+                  <div className="text-xs font-semibold text-neutral-500 mb-1 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-[#059669]" />
+                    <span>Kết thúc</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      value={endDate}
+                      min={startDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="bg-white px-2 py-1 rounded text-xs font-medium border border-neutral-200 outline-none w-full"
+                    />
+                    <input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="bg-white px-1.5 py-1 rounded text-xs font-medium border border-neutral-200 outline-none w-18"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Column 3: Nút Tìm Xe */}
+          <div className="shrink-0 pt-1 md:pt-0">
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold text-base rounded-2xl shadow-xl shadow-[#059669]/30 hover:shadow-2xl hover:shadow-[#059669]/40 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer border border-emerald-400/30"
+              className="w-full md:w-auto px-7 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-lg shadow-[#059669]/30 hover:shadow-xl hover:shadow-[#059669]/40 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
             >
-              <Search className="w-5 h-5 stroke-[2.5]" />
-              <span>Tìm xe ngay</span>
+              <Search className="w-4 h-4 stroke-[2.5]" />
+              <span>Tìm Xe</span>
             </button>
           </div>
         </form>

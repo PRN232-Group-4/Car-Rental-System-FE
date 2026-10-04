@@ -17,6 +17,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
   const [bookingSuccess, setBookingSuccess] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [bookingResult, setBookingResult] = useState<RentalBookingResponse | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Keyboard navigation & body scroll lock (Priority 1 & 2 in ui-ux-pro-max)
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
 
   const handleConfirm = async () => {
     setSubmitting(true);
+    setErrorMessage(null);
     try {
       const res = await createRentalBooking({
         vehicleId: vehicle.id,
@@ -65,6 +67,9 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
       setBookingSuccess(true);
     } catch (err) {
       console.error("Booking error:", err);
+      setErrorMessage(
+        err instanceof Error ? err.message : "Không thể gửi yêu cầu đặt xe. Vui lòng thử lại."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -80,7 +85,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="glass-card specular-border bg-white/95 backdrop-blur-3xl rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl cursor-default"
+        className="glass-card bg-white/95 backdrop-blur-3xl rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl cursor-default"
       >
         {/* Header */}
         <div className="p-6 border-b border-white/60 flex items-center justify-between sticky top-0 bg-white/85 backdrop-blur-2xl z-10">
@@ -248,6 +253,13 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             </div>
 
             {/* Action buttons */}
+            {errorMessage && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
             <div className="flex items-center gap-3 pt-2">
               <button
                 type="button"

@@ -1,4 +1,4 @@
-import { defaultApiClient } from "@/api/default-api-client";
+import { defaultApiClient, isMockMode } from "@/api/default-api-client";
 import { RentalBookingRequest, RentalBookingResponse } from "./types";
 
 export async function createHourlyRental(
@@ -10,6 +10,8 @@ export async function createHourlyRental(
       rentalType: "hourly",
     });
   } catch (error) {
+    // Never fabricate a confirmed booking in real mode.
+    if (!isMockMode) throw error;
     console.warn("[Rentals API] Fallback booking creation:", error);
     const mockId = `TD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     return {
@@ -29,6 +31,7 @@ export async function createLongTermRental(
       rentalType: "longterm",
     });
   } catch (error) {
+    if (!isMockMode) throw error;
     console.warn("[Rentals API] Fallback booking creation:", error);
     const mockId = `TD-LT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     return {

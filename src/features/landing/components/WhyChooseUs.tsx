@@ -9,9 +9,6 @@ export default function WhyChooseUs() {
       {/* Section Header */}
       <div className="reveal flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#059669] mb-2 block">
-            Cam kết hệ thống
-          </span>
           <RevealText
             as="h2"
             text="Nền tảng vận hành chuẩn mực & đáng tin cậy"
@@ -26,7 +23,7 @@ export default function WhyChooseUs() {
       {/* Gapless Bento Grid with mathematical interlocking */}
       <div className="reveal-group grid grid-cols-1 md:grid-cols-3 gap-6 grid-flow-dense">
         {/* Card 1: 2-column span */}
-        <div className="md:col-span-2 glass-card glass-hover specular-border rounded-3xl p-7 sm:p-9 flex flex-col justify-between relative overflow-hidden group">
+        <div className="md:col-span-2 glass-card glass-hover rounded-3xl p-7 sm:p-9 flex flex-col justify-between relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(ellipse_at_top_right,rgba(5,150,105,0.18),transparent_70%)] pointer-events-none" />
           
           <div>
@@ -58,7 +55,7 @@ export default function WhyChooseUs() {
         </div>
 
         {/* Card 2: 1-column span */}
-        <div className="md:col-span-1 glass-card glass-hover specular-border rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
+        <div className="md:col-span-1 glass-card glass-hover rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
           <div>
             <div className="w-12 h-12 rounded-2xl glass-pill text-neutral-900 flex items-center justify-center mb-6">
               <Key className="w-6 h-6 stroke-[2.2]" />
@@ -78,7 +75,7 @@ export default function WhyChooseUs() {
         </div>
 
         {/* Card 3: 1-column span */}
-        <div className="md:col-span-1 glass-card glass-hover specular-border rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
+        <div className="md:col-span-1 glass-card glass-hover rounded-3xl p-7 sm:p-9 flex flex-col justify-between group">
           <div>
             <div className="w-12 h-12 rounded-2xl glass-pill text-[#059669] flex items-center justify-center mb-6 shadow-xs border-emerald-300/40">
               <RefreshCw className="w-6 h-6 stroke-[2.2]" />
@@ -97,7 +94,7 @@ export default function WhyChooseUs() {
         </div>
 
         {/* Card 4: 2-column span */}
-        <div className="md:col-span-2 glass-card glass-hover specular-border rounded-3xl p-7 sm:p-9 flex flex-col justify-between relative overflow-hidden group">
+        <div className="md:col-span-2 glass-card glass-hover rounded-3xl p-7 sm:p-9 flex flex-col justify-between relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(ellipse_at_top_right,rgba(5,150,105,0.12),transparent_70%)] pointer-events-none" />
 
           <div>

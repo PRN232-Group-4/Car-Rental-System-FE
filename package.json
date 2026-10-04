@@ -6,10 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "gen:api": "openapi-typescript https://car-rental-system-be-production.up.railway.app/swagger/v1/swagger.json -o src/api/generated/schema.d.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@tanstack/react-query": "^5.104.1",
     "gsap": "^3.15.0",
     "lucide-react": "^1.49.0",
     "next": "16.3.8",
@@ -17,14 +23,18 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3",
     "wrangler": "^4.145.0"
   }
 }
