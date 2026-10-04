@@ -27,9 +27,9 @@ export default function Home() {
   };
 
   return (
-    <main className="overflow-x-hidden w-full max-w-full min-h-dvh relative text-neutral-800 flex flex-col selection:bg-[#059669]/15 selection:text-[#059669]">
-      {/* Quiet backdrop: one flat tone, no decorative layers. */}
-      <div className="absolute inset-0 pointer-events-none z-0 bg-slate-50" />
+    <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-emerald-500/20 selection:text-emerald-900">
+      {/* Quiet backdrop: one flat tone, no decorative layers */}
+      <div className="absolute inset-0 pointer-events-none z-0 bg-[var(--canvas)]" />
 
       <div className="relative z-10 flex flex-col w-full">
         {/* Navigation */}

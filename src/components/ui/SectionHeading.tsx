@@ -7,6 +7,7 @@ export interface SectionHeadingProps {
   title: string;
   subtitle?: string;
   badge?: string;
+  kicker?: string;
   align?: "left" | "center";
   dark?: boolean;
   className?: string;
@@ -16,6 +17,7 @@ export function SectionHeading({
   title,
   subtitle,
   badge,
+  kicker,
   align = "left",
   dark = false,
   className = "",
@@ -31,10 +33,11 @@ export function SectionHeading({
   const alignClass = align === "center" ? "text-center items-center mx-auto" : "text-left items-start";
   const titleColor = dark ? "text-white" : "text-ink";
   const subtitleColor = dark ? "text-white/80" : "text-ink-2";
+  const tagText = kicker || badge;
 
   return (
     <div className={`flex flex-col max-w-3xl mb-8 sm:mb-12 ${alignClass} ${className}`.trim()}>
-      {badge && (
+      {tagText && (
         <span
           className={`inline-flex items-center text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-pill mb-3 ${
             dark
@@ -42,7 +45,7 @@ export function SectionHeading({
               : "bg-primary-tint text-primary border border-primary/20"
           }`}
         >
-          {badge}
+          {tagText}
         </span>
       )}
       <h2

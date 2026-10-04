@@ -16,16 +16,16 @@ export default function Marquee() {
   ];
 
   return (
-    <div className="w-full py-6 border-y border-white/60 glass-sub backdrop-blur-xl overflow-hidden select-none">
-      <div className="flex animate-marquee items-center gap-12 whitespace-nowrap text-xs sm:text-sm font-bold tracking-wider text-neutral-700 uppercase">
+    <div className="w-full py-5 border-y border-border bg-surface overflow-hidden select-none">
+      <div className="flex animate-marquee items-center gap-12 whitespace-nowrap text-xs sm:text-sm font-bold tracking-wider text-ink-muted uppercase group-hover:[animation-play-state:paused]">
         {/* First set */}
         {items.map((item, idx) => {
           const Icon = item.icon;
           return (
             <div key={`item-1-${idx}`} className="flex items-center gap-3">
-              <Icon className="w-4 h-4 text-[#059669]" />
+              <Icon className="w-4 h-4 text-primary shrink-0" />
               <span>{item.text}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 ml-6"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-border-dim ml-6"></span>
             </div>
           );
         })}
@@ -35,9 +35,9 @@ export default function Marquee() {
           const Icon = item.icon;
           return (
             <div key={`item-2-${idx}`} className="flex items-center gap-3">
-              <Icon className="w-4 h-4 text-[#059669]" />
+              <Icon className="w-4 h-4 text-primary shrink-0" />
               <span>{item.text}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 ml-6"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-border-dim ml-6"></span>
             </div>
           );
         })}

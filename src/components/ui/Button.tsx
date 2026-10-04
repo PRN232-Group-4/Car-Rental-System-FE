@@ -6,13 +6,19 @@ import { Loader2 } from "lucide-react";
 export type ButtonVariant = "primary" | "secondary" | "secondary-stage" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonBaseProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  as?: React.ElementType;
+  href?: string;
 }
+
+export type ButtonProps = ButtonBaseProps &
+  React.ButtonHTMLAttributes<HTMLButtonElement> &
+  React.AnchorHTMLAttributes<HTMLAnchorElement>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
@@ -23,6 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     rightIcon,
     className = "",
     disabled,
+    as: Component = "button",
     children,
     ...props
   },
@@ -49,11 +56,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       "bg-danger hover:bg-[#991b1b] text-white shadow-e1 active:translate-y-px transition-all duration-160 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
   }[variant];
 
+  const isDisabled = disabled || isLoading;
+  const isButton = Component === "button";
+
   return (
-    <button
+    <Component
       ref={ref}
-      disabled={disabled || isLoading}
-      aria-disabled={disabled || isLoading}
+      disabled={isButton ? isDisabled : undefined}
+      aria-disabled={isDisabled}
       className={`inline-flex items-center justify-center select-none font-sans outline-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${sizeClasses} ${variantClasses} ${className}`.trim()}
       {...props}
     >
@@ -66,7 +76,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {!isLoading && rightIcon && (
         <span className="shrink-0" aria-hidden="true">{rightIcon}</span>
       )}
-    </button>
+    </Component>
   );
 });
 
