@@ -202,15 +202,8 @@ export default function ProfileManager() {
   const hasPendingStatus = isPendingStatus(licenseStatus) || isPending;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f4f8f6] text-slate-800">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="ambient-glow-orb orb-drift -right-48 -top-52 h-[600px] w-[600px] bg-emerald-300/45" />
-        <div className="ambient-glow-orb orb-drift-reverse -left-56 top-[420px] h-[540px] w-[540px] bg-cyan-200/50" />
-        <div className="absolute inset-0 opacity-[0.12]" style={{
-          backgroundImage: "radial-gradient(#059669 1px, transparent 1px)",
-          backgroundSize: "26px 26px",
-        }} />
-      </div>
+    <div className="relative min-h-[100dvh] bg-[var(--canvas)] text-ink">
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[var(--canvas)]" aria-hidden="true" />
 
       <Navbar />
 

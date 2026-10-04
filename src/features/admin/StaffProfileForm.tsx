@@ -80,8 +80,8 @@ export default function StaffProfileForm() {
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       {staff && (
-        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-900/[0.02]">
-          <div className="relative bg-gradient-to-r from-[#10231f] to-[#175942] px-6 pb-6 pt-8 sm:px-8">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-elevation-1">
+          <div className="relative bg-stage-ink border-b border-border-dim px-6 pb-6 pt-8 sm:px-8">
             <div className="absolute right-8 top-6 hidden opacity-10 sm:block"><UserRound className="h-32 w-32 text-white" /></div>
             <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <span className="flex h-[76px] w-[76px] items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-2xl font-bold text-white shadow-lg">{initials}</span>

@@ -69,14 +69,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:w-64 xl:w-72 flex-col bg-white border-r border-neutral-200/80 sticky top-0 h-dvh z-30">
         {/* Brand Logo */}
-        <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-elevation-1">
               <Car className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-lg font-black tracking-tight text-neutral-900">Thong Dong</span>
-              <span className="block text-xs font-semibold text-emerald-600 uppercase tracking-widest -mt-0.5">
+              <span className="text-lg font-black tracking-tight text-ink">Thong Dong</span>
+              <span className="block text-xs font-semibold text-primary uppercase tracking-widest -mt-0.5">
                 Member Hub
               </span>
             </div>
@@ -84,17 +84,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* User Card */}
-        <div className="p-4 mx-4 my-4 rounded-2xl bg-gradient-to-br from-emerald-50/70 to-teal-50/40 border border-emerald-100/80 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white">
+        <div className="p-4 mx-4 my-4 rounded-2xl bg-canvas border border-border flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-elevation-1">
             {user?.fullName?.charAt(0) || user?.email?.charAt(0) || "U"}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-bold text-neutral-900 truncate">
+            <div className="text-sm font-bold text-ink truncate">
               {user?.fullName || "Khách hàng"}
             </div>
-            <div className="text-xs text-neutral-500 truncate">{user?.email}</div>
+            <div className="text-xs text-ink-muted truncate">{user?.email}</div>
           </div>
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-primary">
             {user?.roles?.[0] || "Member"}
           </span>
         </div>
@@ -164,7 +164,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar for Mobile & Desktop Status */}
-        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-neutral-200/80 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+        <header className="sticky top-0 z-20 bg-surface border-b border-border px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -181,16 +181,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/booking"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover shadow-elevation-1 transition-all"
             >
               <Car className="w-3.5 h-3.5" />
               <span>Đặt xe mới</span>
             </Link>
 
-            <div className="h-6 w-px bg-neutral-200 hidden sm:block" />
+            <div className="h-6 w-px bg-border hidden sm:block" />
 
-            <div className="flex items-center gap-2 text-xs text-neutral-600">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <div className="flex items-center gap-2 text-xs text-ink-muted">
+              <div className="w-2 h-2 rounded-full bg-primary" />
               <span className="hidden md:inline">Hệ thống sẵn sàng</span>
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
-              className="fixed inset-0 bg-neutral-900/40 backdrop-blur-xs"
+              className="fixed inset-0 bg-[var(--scrim-modal)]"
               onClick={() => setMobileMenuOpen(false)}
             />
             <div className="fixed inset-y-0 left-0 w-72 bg-white p-6 shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-200">
