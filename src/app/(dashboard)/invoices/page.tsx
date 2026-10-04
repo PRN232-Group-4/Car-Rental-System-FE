@@ -109,6 +109,7 @@ export default function HoaDonPage() {
             { id: "all", label: "Tất cả" },
             { id: "pending", label: "Chờ thanh toán" },
             { id: "paid", label: "Đã thanh toán" },
+            { id: "cancelled", label: "Đã huỷ" },
             { id: "overdue", label: "Quá hạn" },
           ].map((tab) => (
             <button

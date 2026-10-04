@@ -119,6 +119,14 @@ describe("Domain Mappers (BE to UI)", () => {
     expect(pay.method).toBe("payos");
   });
 
+  it("quy 'unpaid' của BE về 'pending' và giữ nguyên 'cancelled'", () => {
+    // BE trả 'unpaid' cho hoá đơn chưa trả; badge/filter/CTA của FE chỉ hiểu 'pending'.
+    expect(mapInvoiceFromBE({ id: 1, status: "unpaid" }).status).toBe("pending");
+    expect(mapInvoiceFromBE({ id: 1, status: "UNPAID" }).status).toBe("pending");
+    expect(mapInvoiceFromBE({ id: 1, status: "Cancelled" }).status).toBe("cancelled");
+    expect(mapInvoiceFromBE({ id: 1, status: "paid" }).status).toBe("paid");
+  });
+
   it("still tolerates PascalCase payloads from legacy serializers", () => {
     const plan = mapSubscriptionPlanFromBE({
       Id: 7,
