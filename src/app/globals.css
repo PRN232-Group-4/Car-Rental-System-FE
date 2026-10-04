@@ -1,81 +1,147 @@
 @import "tailwindcss";
 
 /* ==================================================================
-   Design tokens
-   Direction: restrained emerald-on-white for a trust-first rental
-   product. One accent, hairline structure, real photography, quiet
-   motion. Surfaces are solid; translucency is reserved for the one
-   element that genuinely floats over content (the nav).
+   DESIGN SYSTEM v3.0 — THONG DONG (VRS)
+   Direction: Glass + Motion, nền sáng, không gradient.
+   Phần A là nguồn xác thực duy nhất cho toàn bộ hệ thống thị giác.
    ================================================================== */
+
 :root {
-  --color-primary: #047857;
-  --color-primary-hover: #065f46;
-  --color-primary-soft: #ecfdf5;
-
-  --page: #f8fafc;
+  /* Neutrals (Một họ trung tính xanh-xám) */
+  --canvas: #f2f5f3;
+  --sunken: #e8eeeb;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --surface-3: #f1f5f9;
-  --surface-inverse: #0f172a;
+  --ink: #0e1a16;
+  --ink-2: #34443d;
+  --ink-3: #566860;
+  --line: rgba(14, 26, 22, 0.10);
+  --line-strong: rgba(14, 26, 22, 0.18);
 
-  --hairline: rgba(15, 23, 42, 0.08);
-  --hairline-strong: rgba(15, 23, 42, 0.16);
+  /* Single Accent: Emerald Deep (>= 5.5:1 WCAG AA) */
+  --primary: #047857;
+  --primary-hover: #065f46;
+  --primary-press: #064e3b;
+  --primary-tint: #e3f4ec;
+  --primary-graphic: #059669;
 
-  --text: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-
-  --success: #15803d;
-  --warning: #b45309;
+  /* Status Pairs (text / bg >= 5.0:1) */
+  --success: #166534;
+  --success-bg: #dcfce7;
+  --warning: #92400e;
+  --warning-bg: #fef3c7;
   --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --info: #1d4ed8;
+  --info-bg: #dbeafe;
 
-  /* Concentric radius scale: outer = inner + padding. */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* Stages & Scrim (Phẳng tuyệt đối, không gradient) */
+  --stage-ink: #0e1a16;
+  --stage-emerald: #047857;
+  --scrim: rgba(14, 26, 22, 0.38);
 
-  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-2: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-3: 0 12px 32px -12px rgba(15, 23, 42, 0.18);
+  /* Shape tokens */
+  --r-control: 10px;
+  --r-card: 16px;
+  --r-panel: 24px;
+  --r-pill: 999px;
 
-  --ease-out: cubic-bezier(0.2, 0, 0, 1);
-  --dur-fast: 120ms;
-  --dur-base: 180ms;
+  /* Elevation (Garage Ink tinted, no colored glow) */
+  --e1: 0 1px 2px rgba(14, 26, 22, 0.06), 0 2px 8px -2px rgba(14, 26, 22, 0.06);
+  --e2: 0 8px 24px -8px rgba(14, 26, 22, 0.16), 0 2px 6px -2px rgba(14, 26, 22, 0.08);
+  --e3: 0 24px 56px -16px rgba(14, 26, 22, 0.28), 0 6px 16px -6px rgba(14, 26, 22, 0.12);
 
-  /* Fixed z-index scale - never use arbitrary z-* values. */
-  --z-base: 0;
-  --z-sticky: 30;
-  --z-nav: 40;
-  --z-overlay: 50;
-  --z-modal: 60;
+  /* Rim Light = Inset shadows (Thay thế hoàn toàn viền gradient) */
+  --rim:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(14, 26, 22, 0.05);
 
-  --container: 1200px;
+  /* Motion tokens */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+  --dur-cine: 1100ms;
+
+  /* Charts */
+  --chart-1: #047857;
+  --chart-2: #0e1a16;
+  --chart-3: #66796f;
+  --chart-4: #7a8f86;
+  --chart-5: #b45309;
+
+  /* Backward-compatible variables for un-migrated components */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-tint);
+  --page: var(--canvas);
+  --hairline: var(--line);
+  --hairline-strong: var(--line-strong);
+  --text: var(--ink);
+  --text-secondary: var(--ink-2);
+  --text-muted: var(--ink-3);
+  --shadow-1: var(--e1);
+  --shadow-2: var(--e2);
+  --shadow-3: var(--e3);
 }
 
 @theme inline {
-  --font-sans: var(--font-manrope);
-  --font-mono: var(--font-geist-mono);
-  --color-primary: #047857;
-  --color-surface: #ffffff;
+  --font-sans: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-canvas: var(--canvas);
+  --color-sunken: var(--sunken);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-press: var(--primary-press);
+  --color-primary-tint: var(--primary-tint);
+  --color-primary-graphic: var(--primary-graphic);
+
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+
+  --color-stage-ink: var(--stage-ink);
+  --color-stage-emerald: var(--stage-emerald);
+  --color-scrim: var(--scrim);
+
+  --radius-control: var(--r-control);
+  --radius-card: var(--r-card);
+  --radius-panel: var(--r-panel);
+  --radius-pill: var(--r-pill);
+
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
+  --ease-out: var(--ease-out);
 }
 
-html,
-body,
-button,
-input,
-optgroup,
-select,
-textarea {
-  font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+html {
+  color-scheme: light;
 }
 
 body {
-  background-color: var(--page);
-  color: var(--text);
-  overflow-x: hidden;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+main {
+  overflow-x: clip;
 }
 
 :where(h1, h2, h3, h4) {
@@ -87,187 +153,163 @@ body {
 }
 
 /* ==================================================================
-   Surfaces
-   Class names are kept for compatibility with existing call sites.
+   SURFACES & GLASS LAYERS (A4.3)
    ================================================================== */
 
-/* Floating nav: the only element that earns translucency. */
+/* Glass 1 (alpha .55, blur 14px): Navbar, chip, nút phụ trên ảnh */
+.glass-1,
 .glass-nav {
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-2);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+  backdrop-filter: blur(14px) saturate(1.35);
+  box-shadow: var(--e1), var(--rim);
 }
 
-/* Search console: solid surface that sits over photography. */
+/* Glass 2 (alpha .72, blur 20px): Bảng tìm kiếm hero, panel nổi, booking card */
+.glass-2,
 .glass-search {
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-3);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: var(--e2), var(--rim);
 }
 
-/* Default card: solid surface, hairline border, single small shadow. */
-.glass-card {
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-1);
+/* Glass 3 (alpha .88, blur 28px): Modal, drawer, popover */
+.glass-3 {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  backdrop-filter: blur(28px) saturate(1.4);
+  box-shadow: var(--e3), var(--rim);
 }
 
-/* Emphasised card (selected / popular): accent ring instead of a glow. */
-.glass-card-elevated {
-  background: var(--surface);
-  border: 1px solid var(--color-primary);
-  box-shadow: var(--shadow-2);
-}
-
-/* Nested panel inside a card: flat tint, no shadow, no blur. */
-.glass-sub {
-  background: var(--surface-2);
-  border: 1px solid var(--hairline);
-}
-
-/* Pills, badges and inputs: flat white with a hairline. */
-.glass-pill {
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-}
-
-/* Dark section surface (inspection certificate, app section). */
+/* Glass Ink (alpha .72, blur 24px): Khối tối kiểm định, app section */
+.glass-ink,
 .glass-dark {
-  background: var(--surface-inverse);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(14, 26, 22, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow: var(--e3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
-.glass-certificate {
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow-2);
+/* Glass Lite: KHÔNG BLUR — Dành riêng cho phần tử lặp lại (thẻ xe, thẻ gói, danh sách) */
+.glass-lite,
+.glass-card,
+.glass-certificate,
+.glass-sub,
+.glass-pill {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.90);
+  box-shadow: var(--e1), var(--rim);
 }
 
-/* Interactive cards: feedback only, compositor properties only. */
+.glass-card-elevated {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--primary);
+  box-shadow: var(--e2), var(--rim);
+}
+
+/* Glass Admin: Panel, header, toolbar khu vực admin */
+.glass-admin {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: var(--e1), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+}
+
+/* Glass Lift: Tương tác hover tiết kiệm GPU (chỉ transform + shadow + border) */
+.glass-lift,
 .glass-hover {
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out),
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-out);
 }
 
+.glass-lift:hover,
 .glass-hover:hover {
-  transform: translateY(-2px);
-  border-color: var(--hairline-strong);
-  box-shadow: var(--shadow-3);
+  transform: translateY(-4px);
+  box-shadow: var(--e3), var(--rim);
+  border-color: rgba(4, 120, 87, 0.35);
 }
 
+.glass-lift:active,
 .glass-hover:active {
-  transform: translateY(0);
-}
-
-/* Hide scrollbars on horizontal pill rails without disabling scrolling. */
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+  transform: translateY(-1px);
 }
 
 /* ==================================================================
-   Motion
-   One marquee, one reveal. Nothing loops decoratively.
+   ACCESSIBILITY & PREFERENCES FALLBACKS (A4.3, A10)
    ================================================================== */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-1,
+  .glass-2,
+  .glass-3,
+  .glass-admin {
+    background: rgba(255, 255, 255, 0.95);
   }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 45s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* Reveal on scroll: opacity + translate only, once, no will-change. */
-.reveal-ready .reveal,
-.reveal-ready .reveal-group > * {
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
-}
-
-.reveal-ready .reveal.is-visible,
-.reveal-ready .reveal[data-revealed="true"],
-.reveal-ready .reveal-group.is-visible > *,
-.reveal-ready .reveal-group[data-revealed="true"] > * {
-  opacity: 1;
-  transform: none;
-}
-
-/* Short stagger for grid children; capped so nothing arrives late. */
-.reveal-ready .reveal-group.is-visible > *:nth-child(2),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(2) {
-  transition-delay: 60ms;
-}
-.reveal-ready .reveal-group.is-visible > *:nth-child(3),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(3) {
-  transition-delay: 120ms;
-}
-.reveal-ready .reveal-group.is-visible > *:nth-child(n + 4),
-.reveal-ready .reveal-group[data-revealed="true"] > *:nth-child(n + 4) {
-  transition-delay: 180ms;
-}
-
-/* Per-character reveal: fade + small rise, no blur, no rotate. */
-@keyframes charRise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+  .glass-ink {
+    background: rgba(14, 26, 22, 0.95);
   }
 }
 
-.char-kinetic-jump {
-  display: inline-block;
-  opacity: 0;
-  animation: charRise 0.4s var(--ease-out) forwards;
-  animation-delay: var(--char-delay, 0ms);
+@media (prefers-reduced-transparency: reduce) {
+  .glass-1,
+  .glass-2,
+  .glass-3,
+  .glass-lite,
+  .glass-admin {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-ink {
+    background: var(--stage-ink);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
-/* ==================================================================
-   Chrome
-   ================================================================== */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--surface-3);
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 999px;
-  border: 2px solid var(--surface-3);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+@media (prefers-contrast: more) {
+  .glass-1,
+  .glass-2,
+  .glass-3,
+  .glass-lite,
+  .glass-admin {
+    border-color: var(--ink-3);
+  }
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+@media (forced-colors: active) {
+  .glass-1,
+  .glass-2,
+  .glass-3,
+  .glass-ink,
+  .glass-lite,
+  .glass-admin {
+    background: Canvas;
+    color: CanvasText;
+    border: 1px solid CanvasText;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .glass-lift,
+  .glass-lift:hover,
+  .glass-hover,
+  .glass-hover:hover {
+    transition: none;
+    transform: none;
+  }
   *,
   ::before,
   ::after {
@@ -276,19 +318,33 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .animate-marquee {
-    animation: none !important;
-  }
-  .glass-hover:hover {
-    transform: none !important;
-  }
 }
 
-/* Solid fallback where translucency is unwanted or unsupported. */
-@media (prefers-reduced-transparency: reduce) {
-  .glass-nav {
-    background: var(--surface);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sunken);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(14, 26, 22, 0.20);
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(14, 26, 22, 0.35);
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
