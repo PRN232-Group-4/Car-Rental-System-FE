@@ -15,6 +15,7 @@ import {
   uploadVehicleImage,
 } from "./api";
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
+import { useAuth } from "@/features/auth";
 
 type VehicleDraft = {
   vehicleTypeId: string;
@@ -77,6 +78,9 @@ const statuses = [
 
 export default function VehicleForm() {
   const router = useRouter();
+  const { hasRole } = useAuth();
+  const canManage = hasRole("admin") || hasRole("manager");
+
   const fileRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<VehicleDraft>(emptyDraft);
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
@@ -194,6 +198,10 @@ export default function VehicleForm() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!canManage) {
+      setError("Bạn không có quyền lưu thay đổi.");
+      return;
+    }
     const vehicleTypeId = Number(draft.vehicleTypeId);
     if (!Number.isInteger(vehicleTypeId) || !vehicleTypes.some((item) => item.id === vehicleTypeId)) {
       setError("Vui lòng chọn một loại phương tiện hợp lệ.");
@@ -241,19 +249,31 @@ export default function VehicleForm() {
     }
   };
 
+  if (!canManage) {
+    return (
+      <div className="mx-auto max-w-xl text-center py-16 space-y-4">
+        <h2 className="text-xl font-bold text-ink">Quyền truy cập bị giới hạn</h2>
+        <p className="text-sm text-ink-muted">Chỉ Quản trị viên và Quản lý mới có quyền thêm hoặc chỉnh sửa phương tiện.</p>
+        <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-hover">
+          <ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
-        <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-emerald-800"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Quản lý đội xe</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
-        <p className="mt-2 text-sm text-slate-500">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
+        <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-muted transition hover:text-primary"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản lý đội xe</p>
+        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
+        <p className="mt-2 text-sm text-ink-muted">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
       </div>
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <form onSubmit={submit} className="space-y-6">
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
-          <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Thông tin phương tiện</h3>
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
+          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông tin phương tiện</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><select id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</select></Field>
             <Field label="Chi nhánh" htmlFor="facilityId"><select id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
@@ -269,8 +289,8 @@ export default function VehicleForm() {
           <div className="mt-5"><Field label="Mô tả" htmlFor="description"><textarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
-          <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Thông số kỹ thuật</h3>
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
+          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông số kỹ thuật</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             {vehicleKind.isCar && (
               <>
@@ -294,23 +314,23 @@ export default function VehicleForm() {
                 <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><input id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
               </>
             )}
-            {!draft.vehicleTypeId && <p className="text-sm text-slate-500 sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
+            {!draft.vehicleTypeId && <p className="text-sm text-ink-muted sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
-          <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Hình ảnh</h3>
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
+          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Hình ảnh</h3>
           <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
             <div className="space-y-4">
-              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-slate-200 text-sm file:mr-4 file:border-0 file:bg-emerald-50 file:px-4 file:py-3 file:font-semibold file:text-emerald-800" /></Field>
-              {uploading && <p role="status" className="text-sm text-slate-500">Đang tải ảnh lên...</p>}
+              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-line text-sm file:mr-4 file:border-0 file:bg-primary/10 file:px-4 file:py-3 file:font-semibold file:text-primary" /></Field>
+              {uploading && <p role="status" className="text-sm text-ink-muted">Đang tải ảnh lên...</p>}
             </div>
             <div
               onDragOver={handleImageDragOver}
               onDragLeave={handleImageDragLeave}
               onDrop={handleImageDrop}
               className={`grid min-h-32 grid-cols-2 gap-3 rounded-xl transition ${
-                imageDragActive ? "bg-emerald-50 ring-2 ring-emerald-500 ring-offset-2" : ""
+                imageDragActive ? "bg-primary/10 ring-2 ring-primary ring-offset-2" : ""
               }`}
             >
               {draft.mainImageUrl ? (
@@ -335,8 +355,8 @@ export default function VehicleForm() {
                   }}
                   className={`flex min-h-32 cursor-pointer items-center justify-center rounded-xl border border-dashed text-center transition ${
                     imageDragActive
-                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                      : "border-slate-300 bg-slate-50 text-slate-400 hover:border-emerald-400 hover:text-emerald-700"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-line bg-canvas text-ink-muted hover:border-primary/50 hover:text-primary"
                   }`}
                 >
                   <div>
@@ -360,12 +380,12 @@ export default function VehicleForm() {
               ))}
             </div>
           </div>
-          <p className="mt-4 flex items-start gap-2 text-xs text-slate-500"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
+          <p className="mt-4 flex items-start gap-2 text-xs text-ink-muted"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
         </section>
 
         <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
-          <Link href="/admin/vehicles" className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">Hủy</Link>
-          <button type="submit" disabled={loading || saving || uploading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
+          <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>
+          <button type="submit" disabled={loading || saving || uploading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </div>
       </form>
     </div>

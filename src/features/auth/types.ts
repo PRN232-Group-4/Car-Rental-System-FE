@@ -1,4 +1,11 @@
-export type UserRole = "Customer" | "Staff" | "Admin" | "Driver" | "Maintenance";
+export type UserRole =
+  | "Customer"
+  | "Staff"
+  | "Admin"
+  | "Manager"
+  | "CustomerService"
+  | "Driver"
+  | "Maintenance";
 
 export interface AuthUser {
   email: string;

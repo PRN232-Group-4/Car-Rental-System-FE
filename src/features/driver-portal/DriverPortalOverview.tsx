@@ -31,13 +31,13 @@ export default function DriverPortalOverview() {
   return (
     <div className="space-y-7">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Không gian làm việc của tài xế
         </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Xin chào, {account.fullName ?? "Tài xế"}
         </h2>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-ink-muted">
           Quản lý phương tiện được phân công, xem doanh thu chuyến xe và cập nhật hồ sơ.
         </p>
       </div>
@@ -47,16 +47,16 @@ export default function DriverPortalOverview() {
           <Link
             key={href}
             href={href}
-            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+            className="group rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elevation-2"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Icon className="h-5 w-5" />
             </span>
-            <h3 className="mt-5 flex items-center justify-between font-bold text-slate-900">
+            <h3 className="mt-5 flex items-center justify-between font-bold text-ink">
               {label}
-              <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-emerald-700" />
+              <ArrowRight className="h-4 w-4 text-ink-muted transition group-hover:translate-x-1 group-hover:text-primary" />
             </h3>
-            <p className="mt-1 text-sm text-slate-500">{detail}</p>
+            <p className="mt-1 text-sm text-ink-muted">{detail}</p>
           </Link>
         ))}
       </section>

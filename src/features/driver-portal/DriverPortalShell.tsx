@@ -64,7 +64,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
           className="flex items-center gap-3"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400 text-emerald-950">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-elevation-1">
             <CarFront className="h-6 w-6" />
           </span>
           <span>
@@ -101,16 +101,16 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
                 aria-current={active ? "page" : undefined}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                   active
-                    ? "bg-emerald-400 font-semibold text-emerald-950 shadow-lg shadow-emerald-950/10"
+                    ? "bg-primary font-semibold text-white shadow-elevation-1"
                     : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
                 }`}
               >
                 <Icon
-                  className={`h-[18px] w-[18px] ${active ? "text-emerald-950" : "text-slate-400 group-hover:text-emerald-300"}`}
+                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-slate-400 group-hover:text-primary"}`}
                 />
                 {label}
                 {active && (
-                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180" />
+                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180 text-white" />
                 )}
               </Link>
             );
@@ -138,7 +138,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
             onClick={() => {
               void logout().finally(() => router.replace("/login"));
             }}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-primary/40 hover:text-primary"
           >
             <LogOut className="h-4 w-4" />
             Đăng xuất
@@ -213,7 +213,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
             </div>
             <div className="flex items-center gap-3">
               {account.facilityId !== null && (
-                <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
+                <span className="hidden rounded-full border border-border bg-sunken px-3 py-1.5 text-xs font-semibold text-ink sm:inline-flex">
                   Cơ sở #{account.facilityId}
                 </span>
               )}
@@ -225,7 +225,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
               </span>
               <Link
                 href="/staff/profile"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
                 aria-label="Hồ sơ của tôi"
               >
                 {initials}

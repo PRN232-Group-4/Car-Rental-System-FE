@@ -130,7 +130,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
 
         {bookingSuccess ? (
           <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-50 border border-primary/30 text-primary rounded-full flex items-center justify-center mx-auto shadow-elevation-1">
+            <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-elevation-1">
               <Check className="w-8 h-8 stroke-[3]" />
             </div>
             <h4 className="text-2xl font-bold text-ink">
@@ -202,7 +202,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                   Hình thức điều khiển
                 </span>
                 <div
-                  className="min-h-[44px] py-2 px-3 text-xs font-bold rounded-xl border border-primary/30 bg-emerald-50 text-emerald-900 flex items-center justify-center gap-2"
+                  className="min-h-[44px] py-2 px-3 text-xs font-bold rounded-xl border border-primary/20 bg-primary/5 text-ink flex items-center justify-center gap-2"
                   aria-label="Mọi chuyến thuê đều kèm tài xế chuyên nghiệp"
                 >
                   <ShieldCheck className="w-4 h-4 text-primary" />

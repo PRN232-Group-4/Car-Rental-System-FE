@@ -69,8 +69,23 @@ export default function LoginForm() {
   const redirectUrl = searchParams.get("next") || searchParams.get("redirect");
 
   const { login, user, isLoading: authLoading, isAuthenticated } = useAuth();
+  const googleStatus = searchParams.get("google");
+  const registeredEmail = searchParams.get("registered");
+  const [email, setEmail] = useState(() => registeredEmail || "");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Đã có phiên (vd: vừa quay về từ Google OAuth với) → vào thẳng cổng tương ứng.
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(() =>
+    googleStatus === "unavailable"
+      ? "Đăng nhập Google chưa được cấu hình trên hệ thống. Vui lòng đăng nhập bằng email và mật khẩu."
+      : googleStatus === "error"
+        ? "Đăng nhập Google thất bại hoặc đã bị huỷ: tài khoản Google này chưa tồn tại trong hệ thống Thong Dong."
+        : null,
+  );
+
+  // Vừa quay về từ Google OAuth (?google=ok) → vào thẳng cổng tương ứng.
   useEffect(() => {
     if (authLoading || !isAuthenticated || !user) return;
     let active = true;
@@ -86,21 +101,15 @@ export default function LoginForm() {
     };
   }, [authLoading, isAuthenticated, user, redirectUrl, router]);
 
-  const registeredEmail = searchParams.get("registered");
-  const googleStatus = searchParams.get("google");
-  const [email, setEmail] = useState(() => registeredEmail || "");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(() =>
-    googleStatus === "unavailable"
-      ? "Đăng nhập Google chưa được cấu hình trên hệ thống. Vui lòng đăng nhập bằng email và mật khẩu."
-      : googleStatus === "error"
-        ? "Đăng nhập Google thất bại: tài khoản Google này chưa tồn tại trong hệ thống Thong Dong."
-        : null,
-  );
+  // ?google=ok mà FE không có phiên = cookie không về đúng origin (đăng nhập qua domain BE thay vì
+  // qua /api của FE). Suy ra trực tiếp từ state thay vì setState trong effect.
+  const googleSessionError =
+    googleStatus === "ok" && !authLoading && !isAuthenticated
+      ? "Google đã xác thực thành công nhưng trình duyệt không nhận được phiên đăng nhập của Thong Dong. " +
+        "Kiểm tra lại: nút Google phải trỏ tới /api/auth/google cùng origin với FE và redirect URI trong " +
+        "Google Console phải là https://<fe-domain>/api/auth/google/callback."
+      : null;
+  const shownError = errorMessage ?? googleSessionError;
   const [successMessage, setSuccessMessage] = useState<string | null>(() =>
     registeredEmail ? "Đăng ký thành công! Vui lòng nhập mật khẩu để đăng nhập." : null
   );
@@ -219,10 +228,10 @@ export default function LoginForm() {
         </div>
 
         {/* Error Alert Box */}
-        {errorMessage && (
+        {shownError && (
           <div className="mb-5 p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-700 text-xs sm:text-sm flex items-start gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
             <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-            <span className="leading-snug">{errorMessage}</span>
+            <span className="leading-snug">{shownError}</span>
           </div>
         )}
 
@@ -358,7 +367,9 @@ export default function LoginForm() {
           </div>
         </div>
 
-        {/* Google OAuth Button */}
+        {/* Google OAuth Button — PHẢI giữ đường dẫn CÙNG ORIGIN với FE (/api/auth/google).
+            Worker (prod) và rewrite của next dev sẽ proxy sang BE, nhờ đó cookie phiên được set cho
+            origin FE. Trỏ thẳng tới domain BE thì cookie nằm ở origin BE, FE không bao giờ có phiên. */}
         <a
           href="/api/auth/google"
           className="w-full py-2.5 px-4 flex items-center justify-center gap-2.5 rounded-xl text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200/80 shadow-sm hover:shadow transition-all duration-200 cursor-pointer"

@@ -21,17 +21,21 @@ describe("getLoginPortalPath", () => {
     expect(getLoginPortalPath(["Admin", "Staff"])).toBe("/admin");
   });
 
+  it("sends Manager users to the admin portal", () => {
+    expect(getLoginPortalPath(["Manager"])).toBe("/admin");
+  });
+
   it("sends Staff in the Driver department to the driver portal", () => {
     expect(getLoginPortalPath(["Staff"], driverAccount)).toBe("/staff");
   });
 
-  it("leaves non-driver staff on the public home page", () => {
+  it("sends non-driver staff to the admin portal", () => {
     expect(
       getLoginPortalPath(["Staff"], {
         ...driverAccount,
         departmentName: "Operations",
       }),
-    ).toBe("/");
+    ).toBe("/admin");
   });
 
   it("leaves customers on the public home page", () => {
@@ -42,6 +46,10 @@ describe("getLoginPortalPath", () => {
 describe("isAdminOrStaffAccount", () => {
   it("cho phép Admin dù không có phòng ban", () => {
     expect(isAdminOrStaffAccount({ ...driverAccount, roles: ["Admin"], departmentName: null })).toBe(true);
+  });
+
+  it("cho phép Manager dù không có phòng ban", () => {
+    expect(isAdminOrStaffAccount({ ...driverAccount, roles: ["Manager"], departmentName: null })).toBe(true);
   });
 
   it("cho phép Staff ngoài phòng Driver", () => {

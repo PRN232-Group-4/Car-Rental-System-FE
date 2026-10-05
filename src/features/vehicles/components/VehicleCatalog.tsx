@@ -210,7 +210,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                 </div>
 
                 <div className="absolute bottom-3 left-3 text-white text-xs font-semibold flex items-center gap-1.5 bg-stage-ink/90 px-3 py-1 rounded-full border border-white/10 shadow-e1">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                  <MapPin className="w-3.5 h-3.5 text-primary" />
                   <span>{vehicle.facilityName}</span>
                 </div>
               </div>

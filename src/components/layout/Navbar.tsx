@@ -162,56 +162,108 @@ export default function Navbar() {
                         {user.email}
                       </p>
                       <div className="flex items-center gap-1 mt-1.5">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-100 text-primary">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold bg-primary/10 text-primary">
                           {hasRole("admin")
                             ? "Quản trị viên"
-                            : hasRole("staff") || hasRole("driver")
-                              ? "Nhân viên"
-                              : "Khách hàng"}
+                            : hasRole("manager")
+                              ? "Quản lý"
+                              : hasRole("driver")
+                                ? "Tài xế"
+                                : hasRole("customerservice")
+                                  ? "Chăm sóc khách hàng"
+                                  : hasRole("maintenance")
+                                    ? "Kỹ thuật viên"
+                                    : hasRole("staff")
+                                      ? "Nhân viên"
+                                      : "Khách hàng"}
                         </span>
                       </div>
                     </div>
 
                     <div className="py-1 border-b border-border mb-1 space-y-0.5">
+                      {(hasRole("admin") ||
+                        hasRole("manager") ||
+                        hasRole("staff") ||
+                        hasRole("customerservice") ||
+                        hasRole("maintenance")) && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        >
+                          <Car className="size-3.5 text-primary" />
+                          <span>Cổng quản trị</span>
+                        </Link>
+                      )}
+
+                      {hasRole("driver") && (
+                        <Link
+                          href="/staff"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        >
+                          <Car className="size-3.5 text-primary" />
+                          <span>Cổng tài xế</span>
+                        </Link>
+                      )}
+
+                      {/* Customer Hub Links */}
+                      {(hasRole("customer") ||
+                        (!hasRole("admin") &&
+                          !hasRole("manager") &&
+                          !hasRole("staff") &&
+                          !hasRole("driver"))) && (
+                        <>
+                          <Link
+                            href="/booking"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          >
+                            <Car className="size-3.5" />
+                            <span>Đặt xe mới</span>
+                          </Link>
+                          <Link
+                            href="/my-subscriptions"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          >
+                            <Package className="size-3.5" />
+                            <span>Gói thuê của tôi</span>
+                          </Link>
+                          <Link
+                            href="/invoices"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          >
+                            <FileText className="size-3.5" />
+                            <span>Danh sách hoá đơn</span>
+                          </Link>
+                          <Link
+                            href="/payment-history"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          >
+                            <CreditCard className="size-3.5" />
+                            <span>Lịch sử thanh toán</span>
+                          </Link>
+                          <Link
+                            href="/driver-license"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          >
+                            <FileCheck className="size-3.5" />
+                            <span>Giấy phép lái xe (GPLX)</span>
+                          </Link>
+                        </>
+                      )}
+
                       <Link
-                        href="/booking"
+                        href="/profile"
                         onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                       >
-                        <Car className="size-3.5" />
-                        <span>Đặt xe mới</span>
-                      </Link>
-                      <Link
-                        href="/my-subscriptions"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                      >
-                        <Package className="size-3.5" />
-                        <span>Gói thuê của tôi</span>
-                      </Link>
-                      <Link
-                        href="/invoices"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                      >
-                        <FileText className="size-3.5" />
-                        <span>Danh sách hoá đơn</span>
-                      </Link>
-                      <Link
-                        href="/payment-history"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                      >
-                        <CreditCard className="size-3.5" />
-                        <span>Lịch sử thanh toán</span>
-                      </Link>
-                      <Link
-                        href="/driver-license"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                      >
-                        <FileCheck className="size-3.5" />
-                        <span>Giấy phép lái xe (GPLX)</span>
+                        <FileCheck className="size-3.5 opacity-0" />
+                        <span>Hồ sơ cá nhân</span>
                       </Link>
                     </div>
 
@@ -314,7 +366,7 @@ export default function Navbar() {
                         className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 text-primary flex items-center justify-center font-bold text-xs">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
                         {user.fullName.charAt(0)}
                       </div>
                     )}
@@ -323,13 +375,84 @@ export default function Navbar() {
                       <div className="text-xs text-ink-muted">{user.email}</div>
                     </div>
                   </div>
-                  <Link
-                    href="/profile"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full py-2 mb-2 text-xs font-semibold text-center text-ink bg-canvas hover:bg-surface rounded-lg transition-colors"
-                  >
-                    Hồ sơ của tôi
-                  </Link>
+
+                  <div className="py-2 border-y border-border my-2 space-y-1">
+                    {(hasRole("admin") ||
+                      hasRole("manager") ||
+                      hasRole("staff") ||
+                      hasRole("customerservice") ||
+                      hasRole("maintenance")) && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-3 py-1.5 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors"
+                      >
+                        Cổng quản trị
+                      </Link>
+                    )}
+
+                    {hasRole("driver") && (
+                      <Link
+                        href="/staff"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-3 py-1.5 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors"
+                      >
+                        Cổng tài xế
+                      </Link>
+                    )}
+
+                    {(hasRole("customer") ||
+                      (!hasRole("admin") &&
+                        !hasRole("manager") &&
+                        !hasRole("staff") &&
+                        !hasRole("driver"))) && (
+                      <>
+                        <Link
+                          href="/booking"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                        >
+                          Đặt xe mới
+                        </Link>
+                        <Link
+                          href="/my-subscriptions"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                        >
+                          Gói thuê của tôi
+                        </Link>
+                        <Link
+                          href="/invoices"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                        >
+                          Danh sách hoá đơn
+                        </Link>
+                        <Link
+                          href="/payment-history"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                        >
+                          Lịch sử thanh toán
+                        </Link>
+                        <Link
+                          href="/driver-license"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                        >
+                          Giấy phép lái xe (GPLX)
+                        </Link>
+                      </>
+                    )}
+
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-3 py-1.5 text-xs font-semibold text-ink hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                    >
+                      Hồ sơ cá nhân
+                    </Link>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {

@@ -226,14 +226,14 @@ export default function ProfileManager() {
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:px-6 lg:pt-36">
         <div className="mb-7 flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/" className="transition-colors hover:text-emerald-700">Trang chủ</Link>
+          <Link href="/" className="transition-colors hover:text-primary">Trang chủ</Link>
           <span aria-hidden="true">/</span>
           <span className="font-medium text-slate-700">Hồ sơ của tôi</span>
         </div>
 
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">Tài khoản cá nhân</p>
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">Tài khoản cá nhân</p>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Quản lý hồ sơ</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
               Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo.
@@ -292,7 +292,7 @@ export default function ProfileManager() {
         <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           <section className="glass-card rounded-3xl p-5 sm:p-7">
             <div className="mb-6 flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <UserRound className="h-6 w-6" />
               </div>
               <div>
@@ -310,7 +310,7 @@ export default function ProfileManager() {
                   onChange={updateDetails}
                   autoComplete="name"
                   placeholder="Nhập họ và tên"
-                  className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                   required
                 />
               </FormField>
@@ -323,7 +323,7 @@ export default function ProfileManager() {
                   onChange={updateDetails}
                   autoComplete="email"
                   placeholder="name@example.com"
-                  className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                   required
                   readOnly
                   aria-describedby="email-readonly-help"
@@ -340,12 +340,12 @@ export default function ProfileManager() {
                     onChange={updateDetails}
                     autoComplete="tel"
                     placeholder="090 123 4567"
-                    className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
                     required
                   />
                 </FormField>
                 <FormField label="Giới tính" htmlFor="gender" icon={<UserRound className="h-4 w-4" />}>
-                  <select id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10">
+                  <select id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
                     <option value="">Chọn giới tính</option>
                     <option value="Male">Nam</option>
                     <option value="Female">Nữ</option>
@@ -354,13 +354,13 @@ export default function ProfileManager() {
                 </FormField>
               </div>
               <div className="flex flex-col items-start justify-between gap-3 border-t border-slate-200/70 pt-5 sm:flex-row sm:items-center">
-                <p aria-live="polite" className="text-sm text-emerald-700">
+                <p aria-live="polite" className="text-sm text-primary font-medium">
                   {profileSaved ? "Thông tin đã được lưu." : ""}
                 </p>
                 <button
                   type="submit"
                   disabled={isSavingProfile || isLoading}
-                  className="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-700/15 transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
+                  className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   {isSavingProfile ? "Đang lưu..." : "Lưu thông tin"}
                 </button>
@@ -371,7 +371,7 @@ export default function ProfileManager() {
           <div className="space-y-6">
             <section className="glass-card rounded-3xl p-5 sm:p-7">
               <div className="mb-6 flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <BadgeCheck className="h-6 w-6" />
                 </div>
                 <div>
@@ -397,8 +397,8 @@ export default function ProfileManager() {
                   onDrop={handleDrop}
                   className={`flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition ${
                     isDragging
-                      ? "border-emerald-500 bg-emerald-50"
-                      : "border-emerald-200 bg-emerald-50/50 hover:border-emerald-400 hover:bg-emerald-50"
+                      ? "border-primary bg-primary/10"
+                      : "border-slate-300 bg-white/50 hover:border-primary/50 hover:bg-primary/5"
                   }`}
                 >
                   <input
@@ -409,7 +409,7 @@ export default function ProfileManager() {
                     onChange={handleFileChange}
                     className="sr-only"
                   />
-                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
+                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-primary shadow-sm">
                     <Upload className="h-5 w-5" />
                   </span>
                   <span className="text-sm font-bold text-slate-800">
@@ -420,7 +420,7 @@ export default function ProfileManager() {
 
                 {(selectedFile || licenseImageUrl) && (
                   <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/70 p-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <FileText className="h-5 w-5" />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -430,7 +430,7 @@ export default function ProfileManager() {
                     {selectedFile && <button
                       type="button"
                       onClick={removeFile}
-                      className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                      className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
                       aria-label="Xóa tệp đã chọn"
                     >
                       <X className="h-4 w-4" />
@@ -460,7 +460,7 @@ export default function ProfileManager() {
                 <button
                   type="submit"
                   disabled={(!selectedFile && !licenseImageUrl) || isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-700/15 transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white shadow-elevation-1 transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                 >
                   {isSubmittingLicense ? <Clock3 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
                   {isSubmittingLicense ? "Đang gửi..." : hasPendingStatus ? "Đang chờ phê duyệt" : "Gửi giấy phép để xét duyệt"}
