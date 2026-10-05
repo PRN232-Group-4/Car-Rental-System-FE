@@ -15,7 +15,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void getDashboardData()
-        .then((data) => setEntries(toEntries(data)))
+        .then((data: unknown) => setEntries(toEntries(data)))
         .catch((loadError: unknown) => setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu dashboard."))
         .finally(() => setLoading(false));
     }, 0);

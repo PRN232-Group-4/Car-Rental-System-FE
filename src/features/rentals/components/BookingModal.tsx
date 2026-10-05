@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { X, Check, ShieldCheck, MapPin, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { createRentalBooking } from "../api";
 import type { RentalBookingResponse } from "../types";
 import type { Vehicle } from "@/features/vehicles";
+import { Button } from "@/components/ui/Button";
 
 interface BookingModalProps {
   vehicle: Vehicle | null;
@@ -13,19 +14,38 @@ interface BookingModalProps {
 }
 
 export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
-  const [rentalHours, setRentalHours] = useState<number>(24); // default 24h (1 day)
+  const [rentalHours, setRentalHours] = useState<number>(24);
   const [bookingSuccess, setBookingSuccess] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [bookingResult, setBookingResult] = useState<RentalBookingResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Keyboard navigation & body scroll lock (Priority 1 & 2 in ui-ux-pro-max)
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap & Escape key handler per A6 & A12 accessibility
   useEffect(() => {
     if (!vehicle) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+        return;
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
       }
     };
 
@@ -42,10 +62,10 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
   if (!vehicle) return null;
 
   // Calculation according to DESIGN.md Section 22 & 23
-  const driverFeePerHour = 40000; // mọi chuyến thuê đều kèm tài xế (không có tự lái)
+  const driverFeePerHour = 40000;
   const baseRentalPrice = (vehicle.hourlyPrice + driverFeePerHour) * rentalHours;
-  const vatAmount = baseRentalPrice * 0.1; // 10% VAT
-  const depositAmount = (baseRentalPrice + vatAmount) * 0.1; // 10% deposit
+  const vatAmount = baseRentalPrice * 0.1;
+  const depositAmount = (baseRentalPrice + vatAmount) * 0.1;
   const totalAmount = baseRentalPrice + vatAmount;
 
   const handleConfirm = async () => {
@@ -78,22 +98,23 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-md animate-in fade-in duration-200 cursor-pointer"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--scrim-modal)] cursor-pointer"
       role="dialog"
       aria-modal="true"
       aria-labelledby="booking-modal-title"
     >
       <div
+        ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="glass-card bg-white/95 backdrop-blur-3xl rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl cursor-default"
+        className="glass-3 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-elevation-2 cursor-default"
       >
         {/* Header */}
-        <div className="p-6 border-b border-white/60 flex items-center justify-between sticky top-0 bg-white/85 backdrop-blur-2xl z-10">
+        <div className="p-6 border-b border-border flex items-center justify-between sticky top-0 bg-surface/95 z-10">
           <div>
-            <span className="text-xs uppercase tracking-wider font-bold text-[#059669]">
+            <span className="text-xs uppercase tracking-wider font-bold text-primary">
               Xác nhận thông tin & bảng giá minh bạch
             </span>
-            <h3 id="booking-modal-title" className="text-xl font-bold text-neutral-900 mt-0.5">
+            <h3 id="booking-modal-title" className="text-xl font-bold text-ink mt-0.5">
               {vehicle.name}
             </h3>
           </div>
@@ -101,7 +122,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Đóng hộp thoại đặt xe"
-            className="w-11 h-11 rounded-full glass-pill flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-full bg-canvas hover:bg-surface-elevated border border-border flex items-center justify-center text-ink-muted hover:text-ink transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -109,29 +130,26 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
 
         {bookingSuccess ? (
           <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-[#ecfdf5] border border-emerald-300/60 text-[#059669] rounded-full flex items-center justify-center mx-auto shadow-md shadow-[#059669]/15">
+            <div className="w-16 h-16 bg-emerald-50 border border-primary/30 text-primary rounded-full flex items-center justify-center mx-auto shadow-elevation-1">
               <Check className="w-8 h-8 stroke-[3]" />
             </div>
-            <h4 className="text-2xl font-bold text-neutral-900">
+            <h4 className="text-2xl font-bold text-ink">
               Gửi yêu cầu thuê xe thành công
             </h4>
-            <p className="text-sm text-neutral-600 max-w-md mx-auto leading-relaxed">
-              Mã đơn: <strong className="text-neutral-900">{bookingResult?.bookingId || "TD-881920"}</strong>. Đơn đang ở trạng thái <span className="text-amber-700 font-semibold">Chờ xác nhận (pending)</span>. Nhân viên chi nhánh {vehicle.facilityName} sẽ liên hệ xác minh GPLX và gửi link thanh toán cọc PayOS trong ít phút.
+            <p className="text-sm text-ink-muted max-w-md mx-auto leading-relaxed">
+              Mã đơn: <strong className="text-ink">{bookingResult?.bookingId || "TD-881920"}</strong>. Đơn đang ở trạng thái <span className="text-amber-800 font-semibold">Chờ xác nhận (pending)</span>. Nhân viên chi nhánh {vehicle.facilityName} sẽ liên hệ xác minh GPLX và gửi link thanh toán cọc PayOS trong ít phút.
             </p>
             <div className="pt-4">
-              <button
-                onClick={onClose}
-                className="px-6 py-2.5 bg-[#059669] text-white font-semibold rounded-xl text-sm hover:bg-[#047857] transition-colors cursor-pointer shadow-md shadow-[#059669]/25"
-              >
+              <Button onClick={onClose} variant="primary">
                 Đóng thông báo
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
           <div className="p-6 space-y-6">
             {/* Vehicle preview bar */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl glass-sub border border-white/80">
-              <div className="relative w-full sm:w-36 h-24 rounded-xl overflow-hidden shrink-0">
+            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-canvas border border-border">
+              <div className="relative w-full sm:w-36 h-24 rounded-xl overflow-hidden shrink-0 bg-stage-ink">
                 <Image
                   src={vehicle.imageUrl}
                   alt={vehicle.name}
@@ -141,14 +159,14 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
               </div>
               <div className="space-y-1 w-full text-left">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-surface border border-border text-ink">
                     {vehicle.categoryLabel}
                   </span>
-                  <span className="text-xs text-neutral-500">Đời {vehicle.year}</span>
+                  <span className="text-xs text-ink-subtle">Đời {vehicle.year}</span>
                 </div>
-                <p className="text-sm font-bold text-neutral-900">{vehicle.name}</p>
-                <p className="text-xs text-neutral-500 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#059669]" />
+                <p className="text-sm font-bold text-ink">{vehicle.name}</p>
+                <p className="text-xs text-ink-muted flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-primary" />
                   <span>{vehicle.facilityName}</span>
                 </p>
               </div>
@@ -157,7 +175,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             {/* Config Duration & Mode */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-700 block">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-muted block">
                   Thời lượng thuê dự kiến
                 </span>
                 <div className="flex items-center gap-2" role="group" aria-label="Chọn thời lượng thuê">
@@ -169,8 +187,8 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                       onClick={() => setRentalHours(hours)}
                       className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
                         rentalHours === hours
-                          ? "bg-[#059669] border-[#059669] text-white shadow-md shadow-[#059669]/25"
-                          : "glass-pill text-neutral-800 hover:bg-white"
+                          ? "bg-primary border-primary text-white shadow-elevation-1"
+                          : "bg-surface hover:bg-surface-elevated text-ink border-border"
                       }`}
                     >
                       {hours} giờ
@@ -180,46 +198,46 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
               </div>
 
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-700 block">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-muted block">
                   Hình thức điều khiển
                 </span>
                 <div
-                  className="min-h-[44px] py-2 px-3 text-xs font-bold rounded-xl border border-emerald-300/50 bg-emerald-50/70 text-emerald-800 flex items-center justify-center gap-2"
+                  className="min-h-[44px] py-2 px-3 text-xs font-bold rounded-xl border border-primary/30 bg-emerald-50 text-emerald-900 flex items-center justify-center gap-2"
                   aria-label="Mọi chuyến thuê đều kèm tài xế chuyên nghiệp"
                 >
-                  <ShieldCheck className="w-4 h-4 text-[#059669]" />
+                  <ShieldCheck className="w-4 h-4 text-primary" />
                   <span>Kèm tài xế chuyên nghiệp (+40.000đ/giờ)</span>
                 </div>
               </div>
             </div>
 
-            {/* Price breakdown table - EXACTLY as specified in DESIGN.md Section 23 */}
-            <div className="glass-sub rounded-2xl p-5 border border-white/70 space-y-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200/60 pb-2">
+            {/* Price breakdown table */}
+            <div className="rounded-2xl p-5 bg-canvas border border-border space-y-3">
+              <div className="text-xs font-bold uppercase tracking-wider text-ink-muted border-b border-border pb-2">
                 Chi tiết dự toán chi phí (Áp dụng theo chính sách đang kích hoạt)
               </div>
               
-              <div className="flex justify-between text-sm text-neutral-700">
+              <div className="flex justify-between text-sm text-ink-muted">
                 <span>
                   Đơn giá thuê ({rentalHours} giờ x {(vehicle.hourlyPrice + driverFeePerHour).toLocaleString("vi-VN")}đ)
                 </span>
-                <span className="font-semibold text-neutral-900">
+                <span className="font-semibold text-ink">
                   {baseRentalPrice.toLocaleString("vi-VN")} đ
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm text-neutral-700">
+              <div className="flex justify-between text-sm text-ink-muted">
                 <span className="flex items-center gap-1">
                   <span>Thuế VAT (10%)</span>
                 </span>
-                <span className="font-semibold text-neutral-900">
+                <span className="font-semibold text-ink">
                   {vatAmount.toLocaleString("vi-VN")} đ
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm text-amber-800 bg-amber-50/70 backdrop-blur-md p-2.5 rounded-xl border border-amber-200/60">
+              <div className="flex justify-between text-sm text-amber-900 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-4 h-4 text-amber-600" />
+                  <ShieldCheck className="w-4 h-4 text-amber-700" />
                   <span>Tiền đặt cọc xe (10% - Hoàn trả tự động sau kiểm định)</span>
                 </span>
                 <span className="font-bold">
@@ -227,17 +245,17 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                 </span>
               </div>
 
-              <div className="pt-3 border-t border-neutral-200/70 flex justify-between items-baseline">
+              <div className="pt-3 border-t border-border flex justify-between items-baseline">
                 <div>
-                  <span className="text-base font-bold text-neutral-900">
+                  <span className="text-base font-bold text-ink">
                     Tổng tiền thanh toán thuê
                   </span>
-                  <span className="text-xs text-neutral-500 block">
+                  <span className="text-xs text-ink-subtle block">
                     (Chưa tính cọc hoàn lại sau chuyến đi)
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-black text-[#059669]">
+                  <span className="text-2xl font-black text-primary">
                     {totalAmount.toLocaleString("vi-VN")} đ
                   </span>
                 </div>
@@ -245,39 +263,42 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             </div>
 
             {/* Trust disclaimer */}
-            <div className="text-xs text-neutral-500 flex items-start gap-2 bg-blue-50/60 p-3 rounded-xl border border-blue-100">
-              <AlertCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <div className="text-xs text-ink-muted flex items-start gap-2 bg-blue-50 p-3 rounded-xl border border-blue-100">
+              <AlertCircle className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
               <span>
                 Không phát sinh phí ẩn. Khách hàng nhận biên bản kiểm định 2 chiều trước khi lăn bánh. Cọc được hoàn tự động về tài khoản nguồn qua cổng PayOS ngay khi hoàn tất kiểm tra trả xe.
               </span>
             </div>
 
-            {/* Action buttons */}
+            {/* Error message */}
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-start gap-2">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-danger text-xs font-semibold flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
+            {/* Action buttons */}
             <div className="flex items-center gap-3 pt-2">
-              <button
+              <Button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3 border border-neutral-200 rounded-xl text-sm font-semibold text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                variant="secondary"
+                className="flex-1 justify-center"
               >
                 Quay lại
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleConfirm}
                 disabled={submitting}
-                className="flex-2 py-3 bg-[#059669] hover:bg-[#047857] disabled:opacity-60 text-white rounded-xl text-sm font-bold shadow-lg shadow-[#059669]/30 hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                variant="primary"
+                className="flex-2 justify-center"
               >
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Đang xử lý yêu cầu...</span>
+                    <span>Đang xử lý...</span>
                   </>
                 ) : (
                   <>
@@ -285,7 +306,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         )}
