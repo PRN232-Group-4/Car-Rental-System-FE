@@ -8,11 +8,11 @@ import {
   ChevronDown,
   ChevronRight,
   CirclePlus,
-  Info,
+  Trash2,
   Pencil,
   Search,
 } from "lucide-react";
-import { getFacilities, getVehicleTypes, getVehicles } from "./api";
+import { deleteVehicle, getFacilities, getVehicleTypes, getVehicles } from "./api";
 import type { OrganizationUnitDto, VehicleDto, VehicleTypeDto } from "./api";
 import { useAuth } from "@/features/auth";
 
@@ -45,6 +45,7 @@ export default function VehicleManagement() {
   const [pageSize, setPageSize] = useState(5);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const loadPage = useCallback(async (currentPage: number, currentPageSize: number, typeFilter: string, statusFilter: string) => {
     setLoading(true);
@@ -77,6 +78,21 @@ export default function VehicleManagement() {
     }, 0);
     return () => window.clearTimeout(timer);
   }, [category, loadPage, page, pageSize, status]);
+
+  const removeVehicle = async (vehicle: VehicleDto) => {
+    if (!canManage || deletingId !== null || !window.confirm(`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""} (#${vehicle.id})?`)) return;
+    setDeletingId(vehicle.id);
+    setError("");
+    try {
+      await deleteVehicle(vehicle.id);
+      if (vehicles.length === 1 && page > 1) setPage(page - 1);
+      else await loadPage(page, pageSize, category, status);
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Không thể xóa xe có lịch sử nghiệp vụ liên quan.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const filteredVehicles = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
@@ -115,11 +131,6 @@ export default function VehicleManagement() {
 
       <p className="text-xs text-ink-muted">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-      <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        API hiện hỗ trợ xem, thêm và cập nhật phương tiện; chưa có endpoint xóa.
-      </p>
-
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:p-5">
           <label className="relative min-w-0 flex-1">
@@ -195,6 +206,7 @@ export default function VehicleManagement() {
                         <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary">
                           <Pencil className="h-4 w-4" />
                         </Link>
+                        <button type="button" onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} aria-label={`Xóa xe #${vehicle.id}`} className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </td>
                   )}

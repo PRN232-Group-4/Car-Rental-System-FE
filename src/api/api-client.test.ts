@@ -72,3 +72,19 @@ describe("ApiClient Unit Tests", () => {
     expect(contentType).toBeNull();
   });
 });
+
+it("reports request timeouts without exposing the raw abort error", async () => {
+  const client = new ApiClient({
+    timeout: 5,
+    customFetch: (_url, init) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => reject(new DOMException("signal is aborted without reason", "AbortError")), { once: true });
+    }),
+  });
+  await expect(client.get("dashboard")).rejects.toMatchObject({ status: 408, message: expect.stringContaining("dashboard") });
+});
+
+it("preserves non-timeout network failures", async () => {
+  const failure = new TypeError("Failed to fetch");
+  const client = new ApiClient({ customFetch: async () => { throw failure; } });
+  await expect(client.get("dashboard")).rejects.toBe(failure);
+});

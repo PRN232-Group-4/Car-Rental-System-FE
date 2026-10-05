@@ -128,8 +128,12 @@ export class ApiClient {
     }
 
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    let timedOut = false;
     const timeoutId = controller
-      ? setTimeout(() => controller.abort(), this.timeout)
+      ? setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, this.timeout)
       : null;
 
     try {
@@ -184,6 +188,13 @@ export class ApiClient {
       }
 
       return json as T;
+    } catch (error) {
+      if (timedOut) {
+        throw new ApiClientError(408, "Request timeout", {
+          detail: `Yêu cầu ${toCleanPath(path)} quá thời gian chờ (${this.timeout / 1000} giây). Vui lòng thử lại hoặc kiểm tra kết nối backend.`,
+        });
+      }
+      throw error;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
