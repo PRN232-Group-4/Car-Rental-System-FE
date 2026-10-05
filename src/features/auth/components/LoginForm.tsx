@@ -174,9 +174,9 @@ export default function LoginForm() {
   return (
     <div className="w-full max-w-md mx-auto">
       {/* Quick Demo Credentials Pill Picker */}
-      <div className="mb-6 p-3.5 rounded-2xl glass-sub border border-emerald-500/25 bg-emerald-50/40 backdrop-blur-md">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 mb-2">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+      <div className="mb-6 p-3.5 rounded-2xl bg-canvas border border-border">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-primary mb-2">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
           <span>Tài khoản mẫu thử nghiệm (Bấm để điền nhanh):</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -189,14 +189,14 @@ export default function LoginForm() {
                 onClick={() => handleSelectDemo(account)}
                 className={`px-2 py-2 rounded-xl text-left transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? "bg-[#059669] text-white shadow-sm shadow-[#059669]/30 font-semibold ring-1 ring-emerald-400"
-                    : "bg-white/80 hover:bg-white text-neutral-700 hover:text-emerald-700 border border-neutral-200/60"
+                    ? "bg-primary text-white shadow-elevation-1 font-semibold"
+                    : "bg-surface hover:bg-surface-elevated text-ink-muted hover:text-ink border border-border"
                 }`}
               >
                 <div className="text-xs font-bold truncate leading-tight">{account.label}</div>
                 <div
                   className={`text-xs truncate mt-0.5 ${
-                    isSelected ? "text-emerald-100" : "text-neutral-500"
+                    isSelected ? "text-emerald-100" : "text-ink-subtle"
                   }`}
                 >
                   {account.roleDescription}
@@ -207,13 +207,13 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* Main Glass Form Container */}
-      <div className="glass-card rounded-3xl p-7 sm:p-9 shadow-2xl relative overflow-hidden bg-white/75 backdrop-blur-2xl">
+      {/* Main Solid Form Container */}
+      <div className="bg-surface rounded-3xl p-7 sm:p-9 shadow-elevation-2 relative overflow-hidden border border-border text-ink">
         <div className="mb-6 text-center sm:text-left">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-ink">
             Đăng nhập
           </h2>
-          <p className="text-sm text-neutral-500 mt-1.5 leading-relaxed">
+          <p className="text-sm text-ink-muted mt-1.5 leading-relaxed font-normal">
             Nhập email và mật khẩu của bạn để truy cập lịch trình thuê xe, gói thuê bao và ưu đãi.
           </p>
         </div>

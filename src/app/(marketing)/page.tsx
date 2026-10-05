@@ -6,70 +6,65 @@ import Footer from "@/components/layout/Footer";
 import {
   Hero,
   Marquee,
-  WhyChooseUs,
-  HowItWorks,
-  MobileAppSection,
+  InteractiveStudio3D,
+  MultiFleetCatalog,
+  InspectionSection,
+  PinnedJourney,
+  MembershipPasses,
+  ContinuousBlueprint,
 } from "@/features/landing";
-import { FacilityExplorer } from "@/features/facilities";
-import { VehicleCatalog } from "@/features/vehicles";
-import { InspectionShowcase } from "@/features/inspections";
-import { SubscriptionPlans } from "@/features/subscriptions";
 
 export default function Home() {
-  const [activeFacilityFilter, setActiveFacilityFilter] = useState<string>("all");
+  const [, setActiveFacilityFilter] = useState<string>("all");
 
   const handleSearchCriteria = (criteria: { facilityId: string }) => {
     setActiveFacilityFilter(criteria.facilityId);
   };
 
-  const handleSelectFacility = (facilityId: string) => {
-    setActiveFacilityFilter(facilityId);
-  };
-
   return (
-    <main className="overflow-x-hidden w-full max-w-full min-h-dvh relative text-neutral-800 flex flex-col selection:bg-[#059669]/15 selection:text-[#059669]">
-      {/* Quiet backdrop: one flat tone, no decorative layers. */}
-      <div className="absolute inset-0 pointer-events-none z-0 bg-slate-50" />
+    <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-amber-500/20 selection:text-amber-900 bg-[var(--canvas)]">
+      {/* Background Architectural Canvas & Subtle Depth */}
+      <div className="absolute inset-0 pointer-events-none z-0 bg-[var(--canvas)]" />
+
+      {/* Full Page Engineering Continuous Blueprint Dossier Background */}
+      <ContinuousBlueprint />
 
       <div className="relative z-10 flex flex-col w-full">
         {/* Navigation */}
         <Navbar />
 
-        {/* Hero with search console */}
+        {/* 1. Warm Editorial Hero with Single-Deck Search Console */}
         <div id="gioi-thieu">
           <Hero onSearchCriteriaChange={handleSearchCriteria} />
         </div>
 
-        {/* Infinite Automotive & Trust Marquee */}
+        {/* 2. System Trust & Capability Marquee */}
         <Marquee />
 
-        {/* Desire: Official Facilities & Pickup Centers */}
-        <FacilityExplorer
-          selectedFacilityId={activeFacilityFilter === "all" ? "fac-q1" : activeFacilityFilter}
-          onSelectFacility={handleSelectFacility}
-        />
+        {/* 3. Dedicated Interactive 3D WebGL Studio (Porsche 1975 Classic vs 2026 Carrera 4S) */}
+        <InteractiveStudio3D />
 
-        {/* Interest & Desire: Vehicle Discovery Catalog with Live Booking Calculation */}
-        <VehicleCatalog filterFacilityId={activeFacilityFilter} />
-
-        {/* Interest: Gapless Bento Grid of Core System Commitments */}
-        <div id="chinh-sach">
-          <WhyChooseUs />
+        {/* 4. Multi-Category Vehicle Catalog (4 Groups: Electric/Petrol, Cars/Bikes, Chauffeur/Self-Drive) */}
+        <div id="chi-nhanh" className="scroll-mt-24">
+          <MultiFleetCatalog />
         </div>
 
-        {/* Trust Cornerstone: Pre-rental Inspection Report Certificate */}
-        <InspectionShowcase />
+        {/* 5. Dual Inspection & Automated PayOS Refund Terminal */}
+        <div id="cong-nghe" className="scroll-mt-24">
+          <InspectionSection />
+        </div>
 
-        {/* Desire: 4-Step How It Works Workflow */}
-        <HowItWorks />
+        {/* 6. Cinematic GSAP Pinned Journey Narrative */}
+        <div id="quy-trinh" className="scroll-mt-24">
+          <PinnedJourney />
+        </div>
 
-        {/* Action & Conversion: Subscription Plans */}
-        <SubscriptionPlans />
+        {/* 7. Apple Wallet & NFC Digital Membership Passes */}
+        <div id="goi-thue-bao" className="scroll-mt-24">
+          <MembershipPasses />
+        </div>
 
-        {/* Ecosystem: Mobile App (Flutter) */}
-        <MobileAppSection />
-
-        {/* Action: Comprehensive 4-Column Footer */}
+        {/* 8. Comprehensive Legal & Network Footer */}
         <div id="lien-he">
           <Footer />
         </div>
