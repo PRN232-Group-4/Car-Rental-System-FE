@@ -150,7 +150,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
 
   if (checkingAccess) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[var(--canvas)] p-6">
         <p role="status" className="text-sm font-medium text-slate-600">
           Đang xác thực tài khoản tài xế...
         </p>
@@ -160,7 +160,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
 
   if (accessError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[var(--canvas)] p-6">
         <p role="alert" className="max-w-xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {accessError}
         </p>
@@ -172,8 +172,8 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
 
   return (
     <DriverPortalContext.Provider value={account}>
-      <div className="min-h-screen bg-[#f4f7f6] text-slate-800">
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col bg-[#10231f] lg:flex">
+      <div className="min-h-[100dvh] bg-[var(--canvas)] text-ink">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col bg-stage-ink border-r border-border-dim lg:flex">
           {sidebar}
         </aside>
 
@@ -181,18 +181,18 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
           <div className="fixed inset-0 z-50 lg:hidden">
             <button
               type="button"
-              className="absolute inset-0 bg-slate-950/50"
+              className="absolute inset-0 bg-[var(--scrim-modal)]"
               aria-label="Đóng menu"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-[#10231f] shadow-2xl">
+            <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-stage-ink shadow-elevation-2">
               {sidebar}
             </aside>
           </div>
         )}
 
-        <div className="min-h-screen lg:pl-[260px]">
-          <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-7 lg:px-9">
+        <div className="min-h-[100dvh] lg:pl-[260px]">
+          <header className="glass-admin sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border px-4 sm:px-7 lg:px-9">
             <div className="flex items-center gap-3">
               <button
                 type="button"

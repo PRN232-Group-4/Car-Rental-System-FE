@@ -270,14 +270,23 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                 <label key={field.key} className="block text-sm font-semibold text-slate-700">
                   <span className="mb-2 block">{field.label}</span>
                   {field.type === "department" || field.type === "facility" ? (
-                    <select className="admin-input" value={values[field.key] ?? ""} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.currentTarget.value }))}>
+                    <select className="admin-input" value={values[field.key] ?? ""} onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setValues((current) => ({ ...current, [field.key]: value }));
+                    }}>
                       <option value="">Chưa phân công</option>
                       {(field.type === "department" ? departments : facilities).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
                     </select>
                   ) : field.type === "boolean" ? (
-                    <select className="admin-input" value={values[field.key] ?? "false"} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.currentTarget.value }))}><option value="false">Không</option><option value="true">Có</option></select>
+                    <select className="admin-input" value={values[field.key] ?? "false"} onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setValues((current) => ({ ...current, [field.key]: value }));
+                    }}><option value="false">Không</option><option value="true">Có</option></select>
                   ) : (
-                    <input type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.currentTarget.value }))} className="admin-input" />
+                    <input type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setValues((current) => ({ ...current, [field.key]: value }));
+                    }} className="admin-input" />
                   )}
                 </label>
               ))}

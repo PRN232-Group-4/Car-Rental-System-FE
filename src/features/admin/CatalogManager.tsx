@@ -249,14 +249,23 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
                 <label key={field.key} htmlFor={`catalog-${field.key}`} className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-700">{field.label}</span>
                   {field.type === "textarea" ? (
-                    <textarea id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.currentTarget.value }))} rows={4} className="admin-input resize-y" />
+                    <textarea id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setValues((current) => ({ ...current, [field.key]: value }));
+                    }} rows={4} className="admin-input resize-y" />
                   ) : field.type === "select" ? (
-                    <select id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.currentTarget.value }))} className="admin-input">
+                    <select id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setValues((current) => ({ ...current, [field.key]: value }));
+                    }} className="admin-input">
                       <option value="" disabled>Chọn {field.label.toLocaleLowerCase()}</option>
                       {(field.key === "vehicleTypeId" ? vehicleTypes.map((item) => ({ value: String(item.id), label: item.name ?? `Loại #${item.id}` })) : field.options ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                     </select>
                   ) : (
-                    <input id={`catalog-${field.key}`} type={field.type ?? "text"} min={field.type === "number" ? "0" : undefined} step={field.type === "number" ? "any" : undefined} required={field.required} value={values[field.key] ?? ""} onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.currentTarget.value }))} className="admin-input" />
+                    <input id={`catalog-${field.key}`} type={field.type ?? "text"} min={field.type === "number" ? "0" : undefined} step={field.type === "number" ? "any" : undefined} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setValues((current) => ({ ...current, [field.key]: value }));
+                    }} className="admin-input" />
                   )}
                 </label>
               ))}

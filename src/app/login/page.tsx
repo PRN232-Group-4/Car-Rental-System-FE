@@ -55,61 +55,61 @@ export default function LoginPage() {
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Automotive Brand Showcase */}
           <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 flex-col justify-center pr-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#059669] text-xs font-semibold w-fit mb-5 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-primary/20 text-primary text-xs font-semibold w-fit mb-5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Hệ Thống Thuê Xe Trực Tuyến Hàng Đầu</span>
             </div>
 
-            <h1 className="text-4xl xl:text-5xl font-extrabold text-neutral-900 tracking-tight leading-[1.15] mb-5">
+            <h1 className="text-4xl xl:text-5xl font-black text-ink tracking-tight leading-[1.15] mb-5">
               Hành trình thong dong, <br />
-              <span className="text-emerald-700">
+              <span className="text-primary">
                 trải nghiệm đẳng cấp.
               </span>
             </h1>
 
-            <p className="text-neutral-600 text-base xl:text-lg leading-relaxed max-w-xl mb-8">
+            <p className="text-ink-muted text-base xl:text-lg leading-relaxed max-w-xl mb-8 font-normal">
               Khám phá đội xe đa dạng từ ô tô điện, SUV 7 chỗ đến xe máy cao cấp. 
               Mọi chiếc xe đều được kiểm định tiêu chuẩn kỹ thuật số và bảo hiểm trọn gói trước khi lăn bánh.
             </p>
 
             {/* Feature Matrix Badges */}
             <div className="grid grid-cols-2 gap-4 max-w-xl mb-10">
-              <div className="p-4 rounded-2xl glass-card border border-white/80 bg-white/50 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-[#059669] mb-3">
+              <div className="p-4 rounded-2xl bg-surface border border-border shadow-elevation-1">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-primary mb-3">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
-                <h2 className="text-sm font-bold text-neutral-900 mb-1">Kiểm Định Minh Bạch</h2>
-                <p className="text-xs text-neutral-500 leading-snug">
+                <h2 className="text-sm font-bold text-ink mb-1">Kiểm Định Minh Bạch</h2>
+                <p className="text-xs text-ink-muted leading-snug">
                   Biên bản điện tử 4 cấp độ chi tiết từng vết trầy xước và lốp xe trước khi giao.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl glass-card border border-white/80 bg-white/50 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-600 mb-3">
+              <div className="p-4 rounded-2xl bg-surface border border-border shadow-elevation-1">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-primary mb-3">
                   <Clock className="w-5 h-5" />
                 </div>
-                <h2 className="text-sm font-bold text-neutral-900 mb-1">Nhận Xe Trong 15 Phút</h2>
-                <p className="text-xs text-neutral-500 leading-snug">
+                <h2 className="text-sm font-bold text-ink mb-1">Nhận Xe Trong 15 Phút</h2>
+                <p className="text-xs text-ink-muted leading-snug">
                   Thủ tục trực tuyến gọn nhẹ, hỗ trợ giao tận nơi hoặc tại 3 chi nhánh lớn TP.HCM.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl glass-card border border-white/80 bg-white/50 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 mb-3">
+              <div className="p-4 rounded-2xl bg-surface border border-border shadow-elevation-1">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-primary mb-3">
                   <Award className="w-5 h-5" />
                 </div>
-                <h2 className="text-sm font-bold text-neutral-900 mb-1">Gói Thuê Bao Linh Hoạt</h2>
-                <p className="text-xs text-neutral-500 leading-snug">
+                <h2 className="text-sm font-bold text-ink mb-1">Gói Thuê Bao Linh Hoạt</h2>
+                <p className="text-xs text-ink-muted leading-snug">
                   Tiết kiệm đến 30% khi đăng ký theo tháng hoặc năm cho cá nhân và doanh nghiệp.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl glass-card border border-white/80 bg-white/50 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 mb-3">
+              <div className="p-4 rounded-2xl bg-surface border border-border shadow-elevation-1">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-primary mb-3">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <h2 className="text-sm font-bold text-neutral-900 mb-1">Cứu Hộ 24/7 Toàn Quốc</h2>
-                <p className="text-xs text-neutral-500 leading-snug">
+                <h2 className="text-sm font-bold text-ink mb-1">Cứu Hộ 24/7 Toàn Quốc</h2>
+                <p className="text-xs text-ink-muted leading-snug">
                   Đội phản ứng nhanh luôn sẵn sàng đồng hành trên mọi cung đường của bạn.
                 </p>
               </div>

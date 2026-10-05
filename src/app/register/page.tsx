@@ -53,7 +53,7 @@ export default function RegisterPage() {
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Benefits of registering */}
           <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 flex-col justify-center pr-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#059669] text-xs font-semibold w-fit mb-5 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#059669] text-xs font-semibold w-fit mb-5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Gia Nhập Thành Viên Thong Dong</span>
             </div>
@@ -71,7 +71,7 @@ export default function RegisterPage() {
 
             {/* Feature Checklist Pills */}
             <div className="space-y-4 max-w-lg mb-8">
-              <div className="flex items-start gap-3.5 p-3 rounded-2xl bg-white/60 border border-neutral-200/60 shadow-2xs backdrop-blur-xs">
+              <div className="flex items-start gap-3.5 p-3 rounded-2xl glass-lite">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
                   <Clock className="w-4 h-4" />
                 </div>
@@ -83,7 +83,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3.5 p-3 rounded-2xl bg-white/60 border border-neutral-200/60 shadow-2xs backdrop-blur-xs">
+              <div className="flex items-start gap-3.5 p-3 rounded-2xl glass-lite">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
                   <FileCheck2 className="w-4 h-4" />
                 </div>
@@ -95,7 +95,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3.5 p-3 rounded-2xl bg-white/60 border border-neutral-200/60 shadow-2xs backdrop-blur-xs">
+              <div className="flex items-start gap-3.5 p-3 rounded-2xl glass-lite">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
                   <Headphones className="w-4 h-4" />
                 </div>

@@ -192,7 +192,7 @@ export default function RegisterForm() {
     <div className="w-full max-w-md mx-auto">
       {/* Quick Sample Fill Pill for testing */}
       {step === "form" && (
-        <div className="mb-5 p-3 rounded-2xl glass-sub border border-emerald-500/25 bg-emerald-50/40 backdrop-blur-md flex items-center justify-between">
+        <div className="mb-5 p-3 rounded-2xl glass-sub border border-emerald-500/25 bg-emerald-50/40 flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>Thử nghiệm nhanh:</span>
@@ -208,7 +208,7 @@ export default function RegisterForm() {
       )}
 
       {/* Main Card */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/80 bg-white/95 shadow-xl backdrop-blur-xl transition-all duration-300">
+      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-white/80 bg-white/95 shadow-xl transition-all duration-300">
         {/* Step indicator */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
           <div className="flex items-center gap-2">

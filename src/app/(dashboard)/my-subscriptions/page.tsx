@@ -95,72 +95,68 @@ export default function MySubscriptionsPage() {
                 key={sub.id}
                 className="p-6 sm:p-7 rounded-3xl bg-white border border-neutral-200 shadow-sm relative overflow-hidden flex flex-col justify-between"
               >
-                {/* Background accent decor */}
-                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-emerald-100/50 to-transparent rounded-bl-full pointer-events-none" />
+                {/* Status Banner / Badges */}
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-primary">
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    Đang hoạt động
+                  </span>
+                  <span className="text-xs font-semibold text-ink-muted">
+                    Mã gói: #{sub.id}
+                  </span>
+                </div>
 
-                <div>
-                  {/* Status Banner / Badges */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      Đang hoạt động
-                    </span>
-                    <span className="text-xs font-semibold text-neutral-400">
-                      Mã gói: #{sub.id}
-                    </span>
-                  </div>
+                <h3 className="text-xl sm:text-2xl font-black text-ink tracking-tight mb-2">
+                  {sub.planName}
+                </h3>
 
-                  <h3 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight mb-2">
-                    {sub.planName}
-                  </h3>
-
-                  {/* Warning Alerts */}
-                  {(isLowHours || isExpiringSoon) && (
-                    <div className="mb-5 p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 text-amber-900 text-xs font-semibold flex items-start gap-2.5">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <div className="space-y-0.5">
-                        {isLowHours && (
-                          <p>
-                            Gói của bạn chỉ còn <strong>{sub.remainingHours} giờ</strong> (dưới 5 giờ).
-                          </p>
-                        )}
-                        {isExpiringSoon && (
-                          <p>
-                            Gói sẽ hết hạn trong <strong>{daysRemaining} ngày</strong> tới (hạn: {endDate.toLocaleDateString("vi-VN")}).
-                          </p>
-                        )}
-                      </div>
+                {/* Warning Alerts */}
+                {(isLowHours || isExpiringSoon) && (
+                  <div className="mb-5 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-start gap-2.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5">
+                      {isLowHours && (
+                        <p>
+                          Gói của bạn chỉ còn <strong>{sub.remainingHours} giờ</strong> (dưới 5 giờ).
+                        </p>
+                      )}
+                      {isExpiringSoon && (
+                        <p>
+                          Gói sẽ hết hạn trong <strong>{daysRemaining} ngày</strong> tới (hạn: {endDate.toLocaleDateString("vi-VN")}).
+                        </p>
+                      )}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Remaining Hours Gauge */}
-                  <div className="p-5 rounded-2xl bg-neutral-50/80 border border-neutral-100 mb-6">
-                    <div className="flex items-baseline justify-between mb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
-                        Số giờ còn lại
+                {/* Remaining Hours Gauge */}
+                <div className="p-5 rounded-2xl bg-canvas border border-border mb-6">
+                  <div className="flex items-baseline justify-between mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-ink-muted">
+                      Số giờ còn lại
+                    </span>
+                    <div className="text-right">
+                      <span className="text-3xl font-black text-primary">
+                        {sub.remainingHours}
                       </span>
-                      <div className="text-right">
-                        <span className="text-3xl font-black text-emerald-600">
-                          {sub.remainingHours}
-                        </span>
-                        <span className="text-sm font-bold text-neutral-500 ml-1">
-                          / {sub.totalHours} giờ
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full h-3 rounded-full bg-neutral-200 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          isLowHours
-                            ? "bg-amber-500"
-                            : "bg-gradient-to-r from-emerald-500 to-teal-500"
-                        }`}
-                        style={{ width: `${percentage}%` }}
-                      />
+                      <span className="text-sm font-bold text-ink-muted ml-1">
+                        / {sub.totalHours} giờ
+                      </span>
                     </div>
                   </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full h-3 rounded-full bg-border overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        isLowHours
+                          ? "bg-amber-600"
+                          : "bg-primary"
+                      }`}
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                </div>
 
                   {/* Dates metadata */}
                   <div className="grid grid-cols-2 gap-4 text-xs mb-6">
@@ -183,7 +179,6 @@ export default function MySubscriptionsPage() {
                       </div>
                     </div>
                   </div>
-                </div>
 
                 {/* Card Bottom CTA */}
                 <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
