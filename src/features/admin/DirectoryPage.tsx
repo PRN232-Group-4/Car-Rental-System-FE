@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Pencil, Plus, Search, Trash2, UsersRound } from "lucide-react";
+import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Pencil, Plus, Search, Trash2, UsersRound, X } from "lucide-react";
 import {
   createDepartment,
   createFacility,
@@ -19,6 +19,8 @@ import {
 } from "./api";
 import type { OrganizationUnitDto, StaffDto } from "./api";
 import { useAuth } from "@/features/auth";
+import { notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toaster";
+import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
 type Row = {
@@ -31,11 +33,11 @@ type Row = {
 };
 type FormValues = Record<string, string>;
 
-const pageInfo: Record<Directory, { title: string; description: string; firstColumn: string; secondColumn: string; thirdColumn: string; icon: typeof Building2 }> = {
-  departments: { title: "Departments", description: "Danh sách phòng ban trong tổ chức.", firstColumn: "Phòng ban", secondColumn: "Tên phòng ban", thirdColumn: "Mã", icon: Building2 },
-  facilities: { title: "Facilities", description: "Danh sách chi nhánh và địa chỉ.", firstColumn: "Chi nhánh", secondColumn: "Địa chỉ", thirdColumn: "Mã", icon: Building2 },
-  staffs: { title: "Staffs", description: "Nhân viên, vai trò và phân công chi nhánh.", firstColumn: "Nhân viên", secondColumn: "Vai trò / Phòng ban", thirdColumn: "Chi nhánh", icon: UsersRound },
-  roles: { title: "Role", description: "Các vai trò hiện được gán cho nhân viên.", firstColumn: "Vai trò", secondColumn: "Nguồn", thirdColumn: "Số nhân viên", icon: KeyRound },
+const pageInfo: Record<Directory, { title: string; description: string; columns: string[]; icon: typeof Building2 }> = {
+  departments: { title: "Departments", description: "Danh sách phòng ban trong tổ chức.", columns: ["Phòng ban"], icon: Building2 },
+  facilities: { title: "Facilities", description: "Danh sách chi nhánh và địa chỉ.", columns: ["Chi nhánh", "Địa chỉ"], icon: Building2 },
+  staffs: { title: "Staffs", description: "Nhân viên, vai trò và phân công chi nhánh.", columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"], icon: UsersRound },
+  roles: { title: "Role", description: "Các vai trò hiện được gán cho nhân viên.", columns: ["Vai trò", "Nguồn", "Số nhân viên"], icon: KeyRound },
 };
 
 export default function DirectoryPage({ directory }: { directory: Directory }) {
@@ -58,21 +60,22 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const validation = useInlineValidation();
 
   const load = useCallback(async () => {
     setError("");
     try {
       if (directory === "departments") {
         const departmentData = await getDepartments();
-        setRows(departmentData.map((item) => toOrganizationRow(item, false)));
+        setRows(departmentData.map(toOrganizationRow));
         setTotalCount(departmentData.length);
       } else if (directory === "facilities") {
         const facilityData = await getFacilities();
-        setRows(facilityData.map((item) => toOrganizationRow(item, true)));
+        setRows(facilityData.map(toOrganizationRow));
         setTotalCount(facilityData.length);
       } else if (directory === "staffs") {
         if (!isAdmin) {
-          setError("Bạn cần quyền Quản trị viên (Admin) để xem và quản lý danh sách nhân sự.");
+          notifyError("Bạn cần quyền Quản trị viên (Admin) để xem và quản lý danh sách nhân sự.");
           setRows([]);
           setTotalCount(0);
           return;
@@ -88,7 +91,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         setTotalCount(staffPage.totalCount);
       } else {
         if (!isAdmin) {
-          setError("Bạn cần quyền Quản trị viên (Admin) để xem danh sách vai trò hệ thống.");
+          notifyError("Bạn cần quyền Quản trị viên (Admin) để xem danh sách vai trò hệ thống.");
           setRows([]);
           setTotalCount(0);
           return;
@@ -145,7 +148,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         setTotalCount(roleRows.length);
       }
     } catch (loadError) {
-      setError(messageOf(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`));
+      notifyApiError(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`);
     } finally {
       setLoading(false);
     }
@@ -164,6 +167,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     else if (directory === "facilities") setValues({ name: row?.name ?? "", address: row?.description ?? "" });
     else if (directory === "staffs") {
       const staff = row?.source;
+      const initialRole = staff?.staffRole ?? (staff?.isDriver ? "Driver" : "CustomerService");
       setValues({
         email: staff?.email ?? "",
         fullName: staff?.fullName ?? "",
@@ -172,12 +176,15 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         departmentId: staff?.departmentId ? String(staff.departmentId) : "",
         facilityId: staff?.facilityId ? String(staff.facilityId) : "",
         hiredDate: staff?.hiredDate?.slice(0, 10) ?? "",
-        staffRole: staff?.staffRole ?? "",
-        isDriver: staff?.isDriver ? "true" : "false",
+        staffRole: initialRole,
         licenseNumber: staff?.licenseNumber ?? "",
+        licenseType: staff?.licenseType ?? "B2",
+        licenseIssueDate: staff?.licenseIssueDate?.slice(0, 10) ?? "",
+        licenseExpiryDate: staff?.licenseExpiryDate?.slice(0, 10) ?? "",
       });
     }
     setError("");
+    validation.reset();
     setFormOpen(true);
   };
 
@@ -186,6 +193,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     setSaving(true);
     setError("");
     try {
+      const isEditing = Boolean(editing);
       if (directory === "departments") {
         if (editing) await updateDepartment(editing.id, values.name.trim());
         else await createDepartment(values.name.trim());
@@ -194,20 +202,21 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         if (editing) await updateFacility(editing.id, body);
         else await createFacility(body);
       } else if (directory === "staffs") {
-        const existingStaff = editing?.source;
+        const isDriver = values.staffRole === "Driver";
+        const role = values.staffRole?.trim() || "CustomerService";
         const common = {
           fullName: values.fullName.trim(),
           phone: values.phone.trim(),
           departmentId: values.departmentId ? Number(values.departmentId) : null,
           facilityId: values.facilityId ? Number(values.facilityId) : null,
           hiredDate: values.hiredDate || null,
-          isDriver: values.isDriver === "true",
-          licenseNumber: values.licenseNumber.trim() || null,
-          licenseType: existingStaff?.licenseType ?? null,
-          licenseIssueDate: existingStaff?.licenseIssueDate ?? null,
-          licenseExpiryDate: existingStaff?.licenseExpiryDate ?? null,
-          licenseImageUrl: existingStaff?.licenseImageUrl ?? null,
-          staffRole: values.staffRole.trim(),
+          isDriver,
+          licenseNumber: isDriver ? (values.licenseNumber?.trim() || null) : null,
+          licenseType: isDriver ? (values.licenseType?.trim() || null) : null,
+          licenseIssueDate: isDriver ? (values.licenseIssueDate || null) : null,
+          licenseExpiryDate: isDriver ? (values.licenseExpiryDate || null) : null,
+          licenseImageUrl: editing?.source?.licenseImageUrl ?? null,
+          staffRole: role,
         };
         if (editing) await updateStaff(editing.id, common);
         else await createStaff({
@@ -217,9 +226,10 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         });
       }
       setFormOpen(false);
+      notifySuccess(isEditing ? "Đã cập nhật thông tin." : "Đã thêm mới thành công.");
       await load();
     } catch (submitError) {
-      setError(messageOf(submitError, "Không thể lưu thay đổi."));
+      setError(validation.report(submitError));
     } finally {
       setSaving(false);
     }
@@ -227,14 +237,14 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
 
   const remove = async (row: Row) => {
     if (!window.confirm(`Xóa "${row.name}"?`)) return;
-    setError("");
     try {
       if (directory === "departments") await deleteDepartment(row.id);
       else if (directory === "facilities") await deleteFacility(row.id);
       else if (directory === "staffs") await deleteStaff(row.id);
+      notifySuccess(`Đã xóa "${row.name}".`);
       await load();
     } catch (deleteError) {
-      setError(messageOf(deleteError, "Không thể xóa mục này."));
+      notifyApiError(deleteError, "Không thể xóa mục này.");
     }
   };
 
@@ -244,15 +254,21 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       ? [{ key: "name", label: "Tên chi nhánh", required: true }, { key: "address", label: "Địa chỉ", required: true }]
       : [
           { key: "fullName", label: "Họ và tên", required: true },
+          { key: "phone", label: "Số điện thoại", required: true },
           ...(!editing ? [{ key: "email", label: "Email", type: "email", required: true }] : []),
           ...(!editing ? [{ key: "password", label: "Mật khẩu khởi tạo", type: "password", required: true }] : []),
-          { key: "phone", label: "Số điện thoại", required: true },
-          { key: "staffRole", label: "Vai trò", required: true },
+          { key: "staffRole", label: "Vai trò", type: "staffRole", required: true },
           { key: "hiredDate", label: "Ngày nhận việc", type: "date" },
           { key: "departmentId", label: "Phòng ban", type: "department" },
           { key: "facilityId", label: "Chi nhánh", type: "facility" },
-          { key: "isDriver", label: "Tài khoản tài xế", type: "boolean" },
-          ...(values.isDriver === "true" ? [{ key: "licenseNumber", label: "Số giấy phép lái xe" }] : []),
+          ...(values.staffRole === "Driver"
+            ? [
+                { key: "licenseNumber", label: "Số giấy phép lái xe", required: true },
+                { key: "licenseExpiryDate", label: "Ngày hết hạn GPLX", type: "date", required: true },
+                { key: "licenseType", label: "Hạng GPLX (B1, B2, C...)" },
+                { key: "licenseIssueDate", label: "Ngày cấp GPLX", type: "date" },
+              ]
+            : []),
         ];
 
   return (
@@ -266,7 +282,6 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       </div>
       <p className="text-sm text-ink-muted">{info.description}</p>
       {directory === "roles" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
-      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
@@ -275,9 +290,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           <table className="w-full min-w-[640px] text-left">
             <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
               <tr>
-                <th className="px-5 py-3">{info.firstColumn}</th>
-                <th className="px-5 py-3">{info.secondColumn}</th>
-                <th className="px-5 py-3">{info.thirdColumn}</th>
+                {info.columns.map((column) => <th key={column} className="px-5 py-3">{column}</th>)}
                 <th className="px-5 py-3">Trạng thái</th>
                 {canModify && <th className="px-5 py-3 text-right">Thao tác</th>}
               </tr>
@@ -286,8 +299,9 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
               {rows.map((row) => (
                 <tr key={row.id} className="text-sm hover:bg-canvas/60">
                   <td className="px-5 py-4 font-semibold text-ink">{row.name}</td>
-                  <td className="px-5 py-4 text-ink-muted">{row.description || "—"}</td>
-                  <td className="px-5 py-4 text-ink-muted">{row.detail || "—"}</td>
+                  {info.columns.slice(1).map((column, index) => (
+                    <td key={column} className="px-5 py-4 text-ink-muted">{[row.description, row.detail][index] || "—"}</td>
+                  ))}
                   <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${row.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-muted"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
                   {canModify && (
                     <td className="px-5 py-4">
@@ -299,7 +313,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                   )}
                 </tr>
               ))}
-              {!loading && rows.length === 0 && <tr><td colSpan={canModify ? 5 : 4} className="px-5 py-12 text-center text-sm text-ink-muted">Không có dữ liệu.</td></tr>}
+              {!loading && rows.length === 0 && <tr><td colSpan={info.columns.length + (canModify ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-muted">Không có dữ liệu.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -320,40 +334,56 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       </section>
 
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
-          <section role="dialog" aria-modal="true" aria-labelledby="directory-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-2xl">
-            <h3 id="directory-dialog-title" className="border-b border-line px-5 py-4 font-bold text-ink">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3>
-            <form onSubmit={submit} className="space-y-4 p-5">
-              {fields.map((field) => (
-                <label key={field.key} className="block text-sm font-semibold text-ink">
-                  <span className="mb-2 block">{field.label}</span>
-                  {field.type === "department" || field.type === "facility" ? (
-                    <select className="admin-input" value={values[field.key] ?? ""} onChange={(event) => {
-                      const value = event.currentTarget.value;
-                      setValues((current) => ({ ...current, [field.key]: value }));
-                    }}>
-                      <option value="">Chưa phân công</option>
-                      {(field.type === "department" ? departments : facilities).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                    </select>
-                  ) : field.type === "boolean" ? (
-                    <select className="admin-input" value={values[field.key] ?? "false"} onChange={(event) => {
-                      const value = event.currentTarget.value;
-                      setValues((current) => ({ ...current, [field.key]: value }));
-                    }}><option value="false">Không</option><option value="true">Có</option></select>
-                  ) : (
-                    <input type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
-                      const value = event.currentTarget.value;
-                      setValues((current) => ({ ...current, [field.key]: value }));
-                    }} className="admin-input" />
-                  )}
-                </label>
-              ))}
-              {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-              <div className="flex justify-end gap-3 border-t border-line pt-4">
-                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
-                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="directory-dialog-title" className={`my-auto w-full ${directory === "staffs" ? "max-w-2xl" : "max-w-md"} rounded-2xl bg-surface shadow-2xl border border-line`}>
+            <div className="flex items-center justify-between border-b border-line px-5 py-3">
+              <h3 id="directory-dialog-title" className="font-bold text-ink text-base">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3>
+              <button type="button" onClick={() => setFormOpen(false)} aria-label="Đóng" className="rounded-lg p-1 text-ink-muted transition hover:bg-canvas hover:text-ink">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <ValidatedForm validation={validation} onSubmit={submit} className="p-5">
+              <div className={`grid gap-x-4 gap-y-2.5 ${directory === "staffs" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+                {fields.map((field) => (
+                  <div key={field.key} className={directory !== "staffs" ? "sm:col-span-2" : ""}>
+                    <label className="block text-xs font-semibold text-ink">
+                      <span className="mb-1 block">{field.label}</span>
+                      {field.type === "department" || field.type === "facility" ? (
+                        <InlineSelect name={field.key} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? ""} onChange={(event) => {
+                          const value = event.currentTarget.value;
+                          setValues((current) => ({ ...current, [field.key]: value }));
+                        }}>
+                          <option value="">Chưa phân công</option>
+                          {(field.type === "department" ? departments : facilities).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                        </InlineSelect>
+                      ) : field.type === "staffRole" ? (
+                        <InlineSelect name={field.key} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? "CustomerService"} onChange={(event) => {
+                          const role = event.currentTarget.value;
+                          setValues((current) => ({
+                            ...current,
+                            staffRole: role,
+                          }));
+                        }}>
+                          <option value="CustomerService">Chăm sóc khách hàng (Customer Service)</option>
+                          <option value="Driver">Tài xế (Driver)</option>
+                          <option value="Maintenance">Kỹ thuật viên (Maintenance)</option>
+                        </InlineSelect>
+                      ) : (
+                        <InlineInput name={field.key} type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                          const value = event.currentTarget.value;
+                          setValues((current) => ({ ...current, [field.key]: value }));
+                        }} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" />
+                      )}
+                    </label>
+                  </div>
+                ))}
               </div>
-            </form>
+              {error && <p role="alert" className="mt-2.5 whitespace-pre-line text-xs font-medium text-danger bg-danger/10 p-2 rounded-lg border border-danger/20">{error}</p>}
+              <div className="mt-4 flex justify-end gap-3 border-t border-line pt-3">
+                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
+                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+              </div>
+            </ValidatedForm>
           </section>
         </div>
       )}
@@ -361,8 +391,8 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   );
 }
 
-function toOrganizationRow(item: OrganizationUnitDto, facility: boolean): Row {
-  return { id: item.id, name: item.name ?? "", description: facility ? item.address ?? "" : item.name ?? "", detail: `#${item.id}`, active: true };
+function toOrganizationRow(item: OrganizationUnitDto): Row {
+  return { id: item.id, name: item.name ?? "", description: item.address ?? "", detail: "", active: true };
 }
 
 function toStaffRow(staff: StaffDto): Row {
@@ -374,8 +404,4 @@ function toStaffRow(staff: StaffDto): Row {
     active: staff.isActive,
     source: staff,
   };
-}
-
-function messageOf(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
 }

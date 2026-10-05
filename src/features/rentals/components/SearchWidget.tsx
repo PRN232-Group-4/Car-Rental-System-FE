@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   MapPin,
   Calendar,
@@ -18,6 +18,20 @@ import { Button } from "@/components/ui/Button";
 
 export type RentalMode = "hourly" | "longterm";
 
+/** Ngày hôm nay theo giờ địa phương, dạng yyyy-mm-dd cho <input type="date">. */
+function toDateInput(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function defaultRange(): { startDate: string; endDate: string } {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  return { startDate: toDateInput(today), endDate: toDateInput(tomorrow) };
+}
+
 interface SearchWidgetProps {
   onSearch?: (criteria: {
     mode: RentalMode;
@@ -33,9 +47,10 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
   const [facilities, setFacilities] = useState<Facility[]>(getInitialFacilities());
   const [mode, setMode] = useState<RentalMode>("hourly");
   const [facilityId, setFacilityId] = useState<string>("all");
-  const [startDate, setStartDate] = useState<string>("2026-10-03");
+  const initialRange = useMemo(() => defaultRange(), []);
+  const [startDate, setStartDate] = useState<string>(initialRange.startDate);
   const [startTime, setStartTime] = useState<string>("21:00");
-  const [endDate, setEndDate] = useState<string>("2026-10-04");
+  const [endDate, setEndDate] = useState<string>(initialRange.endDate);
   const [endTime, setEndTime] = useState<string>("20:00");
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
   const [showStationPicker, setShowStationPicker] = useState<boolean>(false);
@@ -70,7 +85,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
     if (facilityId === "all") return "TP. Hồ Chí Minh (Tất cả chi nhánh)";
     if (facilityId === "delivery") return "Giao tận nơi nội thành TP.HCM";
     const found = facilities.find((f) => f.id === facilityId);
-    return found ? `${found.shortName} (${found.availableVehicles} xe sẵn sàng)` : "TP. Hồ Chí Minh (Tất cả chi nhánh)";
+    return found ? found.name : "TP. Hồ Chí Minh (Tất cả chi nhánh)";
   };
 
   const formatVietnameseDateSummary = () => {
@@ -155,7 +170,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
       <div className="glass-2 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-e3 border border-white/80 relative">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Column 1: Trạm nhận xe (Custom Glass Dropdown) */}
-          <div className="flex-1 relative px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
+          <div ref={stationDropdownRef} className="flex-1 relative px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0 shadow-e1">
                 <MapPin className="w-5 h-5 stroke-[2.2]" />
@@ -183,7 +198,6 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
             {/* Custom Floating Station Menu (.glass-3) */}
             {showStationPicker && (
               <div
-                ref={stationDropdownRef}
                 role="listbox"
                 aria-label="Chọn trạm nhận xe"
                 className="absolute z-50 top-full mt-3 left-0 w-full sm:w-[420px] glass-3 rounded-2xl p-2.5 shadow-e3 border border-white/90 animate-in fade-in zoom-in-95 duration-150"
@@ -227,18 +241,20 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                     >
                       <div className="min-w-0 pr-2">
                         <div className="font-bold truncate">{fac.name}</div>
-                        <div className={`text-[11px] font-mono truncate ${facilityId === fac.id ? "text-white/70" : "text-ink-3"}`}>
-                          {fac.address}
-                        </div>
+                        {fac.address && (
+                          <div className={`text-[11px] font-mono truncate ${facilityId === fac.id ? "text-white/70" : "text-ink-3"}`}>
+                            {fac.address}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                      {typeof fac.availableVehicles === "number" && (
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
                           facilityId === fac.id ? "bg-white/20 text-white" : "bg-sunken text-[#b45309]"
                         }`}>
                           {fac.availableVehicles} xe
                         </span>
-                        {facilityId === fac.id && <Check className="w-4 h-4 text-amber-400" />}
-                      </div>
+                      )}
+                      {facilityId === fac.id && <Check className="w-4 h-4 text-amber-400 shrink-0" />}
                     </button>
                   ))}
 
@@ -274,7 +290,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           <div className="hidden md:block w-px h-10 bg-line" />
 
           {/* Column 2: Thời gian di chuyển (Mở Dedicated Popover) */}
-          <div className="flex-1 relative px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
+          <div ref={popoverRef} className="flex-1 relative px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0 shadow-e1">
                 <Calendar className="w-5 h-5 stroke-[2.2]" />
@@ -302,7 +318,6 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
             {/* Dedicated Floating Glass Popover for Date & Time Selection (.glass-3) */}
             {showTimePicker && (
               <div
-                ref={popoverRef}
                 role="dialog"
                 aria-label="Chọn thời gian nhận và trả xe"
                 className="absolute z-50 top-full mt-3 right-0 left-0 sm:left-auto sm:right-0 w-full sm:w-[460px] glass-3 rounded-3xl p-6 shadow-e3 border border-white/90 animate-in fade-in zoom-in-95 duration-150"

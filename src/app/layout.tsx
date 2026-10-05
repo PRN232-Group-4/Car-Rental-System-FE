@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { AuthProvider } from "@/features/auth";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { Toaster } from "@/components/ui/Toaster";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
         />
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
+          <Toaster />
         </QueryProvider>
       </body>
     </html>

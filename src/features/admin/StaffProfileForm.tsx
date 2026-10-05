@@ -1,5 +1,7 @@
 "use client";
 
+import { ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
+
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { BadgeCheck, Building2, Check, Mail, Phone, Save, ShieldCheck, UserRound } from "lucide-react";
@@ -13,6 +15,7 @@ export default function StaffProfileForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const validation = useInlineValidation();
   const [error, setError] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -137,7 +140,7 @@ export default function StaffProfileForm() {
       setStaff((prev) => (prev ? { ...prev, fullName: newFullName, phone: newPhone } : null));
       setSaved(true);
     } catch (saveError) {
-      setError(messageOf(saveError, "Không thể lưu hồ sơ nhân viên."));
+      setError(validation.report(saveError));
     } finally {
       setSaving(false);
     }
@@ -177,16 +180,16 @@ export default function StaffProfileForm() {
             </div>
           </div>
 
-          <form key={staff.id} onSubmit={submit} onChange={() => setSaved(false)} className="p-5 sm:p-8">
+          <ValidatedForm validation={validation} key={staff.id} onSubmit={submit} onChange={() => setSaved(false)} className="p-5 sm:p-8">
             <div className="mb-6 flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><UserRound className="h-5 w-5" /></div>
               <div><h3 className="font-bold text-ink">Thông tin cá nhân</h3><p className="mt-1 text-xs text-ink-3">Cập nhật thông tin liên hệ của nhân viên.</p></div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Họ và tên" icon={<UserRound className="h-4 w-4" />}><input name="fullName" required defaultValue={staff.fullName ?? ""} autoComplete="name" className="admin-input" /></Field>
-              <Field label="Email công việc" icon={<Mail className="h-4 w-4" />}><input type="email" readOnly value={staff.email ?? ""} className="admin-input bg-sunken text-ink-3" /></Field>
-              <Field label="Số điện thoại" icon={<Phone className="h-4 w-4" />}><input name="phone" required defaultValue={staff.phone ?? ""} autoComplete="tel" className="admin-input" /></Field>
-              <Field label="Phòng ban" icon={<Building2 className="h-4 w-4" />}><input readOnly value={staff.departmentName ?? "Chưa phân công"} className="admin-input bg-sunken text-ink-3" /></Field>
+              <Field label="Họ và tên" icon={<UserRound className="h-4 w-4" />}><InlineInput name="fullName" required defaultValue={staff.fullName ?? ""} autoComplete="name" className="admin-input" /></Field>
+              <Field label="Email công việc" icon={<Mail className="h-4 w-4" />}><InlineInput type="email" readOnly value={staff.email ?? ""} className="admin-input bg-sunken text-ink-3" /></Field>
+              <Field label="Số điện thoại" icon={<Phone className="h-4 w-4" />}><InlineInput name="phone" required defaultValue={staff.phone ?? ""} autoComplete="tel" className="admin-input" /></Field>
+              <Field label="Phòng ban" icon={<Building2 className="h-4 w-4" />}><InlineInput readOnly value={staff.departmentName ?? "Chưa phân công"} className="admin-input bg-sunken text-ink-3" /></Field>
             </div>
             <div className="mt-6 flex items-start gap-3 rounded-xl border border-line bg-sunken p-4">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-ink-3" />
@@ -196,7 +199,7 @@ export default function StaffProfileForm() {
               <p aria-live="polite" className="text-sm font-medium text-success">{saved ? "Đã lưu hồ sơ nhân viên." : ""}</p>
               <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover disabled:opacity-60">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
             </div>
-          </form>
+          </ValidatedForm>
         </div>
         {staff.isDriver && <DriverLicenseProfile staff={staff} onUpdated={setStaff} />}
         </>

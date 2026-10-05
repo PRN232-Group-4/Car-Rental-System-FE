@@ -17,6 +17,8 @@ import {
 } from "./api";
 import type { RentalPolicyDto, SubscriptionPlanDto, VehicleTypeDto } from "./api";
 import { useAuth } from "@/features/auth";
+import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
+import { InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 
 type CatalogKey = "vehicle-types" | "policies" | "subscription-plans";
 type CatalogRecord = { id: number; values: Record<string, string>; active: boolean };
@@ -92,6 +94,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
   const [formOpen, setFormOpen] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
+  const validation = useInlineValidation();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -108,7 +111,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
         setRecords((await getSubscriptionPlans()).map(toPlanRecord));
       }
     } catch (loadError) {
-      setError(messageOf(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`));
+      notifyApiError(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`);
     } finally {
       setLoading(false);
     }
@@ -123,6 +126,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     setEditing(record ?? null);
     setValues(record ? { ...record.values } : Object.fromEntries(fieldsByCatalog[catalog].map((field) => [field.key, ""])));
     setError("");
+    validation.reset();
     setFormOpen(true);
   };
 
@@ -130,6 +134,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     event.preventDefault();
     setSaving(true);
     setError("");
+    const isEditing = Boolean(editing);
     try {
       if (catalog === "vehicle-types") {
         const body = { name: values.name.trim(), fuelType: values.fuelType, type: values.type };
@@ -157,9 +162,10 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
         else await createSubscriptionPlan(body);
       }
       setFormOpen(false);
+      notifySuccess(isEditing ? "Đã cập nhật thông tin." : "Đã thêm mới thành công.");
       await loadRecords();
     } catch (saveError) {
-      setError(messageOf(saveError, "Không thể lưu thay đổi."));
+      setError(validation.report(saveError));
     } finally {
       setSaving(false);
     }
@@ -167,14 +173,14 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
 
   const deleteRecord = async (record: CatalogRecord) => {
     if (!window.confirm(`Xóa "${record.values.name}"?`)) return;
-    setError("");
     try {
       if (catalog === "vehicle-types") await deleteVehicleType(record.id);
       else if (catalog === "subscription-plans") await deleteSubscriptionPlan(record.id);
       else return;
+      notifySuccess(`Đã xóa "${record.values.name}".`);
       await loadRecords();
     } catch (deleteError) {
-      setError(messageOf(deleteError, "Không thể xóa mục này."));
+      notifyApiError(deleteError, "Không thể xóa mục này.");
     }
   };
 
@@ -207,7 +213,6 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
       </div>
       <p className="text-sm text-ink-muted">{info.description}</p>
       {catalog === "policies" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
-      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="border-b border-line px-5 py-4">
@@ -256,25 +261,25 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="catalog-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-2xl">
             <div className="border-b border-line px-5 py-4 sm:px-6"><h3 id="catalog-dialog-title" className="font-bold text-ink">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3></div>
-            <form onSubmit={submitForm} className="space-y-4 p-5 sm:p-6">
+            <ValidatedForm validation={validation} onSubmit={submitForm} className="space-y-4 p-5 sm:p-6">
               {fieldsByCatalog[catalog].map((field) => (
                 <label key={field.key} htmlFor={`catalog-${field.key}`} className="block">
                   <span className="mb-2 block text-sm font-semibold text-ink">{field.label}</span>
                   {field.type === "textarea" ? (
-                    <textarea id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                    <InlineTextarea name={field.key} id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
                       setValues((current) => ({ ...current, [field.key]: value }));
                     }} rows={4} className="admin-input resize-y" />
                   ) : field.type === "select" ? (
-                    <select id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                    <InlineSelect name={field.key} id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
                       setValues((current) => ({ ...current, [field.key]: value }));
                     }} className="admin-input">
                       <option value="" disabled>Chọn {field.label.toLocaleLowerCase()}</option>
                       {(field.key === "vehicleTypeId" ? vehicleTypes.map((item) => ({ value: String(item.id), label: item.name ?? `Loại #${item.id}` })) : field.options ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                    </select>
+                    </InlineSelect>
                   ) : (
-                    <input id={`catalog-${field.key}`} type={field.type ?? "text"} min={field.type === "number" ? "0" : undefined} step={field.type === "number" ? "any" : undefined} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                    <InlineInput name={field.key} id={`catalog-${field.key}`} type={field.type ?? "text"} min={field.type === "number" ? "0" : undefined} step={field.type === "number" ? "any" : undefined} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
                       setValues((current) => ({ ...current, [field.key]: value }));
                     }} className="admin-input" />
@@ -286,7 +291,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
                 <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
-            </form>
+            </ValidatedForm>
           </section>
         </div>
       )}
@@ -325,8 +330,4 @@ function toPlanRecord(item: SubscriptionPlanDto): CatalogRecord {
       includedHours: item.includedHours === null ? "" : String(item.includedHours),
     },
   };
-}
-
-function messageOf(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
 }

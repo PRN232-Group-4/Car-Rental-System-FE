@@ -1,5 +1,7 @@
 "use client";
 
+import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import {
@@ -109,6 +111,7 @@ function LicenseEditForm({
   license?: CustomerLicense | null;
   queryClient: QueryClient;
 }) {
+  const validation = useInlineValidation();
   const [licenseNumber, setLicenseNumber] = useState(() => license?.number || "");
   const [licenseType, setLicenseType] = useState(() => license?.type || "B2");
   const [issueDate, setIssueDate] = useState(() => license?.issueDate || "");
@@ -122,10 +125,11 @@ function LicenseEditForm({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setStatusMessage({ text: "Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).", type: "error" });
+      validation.setField("imageUrl", "Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).");
       return;
     }
 
+    validation.clear("imageUrl");
     setSelectedFile(file);
     const objectUrl = URL.createObjectURL(file);
     setImagePreview(objectUrl);
@@ -162,12 +166,13 @@ function LicenseEditForm({
       });
     },
     onError: (err: Error) => {
-      setStatusMessage({ text: err.message || "Có lỗi xảy ra khi lưu thông tin GPLX.", type: "error" });
+      const message = validation.report(err, { number: "licenseNumber", type: "licenseType" });
+      setStatusMessage(message ? { text: message, type: "error" } : null);
     },
   });
 
   return (
-    <form
+    <ValidatedForm validation={validation} validate={() => expiryDate && new Date(expiryDate) < new Date() ? { expiryDate: "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." } : {}}
       onSubmit={(e) => {
         e.preventDefault();
         saveMutation.mutate();
@@ -200,7 +205,7 @@ function LicenseEditForm({
           <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Số GPLX / Mã số thẻ *
           </label>
-          <input
+          <InlineInput name="licenseNumber"
             type="text"
             required
             value={licenseNumber}
@@ -214,7 +219,7 @@ function LicenseEditForm({
           <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Hạng giấy phép *
           </label>
-          <select
+          <InlineSelect name="licenseType"
             value={licenseType}
             onChange={(e) => setLicenseType(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-semibold bg-white"
@@ -224,14 +229,14 @@ function LicenseEditForm({
             <option value="C">Hạng C (Xe tải, chuyên dùng)</option>
             <option value="A1">Hạng A1 (Mô tô hai bánh dưới 175cc)</option>
             <option value="A2">Hạng A2 (Mô tô hai bánh từ 175cc trở lên)</option>
-          </select>
+          </InlineSelect>
         </div>
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Ngày cấp *
           </label>
-          <input
+          <InlineInput name="issueDate"
             type="date"
             required
             value={issueDate}
@@ -244,7 +249,7 @@ function LicenseEditForm({
           <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Ngày hết hạn *
           </label>
-          <input
+          <InlineInput name="expiryDate"
             type="date"
             required
             value={expiryDate}
@@ -282,7 +287,7 @@ function LicenseEditForm({
             <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-neutral-300 hover:border-neutral-400 text-neutral-700 text-xs font-bold cursor-pointer shadow-xs transition-all">
               <Upload className="w-3.5 h-3.5 text-neutral-500" />
               <span>Chọn ảnh từ thiết bị</span>
-              <input
+              <InlineInput showError={false} name="imageUrl" id="customer-license-image"
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
@@ -296,6 +301,7 @@ function LicenseEditForm({
         </div>
       </div>
 
+      <InlineError name="imageUrl" inputId="customer-license-image" />
       {/* Action Button */}
       <div className="pt-4 border-t border-neutral-100 flex items-center justify-end">
         <button
@@ -316,6 +322,6 @@ function LicenseEditForm({
           )}
         </button>
       </div>
-    </form>
+    </ValidatedForm>
   );
 }

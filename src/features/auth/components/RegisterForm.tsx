@@ -1,5 +1,7 @@
 "use client";
 
+import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,6 +27,7 @@ import { ApiClientError } from "@/api/api-client";
 type Step = "form" | "otp" | "success";
 
 export default function RegisterForm() {
+  const validation = useInlineValidation();
   const router = useRouter();
 
   // Step state
@@ -62,6 +65,7 @@ export default function RegisterForm() {
 
   // Quick fill sample for fast testing
   const handleQuickFill = () => {
+    validation.reset();
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     setFullName("Nguyễn Văn An");
     setEmail(`khachhang${randomSuffix}@example.com`);
@@ -79,31 +83,6 @@ export default function RegisterForm() {
     const cleanFullName = fullName.trim();
     const cleanEmail = email.trim();
 
-    if (!cleanFullName || cleanFullName.length < 2) {
-      setErrorMessage("Vui lòng nhập họ và tên hợp lệ (tối thiểu 2 ký tự).");
-      return;
-    }
-    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      setErrorMessage("Vui lòng nhập địa chỉ email hợp lệ.");
-      return;
-    }
-    if (!password) {
-      setErrorMessage("Vui lòng nhập mật khẩu.");
-      return;
-    }
-    if (password.length < 6) {
-      setErrorMessage("Mật khẩu yêu cầu tối thiểu 6 ký tự.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setErrorMessage("Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại.");
-      return;
-    }
-    if (!agreeTerms) {
-      setErrorMessage("Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật để tiếp tục.");
-      return;
-    }
-
     setSubmitting(true);
     try {
       await startRegistration({
@@ -116,6 +95,7 @@ export default function RegisterForm() {
       setResendCooldown(60);
       setSuccessMessage(`Mã xác thực đã được gửi tới ${cleanEmail}. Vui lòng kiểm tra hộp thư.`);
     } catch (err: unknown) {
+      if (!validation.report(err)) return;
       if (err instanceof ApiClientError) {
         if (typeof err.data === "object" && err.data !== null && "detail" in err.data) {
           setErrorMessage(String((err.data as { detail: unknown }).detail));
@@ -138,11 +118,6 @@ export default function RegisterForm() {
     setErrorMessage(null);
 
     const cleanOtp = otp.trim();
-    if (!cleanOtp || cleanOtp.length !== 6) {
-      setErrorMessage("Vui lòng nhập chính xác mã OTP gồm 6 chữ số.");
-      return;
-    }
-
     setSubmitting(true);
     try {
       await verifyRegistration({
@@ -152,6 +127,7 @@ export default function RegisterForm() {
 
       setStep("success");
     } catch (err: unknown) {
+      if (!validation.report(err)) return;
       if (err instanceof ApiClientError) {
         if (typeof err.data === "object" && err.data !== null && "detail" in err.data) {
           setErrorMessage(String((err.data as { detail: unknown }).detail));
@@ -178,6 +154,7 @@ export default function RegisterForm() {
       setResendCooldown(60);
       setSuccessMessage("Mã OTP mới đã được gửi lại tới email của bạn.");
     } catch (err: unknown) {
+      if (!validation.report(err)) return;
       if (err instanceof ApiClientError) {
         setErrorMessage(err.message || "Không thể gửi lại mã OTP lúc này.");
       } else {
@@ -290,7 +267,13 @@ export default function RegisterForm() {
 
         {/* STEP 1: Registration Form */}
         {step === "form" && (
-          <form onSubmit={handleSubmitForm} className="space-y-4">
+          <ValidatedForm validation={validation} validate={() => ({
+     ...(fullName.trim().length < 2 ? { fullName: "Vui lòng nhập họ và tên hợp lệ (tối thiểu 2 ký tự)." } : {}),
+     ...(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? { email: "Vui lòng nhập địa chỉ email hợp lệ." } : {}),
+     ...(password.length < 6 ? { password: "Mật khẩu yêu cầu tối thiểu 6 ký tự." } : {}),
+     ...(password !== confirmPassword ? { confirmPassword: "Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại." } : {}),
+     ...(!agreeTerms ? { agreeTerms: "Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật để tiếp tục." } : {}),
+   })} onSubmit={handleSubmitForm} className="space-y-4">
             {/* Full Name */}
             <div>
               <label
@@ -303,7 +286,7 @@ export default function RegisterForm() {
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                   <User className="w-4 h-4" />
                 </div>
-                <input
+                <InlineInput showError={false} name="fullName"
                   id="register-fullname"
                   type="text"
                   required
@@ -314,6 +297,7 @@ export default function RegisterForm() {
                   autoComplete="name"
                 />
               </div>
+              <InlineError name="fullName" inputId="register-fullname" />
             </div>
 
             {/* Email field */}
@@ -328,7 +312,7 @@ export default function RegisterForm() {
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                   <Mail className="w-4 h-4" />
                 </div>
-                <input
+                <InlineInput showError={false} name="email"
                   id="register-email"
                   type="email"
                   required
@@ -339,6 +323,7 @@ export default function RegisterForm() {
                   autoComplete="email"
                 />
               </div>
+              <InlineError name="email" inputId="register-email" />
             </div>
 
             {/* Password field */}
@@ -353,7 +338,7 @@ export default function RegisterForm() {
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                   <Lock className="w-4 h-4" />
                 </div>
-                <input
+                <InlineInput showError={false} name="password"
                   id="register-password"
                   type={showPassword ? "text" : "password"}
                   required
@@ -372,6 +357,7 @@ export default function RegisterForm() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              <InlineError name="password" inputId="register-password" />
             </div>
 
             {/* Confirm Password field */}
@@ -386,7 +372,7 @@ export default function RegisterForm() {
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                   <Lock className="w-4 h-4" />
                 </div>
-                <input
+                <InlineInput showError={false} name="confirmPassword"
                   id="register-confirm-password"
                   type={showConfirmPassword ? "text" : "password"}
                   required
@@ -405,11 +391,12 @@ export default function RegisterForm() {
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              <InlineError name="confirmPassword" inputId="register-confirm-password" />
             </div>
 
             {/* Terms checkbox */}
             <div className="flex items-start gap-2.5 pt-1">
-              <input
+              <InlineInput showError={false} name="agreeTerms"
                 id="register-terms"
                 type="checkbox"
                 checked={agreeTerms}
@@ -423,6 +410,7 @@ export default function RegisterForm() {
               </label>
             </div>
 
+            <InlineError name="agreeTerms" inputId="register-terms" />
             {/* Submit button */}
             <button
               type="submit"
@@ -441,12 +429,12 @@ export default function RegisterForm() {
                 </>
               )}
             </button>
-          </form>
+          </ValidatedForm>
         )}
 
         {/* STEP 2: OTP Verification Form */}
         {step === "otp" && (
-          <form onSubmit={handleSubmitOtp} className="space-y-5 animate-in fade-in duration-300">
+          <ValidatedForm validation={validation} validate={() => /^\d{6}$/.test(otp.trim()) ? {} : { otp: "Vui lòng nhập chính xác mã OTP gồm 6 chữ số." }} onSubmit={handleSubmitOtp} className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 text-center">
               <KeyRound className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
               <p className="text-xs text-neutral-500">Mã xác thực 6 số đã được gửi tới:</p>
@@ -460,7 +448,7 @@ export default function RegisterForm() {
               >
                 Nhập mã OTP (6 chữ số)
               </label>
-              <input
+              <InlineInput name="otp"
                 id="register-otp"
                 type="text"
                 required
@@ -472,7 +460,7 @@ export default function RegisterForm() {
                 autoComplete="one-time-code"
                 autoFocus
               />
-            </div>
+              </div>
 
             <div className="flex items-center justify-between text-xs px-1">
               <button
@@ -515,7 +503,7 @@ export default function RegisterForm() {
                 </>
               )}
             </button>
-          </form>
+          </ValidatedForm>
         )}
 
         {/* STEP 3: Success State */}

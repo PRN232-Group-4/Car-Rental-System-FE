@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
+import { InlineError, InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -17,6 +18,7 @@ import {
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
+import { notifySuccess } from "@/components/ui/Toaster";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -94,6 +96,7 @@ export default function VehicleForm() {
   const [uploading, setUploading] = useState(false);
   const [imageDragActive, setImageDragActive] = useState(false);
   const [error, setError] = useState("");
+  const validation = useInlineValidation();
   const isEditing = vehicleId !== null;
   const selectedVehicleType = vehicleTypes.find(
     (item) => String(item.id) === draft.vehicleTypeId,
@@ -158,10 +161,11 @@ export default function VehicleForm() {
   const uploadFiles = async (files: File[]) => {
     if (files.length === 0) return;
     if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
-      setError("Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
+      validation.setField("vehicleImage", "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
       return;
     }
     setUploading(true);
+    validation.clear("vehicleImage");
     setError("");
     try {
       for (const file of files) {
@@ -175,7 +179,7 @@ export default function VehicleForm() {
           : { ...current, mainImageUrl: imageUrl });
       }
     } catch (uploadError) {
-      setError(messageOf(uploadError, "Không thể tải ảnh lên."));
+      validation.setField("vehicleImage", messageOf(uploadError, "Không thể tải ảnh lên."));
     } finally {
       setUploading(false);
     }
@@ -206,14 +210,6 @@ export default function VehicleForm() {
       return;
     }
     const vehicleTypeId = Number(draft.vehicleTypeId);
-    if (!Number.isInteger(vehicleTypeId) || !vehicleTypes.some((item) => item.id === vehicleTypeId)) {
-      setError("Vui lòng chọn một loại phương tiện hợp lệ.");
-      return;
-    }
-    if (!vehicleKind.isValid) {
-      setError("Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu.");
-      return;
-    }
     setSaving(true);
     setError("");
     const detail = {
@@ -249,9 +245,10 @@ export default function VehicleForm() {
     try {
       if (vehicleId !== null) await updateVehicle(vehicleId, body);
       else await createVehicle(body);
+      notifySuccess(vehicleId !== null ? "Đã cập nhật phương tiện." : "Đã thêm phương tiện mới.");
       router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(messageOf(saveError, "Không thể lưu phương tiện."));
+      setError(validation.report(saveError));
     } finally {
       setSaving(false);
     }
@@ -280,23 +277,29 @@ export default function VehicleForm() {
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-red-700">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
-      <form onSubmit={submit} className="space-y-6">
+      <ValidatedForm validation={validation} validate={() => {
+        const typeId = Number(draft.vehicleTypeId);
+        if (!Number.isInteger(typeId) || !vehicleTypes.some((item) => item.id === typeId)) {
+          return { vehicleTypeId: "Vui lòng chọn một loại phương tiện hợp lệ." };
+        }
+        return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
+      }} onSubmit={submit} className="space-y-6">
         <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
           <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông tin phương tiện</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><select id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</select></Field>
-            <Field label="Chi nhánh" htmlFor="facilityId"><select id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-            <Field label="Biển số" htmlFor="licensePlate"><input id="licensePlate" name="licensePlate" maxLength={255} value={draft.licensePlate} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Hãng xe" htmlFor="brand"><input id="brand" name="brand" required value={draft.brand} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Dòng xe / mẫu xe" htmlFor="model"><input id="model" name="model" required value={draft.model} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Màu sắc" htmlFor="color"><input id="color" name="color" value={draft.color} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Năm sản xuất" htmlFor="yearOfManufacture"><input id="yearOfManufacture" name="yearOfManufacture" type="number" min="1990" max="2035" value={draft.yearOfManufacture} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Trạng thái" htmlFor="status"><select id="status" name="status" required value={draft.status} onChange={updateDraft} className="admin-input">{statuses.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></Field>
-            <Field label="Vị trí hiện tại" htmlFor="location"><input id="location" name="location" value={draft.location} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Giá thuê theo giờ (₫)" htmlFor="hourlyPrice"><input id="hourlyPrice" name="hourlyPrice" type="number" min="0" step="1000" value={draft.hourlyPrice} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Giá thuê dài hạn (₫)" htmlFor="longtermPrice"><input id="longtermPrice" name="longtermPrice" type="number" min="0" step="100000" value={draft.longtermPrice} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
+            <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>
+            <Field label="Biển số" htmlFor="licensePlate"><InlineInput id="licensePlate" name="licensePlate" maxLength={255} value={draft.licensePlate} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Hãng xe" htmlFor="brand"><InlineInput id="brand" name="brand" required value={draft.brand} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Dòng xe / mẫu xe" htmlFor="model"><InlineInput id="model" name="model" required value={draft.model} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Màu sắc" htmlFor="color"><InlineInput id="color" name="color" value={draft.color} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Năm sản xuất" htmlFor="yearOfManufacture"><InlineInput id="yearOfManufacture" name="yearOfManufacture" type="number" min="1990" max="2035" value={draft.yearOfManufacture} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Trạng thái" htmlFor="status"><InlineSelect id="status" name="status" required value={draft.status} onChange={updateDraft} className="admin-input">{statuses.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</InlineSelect></Field>
+            <Field label="Vị trí hiện tại" htmlFor="location"><InlineInput id="location" name="location" value={draft.location} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Giá thuê theo giờ (₫)" htmlFor="hourlyPrice"><InlineInput id="hourlyPrice" name="hourlyPrice" type="number" min="0" step="1000" value={draft.hourlyPrice} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Giá thuê dài hạn (₫)" htmlFor="longtermPrice"><InlineInput id="longtermPrice" name="longtermPrice" type="number" min="0" step="100000" value={draft.longtermPrice} onChange={updateDraft} className="admin-input" /></Field>
           </div>
-          <div className="mt-5"><Field label="Mô tả" htmlFor="description"><textarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
+          <div className="mt-5"><Field label="Mô tả" htmlFor="description"><InlineTextarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
         </section>
 
         <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
@@ -304,24 +307,24 @@ export default function VehicleForm() {
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             {vehicleKind.isCar && (
               <>
-                <Field label="Số chỗ ngồi" htmlFor="seatCount"><input id="seatCount" name="seatCount" type="number" min="1" value={draft.seatCount} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Hộp số" htmlFor="transmission"><input id="transmission" name="transmission" value={draft.transmission} onChange={updateDraft} placeholder="Tự động / Số sàn" className="admin-input" /></Field>
-                <Field label="Dung tích cốp (lít)" htmlFor="trunkCapacity"><input id="trunkCapacity" name="trunkCapacity" type="number" min="0" value={draft.trunkCapacity} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Số chỗ ngồi" htmlFor="seatCount"><InlineInput id="seatCount" name="seatCount" type="number" min="1" value={draft.seatCount} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Hộp số" htmlFor="transmission"><InlineInput id="transmission" name="transmission" value={draft.transmission} onChange={updateDraft} placeholder="Tự động / Số sàn" className="admin-input" /></Field>
+                <Field label="Dung tích cốp (lít)" htmlFor="trunkCapacity"><InlineInput id="trunkCapacity" name="trunkCapacity" type="number" min="0" value={draft.trunkCapacity} onChange={updateDraft} className="admin-input" /></Field>
               </>
             )}
             {vehicleKind.isMotorbike && (
               <>
-                <Field label="Loại xe máy" htmlFor="bikeType"><input id="bikeType" name="bikeType" value={draft.bikeType} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Có cốp chứa đồ" htmlFor="hasStorageBox"><select id="hasStorageBox" name="hasStorageBox" value={draft.hasStorageBox} onChange={updateDraft} className="admin-input"><option value="false">Không</option><option value="true">Có</option></select></Field>
+                <Field label="Loại xe máy" htmlFor="bikeType"><InlineInput id="bikeType" name="bikeType" value={draft.bikeType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Có cốp chứa đồ" htmlFor="hasStorageBox"><InlineSelect id="hasStorageBox" name="hasStorageBox" value={draft.hasStorageBox} onChange={updateDraft} className="admin-input"><option value="false">Không</option><option value="true">Có</option></InlineSelect></Field>
               </>
             )}
             {vehicleKind.isElectric && (
               <>
-                <Field label="Dung lượng pin" htmlFor="batteryCapacity"><input id="batteryCapacity" name="batteryCapacity" value={draft.batteryCapacity} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Loại pin" htmlFor="batteryType"><input id="batteryType" name="batteryType" value={draft.batteryType} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Chuẩn sạc" htmlFor="chargingType"><input id="chargingType" name="chargingType" value={draft.chargingType} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Thời gian sạc (giờ)" htmlFor="chargingTimeHours"><input id="chargingTimeHours" name="chargingTimeHours" value={draft.chargingTimeHours} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><input id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Dung lượng pin" htmlFor="batteryCapacity"><InlineInput id="batteryCapacity" name="batteryCapacity" value={draft.batteryCapacity} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Loại pin" htmlFor="batteryType"><InlineInput id="batteryType" name="batteryType" value={draft.batteryType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Chuẩn sạc" htmlFor="chargingType"><InlineInput id="chargingType" name="chargingType" value={draft.chargingType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Thời gian sạc (giờ)" htmlFor="chargingTimeHours"><InlineInput id="chargingTimeHours" name="chargingTimeHours" value={draft.chargingTimeHours} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><InlineInput id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
               </>
             )}
             {!draft.vehicleTypeId && <p className="text-sm text-ink-muted sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
@@ -332,7 +335,7 @@ export default function VehicleForm() {
           <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Hình ảnh</h3>
           <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
             <div className="space-y-4">
-              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-line text-sm file:mr-4 file:border-0 file:bg-primary/10 file:px-4 file:py-3 file:font-semibold file:text-primary" /></Field>
+              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-line text-sm file:mr-4 file:border-0 file:bg-primary/10 file:px-4 file:py-3 file:font-semibold file:text-primary" /><InlineError name="vehicleImage" /></Field>
               {uploading && <p role="status" className="text-sm text-ink-muted">Đang tải ảnh lên...</p>}
             </div>
             <div
@@ -397,7 +400,7 @@ export default function VehicleForm() {
           <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>
           <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </div>
-      </form>
+      </ValidatedForm>
     </div>
   );
 }
