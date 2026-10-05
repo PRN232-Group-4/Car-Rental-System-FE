@@ -1,5 +1,7 @@
 "use client";
 
+import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -71,6 +73,7 @@ export default function LoginForm() {
   const { login, user, isLoading: authLoading, isAuthenticated } = useAuth();
   const googleStatus = searchParams.get("google");
   const registeredEmail = searchParams.get("registered");
+  const validation = useInlineValidation();
   const [email, setEmail] = useState(() => registeredEmail || "");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -115,6 +118,7 @@ export default function LoginForm() {
   );
 
   const handleSelectDemo = (account: DemoAccount) => {
+    validation.reset();
     setEmail(account.email);
     setPassword(account.pass);
     setErrorMessage(null);
@@ -126,19 +130,6 @@ export default function LoginForm() {
     setSuccessMessage(null);
 
     const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      setErrorMessage("Vui lòng nhập địa chỉ email của bạn.");
-      return;
-    }
-    if (!password) {
-      setErrorMessage("Vui lòng nhập mật khẩu.");
-      return;
-    }
-    if (password.length < 12) {
-      setErrorMessage("Mật khẩu tài khoản yêu cầu tối thiểu 12 ký tự theo chuẩn an toàn.");
-      return;
-    }
-
     setSubmitting(true);
     try {
       const user = await login({
@@ -162,6 +153,7 @@ export default function LoginForm() {
         router.push(destination);
       }, 1000);
     } catch (err: unknown) {
+      if (!validation.report(err)) return;
       if (err instanceof ApiClientError) {
         if (typeof err.data === "object" && err.data !== null && "detail" in err.data) {
           setErrorMessage(String((err.data as { detail: unknown }).detail));
@@ -243,7 +235,7 @@ export default function LoginForm() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <ValidatedForm validation={validation} validate={() => password.length < 12 ? { password: "Mật khẩu tài khoản yêu cầu tối thiểu 12 ký tự theo chuẩn an toàn." } : {}} onSubmit={handleSubmit} className="space-y-4">
           {/* Email field */}
           <div>
             <label
@@ -256,7 +248,7 @@ export default function LoginForm() {
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                 <Mail className="w-4 h-4" />
               </div>
-              <input
+              <InlineInput showError={false} name="email"
                 id="login-email"
                 type="email"
                 required
@@ -266,7 +258,8 @@ export default function LoginForm() {
                 className="w-full pl-10 pr-4 py-3 bg-white/70 hover:bg-white focus:bg-white text-neutral-900 text-sm rounded-xl border border-neutral-300/80 focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/15 outline-none transition-all duration-200 placeholder:text-neutral-400"
                 autoComplete="email"
               />
-            </div>
+              </div>
+              <InlineError name="email" inputId="login-email" />
           </div>
 
           {/* Password field */}
@@ -289,7 +282,7 @@ export default function LoginForm() {
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                 <Lock className="w-4 h-4" />
               </div>
-              <input
+              <InlineInput showError={false} name="password"
                 id="login-password"
                 type={showPassword ? "text" : "password"}
                 required
@@ -299,7 +292,7 @@ export default function LoginForm() {
                 className="w-full pl-10 pr-11 py-3 bg-white/70 hover:bg-white focus:bg-white text-neutral-900 text-sm rounded-xl border border-neutral-300/80 focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/15 outline-none transition-all duration-200 placeholder:text-neutral-400"
                 autoComplete="current-password"
               />
-              <button
+                <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-400 hover:text-neutral-600 cursor-pointer"
@@ -308,6 +301,7 @@ export default function LoginForm() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+              <InlineError name="password" inputId="login-password" />
             <div className="flex items-center justify-between mt-1 px-1">
               <span className="text-xs text-neutral-400">
                 Tiêu chuẩn an toàn: tối thiểu 12 ký tự
@@ -327,7 +321,7 @@ export default function LoginForm() {
           {/* Remember me checkbox */}
           <div className="flex items-center justify-between pt-1">
             <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
+              <InlineInput name="rememberMe"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
@@ -355,7 +349,7 @@ export default function LoginForm() {
               </>
             )}
           </button>
-        </form>
+        </ValidatedForm>
 
         {/* Divider */}
         <div className="relative my-6">

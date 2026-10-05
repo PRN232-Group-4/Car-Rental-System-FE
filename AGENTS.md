@@ -7,3 +7,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Quy tắc bắt buộc: lỗi biểu mẫu
+
+- Mọi form được tạo hoặc chỉnh sửa phải hiển thị lỗi ngay dưới trường input/select/textarea hoặc vùng upload tương ứng, với thông báo tiếng Việt rõ ràng và cách sửa.
+- Không chỉ dùng toast, banner hoặc popup validation trình duyệt cho lỗi thuộc một trường. Lỗi mạng, quyền truy cập và lỗi không xác định được trường hiển thị ở vùng lỗi chung.
+- Validate trước khi gửi, hiển thị tất cả lỗi và focus trường lỗi đầu tiên. Không tự thêm ràng buộc nghiệp vụ ngoài spec/API.
+- Ánh xạ lỗi validation backend (ProblemDetails.errors, PascalCase/camelCase, đường dẫn lồng nhau) về đúng trường; giữ lỗi không ánh xạ được trong vùng lỗi chung.
+- Khi sửa trường, xóa hoặc validate lại lỗi của chính trường đó; giữ dữ liệu và lỗi của các trường khác.
+- Dùng aria-invalid, aria-describedby liên kết tới thông báo có id ổn định, dấu hiệu trực quan và role="alert" hoặc aria-live.
+- Kiểm tra trường bắt buộc, định dạng/khoảng giá trị, lỗi API và lỗi mạng khi thay đổi form.
+- Ưu tiên tái sử dụng `src/components/forms/inline-validation.tsx` (`useInlineValidation`, `ValidatedForm`, `InlineInput/InlineSelect/InlineTextarea`). Mỗi form độc lập dùng một validation riêng; lỗi nghiệp vụ nhiều trường truyền qua `validate`, lỗi API dùng `report`, lỗi upload dùng `setField` để giữ lỗi của các trường khác.

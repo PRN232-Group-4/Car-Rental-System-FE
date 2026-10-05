@@ -57,14 +57,6 @@ export class ApiClientError extends Error {
       message = data;
     }
 
-    if (typeof console !== "undefined" && typeof console.error === "function") {
-      console.error(`[ApiClientError] HTTP ${status} ${statusText}: ${message}`, {
-        status,
-        statusText,
-        data,
-      });
-    }
-
     super(message);
     this.name = "ApiClientError";
     this.status = status;

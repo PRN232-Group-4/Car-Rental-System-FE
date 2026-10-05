@@ -19,7 +19,8 @@ import {
 } from "./api";
 import type { OrganizationUnitDto, StaffDto } from "./api";
 import { useAuth } from "@/features/auth";
-import { errorMessage, notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toaster";
+import { notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toaster";
+import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
 type Row = {
@@ -59,6 +60,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const validation = useInlineValidation();
 
   const load = useCallback(async () => {
     setError("");
@@ -182,6 +184,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       });
     }
     setError("");
+    validation.reset();
     setFormOpen(true);
   };
 
@@ -226,9 +229,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       notifySuccess(isEditing ? "Đã cập nhật thông tin." : "Đã thêm mới thành công.");
       await load();
     } catch (submitError) {
-      const msg = errorMessage(submitError, "Không thể lưu thay đổi.");
-      setError(msg);
-      notifyError(msg);
+      setError(validation.report(submitError));
     } finally {
       setSaving(false);
     }
@@ -341,22 +342,22 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={submit} className="p-5">
+            <ValidatedForm validation={validation} onSubmit={submit} className="p-5">
               <div className={`grid gap-x-4 gap-y-2.5 ${directory === "staffs" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
                 {fields.map((field) => (
                   <div key={field.key} className={directory !== "staffs" ? "sm:col-span-2" : ""}>
                     <label className="block text-xs font-semibold text-ink">
                       <span className="mb-1 block">{field.label}</span>
                       {field.type === "department" || field.type === "facility" ? (
-                        <select className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? ""} onChange={(event) => {
+                        <InlineSelect name={field.key} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? ""} onChange={(event) => {
                           const value = event.currentTarget.value;
                           setValues((current) => ({ ...current, [field.key]: value }));
                         }}>
                           <option value="">Chưa phân công</option>
                           {(field.type === "department" ? departments : facilities).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                        </select>
+                        </InlineSelect>
                       ) : field.type === "staffRole" ? (
-                        <select className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? "CustomerService"} onChange={(event) => {
+                        <InlineSelect name={field.key} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? "CustomerService"} onChange={(event) => {
                           const role = event.currentTarget.value;
                           setValues((current) => ({
                             ...current,
@@ -366,9 +367,9 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                           <option value="CustomerService">Chăm sóc khách hàng (Customer Service)</option>
                           <option value="Driver">Tài xế (Driver)</option>
                           <option value="Maintenance">Kỹ thuật viên (Maintenance)</option>
-                        </select>
+                        </InlineSelect>
                       ) : (
-                        <input type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                        <InlineInput name={field.key} type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                           const value = event.currentTarget.value;
                           setValues((current) => ({ ...current, [field.key]: value }));
                         }} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" />
@@ -382,7 +383,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                 <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
-            </form>
+            </ValidatedForm>
           </section>
         </div>
       )}

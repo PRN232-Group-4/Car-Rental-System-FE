@@ -1,5 +1,7 @@
 "use client";
 
+import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
 import Link from "next/link";
@@ -58,6 +60,8 @@ export default function ProfileManager() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const validation = useInlineValidation();
+  const profileValidation = useInlineValidation();
   const [fileError, setFileError] = useState("");
   const [profileSaved, setProfileSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,16 +131,17 @@ export default function ProfileManager() {
 
     if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
       setSelectedFile(null);
-      setFileError("Vui lòng chọn ảnh JPG, PNG hoặc WEBP.");
+      validation.setField("imageUrl", "Vui lòng chọn ảnh JPG, PNG hoặc WEBP.");
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
       setSelectedFile(null);
-      setFileError("Tệp vượt quá 10 MB. Vui lòng chọn tệp nhỏ hơn.");
+      validation.setField("imageUrl", "Tệp vượt quá 10 MB. Vui lòng chọn tệp nhỏ hơn.");
       return;
     }
 
+    validation.clear("imageUrl");
     setSelectedFile(file);
     setFileError("");
   };
@@ -179,7 +184,7 @@ export default function ProfileManager() {
       setSelectedFile(null);
       setIsPending(isPendingStatus(status));
     } catch (submitError) {
-      setFileError(messageOf(submitError, "Không thể gửi giấy phép để xét duyệt."));
+      setFileError(validation.report(submitError, { number: "licenseNumber", type: "licenseType" }));
     } finally {
       setIsSubmittingLicense(false);
     }
@@ -204,7 +209,7 @@ export default function ProfileManager() {
       }));
       setProfileSaved(true);
     } catch (saveError) {
-      setPageError(messageOf(saveError, "Không thể lưu thông tin hồ sơ."));
+      setPageError(profileValidation.report(saveError));
     } finally {
       setIsSavingProfile(false);
     }
@@ -301,9 +306,9 @@ export default function ProfileManager() {
               </div>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-5">
+            <ValidatedForm validation={profileValidation} onSubmit={handleSaveProfile} className="space-y-5">
               <FormField label="Họ và tên" htmlFor="fullName" icon={<UserRound className="h-4 w-4" />}>
-                <input
+                <InlineInput
                   id="fullName"
                   name="fullName"
                   value={details.fullName}
@@ -315,7 +320,7 @@ export default function ProfileManager() {
                 />
               </FormField>
               <FormField label="Email" htmlFor="email" icon={<Mail className="h-4 w-4" />}>
-                <input
+                <InlineInput
                   id="email"
                   name="email"
                   type="email"
@@ -332,7 +337,7 @@ export default function ProfileManager() {
               <p id="email-readonly-help" className="-mt-3 text-xs text-slate-500">Email tài khoản không thể thay đổi qua API hồ sơ.</p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <FormField label="Số điện thoại" htmlFor="phone" icon={<Phone className="h-4 w-4" />}>
-                  <input
+                  <InlineInput
                     id="phone"
                     name="phone"
                     type="tel"
@@ -345,12 +350,12 @@ export default function ProfileManager() {
                   />
                 </FormField>
                 <FormField label="Giới tính" htmlFor="gender" icon={<UserRound className="h-4 w-4" />}>
-                  <select id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
                     <option value="">Chọn giới tính</option>
                     <option value="Male">Nam</option>
                     <option value="Female">Nữ</option>
                     <option value="Other">Khác</option>
-                  </select>
+                  </InlineSelect>
                 </FormField>
               </div>
               <div className="flex flex-col items-start justify-between gap-3 border-t border-slate-200/70 pt-5 sm:flex-row sm:items-center">
@@ -365,7 +370,7 @@ export default function ProfileManager() {
                   {isSavingProfile ? "Đang lưu..." : "Lưu thông tin"}
                 </button>
               </div>
-            </form>
+            </ValidatedForm>
           </section>
 
           <div className="space-y-6">
@@ -380,12 +385,12 @@ export default function ProfileManager() {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit}>
+              <ValidatedForm validation={validation} validate={() => !selectedFile && !licenseImageUrl ? { imageUrl: "Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt." } : {}} onSubmit={handleSubmit}>
                 <div className="mb-5 grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm font-semibold text-slate-700">Số giấy phép lái xe<input name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-slate-700">Hạng giấy phép<input name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-slate-700">Ngày cấp<input name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-slate-700">Ngày hết hạn<input name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Số giấy phép lái xe<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Hạng giấy phép<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Ngày cấp<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-slate-700">Ngày hết hạn<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
                 </div>
                 <label
                   htmlFor="license-file"
@@ -401,7 +406,7 @@ export default function ProfileManager() {
                       : "border-slate-300 bg-white/50 hover:border-primary/50 hover:bg-primary/5"
                   }`}
                 >
-                  <input
+                  <InlineInput showError={false} name="imageUrl"
                     ref={fileInputRef}
                     id="license-file"
                     type="file"
@@ -418,6 +423,7 @@ export default function ProfileManager() {
                   <span className="mt-2 text-xs text-slate-500">JPG, PNG hoặc WEBP · Tối đa 10 MB</span>
                 </label>
 
+                <InlineError name="imageUrl" inputId="license-file" />
                 {(selectedFile || licenseImageUrl) && (
                   <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/70 p-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -465,7 +471,7 @@ export default function ProfileManager() {
                   {isSubmittingLicense ? <Clock3 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
                   {isSubmittingLicense ? "Đang gửi..." : hasPendingStatus ? "Đang chờ phê duyệt" : "Gửi giấy phép để xét duyệt"}
                 </button>
-              </form>
+              </ValidatedForm>
             </section>
 
             <aside className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-5">
