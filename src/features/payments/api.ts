@@ -1,6 +1,11 @@
 import { defaultApiClient, isMockMode } from "@/api/default-api-client";
 import { PaymentSummary } from "./types";
 
+export interface CheckoutCancellation {
+  orderCode: number | string;
+  status: string;
+}
+
 const MOCK_PAYMENTS: PaymentSummary[] = [
   {
     id: 1,
@@ -39,6 +44,22 @@ const MOCK_PAYMENTS: PaymentSummary[] = [
     createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
   },
 ];
+
+/**
+ * Xác minh với BE (BE hỏi lại payOS) rồi mới đánh dấu giao dịch 'cancelled'. payOS không gửi
+ * webhook khi khách huỷ link thanh toán nên đây là bước bắt buộc để hoá đơn/gói không treo ở
+ * trạng thái chờ. Trả null khi không huỷ được (BE cũ chưa có endpoint, hoặc link vẫn hiệu lực).
+ */
+export async function cancelCheckout(orderCode: number | string): Promise<CheckoutCancellation | null> {
+  try {
+    return await defaultApiClient.post<CheckoutCancellation>(
+      `payments/checkouts/${orderCode}/cancel`,
+    );
+  } catch (err) {
+    if (!isMockMode) console.warn("[Payments API] Cancel checkout warning:", err);
+    return null;
+  }
+}
 
 export function mapPaymentFromBE(raw: Record<string, unknown>): PaymentSummary {
   return {

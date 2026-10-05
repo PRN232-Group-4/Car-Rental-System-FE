@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth";
-import { getAccountProfile } from "@/features/profile/api";
-import type { AccountProfile } from "@/features/profile/api";
 import { getFacilities, getStaffById } from "./api";
-import type { StaffDto } from "./api";
 import {
   Bell,
   Building2,
@@ -17,7 +13,6 @@ import {
   CircleUserRound,
   KeyRound,
   LayoutDashboard,
-  LogIn,
   LogOut,
   Menu,
   ReceiptText,
@@ -26,6 +21,9 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
+import { useAuth } from "@/features/auth";
+import { usePortalAccess } from "@/features/auth/use-portal-access";
+import { initialsFor, isAdminOrStaffAccount } from "@/features/profile/api";
 
 const navigation = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
@@ -47,39 +45,40 @@ const navigation = [
 export default function StaffShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [account, setAccount] = useState<AccountProfile | null>(null);
-  const [staff, setStaff] = useState<StaffDto | null>(null);
+  const { account, checkingAccess, accessError } = usePortalAccess(isAdminOrStaffAccount);
+  const [staffRole, setStaffRole] = useState<string | null>(null);
   const [facilityName, setFacilityName] = useState<string | null>(null);
-  const [profileError, setProfileError] = useState("");
   const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
 
+  // usePortalAccess chỉ trả account; chức danh + tên cơ sở phải lấy thêm.
   useEffect(() => {
-    if (authLoading || !isAuthenticated) return;
+    if (!account) return;
     let active = true;
-    const loadProfile = async () => {
-      try {
-        const profile = await getAccountProfile();
-        let staffProfile: StaffDto | null = null;
-        let assignedFacilityName: string | null = null;
 
-        if (profile.staffId != null) {
-          staffProfile = await getStaffById(profile.staffId);
-          assignedFacilityName = staffProfile.facilityName;
+    const loadAssignment = async () => {
+      try {
+        let nextStaffRole: string | null = null;
+        let nextFacilityName: string | null = null;
+
+        if (account.staffId != null) {
+          const staff = await getStaffById(account.staffId);
+          nextStaffRole = staff.staffRole;
+          nextFacilityName = staff.facilityName;
         }
 
-        if (!assignedFacilityName && profile.facilityId != null) {
+        if (!nextFacilityName && account.facilityId != null) {
           const facilities = await getFacilities();
-          assignedFacilityName =
-            facilities.find((facility) => facility.id === profile.facilityId)?.name ?? null;
+          nextFacilityName =
+            facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
         }
 
         if (active) {
-          setAccount(profile);
-          setStaff(staffProfile);
-          setFacilityName(assignedFacilityName);
+          setStaffRole(nextStaffRole);
+          setFacilityName(nextFacilityName);
           setProfileError("");
         }
       } catch (error) {
@@ -89,46 +88,30 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           );
         }
       } finally {
-        if (active) {
-          setProfileLoading(false);
-        }
+        if (active) setProfileLoading(false);
       }
     };
 
-    void loadProfile();
+    void loadAssignment();
     return () => {
       active = false;
     };
-  }, [authLoading, isAuthenticated]);
+  }, [account]);
 
   const currentPage =
     navigation.find((item) => item.href === pathname)?.label ??
     (pathname === "/admin/vehicles/new" || pathname.endsWith("/edit")
       ? "Quản lý phương tiện"
       : "Tổng quan");
-  const displayName = isAuthenticated
-    ? account?.fullName || staff?.fullName || "Tài khoản quản trị"
-    : "Chưa đăng nhập";
-  const initials = displayName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(-2)
-    .map((part) => part[0])
-    .join("")
-    .toLocaleUpperCase();
-  const jobTitle =
-    isAuthenticated
-      ? staff?.staffRole ||
-        account?.departmentName ||
-        account?.roles?.filter(Boolean).join(", ") ||
-        "Nhân viên"
-      : "Đăng nhập để tiếp tục";
+  const displayName = account?.fullName || "Tài khoản quản trị";
+  const initials = useMemo(() => initialsFor(account?.fullName), [account?.fullName]);
+  const jobTitle = staffRole || account?.departmentName || "Nhân viên";
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
       await logout();
-      router.replace("/");
+      router.replace("/login");
     } finally {
       setLoggingOut(false);
     }
@@ -203,18 +186,18 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">
-              {initials || "AD"}
+              {initials}
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-white">
                 {displayName}
               </span>
-              <span className="block text-xs text-slate-400">
+              <span className="block truncate text-xs text-slate-400">
                 {profileLoading ? "Đang tải hồ sơ..." : jobTitle}
               </span>
             </span>
           </div>
-          {isAuthenticated && profileError && (
+          {profileError && (
             <p role="status" className="mt-2 text-xs text-amber-200">
               {profileError}
             </p>
@@ -226,37 +209,45 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           >
             Xem hồ sơ cá nhân
           </Link>
-          {authLoading ? (
-            <p role="status" className="mt-2 px-3 py-2 text-center text-xs text-slate-400">
-              Đang kiểm tra đăng nhập...
-            </p>
-          ) : isAuthenticated ? (
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                void handleLogout();
-              }}
-              disabled={loggingOut}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-rose-300/20 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:border-rose-300/40 hover:bg-rose-400/10 disabled:cursor-wait disabled:opacity-60"
-            >
-              <LogOut className="h-4 w-4" />
-              {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
-            </button>
-          ) : (
-            <Link
-              href={`/login?next=${encodeURIComponent(pathname)}`}
-              onClick={() => setMobileMenuOpen(false)}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-300/20 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300/40 hover:bg-emerald-400/10"
-            >
-              <LogIn className="h-4 w-4" />
-              Đăng nhập
-            </Link>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              void handleLogout();
+            }}
+            disabled={loggingOut}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200 disabled:cursor-wait disabled:opacity-60"
+          >
+            <LogOut className="h-4 w-4" />
+            {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
+          </button>
         </div>
       </div>
     </>
   );
+
+  if (checkingAccess) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+        <p role="status" className="text-sm font-medium text-slate-600">
+          Đang xác thực tài khoản nhân viên...
+        </p>
+      </div>
+    );
+  }
+
+  if (accessError || !account) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+        <p
+          role="alert"
+          className="max-w-xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          {accessError || "Tài khoản không có quyền truy cập cổng quản trị."}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f4f7f6] text-slate-800">
@@ -300,11 +291,9 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
-              {authLoading || (isAuthenticated && profileLoading)
+              {profileLoading
                 ? "Đang tải chi nhánh..."
-                : isAuthenticated
-                  ? facilityName || "Chưa phân công chi nhánh"
-                  : "Chưa đăng nhập"}
+                : facilityName || "Chưa phân công chi nhánh"}
             </span>
             <button
               type="button"
@@ -319,7 +308,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900"
               aria-label="Hồ sơ nhân viên"
             >
-              {initials || "AD"}
+              {initials}
             </Link>
           </div>
         </header>

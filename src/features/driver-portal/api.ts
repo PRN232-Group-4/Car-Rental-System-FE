@@ -51,14 +51,3 @@ export function isDriverStaffAccount(
     account.departmentName?.trim().toLocaleLowerCase() === "driver";
   return isStaff && isDriverDepartment && account.staffId !== null;
 }
-
-export function initialsFor(name: string | null | undefined): string {
-  return (name ?? "Driver")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(-2)
-    .map((part) => part[0])
-    .join("")
-    .toLocaleUpperCase();
-}

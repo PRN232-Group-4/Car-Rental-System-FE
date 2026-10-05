@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   BadgeCheck,
@@ -26,6 +27,7 @@ import {
   uploadLicenseImage,
 } from "../api";
 import { ApiClientError } from "@/api/api-client";
+import { useAuth } from "@/features/auth";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -38,6 +40,8 @@ type ProfileDetails = {
 };
 
 export default function ProfileManager() {
+  const router = useRouter();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [details, setDetails] = useState<ProfileDetails>({
     fullName: "",
@@ -61,42 +65,55 @@ export default function ProfileManager() {
   const [isSubmittingLicense, setIsSubmittingLicense] = useState(false);
   const [pageError, setPageError] = useState("");
 
+  // /profile nằm ngoài group (dashboard) nên tự chặn khách chưa đăng nhập,
+  // đồng thời chỉ tải hồ sơ khi đã có phiên.
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      void (async () => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      router.replace("/login?next=/profile");
+      return;
+    }
+
+    let active = true;
+    void (async () => {
+      try {
+        const profile = await getAccountProfile();
+        let license = null;
         try {
-          const profile = await getAccountProfile();
-          let license = null;
-          try {
-            license = await getCustomerLicense();
-          } catch (licenseError) {
-            if (!(licenseError instanceof ApiClientError) || licenseError.status !== 404) {
-              throw licenseError;
-            }
+          license = await getCustomerLicense();
+        } catch (licenseError) {
+          if (!(licenseError instanceof ApiClientError) || licenseError.status !== 404) {
+            throw licenseError;
           }
-          setDetails({
-            fullName: profile.fullName ?? "",
-            email: profile.email ?? "",
-            phone: profile.phone ?? "",
-            gender: profile.gender ?? "",
-          });
-          if (license) {
-            setLicenseNumber(license.number ?? "");
-            setLicenseType(license.type ?? "");
-            setIssueDate(license.issueDate?.slice(0, 10) ?? "");
-            setExpiryDate(license.expiryDate?.slice(0, 10) ?? "");
-            setLicenseImageUrl(license.imageUrl ?? "");
-            setLicenseStatus(license.status ?? "");
-          }
-        } catch (loadError) {
-          setPageError(messageOf(loadError, "Không thể tải hồ sơ từ máy chủ."));
-        } finally {
-          setIsLoading(false);
         }
-      })();
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, []);
+        if (!active) return;
+        setDetails({
+          fullName: profile.fullName ?? "",
+          email: profile.email ?? "",
+          phone: profile.phone ?? "",
+          gender: profile.gender ?? "",
+        });
+        if (license) {
+          setLicenseNumber(license.number ?? "");
+          setLicenseType(license.type ?? "");
+          setIssueDate(license.issueDate?.slice(0, 10) ?? "");
+          setExpiryDate(license.expiryDate?.slice(0, 10) ?? "");
+          setLicenseImageUrl(license.imageUrl ?? "");
+          setLicenseStatus(license.status ?? "");
+        }
+      } catch (loadError) {
+        if (active) {
+          setPageError(messageOf(loadError, "Không thể tải hồ sơ từ máy chủ."));
+        }
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [authLoading, isAuthenticated, router]);
 
   const updateDetails = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.currentTarget;
