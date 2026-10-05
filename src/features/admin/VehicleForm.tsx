@@ -17,6 +17,7 @@ import {
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
+import { notifySuccess } from "@/components/ui/Toaster";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -249,6 +250,7 @@ export default function VehicleForm() {
     try {
       if (vehicleId !== null) await updateVehicle(vehicleId, body);
       else await createVehicle(body);
+      notifySuccess(vehicleId !== null ? "Đã cập nhật phương tiện." : "Đã thêm phương tiện mới.");
       router.push("/admin/vehicles");
     } catch (saveError) {
       setError(messageOf(saveError, "Không thể lưu phương tiện."));

@@ -17,6 +17,7 @@ import {
 } from "./api";
 import type { RentalPolicyDto, SubscriptionPlanDto, VehicleTypeDto } from "./api";
 import { useAuth } from "@/features/auth";
+import { errorMessage, notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 
 type CatalogKey = "vehicle-types" | "policies" | "subscription-plans";
 type CatalogRecord = { id: number; values: Record<string, string>; active: boolean };
@@ -108,7 +109,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
         setRecords((await getSubscriptionPlans()).map(toPlanRecord));
       }
     } catch (loadError) {
-      setError(messageOf(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`));
+      notifyApiError(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`);
     } finally {
       setLoading(false);
     }
@@ -130,6 +131,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     event.preventDefault();
     setSaving(true);
     setError("");
+    const isEditing = Boolean(editing);
     try {
       if (catalog === "vehicle-types") {
         const body = { name: values.name.trim(), fuelType: values.fuelType, type: values.type };
@@ -157,9 +159,10 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
         else await createSubscriptionPlan(body);
       }
       setFormOpen(false);
+      notifySuccess(isEditing ? "Đã cập nhật thông tin." : "Đã thêm mới thành công.");
       await loadRecords();
     } catch (saveError) {
-      setError(messageOf(saveError, "Không thể lưu thay đổi."));
+      setError(errorMessage(saveError, "Không thể lưu thay đổi."));
     } finally {
       setSaving(false);
     }
@@ -167,14 +170,14 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
 
   const deleteRecord = async (record: CatalogRecord) => {
     if (!window.confirm(`Xóa "${record.values.name}"?`)) return;
-    setError("");
     try {
       if (catalog === "vehicle-types") await deleteVehicleType(record.id);
       else if (catalog === "subscription-plans") await deleteSubscriptionPlan(record.id);
       else return;
+      notifySuccess(`Đã xóa "${record.values.name}".`);
       await loadRecords();
     } catch (deleteError) {
-      setError(messageOf(deleteError, "Không thể xóa mục này."));
+      notifyApiError(deleteError, "Không thể xóa mục này.");
     }
   };
 
@@ -207,7 +210,6 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
       </div>
       <p className="text-sm text-ink-muted">{info.description}</p>
       {catalog === "policies" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
-      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="border-b border-line px-5 py-4">
@@ -325,8 +327,4 @@ function toPlanRecord(item: SubscriptionPlanDto): CatalogRecord {
       includedHours: item.includedHours === null ? "" : String(item.includedHours),
     },
   };
-}
-
-function messageOf(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
 }

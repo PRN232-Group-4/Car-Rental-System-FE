@@ -15,6 +15,7 @@ import {
 import { deleteVehicle, getFacilities, getVehicleTypes, getVehicles } from "./api";
 import type { OrganizationUnitDto, VehicleDto, VehicleTypeDto } from "./api";
 import { useAuth } from "@/features/auth";
+import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 
 const statusLabels: Record<string, string> = {
   available: "Sẵn sàng",
@@ -43,13 +44,11 @@ export default function VehicleManagement() {
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const loadPage = useCallback(async (currentPage: number, currentPageSize: number, typeFilter: string, statusFilter: string) => {
     setLoading(true);
-    setError("");
     try {
       const [response, types, facilityData] = await Promise.all([
         getVehicles({
@@ -66,7 +65,7 @@ export default function VehicleManagement() {
       setVehicleTypes(types);
       setFacilities(facilityData);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu phương tiện.");
+      notifyApiError(loadError, "Không thể tải dữ liệu phương tiện.");
     } finally {
       setLoading(false);
     }
@@ -82,13 +81,13 @@ export default function VehicleManagement() {
   const removeVehicle = async (vehicle: VehicleDto) => {
     if (!canManage || deletingId !== null || !window.confirm(`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""} (#${vehicle.id})?`)) return;
     setDeletingId(vehicle.id);
-    setError("");
     try {
       await deleteVehicle(vehicle.id);
+      notifySuccess(`Đã xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim() + ".");
       if (vehicles.length === 1 && page > 1) setPage(page - 1);
       else await loadPage(page, pageSize, category, status);
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : "Không thể xóa xe có lịch sử nghiệp vụ liên quan.");
+      notifyApiError(deleteError, "Không thể xóa xe có lịch sử nghiệp vụ liên quan.");
     } finally {
       setDeletingId(null);
     }
@@ -130,7 +129,6 @@ export default function VehicleManagement() {
       </div>
 
       <p className="text-xs text-ink-muted">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
-      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:p-5">
           <label className="relative min-w-0 flex-1">
