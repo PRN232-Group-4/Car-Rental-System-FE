@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { getFacilities, getStaffById } from "./api";
 import {
   Bell,
   Building2,
@@ -12,13 +13,13 @@ import {
   CircleUserRound,
   KeyRound,
   LayoutDashboard,
+  LogOut,
   Menu,
   ReceiptText,
   Tags,
   WalletCards,
   UsersRound,
   X,
-  LogOut,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
@@ -46,21 +47,75 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const { account, checkingAccess, accessError } = usePortalAccess(isAdminOrStaffAccount);
-  const initials = useMemo(() => initialsFor(account?.fullName), [account?.fullName]);
+  const [staffRole, setStaffRole] = useState<string | null>(null);
+  const [facilityName, setFacilityName] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
 
-  const handleLogout = () => {
-    void (async () => {
-      await logout();
-      router.replace("/login");
-    })();
-  };
+  // usePortalAccess chỉ trả account; chức danh + tên cơ sở phải lấy thêm.
+  useEffect(() => {
+    if (!account) return;
+    let active = true;
+
+    const loadAssignment = async () => {
+      try {
+        let nextStaffRole: string | null = null;
+        let nextFacilityName: string | null = null;
+
+        if (account.staffId != null) {
+          const staff = await getStaffById(account.staffId);
+          nextStaffRole = staff.staffRole;
+          nextFacilityName = staff.facilityName;
+        }
+
+        if (!nextFacilityName && account.facilityId != null) {
+          const facilities = await getFacilities();
+          nextFacilityName =
+            facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+        }
+
+        if (active) {
+          setStaffRole(nextStaffRole);
+          setFacilityName(nextFacilityName);
+          setProfileError("");
+        }
+      } catch (error) {
+        if (active) {
+          setProfileError(
+            error instanceof Error ? error.message : "Không thể tải hồ sơ nhân viên.",
+          );
+        }
+      } finally {
+        if (active) setProfileLoading(false);
+      }
+    };
+
+    void loadAssignment();
+    return () => {
+      active = false;
+    };
+  }, [account]);
 
   const currentPage =
     navigation.find((item) => item.href === pathname)?.label ??
     (pathname === "/admin/vehicles/new" || pathname.endsWith("/edit")
       ? "Quản lý phương tiện"
       : "Tổng quan");
+  const displayName = account?.fullName || "Tài khoản quản trị";
+  const initials = useMemo(() => initialsFor(account?.fullName), [account?.fullName]);
+  const jobTitle = staffRole || account?.departmentName || "Nhân viên";
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+      router.replace("/login");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   const sidebar = (
     <>
@@ -135,27 +190,36 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-white">
-                {account?.fullName ?? "Nhân viên"}
+                {displayName}
               </span>
               <span className="block truncate text-xs text-slate-400">
-                {account?.departmentName ?? "Nhân viên hệ thống"}
+                {profileLoading ? "Đang tải hồ sơ..." : jobTitle}
               </span>
             </span>
           </div>
+          {profileError && (
+            <p role="status" className="mt-2 text-xs text-amber-200">
+              {profileError}
+            </p>
+          )}
           <Link
             href="/admin/profile"
             onClick={() => setMobileMenuOpen(false)}
             className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
           >
-            Xem hồ sơ nhân viên
+            Xem hồ sơ cá nhân
           </Link>
           <button
             type="button"
-            onClick={handleLogout}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              void handleLogout();
+            }}
+            disabled={loggingOut}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200 disabled:cursor-wait disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />
-            Đăng xuất
+            {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
           </button>
         </div>
       </div>
@@ -226,11 +290,11 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {account.facilityId !== null && (
-              <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
-                Cơ sở #{account.facilityId}
-              </span>
-            )}
+            <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
+              {profileLoading
+                ? "Đang tải chi nhánh..."
+                : facilityName || "Chưa phân công chi nhánh"}
+            </span>
             <button
               type="button"
               aria-label="Thông báo"

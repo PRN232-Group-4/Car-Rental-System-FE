@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ImagePlus, Info, Save, X } from "lucide-react";
 import {
@@ -38,7 +39,7 @@ type VehicleDraft = {
   chargingTimeHours: string;
   maxRangeKm: string;
   batteryType: string;
-  galleryImages: string;
+  galleryImages: string[];
 };
 
 const emptyDraft: VehicleDraft = {
@@ -64,7 +65,7 @@ const emptyDraft: VehicleDraft = {
   chargingTimeHours: "",
   maxRangeKm: "",
   batteryType: "",
-  galleryImages: "",
+  galleryImages: [],
 };
 
 const statuses = [
@@ -84,8 +85,13 @@ export default function VehicleForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageDragActive, setImageDragActive] = useState(false);
   const [error, setError] = useState("");
   const isEditing = vehicleId !== null;
+  const selectedVehicleType = vehicleTypes.find(
+    (item) => String(item.id) === draft.vehicleTypeId,
+  );
+  const vehicleKind = getVehicleKind(selectedVehicleType);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -115,30 +121,75 @@ export default function VehicleForm() {
 
   const updateDraft = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
-    setDraft((current) => ({ ...current, [name]: value }));
+    if (name === "vehicleTypeId" && value !== draft.vehicleTypeId) {
+      setDraft((current) => ({
+        ...current,
+        vehicleTypeId: value,
+        seatCount: "",
+        transmission: "",
+        trunkCapacity: "",
+        bikeType: "",
+        hasStorageBox: "false",
+        batteryCapacity: "",
+        chargingType: "",
+        chargingTimeHours: "",
+        maxRangeKm: "",
+        batteryType: "",
+      }));
+    } else {
+      setDraft((current) => ({ ...current, [name]: value }));
+    }
     setError("");
   };
 
   const uploadImage = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
+    const files = Array.from(event.currentTarget.files ?? []);
     event.currentTarget.value = "";
-    if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    await uploadFiles(files);
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+    if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
       setError("Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
       return;
     }
     setUploading(true);
     setError("");
     try {
-      const response = await uploadVehicleImage(file);
-      const imageUrl = extractImageUrl(response);
-      if (!imageUrl) throw new Error("API tải ảnh thành công nhưng không trả về URL ảnh.");
-      setDraft((current) => ({ ...current, mainImageUrl: imageUrl }));
+      for (const file of files) {
+        const response = await uploadVehicleImage(file);
+        const imageUrl = extractImageUrl(response);
+        if (!imageUrl) {
+          throw new Error(`API tải ảnh "${file.name}" thành công nhưng không trả về URL ảnh.`);
+        }
+        setDraft((current) => current.mainImageUrl
+          ? { ...current, galleryImages: [...current.galleryImages, imageUrl] }
+          : { ...current, mainImageUrl: imageUrl });
+      }
     } catch (uploadError) {
       setError(messageOf(uploadError, "Không thể tải ảnh lên."));
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleImageDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setImageDragActive(true);
+  };
+
+  const handleImageDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) {
+      setImageDragActive(false);
+    }
+  };
+
+  const handleImageDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setImageDragActive(false);
+    void uploadFiles(Array.from(event.dataTransfer.files));
   };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -151,17 +202,17 @@ export default function VehicleForm() {
     setSaving(true);
     setError("");
     const detail = {
-      seatCount: optionalNumber(draft.seatCount),
-      transmission: draft.transmission || null,
-      trunkCapacity: optionalNumber(draft.trunkCapacity),
-      bikeType: draft.bikeType || null,
-      hasStorageBox: draft.hasStorageBox === "" ? null : draft.hasStorageBox === "true",
-      batteryCapacity: draft.batteryCapacity || null,
-      chargingType: draft.chargingType || null,
-      chargingTimeHours: draft.chargingTimeHours || null,
-      maxRangeKm: optionalNumber(draft.maxRangeKm),
-      batteryType: draft.batteryType || null,
-      galleryImages: draft.galleryImages.split("\n").map((item) => item.trim()).filter(Boolean),
+      seatCount: vehicleKind.isCar ? optionalNumber(draft.seatCount) : null,
+      transmission: vehicleKind.isCar ? draft.transmission || null : null,
+      trunkCapacity: vehicleKind.isCar ? optionalNumber(draft.trunkCapacity) : null,
+      bikeType: vehicleKind.isMotorbike ? draft.bikeType || null : null,
+      hasStorageBox: vehicleKind.isMotorbike ? draft.hasStorageBox === "true" : null,
+      batteryCapacity: vehicleKind.isElectric ? draft.batteryCapacity || null : null,
+      chargingType: vehicleKind.isElectric ? draft.chargingType || null : null,
+      chargingTimeHours: vehicleKind.isElectric ? draft.chargingTimeHours || null : null,
+      maxRangeKm: vehicleKind.isElectric ? optionalNumber(draft.maxRangeKm) : null,
+      batteryType: vehicleKind.isElectric ? draft.batteryType || null : null,
+      galleryImages: draft.galleryImages,
     };
     const body: VehicleRequest = {
       vehicleTypeId,
@@ -221,16 +272,29 @@ export default function VehicleForm() {
         <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
           <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Thông số kỹ thuật</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <Field label="Số chỗ ngồi" htmlFor="seatCount"><input id="seatCount" name="seatCount" type="number" min="1" value={draft.seatCount} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Hộp số" htmlFor="transmission"><input id="transmission" name="transmission" value={draft.transmission} onChange={updateDraft} placeholder="Tự động / Số sàn" className="admin-input" /></Field>
-            <Field label="Dung tích cốp (lít)" htmlFor="trunkCapacity"><input id="trunkCapacity" name="trunkCapacity" type="number" min="0" value={draft.trunkCapacity} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Loại xe máy" htmlFor="bikeType"><input id="bikeType" name="bikeType" value={draft.bikeType} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Có cốp chứa đồ" htmlFor="hasStorageBox"><select id="hasStorageBox" name="hasStorageBox" value={draft.hasStorageBox} onChange={updateDraft} className="admin-input"><option value="false">Không</option><option value="true">Có</option></select></Field>
-            <Field label="Dung lượng pin" htmlFor="batteryCapacity"><input id="batteryCapacity" name="batteryCapacity" value={draft.batteryCapacity} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Loại pin" htmlFor="batteryType"><input id="batteryType" name="batteryType" value={draft.batteryType} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Chuẩn sạc" htmlFor="chargingType"><input id="chargingType" name="chargingType" value={draft.chargingType} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Thời gian sạc (giờ)" htmlFor="chargingTimeHours"><input id="chargingTimeHours" name="chargingTimeHours" value={draft.chargingTimeHours} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><input id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
+            {vehicleKind.isCar && (
+              <>
+                <Field label="Số chỗ ngồi" htmlFor="seatCount"><input id="seatCount" name="seatCount" type="number" min="1" value={draft.seatCount} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Hộp số" htmlFor="transmission"><input id="transmission" name="transmission" value={draft.transmission} onChange={updateDraft} placeholder="Tự động / Số sàn" className="admin-input" /></Field>
+                <Field label="Dung tích cốp (lít)" htmlFor="trunkCapacity"><input id="trunkCapacity" name="trunkCapacity" type="number" min="0" value={draft.trunkCapacity} onChange={updateDraft} className="admin-input" /></Field>
+              </>
+            )}
+            {vehicleKind.isMotorbike && (
+              <>
+                <Field label="Loại xe máy" htmlFor="bikeType"><input id="bikeType" name="bikeType" value={draft.bikeType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Có cốp chứa đồ" htmlFor="hasStorageBox"><select id="hasStorageBox" name="hasStorageBox" value={draft.hasStorageBox} onChange={updateDraft} className="admin-input"><option value="false">Không</option><option value="true">Có</option></select></Field>
+              </>
+            )}
+            {vehicleKind.isElectric && (
+              <>
+                <Field label="Dung lượng pin" htmlFor="batteryCapacity"><input id="batteryCapacity" name="batteryCapacity" value={draft.batteryCapacity} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Loại pin" htmlFor="batteryType"><input id="batteryType" name="batteryType" value={draft.batteryType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Chuẩn sạc" htmlFor="chargingType"><input id="chargingType" name="chargingType" value={draft.chargingType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Thời gian sạc (giờ)" htmlFor="chargingTimeHours"><input id="chargingTimeHours" name="chargingTimeHours" value={draft.chargingTimeHours} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><input id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
+              </>
+            )}
+            {!draft.vehicleTypeId && <p className="text-sm text-slate-500 sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
           </div>
         </section>
 
@@ -238,13 +302,62 @@ export default function VehicleForm() {
           <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Hình ảnh</h3>
           <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
             <div className="space-y-4">
-              <Field label="Tải ảnh chính lên" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-slate-200 text-sm file:mr-4 file:border-0 file:bg-emerald-50 file:px-4 file:py-3 file:font-semibold file:text-emerald-800" /></Field>
-              <Field label="Hoặc nhập URL ảnh chính" htmlFor="mainImageUrl"><input id="mainImageUrl" name="mainImageUrl" type="url" value={draft.mainImageUrl} onChange={updateDraft} className="admin-input" /></Field>
-              <Field label="URL ảnh bổ sung (mỗi dòng một URL)" htmlFor="galleryImages"><textarea id="galleryImages" name="galleryImages" rows={3} value={draft.galleryImages} onChange={updateDraft} className="admin-input resize-y" /></Field>
-              {uploading && <p className="text-sm text-slate-500">Đang tải ảnh lên...</p>}
+              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-slate-200 text-sm file:mr-4 file:border-0 file:bg-emerald-50 file:px-4 file:py-3 file:font-semibold file:text-emerald-800" /></Field>
+              {uploading && <p role="status" className="text-sm text-slate-500">Đang tải ảnh lên...</p>}
             </div>
-            <div className="relative flex min-h-40 items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50 bg-cover bg-center" style={draft.mainImageUrl ? { backgroundImage: `url("${draft.mainImageUrl}")` } : undefined}>
-              {draft.mainImageUrl ? <button type="button" onClick={() => setDraft((current) => ({ ...current, mainImageUrl: "" }))} aria-label="Xóa ảnh xem trước" className="absolute right-2 top-2 rounded-lg bg-white/90 p-2 text-slate-600 shadow hover:text-red-700"><X className="h-4 w-4" /></button> : <div className="text-center text-slate-400"><ImagePlus className="mx-auto h-7 w-7" /><span className="mt-2 block text-xs">Ảnh xem trước</span></div>}
+            <div
+              onDragOver={handleImageDragOver}
+              onDragLeave={handleImageDragLeave}
+              onDrop={handleImageDrop}
+              className={`grid min-h-32 grid-cols-2 gap-3 rounded-xl transition ${
+                imageDragActive ? "bg-emerald-50 ring-2 ring-emerald-500 ring-offset-2" : ""
+              }`}
+            >
+              {draft.mainImageUrl ? (
+                <ImagePreview
+                  src={draft.mainImageUrl}
+                  label="Ảnh chính"
+                  onRemove={() => setDraft((current) => {
+                    const [nextMainImageUrl, ...galleryImages] = current.galleryImages;
+                    return { ...current, mainImageUrl: nextMainImageUrl ?? "", galleryImages };
+                  })}
+                />
+              ) : (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => fileRef.current?.click()}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      fileRef.current?.click();
+                    }
+                  }}
+                  className={`flex min-h-32 cursor-pointer items-center justify-center rounded-xl border border-dashed text-center transition ${
+                    imageDragActive
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-slate-300 bg-slate-50 text-slate-400 hover:border-emerald-400 hover:text-emerald-700"
+                  }`}
+                >
+                  <div>
+                    <ImagePlus className="mx-auto h-7 w-7" />
+                    <span className="mt-2 block text-xs">
+                      {imageDragActive ? "Thả ảnh vào đây" : "Ảnh chính · Thả hoặc chọn ảnh"}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {draft.galleryImages.map((imageUrl, index) => (
+                <ImagePreview
+                  key={`${imageUrl}-${index}`}
+                  src={imageUrl}
+                  label={`Ảnh ${index + 2}`}
+                  onRemove={() => setDraft((current) => ({
+                    ...current,
+                    galleryImages: current.galleryImages.filter((_, imageIndex) => imageIndex !== index),
+                  }))}
+                />
+              ))}
             </div>
           </div>
           <p className="mt-4 flex items-start gap-2 text-xs text-slate-500"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
@@ -284,7 +397,7 @@ function fromVehicle(vehicle: VehicleDto): VehicleDraft {
     chargingTimeHours: detail?.chargingTimeHours ?? "",
     maxRangeKm: detail?.maxRangeKm == null ? "" : String(detail.maxRangeKm),
     batteryType: detail?.batteryType ?? "",
-    galleryImages: detail?.galleryImages?.join("\n") ?? "",
+    galleryImages: detail?.galleryImages ?? [],
   };
 }
 
@@ -292,12 +405,49 @@ function optionalNumber(value: string): number | null {
   return value.trim() === "" ? null : Number(value);
 }
 
+function getVehicleKind(vehicleType: VehicleTypeDto | undefined) {
+  const typeName = `${vehicleType?.name ?? ""} ${vehicleType?.fuelType ?? ""}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .toLocaleLowerCase();
+  const isElectric = /\bdien\b|electric|ev\b/.test(typeName);
+  const isMotorbike = /xe may|motorbike|motorcycle|scooter|moped/.test(typeName);
+  const isCar = /o to|oto|car|automobile/.test(typeName) || !isMotorbike;
+  return { isCar, isMotorbike, isElectric };
+}
+
 function extractImageUrl(value: unknown): string | undefined {
-  if (typeof value === "string") return value;
+  if (typeof value === "string") {
+    const candidate = value.trim();
+    return /^(https?:\/\/|\/\/|\/|data:image\/)/i.test(candidate) ? candidate : undefined;
+  }
   if (typeof value !== "object" || value === null) return undefined;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const imageUrl = extractImageUrl(item);
+      if (imageUrl) return imageUrl;
+    }
+    return undefined;
+  }
   const data = value as Record<string, unknown>;
-  for (const key of ["url", "imageUrl", "mainImageUrl", "fileUrl"]) {
-    if (typeof data[key] === "string") return data[key];
+  for (const key of [
+    "url",
+    "imageUrl",
+    "mainImageUrl",
+    "fileUrl",
+    "secure_url",
+    "secureUrl",
+    "publicUrl",
+    "assetUrl",
+    "filePath",
+    "path",
+    "location",
+    "data",
+    "result",
+  ]) {
+    const imageUrl = extractImageUrl(data[key]);
+    if (imageUrl) return imageUrl;
   }
   return undefined;
 }
@@ -308,4 +458,18 @@ function messageOf(error: unknown, fallback: string): string {
 
 function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
   return <div><label htmlFor={htmlFor} className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>{children}</div>;
+}
+
+function ImagePreview({ src, label, onRemove }: { src: string; label: string; onRemove: () => void }) {
+  return (
+    <div
+      role="img"
+      aria-label={label}
+      className="relative min-h-32 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+    >
+      <Image src={src} alt={label} fill unoptimized sizes="(max-width: 768px) 50vw, 320px" className="object-cover" />
+      <span className="absolute bottom-2 left-2 rounded bg-white/90 px-2 py-1 text-xs font-semibold text-slate-700">{label}</span>
+      <button type="button" onClick={onRemove} aria-label={`Xóa ${label.toLocaleLowerCase()}`} className="absolute right-2 top-2 rounded-lg bg-white/90 p-2 text-slate-600 shadow hover:text-red-700"><X className="h-4 w-4" /></button>
+    </div>
+  );
 }
