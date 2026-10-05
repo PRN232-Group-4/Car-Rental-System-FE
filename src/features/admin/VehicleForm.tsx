@@ -15,9 +15,11 @@ import {
   uploadVehicleImage,
 } from "./api";
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
+import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
 
 type VehicleDraft = {
+  licensePlate: string;
   vehicleTypeId: string;
   facilityId: string;
   status: string;
@@ -44,6 +46,7 @@ type VehicleDraft = {
 };
 
 const emptyDraft: VehicleDraft = {
+  licensePlate: "",
   vehicleTypeId: "",
   facilityId: "",
   status: "available",
@@ -207,6 +210,10 @@ export default function VehicleForm() {
       setError("Vui lòng chọn một loại phương tiện hợp lệ.");
       return;
     }
+    if (!vehicleKind.isValid) {
+      setError("Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu.");
+      return;
+    }
     setSaving(true);
     setError("");
     const detail = {
@@ -224,6 +231,7 @@ export default function VehicleForm() {
     };
     const body: VehicleRequest = {
       vehicleTypeId,
+      licensePlate: draft.licensePlate.trim() || null,
       facilityId: draft.facilityId ? Number(draft.facilityId) : null,
       status: draft.status,
       brand: draft.brand.trim(),
@@ -233,7 +241,7 @@ export default function VehicleForm() {
       hourlyPrice: optionalNumber(draft.hourlyPrice),
       longtermPrice: optionalNumber(draft.longtermPrice),
       description: draft.description.trim(),
-      mainImageUrl: draft.mainImageUrl,
+      mainImageUrl: draft.mainImageUrl || null,
       location: draft.location.trim(),
       detail,
     };
@@ -271,12 +279,14 @@ export default function VehicleForm() {
       </div>
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
+      {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-red-700">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
       <form onSubmit={submit} className="space-y-6">
         <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
           <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông tin phương tiện</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><select id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</select></Field>
             <Field label="Chi nhánh" htmlFor="facilityId"><select id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
+            <Field label="Biển số" htmlFor="licensePlate"><input id="licensePlate" name="licensePlate" maxLength={255} value={draft.licensePlate} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Hãng xe" htmlFor="brand"><input id="brand" name="brand" required value={draft.brand} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Dòng xe / mẫu xe" htmlFor="model"><input id="model" name="model" required value={draft.model} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Màu sắc" htmlFor="color"><input id="color" name="color" value={draft.color} onChange={updateDraft} className="admin-input" /></Field>
@@ -385,7 +395,7 @@ export default function VehicleForm() {
 
         <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
           <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>
-          <button type="submit" disabled={loading || saving || uploading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
+          <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </div>
       </form>
     </div>
@@ -395,6 +405,7 @@ export default function VehicleForm() {
 function fromVehicle(vehicle: VehicleDto): VehicleDraft {
   const detail = vehicle.detail;
   return {
+    licensePlate: vehicle.licensePlate ?? "",
     vehicleTypeId: String(vehicle.vehicleTypeId),
     facilityId: vehicle.facilityId === null ? "" : String(vehicle.facilityId),
     status: vehicle.status ?? "available",
@@ -423,18 +434,6 @@ function fromVehicle(vehicle: VehicleDto): VehicleDraft {
 
 function optionalNumber(value: string): number | null {
   return value.trim() === "" ? null : Number(value);
-}
-
-function getVehicleKind(vehicleType: VehicleTypeDto | undefined) {
-  const typeName = `${vehicleType?.name ?? ""} ${vehicleType?.fuelType ?? ""}`
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[đĐ]/g, "d")
-    .toLocaleLowerCase();
-  const isElectric = /\bdien\b|electric|ev\b/.test(typeName);
-  const isMotorbike = /xe may|motorbike|motorcycle|scooter|moped/.test(typeName);
-  const isCar = /o to|oto|car|automobile/.test(typeName) || !isMotorbike;
-  return { isCar, isMotorbike, isElectric };
 }
 
 function extractImageUrl(value: unknown): string | undefined {

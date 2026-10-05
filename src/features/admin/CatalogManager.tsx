@@ -49,16 +49,15 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; icon
 const fieldsByCatalog: Record<CatalogKey, Field[]> = {
   "vehicle-types": [
     { key: "name", label: "Tên loại phương tiện", required: true },
+    { key: "type", label: "Nhóm xe", type: "select", required: true, options: [{ value: "car", label: "Ô tô" }, { value: "motorbike", label: "Xe máy" }] },
     {
       key: "fuelType",
       label: "Nhiên liệu",
       type: "select",
       required: true,
       options: [
-        { value: "Gasoline", label: "Xăng" },
-        { value: "Diesel", label: "Dầu diesel" },
-        { value: "Electric", label: "Điện" },
-        { value: "Gasoline / Electric", label: "Xăng / Điện" },
+        { value: "gasoline", label: "Xăng" },
+        { value: "electric", label: "Điện" },
       ],
     },
   ],
@@ -133,7 +132,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     setError("");
     try {
       if (catalog === "vehicle-types") {
-        const body = { name: values.name.trim(), fuelType: values.fuelType };
+        const body = { name: values.name.trim(), fuelType: values.fuelType, type: values.type };
         if (editing) await updateVehicleType(editing.id, body);
         else await createVehicleType(body);
       } else if (catalog === "policies") {
@@ -296,7 +295,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
 }
 
 function toVehicleTypeRecord(item: VehicleTypeDto): CatalogRecord {
-  return { id: item.id, active: true, values: { name: item.name ?? "", fuelType: item.fuelType ?? "" } };
+  return { id: item.id, active: true, values: { name: item.name ?? "", fuelType: item.fuelType?.trim().toLowerCase() ?? "", type: item.type?.trim().toLowerCase() ?? "" } };
 }
 
 function toPolicyRecord(item: RentalPolicyDto, types: VehicleTypeDto[]): CatalogRecord {
