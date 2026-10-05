@@ -239,6 +239,10 @@ export default function VehicleForm() {
       showErrors({ vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." });
       return;
     }
+    if (!vehicleKind.isValid) {
+      setError("Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu.");
+      return;
+    }
     setSaving(true);
     setError("");
     const detail = {
@@ -436,7 +440,7 @@ export default function VehicleForm() {
 
         <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
           <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>
-          <button type="submit" disabled={loading || saving || uploading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
+          <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </div>
       </form>
       </FieldErrors.Provider>

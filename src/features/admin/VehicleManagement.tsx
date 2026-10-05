@@ -148,7 +148,7 @@ export default function VehicleManagement() {
             <select value={category} onChange={(event) => {
               setCategory(event.currentTarget.value);
               setPage(1);
-            }} className="admin-input min-w-[175px] appearance-none pr-9">
+            }} className="admin-input min-w-43.75 appearance-none pr-9">
               <option value="all">Tất cả loại xe</option>
               {vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
@@ -159,7 +159,7 @@ export default function VehicleManagement() {
             <select value={status} onChange={(event) => {
               setStatus(event.currentTarget.value);
               setPage(1);
-            }} className="admin-input min-w-[150px] appearance-none pr-9">
+            }} className="admin-input min-w-37.5 appearance-none pr-9">
               <option value="all">Mọi trạng thái</option>
               {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
@@ -168,7 +168,7 @@ export default function VehicleManagement() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left">
+          <table className="w-full min-w-190 text-left">
             <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
               <tr>
                 <th className="px-5 py-3">Phương tiện</th>
@@ -187,7 +187,7 @@ export default function VehicleManagement() {
                       <div
                         role={vehicle.mainImageUrl ? "img" : undefined}
                         aria-label={vehicle.mainImageUrl ? `Ảnh ${vehicle.brand} ${vehicle.model}` : undefined}
-                        className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-muted"
+                        className="flex h-12 w-17 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-muted"
                         style={vehicle.mainImageUrl ? { backgroundImage: `url("${vehicle.mainImageUrl}")` } : undefined}
                       >
                         {!vehicle.mainImageUrl && <CarFront className="h-5 w-5" />}
