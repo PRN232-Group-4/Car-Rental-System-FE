@@ -131,8 +131,6 @@ export default function VehicleManagement() {
 
       <p className="text-xs text-ink-muted">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-
-
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:p-5">
           <label className="relative min-w-0 flex-1">
