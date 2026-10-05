@@ -29,27 +29,40 @@ export class ApiClientError extends Error {
 
     if (typeof data === "object" && data !== null) {
       const d = data as Record<string, unknown>;
-      if (typeof d.detail === "string" && d.detail) {
+      const errorList: string[] = [];
+      if (d.errors && typeof d.errors === "object") {
+        for (const [key, err] of Object.entries(d.errors as Record<string, unknown>)) {
+          if (Array.isArray(err)) {
+            for (const item of err) {
+              if (item) {
+                errorList.push(key ? `${key}: ${item}` : String(item));
+              }
+            }
+          } else if (typeof err === "string" && err.trim()) {
+            errorList.push(key ? `${key}: ${err}` : err);
+          }
+        }
+      }
+
+      if (errorList.length > 0) {
+        message = errorList.join("\n");
+      } else if (typeof d.detail === "string" && d.detail) {
         message = d.detail;
       } else if (typeof d.message === "string" && d.message) {
         message = d.message;
       } else if (typeof d.title === "string" && d.title) {
         message = d.title;
-      } else if (d.errors && typeof d.errors === "object") {
-        const errorList: string[] = [];
-        for (const err of Object.values(d.errors as Record<string, unknown>)) {
-          if (Array.isArray(err)) {
-            errorList.push(...err.map(String));
-          } else if (typeof err === "string") {
-            errorList.push(err);
-          }
-        }
-        if (errorList.length > 0) {
-          message = errorList.join("; ");
-        }
       }
     } else if (typeof data === "string" && data.trim()) {
       message = data;
+    }
+
+    if (typeof console !== "undefined" && typeof console.error === "function") {
+      console.error(`[ApiClientError] HTTP ${status} ${statusText}: ${message}`, {
+        status,
+        statusText,
+        data,
+      });
     }
 
     super(message);

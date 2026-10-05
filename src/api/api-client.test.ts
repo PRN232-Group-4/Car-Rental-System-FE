@@ -88,3 +88,26 @@ it("preserves non-timeout network failures", async () => {
   const client = new ApiClient({ customFetch: async () => { throw failure; } });
   await expect(client.get("dashboard")).rejects.toBe(failure);
 });
+
+it("extracts field errors from ASP.NET Core ValidationProblemDetails", async () => {
+  const client = new ApiClient({
+    customFetch: async () =>
+      new Response(
+        JSON.stringify({
+          type: "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+          title: "One or more validation errors occurred.",
+          status: 400,
+          errors: {
+            StaffRole: ["The field StaffRole must match the regular expression '^(CustomerService|Driver|Maintenance)$'."],
+            license: ["Tài xế phải có ngày hết hạn giấy phép."],
+          },
+        }),
+        { status: 400, statusText: "Bad Request", headers: { "Content-Type": "application/json" } },
+      ),
+  });
+
+  await expect(client.post("staff", {})).rejects.toMatchObject({
+    status: 400,
+    message: expect.stringContaining("StaffRole: The field StaffRole must match"),
+  });
+});
