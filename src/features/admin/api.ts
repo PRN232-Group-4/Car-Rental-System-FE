@@ -4,6 +4,7 @@ export interface VehicleTypeDto {
   id: number;
   name: string | null;
   fuelType: string | null;
+  type: string | null;
 }
 
 export interface OrganizationUnitDto {
@@ -80,10 +81,12 @@ export interface VehicleDto {
   description: string | null;
   mainImageUrl: string | null;
   location: string | null;
+  licensePlate?: string | null;
   detail: VehicleDetailDto | null;
 }
 
 export interface VehicleRequest {
+  licensePlate: string | null;
   vehicleTypeId: number;
   facilityId: number | null;
   status: string;
@@ -94,7 +97,7 @@ export interface VehicleRequest {
   hourlyPrice: number | null;
   longtermPrice: number | null;
   description: string;
-  mainImageUrl: string;
+  mainImageUrl: string | null;
   location: string;
   detail: VehicleDetailDto | null;
 }
@@ -152,11 +155,11 @@ export function getVehicleTypes() {
   return backendApiClient.get<VehicleTypeDto[]>("vehicle-types");
 }
 
-export function createVehicleType(body: { name: string; fuelType: string }) {
+export function createVehicleType(body: { name: string; fuelType: string; type: string }) {
   return backendApiClient.post<VehicleTypeDto>("vehicle-types", body);
 }
 
-export function updateVehicleType(id: number, body: { name: string; fuelType: string }) {
+export function updateVehicleType(id: number, body: { name: string; fuelType: string; type: string }) {
   return backendApiClient.put<VehicleTypeDto>(`vehicle-types/${id}`, body);
 }
 
@@ -270,4 +273,8 @@ export function deleteStaff(id: number) {
 
 export function getDashboardData(params: { from?: string; to?: string } = {}) {
   return backendApiClient.get<unknown>("dashboard", params);
+}
+
+export function deleteVehicle(id: number) {
+  return backendApiClient.delete<void>(`vehicles/${id}`);
 }
