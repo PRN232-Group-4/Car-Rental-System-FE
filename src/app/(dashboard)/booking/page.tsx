@@ -1,5 +1,7 @@
 "use client";
 
+import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
+
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -81,6 +83,7 @@ function DatXeForm() {
   const [hasDriver, setHasDriver] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
+  const validation = useInlineValidation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successResult, setSuccessResult] = useState<{
     message: string;
@@ -216,8 +219,7 @@ function DatXeForm() {
         });
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Có lỗi xảy ra khi tạo yêu cầu thuê xe.";
-      setErrorMessage(msg);
+      setErrorMessage(validation.report(err) || null);
     } finally {
       setSubmitting(false);
     }
@@ -284,7 +286,12 @@ function DatXeForm() {
 
       {/* Booking Form Card */}
       {!successResult && (
-        <form onSubmit={handleBooking} className="space-y-8">
+        <ValidatedForm validation={validation} validate={() => ({
+   ...(durationHours <= 0 ? { endTime: "Thời gian trả xe phải sau thời gian nhận xe tối thiểu 1 giờ." } : {}),
+   ...(!selectedVehicle ? { vehicleId: "Vui lòng chọn phương tiện cần thuê." } : {}),
+   ...(bookingMode === "subscription" && !selectedSubscription ? { subscriptionId: "Vui lòng chọn gói thuê bao còn hiệu lực." } : {}),
+   ...(bookingMode === "subscription" && selectedSubscription && selectedSubscription.remainingHours < durationHours ? { subscriptionId: "Gói thuê bao không đủ số giờ còn lại cho chuyến đi này." } : {}),
+ })} onSubmit={handleBooking} className="space-y-8">
           {/* Step 1: Mode Switcher */}
           <div className="p-2 rounded-2xl bg-neutral-200/60 grid grid-cols-2 gap-2 max-w-md">
             <button
@@ -367,7 +374,7 @@ function DatXeForm() {
                     return (
                       <div
                         key={sub.id}
-                        onClick={() => setSelectedSubId(sub.id)}
+                        onClick={() => { setSelectedSubId(sub.id); validation.clear("subscriptionId"); }}
                         className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                           isSelected
                             ? "border-emerald-600 bg-emerald-50/50"
@@ -391,6 +398,7 @@ function DatXeForm() {
                 </div>
               )}
 
+              <InlineError name="subscriptionId" />
               {isSubscriptionInsufficient && selectedSubscription && (
                 <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -418,7 +426,7 @@ function DatXeForm() {
                   return (
                     <div
                       key={v.id}
-                      onClick={() => setSelectedVehicleId(v.id)}
+                      onClick={() => { setSelectedVehicleId(v.id); validation.clear("vehicleId"); }}
                       className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex gap-3 ${
                         isSelected
                           ? "border-emerald-600 bg-emerald-50/40 shadow-xs"
@@ -452,6 +460,7 @@ function DatXeForm() {
             )}
           </div>
 
+          <InlineError name="vehicleId" />
           {/* Step 3: Schedule Time */}
           <div className="p-6 rounded-3xl bg-white border border-neutral-200 shadow-xs space-y-4">
             <h3 className="text-base font-bold text-neutral-900">
@@ -466,20 +475,20 @@ function DatXeForm() {
                   <span>Thời gian nhận xe</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <input
+                  <div className="min-w-0 [&_input]:w-full"><InlineInput name="startDate"
                     type="date"
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
-                  />
-                  <input
+                  /></div>
+                  <div className="min-w-0 [&_input]:w-full"><InlineInput name="startTime"
                     type="time"
                     required
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                     className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
-                  />
+                  /></div>
                 </div>
               </div>
 
@@ -490,20 +499,20 @@ function DatXeForm() {
                   <span>Thời gian trả xe</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <input
+                  <div className="min-w-0 [&_input]:w-full"><InlineInput name="endDate"
                     type="date"
                     required
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
-                  />
-                  <input
+                  /></div>
+                  <div className="min-w-0 [&_input]:w-full"><InlineInput name="endTime"
                     type="time"
                     required
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                     className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
-                  />
+                  /></div>
                 </div>
               </div>
             </div>
@@ -513,7 +522,7 @@ function DatXeForm() {
                 Thời lượng thuê dự kiến: <strong>{durationHours} giờ</strong>
               </span>
               <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
+                <InlineInput name="hasDriver"
                   type="checkbox"
                   checked={hasDriver}
                   onChange={(e) => setHasDriver(e.target.checked)}
@@ -605,7 +614,7 @@ function DatXeForm() {
               )}
             </button>
           </div>
-        </form>
+        </ValidatedForm>
       )}
     </div>
   );

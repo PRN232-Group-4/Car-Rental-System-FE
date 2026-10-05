@@ -1,5 +1,7 @@
 "use client";
 
+import { ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Pencil, Plus, Search, Trash2, UsersRound } from "lucide-react";
@@ -57,6 +59,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   const [values, setValues] = useState<FormValues>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const validation = useInlineValidation();
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -178,6 +181,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       });
     }
     setError("");
+    validation.reset();
     setFormOpen(true);
   };
 
@@ -219,7 +223,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       setFormOpen(false);
       await load();
     } catch (submitError) {
-      setError(messageOf(submitError, "Không thể lưu thay đổi."));
+      setError(validation.report(submitError));
     } finally {
       setSaving(false);
     }
@@ -270,7 +274,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
 
       <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
         <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
-        {directory === "staffs" && <div className="border-b border-line p-4"><label className="relative block max-w-lg"><span className="sr-only">Tìm nhân viên</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" /><input value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên hoặc email..." className="admin-input admin-search-input" /></label></div>}
+        {directory === "staffs" && <div className="border-b border-line p-4"><label className="relative block max-w-lg"><span className="sr-only">Tìm nhân viên</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" /><InlineInput name="search" value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên hoặc email..." className="admin-input admin-search-input" /></label></div>}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left">
             <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
@@ -307,9 +311,9 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           <div className="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <div className="flex items-center gap-3 text-xs text-ink-muted">
               <span>Trang {page} / {pageCount} · {totalCount} nhân viên</span>
-              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary">
+              <InlineSelect name="pageSize" value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary">
                 {[10, 20, 50].map((size) => <option key={size} value={size}>{size} mỗi trang</option>)}
-              </select>
+              </InlineSelect>
             </div>
             <nav aria-label="Phân trang nhân viên" className="flex items-center gap-2">
               <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
@@ -323,25 +327,25 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="directory-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-2xl">
             <h3 id="directory-dialog-title" className="border-b border-line px-5 py-4 font-bold text-ink">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3>
-            <form onSubmit={submit} className="space-y-4 p-5">
+            <ValidatedForm validation={validation} onSubmit={submit} className="space-y-4 p-5">
               {fields.map((field) => (
                 <label key={field.key} className="block text-sm font-semibold text-ink">
                   <span className="mb-2 block">{field.label}</span>
                   {field.type === "department" || field.type === "facility" ? (
-                    <select className="admin-input" value={values[field.key] ?? ""} onChange={(event) => {
+                    <InlineSelect name={field.key} className="admin-input" value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
                       setValues((current) => ({ ...current, [field.key]: value }));
                     }}>
                       <option value="">Chưa phân công</option>
                       {(field.type === "department" ? departments : facilities).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                    </select>
+                    </InlineSelect>
                   ) : field.type === "boolean" ? (
-                    <select className="admin-input" value={values[field.key] ?? "false"} onChange={(event) => {
+                    <InlineSelect name={field.key} className="admin-input" value={values[field.key] ?? "false"} onChange={(event) => {
                       const value = event.currentTarget.value;
                       setValues((current) => ({ ...current, [field.key]: value }));
-                    }}><option value="false">Không</option><option value="true">Có</option></select>
+                    }}><option value="false">Không</option><option value="true">Có</option></InlineSelect>
                   ) : (
-                    <input type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
+                    <InlineInput name={field.key} type={field.type ?? "text"} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
                       setValues((current) => ({ ...current, [field.key]: value }));
                     }} className="admin-input" />
@@ -353,7 +357,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                 <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
-            </form>
+            </ValidatedForm>
           </section>
         </div>
       )}

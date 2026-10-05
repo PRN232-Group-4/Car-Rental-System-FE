@@ -1,5 +1,7 @@
 "use client";
 
+import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
+
 import { useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import {
@@ -31,6 +33,7 @@ export default function DriverLicenseProfile({
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const validation = useInlineValidation();
   const [error, setError] = useState("");
   const [editingApprovedLicense, setEditingApprovedLicense] = useState(false);
   const licenseComplete = Boolean(
@@ -50,14 +53,15 @@ export default function DriverLicenseProfile({
     if (!selectedFile) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(selectedFile.type)) {
       setFile(null);
-      setError("Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
+      validation.setField("imageUrl", "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
       return;
     }
     if (selectedFile.size > 10 * 1024 * 1024) {
       setFile(null);
-      setError("Tệp vượt quá 10 MB. Vui lòng chọn tệp nhỏ hơn.");
+      validation.setField("imageUrl", "Tệp vượt quá 10 MB. Vui lòng chọn tệp nhỏ hơn.");
       return;
     }
+    validation.clear("imageUrl");
     setFile(selectedFile);
   };
 
@@ -107,11 +111,7 @@ export default function DriverLicenseProfile({
       setFile(null);
       setSaved(true);
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Không thể lưu giấy phép lái xe.",
-      );
+      setError(validation.report(submitError, { licenseimageurl: "imageUrl" }));
     } finally {
       setSaving(false);
     }
@@ -266,11 +266,11 @@ export default function DriverLicenseProfile({
           </div>
         </div>
 
-        <form key={`driver-license-${staff.id}`} onSubmit={submit} className="space-y-5">
+        <ValidatedForm validation={validation} validate={() => !file && !staff.licenseImageUrl ? { imageUrl: "Vui lòng tải lên ảnh giấy phép lái xe." } : {}} key={`driver-license-${staff.id}`} onSubmit={submit} className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm font-semibold text-ink">
               Số giấy phép lái xe
-              <input
+              <InlineInput
                 name="licenseNumber"
                 required
                 defaultValue={staff.licenseNumber ?? ""}
@@ -279,7 +279,7 @@ export default function DriverLicenseProfile({
             </label>
             <label className="text-sm font-semibold text-ink">
               Hạng giấy phép
-              <input
+              <InlineInput
                 name="licenseType"
                 required
                 placeholder="A1, B1, B2..."
@@ -289,7 +289,7 @@ export default function DriverLicenseProfile({
             </label>
             <label className="text-sm font-semibold text-ink">
               Ngày cấp
-              <input
+              <InlineInput
                 name="licenseIssueDate"
                 type="date"
                 defaultValue={staff.licenseIssueDate?.slice(0, 10) ?? ""}
@@ -298,7 +298,7 @@ export default function DriverLicenseProfile({
             </label>
             <label className="text-sm font-semibold text-ink">
               Ngày hết hạn
-              <input
+              <InlineInput
                 name="licenseExpiryDate"
                 type="date"
                 required
@@ -308,7 +308,7 @@ export default function DriverLicenseProfile({
             </label>
           </div>
 
-          <input
+          <InlineInput showError={false} name="imageUrl" id="staff-license-image"
             ref={fileRef}
             type="file"
             accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
@@ -332,6 +332,7 @@ export default function DriverLicenseProfile({
             </span>
           </button>
 
+          <InlineError name="imageUrl" inputId="staff-license-image" />
           {(file || staff.licenseImageUrl) && (
             <div className="flex items-center gap-3 rounded-xl border border-line bg-canvas p-3">
               <FileCheck className="h-5 w-5 shrink-0 text-primary" />
@@ -370,7 +371,7 @@ export default function DriverLicenseProfile({
             {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
             {saving ? "Đang lưu..." : "Lưu giấy phép"}
           </button>
-        </form>
+        </ValidatedForm>
       </section>
       )}
     </div>

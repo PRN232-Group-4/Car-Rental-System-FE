@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
+import { cloneElement, createContext, useContext, useEffect, useRef, useState } from "react";
+import type { ChangeEvent, DragEvent, FormEvent, ReactElement } from "react";
+import { ApiClientError } from "@/api/api-client";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -72,6 +73,8 @@ const emptyDraft: VehicleDraft = {
   galleryImages: [],
 };
 
+const FieldErrors = createContext<Record<string, string>>({});
+
 const statuses = [
   { value: "available", label: "Sẵn sàng" },
   { value: "rented", label: "Đang thuê" },
@@ -94,6 +97,7 @@ export default function VehicleForm() {
   const [uploading, setUploading] = useState(false);
   const [imageDragActive, setImageDragActive] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isEditing = vehicleId !== null;
   const selectedVehicleType = vehicleTypes.find(
     (item) => String(item.id) === draft.vehicleTypeId,
@@ -128,6 +132,7 @@ export default function VehicleForm() {
 
   const updateDraft = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
+    setFieldErrors((current) => ({ ...current, [name]: "" }));
     if (name === "vehicleTypeId" && value !== draft.vehicleTypeId) {
       setDraft((current) => ({
         ...current,
@@ -158,10 +163,11 @@ export default function VehicleForm() {
   const uploadFiles = async (files: File[]) => {
     if (files.length === 0) return;
     if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
-      setError("Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
+      setFieldErrors((current) => ({ ...current, vehicleImage: "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP." }));
       return;
     }
     setUploading(true);
+    setFieldErrors((current) => ({ ...current, vehicleImage: "" }));
     setError("");
     try {
       for (const file of files) {
@@ -175,7 +181,7 @@ export default function VehicleForm() {
           : { ...current, mainImageUrl: imageUrl });
       }
     } catch (uploadError) {
-      setError(messageOf(uploadError, "Không thể tải ảnh lên."));
+      setFieldErrors((current) => ({ ...current, vehicleImage: messageOf(uploadError, "Không thể tải ảnh lên.") }));
     } finally {
       setUploading(false);
     }
@@ -201,17 +207,36 @@ export default function VehicleForm() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
+    const showErrors = (errors: Record<string, string>) => {
+      setFieldErrors(errors);
+      const first = Array.from(form.elements).find((element) => errors[element.id]);
+      if (first instanceof HTMLElement) first.focus();
+    };
+    const errors: Record<string, string> = {};
+    for (const control of Array.from(form.elements)) {
+      if (!(control instanceof HTMLInputElement || control instanceof HTMLSelectElement || control instanceof HTMLTextAreaElement) || !control.willValidate) continue;
+      if (control.required && !control.value.trim()) errors[control.id] = "Vui lòng nhập hoặc chọn giá trị cho trường này.";
+      else if (!control.validity.valid) errors[control.id] = control.validity.rangeUnderflow
+        ? `Giá trị phải từ ${control.getAttribute("min")} trở lên.`
+        : control.validity.rangeOverflow
+          ? `Giá trị không được vượt quá ${control.getAttribute("max")}.`
+          : "Giá trị không hợp lệ. Vui lòng kiểm tra định dạng và bước tăng.";
+    }
+    setError("");
+    showErrors(errors);
+    if (Object.keys(errors).length) return;
     if (!canManage) {
       setError("Bạn không có quyền lưu thay đổi.");
       return;
     }
     const vehicleTypeId = Number(draft.vehicleTypeId);
     if (!Number.isInteger(vehicleTypeId) || !vehicleTypes.some((item) => item.id === vehicleTypeId)) {
-      setError("Vui lòng chọn một loại phương tiện hợp lệ.");
+      showErrors({ vehicleTypeId: "Vui lòng chọn một loại phương tiện hợp lệ." });
       return;
     }
     if (!vehicleKind.isValid) {
-      setError("Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu.");
+      showErrors({ vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." });
       return;
     }
     setSaving(true);
@@ -251,7 +276,22 @@ export default function VehicleForm() {
       else await createVehicle(body);
       router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(messageOf(saveError, "Không thể lưu phương tiện."));
+      const mapped: Record<string, string> = {};
+      let unmapped = false;
+      if (saveError instanceof ApiClientError && typeof saveError.data === "object" && saveError.data !== null) {
+        const validation = (saveError.data as { errors?: Record<string, unknown> }).errors;
+        if (validation && typeof validation === "object") {
+          for (const [key, messages] of Object.entries(validation)) {
+            const property = key.split(".").pop()?.replace(/_/g, "").toLowerCase();
+            const field = Object.keys(draft).find((name) => name.toLowerCase() === property);
+            const message = Array.isArray(messages) ? messages.join(" ") : typeof messages === "string" ? messages : "";
+            if (field && form.querySelector(`[id="${field}"]`) && message) mapped[field] = message;
+            else unmapped = true;
+          }
+        }
+      }
+      showErrors(mapped);
+      if (!Object.keys(mapped).length || unmapped) setError(messageOf(saveError, "Không thể lưu phương tiện."));
     } finally {
       setSaving(false);
     }
@@ -280,7 +320,8 @@ export default function VehicleForm() {
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-red-700">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
-      <form onSubmit={submit} className="space-y-6">
+      <FieldErrors.Provider value={fieldErrors}>
+      <form noValidate onSubmit={submit} className="space-y-6">
         <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
           <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông tin phương tiện</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -395,9 +436,10 @@ export default function VehicleForm() {
 
         <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
           <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>
-          <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
+          <button type="submit" disabled={loading || saving || uploading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </div>
       </form>
+      </FieldErrors.Provider>
     </div>
   );
 }
@@ -475,8 +517,17 @@ function messageOf(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
-  return <div><label htmlFor={htmlFor} className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>{children}</div>;
+function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactElement<{ className?: string; "aria-invalid"?: boolean; "aria-describedby"?: string }> }) {
+  const error = useContext(FieldErrors)[htmlFor];
+  return <div>
+    <label htmlFor={htmlFor} className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>
+    {cloneElement(children, {
+      "aria-invalid": !!error,
+      "aria-describedby": [children.props["aria-describedby"], error ? `${htmlFor}-error` : undefined].filter(Boolean).join(" ") || undefined,
+      className: `${children.props.className ?? ""}${error ? " border-red-500 ring-1 ring-red-500" : ""}`,
+    })}
+    {error && <p id={`${htmlFor}-error`} role="alert" className="mt-2 text-sm text-red-700">{error}</p>}
+  </div>;
 }
 
 function ImagePreview({ src, label, onRemove }: { src: string; label: string; onRemove: () => void }) {
