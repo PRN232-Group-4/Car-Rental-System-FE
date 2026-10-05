@@ -67,13 +67,13 @@ export default function DriverVehicles() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Đội xe được phân công
         </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Phương tiện của tôi
         </h2>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-ink-muted">
           Danh sách xe có lịch phân công cho bạn trong khoảng một năm trước và sau ngày hiện tại.
         </p>
       </div>
@@ -84,12 +84,12 @@ export default function DriverVehicles() {
         </p>
       )}
       {loading && (
-        <p role="status" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+        <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-muted">
           Đang tải phương tiện được phân công...
         </p>
       )}
       {!loading && !error && vehicles.length === 0 && (
-        <p className="rounded-xl border border-slate-200 bg-white px-4 py-5 text-sm text-slate-600">
+        <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-muted">
           Chưa có phương tiện nào được phân công trong khoảng thời gian này.
         </p>
       )}
@@ -99,7 +99,7 @@ export default function DriverVehicles() {
           {vehicles.map((vehicle) => (
             <article
               key={vehicle.id}
-              className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm"
+              className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1"
             >
               {vehicle.mainImageUrl ? (
                 // Backend image URLs may come from configured external media storage.
@@ -107,32 +107,32 @@ export default function DriverVehicles() {
                 <img
                   src={vehicle.mainImageUrl}
                   alt={`${vehicle.brand ?? ""} ${vehicle.model ?? "phương tiện"}`.trim()}
-                  className="h-44 w-full bg-slate-100 object-cover"
+                  className="h-44 w-full bg-sunken object-cover"
                 />
               ) : (
-                <div className="flex h-44 items-center justify-center bg-emerald-50 text-emerald-700">
+                <div className="flex h-44 items-center justify-center bg-primary/10 text-primary">
                   <CarFront className="h-12 w-12" />
                 </div>
               )}
               <div className="space-y-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-slate-900">
+                    <h3 className="font-bold text-ink">
                       {[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || `Phương tiện #${vehicle.id}`}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-ink-muted">
                       {vehicle.vehicleType ?? "Chưa phân loại"}{vehicle.yearOfManufacture ? ` · ${vehicle.yearOfManufacture}` : ""}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                  <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                     {statusLabels[vehicle.status?.toLowerCase() ?? ""] ?? vehicle.status ?? "Chưa rõ"}
                   </span>
                 </div>
-                <p className="flex items-center gap-2 text-sm text-slate-500">
-                  <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
+                <p className="flex items-center gap-2 text-sm text-ink-muted">
+                  <MapPin className="h-4 w-4 shrink-0 text-ink-muted" />
                   {vehicle.location || vehicle.facility || "Chưa có vị trí"}
                 </p>
-                <p className="border-t border-slate-100 pt-3 text-sm font-semibold text-slate-700">
+                <p className="border-t border-line pt-3 text-sm font-semibold text-ink">
                   {vehicle.hourlyPrice === null
                     ? "Giá thuê chưa được cập nhật"
                     : `${vehicle.hourlyPrice.toLocaleString("vi-VN")} ₫ / giờ`}

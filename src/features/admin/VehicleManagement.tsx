@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getFacilities, getVehicleTypes, getVehicles } from "./api";
 import type { OrganizationUnitDto, VehicleDto, VehicleTypeDto } from "./api";
+import { useAuth } from "@/features/auth";
 
 const statusLabels: Record<string, string> = {
   available: "Sẵn sàng",
@@ -23,13 +24,16 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusStyles: Record<string, string> = {
-  available: "bg-emerald-50 text-emerald-700",
+  available: "bg-primary/10 text-primary",
   rented: "bg-blue-50 text-blue-700",
   maintenance: "bg-amber-50 text-amber-700",
-  unavailable: "bg-slate-100 text-slate-600",
+  unavailable: "bg-sunken text-ink-muted",
 };
 
 export default function VehicleManagement() {
+  const { hasRole } = useAuth();
+  const canManage = hasRole("admin") || hasRole("manager");
+
   const [vehicles, setVehicles] = useState<VehicleDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
@@ -98,27 +102,29 @@ export default function VehicleManagement() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Quản lý đội xe</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Phương tiện</h2>
-          <p className="mt-2 text-sm text-slate-500">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản lý đội xe</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Phương tiện</h2>
+          <p className="mt-2 text-sm text-ink-muted">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
         </div>
-        <Link href="/admin/vehicles/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-800/15 transition hover:bg-emerald-800">
-          <CirclePlus className="h-4 w-4" /> Thêm phương tiện
-        </Link>
+        {canManage && (
+          <Link href="/admin/vehicles/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover">
+            <CirclePlus className="h-4 w-4" /> Thêm phương tiện
+          </Link>
+        )}
       </div>
 
-      <p className="text-xs text-slate-500">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
+      <p className="text-xs text-ink-muted">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <p className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         API hiện hỗ trợ xem, thêm và cập nhật phương tiện; chưa có endpoint xóa.
       </p>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-900/[0.02]">
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:p-5">
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
+        <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:p-5">
           <label className="relative min-w-0 flex-1">
             <span className="sr-only">Tìm phương tiện</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
             <input value={search} onChange={(event) => {
               setSearch(event.currentTarget.value);
               setPage(1);
@@ -133,7 +139,7 @@ export default function VehicleManagement() {
               <option value="all">Tất cả loại xe</option>
               {vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
           </label>
           <label className="relative">
             <span className="sr-only">Lọc theo trạng thái</span>
@@ -144,62 +150,64 @@ export default function VehicleManagement() {
               <option value="all">Mọi trạng thái</option>
               {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
           </label>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
-            <thead className="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
               <tr>
                 <th className="px-5 py-3">Phương tiện</th>
                 <th className="px-4 py-3">Loại / Năm</th>
                 <th className="px-4 py-3">Chi nhánh</th>
                 <th className="px-4 py-3">Giá thuê / giờ</th>
                 <th className="px-4 py-3">Trạng thái</th>
-                <th className="px-5 py-3 text-right">Thao tác</th>
+                {canManage && <th className="px-5 py-3 text-right">Thao tác</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-line">
               {filteredVehicles.map((vehicle) => (
-                <tr key={vehicle.id} className="text-sm hover:bg-slate-50/60">
+                <tr key={vehicle.id} className="text-sm hover:bg-canvas/60">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <div
                         role={vehicle.mainImageUrl ? "img" : undefined}
                         aria-label={vehicle.mainImageUrl ? `Ảnh ${vehicle.brand} ${vehicle.model}` : undefined}
-                        className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100 bg-cover bg-center text-slate-400"
+                        className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-muted"
                         style={vehicle.mainImageUrl ? { backgroundImage: `url("${vehicle.mainImageUrl}")` } : undefined}
                       >
                         {!vehicle.mainImageUrl && <CarFront className="h-5 w-5" />}
                       </div>
                       <span>
-                        <span className="block font-semibold text-slate-800">{vehicle.brand} {vehicle.model}</span>
-                        <span className="mt-1 block text-xs text-slate-400">ID #{vehicle.id}</span>
+                        <span className="block font-semibold text-ink">{vehicle.brand} {vehicle.model}</span>
+                        <span className="mt-1 block text-xs text-ink-muted">ID #{vehicle.id}</span>
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3.5 text-slate-600">{vehicle.vehicleType ?? `Loại #${vehicle.vehicleTypeId}`}<span className="mt-1 block text-xs text-slate-400">{vehicle.yearOfManufacture ?? "—"}</span></td>
-                  <td className="px-4 py-3.5 text-slate-600">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
-                  <td className="px-4 py-3.5 font-medium text-slate-700">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
-                  <td className="px-4 py-3.5"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-slate-100 text-slate-600"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex justify-end gap-1">
-                      <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-800">
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                    </div>
-                  </td>
+                  <td className="px-4 py-3.5 text-ink-muted">{vehicle.vehicleType ?? `Loại #${vehicle.vehicleTypeId}`}<span className="mt-1 block text-xs text-ink-muted">{vehicle.yearOfManufacture ?? "—"}</span></td>
+                  <td className="px-4 py-3.5 text-ink-muted">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
+                  <td className="px-4 py-3.5 font-medium text-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
+                  <td className="px-4 py-3.5"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-sunken text-ink-muted"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
+                  {canManage && (
+                    <td className="px-5 py-3.5">
+                      <div className="flex justify-end gap-1">
+                        <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary">
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
               {!loading && filteredVehicles.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-14 text-center text-sm text-slate-500">Không tìm thấy phương tiện phù hợp.</td></tr>
+                <tr><td colSpan={canManage ? 6 : 5} className="px-5 py-14 text-center text-sm text-ink-muted">Không tìm thấy phương tiện phù hợp.</td></tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="flex flex-col gap-4 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
+        <div className="flex flex-col gap-4 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-muted">
             <span>Hiển thị {firstResult}–{lastResult} trong {totalCount} phương tiện</span>
             <label className="flex items-center gap-2">
               <span>Số dòng:</span>
@@ -209,7 +217,7 @@ export default function VehicleManagement() {
                   setPageSize(Number(event.currentTarget.value));
                   setPage(1);
                 }}
-                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-emerald-500"
+                className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary"
                 aria-label="Số phương tiện mỗi trang"
               >
                 {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
@@ -222,7 +230,7 @@ export default function VehicleManagement() {
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={currentPage === 1 || loading}
               aria-label="Trang trước"
-              className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -236,8 +244,8 @@ export default function VehicleManagement() {
                 aria-current={currentPage === pageNumber ? "page" : undefined}
                 className={`h-9 min-w-9 rounded-lg px-2 text-xs font-semibold transition ${
                   currentPage === pageNumber
-                    ? "bg-emerald-700 text-white"
-                    : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ? "bg-primary text-white"
+                    : "border border-line text-ink-muted hover:bg-canvas"
                 }`}
               >
                 {pageNumber}
@@ -248,7 +256,7 @@ export default function VehicleManagement() {
               onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
               disabled={currentPage === pageCount || loading}
               aria-label="Trang tiếp theo"
-              className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

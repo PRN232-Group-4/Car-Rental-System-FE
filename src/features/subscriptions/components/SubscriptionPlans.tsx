@@ -78,7 +78,7 @@ export default function SubscriptionPlans() {
           {popularPlan && (
             <div className="lg:col-span-7 bg-surface rounded-3xl p-8 sm:p-10 flex flex-col justify-between relative shadow-e3 text-ink border border-white">
               <div className="absolute -top-3.5 left-8 whitespace-nowrap bg-primary text-white text-xs uppercase tracking-wider font-extrabold px-4 py-1.5 rounded-full shadow-e2 flex items-center gap-1.5 z-20">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
+                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
                 <span>LỰA CHỌN PHỔ BIẾN NHẤT</span>
               </div>
 

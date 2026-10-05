@@ -43,11 +43,12 @@ export type DriverPortalAccount = Omit<AccountProfile, "staffId"> & {
 export function isDriverStaffAccount(
   account: AccountProfile,
 ): account is DriverPortalAccount {
-  const roles = account.roles ?? [];
+  const roles = (account.roles ?? []).map((role) => role.toLocaleLowerCase());
+  const hasDriverRole = roles.includes("driver");
   const isStaff = roles.some((role) =>
-    ["staff", "driver"].includes(role.toLocaleLowerCase()),
+    ["staff", "driver"].includes(role),
   );
   const isDriverDepartment =
     account.departmentName?.trim().toLocaleLowerCase() === "driver";
-  return isStaff && isDriverDepartment && account.staffId !== null;
+  return (hasDriverRole || (isStaff && isDriverDepartment)) && account.staffId !== null;
 }

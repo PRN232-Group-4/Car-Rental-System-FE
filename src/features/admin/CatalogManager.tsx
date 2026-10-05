@@ -16,6 +16,7 @@ import {
   updateVehicleType,
 } from "./api";
 import type { RentalPolicyDto, SubscriptionPlanDto, VehicleTypeDto } from "./api";
+import { useAuth } from "@/features/auth";
 
 type CatalogKey = "vehicle-types" | "policies" | "subscription-plans";
 type CatalogRecord = { id: number; values: Record<string, string>; active: boolean };
@@ -78,6 +79,12 @@ const fieldsByCatalog: Record<CatalogKey, Field[]> = {
 };
 
 export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
+  const isManager = hasRole("manager");
+  const canManage = isAdmin || isManager;
+  const canDelete = isAdmin;
+
   const info = catalogInfo[catalog];
   const Icon = info.icon;
   const [records, setRecords] = useState<CatalogRecord[]>([]);
@@ -182,42 +189,46 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800"><Icon className="h-6 w-6" /></span>
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Cấu hình hệ thống</p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{info.title}</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Cấu hình hệ thống</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2>
           </div>
         </div>
-        {catalog !== "policies" && (
-          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-800/15 transition hover:bg-emerald-800">
+        {canManage && catalog !== "policies" && (
+          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover">
             <Plus className="h-4 w-4" /> Thêm mới
           </button>
         )}
-        {catalog === "policies" && (
-          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-800/15 transition hover:bg-emerald-800">
+        {canManage && catalog === "policies" && (
+          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover">
             <Plus className="h-4 w-4" /> Thêm chính sách
           </button>
         )}
       </div>
-      <p className="text-sm text-slate-500">{info.description}</p>
+      <p className="text-sm text-ink-muted">{info.description}</p>
       {catalog === "policies" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-900/[0.02]">
-        <div className="border-b border-slate-100 px-5 py-4">
-          <h3 className="font-bold text-slate-900">Danh sách {info.title.toLocaleLowerCase()}</h3>
-          <p className="mt-1 text-xs text-slate-400">{loading ? "Đang tải..." : `${records.length} mục`}</p>
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
+        <div className="border-b border-line px-5 py-4">
+          <h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
+          <p className="mt-1 text-xs text-ink-muted">{loading ? "Đang tải..." : `${records.length} mục`}</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px] text-left">
-            <thead className="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              <tr>{columns.map((column) => <th key={column.key} className="px-5 py-3">{column.label}</th>)}<th className="px-5 py-3">Trạng thái</th><th className="px-5 py-3 text-right">Thao tác</th></tr>
+            <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              <tr>
+                {columns.map((column) => <th key={column.key} className="px-5 py-3">{column.label}</th>)}
+                <th className="px-5 py-3">Trạng thái</th>
+                {canManage && <th className="px-5 py-3 text-right">Thao tác</th>}
+              </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-line">
               {records.map((record) => (
-                <tr key={record.id} className="text-sm hover:bg-slate-50/60">
+                <tr key={record.id} className="text-sm hover:bg-canvas/60">
                   {columns.map((column) => (
-                    <td key={column.key} className="px-5 py-4 text-slate-700">
+                    <td key={column.key} className="px-5 py-4 text-ink">
                       {column.key === "price" ? `${Number(record.values.price || 0).toLocaleString("vi-VN")} ₫`
                         : ["vatRate", "overtimeFeeRate", "depositPercentage"].includes(column.key) ? `${record.values[column.key] ?? "—"}%`
                           : column.key === "durationDays" ? `${record.values.durationDays ?? "—"} ngày`
@@ -225,29 +236,31 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
                               : record.values[column.key] || "—"}
                     </td>
                   ))}
-                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${record.active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
-                  <td className="px-5 py-4">
-                    <div className="flex justify-end gap-1">
-                      {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-800"><Pencil className="h-4 w-4" /></button>}
-                      {catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-slate-500 transition hover:bg-red-50 hover:text-red-700"><Trash2 className="h-4 w-4" /></button>}
-                    </div>
-                  </td>
+                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${record.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-muted"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
+                  {canManage && (
+                    <td className="px-5 py-4">
+                      <div className="flex justify-end gap-1">
+                        {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>}
+                        {canDelete && catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-rose-50 hover:text-danger"><Trash2 className="h-4 w-4" /></button>}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
-              {!loading && records.length === 0 && <tr><td colSpan={columns.length + 2} className="px-5 py-12 text-center text-sm text-slate-500">Không có dữ liệu.</td></tr>}
+              {!loading && records.length === 0 && <tr><td colSpan={columns.length + (canManage ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-muted">Không có dữ liệu.</td></tr>}
             </tbody>
           </table>
         </div>
       </section>
 
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
-          <section role="dialog" aria-modal="true" aria-labelledby="catalog-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <div className="border-b border-slate-100 px-5 py-4 sm:px-6"><h3 id="catalog-dialog-title" className="font-bold text-slate-900">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3></div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="catalog-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-2xl">
+            <div className="border-b border-line px-5 py-4 sm:px-6"><h3 id="catalog-dialog-title" className="font-bold text-ink">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3></div>
             <form onSubmit={submitForm} className="space-y-4 p-5 sm:p-6">
               {fieldsByCatalog[catalog].map((field) => (
                 <label key={field.key} htmlFor={`catalog-${field.key}`} className="block">
-                  <span className="mb-2 block text-sm font-semibold text-slate-700">{field.label}</span>
+                  <span className="mb-2 block text-sm font-semibold text-ink">{field.label}</span>
                   {field.type === "textarea" ? (
                     <textarea id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
@@ -269,10 +282,10 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
                   )}
                 </label>
               ))}
-              {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
-                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Hủy</button>
-                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+              {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+              <div className="flex justify-end gap-3 border-t border-line pt-4">
+                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
+                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
             </form>
           </section>

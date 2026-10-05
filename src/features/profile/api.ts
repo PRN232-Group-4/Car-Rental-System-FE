@@ -39,11 +39,17 @@ export function initialsFor(name: string | null | undefined): string {
     .toLocaleUpperCase();
 }
 
-/** Admin, hoặc Staff không thuộc phòng Driver (tài xế về /staff) → được vào /admin. */
+/** Admin, Manager, hoặc Staff không thuộc phòng Driver (tài xế về /staff) → được vào /admin. */
 export function isAdminOrStaffAccount(account: AccountProfile): boolean {
   const roles = (account.roles ?? []).map((role) => role.toLocaleLowerCase());
-  if (roles.includes("admin")) return true;
-  if (!roles.some((role) => role === "staff" || role === "driver")) return false;
+  if (roles.includes("admin") || roles.includes("manager")) return true;
+  if (
+    !roles.some((role) =>
+      ["staff", "driver", "customerservice", "maintenance"].includes(role),
+    )
+  ) {
+    return false;
+  }
   return (account.departmentName ?? "").trim().toLocaleLowerCase() !== "driver";
 }
 
