@@ -18,6 +18,7 @@ import {
   updateStaff,
 } from "./api";
 import type { OrganizationUnitDto, StaffDto } from "./api";
+import { useAuth } from "@/features/auth";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
 type Row = {
@@ -38,6 +39,10 @@ const pageInfo: Record<Directory, { title: string; description: string; firstCol
 };
 
 export default function DirectoryPage({ directory }: { directory: Directory }) {
+  const { hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
+  const canModify = isAdmin && directory !== "roles";
+
   const info = pageInfo[directory];
   const Icon = info.icon;
   const [rows, setRows] = useState<Row[]>([]);
@@ -66,6 +71,12 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         setRows(facilityData.map((item) => toOrganizationRow(item, true)));
         setTotalCount(facilityData.length);
       } else if (directory === "staffs") {
+        if (!isAdmin) {
+          setError("Bạn cần quyền Quản trị viên (Admin) để xem và quản lý danh sách nhân sự.");
+          setRows([]);
+          setTotalCount(0);
+          return;
+        }
         const [departmentData, facilityData, staffPage] = await Promise.all([
           getDepartments(),
           getFacilities(),
@@ -76,30 +87,60 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         setRows((staffPage.items ?? []).map(toStaffRow));
         setTotalCount(staffPage.totalCount);
       } else {
-        const firstPage = await getStaff({ page: 1, pageSize: 100 });
-        const staffList = [...(firstPage.items ?? [])];
-        const extraPages = Math.ceil(firstPage.totalCount / 100) - 1;
-        if (extraPages > 0) {
-          const additional = await Promise.all(
-            Array.from({ length: extraPages }, (_, index) =>
-              getStaff({ page: index + 2, pageSize: 100 }),
-            ),
-          );
-          for (const staffPage of additional) staffList.push(...(staffPage.items ?? []));
+        if (!isAdmin) {
+          setError("Bạn cần quyền Quản trị viên (Admin) để xem danh sách vai trò hệ thống.");
+          setRows([]);
+          setTotalCount(0);
+          return;
         }
-        const grouped = new Map<string, StaffDto[]>();
+        let staffList: StaffDto[] = [];
+        try {
+          const firstPage = await getStaff({ page: 1, pageSize: 100 });
+          staffList = [...(firstPage.items ?? [])];
+          const extraPages = Math.ceil(firstPage.totalCount / 100) - 1;
+          if (extraPages > 0) {
+            const additional = await Promise.all(
+              Array.from({ length: extraPages }, (_, index) =>
+                getStaff({ page: index + 2, pageSize: 100 }),
+              ),
+            );
+            for (const staffPage of additional) staffList.push(...(staffPage.items ?? []));
+          }
+        } catch {
+          // If staff list fails to fetch, baseline roles will still be rendered
+        }
+
+        const SYSTEM_ROLES: { name: string; description: string }[] = [
+          { name: "Admin", description: "Quản trị viên toàn quyền hệ thống" },
+          { name: "Manager", description: "Quản lý đội xe, lịch trình và vận hành" },
+          { name: "CustomerService", description: "Chăm sóc khách hàng, duyệt GPLX và đối soát" },
+          { name: "Driver", description: "Tài xế vận hành các chuyến xe được giao" },
+          { name: "Maintenance", description: "Kỹ thuật viên kiểm định và bảo dưỡng xe" },
+          { name: "Staff", description: "Vai trò cơ sở cho nhân sự nội bộ" },
+          { name: "Customer", description: "Khách hàng sử dụng dịch vụ thuê xe" },
+        ];
+
+        const roleCounts = new Map<string, number>();
+        const roleActives = new Map<string, boolean>();
         for (const staff of staffList) {
-          const role = staff.staffRole?.trim();
-          if (!role) continue;
-          grouped.set(role, [...(grouped.get(role) ?? []), staff]);
+          const role = staff.staffRole?.trim() || (staff.isDriver ? "Driver" : "");
+          if (role) {
+            roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
+            if (staff.isActive) roleActives.set(role, true);
+          }
         }
-        const roleRows = Array.from(grouped, ([role, members]) => ({
-          id: members[0].id,
-          name: role,
-          description: "Lấy từ staffRole của nhân viên",
-          detail: `${members.length} tài khoản`,
-          active: members.some((member) => member.isActive),
-        }));
+
+        const roleRows = SYSTEM_ROLES.map((sysRole, idx) => {
+          const count = roleCounts.get(sysRole.name) ?? 0;
+          return {
+            id: idx + 1,
+            name: sysRole.name,
+            description: sysRole.description,
+            detail: `${count} tài khoản`,
+            active: count > 0 ? (roleActives.get(sysRole.name) ?? false) : true,
+          };
+        });
+
         setRows(roleRows);
         setTotalCount(roleRows.length);
       }
@@ -108,7 +149,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     } finally {
       setLoading(false);
     }
-  }, [directory, info.title, page, pageSize, search]);
+  }, [directory, info.title, isAdmin, page, pageSize, search]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);
@@ -218,56 +259,73 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800"><Icon className="h-6 w-6" /></span>
-          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Quản trị hệ thống</p><h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{info.title}</h2></div>
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
+          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản trị hệ thống</p><h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2></div>
         </div>
-        {directory !== "roles" && <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800"><Plus className="h-4 w-4" /> Thêm mới</button>}
+        {canModify && <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover"><Plus className="h-4 w-4" /> Thêm mới</button>}
       </div>
-      <p className="text-sm text-slate-500">{info.description}</p>
+      <p className="text-sm text-ink-muted">{info.description}</p>
       {directory === "roles" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-4"><h3 className="font-bold text-slate-900">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-slate-400">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
-        {directory === "staffs" && <div className="border-b border-slate-100 p-4"><label className="relative block max-w-lg"><span className="sr-only">Tìm nhân viên</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên hoặc email..." className="admin-input admin-search-input" /></label></div>}
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
+        <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
+        {directory === "staffs" && <div className="border-b border-line p-4"><label className="relative block max-w-lg"><span className="sr-only">Tìm nhân viên</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" /><input value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên hoặc email..." className="admin-input admin-search-input" /></label></div>}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left">
-            <thead className="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400"><tr><th className="px-5 py-3">{info.firstColumn}</th><th className="px-5 py-3">{info.secondColumn}</th><th className="px-5 py-3">{info.thirdColumn}</th><th className="px-5 py-3">Trạng thái</th><th className="px-5 py-3 text-right">Thao tác</th></tr></thead>
-            <tbody className="divide-y divide-slate-100">
+            <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              <tr>
+                <th className="px-5 py-3">{info.firstColumn}</th>
+                <th className="px-5 py-3">{info.secondColumn}</th>
+                <th className="px-5 py-3">{info.thirdColumn}</th>
+                <th className="px-5 py-3">Trạng thái</th>
+                {canModify && <th className="px-5 py-3 text-right">Thao tác</th>}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
               {rows.map((row) => (
-                <tr key={row.id} className="text-sm">
-                  <td className="px-5 py-4 font-semibold text-slate-800">{row.name}</td><td className="px-5 py-4 text-slate-600">{row.description || "—"}</td><td className="px-5 py-4 text-slate-600">{row.detail || "—"}</td>
-                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${row.active ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
-                  <td className="px-5 py-4"><div className="flex justify-end gap-1">{directory !== "roles" && <><button type="button" onClick={() => openForm(row)} aria-label={`Sửa ${row.name}`} className="rounded-lg p-2 text-slate-500 hover:bg-emerald-50 hover:text-emerald-800"><Pencil className="h-4 w-4" /></button><button type="button" onClick={() => void remove(row)} aria-label={`Xóa ${row.name}`} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700"><Trash2 className="h-4 w-4" /></button></>}</div></td>
+                <tr key={row.id} className="text-sm hover:bg-canvas/60">
+                  <td className="px-5 py-4 font-semibold text-ink">{row.name}</td>
+                  <td className="px-5 py-4 text-ink-muted">{row.description || "—"}</td>
+                  <td className="px-5 py-4 text-ink-muted">{row.detail || "—"}</td>
+                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${row.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-muted"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
+                  {canModify && (
+                    <td className="px-5 py-4">
+                      <div className="flex justify-end gap-1">
+                        <button type="button" onClick={() => openForm(row)} aria-label={`Sửa ${row.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => void remove(row)} aria-label={`Xóa ${row.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-rose-50 hover:text-danger"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
-              {!loading && rows.length === 0 && <tr><td colSpan={5} className="px-5 py-12 text-center text-sm text-slate-500">Không có dữ liệu.</td></tr>}
+              {!loading && rows.length === 0 && <tr><td colSpan={canModify ? 5 : 4} className="px-5 py-12 text-center text-sm text-ink-muted">Không có dữ liệu.</td></tr>}
             </tbody>
           </table>
         </div>
         {directory === "staffs" && (
-          <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <div className="flex items-center gap-3 text-xs text-slate-500">
+          <div className="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+            <div className="flex items-center gap-3 text-xs text-ink-muted">
               <span>Trang {page} / {pageCount} · {totalCount} nhân viên</span>
-              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary">
                 {[10, 20, 50].map((size) => <option key={size} value={size}>{size} mỗi trang</option>)}
               </select>
             </div>
             <nav aria-label="Phân trang nhân viên" className="flex items-center gap-2">
-              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-slate-200 p-2 text-slate-600 disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
-              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded-lg border border-slate-200 p-2 text-slate-600 disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
+              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
+              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
             </nav>
           </div>
         )}
       </section>
 
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
-          <section role="dialog" aria-modal="true" aria-labelledby="directory-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <h3 id="directory-dialog-title" className="border-b border-slate-100 px-5 py-4 font-bold text-slate-900">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="directory-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-2xl">
+            <h3 id="directory-dialog-title" className="border-b border-line px-5 py-4 font-bold text-ink">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3>
             <form onSubmit={submit} className="space-y-4 p-5">
               {fields.map((field) => (
-                <label key={field.key} className="block text-sm font-semibold text-slate-700">
+                <label key={field.key} className="block text-sm font-semibold text-ink">
                   <span className="mb-2 block">{field.label}</span>
                   {field.type === "department" || field.type === "facility" ? (
                     <select className="admin-input" value={values[field.key] ?? ""} onChange={(event) => {
@@ -290,10 +348,10 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                   )}
                 </label>
               ))}
-              {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
-                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700">Hủy</button>
-                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+              {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+              <div className="flex justify-end gap-3 border-t border-line pt-4">
+                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
+                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
             </form>
           </section>

@@ -98,7 +98,7 @@ export default function DriverRevenueDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
             Doanh thu theo lịch phân công
           </p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
@@ -109,7 +109,7 @@ export default function DriverRevenueDashboard() {
           </p>
         </div>
         <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700">
-          <CalendarDays className="h-4 w-4 text-emerald-700" />
+          <CalendarDays className="h-4 w-4 text-primary" />
           <span className="sr-only">Chọn tháng</span>
           <input
             type="month"
@@ -136,7 +136,7 @@ export default function DriverRevenueDashboard() {
 
       <section aria-label="Chỉ số doanh thu" className="grid gap-4 sm:grid-cols-2">
         <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <CircleDollarSign className="h-5 w-5" />
           </span>
           <p className="mt-5 text-sm font-medium text-slate-500">Tổng giá trị chuyến hoàn thành</p>

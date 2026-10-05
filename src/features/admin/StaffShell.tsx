@@ -25,21 +25,67 @@ import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { initialsFor, isAdminOrStaffAccount } from "@/features/profile/api";
 
-const navigation = [
-  { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/admin/vehicles", label: "Quản lý phương tiện", icon: CarFront },
-  { href: "/admin/vehicle-types", label: "Loại phương tiện", icon: Tags },
-  { href: "/admin/policies", label: "Chính sách thuê xe", icon: ReceiptText },
+const allNavigation = [
+  {
+    href: "/admin",
+    label: "Tổng quan",
+    icon: LayoutDashboard,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/vehicles",
+    label: "Quản lý phương tiện",
+    icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/vehicle-types",
+    label: "Loại phương tiện",
+    icon: Tags,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/policies",
+    label: "Chính sách thuê xe",
+    icon: ReceiptText,
+    roles: ["Admin", "Manager"],
+  },
   {
     href: "/admin/subscription-plans",
     label: "Gói Đăng Ký",
     icon: WalletCards,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
-  { href: "/admin/departments", label: "Phòng Ban", icon: Building2 },
-  { href: "/admin/facilities", label: "Cơ Sở", icon: Building2 },
-  { href: "/admin/staffs", label: "Nhân Viên", icon: UsersRound },
-  { href: "/admin/roles", label: "Vai Trò", icon: KeyRound },
-  { href: "/admin/profile", label: "Hồ sơ nhân viên", icon: CircleUserRound },
+  {
+    href: "/admin/departments",
+    label: "Phòng Ban",
+    icon: Building2,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/facilities",
+    label: "Cơ Sở",
+    icon: Building2,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/staffs",
+    label: "Nhân Viên",
+    icon: UsersRound,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/roles",
+    label: "Vai Trò",
+    icon: KeyRound,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/profile",
+    label: "Hồ sơ nhân viên",
+    icon: CircleUserRound,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
 ];
 
 export default function StaffShell({ children }: { children: ReactNode }) {
@@ -54,7 +100,18 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState("");
 
-  // usePortalAccess chỉ trả account; chức danh + tên cơ sở phải lấy thêm.
+  const userRoles = useMemo(
+    () => (account?.roles ?? []).map((r) => r.toLowerCase()),
+    [account?.roles],
+  );
+
+  const navigation = useMemo(() => {
+    return allNavigation.filter((item) =>
+      item.roles.some((role) => userRoles.includes(role.toLowerCase())),
+    );
+  }, [userRoles]);
+
+  // usePortalAccess chỉ trả account; chức danh + tên cơ sở lấy an toàn không crash 403
   useEffect(() => {
     if (!account) return;
     let active = true;
@@ -64,16 +121,34 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         let nextStaffRole: string | null = null;
         let nextFacilityName: string | null = null;
 
-        if (account.staffId != null) {
-          const staff = await getStaffById(account.staffId);
-          nextStaffRole = staff.staffRole;
-          nextFacilityName = staff.facilityName;
+        const isAdmin = userRoles.includes("admin");
+
+        if (isAdmin && account.staffId != null) {
+          try {
+            const staff = await getStaffById(account.staffId);
+            nextStaffRole = staff.staffRole;
+            nextFacilityName = staff.facilityName;
+          } catch {
+            // Không chặn nếu role lookup lỗi
+          }
+        }
+
+        if (!nextStaffRole) {
+          if (userRoles.includes("admin")) nextStaffRole = "Quản trị viên";
+          else if (userRoles.includes("manager")) nextStaffRole = "Quản lý";
+          else if (userRoles.includes("customerservice")) nextStaffRole = "Chăm sóc khách hàng";
+          else if (userRoles.includes("maintenance")) nextStaffRole = "Kỹ thuật / Bảo trì";
+          else nextStaffRole = account.departmentName || "Nhân viên";
         }
 
         if (!nextFacilityName && account.facilityId != null) {
-          const facilities = await getFacilities();
-          nextFacilityName =
-            facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+          try {
+            const facilities = await getFacilities();
+            nextFacilityName =
+              facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+          } catch {
+            // Ignore
+          }
         }
 
         if (active) {
@@ -96,7 +171,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
-  }, [account]);
+  }, [account, userRoles]);
 
   const currentPage =
     navigation.find((item) => item.href === pathname)?.label ??
@@ -125,7 +200,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           className="flex items-center gap-3"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400 text-emerald-950">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-elevation-1">
             <CarFront className="h-6 w-6" />
           </span>
           <span>
@@ -165,16 +240,16 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                   active
-                    ? "bg-emerald-400 font-semibold text-emerald-950 shadow-lg shadow-emerald-950/10"
+                    ? "bg-primary font-semibold text-white shadow-elevation-1"
                     : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
                 }`}
               >
                 <Icon
-                  className={`h-[18px] w-[18px] ${active ? "text-emerald-950" : "text-slate-400 group-hover:text-emerald-300"}`}
+                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-slate-400 group-hover:text-primary"}`}
                 />
                 {label}
                 {active && (
-                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180" />
+                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180 text-white" />
                 )}
               </Link>
             );
@@ -205,7 +280,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           <Link
             href="/admin/profile"
             onClick={() => setMobileMenuOpen(false)}
-            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
+            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-slate-300 transition hover:border-primary/40 hover:text-primary"
           >
             Xem hồ sơ nhân viên
           </Link>
@@ -216,7 +291,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               void handleLogout();
             }}
             disabled={loggingOut}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200 disabled:cursor-wait disabled:opacity-60"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-primary/40 hover:text-primary disabled:cursor-wait disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />
             {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
@@ -290,7 +365,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
+            <span className="hidden rounded-full border border-border bg-sunken px-3 py-1.5 text-xs font-semibold text-ink sm:inline-flex">
               {profileLoading
                 ? "Đang tải chi nhánh..."
                 : facilityName || "Chưa phân công chi nhánh"}
@@ -305,7 +380,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             </button>
             <Link
               href="/admin/profile"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
               aria-label="Hồ sơ nhân viên"
             >
               {initials}
