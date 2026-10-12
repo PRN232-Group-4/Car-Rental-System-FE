@@ -113,9 +113,9 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
           >
             <span>{tab.label}</span>
             <span
-              className={`text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
+              className={`text-xs uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
                 selectedCategory === tab.id
-                  ? "bg-white/20 text-white"
+                  ? "bg-surface/20 text-white"
                   : "bg-sunken text-ink-3"
               }`}
             >
@@ -202,7 +202,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                   {vehicle.badges.map((badge, idx) => (
                     <span
                       key={idx}
-                      className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-stage-ink/90 text-white border border-white/10"
+                      className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-stage-ink/90 text-white border border-white/10"
                     >
                       {badge}
                     </span>
@@ -291,7 +291,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                       <span className="font-mono text-sm font-bold text-ink-2">
                         {formatVND(vehicle.monthlyPrice)}
                       </span>
-                      <span className="text-[11px] text-ink-3 block">/ tháng</span>
+                      <span className="text-xs text-ink-3 block">/ tháng</span>
                     </div>
                   </div>
 

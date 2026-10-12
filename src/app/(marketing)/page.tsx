@@ -22,9 +22,9 @@ export default function Home() {
   };
 
   return (
-    <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-amber-500/20 selection:text-amber-900 bg-[var(--canvas)]">
+    <main className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-primary/20 selection:text-warning bg-canvas">
       {/* Background Architectural Canvas & Subtle Depth */}
-      <div className="absolute inset-0 pointer-events-none z-0 bg-[var(--canvas)]" />
+      <div className="absolute inset-0 pointer-events-none z-0 bg-canvas" />
 
       {/* Full Page Engineering Continuous Blueprint Dossier Background */}
       <ContinuousBlueprint />

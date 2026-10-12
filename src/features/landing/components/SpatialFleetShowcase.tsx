@@ -139,7 +139,7 @@ export default function SpatialFleetShowcase({
       {/* Section Header with Spatial Typography */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider mb-3">
             <Zap className="w-3.5 h-3.5 fill-primary" />
             <span>INTERACTIVE SPATIAL SHOWCASE</span>
           </div>
@@ -162,15 +162,15 @@ export default function SpatialFleetShowcase({
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none active:scale-[0.98] flex items-center gap-2.5 ${
               activeModelId === model.id
                 ? "bg-primary text-white shadow-e2 border border-white/20"
-                : "bg-[#13221E] hover:bg-[#1A302A] text-white/80 hover:text-white border border-white/10"
+                : "bg-stage-ink hover:bg-stage-ink/90 text-white/80 hover:text-white border border-white/10"
             }`}
           >
             <span>{model.name}</span>
             <span
-              className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded ${
+              className={`text-xs font-mono uppercase tracking-wider px-2 py-0.5 rounded ${
                 activeModelId === model.id
-                  ? "bg-white/20 text-white"
-                  : "bg-white/10 text-white/60"
+                  ? "bg-surface/20 text-white"
+                  : "bg-surface/10 text-white/60"
               }`}
             >
               {model.classTag}
@@ -192,14 +192,14 @@ export default function SpatialFleetShowcase({
               className="object-cover group-hover:scale-105 group-hover:rotate-1 transition-transform duration-700 ease-out"
             />
             {/* Flat dark scrim per A4.1 */}
-            <div className="absolute inset-0 bg-[#0E1A16]/40 pointer-events-none" />
+            <div className="absolute inset-0 bg-stage-ink/40 pointer-events-none" />
 
             {/* Top Badges */}
             <div className="absolute top-4 left-4 flex items-center gap-2">
               <span className="glass-1 px-3 py-1 rounded-full text-white text-xs font-mono font-bold border border-white/20 shadow-e1">
                 {activeModel.classTag}
               </span>
-              <span className="inline-flex items-center gap-1 bg-emerald-950/80 text-emerald-400 text-xs font-mono font-bold px-3 py-1 rounded-full border border-emerald-500/30">
+              <span className="inline-flex items-center gap-1 bg-primary/20 text-primary-tint text-xs font-mono font-bold px-3 py-1 rounded-full border border-primary/40">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>SẴN SÀNG</span>
               </span>
@@ -208,13 +208,13 @@ export default function SpatialFleetShowcase({
             {/* Telemetry Floating Glass HUD on Image */}
             <div className="absolute bottom-4 inset-x-4 glass-ink p-4 rounded-2xl border border-white/15 flex items-center justify-between shadow-e2">
               <div>
-                <span className="text-[11px] text-white/60 font-mono block">PHẠM VI DI CHUYỂN</span>
-                <span className="text-xl sm:text-2xl font-black font-mono text-emerald-400">
+                <span className="text-xs text-white/60 font-mono block">PHẠM VI DI CHUYỂN</span>
+                <span className="text-xl sm:text-2xl font-black font-mono text-primary-tint">
                   WLTP {activeModel.rangeKm} km
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-[11px] text-white/60 font-mono block">TÌNH TRẠNG PIN SoH</span>
+                <span className="text-xs text-white/60 font-mono block">TÌNH TRẠNG PIN SoH</span>
                 <span className="text-xl sm:text-2xl font-black font-mono text-white">
                   {activeModel.healthSoh}
                 </span>
@@ -267,7 +267,7 @@ export default function SpatialFleetShowcase({
                   <ShieldCheck className="w-4 h-4 text-primary" />
                   <span>Kiểm định 2 chiều</span>
                 </div>
-                <span className="font-mono text-lg font-black text-emerald-600">ĐẠT CHUẨN</span>
+                <span className="font-mono text-lg font-black text-primary">ĐẠT CHUẨN</span>
               </div>
             </div>
 
@@ -291,7 +291,7 @@ export default function SpatialFleetShowcase({
                 </span>
                 <span className="text-xs text-ink-3 font-semibold"> / giờ</span>
               </div>
-              <span className="text-[11px] text-ink-3 font-mono block">
+              <span className="text-xs text-ink-3 font-mono block">
                 Gói tháng: {formatVND(activeModel.monthlyPrice)}
               </span>
             </div>

@@ -98,7 +98,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--scrim-modal)] cursor-pointer"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim cursor-pointer"
       role="dialog"
       aria-modal="true"
       aria-labelledby="booking-modal-title"
@@ -106,10 +106,10 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
       <div
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="glass-3 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-elevation-2 cursor-default"
+        className="glass-3 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-e2 cursor-default"
       >
         {/* Header */}
-        <div className="p-6 border-b border-border flex items-center justify-between sticky top-0 bg-surface/95 z-10">
+        <div className="p-6 border-b border-line flex items-center justify-between sticky top-0 bg-surface/95 z-10">
           <div>
             <span className="text-xs uppercase tracking-wider font-bold text-primary">
               Xác nhận thông tin & bảng giá minh bạch
@@ -122,7 +122,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Đóng hộp thoại đặt xe"
-            className="w-10 h-10 rounded-full bg-canvas hover:bg-surface-elevated border border-border flex items-center justify-center text-ink-muted hover:text-ink transition-colors cursor-pointer"
+            className="w-10 h-10 rounded-full bg-canvas hover:bg-surface-raised border border-line flex items-center justify-center text-ink-3 hover:text-ink transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -130,14 +130,14 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
 
         {bookingSuccess ? (
           <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-elevation-1">
+            <div className="w-16 h-16 bg-primary-tint border border-primary/30 text-warning rounded-full flex items-center justify-center mx-auto shadow-e1">
               <Check className="w-8 h-8 stroke-[3]" />
             </div>
             <h4 className="text-2xl font-bold text-ink">
               Gửi yêu cầu thuê xe thành công
             </h4>
-            <p className="text-sm text-ink-muted max-w-md mx-auto leading-relaxed">
-              Mã đơn: <strong className="text-ink">{bookingResult?.bookingId || "TD-881920"}</strong>. Đơn đang ở trạng thái <span className="text-amber-800 font-semibold">Chờ xác nhận (pending)</span>. Nhân viên chi nhánh {vehicle.facilityName} sẽ liên hệ xác minh GPLX và gửi link thanh toán cọc PayOS trong ít phút.
+            <p className="text-sm text-ink-3 max-w-md mx-auto leading-relaxed">
+              Mã đơn: <strong className="text-ink">{bookingResult?.bookingId || "TD-881920"}</strong>. Đơn đang ở trạng thái <span className="text-warning font-semibold">Chờ xác nhận (pending)</span>. Nhân viên chi nhánh {vehicle.facilityName} sẽ liên hệ xác minh GPLX và gửi link thanh toán cọc PayOS trong ít phút.
             </p>
             <div className="pt-4">
               <Button onClick={onClose} variant="primary">
@@ -148,7 +148,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
         ) : (
           <div className="p-6 space-y-6">
             {/* Vehicle preview bar */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-canvas border border-border">
+            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-canvas border border-line">
               <div className="relative w-full sm:w-36 h-24 rounded-xl overflow-hidden shrink-0 bg-stage-ink">
                 <Image
                   src={vehicle.imageUrl}
@@ -159,13 +159,13 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
               </div>
               <div className="space-y-1 w-full text-left">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-surface border border-border text-ink">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-surface border border-line text-ink">
                     {vehicle.categoryLabel}
                   </span>
                   <span className="text-xs text-ink-subtle">Đời {vehicle.year}</span>
                 </div>
                 <p className="text-sm font-bold text-ink">{vehicle.name}</p>
-                <p className="text-xs text-ink-muted flex items-center gap-1">
+                <p className="text-xs text-ink-3 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-primary" />
                   <span>{vehicle.facilityName}</span>
                 </p>
@@ -175,7 +175,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             {/* Config Duration & Mode */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-ink-muted block">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">
                   Thời lượng thuê dự kiến
                 </span>
                 <div className="flex items-center gap-2" role="group" aria-label="Chọn thời lượng thuê">
@@ -187,8 +187,8 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                       onClick={() => setRentalHours(hours)}
                       className={`flex-1 min-h-[44px] py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
                         rentalHours === hours
-                          ? "bg-primary border-primary text-white shadow-elevation-1"
-                          : "bg-surface hover:bg-surface-elevated text-ink border-border"
+                          ? "bg-primary border-primary text-white shadow-e1"
+                          : "bg-surface hover:bg-surface-raised text-ink border-line"
                       }`}
                     >
                       {hours} giờ
@@ -198,7 +198,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
               </div>
 
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-ink-muted block">
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-3 block">
                   Hình thức điều khiển
                 </span>
                 <div
@@ -212,12 +212,12 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             </div>
 
             {/* Price breakdown table */}
-            <div className="rounded-2xl p-5 bg-canvas border border-border space-y-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-ink-muted border-b border-border pb-2">
+            <div className="rounded-2xl p-5 bg-canvas border border-line space-y-3">
+              <div className="text-xs font-bold uppercase tracking-wider text-ink-3 border-b border-line pb-2">
                 Chi tiết dự toán chi phí (Áp dụng theo chính sách đang kích hoạt)
               </div>
               
-              <div className="flex justify-between text-sm text-ink-muted">
+              <div className="flex justify-between text-sm text-ink-3">
                 <span>
                   Đơn giá thuê ({rentalHours} giờ x {(vehicle.hourlyPrice + driverFeePerHour).toLocaleString("vi-VN")}đ)
                 </span>
@@ -226,7 +226,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm text-ink-muted">
+              <div className="flex justify-between text-sm text-ink-3">
                 <span className="flex items-center gap-1">
                   <span>Thuế VAT (10%)</span>
                 </span>
@@ -235,9 +235,9 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                 </span>
               </div>
 
-              <div className="flex justify-between text-sm text-amber-900 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+              <div className="flex justify-between text-sm text-warning bg-primary-tint p-2.5 rounded-xl border border-primary/30">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-4 h-4 text-amber-700" />
+                  <ShieldCheck className="w-4 h-4 text-warning" />
                   <span>Tiền đặt cọc xe (10% - Hoàn trả tự động sau kiểm định)</span>
                 </span>
                 <span className="font-bold">
@@ -245,7 +245,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
                 </span>
               </div>
 
-              <div className="pt-3 border-t border-border flex justify-between items-baseline">
+              <div className="pt-3 border-t border-line flex justify-between items-baseline">
                 <div>
                   <span className="text-base font-bold text-ink">
                     Tổng tiền thanh toán thuê
@@ -263,8 +263,8 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
             </div>
 
             {/* Trust disclaimer */}
-            <div className="text-xs text-ink-muted flex items-start gap-2 bg-blue-50 p-3 rounded-xl border border-blue-100">
-              <AlertCircle className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
+            <div className="text-xs text-ink-3 flex items-start gap-2 bg-info-bg p-3 rounded-xl border border-info/20">
+              <AlertCircle className="w-4 h-4 text-info shrink-0 mt-0.5" />
               <span>
                 Không phát sinh phí ẩn. Khách hàng nhận biên bản kiểm định 2 chiều trước khi lăn bánh. Cọc được hoàn tự động về tài khoản nguồn qua cổng PayOS ngay khi hoàn tất kiểm tra trả xe.
               </span>
@@ -272,7 +272,7 @@ export default function BookingModal({ vehicle, onClose }: BookingModalProps) {
 
             {/* Error message */}
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-danger text-xs font-semibold flex items-start gap-2">
+              <div className="p-3 rounded-xl bg-danger-bg border border-danger/30 text-danger text-xs font-semibold flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>

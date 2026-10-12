@@ -27,34 +27,37 @@ export class ApiClientError extends Error {
   constructor(status: number, statusText: string, data: unknown) {
     let message = `API Error [${status}]: ${statusText}`;
 
-    if (typeof data === "object" && data !== null) {
-      const d = data as Record<string, unknown>;
-      const errorList: string[] = [];
-      if (d.errors && typeof d.errors === "object") {
-        for (const [key, err] of Object.entries(d.errors as Record<string, unknown>)) {
-          if (Array.isArray(err)) {
-            for (const item of err) {
-              if (item) {
-                errorList.push(key ? `${key}: ${item}` : String(item));
-              }
-            }
-          } else if (typeof err === "string" && err.trim()) {
-            errorList.push(key ? `${key}: ${err}` : err);
+    // BE bọc mọi response trong ApiResponse nên ProblemDetails nằm ở `error`, không phải ở gốc.
+    const body = asRecord(data);
+    const problem = asRecord(body?.error) ?? body;
+    const errorList: string[] = [];
+
+    const errors = asRecord(problem?.errors);
+    for (const [key, err] of Object.entries(errors ?? {})) {
+      if (Array.isArray(err)) {
+        for (const item of err) {
+          if (item) {
+            errorList.push(key ? `${key}: ${item}` : String(item));
           }
         }
+      } else if (typeof err === "string" && err.trim()) {
+        errorList.push(key ? `${key}: ${err}` : err);
       }
+    }
 
-      if (errorList.length > 0) {
-        message = errorList.join("\n");
-      } else if (typeof d.detail === "string" && d.detail) {
-        message = d.detail;
-      } else if (typeof d.message === "string" && d.message) {
-        message = d.message;
-      } else if (typeof d.title === "string" && d.title) {
-        message = d.title;
-      }
-    } else if (typeof data === "string" && data.trim()) {
-      message = data;
+    const text = (source: Record<string, unknown> | null, key: string) => {
+      const value = source?.[key];
+      return typeof value === "string" && value ? value : undefined;
+    };
+
+    if (errorList.length > 0) {
+      message = errorList.join("\n");
+    } else {
+      message =
+        text(problem, "detail") ??
+        text(body, "message") ??
+        text(problem, "title") ??
+        (typeof data === "string" && data.trim() ? data : message);
     }
 
     super(message);
@@ -236,6 +239,10 @@ export class ApiClient {
   public delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
 function toCleanPath(path: string): string {

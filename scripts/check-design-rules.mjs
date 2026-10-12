@@ -123,6 +123,27 @@ for (const file of files) {
         });
       }
     }
+
+    // 8. Màu thô: palette Tailwind hoặc hex tuỳ ý trong class màu.
+    //    A2 + A12: mọi màu phải đi qua token --color-* khai báo ở globals.css.
+    if (!isGlobalsCss) {
+      const rawColour = line.match(
+        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|fill|stroke|divide|from|to|via|outline|decoration|accent|caret|placeholder)-(?:emerald|green|orange|amber|slate|gray|zinc|neutral|stone|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|lime|yellow)-(?:\d{2,3})(?:\/\d+)?\b/g,
+      );
+      const rawHex = line.match(
+        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|fill|stroke|divide|from|to|via|outline|accent|caret|placeholder)-\[#[0-9a-fA-F]{3,8}\](?:\/\d+)?/g,
+      );
+      const found = [...(rawColour ?? []), ...(rawHex ?? [])].map((s) => s.trim());
+      if (found.length) {
+        violations.push({
+          file: relPath,
+          line: lineNum,
+          rule: 'NO_RAW_PALETTE_COLOUR (A2, A12)',
+          message: `Cấm màu palette/hex thô (${[...new Set(found)].join(', ')}); dùng token --color-* qua globals.css (text-ink, bg-primary, border-line…).`,
+          detail: trimmed
+        });
+      }
+    }
   });
 }
 

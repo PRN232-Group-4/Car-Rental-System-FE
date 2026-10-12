@@ -25,7 +25,7 @@ import { defaultApiClient } from "@/api/default-api-client";
 
 export default function DatXePage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-neutral-500">Đang tải biểu mẫu đặt xe...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-sm text-ink-3">Đang tải biểu mẫu đặt xe...</div>}>
       <DatXeForm />
     </Suspense>
   );
@@ -229,30 +229,30 @@ function DatXeForm() {
     <div className="space-y-8 max-w-5xl mx-auto">
       {/* Page Header */}
       <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-2">
-          <Car className="w-3.5 h-3.5 text-emerald-600" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-warning text-xs font-bold mb-2">
+          <Car className="w-3.5 h-3.5 text-primary" />
           <span>Đặt xe trực tuyến</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
           Tạo đơn thuê xe
         </h1>
-        <p className="text-sm text-neutral-500 mt-1">
+        <p className="text-sm text-ink-3 mt-1">
           Linh hoạt lựa chọn thuê trực tiếp thanh toán từng lượt hoặc sử dụng gói thuê bao đã mua.
         </p>
       </div>
 
       {/* Success Modal / Banner */}
       {successResult && (
-        <div className="p-8 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-5 animate-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-600/30">
+        <div className="p-8 rounded-3xl bg-primary-tint border border-primary/30 text-center space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center mx-auto shadow-lg shadow-primary/30">
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-black text-neutral-900">Đặt xe thành công!</h2>
-            <p className="text-xs font-semibold text-neutral-500 mt-1">
-              Mã đơn đặt xe: <span className="text-emerald-700 font-bold font-mono">#{successResult.bookingId}</span>
+            <h2 className="text-2xl font-black text-ink">Đặt xe thành công!</h2>
+            <p className="text-xs font-semibold text-ink-3 mt-1">
+              Mã đơn đặt xe: <span className="text-primary font-bold font-mono">#{successResult.bookingId}</span>
             </p>
-            <p className="text-sm text-neutral-600 mt-3 leading-relaxed">
+            <p className="text-sm text-ink-3 mt-3 leading-relaxed">
               {successResult.message}
             </p>
           </div>
@@ -261,14 +261,14 @@ function DatXeForm() {
             {successResult.isSubscription ? (
               <Link
                 href="/my-subscriptions"
-                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all"
+                className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md transition-all"
               >
                 Xem gói thuê của tôi
               </Link>
             ) : (
               <Link
                 href="/invoices"
-                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
+                className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md transition-all flex items-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Thanh toán hoá đơn & Tiền cọc</span>
@@ -276,7 +276,7 @@ function DatXeForm() {
             )}
             <button
               onClick={() => setSuccessResult(null)}
-              className="px-6 py-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 text-neutral-700 font-semibold text-sm transition-all"
+              className="px-6 py-3 rounded-xl border border-line-strong hover:bg-sunken text-ink-2 font-semibold text-sm transition-all"
             >
               Đặt thêm chuyến khác
             </button>
@@ -293,14 +293,14 @@ function DatXeForm() {
           ...(bookingMode === "subscription" && selectedSubscription && selectedSubscription.remainingHours < durationHours ? { subscriptionId: "Gói thuê bao không đủ số giờ còn lại cho chuyến đi này." } : {}),
         })} onSubmit={handleBooking} className="space-y-8">
           {/* Step 1: Mode Switcher */}
-          <div className="p-2 rounded-2xl bg-neutral-200/60 grid grid-cols-2 gap-2 max-w-md">
+          <div className="p-2 rounded-2xl bg-sunken/60 grid grid-cols-2 gap-2 max-w-md">
             <button
               type="button"
               onClick={() => setBookingMode("direct")}
               className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 bookingMode === "direct"
-                  ? "bg-white text-neutral-900 shadow-md"
-                  : "text-neutral-600 hover:text-neutral-900"
+                  ? "bg-surface text-ink shadow-md"
+                  : "text-ink-3 hover:text-ink"
               }`}
             >
               <CreditCard className="w-4 h-4" />
@@ -312,8 +312,8 @@ function DatXeForm() {
               onClick={() => setBookingMode("subscription")}
               className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 bookingMode === "subscription"
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
-                  : "text-neutral-600 hover:text-neutral-900"
+                  ? "bg-primary text-white shadow-md shadow-primary/25"
+                  : "text-ink-3 hover:text-ink"
               }`}
             >
               <Package className="w-4 h-4" />
@@ -323,19 +323,19 @@ function DatXeForm() {
 
           {/* Alert / Warning for GPLX (Direct rental) */}
           {bookingMode === "direct" && license?.status !== "approved" && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-start justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-primary-tint border border-primary/30 text-warning text-xs font-semibold flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <AlertTriangle className="w-4 h-4 text-primary-graphic shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold">Yêu cầu xác minh Giấy phép lái xe</p>
-                  <p className="text-amber-800 mt-0.5">
+                  <p className="text-warning mt-0.5">
                     Để thuê xe trực tiếp, bạn cần gửi ảnh chụp và số GPLX hợp lệ để hệ thống phê duyệt.
                   </p>
                 </div>
               </div>
               <Link
                 href="/driver-license"
-                className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shrink-0 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-primary-hover hover:bg-primary-press text-white text-xs font-bold shrink-0 transition-colors"
               >
                 Cập nhật GPLX
               </Link>
@@ -344,21 +344,21 @@ function DatXeForm() {
 
           {/* Subscription Selector (When booking with subscription) */}
           {bookingMode === "subscription" && (
-            <div className="p-6 rounded-3xl bg-white border border-neutral-200 shadow-xs space-y-4">
+            <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-neutral-900">
+                <h3 className="text-base font-bold text-ink">
                   Chọn gói thuê bao áp dụng
                 </h3>
                 <Link
                   href="/subscriptions"
-                  className="text-xs font-bold text-emerald-600 hover:underline"
+                  className="text-xs font-bold text-primary hover:underline"
                 >
                   Mua thêm gói mới
                 </Link>
               </div>
 
               {activeSubs.length === 0 ? (
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-danger-bg border border-danger/30 text-danger text-xs font-semibold flex items-center justify-between">
                   <span>Bạn hiện không có gói thuê bao nào đang hoạt động.</span>
                   <Link
                     href="/subscriptions"
@@ -377,19 +377,19 @@ function DatXeForm() {
                         onClick={() => { setSelectedSubId(sub.id); validation.clear("subscriptionId"); }}
                         className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                           isSelected
-                            ? "border-emerald-600 bg-emerald-50/50"
-                            : "border-neutral-200 hover:border-neutral-300 bg-white"
+                            ? "border-primary/40 bg-primary-tint/50"
+                            : "border-line hover:border-line-strong bg-surface"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-sm text-neutral-900">
+                          <span className="font-bold text-sm text-ink">
                             {sub.planName}
                           </span>
-                          <span className="text-xs font-extrabold text-emerald-700">
+                          <span className="text-xs font-extrabold text-primary">
                             Còn {sub.remainingHours}h / {sub.totalHours}h
                           </span>
                         </div>
-                        <div className="text-xs text-neutral-500">
+                        <div className="text-xs text-ink-3">
                           Hạn dùng: {new Date(sub.endDate).toLocaleDateString("vi-VN")}
                         </div>
                       </div>
@@ -400,8 +400,8 @@ function DatXeForm() {
 
               <InlineError name="subscriptionId" />
               {isSubscriptionInsufficient && selectedSubscription && (
-                <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <div className="p-3.5 rounded-2xl bg-danger-bg border border-danger/30 text-danger text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
                   <span>
                     Chuyến đi này kéo dài <strong>{durationHours} giờ</strong>, vượt quá số giờ còn lại trong gói (
                     <strong>{selectedSubscription.remainingHours} giờ</strong>).
@@ -412,13 +412,13 @@ function DatXeForm() {
           )}
 
           {/* Step 2: Vehicle Selection */}
-          <div className="p-6 rounded-3xl bg-white border border-neutral-200 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-neutral-900">
+          <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
+            <h3 className="text-base font-bold text-ink">
               Chọn phương tiện di chuyển
             </h3>
 
             {isLoadingVehicles ? (
-              <div className="h-40 rounded-2xl bg-neutral-100 animate-pulse" />
+              <div className="h-40 rounded-2xl bg-sunken animate-pulse" />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {vehicles.map((v) => {
@@ -429,11 +429,11 @@ function DatXeForm() {
                       onClick={() => { setSelectedVehicleId(v.id); validation.clear("vehicleId"); }}
                       className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex gap-3 ${
                         isSelected
-                          ? "border-emerald-600 bg-emerald-50/40 shadow-xs"
-                          : "border-neutral-200 hover:border-neutral-300 bg-white"
+                          ? "border-primary/40 bg-primary-tint/40 shadow-xs"
+                          : "border-line hover:border-line-strong bg-surface"
                       }`}
                     >
-                      <div className="relative w-24 h-20 rounded-xl overflow-hidden bg-neutral-100 shrink-0">
+                      <div className="relative w-24 h-20 rounded-xl overflow-hidden bg-sunken shrink-0">
                         <Image
                           src={v.imageUrl}
                           alt={v.name}
@@ -443,13 +443,13 @@ function DatXeForm() {
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-bold text-sm text-neutral-900 truncate">
+                        <div className="font-bold text-sm text-ink truncate">
                           {v.name}
                         </div>
-                        <div className="text-xs text-neutral-500 mt-0.5">
+                        <div className="text-xs text-ink-3 mt-0.5">
                           {v.categoryLabel} · {v.seats} chỗ
                         </div>
-                        <div className="text-xs font-bold text-emerald-600 mt-2">
+                        <div className="text-xs font-bold text-primary mt-2">
                           {v.hourlyPrice.toLocaleString("vi-VN")} đ/h
                         </div>
                       </div>
@@ -462,16 +462,16 @@ function DatXeForm() {
 
           <InlineError name="vehicleId" />
           {/* Step 3: Schedule Time */}
-          <div className="p-6 rounded-3xl bg-white border border-neutral-200 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-neutral-900">
+          <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs space-y-4">
+            <h3 className="text-base font-bold text-ink">
               Thời gian nhận và trả xe
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Pickup Time */}
-              <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-100 space-y-3">
-                <div className="text-xs font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="p-4 rounded-2xl bg-sunken border border-line space-y-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-ink-3 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-primary" />
                   <span>Thời gian nhận xe</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -480,22 +480,22 @@ function DatXeForm() {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
+                    className="px-3 py-2 rounded-xl border border-line text-xs font-semibold bg-surface"
                   /></div>
                   <div className="min-w-0 [&_input]:w-full"><InlineInput name="startTime"
                     type="time"
                     required
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
+                    className="px-3 py-2 rounded-xl border border-line text-xs font-semibold bg-surface"
                   /></div>
                 </div>
               </div>
 
               {/* Return Time */}
-              <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-100 space-y-3">
-                <div className="text-xs font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="p-4 rounded-2xl bg-sunken border border-line space-y-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-ink-3 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-primary" />
                   <span>Thời gian trả xe</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -504,20 +504,20 @@ function DatXeForm() {
                     required
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
+                    className="px-3 py-2 rounded-xl border border-line text-xs font-semibold bg-surface"
                   /></div>
                   <div className="min-w-0 [&_input]:w-full"><InlineInput name="endTime"
                     type="time"
                     required
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="px-3 py-2 rounded-xl border border-neutral-200 text-xs font-semibold bg-white"
+                    className="px-3 py-2 rounded-xl border border-line text-xs font-semibold bg-surface"
                   /></div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-neutral-600 pt-2">
+            <div className="flex items-center justify-between text-xs text-ink-3 pt-2">
               <span className="font-semibold">
                 Thời lượng thuê dự kiến: <strong>{durationHours} giờ</strong>
               </span>
@@ -526,7 +526,7 @@ function DatXeForm() {
                   type="checkbox"
                   checked={hasDriver}
                   onChange={(e) => setHasDriver(e.target.checked)}
-                  className="rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500"
+                  className="rounded border-line-strong text-primary focus:ring-primary/40"
                 />
                 <span>Yêu cầu kèm tài xế chuyên nghiệp</span>
               </label>
@@ -534,45 +534,45 @@ function DatXeForm() {
           </div>
 
           {/* Pricing & Summary Card */}
-          <div className="p-6 rounded-3xl bg-neutral-900 text-white shadow-xl space-y-4">
+          <div className="p-6 rounded-3xl bg-stage-ink text-white shadow-xl space-y-4">
             <h3 className="text-base font-bold tracking-tight">Chi phí dự toán</h3>
 
             {bookingMode === "subscription" ? (
               <div className="space-y-3 text-xs">
-                <div className="flex justify-between text-neutral-300">
+                <div className="flex justify-between text-ink-3">
                   <span>Hình thức:</span>
-                  <span className="font-bold text-emerald-400">Trừ vào gói thuê bao</span>
+                  <span className="font-bold text-primary-tint">Trừ vào gói thuê bao</span>
                 </div>
-                <div className="flex justify-between text-neutral-300">
+                <div className="flex justify-between text-ink-3">
                   <span>Số giờ dự kiến trừ:</span>
                   <span className="font-bold">{durationHours} giờ</span>
                 </div>
-                <div className="flex justify-between text-neutral-300">
+                <div className="flex justify-between text-ink-3">
                   <span>Phí VAT & Tiền cọc:</span>
-                  <span className="text-emerald-400 font-bold">0 đ (Miễn phí)</span>
+                  <span className="text-primary-tint font-bold">0 đ (Miễn phí)</span>
                 </div>
-                <div className="pt-3 border-t border-neutral-800 flex justify-between items-baseline">
+                <div className="pt-3 border-t border-white/10 flex justify-between items-baseline">
                   <span className="text-sm font-bold">Tổng thanh toán:</span>
-                  <span className="text-2xl font-black text-emerald-400">0 đ</span>
+                  <span className="text-2xl font-black text-primary-tint">0 đ</span>
                 </div>
               </div>
             ) : (
               <div className="space-y-3 text-xs">
-                <div className="flex justify-between text-neutral-300">
+                <div className="flex justify-between text-ink-3">
                   <span>Tiền thuê ({durationHours}h x {selectedVehicle?.hourlyPrice?.toLocaleString("vi-VN")}đ):</span>
                   <span className="font-bold">{pricing.rentalFee.toLocaleString("vi-VN")} đ</span>
                 </div>
-                <div className="flex justify-between text-neutral-300">
+                <div className="flex justify-between text-ink-3">
                   <span>Thuế VAT (10%):</span>
                   <span className="font-bold">{pricing.vat.toLocaleString("vi-VN")} đ</span>
                 </div>
-                <div className="flex justify-between text-neutral-300">
+                <div className="flex justify-between text-ink-3">
                   <span>Tiền đặt cọc hoàn lại:</span>
                   <span className="font-bold">{pricing.deposit.toLocaleString("vi-VN")} đ</span>
                 </div>
-                <div className="pt-3 border-t border-neutral-800 flex justify-between items-baseline">
+                <div className="pt-3 border-t border-white/10 flex justify-between items-baseline">
                   <span className="text-sm font-bold">Tổng thanh toán:</span>
-                  <span className="text-2xl font-black text-emerald-400">
+                  <span className="text-2xl font-black text-primary-tint">
                     {pricing.total.toLocaleString("vi-VN")} đ
                   </span>
                 </div>
@@ -581,7 +581,7 @@ function DatXeForm() {
           </div>
 
           {errorMessage && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold">
+            <div className="p-4 rounded-2xl bg-danger-bg border border-danger/30 text-danger text-sm font-semibold">
               {errorMessage}
             </div>
           )}
@@ -595,7 +595,7 @@ function DatXeForm() {
                 (bookingMode === "subscription" && isSubscriptionInsufficient) ||
                 (bookingMode === "direct" && license?.status !== "approved")
               }
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting ? (
                 <>

@@ -111,3 +111,40 @@ it("extracts field errors from ASP.NET Core ValidationProblemDetails", async () 
     message: expect.stringContaining("StaffRole: The field StaffRole must match"),
   });
 });
+
+it("reads the ProblemDetails BE wraps under ApiResponse.error", async () => {
+  const client = new ApiClient({
+    customFetch: async () =>
+      new Response(
+        JSON.stringify({
+          code: 400,
+          status: "error",
+          is_success: false,
+          data: null,
+          message: "One or more validation errors occurred.",
+          error: { status: 400, title: "One or more validation errors occurred.", errors: { StartTime: ["Thời gian nhận xe phải ở tương lai."] } },
+        }),
+        { status: 400, statusText: "Bad Request", headers: { "Content-Type": "application/json" } },
+      ),
+  });
+
+  await expect(client.post("rentals/hourly", {})).rejects.toMatchObject({
+    status: 400,
+    message: expect.stringContaining("StartTime: Thời gian nhận xe phải ở tương lai."),
+  });
+});
+
+it("falls back to the ApiResponse.message when error has no detail", async () => {
+  const client = new ApiClient({
+    customFetch: async () =>
+      new Response(
+        JSON.stringify({ code: 403, status: "error", is_success: false, data: null, message: "Gói thuê bao không đủ số giờ còn lại.", error: { status: 403, title: "Forbidden" } }),
+        { status: 403, statusText: "Forbidden", headers: { "Content-Type": "application/json" } },
+      ),
+  });
+
+  await expect(client.post("rentals/hourly", {})).rejects.toMatchObject({
+    status: 403,
+    message: "Gói thuê bao không đủ số giờ còn lại.",
+  });
+});

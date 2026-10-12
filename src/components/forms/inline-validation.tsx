@@ -10,8 +10,12 @@ const normalize = (key: string) => key.split(".").pop()!.replace(/[_-]/g, "").to
 export function mapValidationErrors(data: unknown, fields: string[], aliases: Record<string, string> = {}) {
   const errors: FieldErrors = {};
   const remaining: string[] = [];
-  if (!data || typeof data !== "object" || !("errors" in data) || !data.errors || typeof data.errors !== "object") return { errors, remaining };
-  for (const [key, value] of Object.entries(data.errors)) {
+  // BE bọc ProblemDetails trong ApiResponse.error; vẫn nhận cả ProblemDetails trần.
+  const body = data && typeof data === "object" ? (data as Record<string, unknown>) : null;
+  const problem = body && typeof body.error === "object" && body.error !== null ? (body.error as Record<string, unknown>) : body;
+  const raw = problem?.errors;
+  if (!raw || typeof raw !== "object") return { errors, remaining };
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
     const message = Array.isArray(value) ? value.filter((item) => typeof item === "string").join(" ") : typeof value === "string" ? value : "";
     if (!message) continue;
     const target = aliases[normalize(key)] ?? key;
@@ -124,5 +128,5 @@ export function InlineTextarea(props: ComponentProps<"textarea">) {
   return <><textarea {...props} {...attributes} /><ErrorText id={errorId} error={error} /></>;
 }
 function ErrorText({ id, error }: { id: string; error?: string }) {
-  return error ? <span id={id} role="alert" className="mt-2 block w-full text-sm font-normal text-red-700">{error}</span> : null;
+  return error ? <span id={id} role="alert" className="mt-2 block w-full text-sm font-normal text-danger">{error}</span> : null;
 }

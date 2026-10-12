@@ -279,8 +279,8 @@ export default function MultiFleetCatalog() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
-            <SlidersHorizontal className="w-4 h-4 text-[#b45309]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
+            <SlidersHorizontal className="w-4 h-4 text-primary" />
             <span>ĐỘI XE ĐA PHƯƠNG TIỆN CHÍNH CHỦ</span>
           </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
@@ -301,8 +301,8 @@ export default function MultiFleetCatalog() {
             onClick={() => setSelectedCategory("all")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               selectedCategory === "all"
-                ? "bg-[#0f172a] text-white shadow-e2"
-                : "bg-surface hover:bg-[#f2f2ee] text-ink-2 hover:text-ink border border-line-strong"
+                ? "bg-stage-ink text-white shadow-e2"
+                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
             Tất cả ({FLEET_DATA.length})
@@ -312,8 +312,8 @@ export default function MultiFleetCatalog() {
             onClick={() => setSelectedCategory("electric_car")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
               selectedCategory === "electric_car"
-                ? "bg-[#0f172a] text-white shadow-e2"
-                : "bg-surface hover:bg-[#f2f2ee] text-ink-2 hover:text-ink border border-line-strong"
+                ? "bg-stage-ink text-white shadow-e2"
+                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
             <Car className="w-4 h-4" />
@@ -324,8 +324,8 @@ export default function MultiFleetCatalog() {
             onClick={() => setSelectedCategory("car")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
               selectedCategory === "car"
-                ? "bg-[#0f172a] text-white shadow-e2"
-                : "bg-surface hover:bg-[#f2f2ee] text-ink-2 hover:text-ink border border-line-strong"
+                ? "bg-stage-ink text-white shadow-e2"
+                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
             <Car className="w-4 h-4" />
@@ -336,8 +336,8 @@ export default function MultiFleetCatalog() {
             onClick={() => setSelectedCategory("electric_motorbike")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
               selectedCategory === "electric_motorbike"
-                ? "bg-[#0f172a] text-white shadow-e2"
-                : "bg-surface hover:bg-[#f2f2ee] text-ink-2 hover:text-ink border border-line-strong"
+                ? "bg-stage-ink text-white shadow-e2"
+                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
             <Bike className="w-4 h-4" />
@@ -348,8 +348,8 @@ export default function MultiFleetCatalog() {
             onClick={() => setSelectedCategory("motorbike")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
               selectedCategory === "motorbike"
-                ? "bg-[#0f172a] text-white shadow-e2"
-                : "bg-surface hover:bg-[#f2f2ee] text-ink-2 hover:text-ink border border-line-strong"
+                ? "bg-stage-ink text-white shadow-e2"
+                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
             <Bike className="w-4 h-4" />
@@ -363,9 +363,9 @@ export default function MultiFleetCatalog() {
             type="checkbox"
             checked={onlyDriverOption}
             onChange={(e) => setOnlyDriverOption(e.target.checked)}
-            className="w-4 h-4 rounded text-[#b45309] accent-[#b45309] cursor-pointer"
+            className="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
           />
-          <UserCheck className="w-4 h-4 text-[#b45309]" />
+          <UserCheck className="w-4 h-4 text-primary" />
           <span>Chỉ xe có tài xế riêng</span>
         </label>
       </div>
@@ -378,7 +378,7 @@ export default function MultiFleetCatalog() {
             className="group rounded-3xl bg-surface border border-line-strong overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300"
           >
             {/* Image Container (>= 60% visually balanced) */}
-            <div className="relative w-full h-56 overflow-hidden bg-[#f2f2ee]">
+            <div className="relative w-full h-56 overflow-hidden bg-sunken">
               <Image
                 src={vehicle.imageUrl}
                 alt={vehicle.name}
@@ -388,12 +388,12 @@ export default function MultiFleetCatalog() {
               />
               {/* Badges Overlay */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                <span className="px-2.5 py-1 rounded-lg bg-[#0f172a] text-white text-[11px] font-mono font-bold tracking-wider">
+                <span className="px-2.5 py-1 rounded-lg bg-stage-ink text-white text-xs font-mono font-bold tracking-wider">
                   {vehicle.categoryName}
                 </span>
 
                 {vehicle.hasDriverOption && (
-                  <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-white text-[11px] font-mono font-bold tracking-wider shadow-sm">
+                  <span className="px-2.5 py-1 rounded-lg bg-primary text-white text-xs font-mono font-bold tracking-wider shadow-sm">
                     KÈM TÀI XẾ
                   </span>
                 )}
@@ -403,7 +403,7 @@ export default function MultiFleetCatalog() {
             {/* Vehicle Details */}
             <div className="p-6 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="font-display text-xl font-bold text-ink mb-1 group-hover:text-[#b45309] transition-colors">
+                <h3 className="font-display text-xl font-bold text-ink mb-1 group-hover:text-primary transition-colors">
                   {vehicle.name}
                 </h3>
                 <p className="text-xs text-ink-3 mb-5">
@@ -411,28 +411,28 @@ export default function MultiFleetCatalog() {
                 </p>
 
                 {/* Specs Matrix */}
-                <div className="grid grid-cols-2 gap-3 mb-6 p-3.5 rounded-2xl bg-[#f7f7f4] text-xs">
+                <div className="grid grid-cols-2 gap-3 mb-6 p-3.5 rounded-2xl bg-surface-raised text-xs">
                   <div className="flex items-center gap-2 text-ink-2">
-                    <Users className="w-3.5 h-3.5 text-[#b45309]" />
+                    <Users className="w-3.5 h-3.5 text-primary" />
                     <span>{vehicle.seats} Chỗ ngồi</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-ink-2">
-                    <Gauge className="w-3.5 h-3.5 text-[#b45309]" />
+                    <Gauge className="w-3.5 h-3.5 text-primary" />
                     <span className="truncate">{vehicle.transmission}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-ink-2">
                     {vehicle.isElectric ? (
-                      <BatteryCharging className="w-3.5 h-3.5 text-emerald-600" />
+                      <BatteryCharging className="w-3.5 h-3.5 text-primary" />
                     ) : (
-                      <Fuel className="w-3.5 h-3.5 text-amber-600" />
+                      <Fuel className="w-3.5 h-3.5 text-primary-graphic" />
                     )}
                     <span className="truncate">{vehicle.powerFuel}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-ink-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#b45309]" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                     <span className="truncate">{vehicle.rangeOrEfficiency}</span>
                   </div>
                 </div>
@@ -444,7 +444,7 @@ export default function MultiFleetCatalog() {
                   <div className="font-mono text-xl font-black text-ink">
                     {formatVND(vehicle.hourlyPrice)}
                   </div>
-                  <div className="text-[11px] text-ink-3">
+                  <div className="text-xs text-ink-3">
                     Thuê tháng: {new Intl.NumberFormat("vi-VN").format(vehicle.monthlyPrice)} ₫
                   </div>
                 </div>

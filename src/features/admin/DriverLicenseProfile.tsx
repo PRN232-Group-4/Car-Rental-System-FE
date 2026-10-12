@@ -121,12 +121,12 @@ export default function DriverLicenseProfile({
     <div className="space-y-6">
       <section
         aria-label="Tiến trình xác minh hồ sơ"
-        className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7"
+        className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7"
       >
         <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
           <div>
             <h3 className="font-bold text-ink">Trạng thái hồ sơ tài xế</h3>
-            <p className="mt-1 text-sm text-ink-muted">
+            <p className="mt-1 text-sm text-ink-3">
               Tiến trình kiểm duyệt và xác thực giấy phép lái xe trong hệ thống.
             </p>
           </div>
@@ -135,8 +135,8 @@ export default function DriverLicenseProfile({
               isApproved
                 ? "bg-primary/10 text-primary"
                 : licenseComplete
-                  ? "bg-amber-50 text-amber-800"
-                  : "bg-sunken text-ink-muted"
+                  ? "bg-primary-tint text-warning"
+                  : "bg-sunken text-ink-3"
             }`}
           >
             {isApproved
@@ -179,7 +179,7 @@ export default function DriverLicenseProfile({
       </section>
 
       {!isAdmin ? (
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7 space-y-5">
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7 space-y-5">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <BadgeCheck className="h-6 w-6" />
@@ -188,7 +188,7 @@ export default function DriverLicenseProfile({
               <h3 className="text-xl font-bold text-ink">
                 Thông tin giấy phép lái xe
               </h3>
-              <p className="mt-1 text-sm text-ink-muted">
+              <p className="mt-1 text-sm text-ink-3">
                 Hồ sơ giấy phép lái xe được lưu trong hệ thống nhân sự.
               </p>
             </div>
@@ -196,19 +196,19 @@ export default function DriverLicenseProfile({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-muted">Số giấy phép lái xe</span>
+              <span className="text-xs text-ink-3">Số giấy phép lái xe</span>
               <p className="text-sm font-semibold text-ink mt-1">{staff.licenseNumber || "Chưa cập nhật"}</p>
             </div>
             <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-muted">Hạng giấy phép</span>
+              <span className="text-xs text-ink-3">Hạng giấy phép</span>
               <p className="text-sm font-semibold text-ink mt-1">{staff.licenseType || "Chưa cập nhật"}</p>
             </div>
             <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-muted">Ngày cấp</span>
+              <span className="text-xs text-ink-3">Ngày cấp</span>
               <p className="text-sm font-semibold text-ink mt-1">{staff.licenseIssueDate?.slice(0, 10) || "—"}</p>
             </div>
             <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-muted">Ngày hết hạn</span>
+              <span className="text-xs text-ink-3">Ngày hết hạn</span>
               <p className="text-sm font-semibold text-ink mt-1">{staff.licenseExpiryDate?.slice(0, 10) || "—"}</p>
             </div>
           </div>
@@ -228,14 +228,14 @@ export default function DriverLicenseProfile({
           </p>
         </section>
       ) : isApproved && !editingApprovedLicense ? (
-        <section className="rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-elevation-1 sm:p-7">
+        <section className="rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-e1 sm:p-7">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <BadgeCheck className="h-6 w-6" />
             </span>
             <div>
               <h3 className="font-bold text-ink">Giấy phép đã được xác minh</h3>
-              <p className="mt-1 text-sm leading-6 text-ink-muted">
+              <p className="mt-1 text-sm leading-6 text-ink-3">
                 Thông tin tải lên đã được phê duyệt. Nếu bạn đã gia hạn giấy phép, bạn có thể gửi thông tin mới để cập nhật hồ sơ.
               </p>
             </div>
@@ -251,7 +251,7 @@ export default function DriverLicenseProfile({
           </button>
         </section>
       ) : (
-      <section className="rounded-2xl border border-line bg-surface p-5 shadow-elevation-1 sm:p-7">
+      <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
         <div className="mb-6 flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <BadgeCheck className="h-6 w-6" />
@@ -260,7 +260,7 @@ export default function DriverLicenseProfile({
             <h3 className="text-xl font-bold text-ink">
               Giấy phép lái xe
             </h3>
-            <p className="mt-1 text-sm text-ink-muted">
+            <p className="mt-1 text-sm text-ink-3">
               Tải lên giấy phép hợp lệ để quản trị viên xác minh.
             </p>
           </div>
@@ -327,7 +327,7 @@ export default function DriverLicenseProfile({
             <span className="text-sm font-bold text-ink">
               {file ? "Chọn ảnh khác" : "Nhấn để tải ảnh giấy phép"}
             </span>
-            <span className="mt-2 text-xs text-ink-muted">
+            <span className="mt-2 text-xs text-ink-3">
               JPG, PNG hoặc WEBP · Tối đa 10 MB
             </span>
           </button>
@@ -344,7 +344,7 @@ export default function DriverLicenseProfile({
                   type="button"
                   onClick={() => setFile(null)}
                   aria-label="Bỏ ảnh đã chọn"
-                  className="rounded-lg p-2 text-ink-muted hover:bg-surface"
+                  className="rounded-lg p-2 text-ink-3 hover:bg-surface"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -366,7 +366,7 @@ export default function DriverLicenseProfile({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover disabled:opacity-60"
           >
             {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
             {saving ? "Đang lưu..." : "Lưu giấy phép"}
@@ -411,14 +411,14 @@ function ProgressStep({
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
           complete
             ? "bg-primary text-white"
-            : "bg-sunken text-ink-muted"
+            : "bg-sunken text-ink-3"
         }`}
       >
         {complete ? <Check className="h-5 w-5" /> : number}
       </span>
       <span className="min-w-0">
         <span className="block text-sm font-bold text-ink">{title}</span>
-        <span className="mt-0.5 block text-xs text-ink-muted">
+        <span className="mt-0.5 block text-xs text-ink-3">
           {description}
         </span>
       </span>

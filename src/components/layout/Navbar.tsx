@@ -89,34 +89,34 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
+          <div className="hidden lg:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
             <Link
               href="/#tim-xe"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-muted hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Thuê xe
             </Link>
             <Link
               href="/#chi-nhanh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-muted hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Chi nhánh
             </Link>
             <Link
               href="/#goi-thue-bao"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-muted hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Gói thuê bao
             </Link>
             <Link
               href="/#quy-trinh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-muted hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Hướng dẫn
             </Link>
             <Link
               href="/#kiem-dinh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-muted hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Kiểm định
             </Link>
@@ -129,7 +129,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface-elevated border border-border text-sm font-medium text-ink transition-all cursor-pointer shadow-elevation-1"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface-raised border border-line text-sm font-medium text-ink transition-all cursor-pointer shadow-e1"
                 >
                   {user.avatarUrl ? (
                     <Image
@@ -141,7 +141,7 @@ export default function Navbar() {
                       className="w-6 h-6 rounded-full object-cover ring-1 ring-primary/40"
                     />
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-primary flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-primary-tint text-primary flex items-center justify-center text-xs font-bold">
                       {user.fullName.charAt(0)}
                     </div>
                   )}
@@ -153,12 +153,12 @@ export default function Navbar() {
 
                 {/* User dropdown menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-2xl p-2 bg-surface border border-border shadow-elevation-2 z-50">
-                    <div className="px-3 py-2 border-b border-border mb-1">
+                  <div className="absolute right-0 mt-2 w-56 rounded-2xl p-2 bg-surface border border-line shadow-e2 z-50">
+                    <div className="px-3 py-2 border-b border-line mb-1">
                       <p className="text-xs font-bold text-ink truncate">
                         {user.fullName}
                       </p>
-                      <p className="text-xs text-ink-muted truncate mt-0.5">
+                      <p className="text-xs text-ink-3 truncate mt-0.5">
                         {user.email}
                       </p>
                       <div className="flex items-center gap-1 mt-1.5">
@@ -180,7 +180,7 @@ export default function Navbar() {
                       </div>
                     </div>
 
-                    <div className="py-1 border-b border-border mb-1 space-y-0.5">
+                    <div className="py-1 border-b border-line mb-1 space-y-0.5">
                       {(hasRole("admin") ||
                         hasRole("manager") ||
                         hasRole("staff") ||
@@ -217,7 +217,7 @@ export default function Navbar() {
                           <Link
                             href="/booking"
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
                             <Car className="size-3.5" />
                             <span>Đặt xe mới</span>
@@ -225,7 +225,7 @@ export default function Navbar() {
                           <Link
                             href="/my-subscriptions"
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
                             <Package className="size-3.5" />
                             <span>Gói thuê của tôi</span>
@@ -233,7 +233,7 @@ export default function Navbar() {
                           <Link
                             href="/invoices"
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
                             <FileText className="size-3.5" />
                             <span>Danh sách hoá đơn</span>
@@ -241,7 +241,7 @@ export default function Navbar() {
                           <Link
                             href="/payment-history"
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
                             <CreditCard className="size-3.5" />
                             <span>Lịch sử thanh toán</span>
@@ -249,7 +249,7 @@ export default function Navbar() {
                           <Link
                             href="/driver-license"
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
                             <FileCheck className="size-3.5" />
                             <span>Giấy phép lái xe (GPLX)</span>
@@ -260,7 +260,7 @@ export default function Navbar() {
                       <Link
                         href="/profile"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                       >
                         <FileCheck className="size-3.5 opacity-0" />
                         <span>Hồ sơ cá nhân</span>
@@ -273,7 +273,7 @@ export default function Navbar() {
                         setUserMenuOpen(false);
                         logout();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-danger hover:bg-rose-50 rounded-lg transition-colors cursor-pointer text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-danger hover:bg-danger-bg rounded-lg transition-colors cursor-pointer text-left"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Đăng xuất</span>
@@ -285,7 +285,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="px-3.5 py-2 text-sm font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
+                  className="px-3.5 py-2 text-sm font-semibold text-ink-3 hover:text-ink transition-colors cursor-pointer"
                 >
                   Đăng nhập
                 </Link>
@@ -297,7 +297,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu toggle button */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer"
@@ -316,7 +316,7 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-border mt-3 space-y-1">
+          <div id="mobile-nav-menu" className="lg:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1">
             <Link
               href="/#tim-xe"
               onClick={() => setMobileMenuOpen(false)}
@@ -352,9 +352,9 @@ export default function Navbar() {
             >
               Phiếu kiểm định xe
             </Link>
-            <div className="pt-3 border-t border-border flex flex-col gap-2">
+            <div className="pt-3 border-t border-line flex flex-col gap-2">
               {mounted && isAuthenticated && user ? (
-                <div className="p-3 bg-surface rounded-xl border border-border">
+                <div className="p-3 bg-surface rounded-xl border border-line">
                   <div className="flex items-center gap-2.5 mb-2">
                     {user.avatarUrl ? (
                       <Image
@@ -372,11 +372,11 @@ export default function Navbar() {
                     )}
                     <div>
                       <div className="text-sm font-bold text-ink">{user.fullName}</div>
-                      <div className="text-xs text-ink-muted">{user.email}</div>
+                      <div className="text-xs text-ink-3">{user.email}</div>
                     </div>
                   </div>
 
-                  <div className="py-2 border-y border-border my-2 space-y-1">
+                  <div className="py-2 border-y border-line my-2 space-y-1">
                     {(hasRole("admin") ||
                       hasRole("manager") ||
                       hasRole("staff") ||
@@ -410,35 +410,35 @@ export default function Navbar() {
                         <Link
                           href="/booking"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
                           Đặt xe mới
                         </Link>
                         <Link
                           href="/my-subscriptions"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
                           Gói thuê của tôi
                         </Link>
                         <Link
                           href="/invoices"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
                           Danh sách hoá đơn
                         </Link>
                         <Link
                           href="/payment-history"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
                           Lịch sử thanh toán
                         </Link>
                         <Link
                           href="/driver-license"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-muted hover:text-primary hover:bg-canvas rounded-lg transition-colors"
+                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
                           Giấy phép lái xe (GPLX)
                         </Link>
@@ -459,7 +459,7 @@ export default function Navbar() {
                       setMobileMenuOpen(false);
                       logout();
                     }}
-                    className="w-full py-2 text-xs font-semibold text-danger bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
+                    className="w-full py-2 text-xs font-semibold text-danger bg-danger-bg hover:bg-danger-bg rounded-lg transition-colors cursor-pointer"
                   >
                     Đăng xuất
                   </button>

@@ -200,14 +200,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           className="flex items-center gap-3"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-elevation-1">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-e1">
             <CarFront className="h-6 w-6" />
           </span>
           <span>
             <span className="block text-lg font-bold tracking-tight text-white">
               Thong Dong
             </span>
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-3">
               Staff portal
             </span>
           </span>
@@ -216,14 +216,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Đóng menu"
-          className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white lg:hidden"
+          className="rounded-lg p-2 text-ink-3 hover:bg-surface/10 hover:text-white lg:hidden"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       <div className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 pt-7">
-        <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+        <p className="px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-3">
           Không gian làm việc
         </p>
         <nav aria-label="Điều hướng nhân viên" className="space-y-1.5">
@@ -240,12 +240,12 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                   active
-                    ? "bg-primary font-semibold text-white shadow-elevation-1"
-                    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+                    ? "bg-primary font-semibold text-white shadow-e1"
+                    : "text-ink-3 hover:bg-surface/[0.07] hover:text-white"
                 }`}
               >
                 <Icon
-                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-slate-400 group-hover:text-primary"}`}
+                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
                 />
                 {label}
                 {active && (
@@ -258,29 +258,29 @@ export default function StaffShell({ children }: { children: ReactNode }) {
       </div>
 
       <div className="mt-auto p-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+        <div className="rounded-2xl border border-white/10 bg-surface/[0.04] p-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-stage-ink text-sm font-bold text-white">
               {initials}
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-white">
                 {displayName}
               </span>
-              <span className="block truncate text-xs text-slate-400">
+              <span className="block truncate text-xs text-ink-3">
                 {profileLoading ? "Đang tải hồ sơ..." : jobTitle}
               </span>
             </span>
           </div>
           {profileError && (
-            <p role="status" className="mt-2 text-xs text-amber-200">
+            <p role="status" className="mt-2 text-xs text-primary-tint">
               {profileError}
             </p>
           )}
           <Link
             href="/admin/profile"
             onClick={() => setMobileMenuOpen(false)}
-            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-slate-300 transition hover:border-primary/40 hover:text-primary"
+            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary"
           >
             Xem hồ sơ nhân viên
           </Link>
@@ -291,7 +291,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               void handleLogout();
             }}
             disabled={loggingOut}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-primary/40 hover:text-primary disabled:cursor-wait disabled:opacity-60"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary disabled:cursor-wait disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />
             {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
@@ -303,8 +303,8 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   if (checkingAccess) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-[var(--canvas)] p-6">
-        <p role="status" className="text-sm font-medium text-slate-600">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
+        <p role="status" className="text-sm font-medium text-ink-3">
           Đang xác thực tài khoản nhân viên...
         </p>
       </div>
@@ -313,10 +313,10 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   if (accessError || !account) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-[var(--canvas)] p-6">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
         <p
           role="alert"
-          className="max-w-xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          className="max-w-xl rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger"
         >
           {accessError || "Tài khoản không có quyền truy cập cổng quản trị."}
         </p>
@@ -325,8 +325,8 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--canvas)] text-ink">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col bg-stage-ink border-r border-border-dim lg:flex">
+    <div className="min-h-[100dvh] bg-canvas text-ink">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col bg-stage-ink border-r border-white/10 lg:flex">
         {sidebar}
       </aside>
 
@@ -334,38 +334,38 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-[var(--scrim-modal)]"
+            className="absolute inset-0 bg-scrim"
             aria-label="Đóng menu"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-stage-ink shadow-elevation-2">
+          <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-stage-ink shadow-e2">
             {sidebar}
           </aside>
         </div>
       )}
 
       <div className="min-h-[100dvh] lg:pl-[260px]">
-        <header className="glass-admin sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border px-4 sm:px-7 lg:px-9">
+        <header className="glass-admin sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line px-4 sm:px-7 lg:px-9">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Mở menu"
-              className="rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 lg:hidden"
+              className="rounded-xl border border-line p-2 text-ink-3 hover:bg-sunken lg:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-ink-3">
                 Cổng quản trị / Nhân viên
               </p>
-              <h1 className="mt-0.5 text-base font-bold text-slate-900">
+              <h1 className="mt-0.5 text-base font-bold text-ink">
                 {currentPage}
               </h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-border bg-sunken px-3 py-1.5 text-xs font-semibold text-ink sm:inline-flex">
+            <span className="hidden rounded-full border border-line bg-sunken px-3 py-1.5 text-xs font-semibold text-ink sm:inline-flex">
               {profileLoading
                 ? "Đang tải chi nhánh..."
                 : facilityName || "Chưa phân công chi nhánh"}
@@ -373,10 +373,10 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               aria-label="Thông báo"
-              className="relative rounded-xl border border-slate-200 p-2.5 text-slate-600 transition hover:bg-slate-50"
+              className="relative rounded-xl border border-line p-2.5 text-ink-3 transition hover:bg-sunken"
             >
               <Bell className="h-[18px] w-[18px]" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
             </button>
             <Link
               href="/admin/profile"

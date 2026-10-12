@@ -20,7 +20,7 @@ export default function InspectionShowcase() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           {/* Left Column: Context & Narrative */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stage-ink border border-white/15 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stage-ink border border-white/15 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider">
               <Shield className="w-3.5 h-3.5" />
               <span>DIGITAL INSPECTION CERTIFICATE</span>
             </div>
@@ -43,7 +43,7 @@ export default function InspectionShowcase() {
                 </span>
               </div>
               <div className="bg-stage-ink border border-white/10 rounded-2xl p-4.5 shadow-e1">
-                <span className="font-mono text-3xl font-black text-emerald-400 block mb-1">
+                <span className="font-mono text-3xl font-black text-primary-tint block mb-1">
                   0đ Phí
                 </span>
                 <span className="text-xs text-white/70 font-normal">
@@ -132,7 +132,7 @@ export default function InspectionShowcase() {
                     <UserCheck className="w-4 h-4 text-primary" />
                     <span>Kỹ thuật viên: <strong className="text-ink">{record.inspectorName}</strong></span>
                   </div>
-                  <span className="text-primary font-mono font-extrabold text-[11px] px-2.5 py-1 rounded-md bg-primary-tint border border-primary/20">
+                  <span className="text-primary font-mono font-extrabold text-xs px-2.5 py-1 rounded-md bg-primary-tint border border-primary/20">
                     ĐÃ DUYỆT BÀN GIAO
                   </span>
                 </div>

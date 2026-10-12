@@ -278,17 +278,17 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
           <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản trị hệ thống</p><h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2></div>
         </div>
-        {canModify && <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover"><Plus className="h-4 w-4" /> Thêm mới</button>}
+        {canModify && <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover"><Plus className="h-4 w-4" /> Thêm mới</button>}
       </div>
-      <p className="text-sm text-ink-muted">{info.description}</p>
-      {directory === "roles" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
+      <p className="text-sm text-ink-3">{info.description}</p>
+      {directory === "roles" && <p className="rounded-xl border border-primary/30 bg-primary-tint px-4 py-3 text-sm text-warning">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
 
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
-        <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
-        {directory === "staffs" && <div className="border-b border-line p-4"><label className="relative block max-w-lg"><span className="sr-only">Tìm nhân viên</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" /><input value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên hoặc email..." className="admin-input admin-search-input" /></label></div>}
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
+        <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
+        {directory === "staffs" && <div className="border-b border-line p-4"><label className="relative block max-w-lg"><span className="sr-only">Tìm nhân viên</span><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" /><input value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên hoặc email..." className="admin-input admin-search-input" /></label></div>}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left">
-            <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+            <thead className="bg-sunken text-xs font-bold uppercase tracking-wider text-ink-3">
               <tr>
                 {info.columns.map((column) => <th key={column} className="px-5 py-3">{column}</th>)}
                 <th className="px-5 py-3">Trạng thái</th>
@@ -300,34 +300,34 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                 <tr key={row.id} className="text-sm hover:bg-canvas/60">
                   <td className="px-5 py-4 font-semibold text-ink">{row.name}</td>
                   {info.columns.slice(1).map((column, index) => (
-                    <td key={column} className="px-5 py-4 text-ink-muted">{[row.description, row.detail][index] || "—"}</td>
+                    <td key={column} className="px-5 py-4 text-ink-3">{[row.description, row.detail][index] || "—"}</td>
                   ))}
-                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${row.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-muted"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
+                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${row.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
                   {canModify && (
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-1">
-                        <button type="button" onClick={() => openForm(row)} aria-label={`Sửa ${row.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => void remove(row)} aria-label={`Xóa ${row.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-rose-50 hover:text-danger"><Trash2 className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => openForm(row)} aria-label={`Sửa ${row.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => void remove(row)} aria-label={`Xóa ${row.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </td>
                   )}
                 </tr>
               ))}
-              {!loading && rows.length === 0 && <tr><td colSpan={info.columns.length + (canModify ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-muted">Không có dữ liệu.</td></tr>}
+              {!loading && rows.length === 0 && <tr><td colSpan={info.columns.length + (canModify ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-3">Không có dữ liệu.</td></tr>}
             </tbody>
           </table>
         </div>
         {directory === "staffs" && (
           <div className="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <div className="flex items-center gap-3 text-xs text-ink-muted">
+            <div className="flex items-center gap-3 text-xs text-ink-3">
               <span>Trang {page} / {pageCount} · {totalCount} nhân viên</span>
               <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary">
                 {[10, 20, 50].map((size) => <option key={size} value={size}>{size} mỗi trang</option>)}
               </select>
             </div>
             <nav aria-label="Phân trang nhân viên" className="flex items-center gap-2">
-              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
-              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
+              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
+              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
             </nav>
           </div>
         )}
@@ -338,7 +338,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           <section role="dialog" aria-modal="true" aria-labelledby="directory-dialog-title" className={`my-auto w-full ${directory === "staffs" ? "max-w-2xl" : "max-w-md"} rounded-2xl bg-surface shadow-2xl border border-line`}>
             <div className="flex items-center justify-between border-b border-line px-5 py-3">
               <h3 id="directory-dialog-title" className="font-bold text-ink text-base">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3>
-              <button type="button" onClick={() => setFormOpen(false)} aria-label="Đóng" className="rounded-lg p-1 text-ink-muted transition hover:bg-canvas hover:text-ink">
+              <button type="button" onClick={() => setFormOpen(false)} aria-label="Đóng" className="rounded-lg p-1 text-ink-3 transition hover:bg-canvas hover:text-ink">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -381,7 +381,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
               {error && <p role="alert" className="mt-2.5 whitespace-pre-line text-xs font-medium text-danger bg-danger/10 p-2 rounded-lg border border-danger/20">{error}</p>}
               <div className="mt-4 flex justify-end gap-3 border-t border-line pt-3">
                 <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
-                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-elevation-1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
             </ValidatedForm>
           </section>

@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-semibold text-ink">Đang đồng bộ hồ sơ...</h3>
-            <p className="text-xs text-ink-muted">Đang kết nối phiên bảo mật với hệ thống Thong Dong</p>
+            <p className="text-xs text-ink-3">Đang kết nối phiên bảo mật với hệ thống Thong Dong</p>
           </div>
         </div>
       </div>
@@ -67,11 +67,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-dvh bg-canvas text-ink flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:w-64 xl:w-72 flex-col bg-surface border-r border-border sticky top-0 h-dvh z-30">
+      <aside className="hidden lg:flex lg:w-64 xl:w-72 flex-col bg-surface border-r border-line sticky top-0 h-dvh z-30">
         {/* Brand Logo */}
-        <div className="p-6 border-b border-border flex items-center justify-between">
+        <div className="p-6 border-b border-line flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-elevation-1">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-e1">
               <Car className="w-5 h-5" />
             </div>
             <div>
@@ -84,15 +84,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* User Card */}
-        <div className="p-4 mx-4 my-4 rounded-2xl bg-canvas border border-border flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-elevation-1">
+        <div className="p-4 mx-4 my-4 rounded-2xl bg-canvas border border-line flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-e1">
             {user?.fullName?.charAt(0) || user?.email?.charAt(0) || "U"}
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-bold text-ink truncate">
               {user?.fullName || "Khách hàng"}
             </div>
-            <div className="text-xs text-ink-muted truncate">{user?.email}</div>
+            <div className="text-xs text-ink-3 truncate">{user?.email}</div>
           </div>
           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary">
             {user?.roles?.[0] || "Member"}
@@ -111,17 +111,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive
                     ? "bg-primary text-white shadow-md shadow-primary/20 font-bold"
-                    : "text-ink-muted hover:text-ink hover:bg-canvas"
+                    : "text-ink-3 hover:text-ink hover:bg-canvas"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-ink-muted"}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-ink-3"}`} />
                   <span>{item.name}</span>
                 </div>
                 {item.badge && (
                   <span
                     className={`px-2 py-0.5 text-xs rounded-full font-bold ${
-                      isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                      isActive ? "bg-surface/20 text-white" : "bg-primary/10 text-primary"
                     }`}
                   >
                     {item.badge}
@@ -131,17 +131,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             );
           })}
 
-          <div className="pt-4 border-t border-border mt-4 space-y-1">
+          <div className="pt-4 border-t border-line mt-4 space-y-1">
             <Link
               href="/"
-              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-ink-muted hover:text-ink hover:bg-canvas transition-colors"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-ink-3 hover:text-ink hover:bg-canvas transition-colors"
             >
               <Home className="w-4 h-4" />
               <span>Về trang chủ</span>
             </Link>
             <Link
               href="/subscriptions"
-              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-ink-muted hover:text-ink hover:bg-canvas transition-colors"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-ink-3 hover:text-ink hover:bg-canvas transition-colors"
             >
               <ShieldCheck className="w-4 h-4 text-primary" />
               <span>Gói cước ưu đãi</span>
@@ -150,10 +150,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         {/* Logout Bottom */}
-        <div className="p-4 border-t border-neutral-100">
+        <div className="p-4 border-t border-line">
           <button
             onClick={() => logout()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-danger hover:bg-danger-bg transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Đăng xuất</span>
@@ -164,24 +164,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar for Mobile & Desktop Status */}
-        <header className="sticky top-0 z-20 bg-surface border-b border-border px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-20 bg-surface border-b border-line px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl text-neutral-600 hover:bg-neutral-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-ink-3 hover:bg-sunken transition-colors"
               aria-label="Mở menu"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="lg:hidden flex items-center gap-2">
-              <span className="font-bold text-neutral-900">Thong Dong</span>
+              <span className="font-bold text-ink">Thong Dong</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/booking"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover shadow-elevation-1 transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover shadow-e1 transition-all"
             >
               <Car className="w-3.5 h-3.5" />
               <span>Đặt xe mới</span>
@@ -189,7 +189,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <div className="h-6 w-px bg-border hidden sm:block" />
 
-            <div className="flex items-center gap-2 text-xs text-ink-muted">
+            <div className="flex items-center gap-2 text-xs text-ink-3">
               <div className="w-2 h-2 rounded-full bg-primary" />
               <span className="hidden md:inline">Hệ thống sẵn sàng</span>
             </div>
@@ -200,19 +200,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
-              className="fixed inset-0 bg-[var(--scrim-modal)]"
+              className="fixed inset-0 bg-scrim"
               onClick={() => setMobileMenuOpen(false)}
             />
             <div className="fixed inset-y-0 left-0 w-72 bg-surface p-6 shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-200">
               <div>
-                <div className="flex items-center justify-between pb-6 border-b border-border">
+                <div className="flex items-center justify-between pb-6 border-b border-line">
                   <div className="flex items-center gap-2">
                     <Car className="w-5 h-5 text-primary" />
                     <span className="font-bold text-ink">Thong Dong Hub</span>
                   </div>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="p-1 rounded-lg text-ink-muted hover:text-ink"
+                    className="p-1 rounded-lg text-ink-3 hover:text-ink"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -230,7 +230,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold ${
                           isActive
                             ? "bg-primary text-white font-bold"
-                            : "text-ink-muted hover:text-ink hover:bg-canvas"
+                            : "text-ink-3 hover:text-ink hover:bg-canvas"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -241,13 +241,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </nav>
               </div>
 
-              <div className="pt-6 border-t border-border">
+              <div className="pt-6 border-t border-line">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     logout();
                   }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50"
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-danger hover:bg-danger-bg"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Đăng xuất</span>

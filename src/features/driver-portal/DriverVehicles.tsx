@@ -73,23 +73,23 @@ export default function DriverVehicles() {
         <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Phương tiện của tôi
         </h2>
-        <p className="mt-2 text-sm text-ink-muted">
+        <p className="mt-2 text-sm text-ink-3">
           Danh sách xe có lịch phân công cho bạn trong khoảng một năm trước và sau ngày hiện tại.
         </p>
       </div>
 
       {error && (
-        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
       {loading && (
-        <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-muted">
+        <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3">
           Đang tải phương tiện được phân công...
         </p>
       )}
       {!loading && !error && vehicles.length === 0 && (
-        <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-muted">
+        <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">
           Chưa có phương tiện nào được phân công trong khoảng thời gian này.
         </p>
       )}
@@ -99,7 +99,7 @@ export default function DriverVehicles() {
           {vehicles.map((vehicle) => (
             <article
               key={vehicle.id}
-              className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1"
+              className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1"
             >
               {vehicle.mainImageUrl ? (
                 // Backend image URLs may come from configured external media storage.
@@ -120,7 +120,7 @@ export default function DriverVehicles() {
                     <h3 className="font-bold text-ink">
                       {[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || `Phương tiện #${vehicle.id}`}
                     </h3>
-                    <p className="mt-1 text-sm text-ink-muted">
+                    <p className="mt-1 text-sm text-ink-3">
                       {vehicle.vehicleType ?? "Chưa phân loại"}{vehicle.yearOfManufacture ? ` · ${vehicle.yearOfManufacture}` : ""}
                     </p>
                   </div>
@@ -128,8 +128,8 @@ export default function DriverVehicles() {
                     {statusLabels[vehicle.status?.toLowerCase() ?? ""] ?? vehicle.status ?? "Chưa rõ"}
                   </span>
                 </div>
-                <p className="flex items-center gap-2 text-sm text-ink-muted">
-                  <MapPin className="h-4 w-4 shrink-0 text-ink-muted" />
+                <p className="flex items-center gap-2 text-sm text-ink-3">
+                  <MapPin className="h-4 w-4 shrink-0 text-ink-3" />
                   {vehicle.location || vehicle.facility || "Chưa có vị trí"}
                 </p>
                 <p className="border-t border-line pt-3 text-sm font-semibold text-ink">
