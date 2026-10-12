@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 import RegisterForm from "@/features/auth/components/RegisterForm";
 import AuthBackground from "@/components/layout/AuthBackground";
@@ -21,18 +20,10 @@ export default function RegisterPage() {
       <header className="shrink-0 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2 group whitespace-nowrap select-none"
+          className="flex items-center gap-2 group whitespace-nowrap py-0.5 select-none"
         >
-          <Image
-            src="/logo-car.png"
-            alt="Thong Dong Logo"
-            width={36}
-            height={18}
-            className="h-5 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-            priority
-          />
-          <span className="text-xl font-bold tracking-tight text-ink group-hover:text-primary transition-colors">
-            Thong Dong
+          <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink group-hover:text-primary transition-colors">
+            ThongDong.
           </span>
         </Link>
 
