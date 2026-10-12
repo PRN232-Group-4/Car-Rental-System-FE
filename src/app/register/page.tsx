@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 import RegisterForm from "@/features/auth/components/RegisterForm";
+import AuthBackground from "@/components/layout/AuthBackground";
 
 export const metadata = {
   title: "Đăng ký tài khoản | Thong Dong - Hệ Thống Thuê Xe",
@@ -12,7 +13,10 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="h-dvh w-full overflow-hidden flex flex-col bg-canvas selection:bg-primary/15 selection:text-primary">
+    <div className="h-dvh w-full overflow-hidden flex flex-col bg-canvas relative selection:bg-primary/15 selection:text-primary">
+      {/* Background CAD Grid & Aero Blueprint đồng bộ với Landing Page */}
+      <AuthBackground />
+
       {/* Top Header Bar */}
       <header className="shrink-0 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
         <Link

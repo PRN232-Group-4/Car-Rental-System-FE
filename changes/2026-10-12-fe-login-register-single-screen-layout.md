@@ -19,6 +19,7 @@
    - Card form gọn gàng (`max-w-md`), padding `p-6 sm:p-7`, chiều cao card vừa vặn (640px – 708px), fit 100% không cuộn trên cả màn hình 700px, 768px, 800px và 900px.
    - Thanh demo account thu về 1 dòng nhỏ gọn phía trên form card.
    - Thống nhất các button submit, Google OAuth, link chuyển đổi tài khoản theo đúng tỉ lệ và khoảng cách thiết kế.
+   - Đồng bộ background: Tạo `AuthBackground` chứa lưới toạ độ kỹ thuật CAD (`auth-cad-grid`) và đường nét khí động học ô tô mờ nhẹ tương đồng 100% với Landing Page.
 
 3. **Kiểm chứng tự động**:
    - Đo lường scroll: `scrollHeight === innerHeight` (không có thanh cuộn) trên cả 2 trang ở các chiều cao 700px, 768px, 800px, 900px.
