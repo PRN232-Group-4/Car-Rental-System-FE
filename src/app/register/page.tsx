@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
@@ -47,7 +47,9 @@ export default function RegisterPage() {
 
       {/* Main Content: Single focused card perfectly centered in viewport */}
       <main className="flex-1 w-full max-w-md mx-auto px-4 flex flex-col justify-center pb-6">
-        <RegisterForm />
+        <Suspense fallback={<div className="p-8 text-center text-xs text-ink-3">Đang tải biểu mẫu...</div>}>
+          <RegisterForm />
+        </Suspense>
       </main>
     </div>
   );
