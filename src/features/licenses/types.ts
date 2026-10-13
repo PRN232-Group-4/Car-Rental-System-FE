@@ -13,7 +13,7 @@ export interface CustomerLicense {
 export interface SaveLicensePayload {
   number: string;
   type: string;
-  issueDate: string;
+  issueDate?: string;
   expiryDate: string;
-  imageUrl: string;
+  file: File;
 }

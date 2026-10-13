@@ -27,6 +27,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { name: "Đặt xe", href: "/booking", icon: Car },
+  { name: "Báo cáo sự cố", href: "/report-incident", icon: FileText },
   { name: "Hợp đồng dài hạn", href: "/rental-contract", icon: FileText },
   { name: "Gói của tôi", href: "/my-subscriptions", icon: Package },
   { name: "Hóa đơn", href: "/invoices", icon: FileText },

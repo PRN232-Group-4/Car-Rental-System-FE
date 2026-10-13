@@ -100,6 +100,7 @@ export default function BookingForm() {
     {resultIsSubscription ? <p>Đơn thuê dùng gói thuê bao. Bạn có thể kiểm tra số giờ còn lại trong Gói của tôi.</p> : <p>Kiểm tra hóa đơn để xem số tiền thanh toán chính xác.</p>}
     {generalError && <p role="alert" className="text-red-700">{generalError}</p>}
     <div className="flex flex-wrap gap-3">
+      {result.bookingId && <Link href={`/report-incident?rentalId=${encodeURIComponent(result.bookingId)}`} className="rounded-xl border border-border px-4 py-3">Báo cáo sự cố của đơn</Link>}
       {resultType === "longterm" && result.bookingId && <Link className="rounded-xl bg-primary px-4 py-3 text-white" href={`/rental-contract?rentalId=${encodeURIComponent(result.bookingId)}`}>Xem hợp đồng</Link>}
       {!resultIsSubscription && (invoiceId ? <Link className="rounded-xl bg-primary px-4 py-3 text-white" href={`/invoices/${invoiceId}`}>Xem hóa đơn và thanh toán</Link> : result.bookingId && <button type="button" onClick={prepareInvoice} disabled={loadingInvoice} className="rounded-xl bg-primary px-4 py-3 text-white disabled:opacity-50">{loadingInvoice ? "Đang kiểm tra hóa đơn..." : "Kiểm tra / tạo hóa đơn"}</button>)}
       <Link href={resultIsSubscription ? "/my-subscriptions" : "/invoices"} className="rounded-xl border border-border px-4 py-3">{resultIsSubscription ? "Gói của tôi" : "Danh sách hóa đơn"}</Link>

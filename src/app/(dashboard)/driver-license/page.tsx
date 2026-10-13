@@ -2,7 +2,7 @@
 
 import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   FileCheck,
@@ -16,11 +16,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
-import { getCustomerLicense, saveCustomerLicense, uploadLicensePhoto, CustomerLicense } from "@/features/licenses";
+import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
 
 export default function GPLXPage() {
   const queryClient = useQueryClient();
-  const { data: license } = useQuery<CustomerLicense | null>({
+  const { data: license, isPending, error } = useQuery<CustomerLicense | null>({
     queryKey: ["customer-license"],
     queryFn: getCustomerLicense,
   });
@@ -99,7 +99,7 @@ export default function GPLXPage() {
       </div>
 
       {/* Form rendered with key to synchronize initial state without effects */}
-      <LicenseEditForm key={license?.number || "none"} license={license} queryClient={queryClient} />
+      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-red-700">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <LicenseEditForm license={license} queryClient={queryClient} />}
     </div>
   );
 }
@@ -120,62 +120,70 @@ function LicenseEditForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      validation.setField("imageUrl", "Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).");
+      setSelectedFile(null);
+      setImagePreview(license?.imageUrl ?? null);
+      e.target.value = "";
+      validation.setField("file", "Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).");
       return;
     }
 
-    validation.clear("imageUrl");
+    validation.clear("file");
     setSelectedFile(file);
-    const objectUrl = URL.createObjectURL(file);
-    setImagePreview(objectUrl);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
       setStatusMessage(null);
       if (!licenseNumber.trim()) throw new Error("Vui lòng nhập số giấy phép lái xe.");
-      if (!issueDate) throw new Error("Vui lòng chọn ngày cấp.");
       if (!expiryDate) throw new Error("Vui lòng chọn ngày hết hạn.");
 
-      const exp = new Date(expiryDate);
-      if (exp < new Date()) throw new Error("Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe.");
-
-      let uploadedUrl = imagePreview || "";
-      if (selectedFile) {
-        uploadedUrl = await uploadLicensePhoto(selectedFile);
-      }
+      if (!selectedFile) throw new Error("Vui lòng chọn ảnh GPLX để gửi hồ sơ.");
 
       return saveCustomerLicense({
         number: licenseNumber.trim(),
         type: licenseType,
         issueDate,
         expiryDate,
-        imageUrl: uploadedUrl,
+        file: selectedFile,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customer-license"] });
+    onSuccess: (savedLicense) => {
+      queryClient.setQueryData(["customer-license"], savedLicense);
+      setSelectedFile(null);
+      setImagePreview(savedLicense.imageUrl ?? null);
+      const input = document.getElementById("customer-license-image") as HTMLInputElement | null;
+      if (input) input.value = "";
       setStatusMessage({
         text: "Hồ sơ GPLX đã được gửi lên hệ thống và đang trong quá trình xét duyệt.",
         type: "success",
       });
     },
     onError: (err: Error) => {
-      const message = validation.report(err, { number: "licenseNumber", type: "licenseType" });
-      setStatusMessage(message ? { text: message, type: "error" } : null);
+      const message = validation.report(err, { number: "licenseNumber", type: "licenseType", file: "file", imageurl: "file" });
+      setStatusMessage(message ? { text: err instanceof TypeError ? "Không thể kết nối máy chủ. Hồ sơ chưa được lưu, vui lòng thử lại." : message, type: "error" } : null);
     },
   });
 
   return (
-    <ValidatedForm validation={validation} validate={() => expiryDate && new Date(expiryDate) < new Date() ? { expiryDate: "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." } : {}}
+    <ValidatedForm validation={validation} validate={() => ({
+      expiryDate: expiryDate && new Date(`${expiryDate}T23:59:59`) < new Date() ? "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." : undefined,
+      file: !selectedFile ? "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ." : undefined,
+    })}
       onSubmit={(e) => {
         e.preventDefault();
-        saveMutation.mutate();
+        if (!saveMutation.isPending) saveMutation.mutate();
       }}
       className="p-6 sm:p-8 rounded-3xl bg-white border border-neutral-200 shadow-sm space-y-6"
     >
@@ -185,6 +193,7 @@ function LicenseEditForm({
 
       {statusMessage && (
         <div
+          role={statusMessage.type === "error" ? "alert" : "status"}
           className={`p-4 rounded-2xl text-sm font-semibold flex items-center gap-2.5 ${
             statusMessage.type === "success"
               ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
@@ -200,12 +209,13 @@ function LicenseEditForm({
         </div>
       )}
 
+      <fieldset disabled={saveMutation.isPending} className="contents">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+          <label htmlFor="license-number" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Số GPLX / Mã số thẻ *
           </label>
-          <InlineInput name="licenseNumber"
+          <InlineInput id="license-number" name="licenseNumber"
             type="text"
             required
             value={licenseNumber}
@@ -216,10 +226,10 @@ function LicenseEditForm({
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+          <label htmlFor="license-type" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Hạng giấy phép *
           </label>
-          <InlineSelect name="licenseType"
+          <InlineSelect id="license-type" name="licenseType" required
             value={licenseType}
             onChange={(e) => setLicenseType(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-semibold bg-white"
@@ -233,12 +243,11 @@ function LicenseEditForm({
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
-            Ngày cấp *
+          <label htmlFor="license-issue-date" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+            Ngày cấp
           </label>
-          <InlineInput name="issueDate"
+          <InlineInput id="license-issue-date" name="issueDate"
             type="date"
-            required
             value={issueDate}
             onChange={(e) => setIssueDate(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-semibold"
@@ -246,10 +255,10 @@ function LicenseEditForm({
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
+          <label htmlFor="license-expiry-date" className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
             Ngày hết hạn *
           </label>
-          <InlineInput name="expiryDate"
+          <InlineInput id="license-expiry-date" name="expiryDate"
             type="date"
             required
             value={expiryDate}
@@ -262,7 +271,7 @@ function LicenseEditForm({
       {/* License Photo Upload & Preview */}
       <div>
         <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
-          Ảnh chụp mặt trước giấy phép lái xe
+          Ảnh chụp mặt trước giấy phép lái xe *
         </label>
         <div className="mt-2 flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50/50 hover:bg-neutral-50 transition-colors">
           {imagePreview ? (
@@ -284,16 +293,16 @@ function LicenseEditForm({
           )}
 
           <div className="space-y-2 flex-1 text-center sm:text-left">
-            <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-neutral-300 hover:border-neutral-400 text-neutral-700 text-xs font-bold cursor-pointer shadow-xs transition-all">
+            <button type="button" data-validation-field="file" aria-describedby={validation.errors.file ? "customer-license-image-error" : undefined} onClick={() => document.getElementById("customer-license-image")?.click()} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border ${validation.errors.file ? "border-red-500" : "border-neutral-300"} hover:border-neutral-400 text-neutral-700 text-xs font-bold cursor-pointer shadow-xs transition-all`}>
               <Upload className="w-3.5 h-3.5 text-neutral-500" />
               <span>Chọn ảnh từ thiết bị</span>
-              <InlineInput showError={false} name="imageUrl" id="customer-license-image"
+            </button>
+              <InlineInput showError={false} name="file" id="customer-license-image"
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
               />
-            </label>
             <p className="text-xs text-neutral-500">
               Định dạng JPG, PNG. Ảnh chụp rõ mặt trước, không bị loá sáng hay che khuất thông tin.
             </p>
@@ -301,7 +310,8 @@ function LicenseEditForm({
         </div>
       </div>
 
-      <InlineError name="imageUrl" inputId="customer-license-image" />
+      <InlineError name="file" inputId="customer-license-image" />
+      </fieldset>
       {/* Action Button */}
       <div className="pt-4 border-t border-neutral-100 flex items-center justify-end">
         <button

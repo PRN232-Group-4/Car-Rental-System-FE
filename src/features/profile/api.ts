@@ -62,7 +62,7 @@ export function getCustomerLicense() {
 }
 
 export function updateCustomerLicense(body: LicenseRequest) {
-  return backendApiClient.put<CustomerLicense>("customer/license", body);
+  return backendApiClient.put<CustomerLicense>("customer/license/url", body);
 }
 
 export function uploadLicenseImage(file: File) {

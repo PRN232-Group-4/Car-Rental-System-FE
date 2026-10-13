@@ -27,6 +27,22 @@ import { initialsFor, isAdminOrStaffAccount } from "@/features/profile/api";
 
 const allNavigation = [
   {
+    href: "/admin/maintenance", label: "Quản lý bảo trì", icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/dispatch", label: "Điều phối tài xế", icon: UsersRound,
+    roles: ["Admin", "Manager", "Staff", "CustomerService"],
+  },
+  {
+    href: "/admin/rentals", label: "Vận hành đơn thuê", icon: ReceiptText,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/inspections", label: "Kiểm tra xe", icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
     href: "/admin",
     label: "Tổng quan",
     icon: LayoutDashboard,
