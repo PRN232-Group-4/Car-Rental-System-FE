@@ -16,7 +16,7 @@ export default function LegacyPaymentResultRedirect() {
   }, [router]);
 
   return (
-    <div className="min-h-dvh flex items-center justify-center p-6 text-sm text-neutral-500">
+    <div className="min-h-dvh flex items-center justify-center p-6 text-sm text-ink-3">
       Đang chuyển tới trang kết quả thanh toán...
     </div>
   );

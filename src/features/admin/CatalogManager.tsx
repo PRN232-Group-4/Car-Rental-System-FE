@@ -201,27 +201,27 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
           </div>
         </div>
         {canManage && catalog !== "policies" && (
-          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover">
+          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover">
             <Plus className="h-4 w-4" /> Thêm mới
           </button>
         )}
         {canManage && catalog === "policies" && (
-          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover">
+          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover">
             <Plus className="h-4 w-4" /> Thêm chính sách
           </button>
         )}
       </div>
-      <p className="text-sm text-ink-muted">{info.description}</p>
-      {catalog === "policies" && <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
+      <p className="text-sm text-ink-3">{info.description}</p>
+      {catalog === "policies" && <p className="rounded-xl border border-primary/30 bg-primary-tint px-4 py-3 text-sm text-warning">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
 
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
         <div className="border-b border-line px-5 py-4">
           <h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
-          <p className="mt-1 text-xs text-ink-muted">{loading ? "Đang tải..." : `${records.length} mục`}</p>
+          <p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${records.length} mục`}</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px] text-left">
-            <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+            <thead className="bg-sunken text-xs font-bold uppercase tracking-wider text-ink-3">
               <tr>
                 {columns.map((column) => <th key={column.key} className="px-5 py-3">{column.label}</th>)}
                 <th className="px-5 py-3">Trạng thái</th>
@@ -240,18 +240,18 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
                               : record.values[column.key] || "—"}
                     </td>
                   ))}
-                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${record.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-muted"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
+                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${record.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
                   {canManage && (
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-1">
-                        {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>}
-                        {canDelete && catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-rose-50 hover:text-danger"><Trash2 className="h-4 w-4" /></button>}
+                        {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>}
+                        {canDelete && catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>}
                       </div>
                     </td>
                   )}
                 </tr>
               ))}
-              {!loading && records.length === 0 && <tr><td colSpan={columns.length + (canManage ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-muted">Không có dữ liệu.</td></tr>}
+              {!loading && records.length === 0 && <tr><td colSpan={columns.length + (canManage ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-3">Không có dữ liệu.</td></tr>}
             </tbody>
           </table>
         </div>

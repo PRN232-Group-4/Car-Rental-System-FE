@@ -15,7 +15,7 @@ export default function ForbiddenPage() {
   return (
     <main className="min-h-dvh bg-canvas text-ink flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md text-center space-y-6">
-        <div className="mx-auto w-16 h-16 rounded-2xl bg-danger/10 border border-danger/20 flex items-center justify-center text-danger shadow-elevation-1">
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-danger/10 border border-danger/20 flex items-center justify-center text-danger shadow-e1">
           <ShieldAlert className="w-8 h-8" />
         </div>
 
@@ -26,7 +26,7 @@ export default function ForbiddenPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             Truy cập bị từ chối
           </h1>
-          <p className="text-sm text-ink-muted leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-ink-3 leading-relaxed max-w-sm mx-auto">
             Tài khoản hiện tại không có đủ quyền để truy cập trang này. Vui lòng quay về khu vực được phân quyền hoặc liên hệ quản trị viên.
           </p>
         </div>
@@ -36,7 +36,7 @@ export default function ForbiddenPage() {
             <>
               <Link
                 href={portalHref}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Về cổng được phân quyền
@@ -52,7 +52,7 @@ export default function ForbiddenPage() {
           ) : (
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover"
             >
               <LogIn className="w-4 h-4" />
               Đăng nhập lại

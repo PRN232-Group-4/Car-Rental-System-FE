@@ -82,7 +82,7 @@ export default function DiagnosticDeck() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 text-white">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-white/15 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-white/15 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider mb-3">
               <Shield className="w-3.5 h-3.5" />
               <span>DIGITAL INSPECTION RADAR</span>
             </div>
@@ -101,12 +101,12 @@ export default function DiagnosticDeck() {
           <div className="lg:col-span-7 glass-ink rounded-[36px] p-6 sm:p-10 border border-white/15 shadow-e3 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                <span className="w-3 h-3 rounded-full bg-primary animate-ping" />
                 <span className="text-xs font-mono font-bold tracking-wider text-white uppercase">
                   RADAR SCAN STATUS: ACTIVE
                 </span>
               </div>
-              <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/30">
+              <span className="text-xs font-mono text-primary-tint bg-stage-ink px-3 py-1 rounded-full border border-primary/40">
                 100% TIÊU CHUẨN
               </span>
             </div>
@@ -123,19 +123,19 @@ export default function DiagnosticDeck() {
                     onClick={() => setActivePointId(pt.id)}
                     className={`p-4 rounded-2xl text-left transition-all cursor-pointer select-none active:scale-[0.98] border flex items-start gap-3.5 ${
                       isSelected
-                        ? "bg-emerald-950/80 border-emerald-400/80 shadow-e2"
-                        : "bg-stage-ink/80 hover:bg-white/10 border-white/10 text-white/80"
+                        ? "bg-primary/20 border-primary/40/80 shadow-e2"
+                        : "bg-stage-ink/80 hover:bg-surface/10 border-white/10 text-white/80"
                     }`}
                   >
                     <div
                       className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                        isSelected ? "bg-primary text-white" : "bg-white/10 text-white/70"
+                        isSelected ? "bg-primary text-white" : "bg-surface/10 text-white/70"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="text-[10px] font-mono uppercase tracking-wider block text-white/50 mb-0.5">
+                      <span className="text-xs font-mono uppercase tracking-wider block text-white/50 mb-0.5">
                         {pt.tag}
                       </span>
                       <h4
@@ -145,7 +145,7 @@ export default function DiagnosticDeck() {
                       >
                         {pt.label}
                       </h4>
-                      <span className="text-xs font-mono font-semibold text-emerald-400 block mt-1">
+                      <span className="text-xs font-mono font-semibold text-primary-tint block mt-1">
                         {pt.value}
                       </span>
                     </div>
@@ -155,8 +155,8 @@ export default function DiagnosticDeck() {
             </div>
 
             {/* Security Guarantee Note */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3 text-xs text-white/80">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="p-4 rounded-2xl bg-surface/5 border border-white/10 flex items-center gap-3 text-xs text-white/80">
+              <CheckCircle2 className="w-4 h-4 text-primary-tint shrink-0" />
               <span>Ảnh số hoá 6 góc và chỉ số Odometer được khoá bảo mật không thể can thiệp.</span>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function DiagnosticDeck() {
                 <span className="text-xs font-mono font-bold text-primary tracking-wider uppercase px-2.5 py-1 rounded bg-primary-tint">
                   {activePoint.tag}
                 </span>
-                <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+                <span className="text-xs font-mono font-bold text-primary bg-primary-tint px-3 py-1 rounded-full">
                   {activePoint.status}
                 </span>
               </div>
@@ -201,7 +201,7 @@ export default function DiagnosticDeck() {
               </div>
               <div className="flex items-center justify-between text-xs text-ink-2">
                 <span>Quyết toán cọc:</span>
-                <span className="font-mono text-emerald-700 font-bold">Tự động qua PayOS</span>
+                <span className="font-mono text-primary font-bold">Tự động qua PayOS</span>
               </div>
             </div>
           </div>

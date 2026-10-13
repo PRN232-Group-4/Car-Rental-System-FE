@@ -165,17 +165,17 @@ export default function StaffProfileForm() {
 
       {staff && (
         <>
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
-          <div className="relative bg-stage-ink border-b border-border-dim px-6 pb-6 pt-8 sm:px-8">
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
+          <div className="relative bg-stage-ink border-b border-white/10 px-6 pb-6 pt-8 sm:px-8">
             <div className="absolute right-8 top-6 hidden opacity-10 sm:block"><UserRound className="h-32 w-32 text-white" /></div>
             <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <span className="flex h-[76px] w-[76px] items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-2xl font-bold text-white shadow-lg">{initials}</span>
+              <span className="flex h-[76px] w-[76px] items-center justify-center rounded-2xl border border-white/20 bg-surface/10 text-2xl font-bold text-white shadow-lg">{initials}</span>
               <div className="text-white">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-xl font-bold">{staff.fullName ?? staff.email}</h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2.5 py-1 text-[11px] font-semibold text-amber-200"><BadgeCheck className="h-3.5 w-3.5" />{staff.isActive ? "Đang hoạt động" : "Tạm ngưng"}</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2.5 py-1 text-xs font-semibold text-primary-tint"><BadgeCheck className="h-3.5 w-3.5" />{staff.isActive ? "Đang hoạt động" : "Tạm ngưng"}</span>
                 </div>
-                <p className="mt-1 text-sm text-slate-300">{staff.staffRole ?? "Nhân viên"} {staff.id > 0 ? `· Mã nhân viên ${staff.id}` : ""}</p>
+                <p className="mt-1 text-sm text-ink-3">{staff.staffRole ?? "Nhân viên"} {staff.id > 0 ? `· Mã nhân viên ${staff.id}` : ""}</p>
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function StaffProfileForm() {
             </div>
             <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-line pt-5 sm:flex-row sm:items-center">
               <p aria-live="polite" className="text-sm font-medium text-success">{saved ? "Đã lưu hồ sơ nhân viên." : ""}</p>
-              <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover disabled:opacity-60">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+              <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover disabled:opacity-60">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
             </div>
           </ValidatedForm>
         </div>

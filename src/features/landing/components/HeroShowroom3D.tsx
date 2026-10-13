@@ -72,7 +72,7 @@ export function HeroShowroom3D({
           />
           {/* Flat scrim per A4.1 */}
           <div
-            className="absolute inset-0 bg-[var(--scrim)] pointer-events-none"
+            className="absolute inset-0 bg-scrim pointer-events-none"
             aria-hidden="true"
           />
         </div>

@@ -61,7 +61,7 @@ export default function Marquee() {
           const Icon = item.icon;
           return (
             <div key={`item-1-${idx}`} className="flex items-center gap-3">
-              <span className="px-2 py-0.5 rounded-md bg-primary-tint text-primary text-[10px] font-mono tracking-wider font-extrabold">
+              <span className="px-2 py-0.5 rounded-md bg-primary-tint text-primary text-xs font-mono tracking-wider font-extrabold">
                 {item.tag}
               </span>
               <span className="text-ink font-semibold tracking-normal text-xs sm:text-sm">
@@ -78,7 +78,7 @@ export default function Marquee() {
           const Icon = item.icon;
           return (
             <div key={`item-2-${idx}`} className="flex items-center gap-3">
-              <span className="px-2 py-0.5 rounded-md bg-primary-tint text-primary text-[10px] font-mono tracking-wider font-extrabold">
+              <span className="px-2 py-0.5 rounded-md bg-primary-tint text-primary text-xs font-mono tracking-wider font-extrabold">
                 {item.tag}
               </span>
               <span className="text-ink font-semibold tracking-normal text-xs sm:text-sm">

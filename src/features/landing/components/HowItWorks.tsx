@@ -126,7 +126,7 @@ export default function HowItWorks() {
                 <span className="text-xs font-bold text-ink truncate">
                   {item.title}
                 </span>
-                <span className="ml-auto text-[11px] font-mono text-primary font-bold px-2 py-0.5 rounded bg-primary-tint shrink-0">
+                <span className="ml-auto text-xs font-mono text-primary font-bold px-2 py-0.5 rounded bg-primary-tint shrink-0">
                   {item.highlight}
                 </span>
               </div>
@@ -149,7 +149,7 @@ export default function HowItWorks() {
                       <span className="text-xs font-mono font-black tracking-wider uppercase text-primary bg-primary-tint border border-primary/20 px-3 py-1 rounded-lg">
                         BƯỚC {item.step}
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
+                      <span className="text-xs font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
                         {item.tag}
                       </span>
                     </div>

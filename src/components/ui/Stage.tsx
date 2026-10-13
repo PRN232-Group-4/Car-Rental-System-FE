@@ -47,7 +47,7 @@ export const Stage = forwardRef<HTMLDivElement, StageProps>(function Stage(
             />
             {/* Flat Scrim — strictly no gradient per A2 & A4.1 */}
             <div
-              className="absolute inset-0 w-full h-full bg-[var(--scrim)] pointer-events-none"
+              className="absolute inset-0 w-full h-full bg-scrim pointer-events-none"
               aria-hidden="true"
             />
           </>

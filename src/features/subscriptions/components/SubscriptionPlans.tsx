@@ -54,7 +54,7 @@ export default function SubscriptionPlans() {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 text-white">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-white/20 text-emerald-200 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-white/20 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider mb-3">
             <Zap className="w-3.5 h-3.5" />
             <span>FLEXIBLE MOBILITY PACKAGES</span>
           </div>
@@ -66,7 +66,7 @@ export default function SubscriptionPlans() {
           </p>
 
           {notice && (
-            <div className="mt-4 p-3.5 rounded-2xl bg-white/20 border border-white/30 text-white text-sm font-semibold max-w-lg mx-auto shadow-e2">
+            <div className="mt-4 p-3.5 rounded-2xl bg-surface/20 border border-white/30 text-white text-sm font-semibold max-w-lg mx-auto shadow-e2">
               {notice}
             </div>
           )}
@@ -78,7 +78,7 @@ export default function SubscriptionPlans() {
           {popularPlan && (
             <div className="lg:col-span-7 bg-surface rounded-3xl p-8 sm:p-10 flex flex-col justify-between relative shadow-e3 text-ink border border-white">
               <div className="absolute -top-3.5 left-8 whitespace-nowrap bg-primary text-white text-xs uppercase tracking-wider font-extrabold px-4 py-1.5 rounded-full shadow-e2 flex items-center gap-1.5 z-20">
-                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
+                <Sparkles className="w-3.5 h-3.5 text-primary-tint shrink-0" />
                 <span>LỰA CHỌN PHỔ BIẾN NHẤT</span>
               </div>
 

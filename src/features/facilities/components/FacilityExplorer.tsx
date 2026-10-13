@@ -73,7 +73,7 @@ export default function FacilityExplorer({
                       {facility.shortName}
                     </span>
                     {isSelected && (
-                      <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold px-2 py-0.5 rounded bg-primary-tint text-primary shrink-0">
+                      <span className="text-xs uppercase font-mono tracking-wider font-extrabold px-2 py-0.5 rounded bg-primary-tint text-primary shrink-0">
                         Đang chọn
                       </span>
                     )}
@@ -120,24 +120,24 @@ export default function FacilityExplorer({
                   className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 {/* Flat Scrim Overlay per A4.1 & A2 */}
-                <div className="absolute inset-0 bg-[var(--scrim)]" />
+                <div className="absolute inset-0 bg-scrim" />
 
                 <div className="absolute top-4 right-4">
                   <span className="inline-flex items-center gap-1.5 bg-stage-ink/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 shadow-e1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary-tint" />
                     <span>Trạm điều phối trực tiếp</span>
                   </span>
                 </div>
 
                 <div className="absolute bottom-5 left-6 right-6 text-white">
-                  <span className="text-xs uppercase tracking-wider font-mono font-bold text-emerald-400 mb-1 block">
+                  <span className="text-xs uppercase tracking-wider font-mono font-bold text-primary-tint mb-1 block">
                     {currentFacility.city}
                   </span>
                   <h3 className="font-display text-2xl sm:text-3xl font-black tracking-tight mb-1 text-white">
                     {currentFacility.name}
                   </h3>
                   <p className="text-sm text-white/90 flex items-center gap-1.5 font-normal">
-                    <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <MapPin className="w-4 h-4 text-primary-tint shrink-0" />
                     <span className="line-clamp-1">{currentFacility.address}</span>
                   </p>
                 </div>

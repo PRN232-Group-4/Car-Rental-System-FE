@@ -41,7 +41,7 @@ export function SectionHeading({
         <span
           className={`inline-flex items-center text-xs font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-pill mb-3 ${
             dark
-              ? "bg-white/10 text-white border border-white/15"
+              ? "bg-surface/10 text-white border border-white/15"
               : "bg-primary-tint text-primary border border-primary/20"
           }`}
         >
