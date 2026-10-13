@@ -38,8 +38,25 @@ export interface Rental {
 
 export interface RentalBookingResponse {
   success: boolean;
-  bookingId: string | number;
+  bookingId?: string | number;
   message: string;
   rental?: Rental;
   invoiceId?: number | string;
+}
+
+export interface RentalPolicy {
+  id: number;
+  vehicleTypeId: number | null;
+  name: string | null;
+  vatRate: number;
+  depositPercentage: number;
+  overtimeFeeRate: number;
+  isActive: boolean;
+}
+
+export interface RentalContract extends Rental {
+  contractLink: string | null;
+  signedAt: string | null;
+  hourlyPriceSnapshot?: number | null;
+  monthlyPriceSnapshot?: number | null;
 }

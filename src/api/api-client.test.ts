@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { ApiClient } from "./api-client";
+import { ApiClient, ApiClientError } from "./api-client";
 import { mockFetch } from "./mock/mock-fetch";
+
+it("preserves nested ProblemDetails from the deployed envelope for inline validation", () => {
+  const error = new ApiClientError(400, "Bad Request", { is_success: false, error: { errors: { "request.EndTime": ["Giờ trả xe không hợp lệ."] }, detail: "Thông tin chưa hợp lệ." } });
+  expect(error.data).toMatchObject({ errors: { "request.EndTime": ["Giờ trả xe không hợp lệ."] } });
+  expect(error.message).toContain("Giờ trả xe không hợp lệ.");
+});
 
 describe("ApiClient Unit Tests", () => {
   const client = new ApiClient({

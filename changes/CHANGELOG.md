@@ -1,4 +1,9 @@
 # Changelog
+- 2026-10-13 — [Sửa design lint sau merge main vào Tri](2026-10-13-design-lint-merge-fix.md)
+- 2026-10-13 — [Bảo trì, báo sự cố và điều phối tài xế](2026-10-13-maintenance-reports-dispatch.md)
+- 2026-10-13 — [Vận hành đơn thuê và kiểm tra xe (FE-15, FE-16)](2026-10-13-rental-operations-inspections.md)
+- 2026-10-11 — [Cập nhật GPLX qua multipart](2026-10-11-license-multipart.md)
+- 2026-10-09 — [Đặt xe theo giờ và thuê dài hạn (FE-05, FE-06)](2026-10-09-hourly-longterm-booking.md)
 - 2026-10-12 — [Tối ưu layout Login & Register fit 1 màn hình desktop](2026-10-12-fe-login-register-single-screen-layout.md)
 - 2026-10-12 — [Quét đồng bộ design toàn bộ ứng dụng](2026-10-12-fe-full-app-design-token-sweep.md)
 - 2026-10-12 — [Đồng bộ design 4 vùng & bộ test E2E đầy đủ](2026-10-12-fe-design-sync-and-e2e-suite.md)

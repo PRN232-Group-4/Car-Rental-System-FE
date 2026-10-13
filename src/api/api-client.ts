@@ -25,6 +25,11 @@ export class ApiClientError extends Error {
   public data: unknown;
 
   constructor(status: number, statusText: string, data: unknown) {
+    // The deployed API wraps ProblemDetails inside the six-field envelope.
+    if (typeof data === "object" && data !== null && "error" in data &&
+        typeof data.error === "object" && data.error !== null) {
+      data = { ...(data as Record<string, unknown>), ...data.error };
+    }
     let message = `API Error [${status}]: ${statusText}`;
 
     // BE bọc mọi response trong ApiResponse nên ProblemDetails nằm ở `error`, không phải ở gốc.
