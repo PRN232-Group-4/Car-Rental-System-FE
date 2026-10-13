@@ -294,7 +294,7 @@ function LicenseEditForm({
 
           <div className="space-y-2 flex-1 text-center sm:text-left">
             <button type="button" data-validation-field="file" aria-describedby={validation.errors.file ? "customer-license-image-error" : undefined} onClick={() => document.getElementById("customer-license-image")?.click()} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border ${validation.errors.file ? "border-red-500" : "border-line"} hover:border-line-strong text-ink-2 text-xs font-bold cursor-pointer shadow-xs transition-all`}>
-              <Upload className="w-3.5 h-3.5 text-neutral-500" />
+              <Upload className="w-3.5 h-3.5 text-ink-3" />
               <span>Chọn ảnh từ thiết bị</span>
             </button>
               <InlineInput showError={false} name="file" id="customer-license-image"
@@ -303,7 +303,7 @@ function LicenseEditForm({
                 onChange={handleImageChange}
                 className="hidden"
               />
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-ink-3">
               Định dạng JPG, PNG. Ảnh chụp rõ mặt trước, không bị loá sáng hay che khuất thông tin.
             </p>
           </div>

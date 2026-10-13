@@ -1,4 +1,5 @@
 # Changelog
+- 2026-10-13 — [Sửa design lint sau merge main vào Tri](2026-10-13-design-lint-merge-fix.md)
 - 2026-10-13 — [Bảo trì, báo sự cố và điều phối tài xế](2026-10-13-maintenance-reports-dispatch.md)
 - 2026-10-13 — [Vận hành đơn thuê và kiểm tra xe (FE-15, FE-16)](2026-10-13-rental-operations-inspections.md)
 - 2026-10-11 — [Cập nhật GPLX qua multipart](2026-10-11-license-multipart.md)

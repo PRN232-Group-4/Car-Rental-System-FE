@@ -33,7 +33,7 @@ export function AssignmentForm({ rental, refresh }: { rental: OperationalRental;
     <p className="text-xs text-ink-muted">Phân công sử dụng phương tiện đã chọn trong đơn thuê.</p>
     <div><label htmlFor="assignment-driver" className="text-sm font-semibold">Tài xế</label><InlineSelect id="assignment-driver" name="driverStaffId" className={operationsInput} value={driverId} onChange={(event) => setDriverId(event.target.value)} disabled={busy || drivers.isPending}><option value="">Không phân tài xế (tự lái)</option>{(drivers.data ?? []).filter((driver) => driver.isActive).map((driver) => <option key={driver.id} value={driver.id}>{driver.fullName ?? driver.email ?? `Tài xế #${driver.id}`}</option>)}</InlineSelect></div>
     {drivers.error && <p role="alert" className="text-sm text-red-700">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
-    {error && <p role="alert" className="text-sm text-red-700">{error}</p>}{success && <p role="status" className="text-sm text-green-700">{success}</p>}
+    {error && <p role="alert" className="text-sm text-red-700">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
     <button type="submit" disabled={busy || drivers.isPending} className={operationsButton}>{busy ? "Đang phân công..." : "Lưu phân công"}</button>
   </ValidatedForm>;
 }
@@ -54,7 +54,7 @@ function StatusForm({ rental, refresh }: { rental: OperationalRental; refresh: (
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Bàn giao và nhận xe</h2><p className="text-sm text-ink-muted">Hoàn thành kiểm tra xe trước khi bàn giao hoặc hoàn tất đơn. Máy chủ kiểm tra điều kiện chuyển trạng thái.</p>
     <div><label htmlFor="rental-next-status" className="text-sm font-semibold">Thao tác</label><InlineSelect id="rental-next-status" name="status" required className={operationsInput} value={status} onChange={(event) => setStatus(event.target.value)} disabled={busy}><option value="">Chọn thao tác</option><option value="pre_inspection">Chuyển sang kiểm tra trước thuê</option><option value="renting">Bàn giao xe — bắt đầu thuê</option><option value="post_inspection">Nhận xe — kiểm tra sau thuê</option><option value="completed">Hoàn tất đơn thuê</option><option value="cancelled">Hủy đơn thuê</option></InlineSelect></div>
-    {error && <p role="alert" className="text-sm text-red-700">{error}</p>}{success && <p role="status" className="text-sm text-green-700">{success}</p>}
+    {error && <p role="alert" className="text-sm text-red-700">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
     <button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang cập nhật..." : "Xác nhận cập nhật trạng thái"}</button>
   </ValidatedForm>;
 }

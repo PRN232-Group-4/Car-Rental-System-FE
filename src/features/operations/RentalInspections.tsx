@@ -85,7 +85,7 @@ function InspectionForm({ rental, refresh }: { rental: OperationalRental; refres
       </div>
       <div><label htmlFor="inspection-result" className="text-sm font-semibold">Kết luận kiểm tra *</label><InlineSelect id="inspection-result" name="isOk" required className={operationsInput} value={isOk} onChange={(event) => setIsOk(event.target.value)}><option value="">Chọn kết luận</option><option value="true">Đạt</option><option value="false">Không đạt</option></InlineSelect></div>
     </fieldset>
-    {uploading && <p role="status" className="text-sm">Đang tải ảnh lên máy chủ...</p>}{error && <p role="alert" className="text-sm text-red-700">{error}</p>}{success && <p role="status" className="text-sm text-green-700">{success}</p>}
+    {uploading && <p role="status" className="text-sm">Đang tải ảnh lên máy chủ...</p>}{error && <p role="alert" className="text-sm text-red-700">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
     <button type="submit" disabled={busy || uploading} className={operationsButton}>{busy ? "Đang lưu biên bản..." : "Lưu biên bản kiểm tra"}</button>
   </ValidatedForm>;
 }
