@@ -5,17 +5,17 @@ test.describe("Xác thực & Form Đăng nhập (Auth & LoginForm)", () => {
     await page.goto("/login");
   });
 
-  test("1. Kiểm tra validation khi mật khẩu dưới 12 ký tự", async ({ page }) => {
+  test("1. Kiểm tra validation khi mật khẩu dưới 6 ký tự", async ({ page }) => {
     const emailInput = page.locator("#login-email");
     const passwordInput = page.locator("#login-password");
     const submitBtn = page.locator('button[type="submit"]');
 
     await emailInput.fill("test@example.com");
-    await passwordInput.fill("123456"); // dưới 12 ký tự
+    await passwordInput.fill("12345"); // dưới 6 ký tự
     await submitBtn.click();
 
     // Thông báo lỗi phải hiển thị
-    const alertBox = page.locator("div").getByText(/Mật khẩu tài khoản yêu cầu tối thiểu 12 ký tự/i);
+    const alertBox = page.locator("div").getByText(/Mật khẩu yêu cầu tối thiểu 6 ký tự/i);
     await expect(alertBox).toBeVisible();
   });
 

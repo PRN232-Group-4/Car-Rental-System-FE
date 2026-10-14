@@ -16,14 +16,14 @@ describe('Xác thực — trang đăng nhập', () => {
     await expect(screen.getByText(/Tài khoản mẫu thử nghiệm/)).toBeVisible();
   });
 
-  test('mật khẩu dưới 12 ký tự bị chặn kèm lỗi ngay dưới trường', async ({ app, browser }) => {
+  test('mật khẩu dưới 6 ký tự bị chặn kèm lỗi ngay dưới trường', async ({ app, browser }) => {
     await app.open('/login');
 
     await browser.locator('#login-email').fill('test@example.com');
-    await browser.locator('#login-password').fill('123456');
+    await browser.locator('#login-password').fill('12345');
     await browser.locator('button[type="submit"]').click();
 
-    await expect(browser.locator('#login-password-error')).toContainText(/12 ký tự/i);
+    await expect(browser.locator('#login-password-error')).toContainText(/6 ký tự/i);
   });
 
   test('email sai định dạng bị chặn trước khi gửi', async ({ app, browser }) => {
