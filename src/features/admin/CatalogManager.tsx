@@ -76,6 +76,16 @@ const fieldsByCatalog: Record<CatalogKey, Field[]> = {
     { key: "price", label: "Giá gói (₫)", type: "number", required: true },
     { key: "durationDays", label: "Thời hạn (ngày)", type: "number", required: true },
     { key: "includedHours", label: "Số giờ bao gồm", type: "number" },
+    {
+      key: "isActive",
+      label: "Trạng thái",
+      type: "select",
+      required: true,
+      options: [
+        { value: "true", label: "Đang hoạt động" },
+        { value: "false", label: "Không hoạt động" },
+      ],
+    },
   ],
 };
 
@@ -124,7 +134,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
 
   const openForm = (record?: CatalogRecord) => {
     setEditing(record ?? null);
-    setValues(record ? { ...record.values } : Object.fromEntries(fieldsByCatalog[catalog].map((field) => [field.key, ""])));
+    setValues(record ? { ...record.values } : Object.fromEntries(fieldsByCatalog[catalog].map((field) => [field.key, field.key === "isActive" ? "true" : ""])));
     setError("");
     validation.reset();
     setFormOpen(true);
@@ -156,7 +166,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
           price: Number(values.price),
           durationDays: Number(values.durationDays),
           includedHours: values.includedHours ? Number(values.includedHours) : null,
-          isActive: editing?.active ?? true,
+          isActive: values.isActive ? values.isActive === "true" : (editing?.active ?? true),
         };
         if (editing) await updateSubscriptionPlan(editing.id, body);
         else await createSubscriptionPlan(body);
@@ -328,6 +338,7 @@ function toPlanRecord(item: SubscriptionPlanDto): CatalogRecord {
       price: String(item.price),
       durationDays: String(item.durationDays),
       includedHours: item.includedHours === null ? "" : String(item.includedHours),
+      isActive: String(item.isActive),
     },
   };
 }
