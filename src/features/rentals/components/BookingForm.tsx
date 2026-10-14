@@ -74,6 +74,8 @@ export default function BookingForm() {
       void queryClient.invalidateQueries({ queryKey: ["booking-vehicles"] });
       void queryClient.invalidateQueries({ queryKey: ["invoices"] });
     } catch (error) {
+      setSubmitting(false);
+      submissionLock.current = false;
       const message = validation.report(error);
       setGeneralError(error instanceof TypeError ? errorText(error) : message);
     } finally { setSubmitting(false); submissionLock.current = false; }
@@ -111,8 +113,7 @@ export default function BookingForm() {
   return <div className="mx-auto max-w-5xl space-y-6">
     <div><h1 className="text-2xl font-bold sm:text-3xl">Tạo đơn thuê xe</h1><p className="mt-2 text-sm text-ink-muted">Chọn hình thức thuê, thời gian và phương tiện phù hợp.</p></div>
     <ValidatedForm validation={validation} validate={validate} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_320px]">
-      <fieldset disabled={submitting} className="min-w-0 space-y-5 rounded-2xl border border-border bg-surface p-5 sm:p-6">
-        <legend className="sr-only">Thông tin đặt xe</legend>
+      <section className="min-w-0 space-y-5 rounded-2xl border border-border bg-surface p-5 sm:p-6" aria-label="Thông tin đặt xe">
         <div><label htmlFor="rentalType" className="text-sm font-semibold">Hình thức thuê</label><InlineSelect id="rentalType" name="rentalType" className={inputClass} value={rentalType} onChange={(event) => { setRentalType(event.target.value); if (event.target.value === "longterm") { setPaymentMode("direct"); setHasDriver(false); } }}><option value="hourly">Thuê theo giờ</option><option value="longterm">Thuê dài hạn</option></InlineSelect></div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div><label htmlFor="startTime" className="text-sm font-semibold">Ngày giờ nhận xe</label><InlineInput id="startTime" name="startTime" type="datetime-local" required className={inputClass} value={startTime} onChange={(event) => setStartTime(event.target.value)} /></div>
@@ -125,7 +126,7 @@ export default function BookingForm() {
         {rentalType === "hourly" && <div><label htmlFor="hasDriver" className="text-sm font-semibold">Tài xế</label><InlineSelect id="hasDriver" name="hasDriver" className={inputClass} value={String(hasDriver)} onChange={(event) => setHasDriver(event.target.value === "true")}><option value="false">Tự lái</option><option value="true">Có tài xế</option></InlineSelect></div>}
         {rentalType === "hourly" && <div><label htmlFor="paymentMode" className="text-sm font-semibold">Thanh toán</label><InlineSelect id="paymentMode" name="paymentMode" className={inputClass} value={paymentMode} onChange={(event) => { setPaymentMode(event.target.value); validation.clear("licenseStatus"); validation.clear("subscriptionId"); }}><option value="direct">Thanh toán trực tiếp</option><option value="subscription">Dùng gói thuê bao</option></InlineSelect></div>}
         {paymentMode === "subscription" ? <div><label htmlFor="subscriptionId" className="text-sm font-semibold">Gói thuê bao</label><InlineSelect id="subscriptionId" name="subscriptionId" required className={inputClass} value={subscriptionId} onChange={(event) => setSubscriptionId(event.target.value)}><option value="">Chọn gói còn hiệu lực</option>{subscriptions.map((item) => <option key={item.id} value={item.id}>{item.planName} — còn {item.remainingHours} giờ</option>)}</InlineSelect>{subscriptionsQuery.error && <p role="alert" className="mt-2 text-sm text-red-700">{errorText(subscriptionsQuery.error)}</p>}<Link href="/my-subscriptions" className="mt-2 inline-block text-sm text-primary underline">Quản lý gói của tôi</Link></div> : <div><label htmlFor="licenseStatus" className="text-sm font-semibold">Giấy phép lái xe</label><InlineInput id="licenseStatus" name="licenseStatus" readOnly className={inputClass} value={licenseQuery.isPending ? "Đang kiểm tra..." : licenseQuery.data?.status === "approved" ? "Đã được duyệt" : "Chưa được duyệt"} />{licenseQuery.error && <p role="alert" className="mt-2 text-sm text-red-700">{errorText(licenseQuery.error)}</p>}<Link href="/driver-license" className="mt-2 inline-block text-sm text-primary underline">Cập nhật / kiểm tra GPLX</Link></div>}
-      </fieldset>
+      </section>
       <aside className="h-fit space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
         <h2 className="text-lg font-bold">Tóm tắt đặt xe</h2>
         <p className="text-sm">{vehicle?.name ?? "Chưa chọn phương tiện"}</p><p className="text-sm text-ink-muted">Thời gian: {hours.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} giờ</p>

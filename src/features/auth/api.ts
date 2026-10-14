@@ -126,3 +126,17 @@ export async function resendRegistrationOtp(email: string): Promise<void> {
   });
 }
 
+
+export async function startPasswordReset(email: string): Promise<void> {
+  await defaultApiClient.post("account/password-resets", {
+    email: email.trim(),
+  });
+}
+
+export async function verifyPasswordReset(data: { email: string; otp: string; newPassword: string }): Promise<void> {
+  await defaultApiClient.post("account/password-resets/verify", {
+    email: data.email.trim(),
+    otp: data.otp.trim(),
+    newPassword: data.newPassword,
+  });
+}

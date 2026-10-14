@@ -75,8 +75,8 @@ test("license form displays expired date and invalid upload errors inline", asyn
   await page.locator('[name="expiryDate"]').fill("2001-01-01");
   await page.locator('button[type="submit"]').click();
   await expect(page.locator('[name="expiryDate"]')).toBeFocused();
-  await expect(page.locator("form").getByRole("alert")).toHaveText("Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe.");
-  await page.locator('[name="imageUrl"]').setInputFiles({ name: "invalid.txt", mimeType: "text/plain", buffer: Buffer.from("invalid") });
+  await expect(page.locator("#license-expiry-date-error")).toHaveText("Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe.");
+  await page.locator('#customer-license-image').setInputFiles({ name: "invalid.txt", mimeType: "text/plain", buffer: Buffer.from("invalid") });
   await expect(page.locator("#customer-license-image-error")).toHaveText("Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).");
   await expect(page.getByText("Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe.")).toBeVisible();
 });
