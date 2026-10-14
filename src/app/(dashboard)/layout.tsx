@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "@/components/navigation/NavigationLink";
+import { usePathname } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useMounted } from "@/hooks/use-mounted";
 import {
   Car,

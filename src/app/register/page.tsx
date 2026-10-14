@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import { ChevronLeft } from "lucide-react";
 import RegisterForm from "@/features/auth/components/RegisterForm";
 import AuthBackground from "@/components/layout/AuthBackground";

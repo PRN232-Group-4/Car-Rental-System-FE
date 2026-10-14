@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import type { Vehicle } from "@/features/vehicles";
 
 export default function BookingModal({ vehicle, onClose }: { vehicle: Vehicle | null; onClose: () => void }) {

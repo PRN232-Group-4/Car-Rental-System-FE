@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
 import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
 import { useAuth } from "@/features/auth";

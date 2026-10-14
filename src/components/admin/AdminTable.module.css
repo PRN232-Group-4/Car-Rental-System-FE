@@ -1,0 +1,56 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+
+.table > thead {
+  background: var(--sunken);
+  color: var(--ink-3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.table > thead > tr > th {
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+}
+
+.table > tbody > tr > td {
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
+}
+
+.table > thead > tr > th:first-child,
+.table > tbody > tr > td:first-child {
+  padding-left: 1.25rem;
+}
+
+.table > thead > tr > th:last-child,
+.table > tbody > tr > td:last-child {
+  padding-right: 1.25rem;
+}
+
+.table > tbody > tr + tr {
+  border-top: 1px solid var(--line);
+}
+
+.table > tbody > tr:hover {
+  background: color-mix(in srgb, var(--canvas) 60%, transparent);
+}
+
+.table > thead > tr > th[data-actions],
+.table > tbody > tr > td[data-actions] {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table > tbody > tr > td.empty {
+  padding: 3.5rem 1.25rem;
+  color: var(--ink-3);
+  text-align: center;
+}

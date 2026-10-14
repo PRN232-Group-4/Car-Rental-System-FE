@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import { ShieldAlert, ArrowLeft, Home, LogIn } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { getLoginPortalPath } from "@/features/auth/portal-routing";

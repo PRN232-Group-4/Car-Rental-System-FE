@@ -1,13 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   CarFront,
   ChevronLeft,
-  ChevronDown,
   ChevronRight,
-  CirclePlus,
   Trash2,
   Pencil,
   Search,
@@ -16,6 +14,9 @@ import { deleteVehicle, getFacilities, getVehicleTypes, getVehicles } from "./ap
 import type { OrganizationUnitDto, VehicleDto, VehicleTypeDto } from "./api";
 import { useAuth } from "@/features/auth";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
+import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
+import CreateVehicleButton from "./CreateVehicleButton";
+import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 
 const statusLabels: Record<string, string> = {
   available: "Sẵn sàng",
@@ -79,7 +80,7 @@ export default function VehicleManagement() {
   }, [category, loadPage, page, pageSize, status]);
 
   const removeVehicle = async (vehicle: VehicleDto) => {
-    if (!canManage || deletingId !== null || !window.confirm(`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""} (#${vehicle.id})?`)) return;
+    if (!canManage || deletingId !== null || !window.confirm(`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}${vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ""}?`)) return;
     setDeletingId(vehicle.id);
     try {
       await deleteVehicle(vehicle.id);
@@ -98,7 +99,7 @@ export default function VehicleManagement() {
     return vehicles.filter((vehicle) => {
       const matchesSearch =
         query.length === 0 ||
-        [`${vehicle.brand ?? ""} ${vehicle.model ?? ""}`, String(vehicle.id), vehicle.facility ?? ""]
+        [`${vehicle.brand ?? ""} ${vehicle.model ?? ""}`, vehicle.licensePlate ?? "", vehicle.facility ?? ""]
           .some((value) => value.toLocaleLowerCase().includes(query));
       return matchesSearch;
     });
@@ -121,100 +122,80 @@ export default function VehicleManagement() {
           <p className="mt-2 text-sm text-ink-3">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
         </div>
         {canManage && (
-          <Link href="/admin/vehicles/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover">
-            <CirclePlus className="h-4 w-4" /> Thêm phương tiện
-          </Link>
+          <CreateVehicleButton onSaved={() => { void loadPage(page, pageSize, category, status); }} />
         )}
       </div>
 
-      <p className="text-xs text-ink-3">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
-        <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:p-5">
-          <label className="relative min-w-0 flex-1">
-            <span className="sr-only">Tìm phương tiện</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
-            <input value={search} onChange={(event) => {
-              setSearch(event.currentTarget.value);
-              setPage(1);
-            }} placeholder="Tìm theo tên, ID hoặc chi nhánh..." className="admin-input admin-search-input" />
-          </label>
-          <label className="relative">
-            <span className="sr-only">Lọc theo loại phương tiện</span>
-            <select value={category} onChange={(event) => {
-              setCategory(event.currentTarget.value);
-              setPage(1);
-            }} className="admin-input min-w-[175px] appearance-none pr-9">
-              <option value="all">Tất cả loại xe</option>
-              {vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
-          </label>
-          <label className="relative">
-            <span className="sr-only">Lọc theo trạng thái</span>
-            <select value={status} onChange={(event) => {
-              setStatus(event.currentTarget.value);
-              setPage(1);
-            }} className="admin-input min-w-[150px] appearance-none pr-9">
-              <option value="all">Mọi trạng thái</option>
-              {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
-          </label>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left">
-            <thead className="bg-sunken text-xs font-bold uppercase tracking-wider text-ink-3">
-              <tr>
-                <th className="px-5 py-3">Phương tiện</th>
-                <th className="px-4 py-3">Loại / Năm</th>
-                <th className="px-4 py-3">Chi nhánh</th>
-                <th className="px-4 py-3">Giá thuê / giờ</th>
-                <th className="px-4 py-3">Trạng thái</th>
-                {canManage && <th className="px-5 py-3 text-right">Thao tác</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {filteredVehicles.map((vehicle) => (
-                <tr key={vehicle.id} className="text-sm hover:bg-canvas/60">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div
-                        role={vehicle.mainImageUrl ? "img" : undefined}
-                        aria-label={vehicle.mainImageUrl ? `Ảnh ${vehicle.brand} ${vehicle.model}` : undefined}
-                        className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-3"
-                        style={vehicle.mainImageUrl ? { backgroundImage: `url("${vehicle.mainImageUrl}")` } : undefined}
-                      >
-                        {!vehicle.mainImageUrl && <CarFront className="h-5 w-5" />}
-                      </div>
-                      <span>
-                        <span className="block font-semibold text-ink">{vehicle.brand} {vehicle.model}</span>
-                        <span className="mt-1 block text-xs text-ink-3">ID #{vehicle.id}</span>
-                      </span>
+      <AdminFilterBar description="Tìm theo tên, biển số hoặc chi nhánh trên trang hiện tại." actions={
+        <AdminFilterButton variant="secondary" disabled={!search && category === "all" && status === "all"} onClick={() => { setSearch(""); setCategory("all"); setStatus("all"); setPage(1); }}>Đặt lại</AdminFilterButton>
+      }>
+        <AdminFilterField label="Tìm phương tiện" htmlFor="vehicle-filter-search" icon={Search}>
+          <input id="vehicle-filter-search" value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên, biển số hoặc chi nhánh..." />
+        </AdminFilterField>
+        <AdminFilterField label="Loại phương tiện" htmlFor="vehicle-filter-type" select>
+          <select id="vehicle-filter-type" value={category} onChange={(event) => { setCategory(event.currentTarget.value); setPage(1); }}>
+            <option value="all">Tất cả loại xe</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+          </select>
+        </AdminFilterField>
+        <AdminFilterField label="Trạng thái" htmlFor="vehicle-filter-status" select>
+          <select id="vehicle-filter-status" value={status} onChange={(event) => { setStatus(event.currentTarget.value); setPage(1); }}>
+            <option value="all">Mọi trạng thái</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </AdminFilterField>
+      </AdminFilterBar>
+      <AdminTableCard>
+        <AdminTable className="min-w-[760px]">
+          <caption className="sr-only">Danh sách phương tiện</caption>
+          <thead>
+            <tr>
+              <th scope="col">Phương tiện</th>
+              <th scope="col">Loại / Năm</th>
+              <th scope="col">Chi nhánh</th>
+              <th scope="col">Giá thuê / giờ</th>
+              <th scope="col">Trạng thái</th>
+              {canManage && <th scope="col" data-actions>Thao tác</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredVehicles.map((vehicle) => (
+              <tr key={vehicle.id}>
+                <td>
+                  <div className="flex items-center gap-3">
+                    <div
+                      role={vehicle.mainImageUrl ? "img" : undefined}
+                      aria-label={vehicle.mainImageUrl ? `Ảnh ${vehicle.brand} ${vehicle.model}` : undefined}
+                      className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-3"
+                      style={vehicle.mainImageUrl ? { backgroundImage: `url("${vehicle.mainImageUrl}")` } : undefined}
+                    >
+                      {!vehicle.mainImageUrl && <CarFront className="h-5 w-5" />}
+                    </div>
+                    <span>
+                      <span className="block font-semibold text-ink">{vehicle.brand} {vehicle.model}</span>
+                      {vehicle.licensePlate && <span className="mt-1 block text-xs text-ink-3">{vehicle.licensePlate}</span>}
+                    </span>
+                  </div>
+                </td>
+                <td className="text-ink-3">{vehicle.vehicleType?.trim() || vehicleTypes.find((type) => type.id === vehicle.vehicleTypeId)?.name || "Chưa có loại xe"}<span className="mt-1 block text-xs text-ink-3">{vehicle.yearOfManufacture ?? "—"}</span></td>
+                <td className="text-ink-3">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
+                <td className="font-medium text-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
+                <td><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-sunken text-ink-3"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
+                {canManage && (
+                  <td data-actions>
+                    <div className="flex justify-end gap-1">
+                      <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary">
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <button type="button" onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} aria-label={`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}${vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ""}`} className="rounded-lg p-2 text-danger transition hover:bg-danger-bg disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </td>
-                  <td className="px-4 py-3.5 text-ink-3">{vehicle.vehicleType ?? `Loại #${vehicle.vehicleTypeId}`}<span className="mt-1 block text-xs text-ink-3">{vehicle.yearOfManufacture ?? "—"}</span></td>
-                  <td className="px-4 py-3.5 text-ink-3">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
-                  <td className="px-4 py-3.5 font-medium text-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
-                  <td className="px-4 py-3.5"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-sunken text-ink-3"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
-                  {canManage && (
-                    <td className="px-5 py-3.5">
-                      <div className="flex justify-end gap-1">
-                        <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary">
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                        <button type="button" onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} aria-label={`Xóa xe #${vehicle.id}`} className="rounded-lg p-2 text-danger transition hover:bg-danger-bg disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))}
-              {!loading && filteredVehicles.length === 0 && (
-                <tr><td colSpan={canManage ? 6 : 5} className="px-5 py-14 text-center text-sm text-ink-3">Không tìm thấy phương tiện phù hợp.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                )}
+              </tr>
+            ))}
+            {!loading && filteredVehicles.length === 0 && (
+              <AdminTableEmptyRow colSpan={canManage ? 6 : 5}>Không tìm thấy phương tiện phù hợp.</AdminTableEmptyRow>
+            )}
+          </tbody>
+        </AdminTable>
         <div className="flex flex-col gap-4 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-3">
             <span>Hiển thị {firstResult}–{lastResult} trong {totalCount} phương tiện</span>
@@ -271,7 +252,7 @@ export default function VehicleManagement() {
             </button>
           </nav>
         </div>
-      </section>
+      </AdminTableCard>
     </div>
   );
 }

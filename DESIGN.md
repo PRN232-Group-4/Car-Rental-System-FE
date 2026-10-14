@@ -49,7 +49,7 @@ Một họ trung tính ấm cao cấp (Warm Paper / Slate Ink), một điểm nh
 | **Warm Canvas**      | `#FBFBF9`             | Canvas — nền trang ấm cao cấp (thay cho Showroom Mist xanh xám)                        |
 | **Sunken Bay**       | `#F2F2EE`             | Giếng/đáy: đầu bảng, vùng lõm, skeleton, ô disabled                                    |
 | **Pure Surface**     | `#FFFFFF`             | Bề mặt đặc: thân bảng, ô nhập, thẻ cần tối đa độ đọc                                   |
-| **Slate Ink**        | `#0F172A`             | Chữ chính; khối "stage" tối (kiểm định, vì sao chọn, app di động)                        |
+| **Slate Ink**        | `#0F172A`             | Chữ chính; khối "stage" tối; sidebar admin                                             |
 | **Ink Secondary**    | `#334155`             | Chữ phụ, mô tả                                                                         |
 | **Ink Muted**        | `#64748B`             | Metadata, placeholder, nhãn nhỏ (>= 5.0:1 trên canvas)                                 |
 | **Hairline**         | `rgba(15,23,42,0.08)` | Đường kẻ cấu trúc 1px                                                                  |
@@ -120,6 +120,7 @@ Kính chỉ "thành kính" khi có hậu cảnh. Hậu cảnh được phép:
 | -------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | **Stage Photo**      | Ảnh xe/hành trình thật, `object-fit: cover`, tỉ lệ 16:9 hoặc 21:9, kèm Scrim phẳng | Hero, banner chi nhánh, gallery                               |
 | **Stage Ink**        | Khối màu đặc `#0E1A16` (bo góc lớn hoặc cắt vát bằng `clip-path`)                  | Phần "Vì sao chọn", ứng dụng di động, khu kiểm định           |
+| **Stage Emerald**    | Khối màu đặc `#047857`                                                             | Phần gói thuê bao (nhấn một lần mỗi trang)                    |
 | **Stage Content**    | Chính nội dung cuộn phía sau thanh điều hướng/bảng dính                            | Navbar, sticky booking card, filter bar                       |
 | **Grain** (tùy chọn) | Nhiễu SVG `feTurbulence`, `opacity <= .05`, đặt trên pseudo-element cố định        | Chỉ hero, tạo cảm giác chất liệu; **không** thay cho hậu cảnh |
 
@@ -147,23 +148,22 @@ Nguồn ảnh: khi phát triển dùng `https://picsum.photos/seed/{keyword}/192
 
 ```css
 :root {
-  /* Neutrals — Warm Editorial */
-  --canvas: #fbfbf9;
-  --sunken: #f2f2ee;
+  /* Neutrals */
+  --canvas: #f2f5f3;
+  --sunken: #e8eeeb;
   --surface: #ffffff;
-  --surface-raised: #f7f7f4;
-  --ink: #0f172a;
-  --ink-2: #334155;
-  --ink-3: #64748b;
-  --line: rgba(15, 23, 42, 0.08);
-  --line-strong: rgba(15, 23, 42, 0.16);
+  --ink: #0e1a16;
+  --ink-2: #34443d;
+  --ink-3: #566860;
+  --line: rgba(14, 26, 22, 0.1);
+  --line-strong: rgba(14, 26, 22, 0.18);
 
-  /* Single accent — Precision Amber */
-  --primary: #b45309;
-  --primary-hover: #92400e;
-  --primary-press: #78350f;
-  --primary-tint: #fef3c7;
-  --primary-graphic: #d97706;
+  /* Single accent */
+  --primary: #047857;
+  --primary-hover: #065f46;
+  --primary-press: #064e3b;
+  --primary-tint: #e3f4ec;
+  --primary-graphic: #059669;
 
   /* Status pairs */
   --success: #166534;
@@ -176,9 +176,9 @@ Nguồn ảnh: khi phát triển dùng `https://picsum.photos/seed/{keyword}/192
   --info-bg: #dbeafe;
 
   /* Stages + scrim (flat) */
-  --stage-ink: #0f172a;
-  --stage-amber: #b45309;
-  --scrim: rgba(15, 23, 42, 0.45);
+  --stage-ink: #0e1a16;
+  --stage-emerald: #047857;
+  --scrim: rgba(14, 26, 22, 0.38);
 
   /* Shape */
   --r-control: 10px;
@@ -187,19 +187,19 @@ Nguồn ảnh: khi phát triển dùng `https://picsum.photos/seed/{keyword}/192
   --r-pill: 999px;
 
   /* Elevation (ink-tinted, no colored glow) */
-  --e1: 0 1px 2px rgba(15, 23, 42, 0.06), 0 2px 8px -2px rgba(15, 23, 42, 0.06);
+  --e1: 0 1px 2px rgba(14, 26, 22, 0.06), 0 2px 8px -2px rgba(14, 26, 22, 0.06);
   --e2:
-    0 8px 24px -8px rgba(15, 23, 42, 0.16),
-    0 2px 6px -2px rgba(15, 23, 42, 0.08);
+    0 8px 24px -8px rgba(14, 26, 22, 0.16),
+    0 2px 6px -2px rgba(14, 26, 22, 0.08);
   --e3:
-    0 24px 56px -16px rgba(15, 23, 42, 0.28),
-    0 6px 16px -6px rgba(15, 23, 42, 0.12);
+    0 24px 56px -16px rgba(14, 26, 22, 0.28),
+    0 6px 16px -6px rgba(14, 26, 22, 0.12);
 
   /* Rim light = inset shadows (no gradient) */
   --rim:
     inset 0 1px 0 rgba(255, 255, 255, 0.85),
     inset 0 0 0 1px rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(15, 23, 42, 0.05);
+    inset 0 -1px 0 rgba(14, 26, 22, 0.05);
 
   /* Motion tokens (CSS side; GSAP side in A7) */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -368,10 +368,10 @@ Bộ lọc SVG `feDisplacementMap` + `feTurbulence` làm hậu cảnh bị bẻ 
 
 | Thành phần                | Quy tắc                                                                                                                                                                                                                                         |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Button primary**        | Nền Precision Amber, chữ trắng, cao 44–48 (admin 36–40), bo `--r-control`; hover Amber Hover; active `translateY(1px)` + Amber Press; focus ring A10. Không glow, không gradient.                                                              |
+| **Button primary**        | Nền Emerald Deep, chữ trắng, cao 44–48 (admin 36–40), bo `--r-control`; hover Emerald Hover; active `translateY(1px)` + Emerald Press; focus ring A10. Không glow, không gradient.                                                              |
 | **Button secondary**      | `.glass-1` trên Stage hoặc Surface + viền `--line-strong` trên canvas; chữ Ink.                                                                                                                                                                 |
 | **Button ghost / danger** | Ghost: chữ Ink, hover nền Sunken. Danger: nền `--danger`, chữ trắng (đã >= 5.9:1 — kiểm lại khi đổi màu).                                                                                                                                       |
-| **Input**                 | Nền **Surface đặc**, viền Hairline Strong, cao 48 (admin 40), nhãn luôn nằm trên, lỗi nằm dưới có icon + chữ; focus: viền Primary + vòng `0 0 0 3px` Primary Tint. Không nhãn nổi (floating label).                                             |
+| **Input**                 | Nền **Surface đặc**, viền Hairline Strong, cao 48 (admin 40), nhãn luôn nằm trên, lỗi nằm dưới có icon + chữ; focus: viền Emerald + vòng `0 0 0 3px` Emerald Tint. Không nhãn nổi (floating label).                                             |
 | **Select/Combobox/Date**  | Popover `.glass-3`; danh sách tùy chọn nền đặc. Lịch dùng `react-day-picker`, múi giờ GMT+7.                                                                                                                                                    |
 | **Tabs**                  | Thanh trượt chỉ báo bằng `transform: translateX` + `scaleX`; không đổi bố cục.                                                                                                                                                                  |
 | **StatusBadge**           | Chip bo pill, cặp màu trạng thái A2, icon Lucide + nhãn chữ. Bảng ánh xạ ở B.§26 và A9.                                                                                                                                                         |
@@ -379,9 +379,8 @@ Bộ lọc SVG `feDisplacementMap` + `feTurbulence` làm hậu cảnh bị bẻ 
 | **Dialog**                | `.glass-3`, focus trap (Radix), nền che `rgba(14,26,22,.45)` phẳng, đóng bằng Esc/nút; vào bằng GSAP (A7).                                                                                                                                      |
 | **Drawer / Bottom sheet** | Desktop: drawer phải `.glass-3`. Mobile: bottom sheet (`vaul`) kéo được, có tay nắm.                                                                                                                                                            |
 | **Toast**                 | `sonner`, vị trí dưới-phải (mobile: trên), `.glass-2`, `role="status"`/`alert` đúng ngữ cảnh.                                                                                                                                                   |
-| **Table (admin)**         | Header Sunken dính trên, thân Surface đặc, hàng cao 44 (chế độ compact 36), phân cách bằng Hairline, hàng chọn nền Primary Tint. Không blur trên hàng.                                                                                          |
+| **Table (admin)**         | Header Sunken dính trên, thân Surface đặc, hàng cao 44 (chế độ compact 36), phân cách bằng Hairline, hàng chọn nền Emerald Tint. Không blur trên hàng.                                                                                          |
 | **Skeleton**              | Khối Sunken bo đúng kích thước nội dung thật, nhấp nháy bằng **opacity** (0.6 ↔ 1, 1.2s). **Cấm shimmer gradient.** Không spinner tròn cho tải trang/danh sách (spinner chỉ cho nút đang gửi).                                                  |
-| **PageFallback**          | Fallback `Suspense` dùng chung cho mọi route (`components/ui/PageFallback`): chữ Ink Muted, canh giữa, `role="status"`. Route không tự đặt padding/chữ riêng.                                                                                  |
 | **Empty state**           | Bố cục có chủ đích: minh họa SVG đơn sắc, tiêu đề, một dòng hướng dẫn, một hành động chính. Không chỉ ghi "No data".                                                                                                                            |
 | **Error state**           | Thông điệp thân thiện + nút "Thử lại" + mã tham chiếu (`traceId` từ ProblemDetails) cho staff; không lộ 500/stack.                                                                                                                              |
 | **Chart**                 | A9. Màu phẳng, không gradient fill; vùng (area) dùng màu đặc alpha 0.12 + đường viền.                                                                                                                                                           |
@@ -477,7 +476,9 @@ Kỹ thuật & ngân sách:
 
 ## A9. Khu vực Admin / Staff — "Clean Minimal Frosted Glass"
 
-- **Canvas phẳng** `#FBFBF9`. Rail điều hướng là **khối đặc Surface** + viền Hairline phải — và là **một component dùng chung** (`components/layout/AppSidebar`) cho cả ba cổng (khách hàng, nhân viên, tài xế): cùng bề rộng 260px, cùng trạng thái active, cùng thẻ người dùng. Không có gì phía sau rail nên không dùng kính. Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
+**Quy chuẩn triển khai Admin:** xem `docs/admin-ui.md`. Bộ lọc dùng `AdminFilters.tsx`, bảng danh sách dùng `AdminTable.tsx`, popup dùng `FormDialog.tsx`; sửa style chung tại các component này để mọi trang giữ cùng hệ thống. Các bộ lọc dùng control cao 44px, nhãn hiển thị, viền nhẹ theo token và bố cục responsive có nút áp dụng/đặt lại rõ ràng.
+
+- **Canvas phẳng** `#F2F5F3`. Sidebar là **khối đặc Garage Ink** (không có gì phía sau để làm mờ). Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
 - Density 7: hàng bảng 44px (có công tắc compact 36px), chữ thân 14px, số/ID/tiền dùng Geist Mono + `tabular-nums`. Không dùng thẻ lồng thẻ: nhóm bằng đường kẻ trên (border-top) hoặc khoảng trắng.
 - Motion tối thiểu (Motion 3): fade 160ms khi đổi tab/panel, drawer trượt 320ms, toast, skeleton pulse, count-up KPI **một lần**, đường biểu đồ vẽ vào 600ms. Không parallax, không pin, không 3D, không loop (ngoại trừ chấm live).
 - Biểu đồ (Recharts): tắt gradient fill; dùng 5 màu `--chart-*` (A2) kèm nhãn trực tiếp và/hoặc họa tiết nét để không chỉ phân biệt bằng màu; tooltip `.glass-2`; luôn có nút "Xem dạng bảng" (bảng ẩn trực quan nhưng đọc được bởi trình đọc màn hình); `isAnimationActive` tắt khi reduce-motion.
@@ -544,12 +545,10 @@ Kỹ thuật & ngân sách:
   --color-canvas: var(--canvas);
   --color-sunken: var(--sunken);
   --color-surface: var(--surface);
-  --color-surface-raised: var(--surface-raised);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-press: var(--primary-press);
@@ -564,13 +563,9 @@ Kỹ thuật & ngân sách:
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
 
-  --color-stage-ink: var(--stage-ink);
-  --color-scrim: var(--scrim);
-
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);
   --radius-panel: var(--r-panel);
-  --radius-pill: var(--r-pill);
 
   --shadow-e1: var(--e1);
   --shadow-e2: var(--e2);
@@ -591,7 +586,7 @@ main {
 }
 ```
 
-Ánh xạ từ token cũ sang token mới (dùng cho P1): `--color-text → --ink`, `--color-text-secondary → --ink-2`, `--color-text-muted → --ink-3` (khác giá trị!), `--color-background → --canvas`, `--color-surface (#fff) → --surface`, `--color-border → --line`, `--color-success/warning/error/info → bộ cặp trạng thái mới`, `--radius-sm/md/lg/xl → --r-control/--r-card/--r-panel`, `.glass-nav → .glass-1`, `.glass-search → .glass-2`, `.glass-card → .glass-lite` (danh sách) hoặc `.glass-2` (panel đơn), `.glass-card-elevated → .glass-3` + viền Primary, `.glass-hover → .glass-lift`, `.glass-dark/.glass-certificate → .glass-ink / .glass-3`, `.specular-border`, `.specular-emerald`, `.ambient-glow-orb`, `.orb-drift*` → **xóa**.
+Ánh xạ từ token cũ sang token mới (dùng cho P1): `--color-text → --ink`, `--color-text-secondary → --ink-2`, `--color-text-muted → --ink-3` (khác giá trị!), `--color-background → --canvas`, `--color-surface (#fff) → --surface`, `--color-border → --line`, `--color-success/warning/error/info → bộ cặp trạng thái mới`, `--radius-sm/md/lg/xl → --r-control/--r-card/--r-panel`, `.glass-nav → .glass-1`, `.glass-search → .glass-2`, `.glass-card → .glass-lite` (danh sách) hoặc `.glass-2` (panel đơn), `.glass-card-elevated → .glass-3` + viền Emerald, `.glass-hover → .glass-lift`, `.glass-dark/.glass-certificate → .glass-ink / .glass-3`, `.specular-border`, `.specular-emerald`, `.ambient-glow-orb`, `.orb-drift*` → **xóa**.
 
 ---
 
@@ -600,9 +595,7 @@ main {
 **Múi giờ:** API trao đổi UTC (ISO-8601, hậu tố `Z`). UI hiển thị và nhập theo `Asia/Ho_Chi_Minh` (GMT+7) bằng `date-fns` + `@date-fns/tz`. Không dùng `new Date(string)` mơ hồ để parse giờ nhập.
 
 **Design lint (CI, `scripts/check-design-rules.mjs`)** — thất bại build nếu trong `src/**/*.{ts,tsx,css}`:
-`gradient(`, `bg-gradient-`, `from-`/`via-`/`to-` kết hợp `bg-gradient`, `#000` / `#000000`, emoji (U+1F000–1FAFF, U+2600–27BF trừ ký tự dấu tích), `h-screen`, font `Inter`, chuỗi `Scroll to explore`, `backdrop-blur-*` hoặc `backdrop-filter` ngoài các lớp `.glass-1/2/3/ink/admin` đã khai báo ở `globals.css`, màu palette/hex thô (`text-red-700`, `text-[#fff]`…), và **token chưa khai báo** (`border-border`, `text-ink-muted`, `bg-border`…).
-
-> Rule 9 chặn token chưa khai báo vì một class màu trỏ tới token không có trong `@theme` thì Tailwind **không sinh CSS nào cả** — viền rơi về `currentColor`, chữ phụ thừa hưởng màu cha. `tsc`/ESLint không bắt được và mắt thường rất khó thấy, nên phải chặn ở CI.
+`gradient(`, `bg-gradient-`, `from-`/`via-`/`to-` kết hợp `bg-gradient`, `#000` / `#000000`, emoji (U+1F000–1FAFF, U+2600–27BF trừ ký tự dấu tích), `h-screen`, font `Inter`, chuỗi `Scroll to explore`, `backdrop-blur-*` hoặc `backdrop-filter` ngoài các lớp `.glass-1/2/3/ink/admin` đã khai báo ở `globals.css`.
 
 **Kiểm thử thị giác & hiệu năng (FE-20):**
 
@@ -783,10 +776,10 @@ The product should feel accessible to ordinary users renting cars for:
 
 Nguồn xác thực: **Phần A, mục A2** (bảng màu, vai trò, tương phản đã đo). Tóm tắt:
 
-- Điểm nhấn duy nhất: **Precision Amber `#B45309`** (hover `#92400E`, press `#78350F`, tint `#FEF3C7`). Dùng cho CTA chính, link, trạng thái chọn, bộ lọc đang bật, giá nhấn mạnh, focus ring.
+- Điểm nhấn duy nhất: **Emerald Deep `#047857`** (hover `#065F46`, press `#064E3B`, tint `#E3F4EC`). Dùng cho CTA chính, link, trạng thái chọn, bộ lọc đang bật, giá nhấn mạnh, focus ring.
 - Trung tính (một họ xanh-xám): Canvas `#F2F5F3`, Surface `#FFFFFF`, chữ `#0E1A16` / `#34443D` / `#566860`, viền `rgba(14,26,22,.10)`.
 - Trạng thái Success/Warning/Danger/Info dùng theo **cặp chữ/nền** ở A2, luôn kèm icon và nhãn chữ.
-- Không tô màu nhấn toàn bộ giao diện: Precision Amber chiếm tối đa ~10% diện tích mỗi màn hình.
+- Không tô xanh toàn bộ giao diện: Emerald chiếm tối đa ~10% diện tích mỗi màn hình.
 - Các giá trị cũ `#059669` (làm chữ hoặc nền nút chữ trắng: 3.77:1), `#999999` (2.85:1), `#F59E0B` (làm chữ: 2.15:1), `#222222/#666666` (lệch họ trung tính) **bị thay thế**.
 
 ---
@@ -854,7 +847,7 @@ Header requirements:
 - Pill `.glass-1`, cách mép trên 16px, `position: fixed`, rộng tối đa 1160px, đè lên Stage (ảnh hero) hoặc nội dung cuộn phía sau.
 - Logo bên trái; điều hướng chính giữa/trái; hành động tài khoản bên phải.
 - Khi cuộn xuống pill thu gọn (giảm padding, `scale` nhẹ) bằng GSAP trên `transform`/`opacity`, không gây dịch chuyển bố cục (A7).
-- Chữ luôn là Ink (không dùng Ink Muted trong pill); mục đang chọn có chỉ báo Amber bằng `transform`.
+- Chữ luôn là Garage Ink (không dùng Ink Muted trong pill); mục đang chọn có chỉ báo Emerald bằng `transform`.
 - Mobile: header gọn + thanh điều hướng đáy (xem mục 42).
 
 Primary navigation:
@@ -1198,7 +1191,7 @@ Hiển thị theo chi nhánh:
 
 Khách chọn chi nhánh khi tìm xe và nhận xe tại đó hoặc yêu cầu giao xe tận nơi (`pick_up_method`, `pickup_location`).
 
-Khi bản đồ được bật: bản đồ là Stage Content, panel điều khiển (bộ lọc, danh sách) là `.glass-2` nổi phía trên; marker dùng `--primary-graphic` `#D97706`; không chồng nhiều hơn 4 phần tử `backdrop-filter`; có danh sách thay thế cho người dùng bàn phím/trình đọc màn hình.
+Khi bản đồ được bật: bản đồ là Stage Content, panel điều khiển (bộ lọc, danh sách) là `.glass-2` nổi phía trên; marker dùng Emerald Graphic `#059669`; không chồng nhiều hơn 4 phần tử `backdrop-filter`; có danh sách thay thế cho người dùng bàn phím/trình đọc màn hình.
 
 ---
 
@@ -1756,7 +1749,7 @@ components/
 Bổ sung (khu admin và thành phần dùng chung mới), đặt trong `src/features/admin/components/` trừ khi ghi khác:
 
 ```text
-AppShell              rail AppSidebar dùng chung (Surface + Hairline) + header .glass-admin, menu lọc theo role
+AdminShell            sidebar Garage Ink + header .glass-admin, menu lọc theo role
 PageHeader            tiêu đề, breadcrumbs, hành động chính
 DataTable             TanStack Table, phân trang/sắp xếp/lọc phía server, skeleton/empty/error
 FilterBar             bộ lọc dạng chip + ô tìm kiếm có debounce, đồng bộ URL
@@ -1820,7 +1813,7 @@ Nguồn xác thực: Phần A (A4, A6).
 Primary:
 
 ```text
-Background: Precision Amber #B45309   Text: #FFFFFF (5.2:1)
+Background: Emerald Deep #047857   Text: #FFFFFF (5.5:1)
 Radius: 10px   Height: 44-48px
 Hover: #065F46   Active: #064E3B + translateY(1px)
 ```
@@ -1858,8 +1851,8 @@ border: 1px solid Hairline Strong
 Focus:
 
 ```text
-border-color: Precision Amber
-box-shadow: 0 0 0 3px Primary Tint
+border-color: Emerald Deep
+box-shadow: 0 0 0 3px Emerald Tint
 ```
 
 - Nhãn luôn hiển thị phía trên ô; không nhãn nổi; không dựa vào placeholder.
