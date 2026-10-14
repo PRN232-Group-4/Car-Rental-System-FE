@@ -1,6 +1,6 @@
 "use client";
 
-import { Key, RefreshCw, Truck, FileCheck, CheckCircle2, Award, Zap, ShieldCheck } from "lucide-react";
+import { Key, RefreshCw, Truck, FileCheck, CheckCircle2, Award, ShieldCheck } from "lucide-react";
 import { Stage } from "@/components/ui/Stage";
 
 export default function WhyChooseUs() {
@@ -10,10 +10,6 @@ export default function WhyChooseUs() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider mb-3">
-              <Zap className="w-3.5 h-3.5" />
-              <span>CORE COMMITMENTS</span>
-            </div>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15]">
               Nền Tảng Vận Hành Chuẩn Mực & Đáng Tin Cậy
             </h2>
@@ -32,9 +28,6 @@ export default function WhyChooseUs() {
                 <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-white/10 text-primary-tint flex items-center justify-center shadow-e1">
                   <FileCheck className="w-6 h-6 stroke-[2.2]" />
                 </div>
-                <span className="text-xs uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-primary/15 text-primary-tint border border-primary/40">
-                  TELEMETRY VERIFIED
-                </span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
                 Kiểm Định 2 Chiều Trước & Sau Thuê
@@ -67,9 +60,6 @@ export default function WhyChooseUs() {
                 <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-white/10 text-white flex items-center justify-center shadow-e1">
                   <Key className="w-6 h-6 stroke-[2.2] text-primary-tint" />
                 </div>
-                <span className="text-xs uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-surface/10 text-white/90 border border-white/10">
-                  ALL-ELECTRIC FLEET
-                </span>
               </div>
               <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
                 100% Đội Xe Chính Chủ
@@ -92,9 +82,6 @@ export default function WhyChooseUs() {
                 <div className="w-12 h-12 rounded-2xl bg-stage-ink border border-white/10 text-primary-tint flex items-center justify-center shadow-e1">
                   <RefreshCw className="w-6 h-6 stroke-[2.2]" />
                 </div>
-                <span className="text-xs uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-primary/15 text-primary-tint border border-primary/40">
-                  PAYOS INSTANT
-                </span>
               </div>
               <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
                 Hoàn Cọc Tự Động Minh Bạch
@@ -116,9 +103,6 @@ export default function WhyChooseUs() {
                 <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-e1">
                   <Truck className="w-6 h-6 stroke-[2.2]" />
                 </div>
-                <span className="text-xs uppercase font-mono tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-primary/30 text-primary-tint border border-primary/50">
-                  24/7 DISPATCH
-                </span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
                 Nhận Xe Tại Smart Hub Hoặc Giao Tận Nơi 24/7

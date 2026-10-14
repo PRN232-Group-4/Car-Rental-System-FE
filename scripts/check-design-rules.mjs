@@ -44,6 +44,27 @@ for (const file of files) {
     const lineNum = idx + 1;
     const trimmed = line.trim();
 
+    // 10. Kicker/eyebrow: chip chữ hoa nằm ngay trên một tiêu đề.
+    //     A11 #8 cấm nhãn kiểu "SECTION 01"/"ABOUT US"; chip chỉ lặp lại tiêu đề.
+    if (/<h[123][\s>]/.test(line)) {
+      let seen = 0;
+      for (let back = idx - 1; back >= 0 && seen < 6; back -= 1) {
+        const probe = lines[back].trim();
+        if (!probe) continue;
+        seen += 1;
+        if (/rounded-full/.test(probe) && /uppercase/.test(probe)) {
+          violations.push({
+            file: relPath,
+            line: back + 1,
+            rule: 'NO_EYEBROW_KICKER (A11 #8)',
+            message: 'Cấm chip chữ hoa làm nhãn phía trên tiêu đề ("SECTION 01", "ABOUT US"); tiêu đề tự đứng được.',
+            detail: probe.length > 160 ? `${probe.slice(0, 160)}…` : probe,
+          });
+          break;
+        }
+      }
+    }
+
     // Ignore comment-only lines in CSS or TS
     if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
       return;

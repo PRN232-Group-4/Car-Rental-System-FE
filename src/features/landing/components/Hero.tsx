@@ -89,14 +89,6 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
 
       {/* z-30: giữ console + dropdown của SearchWidget trên các section sau (z-10/z-20) nhưng dưới navbar/modal (z-50). */}
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center relative z-30">
-        {/* 2. Tech Micro-Badge (Automotive Intelligence Standard) */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/90 border border-line shadow-xs mb-5 text-xs font-mono font-bold tracking-wider uppercase text-ink select-none">
-          <span className="w-2 h-2 rounded-full bg-primary" />
-          <span className="text-primary">VRS AUTOMOTIVE PLATFORM</span>
-          <span className="text-ink-3">/</span>
-          <span>DỊCH VỤ THUÊ PHƯƠNG TIỆN TOÀN DIỆN</span>
-        </div>
-
         {/* 3. H1 Display: Be Vietnam Pro Ultra-Bold with clean typographic flow */}
         <h1
           ref={headingRef}

@@ -156,8 +156,7 @@ export default function StaffProfileForm() {
   return (
     <div className="mx-auto max-w-5xl space-y-7">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Tài khoản nhân viên</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Hồ sơ của tôi</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Hồ sơ của tôi</h2>
         <p className="mt-2 text-sm text-ink-2">Xem và cập nhật thông tin liên hệ của bạn.</p>
       </div>
       {loading && <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-2">Đang tải hồ sơ...</p>}

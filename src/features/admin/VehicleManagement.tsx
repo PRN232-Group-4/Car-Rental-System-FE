@@ -117,8 +117,7 @@ export default function VehicleManagement() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản lý đội xe</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Phương tiện</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Phương tiện</h2>
           <p className="mt-2 text-sm text-ink-3">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
         </div>
         {canManage && (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Clock, Sparkles, ArrowRight, ShieldCheck, Loader2, Zap } from "lucide-react";
+import { Check, Clock, Sparkles, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import { getSubscriptionPlans, getInitialSubscriptionPlans, purchaseSubscriptionPlan } from "../api";
 import type { SubscriptionPlan } from "../types";
 import { useAuth } from "@/features/auth";
@@ -53,10 +53,6 @@ export default function SubscriptionPlans() {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold uppercase tracking-wider mb-3">
-            <Zap className="w-3.5 h-3.5" />
-            <span>FLEXIBLE MOBILITY PACKAGES</span>
-          </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight mb-4 text-ink">
             Gói Thuê Bao Linh Hoạt — Tối Ưu Chi Phí
           </h2>

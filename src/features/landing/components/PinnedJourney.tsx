@@ -157,10 +157,6 @@ export default function PinnedJourney() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
         <div ref={leftColRef} className="lg:col-span-5 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold uppercase tracking-wider">
-            <KeyRound className="w-3.5 h-3.5 text-primary" />
-            <span>CINEMATIC SCROLL EXPERIENCE</span>
-          </div>
 
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08]">
             Hành Trình 3 Pha Thuê Xe Tối Giản

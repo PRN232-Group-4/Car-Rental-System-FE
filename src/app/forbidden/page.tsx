@@ -20,9 +20,6 @@ export default function ForbiddenPage() {
         </div>
 
         <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">
-            Lỗi 403 · Forbidden
-          </span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             Truy cập bị từ chối
           </h1>

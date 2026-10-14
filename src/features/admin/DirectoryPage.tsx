@@ -276,7 +276,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="flex items-center gap-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
-          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản trị hệ thống</p><h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2></div>
+          <div><h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2></div>
         </div>
         {canModify && <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover"><Plus className="h-4 w-4" /> Thêm mới</button>}
       </div>

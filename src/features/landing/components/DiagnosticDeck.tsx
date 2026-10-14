@@ -82,10 +82,6 @@ export default function DiagnosticDeck() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 text-white">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-white/15 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider mb-3">
-              <Shield className="w-3.5 h-3.5" />
-              <span>DIGITAL INSPECTION RADAR</span>
-            </div>
             <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.08]">
               Trạm Quét Kiểm Định Viễn Thông Số Hoá
             </h2>

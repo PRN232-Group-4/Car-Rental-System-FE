@@ -270,8 +270,7 @@ export default function VehicleForm() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-3 transition hover:text-primary"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản lý đội xe</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
         <p className="mt-2 text-sm text-ink-3">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
       </div>
       {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}

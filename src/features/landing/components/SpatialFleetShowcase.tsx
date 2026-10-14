@@ -139,10 +139,6 @@ export default function SpatialFleetShowcase({
       {/* Section Header with Spatial Typography */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider mb-3">
-            <Zap className="w-3.5 h-3.5 fill-primary" />
-            <span>INTERACTIVE SPATIAL SHOWCASE</span>
-          </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-[1.08]">
             Đội Xe Thuần Điện Đẳng Cấp
           </h2>

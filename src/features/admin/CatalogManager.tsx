@@ -206,8 +206,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
         <div className="flex items-center gap-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Cấu hình hệ thống</p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2>
           </div>
         </div>
         {canManage && catalog !== "policies" && (

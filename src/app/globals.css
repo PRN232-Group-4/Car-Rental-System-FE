@@ -45,8 +45,6 @@
   --stage-ink: #0f172a;
   --stage-amber: #b45309;
   --scrim: rgba(15, 23, 42, 0.45);
-  /* Chữ phụ trên khối tối (Slate 400 / Slate Ink = 7.0:1 — A2). */
-  --on-ink-muted: #94a3b8;
 
   /* Shape tokens */
   --r-control: 10px;
@@ -128,7 +126,6 @@
 
   --color-stage-ink: var(--stage-ink);
   --color-scrim: var(--scrim);
-  --color-on-ink-muted: var(--on-ink-muted);
 
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);
@@ -182,15 +179,6 @@ main {
 
 .admin-search-input {
   padding-left: 2.5rem;
-}
-
-.admin-sidebar-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.admin-sidebar-scroll::-webkit-scrollbar {
-  display: none;
 }
 
 .admin-input::placeholder {

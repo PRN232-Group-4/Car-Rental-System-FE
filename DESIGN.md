@@ -49,7 +49,7 @@ Một họ trung tính ấm cao cấp (Warm Paper / Slate Ink), một điểm nh
 | **Warm Canvas**      | `#FBFBF9`             | Canvas — nền trang ấm cao cấp (thay cho Showroom Mist xanh xám)                        |
 | **Sunken Bay**       | `#F2F2EE`             | Giếng/đáy: đầu bảng, vùng lõm, skeleton, ô disabled                                    |
 | **Pure Surface**     | `#FFFFFF`             | Bề mặt đặc: thân bảng, ô nhập, thẻ cần tối đa độ đọc                                   |
-| **Slate Ink**        | `#0F172A`             | Chữ chính; khối "stage" tối; sidebar admin                                             |
+| **Slate Ink**        | `#0F172A`             | Chữ chính; khối "stage" tối (kiểm định, vì sao chọn, app di động)                        |
 | **Ink Secondary**    | `#334155`             | Chữ phụ, mô tả                                                                         |
 | **Ink Muted**        | `#64748B`             | Metadata, placeholder, nhãn nhỏ (>= 5.0:1 trên canvas)                                 |
 | **Hairline**         | `rgba(15,23,42,0.08)` | Đường kẻ cấu trúc 1px                                                                  |
@@ -179,8 +179,6 @@ Nguồn ảnh: khi phát triển dùng `https://picsum.photos/seed/{keyword}/192
   --stage-ink: #0f172a;
   --stage-amber: #b45309;
   --scrim: rgba(15, 23, 42, 0.45);
-  /* Chữ phụ trên khối tối (Slate 400 / Slate Ink = 7.0:1) */
-  --on-ink-muted: #94a3b8;
 
   /* Shape */
   --r-control: 10px;
@@ -479,7 +477,7 @@ Kỹ thuật & ngân sách:
 
 ## A9. Khu vực Admin / Staff — "Clean Minimal Frosted Glass"
 
-- **Canvas phẳng** `#FBFBF9`. Sidebar là **khối đặc Garage Ink** (không có gì phía sau để làm mờ). Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
+- **Canvas phẳng** `#FBFBF9`. Rail điều hướng là **khối đặc Surface** + viền Hairline phải — và là **một component dùng chung** (`components/layout/AppSidebar`) cho cả ba cổng (khách hàng, nhân viên, tài xế): cùng bề rộng 260px, cùng trạng thái active, cùng thẻ người dùng. Không có gì phía sau rail nên không dùng kính. Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
 - Density 7: hàng bảng 44px (có công tắc compact 36px), chữ thân 14px, số/ID/tiền dùng Geist Mono + `tabular-nums`. Không dùng thẻ lồng thẻ: nhóm bằng đường kẻ trên (border-top) hoặc khoảng trắng.
 - Motion tối thiểu (Motion 3): fade 160ms khi đổi tab/panel, drawer trượt 320ms, toast, skeleton pulse, count-up KPI **một lần**, đường biểu đồ vẽ vào 600ms. Không parallax, không pin, không 3D, không loop (ngoại trừ chấm live).
 - Biểu đồ (Recharts): tắt gradient fill; dùng 5 màu `--chart-*` (A2) kèm nhãn trực tiếp và/hoặc họa tiết nét để không chỉ phân biệt bằng màu; tooltip `.glass-2`; luôn có nút "Xem dạng bảng" (bảng ẩn trực quan nhưng đọc được bởi trình đọc màn hình); `isAnimationActive` tắt khi reduce-motion.
@@ -568,7 +566,6 @@ Kỹ thuật & ngân sách:
 
   --color-stage-ink: var(--stage-ink);
   --color-scrim: var(--scrim);
-  --color-on-ink-muted: var(--on-ink-muted);
 
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);
@@ -857,7 +854,7 @@ Header requirements:
 - Pill `.glass-1`, cách mép trên 16px, `position: fixed`, rộng tối đa 1160px, đè lên Stage (ảnh hero) hoặc nội dung cuộn phía sau.
 - Logo bên trái; điều hướng chính giữa/trái; hành động tài khoản bên phải.
 - Khi cuộn xuống pill thu gọn (giảm padding, `scale` nhẹ) bằng GSAP trên `transform`/`opacity`, không gây dịch chuyển bố cục (A7).
-- Chữ luôn là Garage Ink (không dùng Ink Muted trong pill); mục đang chọn có chỉ báo Amber bằng `transform`.
+- Chữ luôn là Ink (không dùng Ink Muted trong pill); mục đang chọn có chỉ báo Amber bằng `transform`.
 - Mobile: header gọn + thanh điều hướng đáy (xem mục 42).
 
 Primary navigation:
@@ -1759,7 +1756,7 @@ components/
 Bổ sung (khu admin và thành phần dùng chung mới), đặt trong `src/features/admin/components/` trừ khi ghi khác:
 
 ```text
-AdminShell            sidebar Garage Ink + header .glass-admin, menu lọc theo role
+AppShell              rail AppSidebar dùng chung (Surface + Hairline) + header .glass-admin, menu lọc theo role
 PageHeader            tiêu đề, breadcrumbs, hành động chính
 DataTable             TanStack Table, phân trang/sắp xếp/lọc phía server, skeleton/empty/error
 FilterBar             bộ lọc dạng chip + ô tìm kiếm có debounce, đồng bộ URL
