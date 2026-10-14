@@ -18,7 +18,7 @@
   --line: rgba(15, 23, 42, 0.08);
   --line-strong: rgba(15, 23, 42, 0.16);
 
-  /* Primary Accent: Amber Gold / Bronze (#B45309) & Deep Emerald Secondary */
+  /* Primary Accent: Precision Amber / Bronze (#B45309) */
   --amber: #b45309;
   --amber-hover: #92400e;
   --amber-press: #78350f;
@@ -29,10 +29,6 @@
   --primary-press: #78350f;
   --primary-tint: #fef3c7;
   --primary-graphic: #d97706;
-
-  /* Classic Performance Teal / Emerald */
-  --emerald-deep: #047857;
-  --emerald-tint: #e3f4ec;
 
   /* Status Pairs (text / bg >= 5.0:1) */
   --success: #166534;
@@ -47,7 +43,6 @@
 
   /* Stages & Scrim (Phẳng tuyệt đối, không gradient) */
   --stage-ink: #0f172a;
-  --stage-emerald: #047857;
   --stage-amber: #b45309;
   --scrim: rgba(15, 23, 42, 0.45);
 
@@ -76,12 +71,12 @@
   --dur-slow: 640ms;
   --dur-cine: 1100ms;
 
-  /* Charts */
-  --chart-1: #047857;
-  --chart-2: #0e1a16;
-  --chart-3: #66796f;
-  --chart-4: #7a8f86;
-  --chart-5: #b45309;
+  /* Charts — 5 họ màu phân biệt được (A2), không dồn 4/5 vào một họ xanh */
+  --chart-1: #b45309;
+  --chart-2: #0f172a;
+  --chart-3: #64748b;
+  --chart-4: #047857;
+  --chart-5: #d97706;
 
   /* Backward-compatible variables for un-migrated components */
   --color-primary: var(--primary);
@@ -130,7 +125,6 @@
   --color-info-bg: var(--info-bg);
 
   --color-stage-ink: var(--stage-ink);
-  --color-stage-emerald: var(--stage-emerald);
   --color-scrim: var(--scrim);
 
   --radius-control: var(--r-control);
@@ -155,6 +149,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background: var(--amber-tint);
+  color: var(--primary);
+}
+
+* {
+  caret-color: var(--primary);
+}
+
 main {
   overflow-x: clip;
 }
@@ -164,11 +167,11 @@ main {
 }
 .admin-input {
   width: 100%;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line-strong);
   border-radius: 0.75rem;
-  background-color: #fff;
+  background-color: var(--surface);
   padding: 0.75rem 1rem;
-  color: #1e293b;
+  color: var(--ink-2);
   font-size: 0.875rem;
   outline: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -178,17 +181,8 @@ main {
   padding-left: 2.5rem;
 }
 
-.admin-sidebar-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.admin-sidebar-scroll::-webkit-scrollbar {
-  display: none;
-}
-
 .admin-input::placeholder {
-  color: #94a3b8;
+  color: var(--ink-3);
 }
 
 .admin-input:focus {
@@ -384,11 +378,11 @@ main {
   background: var(--sunken);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(14, 26, 22, 0.20);
+  background: rgba(15, 23, 42, 0.20);
   border-radius: var(--r-pill);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(14, 26, 22, 0.35);
+  background: rgba(15, 23, 42, 0.35);
 }
 
 .no-scrollbar {

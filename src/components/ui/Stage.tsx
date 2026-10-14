@@ -2,7 +2,7 @@
 
 import React, { forwardRef } from "react";
 
-export type StageVariant = "photo" | "ink" | "emerald";
+export type StageVariant = "photo" | "ink";
 
 export interface StageProps extends React.HTMLAttributes<HTMLDivElement> {
   variant: StageVariant;
@@ -69,18 +69,6 @@ export const Stage = forwardRef<HTMLDivElement, StageProps>(function Stage(
       </Component>
     );
   }
-
-  // emerald
-  return (
-    <Component
-      ref={ref}
-      style={combinedStyle}
-      className={`relative w-full bg-stage-emerald text-white overflow-hidden ${className}`.trim()}
-      {...props}
-    >
-      <div className="relative z-10 w-full">{children}</div>
-    </Component>
-  );
 });
 
 export default Stage;

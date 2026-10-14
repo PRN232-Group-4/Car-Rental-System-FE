@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   FileText,
   Clock,
@@ -197,7 +197,7 @@ export default function HoaDonPage() {
                     <div className="text-xs text-ink-3 font-semibold uppercase tracking-wider">
                       Tổng thanh toán
                     </div>
-                    <div className="text-lg font-black text-ink">
+                    <div className="text-lg font-bold text-ink">
                       {inv.amount.toLocaleString("vi-VN")} đ
                     </div>
                   </div>

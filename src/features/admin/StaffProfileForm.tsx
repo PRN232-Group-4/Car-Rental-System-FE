@@ -9,8 +9,11 @@ import { getAccountProfile, updateAccountProfile } from "@/features/profile/api"
 import { getFacilities, getStaffById, updateStaff } from "./api";
 import type { StaffDto } from "./api";
 import DriverLicenseProfile from "./DriverLicenseProfile";
+import AccountAvatar from "@/components/ui/AccountAvatar";
+import { useAuth } from "@/features/auth";
 
 export default function StaffProfileForm() {
+  const { user, refreshProfile } = useAuth();
   const [staff, setStaff] = useState<StaffDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -138,6 +141,7 @@ export default function StaffProfileForm() {
       }
 
       setStaff((prev) => (prev ? { ...prev, fullName: newFullName, phone: newPhone } : null));
+      await refreshProfile();
       setSaved(true);
     } catch (saveError) {
       setError(validation.report(saveError));
@@ -146,18 +150,10 @@ export default function StaffProfileForm() {
     }
   };
 
-  const initials = (staff?.fullName ?? staff?.email ?? "ST")
-    .split(/\s+/)
-    .slice(-2)
-    .map((part) => part[0])
-    .join("")
-    .toLocaleUpperCase();
-
   return (
     <div className="mx-auto max-w-5xl space-y-7">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Tài khoản nhân viên</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Hồ sơ của tôi</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Hồ sơ của tôi</h2>
         <p className="mt-2 text-sm text-ink-2">Xem và cập nhật thông tin liên hệ của bạn.</p>
       </div>
       {loading && <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-2">Đang tải hồ sơ...</p>}
@@ -169,7 +165,7 @@ export default function StaffProfileForm() {
           <div className="relative bg-stage-ink border-b border-white/10 px-6 pb-6 pt-8 sm:px-8">
             <div className="absolute right-8 top-6 hidden opacity-10 sm:block"><UserRound className="h-32 w-32 text-white" /></div>
             <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <span className="flex h-[76px] w-[76px] items-center justify-center rounded-2xl border border-white/20 bg-surface/10 text-2xl font-bold text-white shadow-lg">{initials}</span>
+              <AccountAvatar src={user?.avatarUrl} name={staff.fullName ?? staff.email} size={76} className="h-[76px] w-[76px] rounded-2xl border border-white/20 bg-surface/10 text-2xl font-bold text-white shadow-lg" />
               <div className="text-white">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-xl font-bold">{staff.fullName ?? staff.email}</h3>

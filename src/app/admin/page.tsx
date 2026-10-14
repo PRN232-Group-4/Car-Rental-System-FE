@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CalendarDays, CarFront, CircleDollarSign, ClipboardCheck, UsersRound } from "lucide-react";
 import { getDashboardData } from "@/features/admin/api";
 
 import { useAuth } from "@/features/auth";
+import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
 
 type DashboardEntry = { label: string; value: string };
 
@@ -32,14 +33,14 @@ export default function AdminDashboardPage() {
   const icons = [ClipboardCheck, CarFront, UsersRound, CircleDollarSign];
 
   const adminLinks = [
-    { label: "Phương tiện", href: "/admin/vehicles", visible: true },
+    { label: "Quản lý phương tiện", href: "/admin/vehicles", visible: true },
     { label: "Loại phương tiện", href: "/admin/vehicle-types", visible: true },
-    { label: "Chính sách thuê", href: "/admin/policies", visible: canManage },
+    { label: "Chính sách thuê xe", href: "/admin/policies", visible: canManage },
     { label: "Gói đăng ký", href: "/admin/subscription-plans", visible: true },
     { label: "Phòng ban", href: "/admin/departments", visible: isAdmin },
     { label: "Chi nhánh", href: "/admin/facilities", visible: true },
     { label: "Nhân viên", href: "/admin/staffs", visible: isAdmin },
-    { label: "Hồ sơ của tôi", href: "/admin/profile", visible: true },
+    { label: "Hồ sơ nhân viên", href: "/admin/profile", visible: true },
   ].filter((item) => item.visible);
 
   return (
@@ -54,12 +55,7 @@ export default function AdminDashboardPage() {
           <p className="mt-2 text-sm text-ink-3">Các chỉ số được tải trực tiếp từ API quản trị.</p>
         </div>
         {canManage && (
-          <Link
-            href="/admin/vehicles/new"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover"
-          >
-            <CarFront className="h-4 w-4" /> Thêm phương tiện
-          </Link>
+          <CreateVehicleButton />
         )}
       </div>
 

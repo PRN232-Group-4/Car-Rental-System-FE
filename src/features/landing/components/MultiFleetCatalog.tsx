@@ -11,8 +11,7 @@ import {
   Gauge, 
   ArrowUpRight, 
   ShieldCheck, 
-  UserCheck, 
-  SlidersHorizontal 
+  UserCheck 
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import BookingModal from "@/features/rentals/components/BookingModal";
@@ -279,10 +278,6 @@ export default function MultiFleetCatalog() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
-            <SlidersHorizontal className="w-4 h-4 text-primary" />
-            <span>ĐỘI XE ĐA PHƯƠNG TIỆN CHÍNH CHỦ</span>
-          </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
             Danh Mục Phương Tiện Toàn Diện
           </h2>

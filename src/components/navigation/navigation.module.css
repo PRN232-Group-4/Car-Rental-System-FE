@@ -1,0 +1,70 @@
+.page,
+.overlay {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  color: var(--ink);
+}
+
+.page {
+  min-height: 65vh;
+  width: 100%;
+  background: var(--canvas);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: color-mix(in srgb, var(--canvas) 94%, transparent);
+  /* Keep navigation interruptible, including keyboard and browser history. */
+  pointer-events: none;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 100%;
+  padding: 1.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-panel);
+  background: var(--surface);
+  box-shadow: var(--e2);
+}
+
+.icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--r-card);
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: spin 900ms linear infinite;
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.description {
+  margin: 0.3rem 0 0;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+}

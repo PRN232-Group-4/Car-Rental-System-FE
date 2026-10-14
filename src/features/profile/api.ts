@@ -70,3 +70,12 @@ export function uploadLicenseImage(file: File) {
   form.append("file", file);
   return backendApiClient.post<unknown>("media/vehicle", form);
 }
+
+/** Khách hàng thông thường (chỉ có role Customer, không phải Admin/Manager/Staff/Driver). */
+export function isCustomerOnlyAccount(account: AccountProfile): boolean {
+  const roles = (account.roles ?? []).map((role) => role.toLocaleLowerCase());
+  if (roles.includes("admin") || roles.includes("manager") || roles.includes("staff") || roles.includes("driver")) {
+    return false;
+  }
+  return roles.includes("customer");
+}

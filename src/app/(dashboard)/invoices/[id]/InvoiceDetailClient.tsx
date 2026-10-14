@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   CreditCard,
   Clock,
@@ -90,7 +90,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 {invoice.invoiceNumber}
               </h1>
               {isPaid ? (
@@ -115,7 +115,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
             <span className="text-xs text-ink-3 font-semibold uppercase tracking-wider block">
               Tổng tiền
             </span>
-            <span className="text-2xl sm:text-3xl font-black text-primary">
+            <span className="text-2xl sm:text-3xl font-bold text-primary">
               {invoice.amount.toLocaleString("vi-VN")} đ
             </span>
           </div>
@@ -169,7 +169,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
 
           <div className="pt-2 flex justify-between items-baseline">
             <span className="text-base font-bold text-ink">Tổng cộng cần thanh toán:</span>
-            <span className="text-2xl font-black text-ink">
+            <span className="text-2xl font-bold text-ink">
               {invoice.amount.toLocaleString("vi-VN")} đ
             </span>
           </div>

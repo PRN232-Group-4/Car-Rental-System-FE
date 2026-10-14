@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 
 /**
  * PayOS `CancelUrl` (cấu hình ở BE) đang trỏ về `/result` — thiếu `/payment` — nên khách

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   Package,
   Clock,
@@ -106,7 +106,7 @@ export default function MySubscriptionsPage() {
                   </span>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-black text-ink tracking-tight mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-ink tracking-tight mb-2">
                   {sub.planName}
                 </h3>
 
@@ -136,7 +136,7 @@ export default function MySubscriptionsPage() {
                       Số giờ còn lại
                     </span>
                     <div className="text-right">
-                      <span className="text-3xl font-black text-primary">
+                      <span className="text-3xl font-bold text-primary">
                         {sub.remainingHours}
                       </span>
                       <span className="text-sm font-bold text-ink-3 ml-1">
@@ -146,7 +146,7 @@ export default function MySubscriptionsPage() {
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full h-3 rounded-full bg-border overflow-hidden">
+                  <div className="w-full h-3 rounded-full bg-sunken overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         isLowHours

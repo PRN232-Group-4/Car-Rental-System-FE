@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { 
-  ShieldCheck, 
   RefreshCw, 
   FileCheck2, 
   CheckCircle2, 
@@ -131,10 +130,6 @@ export default function InspectionSection() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
-            <ShieldCheck className="w-4 h-4 text-primary" />
-            <span>MINH BẠCH & TRÁCH NHIỆM PHÁP LÝ</span>
-          </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
             Kiểm Định 2 Chiều & Hoàn Cọc Tự Động
           </h2>
