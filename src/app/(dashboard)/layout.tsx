@@ -69,7 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-dvh bg-canvas text-ink flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:w-64 xl:w-72 flex-col bg-surface border-r border-line sticky top-0 h-dvh z-30">
+      <aside className="hidden lg:flex lg:w-[260px] flex-col bg-surface border-r border-line sticky top-0 h-dvh z-30">
         {/* Brand Logo */}
         <div className="p-6 border-b border-line flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div>
               <span className="text-lg font-black tracking-tight text-ink">Thong Dong</span>
               <span className="block text-xs font-semibold text-primary uppercase tracking-widest -mt-0.5">
-                Member Hub
+                Khu khách hàng
               </span>
             </div>
           </Link>
@@ -102,7 +102,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto pt-2">
+        <p className="px-7 pb-3 pt-5 text-xs font-bold uppercase tracking-[0.18em] text-ink-3">
+          Không gian làm việc
+        </p>
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
@@ -112,7 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 href={item.href}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive
-                    ? "bg-primary text-white shadow-md shadow-primary/20 font-bold"
+                    ? "bg-primary text-white shadow-e1 font-bold"
                     : "text-ink-3 hover:text-ink hover:bg-canvas"
                 }`}
               >
@@ -155,7 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-line">
           <button
             onClick={() => logout()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-danger hover:bg-danger-bg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-ink-3 hover:bg-sunken hover:text-ink transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Đăng xuất</span>
@@ -205,12 +208,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="fixed inset-0 bg-scrim"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="fixed inset-y-0 left-0 w-72 bg-surface p-6 shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-200">
+            <div className="fixed inset-y-0 left-0 w-[min(86vw,300px)] bg-surface p-6 shadow-e2 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between pb-6 border-b border-line">
                   <div className="flex items-center gap-2">
                     <Car className="w-5 h-5 text-primary" />
-                    <span className="font-bold text-ink">Thong Dong Hub</span>
+                    <span className="font-bold text-ink">Thong Dong</span>
                   </div>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
@@ -249,7 +252,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setMobileMenuOpen(false);
                     logout();
                   }}
-                  className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-danger hover:bg-danger-bg"
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-ink-3 hover:bg-sunken hover:text-ink"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Đăng xuất</span>

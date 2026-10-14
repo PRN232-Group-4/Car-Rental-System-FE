@@ -18,7 +18,7 @@
   --line: rgba(15, 23, 42, 0.08);
   --line-strong: rgba(15, 23, 42, 0.16);
 
-  /* Primary Accent: Amber Gold / Bronze (#B45309) & Deep Emerald Secondary */
+  /* Primary Accent: Precision Amber / Bronze (#B45309) */
   --amber: #b45309;
   --amber-hover: #92400e;
   --amber-press: #78350f;
@@ -29,10 +29,6 @@
   --primary-press: #78350f;
   --primary-tint: #fef3c7;
   --primary-graphic: #d97706;
-
-  /* Classic Performance Teal / Emerald */
-  --emerald-deep: #047857;
-  --emerald-tint: #e3f4ec;
 
   /* Status Pairs (text / bg >= 5.0:1) */
   --success: #166534;
@@ -47,7 +43,6 @@
 
   /* Stages & Scrim (Phẳng tuyệt đối, không gradient) */
   --stage-ink: #0f172a;
-  --stage-emerald: #047857;
   --stage-amber: #b45309;
   --scrim: rgba(15, 23, 42, 0.45);
   /* Chữ phụ trên khối tối (Slate 400 / Slate Ink = 7.0:1 — A2). */
@@ -78,12 +73,12 @@
   --dur-slow: 640ms;
   --dur-cine: 1100ms;
 
-  /* Charts */
-  --chart-1: #047857;
-  --chart-2: #0e1a16;
-  --chart-3: #66796f;
-  --chart-4: #7a8f86;
-  --chart-5: #b45309;
+  /* Charts — 5 họ màu phân biệt được (A2), không dồn 4/5 vào một họ xanh */
+  --chart-1: #b45309;
+  --chart-2: #0f172a;
+  --chart-3: #64748b;
+  --chart-4: #047857;
+  --chart-5: #d97706;
 
   /* Backward-compatible variables for un-migrated components */
   --color-primary: var(--primary);
@@ -132,7 +127,6 @@
   --color-info-bg: var(--info-bg);
 
   --color-stage-ink: var(--stage-ink);
-  --color-stage-emerald: var(--stage-emerald);
   --color-scrim: var(--scrim);
   --color-on-ink-muted: var(--on-ink-muted);
 

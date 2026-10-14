@@ -403,7 +403,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9">
+        <main className="mx-auto w-full max-w-[1440px] p-4 sm:p-7 lg:p-9">
           {children}
         </main>
       </div>
