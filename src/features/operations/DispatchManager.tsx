@@ -52,7 +52,7 @@ export default function DispatchManager() {
         </AdminFilterField>
       </AdminFilterBar>
     </ValidatedForm>
-    {drivers.error && <p role="alert" className="text-red-700">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
+    {drivers.error && <p role="alert" className="text-danger">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
     <AdminTableCard>
       <div className="border-b border-line px-5 py-4">
         <h2 className="font-bold text-ink">Ca làm việc</h2>
@@ -115,5 +115,5 @@ function ShiftForm({ record, drivers, close, saved }: { record: DriverShift | nu
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-red-700">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-border px-4 py-3 text-sm">Đóng</button></div></ValidatedForm></FormDialog>;
+  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-danger">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></div></ValidatedForm></FormDialog>;
 }

@@ -14,6 +14,7 @@ import {
   Menu,
 } from "lucide-react";
 import AppSidebar, { type AppNavItem } from "@/components/layout/AppSidebar";
+import { getLoginPortalPath } from "@/features/auth/portal-routing";
 import { useAuth } from "@/features/auth";
 
 const NAV_ITEMS: AppNavItem[] = [
@@ -34,11 +35,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const mounted = useMounted();
 
   useEffect(() => {
-    if (mounted && !isLoading && !isAuthenticated) {
+    if (!mounted || isLoading) return;
+    if (!isAuthenticated) {
       const next = encodeURIComponent(`${pathname || "/booking"}${window.location.search}`);
       router.replace(`/login?next=${next}`);
+      return;
     }
-  }, [mounted, isLoading, isAuthenticated, pathname, router]);
+    // Chặn tài khoản nội bộ (Admin/Manager/Staff/Driver) vào nhầm khu vực khách hàng
+    if (user?.roles && user.roles.length > 0) {
+      const targetPortal = getLoginPortalPath(user.roles);
+      if (targetPortal !== "/") {
+        router.replace(targetPortal);
+      }
+    }
+  }, [mounted, isLoading, isAuthenticated, user, pathname, router]);
 
   // Loading skeleton while verifying session on SSR or initial mount
   if (!mounted || isLoading || !isAuthenticated) {

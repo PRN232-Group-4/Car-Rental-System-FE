@@ -56,7 +56,7 @@ export default function MaintenanceManager() {
         </AdminFilterField>
       </AdminFilterBar>
     </ValidatedForm>
-    {query.isPending && <p role="status">Đang tải phiếu bảo trì...</p>}{query.error && <p role="alert" className="text-red-700">{operationalError(query.error)} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
+    {query.isPending && <p role="status">Đang tải phiếu bảo trì...</p>}{query.error && <p role="alert" className="text-danger">{operationalError(query.error)} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
     <AdminTableCard>
       <div className="border-b border-line px-5 py-4">
         <h2 className="font-bold text-ink">Danh sách phiếu bảo trì</h2>
@@ -90,5 +90,5 @@ function MaintenanceForm({ record, close, saved }: { record: MaintenanceRecord |
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <FormDialog title={record ? "Cập nhật phiếu bảo trì" : "Phiếu bảo trì mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="maintenance-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-sm text-red-700">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu phiếu bảo trì"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-border px-4 py-3 text-sm">Đóng</button></div></ValidatedForm></FormDialog>;
+  return <FormDialog title={record ? "Cập nhật phiếu bảo trì" : "Phiếu bảo trì mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="maintenance-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-sm text-danger">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu phiếu bảo trì"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></div></ValidatedForm></FormDialog>;
 }

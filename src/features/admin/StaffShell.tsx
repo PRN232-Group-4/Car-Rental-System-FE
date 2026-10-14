@@ -218,7 +218,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <>
-      <div className={`${styles.brandHeader} flex h-[76px] shrink-0 items-center justify-between border-b border-white/10 px-6`}>
+      <div className={`${styles.brandHeader} flex h-[76px] shrink-0 items-center justify-between border-b border-line px-6`}>
         <Link
           href="/admin"
           className={`${styles.brandLink} flex min-w-0 items-center gap-3`}
@@ -234,10 +234,10 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-e1"
           />
           <span className={styles.sidebarText}>
-            <span className="block text-lg font-bold tracking-tight text-white">
+            <span className="block text-lg font-bold tracking-tight text-ink">
               Thong Dong
             </span>
-            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-3">
+            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               Staff portal
             </span>
           </span>
@@ -246,7 +246,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Đóng menu"
-          className="rounded-lg p-2 text-ink-3 hover:bg-surface/10 hover:text-white lg:hidden"
+          className="rounded-lg p-2 text-ink-3 hover:bg-sunken hover:text-ink lg:hidden"
         >
           <X className="h-5 w-5" />
         </button>
@@ -259,9 +259,9 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         <nav aria-label="Điều hướng nhân viên" className="space-y-1.5">
           {navigation.map(({ href, label, icon: Icon }) => {
             const active =
-              pathname === href ||
-              (href === "/admin/vehicles" &&
-                pathname.startsWith("/admin/vehicles/"));
+              href === "/admin"
+                ? pathname === "/admin"
+                : pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
                 key={href}
@@ -273,7 +273,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 className={`${styles.navLink} group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   active
                     ? "bg-primary font-semibold text-white shadow-e1"
-                    : "text-ink-3 hover:bg-surface/[0.07] hover:text-white"
+                    : "text-ink-3 hover:bg-canvas hover:text-ink"
                 }`}
               >
                 <Icon
@@ -291,11 +291,11 @@ export default function StaffShell({ children }: { children: ReactNode }) {
       </div>
 
       <div className={`${styles.profileFooter} mt-auto shrink-0 p-4`}>
-        <div className={`${styles.profileCard} rounded-2xl border border-white/10 bg-surface/[0.04] p-4`}>
+        <div className={`${styles.profileCard} rounded-2xl border border-line bg-canvas p-4`}>
           <Link href="/admin/profile" onClick={() => setMobileMenuOpen(false)} aria-label={`Hồ sơ ${displayName}`} title={`${displayName} · ${jobTitle}`} className={`${styles.profileIdentity} flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-primary`}>
             <AccountAvatar src={avatarUrl} name={displayName} className="h-10 w-10 rounded-full bg-stage-ink text-sm font-bold text-white" />
             <span className={styles.sidebarText}>
-              <span className="block truncate text-sm font-semibold text-white">
+              <span className="block truncate text-sm font-semibold text-ink">
                 {displayName}
               </span>
               <span className="block truncate text-xs text-ink-3">
@@ -311,7 +311,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           <Link
             href="/admin/profile"
             onClick={() => setMobileMenuOpen(false)}
-            className={`${styles.profileLink} mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary`}
+            className={`${styles.profileLink} mt-4 block rounded-lg border border-line-strong px-3 py-2 text-center text-xs font-semibold text-ink-2 transition hover:bg-sunken hover:text-ink`}
           >
             Xem hồ sơ nhân viên
           </Link>
@@ -324,7 +324,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             disabled={loggingOut}
             aria-label={loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
             title="Đăng xuất"
-            className={`${styles.logoutButton} mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary disabled:cursor-wait disabled:opacity-60`}
+            className={`${styles.logoutButton} mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-ink-3 transition hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-60`}
           >
             <LogOut aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span className={styles.sidebarText}>{loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}</span>
@@ -361,7 +361,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
     <div className={`${styles.shell} min-h-[100dvh] bg-canvas text-ink`} data-menu-collapsed={!desktopMenuOpen} data-menu-animated={menuAnimated}>
       <aside
         id="admin-desktop-navigation"
-        className={`${styles.desktopSidebar} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-white/10 bg-stage-ink lg:flex`}
+        className={`${styles.desktopSidebar} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line bg-surface lg:flex`}
       >
         {sidebar}
       </aside>
@@ -376,7 +376,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           />
           <aside
             id="admin-mobile-navigation"
-            className="relative flex h-full w-[min(86vw,300px)] flex-col bg-stage-ink shadow-e2"
+            className="relative flex h-full w-[min(86vw,300px)] flex-col bg-surface shadow-e2"
           >
             {sidebar}
           </aside>

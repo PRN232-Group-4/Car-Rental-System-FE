@@ -8,20 +8,22 @@ import { useNavigationRouter as useRouter } from "@/components/navigation/Naviga
 import {
   Bell,
   CarFront,
+  ChevronLeft,
   CircleDollarSign,
   CircleUserRound,
   LayoutDashboard,
+  LogOut,
   Menu,
   CalendarClock,
+  X,
 } from "lucide-react";
-import AppSidebar, { type AppNavItem } from "@/components/layout/AppSidebar";
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { initialsFor } from "@/features/profile/api";
 import { isDriverStaffAccount } from "./api";
 import type { DriverPortalAccount } from "./api";
 
-const navigation: AppNavItem[] = [
+const navigation = [
   { href: "/staff", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/staff/vehicles", label: "Phương tiện của tôi", icon: CarFront },
   { href: "/staff/shifts", label: "Ca làm việc", icon: CalendarClock },
@@ -55,22 +57,96 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
     [account?.fullName, user?.fullName],
   );
 
-  const rail = (onNavigate?: () => void) => (
-    <AppSidebar
-      portalLabel="Khu tài xế"
-      items={navigation}
-      pathname={pathname}
-      onNavigate={onNavigate}
-      user={{
-        name: account?.fullName ?? user?.fullName ?? "Tài xế",
-        subtitle: account?.departmentName ?? "Phòng ban tài xế",
-        initials,
-      }}
-      profileHref="/staff/profile"
-      onLogout={() => {
-        void logout().finally(() => router.replace("/login"));
-      }}
-    />
+  const sidebar = (
+    <>
+      <div className="flex h-[76px] items-center justify-between border-b border-white/10 px-6">
+        <Link
+          href="/staff"
+          className="flex items-center gap-3"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-e1">
+            <CarFront className="h-6 w-6" />
+          </span>
+          <span>
+            <span className="block text-lg font-bold tracking-tight text-white">
+              Thong Dong
+            </span>
+            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-3">
+              Driver portal
+            </span>
+          </span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Đóng menu"
+          className="rounded-lg p-2 text-ink-3 hover:bg-surface/10 hover:text-white lg:hidden"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 pt-7">
+        <p className="px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-3">
+          Không gian làm việc
+        </p>
+        <nav aria-label="Điều hướng tài xế" className="space-y-1.5">
+          {navigation.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
+                  active
+                    ? "bg-primary font-semibold text-white shadow-e1"
+                    : "text-ink-3 hover:bg-surface/[0.07] hover:text-white"
+                }`}
+              >
+                <Icon
+                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
+                />
+                {label}
+                {active && (
+                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180 text-white" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="mt-auto p-4">
+        <div className="rounded-2xl border border-white/10 bg-surface/[0.04] p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-stage-ink text-sm font-bold text-white">
+              {initials}
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold text-white">
+                {account?.fullName ?? "Tài xế"}
+              </span>
+              <span className="block truncate text-xs text-ink-3">
+                {account?.departmentName ?? "Phòng ban tài xế"}
+              </span>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              void logout().finally(() => router.replace("/login"));
+            }}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary"
+          >
+            <LogOut className="h-4 w-4" />
+            Đăng xuất
+          </button>
+        </div>
+      </div>
+    </>
   );
 
   if (checkingAccess) {
@@ -98,8 +174,8 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
   return (
     <DriverPortalContext.Provider value={account}>
       <div className="min-h-[100dvh] bg-canvas text-ink">
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-line bg-surface lg:flex">
-          {rail()}
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col bg-stage-ink border-r border-white/10 lg:flex">
+          {sidebar}
         </aside>
 
         {mobileMenuOpen && (
@@ -110,8 +186,8 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
               aria-label="Đóng menu"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-surface shadow-e2">
-              {rail(() => setMobileMenuOpen(false))}
+            <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-stage-ink shadow-e2">
+              {sidebar}
             </aside>
           </div>
         )}
@@ -157,7 +233,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
               </Link>
             </div>
           </header>
-          <main className="mx-auto w-full max-w-[1440px] p-4 sm:p-7 lg:p-9">
+          <main className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9">
             {children}
           </main>
         </div>
