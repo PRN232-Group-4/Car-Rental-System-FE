@@ -207,8 +207,8 @@ export default function LoginForm() {
         <ValidatedForm
           validation={validation}
           validate={() =>
-            password.length < 12
-              ? { password: "Mật khẩu tài khoản yêu cầu tối thiểu 12 ký tự theo chuẩn an toàn." }
+            password.length < 6
+              ? { password: "Mật khẩu yêu cầu tối thiểu 6 ký tự." }
               : {}
           }
           onSubmit={handleSubmit}
