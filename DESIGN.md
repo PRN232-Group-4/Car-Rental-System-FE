@@ -476,6 +476,8 @@ Kỹ thuật & ngân sách:
 
 ## A9. Khu vực Admin / Staff — "Clean Minimal Frosted Glass"
 
+**Quy chuẩn triển khai Admin:** xem `docs/admin-ui.md`. Bộ lọc dùng `AdminFilters.tsx`, bảng danh sách dùng `AdminTable.tsx`, popup dùng `FormDialog.tsx`; sửa style chung tại các component này để mọi trang giữ cùng hệ thống. Các bộ lọc dùng control cao 44px, nhãn hiển thị, viền nhẹ theo token và bố cục responsive có nút áp dụng/đặt lại rõ ràng.
+
 - **Canvas phẳng** `#F2F5F3`. Sidebar là **khối đặc Garage Ink** (không có gì phía sau để làm mờ). Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
 - Density 7: hàng bảng 44px (có công tắc compact 36px), chữ thân 14px, số/ID/tiền dùng Geist Mono + `tabular-nums`. Không dùng thẻ lồng thẻ: nhóm bằng đường kẻ trên (border-top) hoặc khoảng trắng.
 - Motion tối thiểu (Motion 3): fade 160ms khi đổi tab/panel, drawer trượt 320ms, toast, skeleton pulse, count-up KPI **một lần**, đường biểu đồ vẽ vào 600ms. Không parallax, không pin, không 3D, không loop (ngoại trừ chấm live).

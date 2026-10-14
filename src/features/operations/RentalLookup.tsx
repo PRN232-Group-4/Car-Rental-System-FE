@@ -4,9 +4,11 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
+import { Search } from "lucide-react";
+import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
 import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
-import { getOperationalRental, operationalError, operationsInput, operationsButton, operationsPanel, rentalStatuses } from "./api";
+import { getOperationalRental, operationalError, operationsPanel, rentalStatuses } from "./api";
 import type { OperationalRental } from "./api";
 
 export default function RentalLookup({ title, children, staffLinks = true }: { title: string; staffLinks?: boolean; children: (rental: OperationalRental, refresh: () => Promise<unknown>) => ReactNode }) {
@@ -16,10 +18,16 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
   const validation = useInlineValidation();
   const query = useQuery({ queryKey: ["operational-rental", lookup], queryFn: () => getOperationalRental(Number(lookup)), enabled: /^[1-9]\d*$/.test(lookup), retry: false });
   return <div className="mx-auto max-w-6xl space-y-6">
-    <div><h1 className="text-2xl font-bold">{title}</h1><p className="mt-2 text-sm text-ink-muted">Nhập mã đơn thuê để tải thông tin từ hệ thống.</p></div>
-    <ValidatedForm validation={validation} onSubmit={() => { if (lookup === id) void query.refetch(); else setLookup(id); }} className={`${operationsPanel} sm:flex sm:items-end sm:gap-4 sm:space-y-0`}>
-      <div className="flex-1"><label htmlFor="operations-rental-id" className="text-sm font-semibold">Mã đơn thuê</label><InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} className={operationsInput} /></div>
-      <button type="submit" disabled={query.isFetching} className={operationsButton}>{query.isFetching ? "Đang tải..." : "Tra cứu đơn thuê"}</button>
+    <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1><p className="mt-2 text-sm text-ink-muted">Nhập mã đơn thuê để tải thông tin từ hệ thống.</p></div>
+    <ValidatedForm validation={validation} onSubmit={() => { if (lookup === id) void query.refetch(); else setLookup(id); }}>
+      <AdminFilterBar title="Tra cứu đơn thuê" actions={<>
+        <AdminFilterButton type="submit" disabled={query.isFetching}>{query.isFetching ? "Đang tải..." : "Tra cứu đơn thuê"}</AdminFilterButton>
+        <AdminFilterButton variant="secondary" disabled={!id && !lookup && Object.keys(validation.errors).length === 0} onClick={() => { setId(""); setLookup(""); validation.reset(); }}>Đặt lại</AdminFilterButton>
+      </>}>
+        <AdminFilterField label="Mã đơn thuê" htmlFor="operations-rental-id" icon={Search}>
+          <InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} placeholder="Nhập mã đơn thuê" />
+        </AdminFilterField>
+      </AdminFilterBar>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-sm text-red-700">{operationalError(query.error)}</p>}
     {query.data && <>

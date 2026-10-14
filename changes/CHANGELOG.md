@@ -1,4 +1,9 @@
 # Changelog
+- 2026-10-14 — [Bộ lọc dùng chung và quy chuẩn giao diện Admin](2026-10-14-admin-filter-system.md)
+- 2026-10-14 — [Sidebar Admin thu gọn còn icon](2026-10-14-admin-sidebar-icon-rail.md)
+- 2026-10-14 — [Ẩn ID khỏi bảng Admin](2026-10-14-admin-hide-ids.md)
+- 2026-10-14 — [Ảnh tài khoản, tên xe bảo trì và đồng bộ bảng Admin](2026-10-14-admin-images-tables.md)
+- 2026-10-14 — [Menu Admin, popup biểu mẫu và loading chuyển trang](2026-10-14-admin-popups-navigation.md)
 - 2026-10-13 — [Sửa design lint sau merge main vào Tri](2026-10-13-design-lint-merge-fix.md)
 - 2026-10-13 — [Bảo trì, báo sự cố và điều phối tài xế](2026-10-13-maintenance-reports-dispatch.md)
 - 2026-10-13 — [Vận hành đơn thuê và kiểm tra xe (FE-15, FE-16)](2026-10-13-rental-operations-inspections.md)

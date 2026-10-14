@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { Check, Clock, Sparkles, ArrowRight, ShieldCheck, Loader2, Zap } from "lucide-react";
 import { getSubscriptionPlans, getInitialSubscriptionPlans, purchaseSubscriptionPlan } from "../api";
 import type { SubscriptionPlan } from "../types";

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CarFront, CircleDollarSign, UserRound } from "lucide-react";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 

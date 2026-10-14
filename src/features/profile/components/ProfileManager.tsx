@@ -4,8 +4,8 @@ import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSel
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/components/navigation/NavigationLink";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import {
   AlertCircle,
   BadgeCheck,

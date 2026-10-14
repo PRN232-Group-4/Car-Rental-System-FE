@@ -3,8 +3,9 @@
 import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "@/components/navigation/NavigationLink";
+import { useSearchParams } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import {
   Mail,
   Lock,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { getRentalById, updateRentalContract } from "../api";

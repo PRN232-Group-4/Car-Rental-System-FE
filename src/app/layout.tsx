@@ -4,6 +4,7 @@ import Script from "next/script";
 import { AuthProvider } from "@/features/auth";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/Toaster";
+import { NavigationProvider } from "@/components/navigation/NavigationProvider";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -48,7 +49,9 @@ export default function RootLayout({
           }}
         />
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <NavigationProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </NavigationProvider>
           <Toaster />
         </QueryProvider>
       </body>
