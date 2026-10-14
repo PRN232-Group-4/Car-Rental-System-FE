@@ -24,6 +24,13 @@ function getAllFiles(dir, fileList = []) {
 const files = getAllFiles(srcDir);
 const violations = [];
 
+// Tập token màu có thật: đọc @theme trong globals.css. Rule 9 đối chiếu mọi class màu với tập này.
+const globalsCss = fs.readFileSync(path.join(srcDir, 'app', 'globals.css'), 'utf-8');
+const themeBlock = globalsCss.slice(globalsCss.indexOf('@theme'), globalsCss.indexOf('html {'));
+const definedColorTokens = new Set(
+  [...themeBlock.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((match) => match[1]),
+);
+
 // Regex definitions per DESIGN.md A13
 const emojiRegex = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{2712}\u{2715}-\u{27BF}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/u;
 
@@ -140,6 +147,27 @@ for (const file of files) {
           line: lineNum,
           rule: 'NO_RAW_PALETTE_COLOUR (A2, A12)',
           message: `Cấm màu palette/hex thô (${[...new Set(found)].join(', ')}); dùng token --color-* qua globals.css (text-ink, bg-primary, border-line…).`,
+          detail: trimmed
+        });
+      }
+    }
+
+    // 9. Token không tồn tại: `border-border`, `text-ink-muted`… không có trong @theme nên Tailwind
+    //    KHÔNG sinh CSS, viền chữ rơi về currentColor. Bắt tại CI thay vì phải soi bản build (A12, A13).
+    if (!isGlobalsCss) {
+      const unknown = line.match(
+        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|divide|fill|stroke|from|to|via|outline|decoration|accent|caret|placeholder)-(?:border|ink|line|canvas|surface|sunken|primary|success|warning|danger|info|stage|scrim|on-ink)(?:-[a-z0-9]+)*(?:\/\d+)?(?=[\s"'`}]|$)/g,
+      );
+      const missing = [...new Set((unknown ?? []).map((s) => s.trim().replace(/^["'`{]+/, '')))].filter((cls) => {
+        const token = cls.replace(/^([a-z-]+:)*/, '').replace(/^[a-z]+-/, '').replace(/\/\d+$/, '');
+        return token && !definedColorTokens.has(token);
+      });
+      if (missing.length) {
+        violations.push({
+          file: relPath,
+          line: lineNum,
+          rule: 'UNKNOWN_COLOR_TOKEN (A2, A12)',
+          message: `Token chưa khai báo trong @theme nên Tailwind không sinh CSS (${missing.join(', ')}); dùng token có thật hoặc khai báo mới trong globals.css.`,
           detail: trimmed
         });
       }

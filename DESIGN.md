@@ -384,6 +384,7 @@ Bộ lọc SVG `feDisplacementMap` + `feTurbulence` làm hậu cảnh bị bẻ 
 | **Toast**                 | `sonner`, vị trí dưới-phải (mobile: trên), `.glass-2`, `role="status"`/`alert` đúng ngữ cảnh.                                                                                                                                                   |
 | **Table (admin)**         | Header Sunken dính trên, thân Surface đặc, hàng cao 44 (chế độ compact 36), phân cách bằng Hairline, hàng chọn nền Emerald Tint. Không blur trên hàng.                                                                                          |
 | **Skeleton**              | Khối Sunken bo đúng kích thước nội dung thật, nhấp nháy bằng **opacity** (0.6 ↔ 1, 1.2s). **Cấm shimmer gradient.** Không spinner tròn cho tải trang/danh sách (spinner chỉ cho nút đang gửi).                                                  |
+| **PageFallback**          | Fallback `Suspense` dùng chung cho mọi route (`components/ui/PageFallback`): chữ Ink Muted, canh giữa, `role="status"`. Route không tự đặt padding/chữ riêng.                                                                                  |
 | **Empty state**           | Bố cục có chủ đích: minh họa SVG đơn sắc, tiêu đề, một dòng hướng dẫn, một hành động chính. Không chỉ ghi "No data".                                                                                                                            |
 | **Error state**           | Thông điệp thân thiện + nút "Thử lại" + mã tham chiếu (`traceId` từ ProblemDetails) cho staff; không lộ 500/stack.                                                                                                                              |
 | **Chart**                 | A9. Màu phẳng, không gradient fill; vùng (area) dùng màu đặc alpha 0.12 + đường viền.                                                                                                                                                           |
@@ -604,7 +605,9 @@ main {
 **Múi giờ:** API trao đổi UTC (ISO-8601, hậu tố `Z`). UI hiển thị và nhập theo `Asia/Ho_Chi_Minh` (GMT+7) bằng `date-fns` + `@date-fns/tz`. Không dùng `new Date(string)` mơ hồ để parse giờ nhập.
 
 **Design lint (CI, `scripts/check-design-rules.mjs`)** — thất bại build nếu trong `src/**/*.{ts,tsx,css}`:
-`gradient(`, `bg-gradient-`, `from-`/`via-`/`to-` kết hợp `bg-gradient`, `#000` / `#000000`, emoji (U+1F000–1FAFF, U+2600–27BF trừ ký tự dấu tích), `h-screen`, font `Inter`, chuỗi `Scroll to explore`, `backdrop-blur-*` hoặc `backdrop-filter` ngoài các lớp `.glass-1/2/3/ink/admin` đã khai báo ở `globals.css`.
+`gradient(`, `bg-gradient-`, `from-`/`via-`/`to-` kết hợp `bg-gradient`, `#000` / `#000000`, emoji (U+1F000–1FAFF, U+2600–27BF trừ ký tự dấu tích), `h-screen`, font `Inter`, chuỗi `Scroll to explore`, `backdrop-blur-*` hoặc `backdrop-filter` ngoài các lớp `.glass-1/2/3/ink/admin` đã khai báo ở `globals.css`, màu palette/hex thô (`text-red-700`, `text-[#fff]`…), và **token chưa khai báo** (`border-border`, `text-ink-muted`, `bg-border`…).
+
+> Rule 9 chặn token chưa khai báo vì một class màu trỏ tới token không có trong `@theme` thì Tailwind **không sinh CSS nào cả** — viền rơi về `currentColor`, chữ phụ thừa hưởng màu cha. `tsc`/ESLint không bắt được và mắt thường rất khó thấy, nên phải chặn ở CI.
 
 **Kiểm thử thị giác & hiệu năng (FE-20):**
 

@@ -54,9 +54,9 @@ export const rentalStatuses: Record<string, string> = {
   pending: "Chờ xử lý", pre_inspection: "Kiểm tra trước thuê", renting: "Đang thuê",
   post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
 };
-export const operationsInput = "admin-input mt-2 w-full rounded-xl border border-border bg-surface px-3 py-3 text-sm";
-export const operationsButton = "rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white disabled:opacity-50";
-export const operationsPanel = "space-y-4 rounded-2xl border border-border bg-surface p-5 sm:p-6";
+export const operationsInput = "admin-input mt-2 w-full rounded-xl border border-line-strong bg-surface px-3 py-3 text-sm";
+export const operationsButton = "inline-flex items-center justify-center rounded-xl border border-white/20 bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-e2 active:scale-[0.96] disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none disabled:transform-none";
+export const operationsPanel = "space-y-4 rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6";
 export function operationalError(error: unknown) {
   return error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : error instanceof Error ? error.message : "Không thể lưu thông tin. Vui lòng thử lại.";
 }

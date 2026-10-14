@@ -148,7 +148,7 @@ export default function Navbar() {
                   <span className="max-w-[120px] truncate font-semibold text-xs sm:text-sm">
                     {user.fullName}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-ink-subtle" />
+                  <ChevronDown className="w-3.5 h-3.5 text-ink-3" />
                 </button>
 
                 {/* User dropdown menu */}

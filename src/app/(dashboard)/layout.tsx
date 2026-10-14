@@ -189,7 +189,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span>Đặt xe mới</span>
             </Link>
 
-            <div className="h-6 w-px bg-border hidden sm:block" />
+            <div className="h-6 w-px bg-line hidden sm:block" />
 
             <div className="flex items-center gap-2 text-xs text-ink-3">
               <div className="w-2 h-2 rounded-full bg-primary" />
