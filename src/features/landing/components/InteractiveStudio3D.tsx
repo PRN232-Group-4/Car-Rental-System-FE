@@ -358,7 +358,7 @@ export default function InteractiveStudio3D() {
       </div>
 
       {/* Model Switcher Buttons */}
-      <div className="flex flex-wrap items-center gap-3 mb-8">
+      <div className="relative z-10 flex flex-wrap items-center gap-3 mb-8">
         {MODELS.map((model) => (
           <button
             key={model.id}

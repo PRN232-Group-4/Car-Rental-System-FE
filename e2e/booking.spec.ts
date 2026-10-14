@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const data = path.endsWith("/account/profile") ? { fullName: "Khách kiểm thử", email: "test@example.com", roles: ["Customer"] } :
-      path.endsWith("/customer/license") ? { verificationStatus: "approved" } :
+      path.endsWith("/customer/license") ? { verificationStatus: "approved", status: "approved" } :
       path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 } :
       path.endsWith("/rental-policies") ? [policy] :
       path.endsWith("/rentals/321") ? rental : [];

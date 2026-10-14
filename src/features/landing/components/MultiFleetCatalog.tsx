@@ -293,7 +293,7 @@ export default function MultiFleetCatalog() {
       </div>
 
       {/* Filter Tabs & Chauffeur Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-4 border-b border-line">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-4 border-b border-line">
         {/* Category Tabs */}
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -371,7 +371,7 @@ export default function MultiFleetCatalog() {
       </div>
 
       {/* Vehicles Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredVehicles.map((vehicle) => (
           <div
             key={vehicle.id}
