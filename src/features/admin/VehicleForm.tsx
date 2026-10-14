@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
 import { InlineError, InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { ArrowLeft, ImagePlus, Info, Save, X } from "lucide-react";
 import {
   createVehicle,
@@ -19,6 +19,7 @@ import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } 
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
 import { notifySuccess } from "@/components/ui/Toaster";
+import FormDialog from "@/components/ui/FormDialog";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -81,7 +82,7 @@ const statuses = [
   { value: "unavailable", label: "Tạm ngưng" },
 ];
 
-export default function VehicleForm() {
+export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void; onSaved?: () => void } = {}) {
   const router = useRouter();
   const { hasRole } = useAuth();
   const canManage = hasRole("admin") || hasRole("manager");
@@ -111,7 +112,7 @@ export default function VehicleForm() {
           const [types, facilityList] = await Promise.all([getVehicleTypes(), getFacilities()]);
           setVehicleTypes(types);
           setFacilities(facilityList);
-          const idString = new URLSearchParams(window.location.search).get("vehicleId");
+          const idString = onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
           if (idString) {
             const id = Number(idString);
             if (!Number.isInteger(id) || id < 1) throw new Error("ID phương tiện không hợp lệ.");
@@ -127,7 +128,7 @@ export default function VehicleForm() {
       })();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [onClose]);
 
   const updateDraft = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
@@ -246,7 +247,8 @@ export default function VehicleForm() {
       if (vehicleId !== null) await updateVehicle(vehicleId, body);
       else await createVehicle(body);
       notifySuccess(vehicleId !== null ? "Đã cập nhật phương tiện." : "Đã thêm phương tiện mới.");
-      router.push("/admin/vehicles");
+      if (onSaved) onSaved();
+      else router.push("/admin/vehicles");
     } catch (saveError) {
       setError(validation.report(saveError));
     } finally {
@@ -266,14 +268,13 @@ export default function VehicleForm() {
     );
   }
 
-  return (
+  const content = (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div>
+      {!onClose && <div>
         <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-3 transition hover:text-primary"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản lý đội xe</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
         <p className="mt-2 text-sm text-ink-3">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
-      </div>
+      </div>}
       {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-danger">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
@@ -397,12 +398,14 @@ export default function VehicleForm() {
         </section>
 
         <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
-          <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>
+          {onClose ? <button type="button" disabled={saving || uploading} onClick={onClose} className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button> : <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>}
           <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </div>
       </ValidatedForm>
     </div>
   );
+
+  return onClose ? <FormDialog title="Thêm phương tiện mới" onClose={onClose} busy={saving || uploading} size="xl">{content}</FormDialog> : content;
 }
 
 function fromVehicle(vehicle: VehicleDto): VehicleDraft {

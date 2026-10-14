@@ -67,10 +67,7 @@ export default function DriverVehicles() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-          Đội xe được phân công
-        </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Phương tiện của tôi
         </h2>
         <p className="mt-2 text-sm text-ink-3">

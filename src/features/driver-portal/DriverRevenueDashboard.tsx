@@ -98,10 +98,7 @@ export default function DriverRevenueDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-            Doanh thu theo lịch phân công
-          </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             Doanh thu chuyến xe
           </h2>
           <p className="mt-2 text-sm text-ink-3">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
 import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
 import { useAuth } from "@/features/auth";
@@ -148,7 +148,7 @@ export default function Navbar() {
                   <span className="max-w-[120px] truncate font-semibold text-xs sm:text-sm">
                     {user.fullName}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-ink-subtle" />
+                  <ChevronDown className="w-3.5 h-3.5 text-ink-3" />
                 </button>
 
                 {/* User dropdown menu */}

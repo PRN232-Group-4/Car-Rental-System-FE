@@ -1,6 +1,7 @@
 import { Suspense } from "react";
+import PageFallback from "@/components/ui/PageFallback";
 import RentalInspections from "@/features/operations/RentalInspections";
 
 export default function RentalInspectionsPage() {
-  return <Suspense fallback={<p className="p-6">Đang tải màn hình kiểm tra xe...</p>}><RentalInspections /></Suspense>;
+  return <Suspense fallback={<PageFallback label="Đang tải màn hình kiểm tra xe..." />}><RentalInspections /></Suspense>;
 }

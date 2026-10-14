@@ -1,6 +1,6 @@
 "use client";
 
-import { Smartphone, CheckCircle2, Download, Zap } from "lucide-react";
+import { Smartphone, CheckCircle2, Download } from "lucide-react";
 import { Stage } from "@/components/ui/Stage";
 import { Button } from "@/components/ui/Button";
 
@@ -11,10 +11,6 @@ export default function MobileAppSection() {
         <div className="glass-ink text-white rounded-3xl p-8 sm:p-14 overflow-hidden relative shadow-e3 border border-white/10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stage-ink border border-white/15 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider">
-                <Zap className="w-3.5 h-3.5" />
-                <span>NATIVE MOBILE ECOSYSTEM</span>
-              </div>
 
               <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.12] text-white">
                 Quản Lý Toàn Bộ Chuyến Đi Trong Lòng Bàn Tay

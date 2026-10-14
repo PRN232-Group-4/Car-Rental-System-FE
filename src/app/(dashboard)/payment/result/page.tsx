@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   CheckCircle2,
   XCircle,
@@ -109,7 +109,7 @@ function PaymentResultContent() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 {isPlanPurchase ? "Thanh toán gói thành công!" : "Thanh toán thành công!"}
               </h1>
               <p className="text-xs sm:text-sm text-ink-3">
@@ -131,7 +131,7 @@ function PaymentResultContent() {
                 </div>
                 <div className="flex justify-between text-ink-3">
                   <span>Số tiền đã thanh toán:</span>
-                  <span className="font-black text-primary text-sm">
+                  <span className="font-bold text-primary text-sm">
                     {invoice.amount.toLocaleString("vi-VN")} đ
                   </span>
                 </div>
@@ -183,7 +183,7 @@ function PaymentResultContent() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 Giao dịch đã bị huỷ
               </h1>
               <p className="text-xs sm:text-sm text-ink-3">
@@ -219,7 +219,7 @@ function PaymentResultContent() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 Đang đối soát giao dịch...
               </h1>
               <p className="text-xs sm:text-sm text-ink-3">

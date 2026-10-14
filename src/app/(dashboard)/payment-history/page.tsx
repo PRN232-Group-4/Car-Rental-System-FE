@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   CreditCard,
   ArrowDownLeft,
@@ -116,7 +116,7 @@ export default function LichSuThanhToanPage() {
           <div className="text-xs font-bold uppercase tracking-wider text-ink-3 mb-1">
             Tổng tiền đã nộp
           </div>
-          <div className="text-2xl font-black text-ink">
+          <div className="text-2xl font-bold text-ink">
             {totalPaid.toLocaleString("vi-VN")} đ
           </div>
           <div className="text-xs text-ink-3 mt-1">Bao gồm cọc và phí thuê</div>
@@ -126,7 +126,7 @@ export default function LichSuThanhToanPage() {
           <div className="text-xs font-bold uppercase tracking-wider text-info mb-1">
             Tiền cọc đã hoàn trả
           </div>
-          <div className="text-2xl font-black text-info">
+          <div className="text-2xl font-bold text-info">
             {totalRefunded.toLocaleString("vi-VN")} đ
           </div>
           <div className="text-xs text-ink-3 mt-1">Đã giải ngân về tài khoản</div>
@@ -136,7 +136,7 @@ export default function LichSuThanhToanPage() {
           <div className="text-xs font-bold uppercase tracking-wider text-primary-graphic mb-1">
             Tiền cọc đang giữ / chờ duyệt
           </div>
-          <div className="text-2xl font-black text-primary-graphic">
+          <div className="text-2xl font-bold text-primary-graphic">
             {depositHolding.toLocaleString("vi-VN")} đ
           </div>
           <div className="text-xs text-ink-3 mt-1">Chờ biên bản hậu kiểm định</div>
@@ -249,7 +249,7 @@ export default function LichSuThanhToanPage() {
                         </span>
                       </td>
 
-                      <td className="p-4 sm:p-5 font-black text-sm">
+                      <td className="p-4 sm:p-5 font-bold text-sm">
                         <span className={meta.isCredit ? "text-info" : "text-ink"}>
                           {meta.isCredit ? "+" : "-"}
                           {p.amount.toLocaleString("vi-VN")} đ

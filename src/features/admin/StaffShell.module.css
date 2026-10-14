@@ -1,0 +1,134 @@
+.desktopSidebar {
+  width: 260px;
+}
+
+.sidebarText,
+.navLabel {
+  min-width: 0;
+  white-space: nowrap;
+  transition: opacity 160ms ease;
+}
+
+.navLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navLink {
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.sectionLabel {
+  height: 28px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-wrap: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    --admin-sidebar-width: 260px;
+  }
+
+  .shell[data-menu-collapsed="true"] {
+    --admin-sidebar-width: 80px;
+  }
+
+  .desktopSidebar {
+    width: var(--admin-sidebar-width);
+    overflow: hidden;
+  }
+
+  .content {
+    padding-left: var(--admin-sidebar-width);
+  }
+
+  .shell[data-menu-animated="true"] .desktopSidebar {
+    transition: width 260ms var(--ease-out);
+  }
+
+  .shell[data-menu-animated="true"] .content {
+    transition: padding-left 260ms var(--ease-out);
+  }
+
+  .desktopSidebar .brandHeader,
+  .desktopSidebar .navigationScroll,
+  .desktopSidebar .navLink,
+  .desktopSidebar .profileIdentity,
+  .desktopSidebar .profileFooter,
+  .desktopSidebar .profileCard {
+    transition: padding 260ms var(--ease-out), gap 260ms var(--ease-out), background-color 160ms ease, border-color 160ms ease;
+  }
+
+  .desktopSidebar .sectionLabel {
+    transition: height 260ms var(--ease-out), padding 260ms var(--ease-out);
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .sidebarText,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLabel,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .activeChevron {
+    flex: 0;
+    width: 0;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandHeader {
+    padding-inline: 20px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandLink,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLink,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileIdentity,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .logoutButton {
+    gap: 0;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navigationScroll {
+    padding-inline: 12px;
+    padding-top: 12px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .sectionLabel {
+    height: 0;
+    padding-bottom: 0;
+    visibility: hidden;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLink {
+    padding-inline: 19px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileFooter {
+    padding: 12px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileCard {
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileIdentity {
+    padding-inline: 7px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileLink,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileError {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell .desktopSidebar,
+  .shell .content,
+  .shell .desktopSidebar *,
+  .sidebarText,
+  .navLabel {
+    transition: none;
+  }
+}

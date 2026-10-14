@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { 
   CreditCard, 
   Clock, 
@@ -142,10 +142,6 @@ export default function MembershipPasses() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
-              <CreditCard className="w-3.5 h-3.5 text-primary" />
-              <span>DIGITAL WALLET MEMBERSHIP PASSES</span>
-            </div>
             <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink max-w-2xl leading-[1.15]">
               Thẻ Hội Viên Số — Dùng Bao Nhiêu, Trừ Bấy Nhiêu
             </h2>

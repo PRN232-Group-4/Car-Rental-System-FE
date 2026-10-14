@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CarFront, CircleDollarSign, UserRound } from "lucide-react";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 
@@ -31,10 +31,7 @@ export default function DriverPortalOverview() {
   return (
     <div className="space-y-7">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-          Không gian làm việc của tài xế
-        </p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Xin chào, {account.fullName ?? "Tài xế"}
         </h2>
         <p className="mt-2 text-sm text-ink-3">

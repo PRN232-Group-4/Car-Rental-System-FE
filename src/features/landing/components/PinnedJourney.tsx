@@ -157,10 +157,6 @@ export default function PinnedJourney() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
         <div ref={leftColRef} className="lg:col-span-5 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold uppercase tracking-wider">
-            <KeyRound className="w-3.5 h-3.5 text-primary" />
-            <span>CINEMATIC SCROLL EXPERIENCE</span>
-          </div>
 
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08]">
             Hành Trình 3 Pha Thuê Xe Tối Giản
@@ -201,7 +197,7 @@ export default function PinnedJourney() {
             return (
               <div
                 key={phase.index}
-                className="phase-card relative overflow-hidden rounded-[36px] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
+                className="phase-card relative overflow-hidden rounded-[var(--r-panel)] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Subtle Editorial Watermark Number */}
                 <div

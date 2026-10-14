@@ -4,8 +4,8 @@ import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSel
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/components/navigation/NavigationLink";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import {
   AlertCircle,
   BadgeCheck,
@@ -239,7 +239,7 @@ export default function ProfileManager() {
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">Tài khoản cá nhân</p>
-            <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Quản lý hồ sơ</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Quản lý hồ sơ</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-3 sm:text-base">
               Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo.
             </p>

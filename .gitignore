@@ -58,7 +58,12 @@ node_modules/
 .e2e/logs/
 .e2e/videos/
 
-# agent tooling (e2e init)
+# agent tooling (e2e init & impeccable)
 .claude/
 .cursor/
+.agents/
+.codex/
+.github/agents/
+.github/hooks/
+.github/skills/
 .mcp.json

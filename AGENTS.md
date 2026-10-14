@@ -18,3 +18,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Dùng aria-invalid, aria-describedby liên kết tới thông báo có id ổn định, dấu hiệu trực quan và role="alert" hoặc aria-live.
 - Kiểm tra trường bắt buộc, định dạng/khoảng giá trị, lỗi API và lỗi mạng khi thay đổi form.
 - Ưu tiên tái sử dụng `src/components/forms/inline-validation.tsx` (`useInlineValidation`, `ValidatedForm`, `InlineInput/InlineSelect/InlineTextarea`). Mỗi form độc lập dùng một validation riêng; lỗi nghiệp vụ nhiều trường truyền qua `validate`, lỗi API dùng `report`, lỗi upload dùng `setField` để giữ lỗi của các trường khác.
+
+## Quy tắc bắt buộc: đồng bộ giao diện Admin
+
+- Khi tạo hoặc sửa `/admin/**` hay component dùng trong Admin, đọc và tuân theo `docs/admin-ui.md` cùng Phần A của `DESIGN.md`.
+- Bộ lọc/tìm kiếm/tra cứu phải dùng `AdminFilterBar`, `AdminFilterField`, `AdminFilterButton`; bảng danh sách phải dùng `AdminTableCard`, `AdminTable`, `AdminTableEmptyRow`. Không tự dựng style riêng cho từng trang nếu component chung đã đáp ứng.
+- Thay đổi màu, bo góc, kích thước control hoặc bố cục chung tại component dùng chung; dùng token trong `globals.css`. Không thêm viền đen đậm, card lồng card hay toolbar tràn ngang.
+- Giữ nguyên phân quyền, validation, điều kiện lọc và request API khi chỉ sửa style. Kiểm tra desktop/mobile, lỗi inline, áp dụng và đặt lại bộ lọc trước khi hoàn tất.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle2, UserCheck, Zap, Gauge, Shield } from "lucide-react";
+import { CheckCircle2, UserCheck, Zap, Gauge } from "lucide-react";
 import { getLatestInspectionRecord, getInitialInspectionRecord } from "../api";
 import type { InspectionRecord } from "../types";
 
@@ -20,10 +20,6 @@ export default function InspectionShowcase() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           {/* Left Column: Context & Narrative */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stage-ink border border-white/15 text-primary-tint text-xs font-mono font-bold uppercase tracking-wider">
-              <Shield className="w-3.5 h-3.5" />
-              <span>DIGITAL INSPECTION CERTIFICATE</span>
-            </div>
 
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-white">
               Biên Bản Kiểm Định Số Hoá Trước & Sau Mỗi Chuyến Đi

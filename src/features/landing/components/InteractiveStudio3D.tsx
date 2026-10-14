@@ -7,7 +7,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Button } from "@/components/ui/Button";
 import { 
   Rotate3d, 
-  Car, 
   Gauge, 
   Cpu, 
   Calendar, 
@@ -344,10 +343,6 @@ export default function InteractiveStudio3D() {
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
-            <Rotate3d className="w-4 h-4 text-primary" />
-            <span>INTERACTIVE 3D WEBGL STUDIO</span>
-          </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
             Khu Trưng Bày Xe 3D Tương Tác
           </h2>
@@ -463,11 +458,6 @@ export default function InteractiveStudio3D() {
         {/* Telemetry & Specifications Card (4 cols) */}
         <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold uppercase tracking-wider mb-4">
-              <Car className="w-3.5 h-3.5" />
-              <span>{activeModel.tag}</span>
-            </div>
-
             <h3 className="font-display text-2xl font-black text-ink mb-2">
               {activeModel.name}
             </h3>
