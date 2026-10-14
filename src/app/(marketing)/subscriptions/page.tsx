@@ -3,7 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SubscriptionPlans from "@/features/subscriptions/components/SubscriptionPlans";
 import { Sparkles, ShieldCheck, Zap, RefreshCw } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 
 export const metadata = {
   title: "Gói thuê bao xe | Thong Dong - Trả trước theo giờ",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useAuth } from "./context/AuthContext";
 import { getAccountProfile } from "@/features/profile/api";
 import type { AccountProfile } from "@/features/profile/api";

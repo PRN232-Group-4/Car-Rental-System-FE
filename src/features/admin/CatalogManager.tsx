@@ -19,6 +19,8 @@ import type { RentalPolicyDto, SubscriptionPlanDto, VehicleTypeDto } from "./api
 import { useAuth } from "@/features/auth";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import { InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
+import FormDialog from "@/components/ui/FormDialog";
+import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 
 type CatalogKey = "vehicle-types" | "policies" | "subscription-plans";
 type CatalogRecord = { id: number; values: Record<string, string>; active: boolean };
@@ -224,54 +226,51 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
       <p className="text-sm text-ink-3">{info.description}</p>
       {catalog === "policies" && <p className="rounded-xl border border-primary/30 bg-primary-tint px-4 py-3 text-sm text-warning">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
 
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
+      <AdminTableCard>
         <div className="border-b border-line px-5 py-4">
           <h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
           <p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${records.length} mục`}</p>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] text-left">
-            <thead className="bg-sunken text-xs font-bold uppercase tracking-wider text-ink-3">
-              <tr>
-                {columns.map((column) => <th key={column.key} className="px-5 py-3">{column.label}</th>)}
-                <th className="px-5 py-3">Trạng thái</th>
-                {canManage && <th className="px-5 py-3 text-right">Thao tác</th>}
+        <AdminTable className="min-w-[680px]">
+          <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
+          <thead>
+            <tr>
+              {columns.map((column) => <th key={column.key} scope="col">{column.label}</th>)}
+              <th scope="col">Trạng thái</th>
+              {canManage && <th scope="col" data-actions>Thao tác</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {records.map((record) => (
+              <tr key={record.id}>
+                {columns.map((column) => (
+                  <td key={column.key} className="text-ink">
+                    {column.key === "price" ? `${Number(record.values.price || 0).toLocaleString("vi-VN")} ₫`
+                      : ["vatRate", "overtimeFeeRate", "depositPercentage"].includes(column.key) ? `${record.values[column.key] ?? "—"}%`
+                        : column.key === "durationDays" ? `${record.values.durationDays ?? "—"} ngày`
+                          : column.key === "includedHours" ? `${record.values.includedHours || "—"} giờ`
+                            : record.values[column.key] || "—"}
+                  </td>
+                ))}
+                <td><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${record.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
+                {canManage && (
+                  <td data-actions>
+                    <div className="flex justify-end gap-1">
+                      {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>}
+                      {canDelete && catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>}
+                    </div>
+                  </td>
+                )}
               </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {records.map((record) => (
-                <tr key={record.id} className="text-sm hover:bg-canvas/60">
-                  {columns.map((column) => (
-                    <td key={column.key} className="px-5 py-4 text-ink">
-                      {column.key === "price" ? `${Number(record.values.price || 0).toLocaleString("vi-VN")} ₫`
-                        : ["vatRate", "overtimeFeeRate", "depositPercentage"].includes(column.key) ? `${record.values[column.key] ?? "—"}%`
-                          : column.key === "durationDays" ? `${record.values.durationDays ?? "—"} ngày`
-                            : column.key === "includedHours" ? `${record.values.includedHours || "—"} giờ`
-                              : record.values[column.key] || "—"}
-                    </td>
-                  ))}
-                  <td className="px-5 py-4"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${record.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
-                  {canManage && (
-                    <td className="px-5 py-4">
-                      <div className="flex justify-end gap-1">
-                        {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>}
-                        {canDelete && catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))}
-              {!loading && records.length === 0 && <tr><td colSpan={columns.length + (canManage ? 2 : 1)} className="px-5 py-12 text-center text-sm text-ink-3">Không có dữ liệu.</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            ))}
+            {!loading && records.length === 0 && <AdminTableEmptyRow colSpan={columns.length + (canManage ? 2 : 1)}>Không có dữ liệu.</AdminTableEmptyRow>}
+          </tbody>
+        </AdminTable>
+      </AdminTableCard>
 
       {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-stage-ink/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setFormOpen(false); }}>
-          <section role="dialog" aria-modal="true" aria-labelledby="catalog-dialog-title" className="my-auto max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-2xl">
-            <div className="border-b border-line px-5 py-4 sm:px-6"><h3 id="catalog-dialog-title" className="font-bold text-ink">{editing ? "Chỉnh sửa" : "Thêm mới"} · {info.title}</h3></div>
-            <ValidatedForm validation={validation} onSubmit={submitForm} className="space-y-4 p-5 sm:p-6">
+        <FormDialog title={`${editing ? "Chỉnh sửa" : "Thêm mới"} · ${info.title}`} onClose={() => setFormOpen(false)} busy={saving}>
+            <ValidatedForm validation={validation} onSubmit={submitForm} className="space-y-4">
               {fieldsByCatalog[catalog].map((field) => (
                 <label key={field.key} htmlFor={`catalog-${field.key}`} className="block">
                   <span className="mb-2 block text-sm font-semibold text-ink">{field.label}</span>
@@ -298,12 +297,11 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
               ))}
               {error && <p role="alert" className="text-sm text-danger">{error}</p>}
               <div className="flex justify-end gap-3 border-t border-line pt-4">
-                <button type="button" onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas">Hủy</button>
+                <button type="button" disabled={saving} onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </div>
             </ValidatedForm>
-          </section>
-        </div>
+        </FormDialog>
       )}
     </div>
   );

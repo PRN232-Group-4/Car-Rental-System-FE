@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { 
   CreditCard, 
   Clock, 

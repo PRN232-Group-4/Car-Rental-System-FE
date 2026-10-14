@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   CheckCircle2,
   XCircle,

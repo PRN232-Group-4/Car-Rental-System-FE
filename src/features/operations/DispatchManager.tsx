@@ -1,21 +1,27 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
+import FormDialog from "@/components/ui/FormDialog";
+import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
+import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
+import VehicleName from "@/features/admin/VehicleName";
+import StaffName from "@/features/admin/StaffName";
+import Link from "@/components/navigation/NavigationLink";
 import { useQuery } from "@tanstack/react-query";
-import { ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
+import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { localDateTime, validateBookingTimes } from "@/features/rentals/booking-rules";
 import OperationFields from "./OperationFields";
 import type { OperationField } from "./OperationFields";
 import { getDriverShifts, getDispatchSchedule, saveDriverShift } from "./extended-api";
 import type { DriverShift } from "./extended-api";
-import { getOperationalDrivers, operationalError, operationsButton, operationsPanel } from "./api";
+import { getOperationalDrivers, operationalError, operationsButton } from "./api";
 import RentalLookup from "./RentalLookup";
 import { AssignmentForm } from "./RentalOperations";
 
 const asIso = (value: string) => new Date(value).toISOString();
 const dateLabel = (value?: string) => value ? new Date(value).toLocaleString("vi-VN") : "—";
+const defaultDispatchFilter = () => ({ driverStaffId: "", startTime: localDateTime(new Date()), endTime: localDateTime(new Date(Date.now() + 7 * 86400000)) });
 export default function DispatchManager() {
-  const [filter, setFilter] = useState(() => ({ driverStaffId: "", startTime: localDateTime(new Date()), endTime: localDateTime(new Date(Date.now() + 7 * 86400000)) }));
+  const [filter, setFilter] = useState(defaultDispatchFilter);
   const [activeFilter, setActiveFilter] = useState(filter);
   const [editing, setEditing] = useState<DriverShift | null | undefined>();
   const validation = useInlineValidation();
@@ -24,19 +30,77 @@ export default function DispatchManager() {
   const driverId = activeFilter.driverStaffId ? Number(activeFilter.driverStaffId) : undefined;
   const shifts = useQuery({ queryKey: ["dispatch-shifts", activeFilter], queryFn: () => getDriverShifts(from, to, driverId), retry: false });
   const schedule = useQuery({ queryKey: ["dispatch-schedule", activeFilter], queryFn: () => getDispatchSchedule(from, to, driverId), retry: false });
-  const driverOptions = (drivers.data ?? []).map((item) => ({ value: String(item.id), label: item.fullName ?? item.email ?? `Tài xế #${item.id}` }));
+  const driverOptions = (drivers.data ?? []).map((item) => ({ value: String(item.id), label: item.fullName?.trim() || item.email?.trim() || "Chưa có tên tài xế" }));
   const refresh = async () => { await Promise.all([shifts.refetch(), schedule.refetch()]); };
   return <div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold">Điều phối tài xế</h1><button type="button" className={operationsButton} onClick={() => setEditing(null)}>Tạo ca làm</button></div>
-    <ValidatedForm validation={validation} validate={() => validateBookingTimes(filter.startTime, filter.endTime)} onSubmit={() => setActiveFilter({ ...filter })} className={operationsPanel}><OperationFields prefix="dispatch-filter" values={filter} change={(name, value) => setFilter((current) => ({ ...current, [name]: value }))} fields={[{ name: "driverStaffId", label: "Tài xế", options: [{ value: "", label: "Tất cả tài xế" }, ...driverOptions] }, { name: "startTime", label: "Từ ngày giờ", type: "datetime-local", required: true }, { name: "endTime", label: "Đến ngày giờ", type: "datetime-local", required: true }]} /><button type="submit" className={operationsButton}>Xem lịch</button></ValidatedForm>
+    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Điều phối tài xế</h1><button type="button" className={operationsButton} onClick={() => setEditing(null)}>Tạo ca làm</button></div>
+    <ValidatedForm validation={validation} validate={() => validateBookingTimes(filter.startTime, filter.endTime)} onSubmit={() => setActiveFilter({ ...filter })}>
+      <AdminFilterBar description="Lọc ca làm và lịch chuyến theo tài xế, khoảng thời gian." actions={<>
+        <AdminFilterButton type="submit">Xem lịch</AdminFilterButton>
+        <AdminFilterButton variant="secondary" onClick={() => { const cleared = defaultDispatchFilter(); setFilter(cleared); setActiveFilter(cleared); validation.reset(); }}>Đặt lại</AdminFilterButton>
+      </>}>
+        <AdminFilterField label="Tài xế" htmlFor="dispatch-filter-driverStaffId" select>
+          <InlineSelect id="dispatch-filter-driverStaffId" name="driverStaffId" value={filter.driverStaffId} onChange={(event) => setFilter((current) => ({ ...current, driverStaffId: event.target.value }))}>
+            <option value="">Tất cả tài xế</option>{driverOptions.map((driver) => <option key={driver.value} value={driver.value}>{driver.label}</option>)}
+          </InlineSelect>
+        </AdminFilterField>
+        <AdminFilterField label="Từ ngày giờ" htmlFor="dispatch-filter-startTime">
+          <InlineInput id="dispatch-filter-startTime" name="startTime" type="datetime-local" required value={filter.startTime} onChange={(event) => setFilter((current) => ({ ...current, startTime: event.target.value }))} />
+        </AdminFilterField>
+        <AdminFilterField label="Đến ngày giờ" htmlFor="dispatch-filter-endTime">
+          <InlineInput id="dispatch-filter-endTime" name="endTime" type="datetime-local" required value={filter.endTime} onChange={(event) => setFilter((current) => ({ ...current, endTime: event.target.value }))} />
+        </AdminFilterField>
+      </AdminFilterBar>
+    </ValidatedForm>
     {drivers.error && <p role="alert" className="text-red-700">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
-    <section className={operationsPanel}><h2 className="text-lg font-bold">Ca làm việc</h2>{shifts.isPending && <p role="status">Đang tải ca làm...</p>}{shifts.error && <p role="alert" className="text-red-700">{operationalError(shifts.error)} <button type="button" className="underline" onClick={() => void shifts.refetch()}>Thử lại</button></p>}
-      <div className="overflow-x-auto"><table className="w-full text-left text-sm"><caption className="sr-only">Danh sách ca làm tài xế</caption><thead><tr>{["Ca", "Tài xế", "Bắt đầu", "Kết thúc", "Trạng thái", "Thao tác"].map((label) => <th key={label} className="whitespace-nowrap p-3">{label}</th>)}</tr></thead><tbody>{shifts.data?.map((item) => <tr key={item.id} className="border-t border-border"><td className="p-3">#{item.id}</td><td className="p-3">{driverOptions.find((option) => option.value === String(item.driverStaffId))?.label ?? `#${item.driverStaffId}`}</td><td className="p-3">{dateLabel(item.startTime)}</td><td className="p-3">{dateLabel(item.endTime)}</td><td className="p-3">{item.status ?? "—"}</td><td className="p-3"><button type="button" className="text-primary underline" onClick={() => setEditing(item)}>Sửa / hủy ca</button></td></tr>)}</tbody></table></div>{shifts.data?.length === 0 && <p className="text-sm text-ink-muted">Không có ca làm trong khoảng thời gian này.</p>}
-    </section>
+    <AdminTableCard>
+      <div className="border-b border-line px-5 py-4">
+        <h2 className="font-bold text-ink">Ca làm việc</h2>
+        {shifts.isPending && <p role="status" className="mt-1 text-xs text-ink-3">Đang tải ca làm...</p>}
+        {shifts.error && <p role="alert" className="mt-1 text-sm text-danger">{operationalError(shifts.error)} <button type="button" className="underline" onClick={() => void shifts.refetch()}>Thử lại</button></p>}
+      </div>
+      <AdminTable className="min-w-[760px]">
+        <caption className="sr-only">Danh sách ca làm tài xế</caption>
+        <thead><tr>{["Tài xế", "Bắt đầu", "Kết thúc", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
+        <tbody>
+          {shifts.data?.map((item) => (
+            <tr key={item.id}>
+              <td className="font-semibold"><StaffName staffId={item.driverStaffId} name={driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
+              <td className="text-ink-3">{dateLabel(item.startTime)}</td>
+              <td className="text-ink-3">{dateLabel(item.endTime)}</td>
+              <td><span className="whitespace-nowrap rounded-full bg-sunken px-2.5 py-1 text-xs font-semibold text-ink-3">{item.status ?? "—"}</span></td>
+              <td data-actions><button type="button" className="rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10" onClick={() => setEditing(item)}>Sửa / hủy ca</button></td>
+            </tr>
+          ))}
+          {shifts.data?.length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
+        </tbody>
+      </AdminTable>
+    </AdminTableCard>
     {editing !== undefined && <ShiftForm key={editing?.id ?? "new"} record={editing} drivers={driverOptions} close={() => setEditing(undefined)} saved={refresh} />}
-    <section className={operationsPanel}><h2 className="text-lg font-bold">Các chuyến đã phân công</h2>{schedule.isPending && <p role="status">Đang tải lịch chuyến...</p>}{schedule.error && <p role="alert" className="text-red-700">{operationalError(schedule.error)} <button type="button" className="underline" onClick={() => void schedule.refetch()}>Thử lại</button></p>}
-      <div className="overflow-x-auto"><table className="w-full text-left text-sm"><caption className="sr-only">Lịch chuyến được phân cho tài xế</caption><thead><tr>{["Đơn thuê", "Tài xế", "Xe", "Nhận xe", "Trả xe", "Trạng thái"].map((label) => <th key={label} className="whitespace-nowrap p-3">{label}</th>)}</tr></thead><tbody>{schedule.data?.map((item, index) => <tr key={item.assignmentId ?? index} className="border-t border-border"><td className="p-3"><Link className="text-primary underline" href={`/admin/rentals?rentalId=${item.rentalId}`}>#{item.rentalId}</Link></td><td className="p-3">{item.driverName ?? `#${item.driverStaffId}`}</td><td className="p-3">#{item.vehicleId}</td><td className="p-3">{dateLabel(item.startTime)}</td><td className="p-3">{dateLabel(item.endTime)}</td><td className="p-3">{item.rentalStatus ?? "—"}</td></tr>)}</tbody></table></div>{schedule.data?.length === 0 && <p className="text-sm text-ink-muted">Chưa có chuyến đã phân công trong khoảng thời gian này.</p>}
-    </section>
+    <AdminTableCard>
+      <div className="border-b border-line px-5 py-4">
+        <h2 className="font-bold text-ink">Các chuyến đã phân công</h2>
+        {schedule.isPending && <p role="status" className="mt-1 text-xs text-ink-3">Đang tải lịch chuyến...</p>}
+        {schedule.error && <p role="alert" className="mt-1 text-sm text-danger">{operationalError(schedule.error)} <button type="button" className="underline" onClick={() => void schedule.refetch()}>Thử lại</button></p>}
+      </div>
+      <AdminTable className="min-w-[760px]">
+        <caption className="sr-only">Lịch chuyến được phân cho tài xế</caption>
+        <thead><tr>{["Tài xế", "Xe", "Nhận xe", "Trả xe", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
+        <tbody>
+          {schedule.data?.map((item, index) => (
+            <tr key={item.assignmentId ?? index}>
+              <td><StaffName staffId={item.driverStaffId} name={item.driverName?.trim() || driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
+              <td>{item.vehicleId != null ? <VehicleName vehicleId={item.vehicleId} /> : "Chưa có thông tin xe"}</td>
+              <td className="text-ink-3">{dateLabel(item.startTime)}</td>
+              <td className="text-ink-3">{dateLabel(item.endTime)}</td>
+              <td><span className="whitespace-nowrap rounded-full bg-sunken px-2.5 py-1 text-xs font-semibold text-ink-3">{item.rentalStatus ?? "—"}</span></td>
+              <td data-actions>{item.rentalId != null ? <Link className="rounded-lg px-3 py-2 font-semibold text-primary transition hover:bg-primary/10" href={`/admin/rentals?rentalId=${item.rentalId}`}>Mở đơn thuê</Link> : "—"}</td>
+            </tr>
+          ))}
+          {schedule.data?.length === 0 && <AdminTableEmptyRow colSpan={6}>Chưa có chuyến đã phân công trong khoảng thời gian này.</AdminTableEmptyRow>}
+        </tbody>
+      </AdminTable>
+    </AdminTableCard>
     <RentalLookup title="Phân chuyến theo mã đơn">{(rental, refreshRental) => <AssignmentForm rental={rental} refresh={async () => { await refreshRental(); await refresh(); }} />}</RentalLookup>
   </div>;
 }
@@ -51,5 +115,5 @@ function ShiftForm({ record, drivers, close, saved }: { record: DriverShift | nu
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className={operationsPanel}><h2 className="text-lg font-bold">{record ? `Cập nhật ca #${record.id}` : "Tạo ca làm mới"}</h2><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-red-700">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-border px-4 py-3 text-sm">Đóng</button></div></ValidatedForm>;
+  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-red-700">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-border px-4 py-3 text-sm">Đóng</button></div></ValidatedForm></FormDialog>;
 }
