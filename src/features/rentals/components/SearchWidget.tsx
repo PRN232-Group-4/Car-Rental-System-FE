@@ -134,14 +134,14 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           onClick={() => setMode("hourly")}
           className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "hourly"
-              ? "bg-[#0f172a] text-white shadow-e2 border border-white/20"
+              ? "bg-stage-ink text-white shadow-e2 border border-white/20"
               : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
           <Clock className="w-4 h-4 text-inherit" />
           <span>Thuê theo giờ</span>
-          <span className={`text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
-            mode === "hourly" ? "bg-white/20 text-white" : "bg-sunken text-ink"
+          <span className={`text-xs uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
+            mode === "hourly" ? "bg-surface/20 text-white" : "bg-sunken text-ink"
           }`}>
             HOURLY
           </span>
@@ -152,14 +152,14 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           onClick={() => setMode("longterm")}
           className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer select-none active:scale-[0.98] ${
             mode === "longterm"
-              ? "bg-[#0f172a] text-white shadow-e2 border border-white/20"
+              ? "bg-stage-ink text-white shadow-e2 border border-white/20"
               : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line"
           }`}
         >
           <CalendarRange className="w-4 h-4 text-inherit" />
           <span>Thuê dài hạn</span>
-          <span className={`text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
-            mode === "longterm" ? "bg-white/20 text-white" : "bg-sunken text-ink"
+          <span className={`text-xs uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
+            mode === "longterm" ? "bg-surface/20 text-white" : "bg-sunken text-ink"
           }`}>
             FLEX
           </span>
@@ -170,13 +170,14 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
       <div className="glass-2 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-e3 border border-white/80 relative">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Column 1: Trạm nhận xe (Custom Glass Dropdown) */}
-          <div ref={stationDropdownRef} className="flex-1 relative px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
+          {/* min-w-0: cho phép cột co lại ở md, nếu không cả dải console tràn ra ngoài khung glass. */}
+          <div ref={stationDropdownRef} className="flex-1 min-w-0 relative px-4 py-3 rounded-2xl hover:bg-surface/60 transition-colors">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0 shadow-e1">
                 <MapPin className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
                   Trạm nhận xe (Smart EV Hub)
                 </span>
                 <button
@@ -202,7 +203,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                 aria-label="Chọn trạm nhận xe"
                 className="absolute z-50 top-full mt-3 left-0 w-full sm:w-[420px] glass-3 rounded-2xl p-2.5 shadow-e3 border border-white/90 animate-in fade-in zoom-in-95 duration-150"
               >
-                <div className="px-3 py-2 text-[11px] font-mono font-bold text-ink-3 uppercase tracking-wider border-b border-line mb-1">
+                <div className="px-3 py-2 text-xs font-mono font-bold text-ink-3 uppercase tracking-wider border-b border-line mb-1">
                   Hệ thống trạm thông minh (Smart EV Hub)
                 </div>
                 <div className="max-h-64 overflow-y-auto space-y-1 pr-1">
@@ -214,15 +215,15 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                     }}
                     className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
                       facilityId === "all"
-                        ? "bg-[#0f172a] text-white"
-                        : "hover:bg-white/80 text-ink"
+                        ? "bg-stage-ink text-white"
+                        : "hover:bg-surface/80 text-ink"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <MapPin className={`w-4 h-4 ${facilityId === "all" ? "text-amber-400" : "text-[#b45309]"}`} />
+                      <MapPin className={`w-4 h-4 ${facilityId === "all" ? "text-primary-tint" : "text-primary"}`} />
                       <span>TP. Hồ Chí Minh (Tất cả chi nhánh)</span>
                     </div>
-                    {facilityId === "all" && <Check className="w-4 h-4 text-amber-400" />}
+                    {facilityId === "all" && <Check className="w-4 h-4 text-primary-tint" />}
                   </button>
 
                   {facilities.map((fac) => (
@@ -235,26 +236,26 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                       }}
                       className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
                         facilityId === fac.id
-                          ? "bg-[#0f172a] text-white"
-                          : "hover:bg-white/80 text-ink"
+                          ? "bg-stage-ink text-white"
+                          : "hover:bg-surface/80 text-ink"
                       }`}
                     >
                       <div className="min-w-0 pr-2">
                         <div className="font-bold truncate">{fac.name}</div>
                         {fac.address && (
-                          <div className={`text-[11px] font-mono truncate ${facilityId === fac.id ? "text-white/70" : "text-ink-3"}`}>
+                          <div className={`text-xs font-mono truncate ${facilityId === fac.id ? "text-white/70" : "text-ink-3"}`}>
                             {fac.address}
                           </div>
                         )}
                       </div>
                       {typeof fac.availableVehicles === "number" && (
-                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
-                          facilityId === fac.id ? "bg-white/20 text-white" : "bg-sunken text-[#b45309]"
+                        <span className={`text-xs font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
+                          facilityId === fac.id ? "bg-surface/20 text-white" : "bg-sunken text-primary"
                         }`}>
                           {fac.availableVehicles} xe
                         </span>
                       )}
-                      {facilityId === fac.id && <Check className="w-4 h-4 text-amber-400 shrink-0" />}
+                      {facilityId === fac.id && <Check className="w-4 h-4 text-primary-tint shrink-0" />}
                     </button>
                   ))}
 
@@ -266,20 +267,20 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                     }}
                     className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
                       facilityId === "delivery"
-                        ? "bg-[#0f172a] text-white"
-                        : "hover:bg-white/80 text-ink"
+                        ? "bg-stage-ink text-white"
+                        : "hover:bg-surface/80 text-ink"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Car className={`w-4 h-4 ${facilityId === "delivery" ? "text-amber-400" : "text-[#b45309]"}`} />
+                      <Car className={`w-4 h-4 ${facilityId === "delivery" ? "text-primary-tint" : "text-primary"}`} />
                       <div>
                         <span>Giao tận nơi nội thành TP.HCM</span>
-                        <span className={`text-[11px] font-mono block ${facilityId === "delivery" ? "text-white/70" : "text-ink-3"}`}>
+                        <span className={`text-xs font-mono block ${facilityId === "delivery" ? "text-white/70" : "text-ink-3"}`}>
                           Giao xe trong vòng 45 phút
                         </span>
                       </div>
                     </div>
-                    {facilityId === "delivery" && <Check className="w-4 h-4 text-amber-400" />}
+                    {facilityId === "delivery" && <Check className="w-4 h-4 text-primary-tint" />}
                   </button>
                 </div>
               </div>
@@ -290,13 +291,13 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           <div className="hidden md:block w-px h-10 bg-line" />
 
           {/* Column 2: Thời gian di chuyển (Mở Dedicated Popover) */}
-          <div ref={popoverRef} className="flex-1 relative px-4 py-3 rounded-2xl hover:bg-white/60 transition-colors">
+          <div ref={popoverRef} className="flex-1 min-w-0 relative px-4 py-3 rounded-2xl hover:bg-surface/60 transition-colors">
             <div className="flex items-center gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-primary-tint text-primary flex items-center justify-center shrink-0 shadow-e1">
                 <Calendar className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-[11px] font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
                   Lịch trình di chuyển
                 </span>
                 <button
@@ -320,7 +321,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
               <div
                 role="dialog"
                 aria-label="Chọn thời gian nhận và trả xe"
-                className="absolute z-50 top-full mt-3 right-0 left-0 sm:left-auto sm:right-0 w-full sm:w-[460px] glass-3 rounded-3xl p-6 shadow-e3 border border-white/90 animate-in fade-in zoom-in-95 duration-150"
+                className="absolute z-50 top-full mt-3 right-0 left-0 sm:left-auto sm:right-0 w-full sm:w-[460px] sm:max-w-[calc(100vw-2rem)] glass-3 rounded-3xl p-6 shadow-e3 border border-white/90 animate-in fade-in zoom-in-95 duration-150"
               >
                 <div className="flex items-center justify-between pb-3.5 border-b border-line mb-4">
                   <div className="flex items-center gap-2">
@@ -343,7 +344,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                       Thời gian nhận xe
                     </span>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-ink-3 block">Ngày nhận</label>
+                      <label className="text-xs font-semibold text-ink-3 block">Ngày nhận</label>
                       <input
                         type="date"
                         value={startDate}
@@ -355,7 +356,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-ink-3 block">Giờ nhận</label>
+                      <label className="text-xs font-semibold text-ink-3 block">Giờ nhận</label>
                       <input
                         type="time"
                         value={startTime}
@@ -371,7 +372,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                       Thời gian trả xe
                     </span>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-ink-3 block">Ngày trả</label>
+                      <label className="text-xs font-semibold text-ink-3 block">Ngày trả</label>
                       <input
                         type="date"
                         value={endDate}
@@ -381,7 +382,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-ink-3 block">Giờ trả</label>
+                      <label className="text-xs font-semibold text-ink-3 block">Giờ trả</label>
                       <input
                         type="time"
                         value={endTime}

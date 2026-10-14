@@ -61,10 +61,13 @@ export default function MembershipPasses() {
     return new Intl.NumberFormat("vi-VN").format(amount) + " ₫";
   };
 
+  // Chỉ một thẻ được nhấn: gói do BE đánh dấu, nếu không có thì lấy thẻ giữa.
+  const featuredId = (plans.find((plan) => plan.popular) ?? plans[1] ?? plans[0])?.id;
+
   return (
     <section 
-      id="goi-thue-bao" 
-      className="relative py-28 px-4 sm:px-6 lg:px-8 bg-[#f7f7f4] text-ink border-t border-line overflow-hidden scroll-mt-24"
+      /* id do wrapper ở (marketing)/page.tsx giữ — tránh id trùng */
+      className="relative py-28 px-4 sm:px-6 lg:px-8 bg-surface-raised text-ink border-t border-line overflow-hidden scroll-mt-24"
     >
       {/* Structural Ambient Grid & Secure Enclave NFC Circuit Blueprint */}
       <div 
@@ -139,8 +142,8 @@ export default function MembershipPasses() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-widest uppercase mb-4">
-              <CreditCard className="w-3.5 h-3.5 text-[#b45309]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-widest uppercase mb-4">
+              <CreditCard className="w-3.5 h-3.5 text-primary" />
               <span>DIGITAL WALLET MEMBERSHIP PASSES</span>
             </div>
             <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink max-w-2xl leading-[1.15]">
@@ -153,33 +156,30 @@ export default function MembershipPasses() {
         </div>
 
         {notice && (
-          <div className="mb-10 p-4 rounded-2xl bg-amber-50 border border-amber-600/30 text-[#b45309] text-sm font-medium flex items-center gap-3">
-            <Loader2 className="w-4 h-4 animate-spin shrink-0 text-[#b45309]" />
+          <div className="mb-10 p-4 rounded-2xl bg-primary-tint border border-primary/30 text-primary text-sm font-medium flex items-center gap-3">
+            <Loader2 className="w-4 h-4 animate-spin shrink-0 text-primary" />
             <span>{notice}</span>
           </div>
         )}
 
         {/* 3 Apple Wallet / Digital Passes */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {plans.map((plan, index) => {
-            const isFeatured = plan.popular || index === 1;
+          {plans.map((plan) => {
+            const isFeatured = plan.id === featuredId;
             const isPurchasing = purchasingId === plan.id;
-            const isCorporate = index === 2;
 
             return (
               <div
                 key={plan.id}
                 className={`relative rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
-                  isCorporate
-                    ? "bg-[#0f172a] text-white border border-white/20 shadow-2xl"
-                    : isFeatured
-                    ? "bg-surface border-2 border-[#b45309] shadow-[0_16px_36px_rgba(180,83,9,0.15)] scale-[1.02] text-ink"
+                  isFeatured
+                    ? "bg-surface border-2 border-primary shadow-[0_16px_36px_rgba(180,83,9,0.15)] scale-[1.02] text-ink"
                     : "bg-surface border border-line-strong hover:border-ink-2 shadow-sm text-ink"
                 }`}
               >
                 {/* Featured Badge */}
                 {isFeatured && (
-                  <div className="absolute -top-3.5 left-8 px-3.5 py-1 rounded-full bg-[#b45309] text-white text-[11px] font-mono font-bold uppercase tracking-wider shadow-md flex items-center gap-1.5">
+                  <div className="absolute -top-3.5 left-8 px-3.5 py-1 rounded-full bg-primary text-white text-xs font-mono font-bold uppercase tracking-wider shadow-md flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>PRIORITY SELECTION</span>
                   </div>
@@ -187,45 +187,35 @@ export default function MembershipPasses() {
 
                 {/* Card Top / Digital Chip & Brand */}
                 <div>
-                  <div className={`flex items-center justify-between pb-5 mb-6 border-b ${isCorporate ? "border-white/10" : "border-line"}`}>
+                  <div className="flex items-center justify-between pb-5 mb-6 border-b border-line">
                     <div className="flex items-center gap-3">
-                      <div className={`w-9 h-7 rounded-md flex items-center justify-center border ${
-                        isCorporate 
-                          ? "bg-white/10 border-white/20" 
-                          : "bg-amber-50 border-amber-500/30"
-                      }`}>
-                        <div className={`w-4 h-3 rounded-sm border ${
-                          isCorporate ? "border-white/50" : "border-amber-600/50"
-                        }`} />
+                      <div className="w-9 h-7 rounded-md flex items-center justify-center border bg-primary-tint border-primary/40">
+                        <div className="w-4 h-3 rounded-sm border border-primary/50" />
                       </div>
-                      <span className={`font-mono text-xs tracking-wider ${isCorporate ? "text-white/50" : "text-ink-3"}`}>
+                      <span className="font-mono text-xs tracking-wider text-ink-3">
                         TD-PASS: {plan.id}
                       </span>
                     </div>
-                    <QrCode className={`w-6 h-6 ${isCorporate ? "text-white/40" : "text-ink-3"}`} />
+                    <QrCode className="w-6 h-6 text-ink-3" />
                   </div>
 
-                  <h3 className={`font-display text-2xl font-black mb-2 ${isCorporate ? "text-white" : "text-ink"}`}>
+                  <h3 className="font-display text-2xl font-black mb-2 text-ink">
                     {plan.name}
                   </h3>
                   
                   {plan.description && (
-                    <p className={`text-xs sm:text-sm mb-6 leading-relaxed ${isCorporate ? "text-white/60" : "text-ink-2"}`}>
+                    <p className="text-xs sm:text-sm mb-6 leading-relaxed text-ink-2">
                       {plan.description}
                     </p>
                   )}
 
                   {/* Price & Quota Box */}
-                  <div className={`mb-6 p-4 rounded-2xl border ${
-                    isCorporate 
-                      ? "bg-white/5 border-white/10" 
-                      : "bg-[#f7f7f4] border-line"
-                  }`}>
-                    <div className={`font-mono text-3xl font-black tracking-tight ${isCorporate ? "text-white" : "text-ink"}`}>
+                  <div className="mb-6 p-4 rounded-2xl border bg-surface-raised border-line">
+                    <div className="font-mono text-3xl font-black tracking-tight text-ink">
                       {formatVND(plan.price)}
                     </div>
-                    <div className={`mt-2 flex items-center gap-4 text-xs font-mono ${isCorporate ? "text-white/60" : "text-ink-3"}`}>
-                      <span className={`flex items-center gap-1 font-semibold ${isCorporate ? "text-emerald-400" : "text-[#b45309]"}`}>
+                    <div className="mt-2 flex items-center gap-4 text-xs font-mono text-ink-3">
+                      <span className="flex items-center gap-1 font-semibold text-primary">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{plan.hours} giờ thuê</span>
                       </span>
@@ -236,12 +226,12 @@ export default function MembershipPasses() {
 
                   {/* Feature Checklist */}
                   <div className="space-y-3 mb-8">
-                    <div className={`text-[11px] font-mono uppercase tracking-widest ${isCorporate ? "text-white/40" : "text-ink-3"}`}>
+                    <div className="text-xs font-mono uppercase tracking-widest text-ink-3">
                       ĐẶC QUYỀN ĐI KÈM
                     </div>
                     {plan.features?.map((feat, fIdx) => (
-                      <div key={fIdx} className={`flex items-start gap-2.5 text-xs sm:text-sm ${isCorporate ? "text-white/80" : "text-ink-2"}`}>
-                        <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${isCorporate ? "text-emerald-400" : "text-[#b45309]"}`} />
+                      <div key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-ink-2">
+                        <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -249,11 +239,11 @@ export default function MembershipPasses() {
                 </div>
 
                 {/* CTA Action */}
-                <div className={`pt-6 border-t ${isCorporate ? "border-white/10" : "border-line"}`}>
+                <div className="pt-6 border-t border-line">
                   <Button
                     onClick={() => handlePurchase(plan)}
                     disabled={isPurchasing}
-                    variant={isFeatured ? "amber-hero" : isCorporate ? "secondary-stage" : "secondary"}
+                    variant="amber-hero"
                     className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider"
                   >
                     {isPurchasing ? (
@@ -277,11 +267,11 @@ export default function MembershipPasses() {
         {/* Bottom Trust Guarantee */}
         <div className="mt-16 p-6 rounded-2xl bg-surface border border-line-strong flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-ink-2 shadow-sm">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#b45309]" />
+            <ShieldCheck className="w-4 h-4 text-primary" />
             <span>Thanh toán an toàn qua cổng bảo mật PayOS (chuẩn PCI DSS cấp cao nhất)</span>
           </div>
           <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-[#b45309]" />
+            <CreditCard className="w-4 h-4 text-primary" />
             <span>Hỗ trợ VietQR, Thẻ Nội địa (NAPAS) & Thẻ Quốc tế (Visa / Mastercard)</span>
           </div>
         </div>

@@ -87,11 +87,12 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         </svg>
       </div>
 
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center relative z-10">
+      {/* z-30: giữ console + dropdown của SearchWidget trên các section sau (z-10/z-20) nhưng dưới navbar/modal (z-50). */}
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center relative z-30">
         {/* 2. Tech Micro-Badge (Automotive Intelligence Standard) */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-line shadow-xs mb-5 text-[11px] font-mono font-bold tracking-wider uppercase text-ink select-none">
-          <span className="w-2 h-2 rounded-full bg-[#b45309]" />
-          <span className="text-[#b45309]">VRS AUTOMOTIVE PLATFORM</span>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/90 border border-line shadow-xs mb-5 text-xs font-mono font-bold tracking-wider uppercase text-ink select-none">
+          <span className="w-2 h-2 rounded-full bg-primary" />
+          <span className="text-primary">VRS AUTOMOTIVE PLATFORM</span>
           <span className="text-ink-3">/</span>
           <span>DỊCH VỤ THUÊ PHƯƠNG TIỆN TOÀN DIỆN</span>
         </div>
@@ -130,9 +131,9 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
             href="#showroom-3d"
             variant="secondary"
             size="lg"
-            className="text-sm sm:text-base font-bold px-7 py-4 rounded-xl bg-white border border-line-strong text-ink hover:bg-[#f2f2ee]"
+            className="text-sm sm:text-base font-bold px-7 py-4 rounded-xl bg-surface border border-line-strong text-ink hover:bg-sunken"
           >
-            <Car className="w-4 h-4 mr-2 text-[#b45309]" />
+            <Car className="w-4 h-4 mr-2 text-primary" />
             <span>Khám phá 3D Showroom</span>
           </Button>
         </div>
@@ -154,28 +155,28 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
               
               {/* Flat architectural scrim to ground vehicle and display CAD telemetry (Strict A13 compliance: No gradients) */}
               <div 
-                className="absolute inset-0 bg-slate-950/25 pointer-events-none"
+                className="absolute inset-0 bg-stage-ink/25 pointer-events-none"
                 aria-hidden="true"
               />
 
               {/* Technical Blueprint Corner Dimension Brackets */}
-              <div className="absolute top-4 left-4 font-mono text-[10px] text-white/90 glass-ink px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
-                <SlidersHorizontal className="w-3 h-3 text-[#f59e0b]" />
+              <div className="absolute top-4 left-4 font-mono text-xs text-white/90 glass-ink px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
+                <SlidersHorizontal className="w-3 h-3 text-primary-graphic" />
                 <span>CHASSIS REF: 911-EV-SPECS</span>
               </div>
 
-              <div className="absolute top-4 right-4 font-mono text-[10px] text-white/90 glass-ink px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
-                <Gauge className="w-3 h-3 text-[#f59e0b]" />
+              <div className="absolute top-4 right-4 font-mono text-xs text-white/90 glass-ink px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
+                <Gauge className="w-3 h-3 text-primary-graphic" />
                 <span>AERO Cd: 0.22 · AWD</span>
               </div>
 
               {/* Bottom Telemetry Strip across vehicle visual */}
               <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 text-white text-xs font-mono">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   <span className="font-bold tracking-wide">100% SẴN SÀNG KHỞI HÀNH</span>
                 </div>
-                <div className="hidden sm:flex items-center gap-4 text-white/80 text-[11px]">
+                <div className="hidden sm:flex items-center gap-4 text-white/80 text-xs">
                   <span>DÀI: 4,963 MM</span>
                   <span>·</span>
                   <span>RỘNG: 1,966 MM</span>
@@ -190,7 +191,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         {/* 7. Minimal Inline Trust Strip (Pure typographic elegance, no nested card boxes) */}
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-4 mb-10 text-xs sm:text-sm text-ink-2">
           <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-[#b45309] shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
             <span className="font-bold text-ink">100% Xe Chính Chủ</span>
             <span className="text-ink-3 font-mono text-xs hidden sm:inline">(OBD-II Verified)</span>
           </div>
@@ -198,7 +199,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           <div className="hidden sm:inline-block text-line-strong font-light">/</div>
 
           <div className="flex items-center gap-2.5">
-            <Clock className="w-4 h-4 text-[#b45309] shrink-0" />
+            <Clock className="w-4 h-4 text-primary shrink-0" />
             <span className="font-bold text-ink">Bàn Giao 3 Phút</span>
             <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Biên bản số)</span>
           </div>
@@ -206,7 +207,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           <div className="hidden sm:inline-block text-line-strong font-light">/</div>
 
           <div className="flex items-center gap-2.5">
-            <RefreshCw className="w-4 h-4 text-[#b45309] shrink-0" />
+            <RefreshCw className="w-4 h-4 text-primary shrink-0" />
             <span className="font-bold text-ink">Hoàn Cọc Tự Động</span>
             <span className="text-ink-3 font-mono text-xs hidden sm:inline">(PayOS 5 Phút)</span>
           </div>

@@ -26,9 +26,9 @@ const statusLabels: Record<string, string> = {
 
 const statusStyles: Record<string, string> = {
   available: "bg-primary/10 text-primary",
-  rented: "bg-blue-50 text-blue-700",
-  maintenance: "bg-amber-50 text-amber-700",
-  unavailable: "bg-sunken text-ink-muted",
+  rented: "bg-info-bg text-info",
+  maintenance: "bg-primary-tint text-warning",
+  unavailable: "bg-sunken text-ink-3",
 };
 
 export default function VehicleManagement() {
@@ -119,21 +119,21 @@ export default function VehicleManagement() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Quản lý đội xe</p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Phương tiện</h2>
-          <p className="mt-2 text-sm text-ink-muted">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
+          <p className="mt-2 text-sm text-ink-3">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
         </div>
         {canManage && (
-          <Link href="/admin/vehicles/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover">
+          <Link href="/admin/vehicles/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover">
             <CirclePlus className="h-4 w-4" /> Thêm phương tiện
           </Link>
         )}
       </div>
 
-      <p className="text-xs text-ink-muted">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-elevation-1">
+      <p className="text-xs text-ink-3">Tìm kiếm theo tên, ID hoặc chi nhánh đang lọc các phương tiện trên trang hiện tại.</p>
+      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
         <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:p-5">
           <label className="relative min-w-0 flex-1">
             <span className="sr-only">Tìm phương tiện</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
             <input value={search} onChange={(event) => {
               setSearch(event.currentTarget.value);
               setPage(1);
@@ -148,7 +148,7 @@ export default function VehicleManagement() {
               <option value="all">Tất cả loại xe</option>
               {vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
           </label>
           <label className="relative">
             <span className="sr-only">Lọc theo trạng thái</span>
@@ -159,13 +159,13 @@ export default function VehicleManagement() {
               <option value="all">Mọi trạng thái</option>
               {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
           </label>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
-            <thead className="bg-sunken text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+            <thead className="bg-sunken text-xs font-bold uppercase tracking-wider text-ink-3">
               <tr>
                 <th className="px-5 py-3">Phương tiện</th>
                 <th className="px-4 py-3">Loại / Năm</th>
@@ -183,41 +183,41 @@ export default function VehicleManagement() {
                       <div
                         role={vehicle.mainImageUrl ? "img" : undefined}
                         aria-label={vehicle.mainImageUrl ? `Ảnh ${vehicle.brand} ${vehicle.model}` : undefined}
-                        className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-muted"
+                        className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-3"
                         style={vehicle.mainImageUrl ? { backgroundImage: `url("${vehicle.mainImageUrl}")` } : undefined}
                       >
                         {!vehicle.mainImageUrl && <CarFront className="h-5 w-5" />}
                       </div>
                       <span>
                         <span className="block font-semibold text-ink">{vehicle.brand} {vehicle.model}</span>
-                        <span className="mt-1 block text-xs text-ink-muted">ID #{vehicle.id}</span>
+                        <span className="mt-1 block text-xs text-ink-3">ID #{vehicle.id}</span>
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3.5 text-ink-muted">{vehicle.vehicleType ?? `Loại #${vehicle.vehicleTypeId}`}<span className="mt-1 block text-xs text-ink-muted">{vehicle.yearOfManufacture ?? "—"}</span></td>
-                  <td className="px-4 py-3.5 text-ink-muted">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
+                  <td className="px-4 py-3.5 text-ink-3">{vehicle.vehicleType ?? `Loại #${vehicle.vehicleTypeId}`}<span className="mt-1 block text-xs text-ink-3">{vehicle.yearOfManufacture ?? "—"}</span></td>
+                  <td className="px-4 py-3.5 text-ink-3">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
                   <td className="px-4 py-3.5 font-medium text-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
-                  <td className="px-4 py-3.5"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-sunken text-ink-muted"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
+                  <td className="px-4 py-3.5"><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-sunken text-ink-3"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
                   {canManage && (
                     <td className="px-5 py-3.5">
                       <div className="flex justify-end gap-1">
-                        <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-muted transition hover:bg-primary/10 hover:text-primary">
+                        <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary">
                           <Pencil className="h-4 w-4" />
                         </Link>
-                        <button type="button" onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} aria-label={`Xóa xe #${vehicle.id}`} className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} aria-label={`Xóa xe #${vehicle.id}`} className="rounded-lg p-2 text-danger transition hover:bg-danger-bg disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </td>
                   )}
                 </tr>
               ))}
               {!loading && filteredVehicles.length === 0 && (
-                <tr><td colSpan={canManage ? 6 : 5} className="px-5 py-14 text-center text-sm text-ink-muted">Không tìm thấy phương tiện phù hợp.</td></tr>
+                <tr><td colSpan={canManage ? 6 : 5} className="px-5 py-14 text-center text-sm text-ink-3">Không tìm thấy phương tiện phù hợp.</td></tr>
               )}
             </tbody>
           </table>
         </div>
         <div className="flex flex-col gap-4 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-muted">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-3">
             <span>Hiển thị {firstResult}–{lastResult} trong {totalCount} phương tiện</span>
             <label className="flex items-center gap-2">
               <span>Số dòng:</span>
@@ -240,7 +240,7 @@ export default function VehicleManagement() {
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={currentPage === 1 || loading}
               aria-label="Trang trước"
-              className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -255,7 +255,7 @@ export default function VehicleManagement() {
                 className={`h-9 min-w-9 rounded-lg px-2 text-xs font-semibold transition ${
                   currentPage === pageNumber
                     ? "bg-primary text-white"
-                    : "border border-line text-ink-muted hover:bg-canvas"
+                    : "border border-line text-ink-3 hover:bg-canvas"
                 }`}
               >
                 {pageNumber}
@@ -266,7 +266,7 @@ export default function VehicleManagement() {
               onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
               disabled={currentPage === pageCount || loading}
               aria-label="Trang tiếp theo"
-              className="rounded-lg border border-line p-2 text-ink-muted transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

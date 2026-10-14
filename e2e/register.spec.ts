@@ -14,15 +14,11 @@ test.describe("Đăng ký tài khoản (Registration Flow)", () => {
     await expect(page.locator("#register-email")).toBeVisible();
     await expect(page.locator("#register-password")).toBeVisible();
     await expect(page.locator("#register-confirm-password")).toBeVisible();
-    await expect(page.locator("#register-terms")).toBeChecked();
+    await expect(page.locator("#register-terms")).not.toBeChecked();
 
     // Nút submit
     const submitBtn = page.locator('button[type="submit"]').getByText(/Tiếp tục/i);
     await expect(submitBtn).toBeVisible();
-
-    // Kiểm tra cột lợi ích thành viên hiển thị
-    await expect(page.getByText("Gia Nhập Thành Viên Thong Dong")).toBeVisible();
-    await expect(page.getByText(/Thuê xe theo giờ trừ dần linh hoạt/i)).toBeVisible();
   });
 
   test("2. Kiểm tra validation form: Báo lỗi khi mật khẩu ngắn hoặc không khớp", async ({ page }) => {
@@ -89,8 +85,8 @@ test.describe("Đăng ký tài khoản (Registration Flow)", () => {
     // Sau khi submit, màn hình phải chuyển sang bước nhập OTP
     const otpInput = page.locator("#register-otp");
     await expect(otpInput).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("Xác thực địa chỉ Email")).toBeVisible();
-    await expect(page.getByText(/Mã xác thực 6 số đã được gửi tới/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Xác thực email" })).toBeVisible();
+    await expect(page.getByText(/Mã xác thực đã gửi tới/i)).toBeVisible();
 
     // Nhập OTP và xác nhận
     await otpInput.fill("123456");

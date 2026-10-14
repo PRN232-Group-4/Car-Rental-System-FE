@@ -27,7 +27,8 @@ export function mapSubscriptionPlanFromBE(raw: BESubscriptionPlan | Record<strin
     ];
   }
 
-  const popular = Boolean(r.popular ?? (hours >= 20 && hours <= 60));
+  // Chỉ BE quyết định gói nổi bật — không tự suy ra từ số giờ (tránh 2 thẻ cùng "PRIORITY SELECTION").
+  const popular = Boolean(r.popular ?? r.Popular ?? false);
 
   return {
     id,

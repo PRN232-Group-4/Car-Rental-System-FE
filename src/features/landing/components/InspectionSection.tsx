@@ -131,8 +131,8 @@ export default function InspectionSection() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
-            <ShieldCheck className="w-4 h-4 text-[#b45309]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
+            <ShieldCheck className="w-4 h-4 text-primary" />
             <span>MINH BẠCH & TRÁCH NHIỆM PHÁP LÝ</span>
           </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
@@ -144,8 +144,8 @@ export default function InspectionSection() {
         </p>
       </div>
 
-      {/* Main Feature Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      {/* Main Feature Grid — relative z-10 để lưới card nằm trên nền blueprint SVG (absolute z-0) */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         {/* Left Column: Visual Diagnostic Checklist with Specs Chips (7 cols) */}
         <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {INSPECTION_POINTS.map((point) => {
@@ -156,19 +156,19 @@ export default function InspectionSection() {
                 onClick={() => setActivePointId(point.id)}
                 className={`p-5 rounded-3xl border transition-all duration-300 cursor-pointer select-none flex flex-col justify-between ${
                   isSelected
-                    ? "bg-surface border-[#b45309]/50 shadow-[0_8px_24px_-4px_rgba(180,83,9,0.12)] ring-1 ring-[#b45309]/20"
-                    : "bg-[#f7f7f4] border-line hover:border-line-strong hover:bg-white"
+                    ? "bg-surface border-primary/50 shadow-[0_8px_24px_-4px_rgba(180,83,9,0.12)] ring-1 ring-primary/20"
+                    : "bg-surface-raised border-line hover:border-line-strong hover:bg-surface"
                 }`}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <span className="font-mono text-[10px] font-black uppercase text-[#b45309] bg-amber-50 border border-amber-600/20 px-2.5 py-0.5 rounded-lg">
+                    <span className="font-mono text-xs font-black uppercase text-primary bg-primary-tint border border-primary/30 px-2.5 py-0.5 rounded-lg">
                       {point.tag}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+                      className={`px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider ${
                         isSelected
-                          ? "bg-amber-100 text-[#b45309]"
+                          ? "bg-primary-tint text-primary"
                           : "bg-sunken text-ink-3"
                       }`}
                     >
@@ -190,7 +190,7 @@ export default function InspectionSection() {
                   {point.specs.map((spec, sIdx) => (
                     <span
                       key={sIdx}
-                      className="text-[10px] font-mono text-ink-3 bg-sunken px-2 py-0.5 rounded-md"
+                      className="text-xs font-mono text-ink-3 bg-sunken px-2 py-0.5 rounded-md"
                     >
                       {spec}
                     </span>
@@ -202,72 +202,72 @@ export default function InspectionSection() {
         </div>
 
         {/* Right Column: Live Certificate & PayOS Guarantee Terminal (5 cols) */}
-        <div className="lg:col-span-5 rounded-3xl bg-[#0f172a] text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+        <div className="lg:col-span-5 rounded-3xl bg-surface text-ink border border-line-strong p-7 sm:p-8 flex flex-col justify-between shadow-e2 relative overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+            <div className="flex items-center justify-between pb-4 border-b border-line mb-5">
               <div className="flex items-center gap-2">
-                <FileCheck2 className="w-5 h-5 text-[#f59e0b]" />
-                <span className="font-mono text-xs font-bold uppercase tracking-wider text-white/80">
+                <FileCheck2 className="w-5 h-5 text-primary" />
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
                   CHỨNG THỰC ĐIỆN TỬ
                 </span>
               </div>
-              <span className="font-mono text-[10px] text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+              <span className="font-mono text-xs text-primary bg-primary-tint border border-primary/40 px-2.5 py-0.5 rounded-full font-bold">
                 SẴN SÀNG ĐỐI SOÁT
               </span>
             </div>
 
             {/* Current Active Point Telemetry Focus */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-5">
-              <span className="text-[10px] font-mono text-amber-400 uppercase tracking-widest block mb-1">
+            <div className="p-4 rounded-2xl bg-surface-raised border border-line mb-5">
+              <span className="text-xs font-mono text-primary uppercase tracking-widest block mb-1 font-bold">
                 TIÊU CHUẨN ĐANG CHỌN // {activePoint.code}
               </span>
-              <h4 className="font-display text-lg font-bold text-white mb-1">
+              <h4 className="font-display text-lg font-bold text-ink mb-1">
                 {activePoint.name}
               </h4>
-              <p className="text-xs text-white/70 leading-relaxed">
+              <p className="text-xs text-ink-2 leading-relaxed">
                 {activePoint.desc}
               </p>
             </div>
 
             {/* PayOS Automated Refund Guarantee Card */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 mb-5">
-              <div className="flex items-center gap-2 text-xs font-mono text-[#f59e0b] font-bold uppercase tracking-wider mb-2">
-                <RefreshCw className="w-4 h-4 text-[#f59e0b]" />
+            <div className="p-4 rounded-2xl bg-surface-raised border border-line mb-5">
+              <div className="flex items-center gap-2 text-xs font-mono text-primary font-bold uppercase tracking-wider mb-2">
+                <RefreshCw className="w-4 h-4 text-primary" />
                 <span>CƠ CHẾ HOÀN CỌC PAYOS TỨC THÌ</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-center my-3">
-                <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                  <span className="text-[10px] font-mono text-white/50 block">THỜI GIAN</span>
-                  <strong className="text-sm font-mono text-emerald-400">&lt; 5 PHÚT</strong>
+                <div className="p-2 rounded-xl bg-surface border border-line">
+                  <span className="text-xs font-mono text-ink-3 block">THỜI GIAN</span>
+                  <strong className="text-sm font-mono text-primary">&lt; 5 PHÚT</strong>
                 </div>
-                <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                  <span className="text-[10px] font-mono text-white/50 block">CỔNG THANH TOÁN</span>
-                  <strong className="text-sm font-mono text-white">PayOS API</strong>
+                <div className="p-2 rounded-xl bg-surface border border-line">
+                  <span className="text-xs font-mono text-ink-3 block">CỔNG THANH TOÁN</span>
+                  <strong className="text-sm font-mono text-ink">PayOS API</strong>
                 </div>
               </div>
-              <p className="text-[11px] text-white/80 leading-relaxed">
+              <p className="text-xs text-ink-2 leading-relaxed">
                 Tiền cọc được giải ngân tự động về tài khoản ngân hàng ngay khi ký số biên bản trả xe mà không giam vốn.
               </p>
             </div>
 
             {/* System Trust Pillars */}
-            <div className="space-y-2 text-xs text-white/70">
+            <div className="space-y-2 text-xs text-ink-2">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span>Không phụ phí phát sinh ngoài thỏa thuận</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span>Ảnh 6 góc mã hóa chống sửa đổi</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                 <span>Hỗ trợ kỹ thuật và cứu hộ 24/7 toàn quốc</span>
               </div>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-white/10 relative z-10">
+          <div className="pt-6 border-t border-line relative z-10">
             <Button
               as="a"
               href="#chi-nhanh"

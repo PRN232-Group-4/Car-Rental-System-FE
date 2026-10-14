@@ -3,11 +3,11 @@ import { mockFetch } from "./mock";
 
 /**
  * True when the app should serve in-memory mock data.
- * Defaults to mock unless explicitly disabled with NEXT_PUBLIC_USE_MOCK=false.
+ * Live API is the default. Offline data must be explicitly enabled.
  * Feature APIs use this to decide whether an error may fall back to mock data.
  */
 export const isMockMode =
-  process.env.NEXT_PUBLIC_USE_MOCK !== "false" || !process.env.NEXT_PUBLIC_API_URL;
+  process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
 /**
  * Pre-configured application API client.

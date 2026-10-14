@@ -224,49 +224,49 @@ export default function ProfileManager() {
   const hasPendingStatus = isPendingStatus(licenseStatus) || isPending;
 
   return (
-    <div className="relative min-h-[100dvh] bg-[var(--canvas)] text-ink">
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[var(--canvas)]" aria-hidden="true" />
+    <div className="relative min-h-[100dvh] bg-canvas text-ink">
+      <div className="pointer-events-none absolute inset-0 z-0 bg-canvas" aria-hidden="true" />
 
       <Navbar />
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:px-6 lg:pt-36">
-        <div className="mb-7 flex items-center gap-2 text-sm text-slate-500">
+        <div className="mb-7 flex items-center gap-2 text-sm text-ink-3">
           <Link href="/" className="transition-colors hover:text-primary">Trang chủ</Link>
           <span aria-hidden="true">/</span>
-          <span className="font-medium text-slate-700">Hồ sơ của tôi</span>
+          <span className="font-medium text-ink-2">Hồ sơ của tôi</span>
         </div>
 
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">Tài khoản cá nhân</p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Quản lý hồ sơ</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+            <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Quản lý hồ sơ</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-3 sm:text-base">
               Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo.
             </p>
           </div>
           <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${
             hasPendingStatus
-              ? "border-amber-200 bg-amber-50 text-amber-800"
+              ? "border-primary/30 bg-primary-tint text-warning"
               : licenseStatus.toLowerCase().includes("approved")
-                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                : "border-slate-200 bg-white/80 text-slate-600"
+                ? "border-primary/30 bg-primary-tint text-warning"
+                : "border-line bg-surface/80 text-ink-3"
           }`}>
             {hasPendingStatus ? <Clock3 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
             {statusLabel}
           </div>
         </div>
 
-        {isLoading && <p role="status" className="mb-5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">Đang tải hồ sơ...</p>}
-        {pageError && <p role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{pageError}</p>}
+        {isLoading && <p role="status" className="mb-5 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3">Đang tải hồ sơ...</p>}
+        {pageError && <p role="alert" className="mb-5 rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{pageError}</p>}
 
         <section aria-label="Tiến trình xác minh hồ sơ" className="glass-card mb-8 rounded-3xl p-5 sm:p-7">
           <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Trạng thái hồ sơ tài xế</h2>
-              <p className="mt-1 text-sm text-slate-500">Hoàn tất các bước dưới đây để xác minh tài khoản.</p>
+              <h2 className="text-lg font-bold text-ink">Trạng thái hồ sơ tài xế</h2>
+              <p className="mt-1 text-sm text-ink-3">Hoàn tất các bước dưới đây để xác minh tài khoản.</p>
             </div>
             <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
-              hasPendingStatus ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-600"
+              hasPendingStatus ? "bg-primary-tint text-warning" : "bg-sunken text-ink-3"
             }`}>
               {licenseStatus ? licenseStatus.toLocaleUpperCase().replaceAll("_", " ") : "CHƯA HOÀN TẤT"}
             </span>
@@ -301,8 +301,8 @@ export default function ProfileManager() {
                 <UserRound className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Thông tin cá nhân</h2>
-                <p className="mt-1 text-sm text-slate-500">Thông tin liên hệ và nhận diện tài khoản.</p>
+                <h2 className="text-xl font-bold text-ink">Thông tin cá nhân</h2>
+                <p className="mt-1 text-sm text-ink-3">Thông tin liên hệ và nhận diện tài khoản.</p>
               </div>
             </div>
 
@@ -315,7 +315,7 @@ export default function ProfileManager() {
                   onChange={updateDetails}
                   autoComplete="name"
                   placeholder="Nhập họ và tên"
-                  className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                  className="w-full rounded-xl border border-line bg-surface/75 px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10"
                   required
                 />
               </FormField>
@@ -328,13 +328,13 @@ export default function ProfileManager() {
                   onChange={updateDetails}
                   autoComplete="email"
                   placeholder="name@example.com"
-                  className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                  className="w-full rounded-xl border border-line bg-surface/75 px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10"
                   required
                   readOnly
                   aria-describedby="email-readonly-help"
                 />
               </FormField>
-              <p id="email-readonly-help" className="-mt-3 text-xs text-slate-500">Email tài khoản không thể thay đổi qua API hồ sơ.</p>
+              <p id="email-readonly-help" className="-mt-3 text-xs text-ink-3">Email tài khoản không thể thay đổi qua API hồ sơ.</p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <FormField label="Số điện thoại" htmlFor="phone" icon={<Phone className="h-4 w-4" />}>
                   <InlineInput
@@ -345,12 +345,12 @@ export default function ProfileManager() {
                     onChange={updateDetails}
                     autoComplete="tel"
                     placeholder="090 123 4567"
-                    className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                    className="w-full rounded-xl border border-line bg-surface/75 px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10"
                     required
                   />
                 </FormField>
                 <FormField label="Giới tính" htmlFor="gender" icon={<UserRound className="h-4 w-4" />}>
-                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-slate-200 bg-white/75 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded-xl border border-line bg-surface/75 px-4 py-3 text-sm text-ink outline-none transition focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/10">
                     <option value="">Chọn giới tính</option>
                     <option value="Male">Nam</option>
                     <option value="Female">Nữ</option>
@@ -358,14 +358,14 @@ export default function ProfileManager() {
                   </InlineSelect>
                 </FormField>
               </div>
-              <div className="flex flex-col items-start justify-between gap-3 border-t border-slate-200/70 pt-5 sm:flex-row sm:items-center">
+              <div className="flex flex-col items-start justify-between gap-3 border-t border-line/70 pt-5 sm:flex-row sm:items-center">
                 <p aria-live="polite" className="text-sm text-primary font-medium">
                   {profileSaved ? "Thông tin đã được lưu." : ""}
                 </p>
                 <button
                   type="submit"
                   disabled={isSavingProfile || isLoading}
-                  className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-elevation-1 transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   {isSavingProfile ? "Đang lưu..." : "Lưu thông tin"}
                 </button>
@@ -380,17 +380,17 @@ export default function ProfileManager() {
                   <BadgeCheck className="h-6 w-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">Giấy phép lái xe</h2>
-                  <p className="mt-1 text-sm text-slate-500">Tải lên giấy phép hợp lệ để xác minh danh tính.</p>
+                  <h2 className="text-xl font-bold text-ink">Giấy phép lái xe</h2>
+                  <p className="mt-1 text-sm text-ink-3">Tải lên giấy phép hợp lệ để xác minh danh tính.</p>
                 </div>
               </div>
 
               <ValidatedForm validation={validation} validate={() => !selectedFile && !licenseImageUrl ? { imageUrl: "Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt." } : {}} onSubmit={handleSubmit}>
                 <div className="mb-5 grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm font-semibold text-slate-700">Số giấy phép lái xe<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-slate-700">Hạng giấy phép<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-slate-700">Ngày cấp<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-slate-700">Ngày hết hạn<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-ink-2">Số giấy phép lái xe<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-ink-2">Hạng giấy phép<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-ink-2">Ngày cấp<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-ink-2">Ngày hết hạn<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
                 </div>
                 <label
                   htmlFor="license-file"
@@ -403,7 +403,7 @@ export default function ProfileManager() {
                   className={`flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-7 text-center transition ${
                     isDragging
                       ? "border-primary bg-primary/10"
-                      : "border-slate-300 bg-white/50 hover:border-primary/50 hover:bg-primary/5"
+                      : "border-line-strong bg-surface/50 hover:border-primary/50 hover:bg-primary/5"
                   }`}
                 >
                   <InlineInput showError={false} name="imageUrl"
@@ -414,29 +414,29 @@ export default function ProfileManager() {
                     onChange={handleFileChange}
                     className="sr-only"
                   />
-                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-primary shadow-sm">
+                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-surface text-primary shadow-sm">
                     <Upload className="h-5 w-5" />
                   </span>
-                  <span className="text-sm font-bold text-slate-800">
+                  <span className="text-sm font-bold text-ink">
                     {selectedFile ? "Chọn tệp khác" : "Nhấn để tải lên hoặc kéo thả tệp"}
                   </span>
-                  <span className="mt-2 text-xs text-slate-500">JPG, PNG hoặc WEBP · Tối đa 10 MB</span>
+                  <span className="mt-2 text-xs text-ink-3">JPG, PNG hoặc WEBP · Tối đa 10 MB</span>
                 </label>
 
                 <InlineError name="imageUrl" inputId="license-file" />
                 {(selectedFile || licenseImageUrl) && (
-                  <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/70 p-3">
+                  <div className="mt-4 flex items-center gap-3 rounded-xl border border-line bg-surface/70 p-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <FileText className="h-5 w-5" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800">{selectedFile?.name ?? "Ảnh giấy phép đã tải lên"}</p>
-                      <p className="text-xs text-slate-500">{selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : licenseStatus || "Đã lưu"}</p>
+                      <p className="truncate text-sm font-semibold text-ink">{selectedFile?.name ?? "Ảnh giấy phép đã tải lên"}</p>
+                      <p className="text-xs text-ink-3">{selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : licenseStatus || "Đã lưu"}</p>
                     </div>
                     {selectedFile && <button
                       type="button"
                       onClick={removeFile}
-                      className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="rounded-lg p-2 text-ink-3 transition hover:bg-sunken hover:text-ink-2 focus:outline-none focus:ring-2 focus:ring-primary"
                       aria-label="Xóa tệp đã chọn"
                     >
                       <X className="h-4 w-4" />
@@ -445,18 +445,18 @@ export default function ProfileManager() {
                 )}
 
                 {fileError && (
-                  <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-red-700">
+                  <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-danger">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     {fileError}
                   </p>
                 )}
 
                 {hasPendingStatus && (
-                  <div role="status" className="mt-4 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+                  <div role="status" className="mt-4 flex gap-3 rounded-xl border border-primary/30 bg-primary-tint p-4 text-warning">
                     <Clock3 className="mt-0.5 h-5 w-5 shrink-0" />
                     <div>
                       <p className="text-sm font-bold">Hồ sơ đang chờ phê duyệt</p>
-                      <p className="mt-1 text-xs leading-5 text-amber-800">
+                      <p className="mt-1 text-xs leading-5 text-warning">
                         Chúng tôi sẽ thông báo khi giấy phép của bạn được kiểm tra xong.
                       </p>
                     </div>
@@ -466,7 +466,7 @@ export default function ProfileManager() {
                 <button
                   type="submit"
                   disabled={(!selectedFile && !licenseImageUrl) || isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white shadow-elevation-1 transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-white shadow-e1 transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-sunken disabled:shadow-none"
                 >
                   {isSubmittingLicense ? <Clock3 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
                   {isSubmittingLicense ? "Đang gửi..." : hasPendingStatus ? "Đang chờ phê duyệt" : "Gửi giấy phép để xét duyệt"}
@@ -474,12 +474,12 @@ export default function ProfileManager() {
               </ValidatedForm>
             </section>
 
-            <aside className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-5">
+            <aside className="rounded-2xl border border-info/30 bg-info-bg p-5">
               <div className="flex gap-3">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-sky-700" />
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-info" />
                 <div>
-                  <h3 className="text-sm font-bold text-sky-950">Tài liệu an toàn và rõ nét</h3>
-                  <p className="mt-1 text-sm leading-6 text-sky-900/80">
+                  <h3 className="text-sm font-bold text-info">Tài liệu an toàn và rõ nét</h3>
+                  <p className="mt-1 text-sm leading-6 text-info">
                     Đảm bảo ảnh hiển thị đầy đủ thông tin, không bị lóa hoặc cắt mất góc. Chỉ sử dụng giấy phép còn hiệu lực.
                   </p>
                 </div>
@@ -536,23 +536,23 @@ function ProgressStep({
   return (
     <div className={`flex items-center gap-3 rounded-2xl border p-4 ${
       complete
-        ? "border-emerald-200 bg-emerald-50/70"
+        ? "border-primary/30 bg-primary-tint/70"
         : active
-          ? "border-amber-200 bg-amber-50/70"
-          : "border-slate-200/80 bg-white/50"
+          ? "border-primary/30 bg-primary-tint/70"
+          : "border-line/80 bg-surface/50"
     }`}>
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
         complete
-          ? "bg-emerald-600 text-white"
+          ? "bg-primary text-white"
           : active
-            ? "bg-amber-500 text-white"
-            : "bg-slate-100 text-slate-500"
+            ? "bg-primary text-white"
+            : "bg-sunken text-ink-3"
       }`}>
         {complete ? <Check className="h-5 w-5" /> : number}
       </span>
       <span className="min-w-0">
-        <span className="block text-sm font-bold text-slate-800">{title}</span>
-        <span className="mt-0.5 block text-xs text-slate-500">{description}</span>
+        <span className="block text-sm font-bold text-ink">{title}</span>
+        <span className="mt-0.5 block text-xs text-ink-3">{description}</span>
       </span>
     </div>
   );
@@ -571,8 +571,8 @@ function FormField({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-        <span className="text-slate-400">{icon}</span>
+      <label htmlFor={htmlFor} className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink-2">
+        <span className="text-ink-3">{icon}</span>
         {label}
       </label>
       {children}

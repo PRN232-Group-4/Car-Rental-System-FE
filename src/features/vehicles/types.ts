@@ -2,6 +2,7 @@ export type VehicleCategory = "car" | "electric_car" | "motorbike" | "electric_m
 
 export interface Vehicle {
   id: number | string;
+  vehicleTypeId?: number;
   name: string;
   brand?: string;
   model?: string;

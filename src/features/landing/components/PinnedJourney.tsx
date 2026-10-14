@@ -157,8 +157,8 @@ export default function PinnedJourney() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
         <div ref={leftColRef} className="lg:col-span-5 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold uppercase tracking-wider">
-            <KeyRound className="w-3.5 h-3.5 text-[#b45309]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold uppercase tracking-wider">
+            <KeyRound className="w-3.5 h-3.5 text-primary" />
             <span>CINEMATIC SCROLL EXPERIENCE</span>
           </div>
 
@@ -176,11 +176,11 @@ export default function PinnedJourney() {
               {phases.map((phase) => (
                 <div key={phase.index} className="relative group cursor-default">
                   {/* Rail Node Dot */}
-                  <div className="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-surface border-2 border-line group-hover:border-[#b45309] group-hover:bg-amber-500 transition-colors flex items-center justify-center">
-                    <span className="w-1 h-1 rounded-full bg-[#0f172a]" />
+                  <div className="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-surface border-2 border-line group-hover:border-primary group-hover:bg-primary transition-colors flex items-center justify-center">
+                    <span className="w-1 h-1 rounded-full bg-stage-ink" />
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-xs font-black text-ink group-hover:text-[#b45309] transition-colors">
+                    <span className="font-mono text-xs font-black text-ink group-hover:text-primary transition-colors">
                       PHA {phase.index}
                     </span>
                     <span className="text-ink-3 text-xs">/</span>
@@ -214,15 +214,15 @@ export default function PinnedJourney() {
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-line">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-xs font-mono font-black uppercase text-[#b45309] bg-amber-50 border border-amber-600/20 px-3 py-1 rounded-xl">
+                      <span className="text-xs font-mono font-black uppercase text-primary bg-primary-tint border border-primary/30 px-3 py-1 rounded-xl">
                         PHA {phase.index}
                       </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
+                      <span className="text-xs font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
                         {phase.tag}
                       </span>
                     </div>
 
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-600/20 text-[#b45309] flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-primary-tint border border-primary/30 text-primary flex items-center justify-center">
                       <Icon className="w-6 h-6 stroke-[2]" />
                     </div>
                   </div>
@@ -237,7 +237,7 @@ export default function PinnedJourney() {
                 </div>
 
                 <div className="relative z-10 pt-4 border-t border-line flex items-center justify-between text-xs">
-                  <span className="font-semibold text-[#b45309] bg-amber-50 border border-amber-600/20 px-3 py-1 rounded-lg">
+                  <span className="font-semibold text-primary bg-primary-tint border border-primary/30 px-3 py-1 rounded-lg">
                     {phase.highlight}
                   </span>
 
@@ -247,7 +247,7 @@ export default function PinnedJourney() {
                       <ChevronRight className="w-4 h-4" />
                     </span>
                   ) : (
-                    <span className="font-bold text-emerald-600 flex items-center gap-1.5">
+                    <span className="font-bold text-primary flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4" />
                       Sẵn sàng khởi hành
                     </span>

@@ -322,7 +322,7 @@ export default function InteractiveStudio3D() {
   };
 
   const formatVND = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount) + " ₫/giờ";
+    return new Intl.NumberFormat("vi-VN").format(amount) + " ₫";
   };
 
   return (
@@ -344,8 +344,8 @@ export default function InteractiveStudio3D() {
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
-            <Rotate3d className="w-4 h-4 text-[#b45309]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold tracking-wider uppercase mb-3.5">
+            <Rotate3d className="w-4 h-4 text-primary" />
             <span>INTERACTIVE 3D WEBGL STUDIO</span>
           </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
@@ -366,15 +366,15 @@ export default function InteractiveStudio3D() {
             onClick={() => setSelectedModelId(model.id)}
             className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2.5 select-none active:scale-[0.98] ${
               selectedModelId === model.id
-                ? "bg-[#0f172a] text-white shadow-e2 border border-white/20"
-                : "bg-surface hover:bg-[#f2f2ee] text-ink-2 hover:text-ink border border-line-strong"
+                ? "bg-stage-ink text-white shadow-e2 border border-white/20"
+                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
             <span>{model.name}</span>
             <span
-              className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full ${
+              className={`text-xs font-mono uppercase px-2 py-0.5 rounded-full ${
                 selectedModelId === model.id
-                  ? "bg-white/20 text-white"
+                  ? "bg-surface/20 text-white"
                   : "bg-sunken text-ink-3"
               }`}
             >
@@ -384,17 +384,17 @@ export default function InteractiveStudio3D() {
         ))}
       </div>
 
-      {/* 3D Canvas & Telemetry HUD Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+      {/* 3D Canvas & Telemetry HUD Grid — relative z-10 để panel nằm trên nền blueprint SVG (absolute z-0) */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         {/* Main 3D Canvas Box (7 cols) */}
-        <div className="lg:col-span-8 rounded-3xl bg-[#f6f6f2] border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[540px] flex items-center justify-center">
+        <div className="lg:col-span-8 rounded-3xl bg-sunken border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[540px] flex items-center justify-center">
           {/* Canvas Mount Target */}
           <div ref={containerRef} className="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing" />
 
           {/* Loading Overlay with Progress Counter */}
           {isLoading && (
             <div className="absolute inset-0 glass-2 z-20 flex flex-col items-center justify-center p-6 text-center">
-              <Loader2 className="w-10 h-10 text-[#b45309] animate-spin mb-4" />
+              <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
               <h4 className="font-display text-base font-bold text-ink mb-1">
                 Đang nạp mô hình 3D {activeModel.name}...
               </h4>
@@ -404,7 +404,7 @@ export default function InteractiveStudio3D() {
               {/* Progress Bar */}
               <div className="w-48 h-1.5 bg-sunken rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#b45309] transition-all duration-200"
+                  className="h-full bg-primary transition-all duration-200"
                   style={{ width: `${loadingProgress}%` }}
                 />
               </div>
@@ -413,7 +413,7 @@ export default function InteractiveStudio3D() {
 
           {/* Load Error Fallback */}
           {loadError && (
-            <div className="absolute inset-0 bg-[#f6f6f2] z-20 flex flex-col items-center justify-center p-6 text-center">
+            <div className="absolute inset-0 bg-sunken z-20 flex flex-col items-center justify-center p-6 text-center">
               <p className="text-sm font-semibold text-danger mb-4">{loadError}</p>
               <Button
                 variant="secondary"
@@ -429,7 +429,7 @@ export default function InteractiveStudio3D() {
           {/* Interactive Controls Overlay */}
           <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between pointer-events-none">
             <div className="glass-1 px-3.5 py-1.5 rounded-full pointer-events-auto flex items-center gap-2 text-xs font-mono text-ink-2 shadow-sm border border-line">
-              <Compass className="w-3.5 h-3.5 text-[#b45309]" />
+              <Compass className="w-3.5 h-3.5 text-primary" />
               <span className="hidden sm:inline">Kéo chuột để xoay 360° · Cuộn để thu phóng</span>
               <span className="sm:hidden">Vuốt để xoay xe</span>
             </div>
@@ -440,8 +440,8 @@ export default function InteractiveStudio3D() {
                 onClick={() => setIsAutoRotate(!isAutoRotate)}
                 className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm border ${
                   isAutoRotate
-                    ? "bg-[#0f172a] text-white border-white/20"
-                    : "bg-white text-ink border-line-strong hover:bg-[#f2f2ee]"
+                    ? "bg-stage-ink text-white border-white/20"
+                    : "bg-surface text-ink border-line-strong hover:bg-sunken"
                 }`}
               >
                 <Rotate3d className="w-3.5 h-3.5" />
@@ -451,7 +451,7 @@ export default function InteractiveStudio3D() {
               <button
                 type="button"
                 onClick={handleResetCamera}
-                className="w-8 h-8 rounded-full bg-white text-ink border border-line-strong hover:bg-[#f2f2ee] flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                className="w-8 h-8 rounded-full bg-surface text-ink border border-line-strong hover:bg-sunken flex items-center justify-center transition-all cursor-pointer shadow-sm"
                 title="Đặt lại góc nhìn"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-ink-3" />
@@ -463,7 +463,7 @@ export default function InteractiveStudio3D() {
         {/* Telemetry & Specifications Card (4 cols) */}
         <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-600/20 text-[#b45309] text-[11px] font-mono font-bold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-primary text-xs font-mono font-bold uppercase tracking-wider mb-4">
               <Car className="w-3.5 h-3.5" />
               <span>{activeModel.tag}</span>
             </div>
@@ -477,33 +477,33 @@ export default function InteractiveStudio3D() {
 
             {/* Specifications Matrix */}
             <div className="space-y-3.5 pb-6 border-b border-line">
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f7f7f4]">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-raised">
                 <div className="flex items-center gap-2.5 text-xs text-ink-3">
-                  <Calendar className="w-4 h-4 text-[#b45309]" />
+                  <Calendar className="w-4 h-4 text-primary" />
                   <span>Năm sản xuất</span>
                 </div>
                 <span className="font-mono text-sm font-bold text-ink">{activeModel.year}</span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f7f7f4]">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-raised">
                 <div className="flex items-center gap-2.5 text-xs text-ink-3">
-                  <Cpu className="w-4 h-4 text-[#b45309]" />
+                  <Cpu className="w-4 h-4 text-primary" />
                   <span>Cấu hình động cơ</span>
                 </div>
                 <span className="font-mono text-xs font-bold text-ink">{activeModel.engine}</span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f7f7f4]">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-raised">
                 <div className="flex items-center gap-2.5 text-xs text-ink-3">
-                  <Gauge className="w-4 h-4 text-[#b45309]" />
+                  <Gauge className="w-4 h-4 text-primary" />
                   <span>Công suất cực đại</span>
                 </div>
                 <span className="font-mono text-xs font-bold text-ink">{activeModel.power}</span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#f7f7f4]">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-raised">
                 <div className="flex items-center gap-2.5 text-xs text-ink-3">
-                  <Rotate3d className="w-4 h-4 text-[#b45309]" />
+                  <Rotate3d className="w-4 h-4 text-primary" />
                   <span>Tốc độ tối đa</span>
                 </div>
                 <span className="font-mono text-sm font-bold text-ink">{activeModel.topSpeed}</span>
@@ -513,11 +513,16 @@ export default function InteractiveStudio3D() {
 
           {/* Pricing & Booking Action */}
           <div className="pt-6">
-            <div className="flex items-baseline justify-between mb-4">
-              <span className="text-xs text-ink-3 font-semibold uppercase tracking-wider">Giá thuê niêm yết</span>
-              <span className="font-mono text-2xl font-black text-ink">
-                {formatVND(activeModel.hourlyPrice)}
+            <div className="mb-4 p-4 rounded-2xl bg-surface-raised border border-line">
+              <span className="block text-xs font-semibold text-ink-3 uppercase tracking-wider mb-1">
+                Giá thuê niêm yết
               </span>
+              <div className="flex flex-wrap items-baseline gap-x-1.5">
+                <span className="font-mono text-xl font-black text-ink tabular-nums">
+                  {formatVND(activeModel.hourlyPrice)}
+                </span>
+                <span className="text-xs font-semibold text-ink-3">/giờ</span>
+              </div>
             </div>
 
             <Button
