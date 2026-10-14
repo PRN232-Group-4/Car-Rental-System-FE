@@ -32,14 +32,14 @@ export default function AdminDashboardPage() {
   const icons = [ClipboardCheck, CarFront, UsersRound, CircleDollarSign];
 
   const adminLinks = [
-    { label: "Phương tiện", href: "/admin/vehicles", visible: true },
+    { label: "Quản lý phương tiện", href: "/admin/vehicles", visible: true },
     { label: "Loại phương tiện", href: "/admin/vehicle-types", visible: true },
-    { label: "Chính sách thuê", href: "/admin/policies", visible: canManage },
+    { label: "Chính sách thuê xe", href: "/admin/policies", visible: canManage },
     { label: "Gói đăng ký", href: "/admin/subscription-plans", visible: true },
     { label: "Phòng ban", href: "/admin/departments", visible: isAdmin },
     { label: "Chi nhánh", href: "/admin/facilities", visible: true },
     { label: "Nhân viên", href: "/admin/staffs", visible: isAdmin },
-    { label: "Hồ sơ của tôi", href: "/admin/profile", visible: true },
+    { label: "Hồ sơ nhân viên", href: "/admin/profile", visible: true },
   ].filter((item) => item.visible);
 
   return (

@@ -99,7 +99,7 @@ export default function GPLXPage() {
       </div>
 
       {/* Form rendered with key to synchronize initial state without effects */}
-      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-red-700">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <LicenseEditForm license={license} queryClient={queryClient} />}
+      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <LicenseEditForm license={license} queryClient={queryClient} />}
     </div>
   );
 }
@@ -293,7 +293,7 @@ function LicenseEditForm({
           )}
 
           <div className="space-y-2 flex-1 text-center sm:text-left">
-            <button type="button" data-validation-field="file" aria-describedby={validation.errors.file ? "customer-license-image-error" : undefined} onClick={() => document.getElementById("customer-license-image")?.click()} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border ${validation.errors.file ? "border-red-500" : "border-line"} hover:border-line-strong text-ink-2 text-xs font-bold cursor-pointer shadow-xs transition-all`}>
+            <button type="button" data-validation-field="file" aria-describedby={validation.errors.file ? "customer-license-image-error" : undefined} onClick={() => document.getElementById("customer-license-image")?.click()} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border ${validation.errors.file ? "border-danger" : "border-line"} hover:border-line-strong text-ink-2 text-xs font-bold cursor-pointer shadow-xs transition-all`}>
               <Upload className="w-3.5 h-3.5 text-ink-3" />
               <span>Chọn ảnh từ thiết bị</span>
             </button>

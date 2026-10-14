@@ -201,7 +201,7 @@ export default function PinnedJourney() {
             return (
               <div
                 key={phase.index}
-                className="phase-card relative overflow-hidden rounded-[36px] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
+                className="phase-card relative overflow-hidden rounded-[var(--r-panel)] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Subtle Editorial Watermark Number */}
                 <div

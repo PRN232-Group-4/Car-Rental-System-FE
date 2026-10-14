@@ -50,6 +50,8 @@
   --stage-emerald: #047857;
   --stage-amber: #b45309;
   --scrim: rgba(15, 23, 42, 0.45);
+  /* Chữ phụ trên khối tối (Slate 400 / Slate Ink = 7.0:1 — A2). */
+  --on-ink-muted: #94a3b8;
 
   /* Shape tokens */
   --r-control: 10px;
@@ -132,6 +134,7 @@
   --color-stage-ink: var(--stage-ink);
   --color-stage-emerald: var(--stage-emerald);
   --color-scrim: var(--scrim);
+  --color-on-ink-muted: var(--on-ink-muted);
 
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);
@@ -173,11 +176,11 @@ main {
 }
 .admin-input {
   width: 100%;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line-strong);
   border-radius: 0.75rem;
-  background-color: #fff;
+  background-color: var(--surface);
   padding: 0.75rem 1rem;
-  color: #1e293b;
+  color: var(--ink-2);
   font-size: 0.875rem;
   outline: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -197,7 +200,7 @@ main {
 }
 
 .admin-input::placeholder {
-  color: #94a3b8;
+  color: var(--ink-3);
 }
 
 .admin-input:focus {

@@ -102,7 +102,7 @@ function useField(props: { name?: string; id?: string; className?: string; "aria
       id,
       "aria-invalid": !!error,
       "aria-describedby": [props["aria-describedby"], error ? `${id}-error` : undefined].filter(Boolean).join(" ") || undefined,
-      className: `${props.className ?? ""}${error ? " !border-red-500 ring-1 ring-red-500" : ""}`,
+      className: `${props.className ?? ""}${error ? " !border-danger ring-1 ring-danger" : ""}`,
     },
   };
 }

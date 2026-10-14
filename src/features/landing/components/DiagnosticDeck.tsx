@@ -98,7 +98,7 @@ export default function DiagnosticDeck() {
         {/* Diagnostic Grid Container */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Left Column: Interactive Radar Scan Matrix */}
-          <div className="lg:col-span-7 glass-ink rounded-[36px] p-6 sm:p-10 border border-white/15 shadow-e3 flex flex-col justify-between">
+          <div className="lg:col-span-7 glass-ink rounded-[var(--r-panel)] p-6 sm:p-10 border border-white/15 shadow-e3 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full bg-primary animate-ping" />
@@ -162,7 +162,7 @@ export default function DiagnosticDeck() {
           </div>
 
           {/* Right Column: Active Diagnostic Live Card */}
-          <div className="lg:col-span-5 bg-surface rounded-[36px] p-8 sm:p-10 border border-white shadow-e3 text-ink flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-surface rounded-[var(--r-panel)] p-8 sm:p-10 border border-white shadow-e3 text-ink flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-5 border-b border-line mb-6">
                 <span className="text-xs font-mono font-bold text-primary tracking-wider uppercase px-2.5 py-1 rounded bg-primary-tint">

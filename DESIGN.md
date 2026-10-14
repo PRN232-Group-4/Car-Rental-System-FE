@@ -176,9 +176,12 @@ Nguồn ảnh: khi phát triển dùng `https://picsum.photos/seed/{keyword}/192
   --info-bg: #dbeafe;
 
   /* Stages + scrim (flat) */
-  --stage-ink: #0e1a16;
+  --stage-ink: #0f172a;
   --stage-emerald: #047857;
-  --scrim: rgba(14, 26, 22, 0.38);
+  --stage-amber: #b45309;
+  --scrim: rgba(15, 23, 42, 0.45);
+  /* Chữ phụ trên khối tối (Slate 400 / Slate Ink = 7.0:1) */
+  --on-ink-muted: #94a3b8;
 
   /* Shape */
   --r-control: 10px;
@@ -187,19 +190,19 @@ Nguồn ảnh: khi phát triển dùng `https://picsum.photos/seed/{keyword}/192
   --r-pill: 999px;
 
   /* Elevation (ink-tinted, no colored glow) */
-  --e1: 0 1px 2px rgba(14, 26, 22, 0.06), 0 2px 8px -2px rgba(14, 26, 22, 0.06);
+  --e1: 0 1px 2px rgba(15, 23, 42, 0.06), 0 2px 8px -2px rgba(15, 23, 42, 0.06);
   --e2:
-    0 8px 24px -8px rgba(14, 26, 22, 0.16),
-    0 2px 6px -2px rgba(14, 26, 22, 0.08);
+    0 8px 24px -8px rgba(15, 23, 42, 0.16),
+    0 2px 6px -2px rgba(15, 23, 42, 0.08);
   --e3:
-    0 24px 56px -16px rgba(14, 26, 22, 0.28),
-    0 6px 16px -6px rgba(14, 26, 22, 0.12);
+    0 24px 56px -16px rgba(15, 23, 42, 0.28),
+    0 6px 16px -6px rgba(15, 23, 42, 0.12);
 
   /* Rim light = inset shadows (no gradient) */
   --rim:
     inset 0 1px 0 rgba(255, 255, 255, 0.85),
     inset 0 0 0 1px rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(14, 26, 22, 0.05);
+    inset 0 -1px 0 rgba(15, 23, 42, 0.05);
 
   /* Motion tokens (CSS side; GSAP side in A7) */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -543,10 +546,12 @@ Kỹ thuật & ngân sách:
   --color-canvas: var(--canvas);
   --color-sunken: var(--sunken);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-press: var(--primary-press);
@@ -561,9 +566,15 @@ Kỹ thuật & ngân sách:
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
 
+  --color-stage-ink: var(--stage-ink);
+  --color-stage-emerald: var(--stage-emerald);
+  --color-scrim: var(--scrim);
+  --color-on-ink-muted: var(--on-ink-muted);
+
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);
   --radius-panel: var(--r-panel);
+  --radius-pill: var(--r-pill);
 
   --shadow-e1: var(--e1);
   --shadow-e2: var(--e2);

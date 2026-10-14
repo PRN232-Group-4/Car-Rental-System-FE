@@ -71,7 +71,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
             <span className="block text-lg font-bold tracking-tight text-white">
               Thong Dong
             </span>
-            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-3">
+            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-on-ink-muted">
               Driver portal
             </span>
           </span>
@@ -80,14 +80,14 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Đóng menu"
-          className="rounded-lg p-2 text-ink-3 hover:bg-surface/10 hover:text-white lg:hidden"
+          className="rounded-lg p-2 text-on-ink-muted hover:bg-surface/10 hover:text-white lg:hidden"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       <div className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 pt-7">
-        <p className="px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-3">
+        <p className="px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-on-ink-muted">
           Không gian làm việc
         </p>
         <nav aria-label="Điều hướng tài xế" className="space-y-1.5">
@@ -102,11 +102,11 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                   active
                     ? "bg-primary font-semibold text-white shadow-e1"
-                    : "text-ink-3 hover:bg-surface/[0.07] hover:text-white"
+                    : "text-on-ink-muted hover:bg-surface/[0.07] hover:text-white"
                 }`}
               >
                 <Icon
-                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
+                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-on-ink-muted group-hover:text-primary-tint"}`}
                 />
                 {label}
                 {active && (
@@ -128,7 +128,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
               <span className="block truncate text-sm font-semibold text-white">
                 {account?.fullName ?? "Tài xế"}
               </span>
-              <span className="block truncate text-xs text-ink-3">
+              <span className="block truncate text-xs text-on-ink-muted">
                 {account?.departmentName ?? "Phòng ban tài xế"}
               </span>
             </span>
@@ -138,7 +138,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
             onClick={() => {
               void logout().finally(() => router.replace("/login"));
             }}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-on-ink-muted transition hover:border-primary/40 hover:text-primary-tint"
           >
             <LogOut className="h-4 w-4" />
             Đăng xuất

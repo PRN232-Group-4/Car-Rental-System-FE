@@ -128,7 +128,7 @@ for (const file of files) {
     //    A2 + A12: mọi màu phải đi qua token --color-* khai báo ở globals.css.
     if (!isGlobalsCss) {
       const rawColour = line.match(
-        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|fill|stroke|divide|from|to|via|outline|decoration|accent|caret|placeholder)-(?:emerald|green|orange|amber|slate|gray|zinc|neutral|stone|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|lime|yellow)-(?:\d{2,3})(?:\/\d+)?\b/g,
+        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|fill|stroke|divide|from|to|via|outline|decoration|accent|caret|placeholder)-(?:emerald|green|orange|amber|slate|gray|zinc|neutral|stone|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|lime|yellow|red)-(?:\d{2,3})(?:\/\d+)?\b/g,
       );
       const rawHex = line.match(
         /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|fill|stroke|divide|from|to|via|outline|accent|caret|placeholder)-\[#[0-9a-fA-F]{3,8}\](?:\/\d+)?/g,

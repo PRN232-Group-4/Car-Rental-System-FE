@@ -68,31 +68,31 @@ const allNavigation = [
   },
   {
     href: "/admin/subscription-plans",
-    label: "Gói Đăng Ký",
+    label: "Gói đăng ký",
     icon: WalletCards,
     roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
   {
     href: "/admin/departments",
-    label: "Phòng Ban",
+    label: "Phòng ban",
     icon: Building2,
     roles: ["Admin"],
   },
   {
     href: "/admin/facilities",
-    label: "Cơ Sở",
+    label: "Chi nhánh",
     icon: Building2,
     roles: ["Admin"],
   },
   {
     href: "/admin/staffs",
-    label: "Nhân Viên",
+    label: "Nhân viên",
     icon: UsersRound,
     roles: ["Admin"],
   },
   {
     href: "/admin/roles",
-    label: "Vai Trò",
+    label: "Vai trò",
     icon: KeyRound,
     roles: ["Admin"],
   },
@@ -223,7 +223,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             <span className="block text-lg font-bold tracking-tight text-white">
               Thong Dong
             </span>
-            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink-3">
+            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-on-ink-muted">
               Staff portal
             </span>
           </span>
@@ -232,14 +232,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Đóng menu"
-          className="rounded-lg p-2 text-ink-3 hover:bg-surface/10 hover:text-white lg:hidden"
+          className="rounded-lg p-2 text-on-ink-muted hover:bg-surface/10 hover:text-white lg:hidden"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
       <div className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 pt-7">
-        <p className="px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-3">
+        <p className="px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-on-ink-muted">
           Không gian làm việc
         </p>
         <nav aria-label="Điều hướng nhân viên" className="space-y-1.5">
@@ -257,11 +257,11 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                   active
                     ? "bg-primary font-semibold text-white shadow-e1"
-                    : "text-ink-3 hover:bg-surface/[0.07] hover:text-white"
+                    : "text-on-ink-muted hover:bg-surface/[0.07] hover:text-white"
                 }`}
               >
                 <Icon
-                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
+                  className={`h-[18px] w-[18px] ${active ? "text-white" : "text-on-ink-muted group-hover:text-primary-tint"}`}
                 />
                 {label}
                 {active && (
@@ -283,7 +283,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               <span className="block truncate text-sm font-semibold text-white">
                 {displayName}
               </span>
-              <span className="block truncate text-xs text-ink-3">
+              <span className="block truncate text-xs text-on-ink-muted">
                 {profileLoading ? "Đang tải hồ sơ..." : jobTitle}
               </span>
             </span>
@@ -296,7 +296,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           <Link
             href="/admin/profile"
             onClick={() => setMobileMenuOpen(false)}
-            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary"
+            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-on-ink-muted transition hover:border-primary/40 hover:text-primary-tint"
           >
             Xem hồ sơ nhân viên
           </Link>
@@ -307,7 +307,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               void handleLogout();
             }}
             disabled={loggingOut}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-ink-3 transition hover:border-primary/40 hover:text-primary disabled:cursor-wait disabled:opacity-60"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-on-ink-muted transition hover:border-primary/40 hover:text-primary-tint disabled:cursor-wait disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />
             {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}

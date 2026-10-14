@@ -21,7 +21,7 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
       <div className="flex-1"><label htmlFor="operations-rental-id" className="text-sm font-semibold">Mã đơn thuê</label><InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} className={operationsInput} /></div>
       <button type="submit" disabled={query.isFetching} className={operationsButton}>{query.isFetching ? "Đang tải..." : "Tra cứu đơn thuê"}</button>
     </ValidatedForm>
-    {query.error && <p role="alert" className="text-sm text-red-700">{operationalError(query.error)}</p>}
+    {query.error && <p role="alert" className="text-sm text-danger">{operationalError(query.error)}</p>}
     {query.data && <>
       <section className={operationsPanel}>
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">Đơn thuê #{query.data.id}</h2><span className="rounded-lg bg-canvas px-3 py-2 text-sm font-semibold">{rentalStatuses[query.data.status] ?? query.data.status}</span></div>

@@ -180,7 +180,7 @@ export default function SpatialFleetShowcase({
       </div>
 
       {/* Spatial 3D Vehicle Presentation Deck */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-surface rounded-[36px] p-6 sm:p-10 border border-line shadow-e3 relative overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-surface rounded-[var(--r-panel)] p-6 sm:p-10 border border-line shadow-e3 relative overflow-hidden">
         {/* Left Column: Visual Stage with 3D Perspective */}
         <div className="lg:col-span-7 relative group">
           <div className="relative h-72 sm:h-96 w-full rounded-3xl overflow-hidden bg-stage-ink shadow-e2 [perspective:1200px]">

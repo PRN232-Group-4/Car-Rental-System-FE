@@ -34,10 +34,10 @@ type Row = {
 type FormValues = Record<string, string>;
 
 const pageInfo: Record<Directory, { title: string; description: string; columns: string[]; icon: typeof Building2 }> = {
-  departments: { title: "Departments", description: "Danh sách phòng ban trong tổ chức.", columns: ["Phòng ban"], icon: Building2 },
-  facilities: { title: "Facilities", description: "Danh sách chi nhánh và địa chỉ.", columns: ["Chi nhánh", "Địa chỉ"], icon: Building2 },
-  staffs: { title: "Staffs", description: "Nhân viên, vai trò và phân công chi nhánh.", columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"], icon: UsersRound },
-  roles: { title: "Role", description: "Các vai trò hiện được gán cho nhân viên.", columns: ["Vai trò", "Nguồn", "Số nhân viên"], icon: KeyRound },
+  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", columns: ["Phòng ban"], icon: Building2 },
+  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", columns: ["Chi nhánh", "Địa chỉ"], icon: Building2 },
+  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"], icon: UsersRound },
+  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", columns: ["Vai trò", "Nguồn", "Số nhân viên"], icon: KeyRound },
 };
 
 export default function DirectoryPage({ directory }: { directory: Directory }) {

@@ -24,7 +24,7 @@ export default function RentalContractManager() {
       <button type="submit" className="mt-4 rounded-xl bg-primary px-4 py-3 text-white">Tra cứu hợp đồng</button>
     </ValidatedForm>
     {query.isFetching && <p role="status">Đang tải hợp đồng...</p>}
-    {query.error && <p role="alert" className="text-red-700">{query.error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : query.error.message} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
+    {query.error && <p role="alert" className="text-danger">{query.error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : query.error.message} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
     {query.data && (query.data.rentalType === "longterm" ? <ContractForm key={lookupId} rental={query.data} /> : <p role="alert">Đơn thuê này không phải thuê dài hạn. Vui lòng kiểm tra lại mã đơn.</p>)}
     <Link href="/booking?mode=longterm" className="inline-block text-primary underline">Đặt xe dài hạn</Link>
   </section>;
@@ -60,7 +60,7 @@ function ContractForm({ rental }: { rental: RentalContract }) {
         <p className="text-sm text-ink-muted">Sau khi ký tài liệu với chi nhánh, cập nhật đường dẫn và thời điểm ký bên dưới.</p>
         <div><label htmlFor="contractLink" className="text-sm font-semibold">Đường dẫn tài liệu hợp đồng</label><InlineInput id="contractLink" name="contractLink" type="url" className={inputClass} value={contractLink} onChange={(event) => setContractLink(event.target.value)} placeholder="https://..." /></div>
         <div><label htmlFor="signedAt" className="text-sm font-semibold">Ngày giờ ký</label><InlineInput id="signedAt" name="signedAt" type="datetime-local" required className={inputClass} value={signedAt} onChange={(event) => setSignedAt(event.target.value)} /></div>
-        {generalError && <p role="alert" className="text-sm text-red-700">{generalError}</p>}
+        {generalError && <p role="alert" className="text-sm text-danger">{generalError}</p>}
         {saved && <p role="status" className="text-sm text-success">Đã lưu thông tin hợp đồng.</p>}
         <button type="submit" className="rounded-xl bg-primary px-4 py-3 text-white disabled:opacity-50">{submitting ? "Đang lưu..." : "Lưu thông tin ký hợp đồng"}</button>
       </fieldset>
