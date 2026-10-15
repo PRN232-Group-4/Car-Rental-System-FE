@@ -3,6 +3,11 @@
 import { useEffect, useId, useRef } from "react";
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
+import styles from "./FormDialog.module.css";
+
+export function FormDialogFooter({ children }: { children: ReactNode }) {
+  return <div className={styles.footer} data-dialog-footer>{children}</div>;
+}
 
 export default function FormDialog({ title, children, onClose, busy = false, size = "md" }: {
   title: string;
@@ -46,7 +51,7 @@ export default function FormDialog({ title, children, onClose, busy = false, siz
         const bounds = event.currentTarget.getBoundingClientRect();
         if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onClose();
       }}
-      className={`fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] ${size === "xl" ? "max-w-5xl" : "max-w-2xl"} overflow-y-auto rounded-2xl border border-line bg-surface p-0 text-ink shadow-e2 backdrop:bg-stage-ink/50`}
+      className={`${styles.dialog} fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] ${size === "xl" ? "max-w-5xl" : "max-w-2xl"} overflow-y-auto rounded-2xl border border-line bg-surface p-0 text-ink shadow-e2 backdrop:bg-stage-ink/50`}
     >
       <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface px-5 py-4 sm:px-6">
         <h2 id={titleId} className="text-base font-bold">{title}</h2>
@@ -54,7 +59,7 @@ export default function FormDialog({ title, children, onClose, busy = false, siz
           <X className="h-5 w-5" />
         </button>
       </div>
-      <div className="p-5 sm:p-6">{children}</div>
+      <div className={styles.content}>{children}</div>
     </dialog>
   );
 }

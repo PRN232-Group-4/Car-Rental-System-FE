@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import VehicleImage from "@/components/ui/VehicleImage";
 import { 
   Car, 
   Bike, 
@@ -374,12 +374,11 @@ export default function MultiFleetCatalog() {
           >
             {/* Image Container (>= 60% visually balanced) */}
             <div className="relative w-full h-56 overflow-hidden bg-sunken">
-              <Image
+              <VehicleImage
                 src={vehicle.imageUrl}
                 alt={vehicle.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                className="h-full w-full"
+                imageClassName="group-hover:scale-105 transition-transform duration-500"
               />
               {/* Badges Overlay */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">

@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth";
 import { getStaffById } from "./api";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function StaffName({ staffId, name }: { staffId?: number | null; name?: string | null }) {
   const { hasRole } = useAuth();
@@ -19,7 +20,7 @@ export default function StaffName({ staffId, name }: { staffId?: number | null; 
   if (knownName) return <>{knownName}</>;
   if (staffId == null) return <>Chưa gán</>;
   if (!canRead) return <>Đã phân công</>;
-  if (staff.isPending) return <>Đang tải tên nhân viên...</>;
+  if (staff.isPending) return <span role="status" aria-label="Đang tải tên nhân viên..."><Skeleton className="h-4 w-28 max-w-full" /></span>;
   if (staff.isError) return <>Không tải được tên nhân viên</>;
   return <>{staff.data.fullName?.trim() || staff.data.email?.trim() || "Chưa có tên nhân viên"}</>;
 }

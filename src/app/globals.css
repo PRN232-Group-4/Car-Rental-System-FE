@@ -93,6 +93,68 @@
   --shadow-3: var(--e3);
 }
 
+/* Admin owns this attribute only while its shell is mounted, including portals. */
+[data-admin-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #10151e;
+  --sunken: #1c2635;
+  --surface: #17202e;
+  --surface-raised: #202c3d;
+  --ink: #f1f5f9;
+  --ink-2: #d1dbe8;
+  --ink-3: #a5b5ca;
+  --line: rgba(203, 213, 225, 0.14);
+  --line-strong: rgba(203, 213, 225, 0.3);
+  --amber: #f6ba7c;
+  --amber-hover: #efad68;
+  --amber-press: #e8a25a;
+  --amber-tint: #3c2a18;
+  --primary: #f6ba7c;
+  --primary-hover: #efad68;
+  --primary-press: #e8a25a;
+  --primary-tint: #3c2a18;
+  --primary-graphic: #f6ba7c;
+  --on-primary: #2b190b;
+  --success: #86efac;
+  --success-bg: #123322;
+  --warning: #fcd68b;
+  --warning-bg: #3a2b14;
+  --danger: #fca5a5;
+  --danger-hover: #fecaca;
+  --danger-bg: #3b1b24;
+  --on-danger: #3a101a;
+  --info: #93c5fd;
+  --info-bg: #172c49;
+  --scrim: rgba(5, 10, 18, 0.72);
+  --e1: 0 1px 3px rgba(5, 10, 18, 0.3);
+  --e2: 0 8px 24px -8px rgba(5, 10, 18, 0.5);
+  --e3: 0 24px 56px -16px rgba(5, 10, 18, 0.65);
+  --rim: inset 0 1px 0 rgba(203, 213, 225, 0.08);
+  --glass-1-bg: rgba(23, 32, 46, 0.94);
+  --glass-2-bg: rgba(23, 32, 46, 0.96);
+  --glass-3-bg: rgba(23, 32, 46, 0.98);
+  --glass-lite-bg: rgba(23, 32, 46, 0.96);
+  --glass-admin-bg: rgba(23, 32, 46, 0.94);
+  --glass-border: var(--line-strong);
+  --glass-admin-rim: inset 0 1px 0 rgba(203, 213, 225, 0.08);
+  --chart-1: #f6ba7c;
+  --chart-2: #d1dbe8;
+  --chart-3: #a5b5ca;
+  --chart-4: #86efac;
+  --chart-5: #fcd68b;
+}
+
+/* Keep existing solid Admin actions readable with the lighter dark-mode accent. */
+:where([data-admin-theme="dark"]) .bg-primary:not(:disabled),
+:where([data-admin-theme="dark"]) .bg-primary:not(:disabled) .text-white {
+  color: var(--on-primary);
+}
+
+:where([data-admin-theme="dark"]) .bg-danger:not(:disabled),
+:where([data-admin-theme="dark"]) .bg-danger:not(:disabled) .text-white {
+  color: var(--on-danger);
+}
+
 @theme inline {
   --font-sans: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -203,8 +265,8 @@ main {
 /* Glass 1 (alpha .55, blur 14px): Navbar, chip, nút phụ trên ảnh */
 .glass-1,
 .glass-nav {
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.70);
+  background: var(--glass-1-bg, rgba(255, 255, 255, 0.55));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.70));
   -webkit-backdrop-filter: blur(14px) saturate(1.35);
   backdrop-filter: blur(14px) saturate(1.35);
   box-shadow: var(--e1), var(--rim);
@@ -213,8 +275,8 @@ main {
 /* Glass 2 (alpha .72, blur 20px): Bảng tìm kiếm hero, panel nổi, booking card */
 .glass-2,
 .glass-search {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: var(--glass-2-bg, rgba(255, 255, 255, 0.72));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.85));
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   backdrop-filter: blur(20px) saturate(1.4);
   box-shadow: var(--e2), var(--rim);
@@ -222,8 +284,8 @@ main {
 
 /* Glass 3 (alpha .88, blur 28px): Modal, drawer, popover */
 .glass-3 {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: var(--glass-3-bg, rgba(255, 255, 255, 0.88));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.95));
   -webkit-backdrop-filter: blur(28px) saturate(1.4);
   backdrop-filter: blur(28px) saturate(1.4);
   box-shadow: var(--e3), var(--rim);
@@ -246,24 +308,24 @@ main {
 .glass-certificate,
 .glass-sub,
 .glass-pill {
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.90);
+  background: var(--glass-lite-bg, rgba(255, 255, 255, 0.78));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.90));
   box-shadow: var(--e1), var(--rim);
 }
 
 .glass-card-elevated {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--glass-3-bg, rgba(255, 255, 255, 0.88));
   border: 1px solid var(--primary);
   box-shadow: var(--e2), var(--rim);
 }
 
 /* Glass Admin: Panel, header, toolbar khu vực admin */
 .glass-admin {
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--glass-admin-bg, rgba(255, 255, 255, 0.86));
   border: 1px solid var(--line);
   -webkit-backdrop-filter: blur(10px) saturate(1.2);
   backdrop-filter: blur(10px) saturate(1.2);
-  box-shadow: var(--e1), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+  box-shadow: var(--e1), var(--glass-admin-rim, inset 0 1px 0 rgba(255, 255, 255, 0.90));
 }
 
 /* Glass Lift: Tương tác hover tiết kiệm GPU (chỉ transform + shadow + border) */
@@ -296,7 +358,7 @@ main {
   .glass-2,
   .glass-3,
   .glass-admin {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--surface);
   }
   .glass-ink {
     background: rgba(14, 26, 22, 0.95);

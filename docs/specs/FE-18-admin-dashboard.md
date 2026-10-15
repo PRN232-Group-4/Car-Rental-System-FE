@@ -92,6 +92,14 @@ export type PlanUsageRow = { planId: number; name: string; usedHours: number; in
 
 ## 9. Câu hỏi mở
 
+### Phạm vi đã triển khai ngày 15/10/2026
+
+- `/admin` có biểu đồ cột hoạt động hiện tại và biểu đồ tròn cơ cấu đội xe, hỗ trợ bảng dữ liệu thay thế, trạng thái tải/rỗng/lỗi, thử lại riêng và theme sáng/tối. SVG phẳng dùng token `--chart-*`, không thêm thư viện biểu đồ.
+- Đối chiếu `NpgsqlOperationsRepository.DashboardAsync`: `GET /api/dashboard` chỉ có `revenue`, `renting`, `maintenance`, `activeSubscriptions`. Doanh thu là tổng `invoices.amount` với `status = paid`; `from/to` lọc theo `issued_at`. `renting` là số đơn đang thuê, `maintenance` là số phiếu chưa completed/cancelled, không phải số xe bảo dưỡng. Gói còn hiệu lực có trạng thái active và end_date chưa hết hạn.
+- Biểu đồ cột chỉ dùng ba số đếm có đơn vị rõ ràng; doanh thu nằm riêng ở KPI và không dựng chuỗi doanh thu giả. Giá trị thiếu hiển thị `—`, không đổi thành 0.
+- Biểu đồ tròn dùng `totalCount` từ `GET /api/vehicles?page=1&pageSize=1` và bộ lọc status `available/rented/renting/maintenance`; hai cách ghi trạng thái đang thuê được gộp để hiển thị. Phần còn lại của tổng được ghi rõ “Tạm ngưng / khác”. Dữ liệu chỉ tổng hợp để hiển thị, không lấy mẫu trang đầu và không suy số xe từ số phiếu/đơn.
+- Các mục mở rộng trong spec (chuỗi thời gian, kỳ trước, chi nhánh/loại xe, chi phí, khai thác, top xe, giờ gói thuê) vẫn cần API thống kê phù hợp; chưa đánh dấu hoàn tất toàn bộ FE-18.
+
 * **O1.** BE-28 thực sự trả những số liệu nào? (phụ thuộc BE-19/22 chưa xong ⇒ có thể rỗng).
 * **O2.** Định nghĩa doanh thu/tỉ lệ khai thác (mẫu số = giờ khả dụng nào?) — chốt với Kiệt.
 * **O3.** Staff có dashboard vận hành rút gọn không?

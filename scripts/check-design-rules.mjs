@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { adminPopupViolations } from './admin-popup-rules.mjs';
+import { adminRowActionViolations } from './admin-row-action-rules.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,8 +39,18 @@ const emojiRegex = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{2712}\u{2715}-\u{27BF}\u{1F3
 for (const file of files) {
   const relPath = path.relative(rootDir, file).replace(/\\/g, '/');
   const isGlobalsCss = relPath === 'src/app/globals.css';
+  const isAdminConsumer = /^src\/(?:app\/admin|features\/(?:admin|operations))\//.test(relPath);
   const content = fs.readFileSync(file, 'utf-8');
   const lines = content.split('\n');
+
+  if (isAdminConsumer && /\.[jt]sx$/.test(relPath) && !/\.(?:test|spec)\./.test(relPath)) {
+    for (const violation of adminPopupViolations(content, relPath)) {
+      violations.push({ file: relPath, ...violation, rule: 'ADMIN_POPUP_FORM (docs/admin-ui.md)', detail: lines[violation.line - 1]?.trim() });
+    }
+    for (const violation of adminRowActionViolations(content, relPath)) {
+      violations.push({ file: relPath, ...violation, rule: 'ADMIN_ROW_ACTION (docs/admin-ui.md)', detail: lines[violation.line - 1]?.trim() });
+    }
+  }
 
   lines.forEach((line, idx) => {
     const lineNum = idx + 1;
@@ -68,6 +80,20 @@ for (const file of files) {
     // Ignore comment-only lines in CSS or TS
     if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
       return;
+    }
+
+    // Admin status colours belong to the shared semantic map, never the CTA colour.
+    if (isAdminConsumer && (
+      /\b(?:const|let)\s+status(?:Styles|Colors|Tones)\s*[:=]/.test(line)
+      || /\b(?:isActive|active)\s*\?\s*["'`][^"'`]*(?:bg|text)-primary\b/.test(line)
+    )) {
+      violations.push({
+        file: relPath,
+        line: lineNum,
+        rule: 'ADMIN_SEMANTIC_STATUS (docs/admin-ui.md)',
+        message: 'Dùng AdminStatusBadge và status-rules.ts; trạng thái active dùng success xanh lá, không dùng màu primary hoặc bảng màu cục bộ.',
+        detail: trimmed,
+      });
     }
 
     // 1. Gradients

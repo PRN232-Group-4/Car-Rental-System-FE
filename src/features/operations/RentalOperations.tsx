@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import RentalLookup from "./RentalLookup";
-import { getVehicle } from "@/features/admin/api";
+import VehicleName from "@/features/admin/VehicleName";
 import { assignRental, changeRentalStatus, getOperationalDrivers, operationalError, operationsButton, operationsInput, operationsPanel, rentalStatuses } from "./api";
 import type { OperationalRental } from "./api";
 
@@ -19,7 +19,6 @@ export function AssignmentForm({ rental, refresh }: { rental: OperationalRental;
   const [success, setSuccess] = useState("");
   const validation = useInlineValidation();
   const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, retry: false });
-  const vehicle = useQuery({ queryKey: ["operational-vehicle", rental.vehicleId], queryFn: () => getVehicle(Number(rental.vehicleId)) });
   const submit = async () => {
     if (busy) return;
     setBusy(true); setError(""); setSuccess("");
@@ -29,7 +28,7 @@ export function AssignmentForm({ rental, refresh }: { rental: OperationalRental;
   };
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Phân xe và tài xế</h2>
-    <p className="text-sm">Xe của đơn: {vehicle.data ? `${vehicle.data.brand ?? ""} ${vehicle.data.model ?? ""} (#${rental.vehicleId})` : `#${rental.vehicleId}`}</p>
+    <div className="text-sm"><p className="mb-2 text-ink-3">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>
     <p className="text-xs text-ink-3">Phân công sử dụng phương tiện đã chọn trong đơn thuê.</p>
     <div><label htmlFor="assignment-driver" className="text-sm font-semibold">Tài xế</label><InlineSelect id="assignment-driver" name="driverStaffId" className={operationsInput} value={driverId} onChange={(event) => setDriverId(event.target.value)} disabled={busy || drivers.isPending}><option value="">Không phân tài xế (tự lái)</option>{(drivers.data ?? []).filter((driver) => driver.isActive).map((driver) => <option key={driver.id} value={driver.id}>{driver.fullName ?? driver.email ?? `Tài xế #${driver.id}`}</option>)}</InlineSelect></div>
     {drivers.error && <p role="alert" className="text-sm text-danger">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
