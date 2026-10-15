@@ -19,58 +19,121 @@ export interface ApiEnvelope<T = unknown> {
   data?: T;
 }
 
-export class ApiClientError extends Error {
-  public status: number;
-  public statusText: string;
-  public data: unknown;
+/** RFC 7807 ProblemDetails error structure with backend business code & traceId */
+export class ApiProblemError extends Error {
+  public readonly status: number;
+  public readonly statusText: string;
+  public readonly title?: string;
+  public readonly detail?: string;
+  public readonly code?: string;
+  public readonly errors?: Record<string, string[]>;
+  public readonly traceId?: string;
+  public readonly retryable: boolean;
+  public readonly data?: unknown;
 
-  constructor(status: number, statusText: string, data: unknown) {
-    // The deployed API wraps ProblemDetails inside the six-field envelope.
-    if (typeof data === "object" && data !== null && "error" in data &&
-        typeof data.error === "object" && data.error !== null) {
-      data = { ...(data as Record<string, unknown>), ...data.error };
+  constructor(status: number, statusText: string, data?: unknown) {
+    let unwrapped = data;
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "error" in data &&
+      typeof (data as Record<string, unknown>).error === "object" &&
+      (data as Record<string, unknown>).error !== null
+    ) {
+      const errorObj = asRecord((data as Record<string, unknown>).error);
+      unwrapped = errorObj ? { ...(data as Record<string, unknown>), ...errorObj } : data;
     }
-    let message = `API Error [${status}]: ${statusText}`;
-
-    // BE bọc mọi response trong ApiResponse nên ProblemDetails nằm ở `error`, không phải ở gốc.
-    const body = asRecord(data);
+    const body = asRecord(unwrapped);
     const problem = asRecord(body?.error) ?? body;
+
+    const parsedErrors: Record<string, string[]> = {};
     const errorList: string[] = [];
 
-    const errors = asRecord(problem?.errors);
-    for (const [key, err] of Object.entries(errors ?? {})) {
-      if (Array.isArray(err)) {
-        for (const item of err) {
-          if (item) {
-            errorList.push(key ? `${key}: ${item}` : String(item));
+    const rawErrors = asRecord(problem?.errors);
+    if (rawErrors) {
+      for (const [key, err] of Object.entries(rawErrors)) {
+        if (Array.isArray(err)) {
+          parsedErrors[key] = err.map(String);
+          for (const item of err) {
+            if (item) errorList.push(key ? `${key}: ${item}` : String(item));
           }
+        } else if (typeof err === "string" && err.trim()) {
+          parsedErrors[key] = [err];
+          errorList.push(key ? `${key}: ${err}` : err);
         }
-      } else if (typeof err === "string" && err.trim()) {
-        errorList.push(key ? `${key}: ${err}` : err);
       }
     }
 
-    const text = (source: Record<string, unknown> | null, key: string) => {
-      const value = source?.[key];
-      return typeof value === "string" && value ? value : undefined;
-    };
+    const title = typeof problem?.title === "string" ? problem.title : undefined;
+    const detail =
+      typeof problem?.detail === "string"
+        ? problem.detail
+        : typeof body?.message === "string"
+          ? body.message
+          : undefined;
+    const code =
+      typeof problem?.code === "string"
+        ? problem.code
+        : typeof body?.code === "string"
+          ? body.code
+          : undefined;
+    const traceId =
+      typeof problem?.traceId === "string"
+        ? problem.traceId
+        : typeof problem?.trace_id === "string"
+          ? (problem.trace_id as string)
+          : undefined;
 
+    let message = `API Error [${status}]: ${statusText}`;
     if (errorList.length > 0) {
       message = errorList.join("\n");
-    } else {
-      message =
-        text(problem, "detail") ??
-        text(body, "message") ??
-        text(problem, "title") ??
-        (typeof data === "string" && data.trim() ? data : message);
+    } else if (detail) {
+      message = detail;
+    } else if (title) {
+      message = title;
+    } else if (typeof data === "string" && data.trim()) {
+      message = data;
     }
 
     super(message);
-    this.name = "ApiClientError";
+    this.name = "ApiProblemError";
     this.status = status;
     this.statusText = statusText;
+    this.title = title;
+    this.detail = detail;
+    this.code = code;
+    this.errors = Object.keys(parsedErrors).length > 0 ? parsedErrors : undefined;
+    this.traceId = traceId;
     this.data = data;
+    this.retryable = [408, 502, 503, 504].includes(status);
   }
+}
+
+/** Network transmission failure or abort */
+export class ApiNetworkError extends Error {
+  public readonly status = 0;
+  public readonly retryable = true;
+
+  constructor(message: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = "ApiNetworkError";
+  }
+}
+
+/** Backward compatibility alias */
+export { ApiProblemError as ApiClientError };
+
+let lastUnauthorizedAt = 0;
+const UNAUTHORIZED_DEBOUNCE_MS = 3000;
+
+export function emitUnauthorizedEvent(): void {
+  if (typeof window === "undefined") return;
+  const now = Date.now();
+  if (now - lastUnauthorizedAt < UNAUTHORIZED_DEBOUNCE_MS) {
+    return;
+  }
+  lastUnauthorizedAt = now;
+  window.dispatchEvent(new CustomEvent("auth:unauthorized", { detail: { timestamp: now } }));
 }
 
 export class ApiClient {
@@ -128,8 +191,19 @@ export class ApiClient {
   }
 
   public async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { params, headers, body, _isRetry, skipAuthRefresh, credentials = "include", ...restOptions } = options;
+    const {
+      params,
+      headers,
+      body,
+      _isRetry,
+      skipAuthRefresh,
+      credentials = "include",
+      method = "GET",
+      ...restOptions
+    } = options;
     const url = this.buildUrl(path, params);
+    const cleanPath = toCleanPath(path);
+    const isGet = method.toUpperCase() === "GET";
 
     const mergedHeaders: HeadersInit = {
       ...this.defaultHeaders,
@@ -150,31 +224,67 @@ export class ApiClient {
       : null;
 
     try {
-      const response = await this.fetchFn(url, {
-        ...restOptions,
-        body: serializedBody,
-        headers: mergedHeaders,
-        credentials,
-        signal: controller ? controller.signal : undefined,
-      });
-
-      const isAuthEndpoint = AUTH_ENDPOINTS.some((endpoint) =>
-        toCleanPath(path).startsWith(endpoint),
-      );
-
-      if (response.status === 401 && !_isRetry && !skipAuthRefresh && !isAuthEndpoint) {
-        const refreshed = await refreshSessionToken(this.fetchFn, this.baseUrl);
-        if (refreshed) {
-          return this.request<T>(path, {
-            ...options,
-            _isRetry: true,
+      let response: Response;
+      try {
+        response = await this.fetchFn(url, {
+          ...restOptions,
+          method,
+          body: serializedBody,
+          headers: mergedHeaders,
+          credentials,
+          signal: controller ? controller.signal : undefined,
+        });
+      } catch (fetchErr) {
+        if (timedOut) {
+          throw new ApiProblemError(504, "Gateway Timeout", {
+            title: "Yêu cầu quá thời gian chờ",
+            detail: `Yêu cầu tới ${cleanPath} quá thời gian chờ (${this.timeout / 1000}s). Vui lòng thử lại.`,
+            retryable: true,
           });
         }
+        // Retry 1 lần chỉ cho GET khi gặp lỗi mạng
+        if (isGet && !_isRetry) {
+          return this.request<T>(path, { ...options, _isRetry: true });
+        }
+        throw new ApiNetworkError(
+          fetchErr instanceof Error ? fetchErr.message : "Network error occurred",
+          fetchErr,
+        );
+      }
 
-        handleAuthFailure();
-        throw new ApiClientError(401, "Phiên đăng nhập đã hết hạn.", {
-          detail: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-        });
+      // 401 handling
+      const isAuthEndpoint = AUTH_ENDPOINTS.some((ep) => cleanPath.startsWith(ep));
+      const isProfileProbe = PROFILE_ENDPOINTS.some((ep) => cleanPath === ep);
+
+      if (response.status === 401) {
+        // Chỉ phát event nếu không phải probe và không phải login/refresh
+        if (!isProfileProbe && !isAuthEndpoint) {
+          emitUnauthorizedEvent();
+        }
+
+        if (!_isRetry && !skipAuthRefresh && !isAuthEndpoint) {
+          const refreshed = await refreshSessionToken(this.fetchFn, this.baseUrl);
+          if (refreshed) {
+            return this.request<T>(path, {
+              ...options,
+              _isRetry: true,
+            });
+          }
+
+          if (!isProfileProbe) {
+            handleAuthFailure();
+          }
+          throw new ApiProblemError(401, "Unauthorized", {
+            code: "UNAUTHORIZED",
+            title: "Phiên đăng nhập đã hết hạn",
+            detail: "Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.",
+          });
+        }
+      }
+
+      // Retry 1 lần cho GET khi gặp lỗi hạ tầng 502/503/504
+      if (isGet && !_isRetry && [502, 503, 504].includes(response.status)) {
+        return this.request<T>(path, { ...options, _isRetry: true });
       }
 
       if (!response.ok) {
@@ -184,7 +294,7 @@ export class ApiClient {
         } catch {
           errorData = await response.text();
         }
-        throw new ApiClientError(response.status, response.statusText, errorData);
+        throw new ApiProblemError(response.status, response.statusText, errorData);
       }
 
       if (response.status === 204) {
@@ -195,19 +305,12 @@ export class ApiClient {
 
       if (isApiEnvelope(json)) {
         if (!json.is_success) {
-          throw new ApiClientError(response.status, response.statusText, json);
+          throw new ApiProblemError(response.status, response.statusText, json);
         }
         return json.data as T;
       }
 
       return json as T;
-    } catch (error) {
-      if (timedOut) {
-        throw new ApiClientError(408, "Request timeout", {
-          detail: `Yêu cầu ${toCleanPath(path)} quá thời gian chờ (${this.timeout / 1000} giây). Vui lòng thử lại hoặc kiểm tra kết nối backend.`,
-        });
-      }
-      throw error;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
@@ -254,10 +357,13 @@ function toCleanPath(path: string): string {
   return path.split("?")[0].replace(/^\/+/, "");
 }
 
-/** Endpoint tự xử lý 401 của mình — không được kích hoạt refresh token. */
-const AUTH_ENDPOINTS = ["auth/login", "auth/refresh", "auth/logout", "auth/google"];
+/** Endpoints không kích hoạt auth refresh hay unauthorized event */
+const AUTH_ENDPOINTS = ["auth/login", "auth/refresh", "auth/logout", "auth/google", "api/auth/login", "api/auth/refresh", "api/auth/logout"];
 
-function isApiEnvelope(
+/** Probe endpoint kiểm tra phiên hiện tại - 401 khi chưa login là bình thường */
+const PROFILE_ENDPOINTS = ["account/profile", "api/account/profile"];
+
+export function isApiEnvelope(
   value: unknown,
 ): value is { message: string; is_success: boolean; data: unknown } {
   return (
@@ -265,6 +371,6 @@ function isApiEnvelope(
     value !== null &&
     "is_success" in value &&
     "data" in value &&
-    typeof value.is_success === "boolean"
+    typeof (value as Record<string, unknown>).is_success === "boolean"
   );
 }
