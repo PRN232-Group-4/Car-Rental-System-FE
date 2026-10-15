@@ -56,10 +56,10 @@ export function sanitizeNext(path: string | null | undefined, fallback: string =
 /**
  * Chuyển đổi và xác thực search params (URLSearchParams hoặc Record) thông qua Zod schema.
  */
-export function parseSearchParams<T>(
-  schema: z.ZodType<T>,
+export function parseSearchParams<TOutput>(
+  schema: z.ZodType<TOutput, z.ZodTypeDef, unknown>,
   searchParams: URLSearchParams | Record<string, string | string[] | undefined>,
-): T {
+): TOutput {
   const raw: Record<string, unknown> = {};
 
   if (searchParams instanceof URLSearchParams) {

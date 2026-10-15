@@ -104,7 +104,7 @@ export class ApiProblemError extends Error {
     this.code = code;
     this.errors = Object.keys(parsedErrors).length > 0 ? parsedErrors : undefined;
     this.traceId = traceId;
-    this.data = data;
+    this.data = unwrapped;
     this.retryable = [408, 502, 503, 504].includes(status);
   }
 }
@@ -236,20 +236,22 @@ export class ApiClient {
         });
       } catch (fetchErr) {
         if (timedOut) {
-          throw new ApiProblemError(504, "Gateway Timeout", {
+          throw new ApiProblemError(408, "Request Timeout", {
+            status: 408,
             title: "Yêu cầu quá thời gian chờ",
-            detail: `Yêu cầu tới ${cleanPath} quá thời gian chờ (${this.timeout / 1000}s). Vui lòng thử lại.`,
+            detail: `Yêu cầu ${cleanPath} quá thời gian chờ (${this.timeout / 1000} giây). Vui lòng thử lại hoặc kiểm tra kết nối backend.`,
             retryable: true,
           });
         }
-        // Retry 1 lần chỉ cho GET khi gặp lỗi mạng
+        // Retry 1 lần cho GET khi gặp lỗi mạng
         if (isGet && !_isRetry) {
-          return this.request<T>(path, { ...options, _isRetry: true });
+          try {
+            return await this.request<T>(path, { ...options, _isRetry: true });
+          } catch {
+            // Sau khi retry vẫn lỗi thì ném fetchErr gốc
+          }
         }
-        throw new ApiNetworkError(
-          fetchErr instanceof Error ? fetchErr.message : "Network error occurred",
-          fetchErr,
-        );
+        throw fetchErr;
       }
 
       // 401 handling
@@ -290,9 +292,14 @@ export class ApiClient {
       if (!response.ok) {
         let errorData: unknown;
         try {
-          errorData = await response.json();
+          const rawText = await response.text();
+          try {
+            errorData = JSON.parse(rawText);
+          } catch {
+            errorData = rawText;
+          }
         } catch {
-          errorData = await response.text();
+          errorData = response.statusText;
         }
         throw new ApiProblemError(response.status, response.statusText, errorData);
       }

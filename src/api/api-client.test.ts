@@ -154,3 +154,83 @@ it("falls back to the ApiResponse.message when error has no detail", async () =>
     message: "Gói thuê bao không đủ số giờ còn lại.",
   });
 });
+
+it("dispatches auth:unauthorized event on 401 and deduplicates concurrent triggers", async () => {
+  let eventCount = 0;
+  const listener = () => {
+    eventCount++;
+  };
+  window.addEventListener("auth:unauthorized", listener);
+
+  const client = new ApiClient({
+    customFetch: async () =>
+      new Response(JSON.stringify({ message: "Token expired" }), {
+        status: 401,
+        statusText: "Unauthorized",
+        headers: { "Content-Type": "application/json" },
+      }),
+  });
+
+  // Hai request đồng thời bị 401
+  await Promise.allSettled([client.get("orders"), client.get("vehicles/detail")]);
+
+  window.removeEventListener("auth:unauthorized", listener);
+  // Do có deduplicate 3s nên event chỉ được phát đúng 1 lần
+  expect(eventCount).toBe(1);
+});
+
+it("does NOT dispatch auth:unauthorized event when probing account/profile", async () => {
+  let eventDispatched = false;
+  const listener = () => {
+    eventDispatched = true;
+  };
+  window.addEventListener("auth:unauthorized", listener);
+
+  const client = new ApiClient({
+    customFetch: async () =>
+      new Response(JSON.stringify({ message: "Guest" }), {
+        status: 401,
+        statusText: "Unauthorized",
+        headers: { "Content-Type": "application/json" },
+      }),
+  });
+
+  await expect(client.get("account/profile")).rejects.toMatchObject({ status: 401 });
+
+  window.removeEventListener("auth:unauthorized", listener);
+  expect(eventDispatched).toBe(false);
+});
+
+it("retries GET request once on 503 service unavailable and succeeds", async () => {
+  let callCount = 0;
+  const client = new ApiClient({
+    customFetch: async () => {
+      callCount++;
+      if (callCount === 1) {
+        return new Response("Service Unavailable", { status: 503, statusText: "Service Unavailable" });
+      }
+      return new Response(JSON.stringify({ recovered: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+  });
+
+  const res = await client.get<{ recovered: boolean }>("health");
+  expect(callCount).toBe(2);
+  expect(res.recovered).toBe(true);
+});
+
+it("does NOT retry mutating requests (POST) on 503 failure", async () => {
+  let callCount = 0;
+  const client = new ApiClient({
+    customFetch: async () => {
+      callCount++;
+      return new Response("Service Unavailable", { status: 503, statusText: "Service Unavailable" });
+    },
+  });
+
+  await expect(client.post("rentals/cancel", {})).rejects.toMatchObject({ status: 503 });
+  expect(callCount).toBe(1);
+});
+
