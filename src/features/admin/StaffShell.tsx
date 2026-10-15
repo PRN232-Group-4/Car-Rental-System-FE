@@ -5,22 +5,25 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "@/components/navigation/NavigationLink";
 import AccountAvatar from "@/components/ui/AccountAvatar";
+import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
 import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { getFacilities, getStaffById } from "./api";
+import { useAdminTheme } from "./use-admin-theme";
 import {
   Bell,
   Building2,
   CarFront,
-  ChevronLeft,
   CircleUserRound,
   KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   ReceiptText,
+  Sun,
   Tags,
   WalletCards,
   UsersRound,
@@ -116,6 +119,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(true);
+  const { theme, toggleTheme } = useAdminTheme();
   const [menuAnimated, setMenuAnimated] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const { account, checkingAccess, accessError } = usePortalAccess(isAdminOrStaffAccount);
@@ -253,7 +257,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
       </div>
 
       <div className={`${styles.navigationScroll} admin-sidebar-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-7`}>
-        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-3`}>
+        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-2`}>
           Không gian làm việc
         </p>
         <nav aria-label="Điều hướng nhân viên" className="space-y-1.5">
@@ -273,17 +277,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 className={`${styles.navLink} group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   active
                     ? "bg-primary font-semibold text-white shadow-e1"
-                    : "text-ink-3 hover:bg-canvas hover:text-ink"
+                    : "text-ink-2 hover:bg-canvas hover:text-ink"
                 }`}
               >
                 <Icon
                   aria-hidden="true"
-                  className={`h-[18px] w-[18px] shrink-0 ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
+                  className={`h-[18px] w-[18px] shrink-0 ${active ? "text-white" : "text-ink-2 group-hover:text-primary"}`}
                 />
                 <span className={styles.navLabel}>{label}</span>
-                {active && (
-                  <ChevronLeft aria-hidden="true" className={`${styles.activeChevron} ml-auto h-4 w-4 shrink-0 rotate-180 text-white`} />
-                )}
               </Link>
             );
           })}
@@ -299,12 +300,12 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 {displayName}
               </span>
               <span className="block truncate text-xs text-ink-3">
-                {profileLoading ? "Đang tải hồ sơ..." : jobTitle}
+                {profileLoading ? <span role="status" aria-label="Đang tải hồ sơ..."><Skeleton className="h-3 w-24" /></span> : jobTitle}
               </span>
             </span>
           </Link>
           {profileError && (
-            <p role="status" className={`${styles.profileError} mt-2 text-xs text-primary-tint`}>
+            <p role="status" className={`${styles.profileError} mt-2 text-xs text-danger`}>
               {profileError}
             </p>
           )}
@@ -336,17 +337,15 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   if (checkingAccess) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
-        <p role="status" className="text-sm font-medium text-ink-3">
-          Đang xác thực tài khoản nhân viên...
-        </p>
+      <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
+        <div className="w-full max-w-3xl"><FormSkeleton label="Đang xác thực tài khoản nhân viên..." /></div>
       </div>
     );
   }
 
   if (accessError || !account) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
+      <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
         <p
           role="alert"
           className="max-w-xl rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger"
@@ -358,10 +357,10 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className={`${styles.shell} min-h-[100dvh] bg-canvas text-ink`} data-menu-collapsed={!desktopMenuOpen} data-menu-animated={menuAnimated}>
+    <div className={`${styles.shell} min-h-[100dvh] bg-canvas text-ink`} data-admin-theme={theme} data-menu-collapsed={!desktopMenuOpen} data-menu-animated={menuAnimated}>
       <aside
         id="admin-desktop-navigation"
-        className={`${styles.desktopSidebar} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line bg-surface lg:flex`}
+        className={`${styles.desktopSidebar} ${styles.sidebarSurface} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line lg:flex`}
       >
         {sidebar}
       </aside>
@@ -376,7 +375,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           />
           <aside
             id="admin-mobile-navigation"
-            className="relative flex h-full w-[min(86vw,300px)] flex-col bg-surface shadow-e2"
+            className={`${styles.sidebarSurface} relative flex h-full w-[min(86vw,300px)] flex-col shadow-e2`}
           >
             {sidebar}
           </aside>
@@ -385,7 +384,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
       <div className={`${styles.content} min-h-[100dvh]`}>
         <header className="glass-admin sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line px-4 sm:px-7 lg:px-9">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
@@ -411,28 +410,38 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                 <PanelLeftOpen className="h-5 w-5" />
               )}
             </button>
-            <div>
+            <div className="min-w-0">
               <p className="text-xs font-medium text-ink-3">
                 Cổng quản trị / Nhân viên
               </p>
-              <h1 className="mt-0.5 text-base font-bold text-ink">
+              <h1 className="mt-0.5 truncate text-base font-bold text-ink">
                 {currentPage}
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-line bg-sunken px-3 py-1.5 text-xs font-semibold text-ink sm:inline-flex">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+            <span className="hidden rounded-full border border-line bg-sunken px-3 py-1.5 text-xs font-semibold text-ink md:inline-flex">
               {profileLoading
-                ? "Đang tải chi nhánh..."
+                ? <span role="status" aria-label="Đang tải chi nhánh..."><Skeleton className="h-3 w-28" /></span>
                 : facilityName || "Chưa phân công chi nhánh"}
             </span>
             <button
               type="button"
+              onClick={toggleTheme}
+              aria-label="Chế độ tối"
+              aria-pressed={theme === "dark"}
+              title={theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink-2 transition hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              {theme === "dark" ? <Sun aria-hidden="true" className="h-5 w-5" /> : <Moon aria-hidden="true" className="h-5 w-5" />}
+            </button>
+            <button
+              type="button"
               aria-label="Thông báo"
-              className="relative rounded-xl border border-line p-2.5 text-ink-3 transition hover:bg-sunken"
+              className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink-3 transition hover:bg-sunken"
             >
               <Bell className="h-[18px] w-[18px]" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-surface" />
             </button>
             <Link
               href="/admin/profile"

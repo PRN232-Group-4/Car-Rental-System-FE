@@ -43,8 +43,17 @@ export function createLongTermRental(input: RentalBookingRequest) {
   return createRentalBooking({ ...input, rentalType: "longterm" });
 }
 
-export function getBookingPolicies() {
-  return defaultApiClient.get<RentalPolicy[]>("rental-policies");
+export async function getBookingPolicies() {
+  const policies: RentalPolicy[] = [];
+  let page = 1;
+  while (true) {
+    const result = await defaultApiClient.get<RentalPolicy[] | { items: RentalPolicy[] | null; totalCount: number }>("rental-policies", { page, pageSize: 100 });
+    if (Array.isArray(result)) return result;
+    const items = result.items ?? [];
+    policies.push(...items);
+    if (!items.length || policies.length >= result.totalCount) return policies;
+    page++;
+  }
 }
 
 export async function getBookingVehicles(from?: string, to?: string, facilityId?: string) {

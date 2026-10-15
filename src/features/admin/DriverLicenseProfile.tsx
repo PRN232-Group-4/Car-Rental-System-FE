@@ -1,4 +1,5 @@
 "use client";
+import { formatAdminDate } from "@/lib/date-time";
 
 import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
 
@@ -18,6 +19,7 @@ import { uploadLicenseImage } from "@/features/profile/api";
 import { updateStaff } from "./api";
 import type { StaffDto } from "./api";
 import { useAuth } from "@/features/auth";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 
 export default function DriverLicenseProfile({
   staff,
@@ -130,15 +132,7 @@ export default function DriverLicenseProfile({
               Tiến trình kiểm duyệt và xác thực giấy phép lái xe trong hệ thống.
             </p>
           </div>
-          <span
-            className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
-              isApproved
-                ? "bg-primary/10 text-primary"
-                : licenseComplete
-                  ? "bg-primary-tint text-warning"
-                  : "bg-sunken text-ink-3"
-            }`}
-          >
+          <AdminStatusBadge domain="license" status={staff.licenseStatus?.trim() || (licenseComplete ? "pending" : "incomplete")}>
             {isApproved
               ? "ĐÃ XÁC MINH"
               : staff.licenseStatus?.trim()
@@ -146,7 +140,7 @@ export default function DriverLicenseProfile({
                 : licenseComplete
                   ? "CHỜ XÁC MINH"
                   : "CHƯA HOÀN TẤT"}
-          </span>
+          </AdminStatusBadge>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           <ProgressStep
@@ -205,11 +199,11 @@ export default function DriverLicenseProfile({
             </div>
             <div className="rounded-xl border border-line bg-canvas p-4">
               <span className="text-xs text-ink-3">Ngày cấp</span>
-              <p className="text-sm font-semibold text-ink mt-1">{staff.licenseIssueDate?.slice(0, 10) || "—"}</p>
+              <p className="text-sm font-semibold text-ink mt-1">{formatAdminDate(staff.licenseIssueDate)}</p>
             </div>
             <div className="rounded-xl border border-line bg-canvas p-4">
               <span className="text-xs text-ink-3">Ngày hết hạn</span>
-              <p className="text-sm font-semibold text-ink mt-1">{staff.licenseExpiryDate?.slice(0, 10) || "—"}</p>
+              <p className="text-sm font-semibold text-ink mt-1">{formatAdminDate(staff.licenseExpiryDate)}</p>
             </div>
           </div>
 

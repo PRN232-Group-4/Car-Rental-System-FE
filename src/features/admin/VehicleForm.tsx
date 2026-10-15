@@ -4,13 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
 import { InlineError, InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import Link from "@/components/navigation/NavigationLink";
-import Image from "next/image";
+import VehicleImage from "@/components/ui/VehicleImage";
+import { useQueryClient } from "@tanstack/react-query";
+import { vehicleQueryOptions } from "./vehicle-query";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { ArrowLeft, ImagePlus, Info, Save, X } from "lucide-react";
 import {
   createVehicle,
   getFacilities,
-  getVehicle,
   getVehicleTypes,
   updateVehicle,
   uploadVehicleImage,
@@ -19,7 +20,9 @@ import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } 
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
 import { notifySuccess } from "@/components/ui/Toaster";
-import FormDialog from "@/components/ui/FormDialog";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
+import { FormSkeleton } from "@/components/ui/Skeleton";
+import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -82,8 +85,9 @@ const statuses = [
   { value: "unavailable", label: "Tạm ngưng" },
 ];
 
-export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void; onSaved?: () => void } = {}) {
+export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { onClose?: () => void; onSaved?: () => void; editingVehicleId?: number } = {}) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { hasRole } = useAuth();
   const canManage = hasRole("admin") || hasRole("manager");
 
@@ -91,7 +95,7 @@ export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void
   const [draft, setDraft] = useState<VehicleDraft>(emptyDraft);
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
   const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
-  const [vehicleId, setVehicleId] = useState<number | null>(null);
+  const [vehicleId, setVehicleId] = useState<number | null>(editingVehicleId ?? null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -112,11 +116,11 @@ export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void
           const [types, facilityList] = await Promise.all([getVehicleTypes(), getFacilities()]);
           setVehicleTypes(types);
           setFacilities(facilityList);
-          const idString = onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
+          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
           if (idString) {
             const id = Number(idString);
             if (!Number.isInteger(id) || id < 1) throw new Error("ID phương tiện không hợp lệ.");
-            const vehicle = await getVehicle(id);
+            const vehicle = await queryClient.fetchQuery(vehicleQueryOptions(id));
             setVehicleId(id);
             setDraft(fromVehicle(vehicle));
           }
@@ -128,7 +132,7 @@ export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void
       })();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [onClose]);
+  }, [editingVehicleId, onClose, queryClient]);
 
   const updateDraft = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
@@ -244,7 +248,10 @@ export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void
     };
 
     try {
-      if (vehicleId !== null) await updateVehicle(vehicleId, body);
+      if (vehicleId !== null) {
+        await updateVehicle(vehicleId, body);
+        await queryClient.invalidateQueries({ queryKey: vehicleQueryOptions(vehicleId).queryKey });
+      }
       else await createVehicle(body);
       notifySuccess(vehicleId !== null ? "Đã cập nhật phương tiện." : "Đã thêm phương tiện mới.");
       if (onSaved) onSaved();
@@ -278,7 +285,7 @@ export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void
       {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-danger">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
-      <ValidatedForm validation={validation} validate={() => {
+      {loading ? <FormSkeleton label="Đang tải thông tin phương tiện..." fields={10} /> : <ValidatedForm validation={validation} validate={() => {
         const typeId = Number(draft.vehicleTypeId);
         if (!Number.isInteger(typeId) || !vehicleTypes.some((item) => item.id === typeId)) {
           return { vehicleTypeId: "Vui lòng chọn một loại phương tiện hợp lệ." };
@@ -397,15 +404,16 @@ export default function VehicleForm({ onClose, onSaved }: { onClose?: () => void
           <p className="mt-4 flex items-start gap-2 text-xs text-ink-3"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
         </section>
 
-        <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
+        {isEditing && vehicleId != null && <VehicleTrackingPanel vehicleId={vehicleId} />}
+        <FormDialogFooter>
           {onClose ? <button type="button" disabled={saving || uploading} onClick={onClose} className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button> : <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>}
           <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
-        </div>
-      </ValidatedForm>
+        </FormDialogFooter>
+      </ValidatedForm>}
     </div>
   );
 
-  return onClose ? <FormDialog title="Thêm phương tiện mới" onClose={onClose} busy={saving || uploading} size="xl">{content}</FormDialog> : content;
+  return onClose ? <FormDialog title={isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"} onClose={onClose} busy={saving || uploading} size="xl">{content}</FormDialog> : content;
 }
 
 function fromVehicle(vehicle: VehicleDto): VehicleDraft {
@@ -492,7 +500,7 @@ function ImagePreview({ src, label, onRemove }: { src: string; label: string; on
       aria-label={label}
       className="relative min-h-32 overflow-hidden rounded-xl border border-line bg-sunken"
     >
-      <Image src={src} alt={label} fill unoptimized sizes="(max-width: 768px) 50vw, 320px" className="object-cover" />
+      <span className="absolute inset-0"><VehicleImage src={src} alt={label} loading="eager" className="h-full w-full" /></span>
       <span className="absolute bottom-2 left-2 rounded bg-surface/90 px-2 py-1 text-xs font-semibold text-ink-2">{label}</span>
       <button type="button" onClick={onRemove} aria-label={`Xóa ${label.toLocaleLowerCase()}`} className="absolute right-2 top-2 rounded-lg bg-surface/90 p-2 text-ink-3 shadow hover:text-danger"><X className="h-4 w-4" /></button>
     </div>

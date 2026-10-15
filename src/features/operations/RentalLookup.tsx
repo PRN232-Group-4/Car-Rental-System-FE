@@ -1,4 +1,8 @@
 "use client";
+import { formatAdminDateTime } from "@/lib/date-time";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import VehicleName from "@/features/admin/VehicleName";
+import { FormSkeleton } from "@/components/ui/Skeleton";
 
 import { useState } from "react";
 import type { ReactNode } from "react";
@@ -10,6 +14,7 @@ import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/component
 import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { getOperationalRental, operationalError, operationsPanel, rentalStatuses } from "./api";
 import type { OperationalRental } from "./api";
+import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 
 export default function RentalLookup({ title, children, staffLinks = true }: { title: string; staffLinks?: boolean; children: (rental: OperationalRental, refresh: () => Promise<unknown>) => ReactNode }) {
   const params = useSearchParams();
@@ -30,16 +35,18 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
       </AdminFilterBar>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-sm text-danger">{operationalError(query.error)}</p>}
+    {query.isFetching && !query.data && <FormSkeleton label="Đang tải thông tin đơn thuê" fields={4} />}
     {query.data && <>
       <section className={operationsPanel}>
-        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">Đơn thuê #{query.data.id}</h2><span className="rounded-lg bg-canvas px-3 py-2 text-sm font-semibold">{rentalStatuses[query.data.status] ?? query.data.status}</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">Đơn thuê #{query.data.id}</h2><AdminStatusBadge domain="rental" status={query.data.status}>{rentalStatuses[query.data.status] ?? query.data.status}</AdminStatusBadge></div>
         <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-          <div><dt className="text-ink-3">Khách hàng</dt><dd>#{query.data.customerId ?? "—"}</dd></div><div><dt className="text-ink-3">Phương tiện</dt><dd>#{query.data.vehicleId}</dd></div>
-          <div><dt className="text-ink-3">Nhận xe</dt><dd>{query.data.startTime ? new Date(query.data.startTime).toLocaleString("vi-VN") : "—"}</dd></div><div><dt className="text-ink-3">Trả xe</dt><dd>{query.data.endTime ? new Date(query.data.endTime).toLocaleString("vi-VN") : "—"}</dd></div>
+          <div><dt className="text-ink-3">Khách hàng</dt><dd>#{query.data.customerId ?? "—"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-ink-3">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
+          <div><dt className="text-ink-3">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-ink-3">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
         </dl>
         <p className="text-sm">{query.data.rentalType === "longterm" ? "Thuê dài hạn" : "Thuê theo giờ"} · {query.data.hasDriver ? "Có tài xế" : "Tự lái"} · Tổng tiền thuê: {query.data.totalPrice.toLocaleString("vi-VN")} đ</p>
         {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-primary"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
       </section>
+      {staffLinks && <RentalTrackingPanel key={`gps-${query.data.id}`} rentalId={query.data.id} />}
       <div key={query.data.id}>{children(query.data, query.refetch)}</div>
     </>}
     {!lookup && <p className="text-sm text-ink-3">Chưa chọn đơn thuê. Nhập mã đơn do khách hàng cung cấp để bắt đầu.</p>}

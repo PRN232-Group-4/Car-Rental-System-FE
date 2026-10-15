@@ -92,12 +92,17 @@ test("all Admin list tables use the vehicle table presentation", async ({ page }
   }
 });
 
-test("vehicles hide IDs, display license plates and retain their edit links", async ({ page }) => {
+test("vehicles hide IDs, display license plates and edit in a popup", async ({ page }) => {
   await page.goto("/admin/vehicles");
   const table = page.getByRole("table");
   await expect(table.getByText("51A-12345", { exact: true })).toBeVisible();
   await expect(table).not.toContainText(/\bID\b|#\d+/);
-  await expect(table.getByRole("link", { name: "Chỉnh sửa Toyota Vios", exact: true })).toHaveAttribute("href", "/admin/vehicles/edit?vehicleId=10");
+  await table.getByRole("button", { name: "Chỉnh sửa Toyota Vios", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Chỉnh sửa phương tiện", exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('input[name="brand"]')).toHaveValue("Toyota");
+  await expect(page).toHaveURL(/\/admin\/vehicles$/);
+  await page.keyboard.press("Escape");
   await page.getByPlaceholder("Tìm theo tên, biển số hoặc chi nhánh...").fill("51A-12345");
   await expect(table.getByText("Toyota Vios", { exact: true })).toBeVisible();
 });

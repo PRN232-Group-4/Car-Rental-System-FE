@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
-import FormDialog from "@/components/ui/FormDialog";
+import { formatAdminDateTime } from "@/lib/date-time";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
+import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
 import VehicleName from "@/features/admin/VehicleName";
 import StaffName from "@/features/admin/StaffName";
-import Link from "@/components/navigation/NavigationLink";
 import { useQuery } from "@tanstack/react-query";
 import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { localDateTime, validateBookingTimes } from "@/features/rentals/booking-rules";
@@ -18,7 +21,7 @@ import RentalLookup from "./RentalLookup";
 import { AssignmentForm } from "./RentalOperations";
 
 const asIso = (value: string) => new Date(value).toISOString();
-const dateLabel = (value?: string) => value ? new Date(value).toLocaleString("vi-VN") : "—";
+const dateLabel = formatAdminDateTime;
 const defaultDispatchFilter = () => ({ driverStaffId: "", startTime: localDateTime(new Date()), endTime: localDateTime(new Date(Date.now() + 7 * 86400000)) });
 export default function DispatchManager() {
   const [filter, setFilter] = useState(defaultDispatchFilter);
@@ -56,20 +59,19 @@ export default function DispatchManager() {
     <AdminTableCard>
       <div className="border-b border-line px-5 py-4">
         <h2 className="font-bold text-ink">Ca làm việc</h2>
-        {shifts.isPending && <p role="status" className="mt-1 text-xs text-ink-3">Đang tải ca làm...</p>}
         {shifts.error && <p role="alert" className="mt-1 text-sm text-danger">{operationalError(shifts.error)} <button type="button" className="underline" onClick={() => void shifts.refetch()}>Thử lại</button></p>}
       </div>
-      <AdminTable className="min-w-[760px]">
+      <AdminTable className="min-w-[760px]" aria-busy={shifts.isPending}>
         <caption className="sr-only">Danh sách ca làm tài xế</caption>
         <thead><tr>{["Tài xế", "Bắt đầu", "Kết thúc", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>
-          {shifts.data?.map((item) => (
+          {shifts.isPending ? <AdminTableSkeleton columns={5} label="Đang tải ca làm" /> : shifts.data?.map((item) => (
             <tr key={item.id}>
               <td className="font-semibold"><StaffName staffId={item.driverStaffId} name={driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
               <td className="text-ink-3">{dateLabel(item.startTime)}</td>
               <td className="text-ink-3">{dateLabel(item.endTime)}</td>
-              <td><span className="whitespace-nowrap rounded-full bg-sunken px-2.5 py-1 text-xs font-semibold text-ink-3">{item.status ?? "—"}</span></td>
-              <td data-actions><button type="button" className="rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10" onClick={() => setEditing(item)}>Sửa / hủy ca</button></td>
+              <td><AdminStatusBadge domain="shift" status={item.status}>{item.status ?? "—"}</AdminStatusBadge></td>
+              <td data-actions><AdminRowAction action="edit" label="Sửa / hủy ca" onClick={() => setEditing(item)} /></td>
             </tr>
           ))}
           {shifts.data?.length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
@@ -80,21 +82,20 @@ export default function DispatchManager() {
     <AdminTableCard>
       <div className="border-b border-line px-5 py-4">
         <h2 className="font-bold text-ink">Các chuyến đã phân công</h2>
-        {schedule.isPending && <p role="status" className="mt-1 text-xs text-ink-3">Đang tải lịch chuyến...</p>}
         {schedule.error && <p role="alert" className="mt-1 text-sm text-danger">{operationalError(schedule.error)} <button type="button" className="underline" onClick={() => void schedule.refetch()}>Thử lại</button></p>}
       </div>
-      <AdminTable className="min-w-[760px]">
+      <AdminTable className="min-w-[760px]" aria-busy={schedule.isPending}>
         <caption className="sr-only">Lịch chuyến được phân cho tài xế</caption>
         <thead><tr>{["Tài xế", "Xe", "Nhận xe", "Trả xe", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>
-          {schedule.data?.map((item, index) => (
+          {schedule.isPending ? <AdminTableSkeleton columns={6} label="Đang tải lịch chuyến" /> : schedule.data?.map((item, index) => (
             <tr key={item.assignmentId ?? index}>
               <td><StaffName staffId={item.driverStaffId} name={item.driverName?.trim() || driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
               <td>{item.vehicleId != null ? <VehicleName vehicleId={item.vehicleId} /> : "Chưa có thông tin xe"}</td>
               <td className="text-ink-3">{dateLabel(item.startTime)}</td>
               <td className="text-ink-3">{dateLabel(item.endTime)}</td>
-              <td><span className="whitespace-nowrap rounded-full bg-sunken px-2.5 py-1 text-xs font-semibold text-ink-3">{item.rentalStatus ?? "—"}</span></td>
-              <td data-actions>{item.rentalId != null ? <Link className="rounded-lg px-3 py-2 font-semibold text-primary transition hover:bg-primary/10" href={`/admin/rentals?rentalId=${item.rentalId}`}>Mở đơn thuê</Link> : "—"}</td>
+              <td><AdminStatusBadge domain="rental" status={item.rentalStatus}>{item.rentalStatus ?? "—"}</AdminStatusBadge></td>
+              <td data-actions>{item.rentalId != null ? <AdminRowAction action="view" label="Mở đơn thuê" href={`/admin/rentals?rentalId=${item.rentalId}`} /> : "—"}</td>
             </tr>
           ))}
           {schedule.data?.length === 0 && <AdminTableEmptyRow colSpan={6}>Chưa có chuyến đã phân công trong khoảng thời gian này.</AdminTableEmptyRow>}
@@ -115,5 +116,5 @@ function ShiftForm({ record, drivers, close, saved }: { record: DriverShift | nu
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-danger">{error}</p>}<div className="flex gap-3"><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></div></ValidatedForm></FormDialog>;
+  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
 }

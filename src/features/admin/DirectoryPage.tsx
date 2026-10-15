@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Pencil, Plus, Search, Trash2, UsersRound } from "lucide-react";
+import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Plus, Search, UsersRound } from "lucide-react";
 import {
   createDepartment,
   createFacility,
@@ -22,8 +22,12 @@ import { useAuth } from "@/features/auth";
 import { notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
-import FormDialog from "@/components/ui/FormDialog";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
+import { AdminRowAction } from "@/components/admin/AdminRowAction";
+import GoogleMap from "@/components/maps/GoogleMap";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
 type Row = {
@@ -59,6 +63,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   const [pageSize, setPageSize] = useState(10);
   const [editing, setEditing] = useState<Row | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [mapAddress, setMapAddress] = useState<string | null>(null);
   const [values, setValues] = useState<FormValues>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -166,6 +171,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
 
   const openForm = (row?: Row) => {
     setEditing(row ?? null);
+    setMapAddress(null);
     if (directory === "departments") setValues({ name: row?.name ?? "" });
     else if (directory === "facilities") setValues({ name: row?.name ?? "", address: row?.description ?? "" });
     else if (directory === "staffs") {
@@ -297,7 +303,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       <AdminTableCard>
         <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
 
-        <AdminTable className="min-w-[640px]">
+        <AdminTable aria-busy={loading} className="min-w-[640px]">
           <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
           <thead>
             <tr>
@@ -307,18 +313,18 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {loading ? <AdminTableSkeleton columns={info.columns.length + (canModify ? 2 : 1)} /> : rows.map((row) => (
               <tr key={row.id}>
                 <td className="font-semibold text-ink">{row.name}</td>
                 {info.columns.slice(1).map((column, index) => (
                   <td key={column} className="text-ink-3">{[row.description, row.detail][index] || "—"}</td>
                 ))}
-                <td><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${row.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
+                <td><AdminStatusBadge domain="activity" status={row.active ? "active" : "inactive"}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</AdminStatusBadge></td>
                 {canModify && (
                   <td data-actions>
                     <div className="flex justify-end gap-1">
-                      <button type="button" onClick={() => openForm(row)} aria-label={`Sửa ${row.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => void remove(row)} aria-label={`Xóa ${row.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>
+                      <AdminRowAction action="edit" label={`Sửa ${row.name}`} onClick={() => openForm(row)} />
+                      <AdminRowAction action="delete" label={`Xóa ${row.name}`} onClick={() => void remove(row)} />
                     </div>
                   </td>
                 )}
@@ -381,11 +387,15 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                   </div>
                 ))}
               </div>
+              {directory === "facilities" && <div className="mt-4 space-y-3">
+                <button type="button" disabled={!mapAddress && !values.address?.trim()} onClick={() => setMapAddress((current) => current ? null : values.address?.trim() || null)} className="rounded-xl border border-line bg-surface px-4 py-2 text-sm font-semibold text-primary hover:bg-sunken disabled:opacity-60">{mapAddress ? "Ẩn bản đồ" : "Xem địa chỉ trên bản đồ"}</button>
+                {mapAddress && <><p className="text-xs text-ink-3">Đang xem: {mapAddress}</p><GoogleMap title="Vị trí cơ sở" location={mapAddress} /></>}
+              </div>}
               {error && <p role="alert" className="mt-2.5 whitespace-pre-line text-xs font-medium text-danger bg-danger/10 p-2 rounded-lg border border-danger/20">{error}</p>}
-              <div className="mt-4 flex justify-end gap-3 border-t border-line pt-3">
+              <FormDialogFooter>
                 <button type="button" disabled={saving} onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
-              </div>
+              </FormDialogFooter>
             </ValidatedForm>
         </FormDialog>
       )}

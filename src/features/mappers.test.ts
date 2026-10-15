@@ -140,3 +140,18 @@ describe("Domain Mappers (BE to UI)", () => {
     expect(plan.validityDays).toBe(10);
   });
 });
+describe("vehicle display media and pickup facility", () => {
+  it("does not invent an image or pickup facility for missing backend data", () => {
+    const mapped = mapVehicleFromBE({ id: 4, brand: "Toyota", model: "Vios", mainImageUrl: null, facilityId: null, facility: null });
+    expect(mapped.imageUrl).toBe("");
+    expect(mapped.facilityId).toBe("");
+    expect(mapped.facilityName).toBe("Chưa có thông tin cơ sở");
+  });
+
+  it("keeps the actual photo and assigned facility", () => {
+    const mapped = mapVehicleFromBE({ id: 4, mainImageUrl: "https://media.example.test/car.jpg", facilityId: 9, facility: "Chi nhánh Quận 7" });
+    expect(mapped.imageUrl).toBe("https://media.example.test/car.jpg");
+    expect(mapped.facilityId).toBe(9);
+    expect(mapped.facilityName).toBe("Chi nhánh Quận 7");
+  });
+});

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import VehicleImage from "@/components/ui/VehicleImage";
 import { Zap, Gauge, BatteryCharging, ArrowRight, ShieldCheck, Sparkles, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { BookingModal } from "@/features/rentals";
@@ -180,12 +180,11 @@ export default function SpatialFleetShowcase({
         {/* Left Column: Visual Stage with 3D Perspective */}
         <div className="lg:col-span-7 relative group">
           <div className="relative h-72 sm:h-96 w-full rounded-3xl overflow-hidden bg-stage-ink shadow-e2 [perspective:1200px]">
-            <Image
+            <VehicleImage
               src={activeModel.imageUrl}
               alt={activeModel.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 60vw"
-              className="object-cover group-hover:scale-105 group-hover:rotate-1 transition-transform duration-700 ease-out"
+              className="h-full w-full"
+              imageClassName="group-hover:scale-105 group-hover:rotate-1 transition-transform duration-700 ease-out"
             />
             {/* Flat dark scrim per A4.1 */}
             <div className="absolute inset-0 bg-stage-ink/40 pointer-events-none" />
