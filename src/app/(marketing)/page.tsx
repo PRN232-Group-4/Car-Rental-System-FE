@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { FacilityExplorer } from "@/features/facilities";
 import {
   Hero,
   Marquee,
@@ -45,9 +46,11 @@ export default function Home() {
         <InteractiveStudio3D />
 
         {/* 4. Multi-Category Vehicle Catalog (4 Groups: Electric/Petrol, Cars/Bikes, Chauffeur/Self-Drive) */}
-        <div id="chi-nhanh" className="scroll-mt-24">
+        <div id="doi-xe" className="scroll-mt-24">
           <MultiFleetCatalog />
         </div>
+
+        <FacilityExplorer />
 
         {/* 5. Dual Inspection & Automated PayOS Refund Terminal */}
         <div id="cong-nghe" className="scroll-mt-24">

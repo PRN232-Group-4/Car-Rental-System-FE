@@ -8,6 +8,8 @@ import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/fo
 import { getRentalById, updateRentalContract } from "../api";
 import { isSafeContractLink, localDateTime } from "../booking-rules";
 import type { RentalContract } from "../types";
+import VehicleName from "@/features/admin/VehicleName";
+import { FormSkeleton } from "@/components/ui/Skeleton";
 
 const inputClass = "mt-2 w-full rounded-xl border border-line bg-surface px-3 py-3 text-sm";
 
@@ -23,7 +25,7 @@ export default function RentalContractManager() {
       <label htmlFor="rentalId" className="text-sm font-semibold">Mã đơn thuê</label><InlineInput id="rentalId" name="rentalId" type="number" min="1" step="1" required value={rentalId} onChange={(event) => setRentalId(event.target.value)} className={inputClass} />
       <button type="submit" className="mt-4 rounded-xl bg-primary px-4 py-3 text-white">Tra cứu hợp đồng</button>
     </ValidatedForm>
-    {query.isFetching && <p role="status">Đang tải hợp đồng...</p>}
+    {query.isFetching && !query.data && <FormSkeleton label="Đang tải hợp đồng" fields={4} />}
     {query.error && <p role="alert" className="text-danger">{query.error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : query.error.message} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
     {query.data && (query.data.rentalType === "longterm" ? <ContractForm key={lookupId} rental={query.data} /> : <p role="alert">Đơn thuê này không phải thuê dài hạn. Vui lòng kiểm tra lại mã đơn.</p>)}
     <Link href="/booking?mode=longterm" className="inline-block text-primary underline">Đặt xe dài hạn</Link>
@@ -52,6 +54,7 @@ function ContractForm({ rental }: { rental: RentalContract }) {
   };
   return <div className="space-y-5 rounded-2xl border border-line bg-surface p-5 sm:p-6">
     <h2 className="text-lg font-bold">Đơn thuê #{rental.id}</h2>
+    <VehicleName vehicleId={rental.vehicleId} />
     <p className="text-sm">Trạng thái: {rental.status} · Tổng tiền thuê: {rental.totalPrice.toLocaleString("vi-VN")} đ</p>
     {rental.contractLink && isSafeContractLink(rental.contractLink) ? <a href={rental.contractLink} target="_blank" rel="noopener noreferrer" className="inline-block rounded-xl border border-line-strong px-4 py-3 text-primary">Mở tài liệu hợp đồng</a> : <p className="text-sm text-ink-3">Chưa có đường dẫn hợp đồng hợp lệ. Vui lòng liên hệ chi nhánh để nhận tài liệu.</p>}
     {rental.signedAt && <p className="text-sm">Đã ghi nhận ký lúc: {new Date(rental.signedAt).toLocaleString("vi-VN")}</p>}

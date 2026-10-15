@@ -1,13 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "@/components/navigation/NavigationLink";
 import {
-  CarFront,
   ChevronLeft,
   ChevronRight,
-  Trash2,
-  Pencil,
   Search,
 } from "lucide-react";
 import { deleteVehicle, getFacilities, getVehicleTypes, getVehicles } from "./api";
@@ -16,20 +12,18 @@ import { useAuth } from "@/features/auth";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
 import CreateVehicleButton from "./CreateVehicleButton";
+import VehicleForm from "./VehicleForm";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
+import { AdminRowAction } from "@/components/admin/AdminRowAction";
+import { VehicleIdentity } from "./VehicleName";
 
 const statusLabels: Record<string, string> = {
   available: "Sẵn sàng",
   rented: "Đang thuê",
   maintenance: "Bảo dưỡng",
   unavailable: "Tạm ngưng",
-};
-
-const statusStyles: Record<string, string> = {
-  available: "bg-primary/10 text-primary",
-  rented: "bg-info-bg text-info",
-  maintenance: "bg-primary-tint text-warning",
-  unavailable: "bg-sunken text-ink-3",
 };
 
 export default function VehicleManagement() {
@@ -47,6 +41,8 @@ export default function VehicleManagement() {
   const [pageSize, setPageSize] = useState(5);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editingVehicleId, setEditingVehicleId] = useState<number | null>(null);
+  const closeEdit = useCallback(() => setEditingVehicleId(null), []);
 
   const loadPage = useCallback(async (currentPage: number, currentPageSize: number, typeFilter: string, statusFilter: string) => {
     setLoading(true);
@@ -144,7 +140,7 @@ export default function VehicleManagement() {
         </AdminFilterField>
       </AdminFilterBar>
       <AdminTableCard>
-        <AdminTable className="min-w-[760px]">
+        <AdminTable className="min-w-[760px]" aria-busy={loading}>
           <caption className="sr-only">Danh sách phương tiện</caption>
           <thead>
             <tr>
@@ -157,35 +153,20 @@ export default function VehicleManagement() {
             </tr>
           </thead>
           <tbody>
-            {filteredVehicles.map((vehicle) => (
+            {loading ? <AdminTableSkeleton columns={canManage ? 6 : 5} rows={pageSize} label="Đang tải danh sách phương tiện" /> : filteredVehicles.map((vehicle) => (
               <tr key={vehicle.id}>
                 <td>
-                  <div className="flex items-center gap-3">
-                    <div
-                      role={vehicle.mainImageUrl ? "img" : undefined}
-                      aria-label={vehicle.mainImageUrl ? `Ảnh ${vehicle.brand} ${vehicle.model}` : undefined}
-                      className="flex h-12 w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sunken bg-cover bg-center text-ink-3"
-                      style={vehicle.mainImageUrl ? { backgroundImage: `url("${vehicle.mainImageUrl}")` } : undefined}
-                    >
-                      {!vehicle.mainImageUrl && <CarFront className="h-5 w-5" />}
-                    </div>
-                    <span>
-                      <span className="block font-semibold text-ink">{vehicle.brand} {vehicle.model}</span>
-                      {vehicle.licensePlate && <span className="mt-1 block text-xs text-ink-3">{vehicle.licensePlate}</span>}
-                    </span>
-                  </div>
+                  <VehicleIdentity vehicle={vehicle} />
                 </td>
                 <td className="text-ink-3">{vehicle.vehicleType?.trim() || vehicleTypes.find((type) => type.id === vehicle.vehicleTypeId)?.name || "Chưa có loại xe"}<span className="mt-1 block text-xs text-ink-3">{vehicle.yearOfManufacture ?? "—"}</span></td>
                 <td className="text-ink-3">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
                 <td className="font-medium text-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
-                <td><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[vehicle.status ?? ""] ?? "bg-sunken text-ink-3"}`}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</span></td>
+                <td><AdminStatusBadge domain="vehicle" status={vehicle.status}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</AdminStatusBadge></td>
                 {canManage && (
                   <td data-actions>
                     <div className="flex justify-end gap-1">
-                      <Link href={`/admin/vehicles/edit?vehicleId=${vehicle.id}`} aria-label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary">
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                      <button type="button" onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} aria-label={`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}${vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ""}`} className="rounded-lg p-2 text-danger transition hover:bg-danger-bg disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
+                      <AdminRowAction action="edit" label={`Chỉnh sửa ${vehicle.brand} ${vehicle.model}`} onClick={() => setEditingVehicleId(vehicle.id)} />
+                      <AdminRowAction action="delete" label={`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}${vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ""}`} onClick={() => void removeVehicle(vehicle)} disabled={loading || deletingId !== null} isLoading={deletingId === vehicle.id} />
                     </div>
                   </td>
                 )}
@@ -253,6 +234,7 @@ export default function VehicleManagement() {
           </nav>
         </div>
       </AdminTableCard>
+      {editingVehicleId !== null && <VehicleForm key={editingVehicleId} editingVehicleId={editingVehicleId} onClose={closeEdit} onSaved={() => { closeEdit(); void loadPage(page, pageSize, category, status); }} />}
     </div>
   );
 }

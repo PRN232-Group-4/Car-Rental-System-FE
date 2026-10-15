@@ -478,6 +478,15 @@ Kỹ thuật & ngân sách:
 
 **Quy chuẩn triển khai Admin:** xem `docs/admin-ui.md`. Bộ lọc dùng `AdminFilters.tsx`, bảng danh sách dùng `AdminTable.tsx`, popup dùng `FormDialog.tsx`; sửa style chung tại các component này để mọi trang giữ cùng hệ thống. Các bộ lọc dùng control cao 44px, nhãn hiển thị, viền nhẹ theo token và bố cục responsive có nút áp dụng/đặt lại rõ ràng.
 
+**Bổ sung 2026-10-15:** Admin hỗ trợ giao diện sáng/tối qua token màu và lưu lựa chọn của người dùng. Sidebar thu gọn phải căn giữa icon, logo và avatar theo trục giữa của thanh, kể cả khi xuất hiện scrollbar. Trạng thái `active`/đang hoạt động dùng cặp token `success`/`success-bg` xanh lá; không dò chuỗi con vì `inactive` không phải trạng thái tích cực. Popup tạo/sửa giữ footer thao tác hiển thị trong khi nội dung biểu mẫu cuộn; dùng component chung và giữ validation tại trường. Ngày giờ hiển thị `dd/MM/yyyy HH:mm`, hệ 24 giờ, theo `Asia/Ho_Chi_Minh`; ngày không có giờ hiển thị `dd/MM/yyyy`.
+
+- **Popup:** bắt buộc `FormDialog` với `FormDialogFooter` nằm trong `ValidatedForm`; dùng token chung, header/footer sticky, khôi phục focus và khóa đóng/gửi khi busy. `ADMIN_POPUP_FORM` trong design lint kiểm tra cấu trúc; quy cách chi tiết tại `docs/admin-ui.md`.
+- **Ảnh phương tiện:** bảng và chi tiết liên quan đến xe hiển thị ảnh thật cạnh tên/biển số qua `VehicleImage` hoặc `VehicleName`. Ảnh thiếu/hỏng có fallback rõ ràng, kích thước ổn định; không thay bằng ảnh xe khác. Tra cứu cùng xe phải dùng chung cache.
+- **Tải dữ liệu:** dùng `SkeletonBlock`, `FormSkeleton`, `AdminTableSkeleton` theo hình dạng nội dung; thông báo tiếng Việt cho trình đọc màn hình, tắt chuyển động khi reduced motion. Bảng giữ tiêu đề cột; không hiển thị dữ liệu trống hoặc form mặc định trong lúc request chưa xong.
+- **Thao tác danh sách:** cột `data-actions` dùng `AdminRowAction`, chỉ hiện icon và giữ tên truy cập/tooltip tiếng Việt. Quy tắc duy nhất tại `row-action-rules.ts`: xem = `Eye`, sửa/cập nhật = `Pencil`, xóa = `Trash2` màu danger; vùng bấm 36px, icon 16px, có focus/disabled/loading. Không dựng cột trống khi nghiệp vụ không có thao tác. Nút tiêu đề, bộ lọc và footer biểu mẫu vẫn có nhãn chữ. Xem `docs/admin-ui.md`.
+- **Trạng thái áp dụng:** icon kích hoạt = `CirclePlay`, tạm ngưng = `PauseCircle` qua `AdminRowAction`; xác nhận trước gửi, khóa trong lúc chờ, badge đổi khi API thành công. Chính sách chỉ đổi `isActive`, điều khoản vẫn lưu theo phiên bản (FR-011/ADR-006).
+- **Bản đồ:** cơ sở/điểm nhận dùng địa chỉ thật; xe và hành trình dùng tọa độ GPS từ API. Không tạo tọa độ dự phòng. Google Maps chỉ đường gợi ý không thay thế lịch sử GPS. Key trình duyệt cho Maps Embed tách khỏi key backend; thiếu key vẫn có liên kết chỉ đường. Xem `docs/google-maps-frontend.md`.
+
 - **Canvas phẳng** `#F2F5F3`. Sidebar là **khối đặc Garage Ink** (không có gì phía sau để làm mờ). Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
 - Density 7: hàng bảng 44px (có công tắc compact 36px), chữ thân 14px, số/ID/tiền dùng Geist Mono + `tabular-nums`. Không dùng thẻ lồng thẻ: nhóm bằng đường kẻ trên (border-top) hoặc khoảng trắng.
 - Motion tối thiểu (Motion 3): fade 160ms khi đổi tab/panel, drawer trượt 320ms, toast, skeleton pulse, count-up KPI **một lần**, đường biểu đồ vẽ vào 600ms. Không parallax, không pin, không 3D, không loop (ngoại trừ chấm live).
@@ -507,7 +516,7 @@ Kỹ thuật & ngân sách:
 - Thông tin không chỉ bằng màu: trạng thái luôn có icon + chữ; biểu đồ có nhãn/họa tiết.
 - Bàn phím: mọi tương tác thực hiện được không cần chuột; Dialog/Drawer/Popover/Combobox dùng Radix (đã xử lý focus trap, roving focus, Esc). Có liên kết "Bỏ qua điều hướng" đầu trang. Thay đổi route chuyển focus về `<h1>` hoặc `<main tabindex="-1">`.
 - Vùng thông báo: số kết quả tìm kiếm, lưu thành công, lỗi biểu mẫu qua `aria-live="polite"`; lỗi chặn gửi đưa focus tới ô lỗi đầu tiên.
-- Tôn trọng: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast`, `forced-colors`, `prefers-color-scheme` (v3.0 chỉ có giao diện sáng; **không** tự đảo màu theo hệ thống — khai báo `color-scheme: light`).
+- Tôn trọng: `prefers-reduced-motion`, `prefers-reduced-transparency`, `prefers-contrast`, `forced-colors`. Khu công khai giữ `color-scheme: light`; Admin có lựa chọn sáng/tối, mặc định theo `prefers-color-scheme` khi người dùng chưa lưu lựa chọn, khai báo `color-scheme` tương ứng và đổi token thay vì filter đảo màu.
 - Chữ tăng 200% không vỡ bố cục; không dùng `user-scalable=no`.
 
 ---

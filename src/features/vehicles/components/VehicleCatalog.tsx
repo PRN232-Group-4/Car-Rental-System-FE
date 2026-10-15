@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import VehicleImage from "@/components/ui/VehicleImage";
+import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import {
   Users,
   Cog,
@@ -29,7 +30,7 @@ interface VehicleCatalogProps {
 
 export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCatalogProps) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(getInitialVehicles());
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(() => getInitialVehicles().length === 0);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
@@ -46,7 +47,8 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
         if (!ignore) {
           setError(err instanceof Error ? err.message : "Không thể tải danh sách xe");
         }
-      });
+      })
+      .finally(() => { if (!ignore) setLoading(false); });
     return () => {
       ignore = true;
     };
@@ -134,22 +136,22 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
 
       {/* Loading Skeleton state */}
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <SkeletonBlock label="Đang tải danh sách phương tiện" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
             <div
               key={n}
-              className="glass-lite rounded-3xl overflow-hidden flex flex-col border border-line animate-pulse"
+              className="glass-lite rounded-3xl overflow-hidden flex flex-col border border-line"
             >
-              <div className="h-64 w-full bg-sunken" />
+              <Skeleton className="h-64 w-full rounded-none" />
               <div className="p-6 space-y-4">
-                <div className="h-4 bg-sunken rounded w-1/3" />
-                <div className="h-6 bg-sunken rounded w-3/4" />
-                <div className="h-10 bg-sunken rounded w-full" />
-                <div className="h-10 bg-sunken rounded w-full" />
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
               </div>
             </div>
           ))}
-        </div>
+        </SkeletonBlock>
       )}
 
       {/* Error state */}
@@ -189,12 +191,11 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
             >
               {/* Image Container with height >= 60% of card per spec */}
               <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stage-ink">
-                <Image
+                <VehicleImage
                   src={vehicle.imageUrl}
                   alt={vehicle.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  className="h-full w-full"
+                  imageClassName="group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
 
                 {/* Badges - Solid Stage Ink, no blur per budget */}

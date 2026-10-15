@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarClock, CarFront, Clock3, RefreshCw } from "lucide-react";
+import { CalendarClock, Clock3, RefreshCw } from "lucide-react";
+import VehicleName from "@/features/admin/VehicleName";
+import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 import { getDriverSchedule } from "./api";
 import type { DriverScheduleEntry } from "./api";
@@ -184,9 +186,9 @@ export default function DriverShifts() {
         </p>
       )}
       {canLoad && loading && (
-        <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3">
-          Đang tải lịch làm việc...
-        </p>
+        <SkeletonBlock label="Đang tải lịch làm việc" className="space-y-3">
+          {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-4 rounded-2xl border border-line bg-surface p-5"><Skeleton className="h-5 w-40" /><div className="grid gap-4 sm:grid-cols-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div></div>)}
+        </SkeletonBlock>
       )}
 
       {!loading && !error && canLoad && (
@@ -210,7 +212,7 @@ export default function DriverShifts() {
         </div>
       )}
 
-      {canLoad && shifts.length > 0 && (
+      {canLoad && !loading && shifts.length > 0 && (
         <section aria-label="Danh sách ca làm việc" className="space-y-3">
           {shifts.map((shift, index) => (
             <article
@@ -254,15 +256,12 @@ export default function DriverShifts() {
                     </strong>
                   </span>
                 </p>
-                <p className="flex items-start gap-2 text-ink-3">
-                  <CarFront className="mt-0.5 h-4 w-4 shrink-0 text-ink-3" />
+                <div className="flex items-start gap-2 text-ink-3">
                   <span>
                     <span className="block text-xs text-ink-3">Phương tiện</span>
-                    <strong className="mt-1 block font-semibold text-ink">
-                      {shift.vehicleId ? `Xe #${shift.vehicleId}` : "Chưa phân công"}
-                    </strong>
+                    <span className="mt-1 block">{shift.vehicleId ? <VehicleName vehicleId={shift.vehicleId} /> : "Chưa phân công"}</span>
                   </span>
-                </p>
+                </div>
               </div>
             </article>
           ))}
