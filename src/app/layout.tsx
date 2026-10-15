@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import { AuthProvider } from "@/features/auth";
-import { QueryProvider } from "@/components/providers/QueryProvider";
-import { Toaster } from "@/components/ui/Toaster";
-import { NavigationProvider } from "@/components/navigation/NavigationProvider";
+import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -48,12 +45,7 @@ export default function RootLayout({
               "(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'){if(location.hash)history.replaceState(null,'',location.pathname+location.search);var h=document.documentElement,p=h.style.scrollBehavior;h.style.scrollBehavior='auto';window.scrollTo(0,0);h.style.scrollBehavior=p;}}catch(e){}})();",
           }}
         />
-        <QueryProvider>
-          <NavigationProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </NavigationProvider>
-          <Toaster />
-        </QueryProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
