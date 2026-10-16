@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Agent-tooling artifacts (impeccable skills ship bundled JS).
+    ".agents/**",
+    ".claude/**",
+    ".cursor/**",
+    ".codex/**",
+    ".github/**",
   ]),
 ]);
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/navigation/NavigationLink";
 import {
   CheckCircle2,
   XCircle,
@@ -20,7 +20,7 @@ import { cancelCheckout } from "@/features/payments";
 
 export default function PaymentResultPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-sm text-neutral-500">Đang kiểm tra kết quả thanh toán...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-sm text-ink-3">Đang kiểm tra kết quả thanh toán...</div>}>
       <PaymentResultContent />
     </Suspense>
   );
@@ -101,18 +101,18 @@ function PaymentResultContent() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 sm:py-12">
-      <div className="p-8 sm:p-10 rounded-3xl bg-white border border-neutral-200 shadow-sm text-center space-y-6">
+      <div className="p-8 sm:p-10 rounded-3xl bg-surface border border-line shadow-sm text-center space-y-6">
         {isSuccess ? (
           <>
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-lg shadow-emerald-600/20 animate-in zoom-in-95">
+            <div className="w-16 h-16 rounded-full bg-primary-tint text-primary flex items-center justify-center mx-auto shadow-lg shadow-primary/20 animate-in zoom-in-95">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 {isPlanPurchase ? "Thanh toán gói thành công!" : "Thanh toán thành công!"}
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-500">
+              <p className="text-xs sm:text-sm text-ink-3">
                 {isPlanPurchase
                   ? "Giao dịch mua gói thuê bao đã được xác nhận qua cổng PayOS và số giờ đã được cộng vào tài khoản."
                   : "Giao dịch của bạn đã được xác nhận qua cổng PayOS và ghi nhận vào hệ thống Thong Dong."}
@@ -120,26 +120,26 @@ function PaymentResultContent() {
             </div>
 
             {!isPlanPurchase && invoice && (
-              <div className="p-5 rounded-2xl bg-neutral-50 border border-neutral-100 text-left text-xs space-y-2.5 max-w-md mx-auto">
-                <div className="flex justify-between text-neutral-600">
+              <div className="p-5 rounded-2xl bg-sunken border border-line text-left text-xs space-y-2.5 max-w-md mx-auto">
+                <div className="flex justify-between text-ink-3">
                   <span>Số hoá đơn:</span>
-                  <span className="font-bold text-neutral-900">{invoice.invoiceNumber}</span>
+                  <span className="font-bold text-ink">{invoice.invoiceNumber}</span>
                 </div>
-                <div className="flex justify-between text-neutral-600">
+                <div className="flex justify-between text-ink-3">
                   <span>Mã đơn thuê:</span>
-                  <span className="font-bold text-neutral-900">#{invoice.rentalId}</span>
+                  <span className="font-bold text-ink">#{invoice.rentalId}</span>
                 </div>
-                <div className="flex justify-between text-neutral-600">
+                <div className="flex justify-between text-ink-3">
                   <span>Số tiền đã thanh toán:</span>
-                  <span className="font-black text-emerald-600 text-sm">
+                  <span className="font-bold text-primary text-sm">
                     {invoice.amount.toLocaleString("vi-VN")} đ
                   </span>
                 </div>
               </div>
             )}
 
-            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="p-4 rounded-2xl bg-primary-tint border border-primary/30 text-warning text-xs font-semibold flex items-center justify-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
               <span>
                 {isPlanPurchase
                   ? "Gói thuê bao đã được kích hoạt. Bạn có thể dùng ngay khi đặt xe."
@@ -151,7 +151,7 @@ function PaymentResultContent() {
               {isPlanPurchase ? (
                 <Link
                   href="/my-subscriptions"
-                  className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
                 >
                   <Package className="w-4 h-4" />
                   <span>Xem gói thuê của tôi</span>
@@ -160,14 +160,14 @@ function PaymentResultContent() {
                 <>
                   <Link
                     href={hasOrderCode ? `/invoices/${orderCode}` : "/invoices"}
-                    className="px-6 py-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
+                    className="px-6 py-3 rounded-xl bg-stage-ink hover:bg-stage-ink text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
                     <span>Xem chi tiết hoá đơn</span>
                   </Link>
                   <Link
                     href="/booking"
-                    className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2"
+                    className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
                   >
                     <Car className="w-4 h-4" />
                     <span>Đặt thêm xe</span>
@@ -178,15 +178,15 @@ function PaymentResultContent() {
           </>
         ) : isCancelled ? (
           <>
-            <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-danger-bg text-danger flex items-center justify-center mx-auto">
               <XCircle className="w-10 h-10" />
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 Giao dịch đã bị huỷ
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-500">
+              <p className="text-xs sm:text-sm text-ink-3">
                 Bạn đã huỷ giao dịch hoặc hết thời gian thanh toán trên cổng PayOS.
               </p>
             </div>
@@ -200,13 +200,13 @@ function PaymentResultContent() {
                       ? `/invoices/${orderCode}`
                       : "/invoices"
                 }
-                className="px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-md"
+                className="px-6 py-3 rounded-xl bg-primary text-white font-bold text-xs sm:text-sm shadow-md"
               >
                 Thử thanh toán lại
               </Link>
               <Link
                 href={isPlanPurchase ? "/subscriptions" : "/invoices"}
-                className="px-6 py-3 rounded-xl border border-neutral-300 text-neutral-700 font-semibold text-xs sm:text-sm"
+                className="px-6 py-3 rounded-xl border border-line-strong text-ink-2 font-semibold text-xs sm:text-sm"
               >
                 {isPlanPurchase ? "Về trang gói cước" : "Về danh sách hoá đơn"}
               </Link>
@@ -214,15 +214,15 @@ function PaymentResultContent() {
           </>
         ) : (
           <>
-            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto animate-pulse">
+            <div className="w-16 h-16 rounded-full bg-primary-tint text-primary-graphic flex items-center justify-center mx-auto animate-pulse">
               <Clock className="w-10 h-10" />
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
                 Đang đối soát giao dịch...
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-500">
+              <p className="text-xs sm:text-sm text-ink-3">
                 Hệ thống đang chờ tín hiệu xác nhận từ cổng ngân hàng / PayOS (lần thử {pollCount}/15).
               </p>
             </div>
@@ -231,7 +231,7 @@ function PaymentResultContent() {
               <button
                 onClick={() => refetch()}
                 disabled={isFetching}
-                className="px-5 py-2.5 rounded-xl border border-neutral-300 hover:bg-neutral-50 text-neutral-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl border border-line-strong hover:bg-sunken text-ink-2 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
                 <span>Kiểm tra lại ngay</span>
@@ -239,7 +239,7 @@ function PaymentResultContent() {
 
               <Link
                 href={isPlanPurchase ? "/subscriptions" : "/invoices"}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold"
+                className="px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold"
               >
                 {isPlanPurchase ? "Về trang gói cước" : "Về trang hoá đơn"}
               </Link>

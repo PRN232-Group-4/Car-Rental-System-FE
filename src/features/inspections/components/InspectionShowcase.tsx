@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle2, UserCheck, Fuel, Gauge, Shield } from "lucide-react";
+import { CheckCircle2, UserCheck, Zap, Gauge } from "lucide-react";
 import { getLatestInspectionRecord, getInitialInspectionRecord } from "../api";
 import type { InspectionRecord } from "../types";
-import RevealText from "@/components/ui/RevealText";
 
 export default function InspectionShowcase() {
   const [record, setRecord] = useState<InspectionRecord | null>(getInitialInspectionRecord());
@@ -16,45 +15,35 @@ export default function InspectionShowcase() {
   }, []);
 
   return (
-    <section id="kiem-dinh" className="scroll-mt-28 py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto">
-      <div className="glass-dark rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
-        {/* Subtle Ambient Radial Lighting */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[radial-gradient(ellipse_at_top_right,rgba(5,150,105,0.18),transparent_70%)] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[radial-gradient(ellipse_at_bottom_left,rgba(37,99,235,0.12),transparent_70%)] pointer-events-none" />
-
+    <section id="kiem-dinh" className="scroll-mt-28 py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
+      <div className="glass-ink rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-e3 border border-white/10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           {/* Left Column: Context & Narrative */}
-          <div className="reveal lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#34d399] text-xs font-bold border border-white/10 backdrop-blur-md">
-              <Shield className="w-3.5 h-3.5 text-[#10b981]" />
-              <span>Tiêu chuẩn minh bạch v2.0</span>
-            </div>
+          <div className="lg:col-span-6 space-y-6">
 
-            <RevealText
-              as="h2"
-              text="Biên bản kiểm định xe số hoá trước & sau mỗi chuyến đi"
-              className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight"
-            />
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-white">
+              Biên Bản Kiểm Định Số Hoá Trước & Sau Mỗi Chuyến Đi
+            </h2>
 
-            <p className="text-neutral-300 text-sm sm:text-base leading-relaxed font-normal">
-              Tại Thong Dong, sự an tâm của khách hàng không đến từ lời hứa mà đến từ dữ liệu thực tế. Kỹ thuật viên chi nhánh lập biên bản kiểm định 12 hạng mục (pre-rental inspection), chốt odometer, dung lượng pin/nhiên liệu và lưu ảnh chụp trạng thái xe trước khi bạn nhận chìa khoá.
+            <p className="text-white/80 text-sm sm:text-base leading-relaxed font-normal">
+              Tại Thong Dong, sự an tâm của khách hàng bắt nguồn từ dữ liệu viễn thông thực tế. Kỹ thuật viên chi nhánh lập biên bản kiểm định 12 hạng mục (pre-rental inspection), chốt odometer, dung lượng pin SoH và lưu trữ ảnh chụp trạng thái xe trước khi bạn nhận chìa khoá.
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-2">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <span className="text-2xl font-black text-white block mb-0.5">
+              <div className="bg-stage-ink border border-white/10 rounded-2xl p-4.5 shadow-e1">
+                <span className="font-mono text-3xl font-black text-white block mb-1">
                   100%
                 </span>
-                <span className="text-xs text-neutral-400">
-                  Lượt thuê có phiếu kiểm định số hoá
+                <span className="text-xs text-white/70 font-normal">
+                  Lượt thuê có phiếu kiểm định số hoá có ảnh
                 </span>
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <span className="text-2xl font-black text-[#10b981] block mb-0.5">
-                  0 Phí phạt
+              <div className="bg-stage-ink border border-white/10 rounded-2xl p-4.5 shadow-e1">
+                <span className="font-mono text-3xl font-black text-primary-tint block mb-1">
+                  0đ Phí
                 </span>
-                <span className="text-xs text-neutral-400">
-                  Đối soát minh bạch từ ảnh lưu trữ
+                <span className="text-xs text-white/70 font-normal">
+                  Tranh chấp trầy xước nhờ đối soát ảnh gốc
                 </span>
               </div>
             </div>
@@ -62,89 +51,89 @@ export default function InspectionShowcase() {
 
           {/* Right Column: Realistic Inspection Digital Certificate */}
           {record && (
-          <div className="reveal lg:col-span-6">
-            <div className="glass-certificate rounded-3xl p-6 sm:p-7 relative overflow-hidden">
-              {/* Header Badge */}
-              <div className="flex items-center justify-between border-b border-neutral-200/60 pb-4 mb-5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-[#059669] text-white flex items-center justify-center shadow-md shadow-[#059669]/30">
-                    <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+            <div className="lg:col-span-6">
+              <div className="bg-surface rounded-3xl p-6 sm:p-7 relative overflow-hidden border border-line shadow-e3 text-ink">
+                {/* Header Badge */}
+                <div className="flex items-center justify-between border-b border-line pb-4 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shadow-e1">
+                      <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-xs uppercase font-extrabold text-primary block tracking-wider font-mono">
+                        VERIFIED · IS_OK: TRUE
+                      </span>
+                      <span className="text-xs text-ink-3 font-mono">
+                        Hợp đồng: {record.rentalId}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs uppercase font-extrabold text-emerald-700 block tracking-tight">
-                      Phiếu kiểm tra đạt chuẩn (is_ok: true)
-                    </span>
-                    <span className="text-xs text-neutral-500 font-medium">
-                      Mã hợp đồng: {record.rentalId}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-xs font-bold text-neutral-600 glass-pill px-3 py-1 rounded-full">
-                  {record.inspectedAt}
-                </span>
-              </div>
-
-              {/* Vehicle Title */}
-              <div className="mb-4">
-                <h3 className="text-lg font-bold text-neutral-900">
-                  {record.vehicleName}
-                </h3>
-                <span className="text-xs font-semibold text-neutral-500">
-                  Biển số xe: {record.plateNumber} · {record.type}
-                </span>
-              </div>
-
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="glass-sub p-3 rounded-xl border border-white/70">
-                  <div className="flex items-center gap-1.5 text-xs text-neutral-500 mb-1">
-                    <Gauge className="w-3.5 h-3.5 text-neutral-500" />
-                    <span>Số km (Odometer)</span>
-                  </div>
-                  <span className="text-sm font-bold text-neutral-900">
-                    {record.odometer}
+                  <span className="text-xs font-mono font-bold text-ink-2 bg-sunken border border-line px-3 py-1 rounded-full">
+                    {record.inspectedAt}
                   </span>
                 </div>
 
-                <div className="glass-sub p-3 rounded-xl border border-white/70">
-                  <div className="flex items-center gap-1.5 text-xs text-neutral-500 mb-1">
-                    <Fuel className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Mức nhiên liệu / Pin</span>
-                  </div>
-                  <span className="text-sm font-bold text-emerald-700">
-                    {record.fuelBatteryLevel} (Đầy đủ)
+                {/* Vehicle Title */}
+                <div className="mb-4">
+                  <h3 className="font-display text-xl font-bold text-ink mb-0.5">
+                    {record.vehicleName}
+                  </h3>
+                  <span className="text-xs font-mono font-semibold text-ink-3">
+                    Biển số: {record.plateNumber} · {record.type}
                   </span>
                 </div>
-              </div>
 
-              {/* Inspection items */}
-              <div className="space-y-2 text-xs text-neutral-700 mb-5">
-                <div className="flex items-center justify-between p-2.5 rounded-xl glass-sub border border-white/60">
-                  <span>Ngoại quan & Thân vỏ</span>
-                  <span className="font-semibold text-emerald-700">Đạt tiêu chuẩn</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl glass-sub border border-white/60">
-                  <span>Khoang nội thất & Phụ kiện</span>
-                  <span className="font-semibold text-emerald-700">Sạch sẽ · Đầy đủ</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl glass-sub border border-white/60">
-                  <span>Hệ thống an toàn & Áp suất lốp</span>
-                  <span className="font-semibold text-emerald-700">2.3 Bar chuẩn</span>
-                </div>
-              </div>
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="p-3.5 rounded-xl bg-canvas border border-line shadow-e1">
+                    <div className="flex items-center gap-1.5 text-xs text-ink-3 mb-1 font-semibold">
+                      <Gauge className="w-3.5 h-3.5 text-primary" />
+                      <span>Số km (Odometer)</span>
+                    </div>
+                    <span className="font-mono text-base font-bold text-ink">
+                      {record.odometer}
+                    </span>
+                  </div>
 
-              {/* Staff stamp */}
-              <div className="pt-4 border-t border-neutral-200/60 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-neutral-600">
-                  <UserCheck className="w-4 h-4 text-[#059669]" />
-                  <span>Kỹ thuật viên: <strong>{record.inspectorName}</strong></span>
+                  <div className="p-3.5 rounded-xl bg-canvas border border-line shadow-e1">
+                    <div className="flex items-center gap-1.5 text-xs text-ink-3 mb-1 font-semibold">
+                      <Zap className="w-3.5 h-3.5 text-primary" />
+                      <span>Pin / SoH Health</span>
+                    </div>
+                    <span className="font-mono text-base font-bold text-primary">
+                      {record.fuelBatteryLevel}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-emerald-800 font-bold px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shadow-xs">
-                  ĐÃ DUYỆT BÀN GIAO
-                </span>
+
+                {/* Inspection items */}
+                <div className="space-y-2 text-xs text-ink mb-5">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-canvas border border-line">
+                    <span className="font-medium text-ink">Ngoại quan & Thân vỏ (6 góc)</span>
+                    <span className="font-semibold text-primary">Đạt chuẩn 100%</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-canvas border border-line">
+                    <span className="font-medium text-ink">Khoang cabin & Bộ sạc kèm xe</span>
+                    <span className="font-semibold text-primary">Đầy đủ · Sạch sẽ</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-canvas border border-line">
+                    <span className="font-medium text-ink">Hệ thống phanh & Áp suất lốp</span>
+                    <span className="font-semibold text-primary">2.3 Bar chuẩn</span>
+                  </div>
+                </div>
+
+                {/* Staff stamp */}
+                <div className="pt-4 border-t border-line flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-ink-2">
+                    <UserCheck className="w-4 h-4 text-primary" />
+                    <span>Kỹ thuật viên: <strong className="text-ink">{record.inspectorName}</strong></span>
+                  </div>
+                  <span className="text-primary font-mono font-extrabold text-xs px-2.5 py-1 rounded-md bg-primary-tint border border-primary/20">
+                    ĐÃ DUYỆT BÀN GIAO
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
           )}
         </div>
       </div>

@@ -2,20 +2,29 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "@/components/navigation/NavigationLink";
+import AccountAvatar from "@/components/ui/AccountAvatar";
+import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { usePathname } from "next/navigation";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
+import { getFacilities, getStaffById } from "./api";
+import { useAdminTheme } from "./use-admin-theme";
 import { getFacilities, getStaffById } from "./api";
 import {
   Bell,
   Building2,
   CarFront,
-  ChevronLeft,
   CircleUserRound,
   KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
   ReceiptText,
+  Sun,
   Tags,
   WalletCards,
   UsersRound,
@@ -23,30 +32,96 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
-import { initialsFor, isAdminOrStaffAccount } from "@/features/profile/api";
+import { isAdminOrStaffAccount } from "@/features/profile/api";
+import styles from "./StaffShell.module.css";
 
-const navigation = [
-  { href: "/admin", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/admin/vehicles", label: "Quản lý phương tiện", icon: CarFront },
-  { href: "/admin/vehicle-types", label: "Loại phương tiện", icon: Tags },
-  { href: "/admin/policies", label: "Chính sách thuê xe", icon: ReceiptText },
+const allNavigation = [
+  {
+    href: "/admin",
+    label: "Tổng quan",
+    icon: LayoutDashboard,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/maintenance", label: "Quản lý bảo trì", icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/dispatch", label: "Điều phối tài xế", icon: UsersRound,
+    roles: ["Admin", "Manager", "Staff", "CustomerService"],
+  },
+  {
+    href: "/admin/rentals", label: "Vận hành đơn thuê", icon: ReceiptText,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/inspections", label: "Kiểm tra xe", icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/vehicles",
+    label: "Quản lý phương tiện",
+    icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/vehicle-types",
+    label: "Loại phương tiện",
+    icon: Tags,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/policies",
+    label: "Chính sách thuê xe",
+    icon: ReceiptText,
+    roles: ["Admin", "Manager"],
+  },
   {
     href: "/admin/subscription-plans",
     label: "Gói Đăng Ký",
     icon: WalletCards,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
-  { href: "/admin/departments", label: "Phòng Ban", icon: Building2 },
-  { href: "/admin/facilities", label: "Cơ Sở", icon: Building2 },
-  { href: "/admin/staffs", label: "Nhân Viên", icon: UsersRound },
-  { href: "/admin/roles", label: "Vai Trò", icon: KeyRound },
-  { href: "/admin/profile", label: "Hồ sơ nhân viên", icon: CircleUserRound },
+  {
+    href: "/admin/departments",
+    label: "Phòng Ban",
+    icon: Building2,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/facilities",
+    label: "Cơ Sở",
+    icon: Building2,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/staffs",
+    label: "Nhân Viên",
+    icon: UsersRound,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/roles",
+    label: "Vai Trò",
+    icon: KeyRound,
+    roles: ["Admin"],
+  },
+  {
+    href: "/admin/profile",
+    label: "Hồ sơ nhân viên",
+    icon: CircleUserRound,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
 ];
 
 export default function StaffShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(true);
+  const { theme, toggleTheme } = useAdminTheme();
+  const [menuAnimated, setMenuAnimated] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const { account, checkingAccess, accessError } = usePortalAccess(isAdminOrStaffAccount);
   const [staffRole, setStaffRole] = useState<string | null>(null);
@@ -54,7 +129,18 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState("");
 
-  // usePortalAccess chỉ trả account; chức danh + tên cơ sở phải lấy thêm.
+  const userRoles = useMemo(
+    () => (account?.roles ?? []).map((r) => r.toLowerCase()),
+    [account?.roles],
+  );
+
+  const navigation = useMemo(() => {
+    return allNavigation.filter((item) =>
+      item.roles.some((role) => userRoles.includes(role.toLowerCase())),
+    );
+  }, [userRoles]);
+
+  // usePortalAccess chỉ trả account; chức danh + tên cơ sở lấy an toàn không crash 403
   useEffect(() => {
     if (!account) return;
     let active = true;
@@ -64,16 +150,34 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         let nextStaffRole: string | null = null;
         let nextFacilityName: string | null = null;
 
-        if (account.staffId != null) {
-          const staff = await getStaffById(account.staffId);
-          nextStaffRole = staff.staffRole;
-          nextFacilityName = staff.facilityName;
+        const isAdmin = userRoles.includes("admin");
+
+        if (isAdmin && account.staffId != null) {
+          try {
+            const staff = await getStaffById(account.staffId);
+            nextStaffRole = staff.staffRole;
+            nextFacilityName = staff.facilityName;
+          } catch {
+            // Không chặn nếu role lookup lỗi
+          }
+        }
+
+        if (!nextStaffRole) {
+          if (userRoles.includes("admin")) nextStaffRole = "Quản trị viên";
+          else if (userRoles.includes("manager")) nextStaffRole = "Quản lý";
+          else if (userRoles.includes("customerservice")) nextStaffRole = "Chăm sóc khách hàng";
+          else if (userRoles.includes("maintenance")) nextStaffRole = "Kỹ thuật / Bảo trì";
+          else nextStaffRole = account.departmentName || "Nhân viên";
         }
 
         if (!nextFacilityName && account.facilityId != null) {
-          const facilities = await getFacilities();
-          nextFacilityName =
-            facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+          try {
+            const facilities = await getFacilities();
+            nextFacilityName =
+              facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+          } catch {
+            // Ignore
+          }
         }
 
         if (active) {
@@ -96,15 +200,15 @@ export default function StaffShell({ children }: { children: ReactNode }) {
     return () => {
       active = false;
     };
-  }, [account]);
+  }, [account, userRoles]);
 
   const currentPage =
     navigation.find((item) => item.href === pathname)?.label ??
     (pathname === "/admin/vehicles/new" || pathname.endsWith("/edit")
       ? "Quản lý phương tiện"
       : "Tổng quan");
-  const displayName = account?.fullName || "Tài khoản quản trị";
-  const initials = useMemo(() => initialsFor(account?.fullName), [account?.fullName]);
+  const displayName = user?.fullName || account?.fullName || "Tài khoản quản trị";
+  const avatarUrl = user ? user.avatarUrl : account?.avatarUrl;
   const jobTitle = staffRole || account?.departmentName || "Nhân viên";
 
   const handleLogout = async () => {
@@ -119,20 +223,26 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <>
-      <div className="flex h-[76px] items-center justify-between border-b border-white/10 px-6">
+      <div className={`${styles.brandHeader} flex h-[76px] shrink-0 items-center justify-between border-b border-line px-6`}>
         <Link
           href="/admin"
-          className="flex items-center gap-3"
+          className={`${styles.brandLink} flex min-w-0 items-center gap-3`}
+          aria-label="Tổng quan Thong Dong"
+          title="Tổng quan Thong Dong"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400 text-emerald-950">
-            <CarFront className="h-6 w-6" />
-          </span>
-          <span>
-            <span className="block text-lg font-bold tracking-tight text-white">
+          <Image
+            src="/assets/logo.jpg"
+            alt="Logo Thong Dong"
+            width={40}
+            height={40}
+            className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-e1"
+          />
+          <span className={styles.sidebarText}>
+            <span className="block text-lg font-bold tracking-tight text-ink">
               Thong Dong
             </span>
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               Staff portal
             </span>
           </span>
@@ -141,71 +251,69 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Đóng menu"
-          className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white lg:hidden"
+          className="rounded-lg p-2 text-ink-3 hover:bg-sunken hover:text-ink lg:hidden"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <div className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 pt-7">
-        <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+      <div className={`${styles.navigationScroll} admin-sidebar-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-7`}>
+        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-2`}>
           Không gian làm việc
         </p>
         <nav aria-label="Điều hướng nhân viên" className="space-y-1.5">
           {navigation.map(({ href, label, icon: Icon }) => {
             const active =
-              pathname === href ||
-              (href === "/admin/vehicles" &&
-                pathname.startsWith("/admin/vehicles/"));
+              href === "/admin"
+                ? pathname === "/admin"
+                : pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setMobileMenuOpen(false)}
                 aria-current={active ? "page" : undefined}
-                className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
+                aria-label={label}
+                title={label}
+                className={`${styles.navLink} group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   active
-                    ? "bg-emerald-400 font-semibold text-emerald-950 shadow-lg shadow-emerald-950/10"
-                    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+                    ? "bg-primary font-semibold text-white shadow-e1"
+                    : "text-ink-2 hover:bg-canvas hover:text-ink"
                 }`}
               >
                 <Icon
-                  className={`h-[18px] w-[18px] ${active ? "text-emerald-950" : "text-slate-400 group-hover:text-emerald-300"}`}
+                  aria-hidden="true"
+                  className={`h-[18px] w-[18px] shrink-0 ${active ? "text-white" : "text-ink-2 group-hover:text-primary"}`}
                 />
-                {label}
-                {active && (
-                  <ChevronLeft className="ml-auto h-4 w-4 rotate-180" />
-                )}
+                <span className={styles.navLabel}>{label}</span>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className="mt-auto p-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">
-              {initials}
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-white">
+      <div className={`${styles.profileFooter} mt-auto shrink-0 p-4`}>
+        <div className={`${styles.profileCard} rounded-2xl border border-line bg-canvas p-4`}>
+          <Link href="/admin/profile" onClick={() => setMobileMenuOpen(false)} aria-label={`Hồ sơ ${displayName}`} title={`${displayName} · ${jobTitle}`} className={`${styles.profileIdentity} flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-primary`}>
+            <AccountAvatar src={avatarUrl} name={displayName} className="h-10 w-10 rounded-full bg-stage-ink text-sm font-bold text-white" />
+            <span className={styles.sidebarText}>
+              <span className="block truncate text-sm font-semibold text-ink">
                 {displayName}
               </span>
-              <span className="block truncate text-xs text-slate-400">
-                {profileLoading ? "Đang tải hồ sơ..." : jobTitle}
+              <span className="block truncate text-xs text-ink-3">
+                {profileLoading ? <span role="status" aria-label="Đang tải hồ sơ..."><Skeleton className="h-3 w-24" /></span> : jobTitle}
               </span>
             </span>
-          </div>
+          </Link>
           {profileError && (
-            <p role="status" className="mt-2 text-xs text-amber-200">
+            <p role="status" className={`${styles.profileError} mt-2 text-xs text-danger`}>
               {profileError}
             </p>
           )}
           <Link
             href="/admin/profile"
             onClick={() => setMobileMenuOpen(false)}
-            className="mt-4 block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200"
+            className={`${styles.profileLink} mt-4 block rounded-lg border border-line-strong px-3 py-2 text-center text-xs font-semibold text-ink-2 transition hover:bg-sunken hover:text-ink`}
           >
             Xem hồ sơ cá nhân
           </Link>
@@ -216,10 +324,12 @@ export default function StaffShell({ children }: { children: ReactNode }) {
               void handleLogout();
             }}
             disabled={loggingOut}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-400/40 hover:text-emerald-200 disabled:cursor-wait disabled:opacity-60"
+            aria-label={loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
+            title="Đăng xuất"
+            className={`${styles.logoutButton} mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-ink-3 transition hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-60`}
           >
-            <LogOut className="h-4 w-4" />
-            {loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
+            <LogOut aria-hidden="true" className="h-4 w-4 shrink-0" />
+            <span className={styles.sidebarText}>{loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}</span>
           </button>
         </div>
       </div>
@@ -228,20 +338,18 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   if (checkingAccess) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
-        <p role="status" className="text-sm font-medium text-slate-600">
-          Đang xác thực tài khoản nhân viên...
-        </p>
+      <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
+        <div className="w-full max-w-3xl"><FormSkeleton label="Đang xác thực tài khoản nhân viên..." /></div>
       </div>
     );
   }
 
   if (accessError || !account) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f7f6] p-6">
+      <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
         <p
           role="alert"
-          className="max-w-xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          className="max-w-xl rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger"
         >
           {accessError || "Tài khoản không có quyền truy cập cổng quản trị."}
         </p>
@@ -250,8 +358,11 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f7f6] text-slate-800">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col bg-[#10231f] lg:flex">
+    <div className={`${styles.shell} min-h-[100dvh] bg-canvas text-ink`} data-admin-theme={theme} data-menu-collapsed={!desktopMenuOpen} data-menu-animated={menuAnimated}>
+      <aside
+        id="admin-desktop-navigation"
+        className={`${styles.desktopSidebar} ${styles.sidebarSurface} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line lg:flex`}
+      >
         {sidebar}
       </aside>
 
@@ -259,56 +370,86 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-950/50"
+            className="absolute inset-0 bg-scrim"
             aria-label="Đóng menu"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <aside className="relative flex h-full w-[min(86vw,300px)] flex-col bg-[#10231f] shadow-2xl">
+          <aside
+            id="admin-mobile-navigation"
+            className={`${styles.sidebarSurface} relative flex h-full w-[min(86vw,300px)] flex-col shadow-e2`}
+          >
             {sidebar}
           </aside>
         </div>
       )}
 
-      <div className="min-h-screen lg:pl-[260px]">
-        <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-7 lg:px-9">
-          <div className="flex items-center gap-3">
+      <div className={`${styles.content} min-h-[100dvh]`}>
+        <header className="glass-admin sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line px-4 sm:px-7 lg:px-9">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Mở menu"
-              className="rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 lg:hidden"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="admin-mobile-navigation"
+              className="rounded-xl border border-line p-2 text-ink-3 hover:bg-sunken lg:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div>
-              <p className="text-xs font-medium text-slate-400">
+            <button
+              type="button"
+              onClick={() => { setMenuAnimated(true); setDesktopMenuOpen((open) => !open); }}
+              aria-label={desktopMenuOpen ? "Đóng menu" : "Mở menu"}
+              aria-expanded={desktopMenuOpen}
+              aria-controls="admin-desktop-navigation"
+              title={desktopMenuOpen ? "Đóng menu" : "Mở menu"}
+              className="hidden rounded-xl border border-line p-2 text-ink-3 transition hover:bg-sunken lg:inline-flex"
+            >
+              {desktopMenuOpen ? (
+                <PanelLeftClose className="h-5 w-5" />
+              ) : (
+                <PanelLeftOpen className="h-5 w-5" />
+              )}
+            </button>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-ink-3">
                 Cổng quản trị / Nhân viên
               </p>
-              <h1 className="mt-0.5 text-base font-bold text-slate-900">
+              <h1 className="mt-0.5 truncate text-base font-bold text-ink">
                 {currentPage}
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:inline-flex">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+            <span className="hidden rounded-full border border-line bg-sunken px-3 py-1.5 text-xs font-semibold text-ink md:inline-flex">
               {profileLoading
-                ? "Đang tải chi nhánh..."
+                ? <span role="status" aria-label="Đang tải chi nhánh..."><Skeleton className="h-3 w-28" /></span>
                 : facilityName || "Chưa phân công chi nhánh"}
             </span>
             <button
               type="button"
+              onClick={toggleTheme}
+              aria-label="Chế độ tối"
+              aria-pressed={theme === "dark"}
+              title={theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink-2 transition hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              {theme === "dark" ? <Sun aria-hidden="true" className="h-5 w-5" /> : <Moon aria-hidden="true" className="h-5 w-5" />}
+            </button>
+            <button
+              type="button"
               aria-label="Thông báo"
-              className="relative rounded-xl border border-slate-200 p-2.5 text-slate-600 transition hover:bg-slate-50"
+              className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink-3 transition hover:bg-sunken"
             >
               <Bell className="h-[18px] w-[18px]" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-surface" />
             </button>
             <Link
               href="/admin/profile"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-900"
+              className="rounded-full"
               aria-label="Hồ sơ nhân viên"
             >
-              {initials}
+              <AccountAvatar src={avatarUrl} name={displayName} className="h-10 w-10 rounded-full bg-primary/10 text-xs font-bold text-primary" />
             </Link>
           </div>
         </header>

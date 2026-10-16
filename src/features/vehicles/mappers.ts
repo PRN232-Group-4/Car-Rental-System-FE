@@ -34,17 +34,17 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
   const maxRange = detail.maxRangeKm ? `${detail.maxRangeKm} km` : (r.maxRange ? String(r.maxRange) : undefined);
   const storageCapacity = detail.trunkCapacity ? `${detail.trunkCapacity}L` : undefined;
 
-  const hourlyPrice = Number(r.hourlyPrice ?? r.HourlyPrice ?? 100000);
-  const monthlyPrice = Number(r.longtermPrice ?? r.LongtermPrice ?? r.monthlyPrice ?? hourlyPrice * 24 * 25);
+  const hourlyPrice = Number(r.hourlyPrice ?? r.HourlyPrice ?? 0);
+  const monthlyPrice = Number(r.longtermPrice ?? r.LongtermPrice ?? r.monthlyPrice ?? 0);
 
-  const facilityId = (r.facilityId ?? r.FacilityId ?? 1) as number | string;
-  const facilityName = String(r.facility ?? r.Facility ?? r.facilityName ?? "Chi nhánh Trung tâm");
+  const facilityId = (r.facilityId ?? r.FacilityId ?? "") as number | string;
+  const facilityName = String(r.facility ?? r.Facility ?? r.facilityName ?? "Chưa có thông tin cơ sở");
 
   const imageUrl = String(
     r.mainImageUrl ??
       r.MainImageUrl ??
       r.imageUrl ??
-      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=800"
+      ""
   );
 
   const status = String(r.status ?? r.Status ?? "available").toLowerCase();
@@ -56,6 +56,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
 
   return {
     id,
+    vehicleTypeId: Number(r.vehicleTypeId ?? r.VehicleTypeId) || undefined,
     name,
     brand,
     model,

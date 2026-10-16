@@ -7,27 +7,36 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:design": "node scripts/check-design-rules.mjs",
+    "test:visual": "node scripts/measure-design-metrics.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "gen:api": "openapi-typescript https://car-rental-system-be-production.up.railway.app/swagger/v1/swagger.json -o src/api/generated/schema.d.ts"
+    "test:e2e": "e2e run",
+    "gen:api": "openapi-typescript https://car-rental-system-be-production.up.railway.app/swagger/v1/swagger.json -o src/api/generated/schema.d.ts",
+    "test:e2e:playwright": "playwright test",
+    "test:e2e:playwright:ui": "playwright test --ui"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@tanstack/react-query": "^5.104.1",
+    "@types/three": "^0.186.0",
     "gsap": "^3.15.0",
     "lucide-react": "^1.49.0",
     "next": "16.3.8",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "sonner": "^2.0.8",
+    "three": "^0.186.1"
   },
   "devDependencies": {
+    "@e2e-dev/web": "^0.14.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "ai": "^7.0.0",
+    "e2e": "^0.19.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "openapi-typescript": "^7.13.0",
@@ -35,6 +44,7 @@
     "typescript": "^5",
     "vite": "^8.3.2",
     "vitest": "^5.0.3",
-    "wrangler": "^4.145.0"
+    "wrangler": "^4.145.0",
+    "zod": "^4.1.8"
   }
 }

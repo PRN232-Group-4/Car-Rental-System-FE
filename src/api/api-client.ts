@@ -25,31 +25,44 @@ export class ApiClientError extends Error {
   public data: unknown;
 
   constructor(status: number, statusText: string, data: unknown) {
+    // The deployed API wraps ProblemDetails inside the six-field envelope.
+    if (typeof data === "object" && data !== null && "error" in data &&
+        typeof data.error === "object" && data.error !== null) {
+      data = { ...(data as Record<string, unknown>), ...data.error };
+    }
     let message = `API Error [${status}]: ${statusText}`;
 
-    if (typeof data === "object" && data !== null) {
-      const d = data as Record<string, unknown>;
-      if (typeof d.detail === "string" && d.detail) {
-        message = d.detail;
-      } else if (typeof d.message === "string" && d.message) {
-        message = d.message;
-      } else if (typeof d.title === "string" && d.title) {
-        message = d.title;
-      } else if (d.errors && typeof d.errors === "object") {
-        const errorList: string[] = [];
-        for (const err of Object.values(d.errors as Record<string, unknown>)) {
-          if (Array.isArray(err)) {
-            errorList.push(...err.map(String));
-          } else if (typeof err === "string") {
-            errorList.push(err);
+    // BE bọc mọi response trong ApiResponse nên ProblemDetails nằm ở `error`, không phải ở gốc.
+    const body = asRecord(data);
+    const problem = asRecord(body?.error) ?? body;
+    const errorList: string[] = [];
+
+    const errors = asRecord(problem?.errors);
+    for (const [key, err] of Object.entries(errors ?? {})) {
+      if (Array.isArray(err)) {
+        for (const item of err) {
+          if (item) {
+            errorList.push(key ? `${key}: ${item}` : String(item));
           }
         }
-        if (errorList.length > 0) {
-          message = errorList.join("; ");
-        }
+      } else if (typeof err === "string" && err.trim()) {
+        errorList.push(key ? `${key}: ${err}` : err);
       }
-    } else if (typeof data === "string" && data.trim()) {
-      message = data;
+    }
+
+    const text = (source: Record<string, unknown> | null, key: string) => {
+      const value = source?.[key];
+      return typeof value === "string" && value ? value : undefined;
+    };
+
+    if (errorList.length > 0) {
+      message = errorList.join("\n");
+    } else {
+      message =
+        text(problem, "detail") ??
+        text(body, "message") ??
+        text(problem, "title") ??
+        (typeof data === "string" && data.trim() ? data : message);
     }
 
     super(message);
@@ -128,8 +141,12 @@ export class ApiClient {
     }
 
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    let timedOut = false;
     const timeoutId = controller
-      ? setTimeout(() => controller.abort(), this.timeout)
+      ? setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, this.timeout)
       : null;
 
     try {
@@ -184,6 +201,13 @@ export class ApiClient {
       }
 
       return json as T;
+    } catch (error) {
+      if (timedOut) {
+        throw new ApiClientError(408, "Request timeout", {
+          detail: `Yêu cầu ${toCleanPath(path)} quá thời gian chờ (${this.timeout / 1000} giây). Vui lòng thử lại hoặc kiểm tra kết nối backend.`,
+        });
+      }
+      throw error;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
@@ -220,6 +244,10 @@ export class ApiClient {
   public delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
 function toCleanPath(path: string): string {

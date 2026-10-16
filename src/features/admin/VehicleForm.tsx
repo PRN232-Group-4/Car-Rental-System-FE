@@ -2,21 +2,30 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { InlineError, InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
+import Link from "@/components/navigation/NavigationLink";
+import VehicleImage from "@/components/ui/VehicleImage";
+import { useQueryClient } from "@tanstack/react-query";
+import { vehicleQueryOptions } from "./vehicle-query";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { ArrowLeft, ImagePlus, Info, Save, X } from "lucide-react";
 import {
   createVehicle,
   getFacilities,
-  getVehicle,
   getVehicleTypes,
   updateVehicle,
   uploadVehicleImage,
 } from "./api";
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
+import { getVehicleKind } from "./vehicle-category";
+import { useAuth } from "@/features/auth";
+import { notifySuccess } from "@/components/ui/Toaster";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
+import { FormSkeleton } from "@/components/ui/Skeleton";
+import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 
 type VehicleDraft = {
+  licensePlate: string;
   vehicleTypeId: string;
   facilityId: string;
   status: string;
@@ -43,6 +52,7 @@ type VehicleDraft = {
 };
 
 const emptyDraft: VehicleDraft = {
+  licensePlate: "",
   vehicleTypeId: "",
   facilityId: "",
   status: "available",
@@ -75,18 +85,23 @@ const statuses = [
   { value: "unavailable", label: "Tạm ngưng" },
 ];
 
-export default function VehicleForm() {
+export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { onClose?: () => void; onSaved?: () => void; editingVehicleId?: number } = {}) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { hasRole } = useAuth();
+  const canManage = hasRole("admin") || hasRole("manager");
+
   const fileRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<VehicleDraft>(emptyDraft);
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
   const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
-  const [vehicleId, setVehicleId] = useState<number | null>(null);
+  const [vehicleId, setVehicleId] = useState<number | null>(editingVehicleId ?? null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imageDragActive, setImageDragActive] = useState(false);
   const [error, setError] = useState("");
+  const validation = useInlineValidation();
   const isEditing = vehicleId !== null;
   const selectedVehicleType = vehicleTypes.find(
     (item) => String(item.id) === draft.vehicleTypeId,
@@ -101,11 +116,11 @@ export default function VehicleForm() {
           const [types, facilityList] = await Promise.all([getVehicleTypes(), getFacilities()]);
           setVehicleTypes(types);
           setFacilities(facilityList);
-          const idString = new URLSearchParams(window.location.search).get("vehicleId");
+          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
           if (idString) {
             const id = Number(idString);
             if (!Number.isInteger(id) || id < 1) throw new Error("ID phương tiện không hợp lệ.");
-            const vehicle = await getVehicle(id);
+            const vehicle = await queryClient.fetchQuery(vehicleQueryOptions(id));
             setVehicleId(id);
             setDraft(fromVehicle(vehicle));
           }
@@ -117,7 +132,7 @@ export default function VehicleForm() {
       })();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [editingVehicleId, onClose, queryClient]);
 
   const updateDraft = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
@@ -151,10 +166,11 @@ export default function VehicleForm() {
   const uploadFiles = async (files: File[]) => {
     if (files.length === 0) return;
     if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
-      setError("Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
+      validation.setField("vehicleImage", "Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
       return;
     }
     setUploading(true);
+    validation.clear("vehicleImage");
     setError("");
     try {
       for (const file of files) {
@@ -168,7 +184,7 @@ export default function VehicleForm() {
           : { ...current, mainImageUrl: imageUrl });
       }
     } catch (uploadError) {
-      setError(messageOf(uploadError, "Không thể tải ảnh lên."));
+      validation.setField("vehicleImage", messageOf(uploadError, "Không thể tải ảnh lên."));
     } finally {
       setUploading(false);
     }
@@ -194,11 +210,11 @@ export default function VehicleForm() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const vehicleTypeId = Number(draft.vehicleTypeId);
-    if (!Number.isInteger(vehicleTypeId) || !vehicleTypes.some((item) => item.id === vehicleTypeId)) {
-      setError("Vui lòng chọn một loại phương tiện hợp lệ.");
+    if (!canManage) {
+      setError("Bạn không có quyền lưu thay đổi.");
       return;
     }
+    const vehicleTypeId = Number(draft.vehicleTypeId);
     setSaving(true);
     setError("");
     const detail = {
@@ -216,6 +232,7 @@ export default function VehicleForm() {
     };
     const body: VehicleRequest = {
       vehicleTypeId,
+      licensePlate: draft.licensePlate.trim() || null,
       facilityId: draft.facilityId ? Number(draft.facilityId) : null,
       status: draft.status,
       brand: draft.brand.trim(),
@@ -225,92 +242,116 @@ export default function VehicleForm() {
       hourlyPrice: optionalNumber(draft.hourlyPrice),
       longtermPrice: optionalNumber(draft.longtermPrice),
       description: draft.description.trim(),
-      mainImageUrl: draft.mainImageUrl,
+      mainImageUrl: draft.mainImageUrl || null,
       location: draft.location.trim(),
       detail,
     };
 
     try {
-      if (vehicleId !== null) await updateVehicle(vehicleId, body);
+      if (vehicleId !== null) {
+        await updateVehicle(vehicleId, body);
+        await queryClient.invalidateQueries({ queryKey: vehicleQueryOptions(vehicleId).queryKey });
+      }
       else await createVehicle(body);
-      router.push("/admin/vehicles");
+      notifySuccess(vehicleId !== null ? "Đã cập nhật phương tiện." : "Đã thêm phương tiện mới.");
+      if (onSaved) onSaved();
+      else router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(messageOf(saveError, "Không thể lưu phương tiện."));
+      setError(validation.report(saveError));
     } finally {
       setSaving(false);
     }
   };
 
-  return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-emerald-800"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Quản lý đội xe</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
-        <p className="mt-2 text-sm text-slate-500">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
+  if (!canManage) {
+    return (
+      <div className="mx-auto max-w-xl text-center py-16 space-y-4">
+        <h2 className="text-xl font-bold text-ink">Quyền truy cập bị giới hạn</h2>
+        <p className="text-sm text-ink-3">Chỉ Quản trị viên và Quản lý mới có quyền thêm hoặc chỉnh sửa phương tiện.</p>
+        <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-hover">
+          <ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện
+        </Link>
       </div>
-      {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
+    );
+  }
 
-      <form onSubmit={submit} className="space-y-6">
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
-          <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Thông tin phương tiện</h3>
+  const content = (
+    <div className="mx-auto max-w-5xl space-y-6">
+      {!onClose && <div>
+        <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-3 transition hover:text-primary"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
+        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
+        <p className="mt-2 text-sm text-ink-3">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
+      </div>}
+      {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
+
+      {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-danger">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
+      {loading ? <FormSkeleton label="Đang tải thông tin phương tiện..." fields={10} /> : <ValidatedForm validation={validation} validate={() => {
+        const typeId = Number(draft.vehicleTypeId);
+        if (!Number.isInteger(typeId) || !vehicleTypes.some((item) => item.id === typeId)) {
+          return { vehicleTypeId: "Vui lòng chọn một loại phương tiện hợp lệ." };
+        }
+        return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
+      }} onSubmit={submit} className="space-y-6">
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
+          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông tin phương tiện</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><select id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</select></Field>
-            <Field label="Chi nhánh" htmlFor="facilityId"><select id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-            <Field label="Hãng xe" htmlFor="brand"><input id="brand" name="brand" required value={draft.brand} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Dòng xe / mẫu xe" htmlFor="model"><input id="model" name="model" required value={draft.model} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Màu sắc" htmlFor="color"><input id="color" name="color" value={draft.color} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Năm sản xuất" htmlFor="yearOfManufacture"><input id="yearOfManufacture" name="yearOfManufacture" type="number" min="1990" max="2035" value={draft.yearOfManufacture} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Trạng thái" htmlFor="status"><select id="status" name="status" required value={draft.status} onChange={updateDraft} className="admin-input">{statuses.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></Field>
-            <Field label="Vị trí hiện tại" htmlFor="location"><input id="location" name="location" value={draft.location} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Giá thuê theo giờ (₫)" htmlFor="hourlyPrice"><input id="hourlyPrice" name="hourlyPrice" type="number" min="0" step="1000" value={draft.hourlyPrice} onChange={updateDraft} className="admin-input" /></Field>
-            <Field label="Giá thuê dài hạn (₫)" htmlFor="longtermPrice"><input id="longtermPrice" name="longtermPrice" type="number" min="0" step="100000" value={draft.longtermPrice} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
+            <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>
+            <Field label="Biển số" htmlFor="licensePlate"><InlineInput id="licensePlate" name="licensePlate" maxLength={255} value={draft.licensePlate} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Hãng xe" htmlFor="brand"><InlineInput id="brand" name="brand" required value={draft.brand} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Dòng xe / mẫu xe" htmlFor="model"><InlineInput id="model" name="model" required value={draft.model} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Màu sắc" htmlFor="color"><InlineInput id="color" name="color" value={draft.color} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Năm sản xuất" htmlFor="yearOfManufacture"><InlineInput id="yearOfManufacture" name="yearOfManufacture" type="number" min="1990" max="2035" value={draft.yearOfManufacture} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Trạng thái" htmlFor="status"><InlineSelect id="status" name="status" required value={draft.status} onChange={updateDraft} className="admin-input">{statuses.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</InlineSelect></Field>
+            <Field label="Vị trí hiện tại" htmlFor="location"><InlineInput id="location" name="location" value={draft.location} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Giá thuê theo giờ (₫)" htmlFor="hourlyPrice"><InlineInput id="hourlyPrice" name="hourlyPrice" type="number" min="0" step="1000" value={draft.hourlyPrice} onChange={updateDraft} className="admin-input" /></Field>
+            <Field label="Giá thuê dài hạn (₫)" htmlFor="longtermPrice"><InlineInput id="longtermPrice" name="longtermPrice" type="number" min="0" step="100000" value={draft.longtermPrice} onChange={updateDraft} className="admin-input" /></Field>
           </div>
-          <div className="mt-5"><Field label="Mô tả" htmlFor="description"><textarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
+          <div className="mt-5"><Field label="Mô tả" htmlFor="description"><InlineTextarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
-          <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Thông số kỹ thuật</h3>
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
+          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông số kỹ thuật</h3>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             {vehicleKind.isCar && (
               <>
-                <Field label="Số chỗ ngồi" htmlFor="seatCount"><input id="seatCount" name="seatCount" type="number" min="1" value={draft.seatCount} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Hộp số" htmlFor="transmission"><input id="transmission" name="transmission" value={draft.transmission} onChange={updateDraft} placeholder="Tự động / Số sàn" className="admin-input" /></Field>
-                <Field label="Dung tích cốp (lít)" htmlFor="trunkCapacity"><input id="trunkCapacity" name="trunkCapacity" type="number" min="0" value={draft.trunkCapacity} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Số chỗ ngồi" htmlFor="seatCount"><InlineInput id="seatCount" name="seatCount" type="number" min="1" value={draft.seatCount} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Hộp số" htmlFor="transmission"><InlineInput id="transmission" name="transmission" value={draft.transmission} onChange={updateDraft} placeholder="Tự động / Số sàn" className="admin-input" /></Field>
+                <Field label="Dung tích cốp (lít)" htmlFor="trunkCapacity"><InlineInput id="trunkCapacity" name="trunkCapacity" type="number" min="0" value={draft.trunkCapacity} onChange={updateDraft} className="admin-input" /></Field>
               </>
             )}
             {vehicleKind.isMotorbike && (
               <>
-                <Field label="Loại xe máy" htmlFor="bikeType"><input id="bikeType" name="bikeType" value={draft.bikeType} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Có cốp chứa đồ" htmlFor="hasStorageBox"><select id="hasStorageBox" name="hasStorageBox" value={draft.hasStorageBox} onChange={updateDraft} className="admin-input"><option value="false">Không</option><option value="true">Có</option></select></Field>
+                <Field label="Loại xe máy" htmlFor="bikeType"><InlineInput id="bikeType" name="bikeType" value={draft.bikeType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Có cốp chứa đồ" htmlFor="hasStorageBox"><InlineSelect id="hasStorageBox" name="hasStorageBox" value={draft.hasStorageBox} onChange={updateDraft} className="admin-input"><option value="false">Không</option><option value="true">Có</option></InlineSelect></Field>
               </>
             )}
             {vehicleKind.isElectric && (
               <>
-                <Field label="Dung lượng pin" htmlFor="batteryCapacity"><input id="batteryCapacity" name="batteryCapacity" value={draft.batteryCapacity} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Loại pin" htmlFor="batteryType"><input id="batteryType" name="batteryType" value={draft.batteryType} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Chuẩn sạc" htmlFor="chargingType"><input id="chargingType" name="chargingType" value={draft.chargingType} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Thời gian sạc (giờ)" htmlFor="chargingTimeHours"><input id="chargingTimeHours" name="chargingTimeHours" value={draft.chargingTimeHours} onChange={updateDraft} className="admin-input" /></Field>
-                <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><input id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Dung lượng pin" htmlFor="batteryCapacity"><InlineInput id="batteryCapacity" name="batteryCapacity" value={draft.batteryCapacity} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Loại pin" htmlFor="batteryType"><InlineInput id="batteryType" name="batteryType" value={draft.batteryType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Chuẩn sạc" htmlFor="chargingType"><InlineInput id="chargingType" name="chargingType" value={draft.chargingType} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Thời gian sạc (giờ)" htmlFor="chargingTimeHours"><InlineInput id="chargingTimeHours" name="chargingTimeHours" value={draft.chargingTimeHours} onChange={updateDraft} className="admin-input" /></Field>
+                <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><InlineInput id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
               </>
             )}
-            {!draft.vehicleTypeId && <p className="text-sm text-slate-500 sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
+            {!draft.vehicleTypeId && <p className="text-sm text-ink-3 sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7">
-          <h3 className="border-b border-slate-100 pb-4 text-base font-bold text-slate-900">Hình ảnh</h3>
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
+          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Hình ảnh</h3>
           <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
             <div className="space-y-4">
-              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-slate-200 text-sm file:mr-4 file:border-0 file:bg-emerald-50 file:px-4 file:py-3 file:font-semibold file:text-emerald-800" /></Field>
-              {uploading && <p role="status" className="text-sm text-slate-500">Đang tải ảnh lên...</p>}
+              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-line text-sm file:mr-4 file:border-0 file:bg-primary/10 file:px-4 file:py-3 file:font-semibold file:text-primary" /><InlineError name="vehicleImage" /></Field>
+              {uploading && <p role="status" className="text-sm text-ink-3">Đang tải ảnh lên...</p>}
             </div>
             <div
               onDragOver={handleImageDragOver}
               onDragLeave={handleImageDragLeave}
               onDrop={handleImageDrop}
               className={`grid min-h-32 grid-cols-2 gap-3 rounded-xl transition ${
-                imageDragActive ? "bg-emerald-50 ring-2 ring-emerald-500 ring-offset-2" : ""
+                imageDragActive ? "bg-primary/10 ring-2 ring-primary ring-offset-2" : ""
               }`}
             >
               {draft.mainImageUrl ? (
@@ -335,8 +376,8 @@ export default function VehicleForm() {
                   }}
                   className={`flex min-h-32 cursor-pointer items-center justify-center rounded-xl border border-dashed text-center transition ${
                     imageDragActive
-                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                      : "border-slate-300 bg-slate-50 text-slate-400 hover:border-emerald-400 hover:text-emerald-700"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-line bg-canvas text-ink-3 hover:border-primary/50 hover:text-primary"
                   }`}
                 >
                   <div>
@@ -360,21 +401,25 @@ export default function VehicleForm() {
               ))}
             </div>
           </div>
-          <p className="mt-4 flex items-start gap-2 text-xs text-slate-500"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
+          <p className="mt-4 flex items-start gap-2 text-xs text-ink-3"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
         </section>
 
-        <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
-          <Link href="/admin/vehicles" className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">Hủy</Link>
-          <button type="submit" disabled={loading || saving || uploading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
-        </div>
-      </form>
+        {isEditing && vehicleId != null && <VehicleTrackingPanel vehicleId={vehicleId} />}
+        <FormDialogFooter>
+          {onClose ? <button type="button" disabled={saving || uploading} onClick={onClose} className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button> : <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>}
+          <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
+        </FormDialogFooter>
+      </ValidatedForm>}
     </div>
   );
+
+  return onClose ? <FormDialog title={isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"} onClose={onClose} busy={saving || uploading} size="xl">{content}</FormDialog> : content;
 }
 
 function fromVehicle(vehicle: VehicleDto): VehicleDraft {
   const detail = vehicle.detail;
   return {
+    licensePlate: vehicle.licensePlate ?? "",
     vehicleTypeId: String(vehicle.vehicleTypeId),
     facilityId: vehicle.facilityId === null ? "" : String(vehicle.facilityId),
     status: vehicle.status ?? "available",
@@ -457,7 +502,7 @@ function messageOf(error: unknown, fallback: string): string {
 }
 
 function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
-  return <div><label htmlFor={htmlFor} className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>{children}</div>;
+  return <div><label htmlFor={htmlFor} className="mb-2 block text-sm font-semibold text-ink-2">{label}</label>{children}</div>;
 }
 
 function ImagePreview({ src, label, onRemove }: { src: string; label: string; onRemove: () => void }) {
@@ -465,11 +510,11 @@ function ImagePreview({ src, label, onRemove }: { src: string; label: string; on
     <div
       role="img"
       aria-label={label}
-      className="relative min-h-32 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+      className="relative min-h-32 overflow-hidden rounded-xl border border-line bg-sunken"
     >
-      <Image src={src} alt={label} fill unoptimized sizes="(max-width: 768px) 50vw, 320px" className="object-cover" />
-      <span className="absolute bottom-2 left-2 rounded bg-white/90 px-2 py-1 text-xs font-semibold text-slate-700">{label}</span>
-      <button type="button" onClick={onRemove} aria-label={`Xóa ${label.toLocaleLowerCase()}`} className="absolute right-2 top-2 rounded-lg bg-white/90 p-2 text-slate-600 shadow hover:text-red-700"><X className="h-4 w-4" /></button>
+      <span className="absolute inset-0"><VehicleImage src={src} alt={label} loading="eager" className="h-full w-full" /></span>
+      <span className="absolute bottom-2 left-2 rounded bg-surface/90 px-2 py-1 text-xs font-semibold text-ink-2">{label}</span>
+      <button type="button" onClick={onRemove} aria-label={`Xóa ${label.toLocaleLowerCase()}`} className="absolute right-2 top-2 rounded-lg bg-surface/90 p-2 text-ink-3 shadow hover:text-danger"><X className="h-4 w-4" /></button>
     </div>
   );
 }

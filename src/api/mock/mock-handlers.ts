@@ -260,7 +260,7 @@ export function handleMockRoute(
     if (password.length < 12) {
       return {
         status: 400,
-        data: { message: "Mật khẩu phải có độ dài tối thiểu 12 ký tự." },
+        data: { message: "Mật khẩu phải có độ dài tối thiểu 6 ký tự." },
       };
     }
 

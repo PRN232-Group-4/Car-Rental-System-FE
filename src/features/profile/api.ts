@@ -39,11 +39,17 @@ export function initialsFor(name: string | null | undefined): string {
     .toLocaleUpperCase();
 }
 
-/** Admin, hoặc Staff không thuộc phòng Driver (tài xế về /staff) → được vào /admin. */
+/** Admin, Manager, hoặc Staff không thuộc phòng Driver (tài xế về /staff) → được vào /admin. */
 export function isAdminOrStaffAccount(account: AccountProfile): boolean {
   const roles = (account.roles ?? []).map((role) => role.toLocaleLowerCase());
-  if (roles.includes("admin")) return true;
-  if (!roles.some((role) => role === "staff" || role === "driver")) return false;
+  if (roles.includes("admin") || roles.includes("manager")) return true;
+  if (
+    !roles.some((role) =>
+      ["staff", "driver", "customerservice", "maintenance"].includes(role),
+    )
+  ) {
+    return false;
+  }
   return (account.departmentName ?? "").trim().toLocaleLowerCase() !== "driver";
 }
 
@@ -56,11 +62,20 @@ export function getCustomerLicense() {
 }
 
 export function updateCustomerLicense(body: LicenseRequest) {
-  return backendApiClient.put<CustomerLicense>("customer/license", body);
+  return backendApiClient.put<CustomerLicense>("customer/license/url", body);
 }
 
 export function uploadLicenseImage(file: File) {
   const form = new FormData();
   form.append("file", file);
   return backendApiClient.post<unknown>("media/vehicle", form);
+}
+
+/** Khách hàng thông thường (chỉ có role Customer, không phải Admin/Manager/Staff/Driver). */
+export function isCustomerOnlyAccount(account: AccountProfile): boolean {
+  const roles = (account.roles ?? []).map((role) => role.toLocaleLowerCase());
+  if (roles.includes("admin") || roles.includes("manager") || roles.includes("staff") || roles.includes("driver")) {
+    return false;
+  }
+  return roles.includes("customer");
 }
