@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Pencil, Plus, Search, Trash2, UsersRound } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Building2, Check, KeyRound, Pencil, Plus, Search, Trash2, UsersRound } from "lucide-react";
 import {
   createDepartment,
   createFacility,
@@ -23,7 +24,10 @@ import { notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toas
 import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
 import FormDialog from "@/components/ui/FormDialog";
-import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
+import { DataTable } from "@/components/ui/DataTable";
+import { Pagination } from "@/components/ui/Pagination";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
 type Row = {
@@ -62,6 +66,8 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   const [values, setValues] = useState<FormValues>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<Row | null>(null);
   const [error, setError] = useState("");
   const validation = useInlineValidation();
 
@@ -162,9 +168,8 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     return () => window.clearTimeout(timer);
   }, [load]);
 
-  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
 
-  const openForm = (row?: Row) => {
+  const openForm = useCallback((row?: Row) => {
     setEditing(row ?? null);
     if (directory === "departments") setValues({ name: row?.name ?? "" });
     else if (directory === "facilities") setValues({ name: row?.name ?? "", address: row?.description ?? "" });
@@ -189,7 +194,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     setError("");
     validation.reset();
     setFormOpen(true);
-  };
+  }, [directory, validation]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -238,16 +243,23 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     }
   };
 
-  const remove = async (row: Row) => {
-    if (!window.confirm(`Xóa "${row.name}"?`)) return;
+  const remove = (row: Row) => {
+    setRowToDelete(row);
+  };
+
+  const executeDelete = async (row: Row) => {
+    setDeleting(true);
     try {
       if (directory === "departments") await deleteDepartment(row.id);
       else if (directory === "facilities") await deleteFacility(row.id);
       else if (directory === "staffs") await deleteStaff(row.id);
       notifySuccess(`Đã xóa "${row.name}".`);
+      setRowToDelete(null);
       await load();
     } catch (deleteError) {
       notifyApiError(deleteError, "Không thể xóa mục này.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -274,6 +286,68 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
             : []),
         ];
 
+  const columns = useMemo<ColumnDef<Row>[]>(() => {
+    const cols: ColumnDef<Row>[] = [
+      {
+        id: "name",
+        header: info.columns[0],
+        cell: ({ row }) => <span className="font-semibold text-ink">{row.original.name}</span>,
+      },
+    ];
+
+    info.columns.slice(1).forEach((columnName, index) => {
+      cols.push({
+        id: `column_${index + 1}`,
+        header: columnName,
+        cell: ({ row }) => {
+          const val = [row.original.description, row.original.detail][index] || "—";
+          return <span className="text-ink-3">{val}</span>;
+        },
+      });
+    });
+
+    cols.push({
+      id: "status",
+      header: "Trạng thái",
+      cell: ({ row }) => (
+        <StatusBadge status={row.original.active ? "active" : "inactive"} />
+      ),
+    });
+
+    if (canModify) {
+      cols.push({
+        id: "actions",
+        header: () => <span className="block text-right">Thao tác</span>,
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="flex justify-end gap-1">
+              <button
+                type="button"
+                onClick={() => openForm(item)}
+                aria-label={`Sửa ${item.name}`}
+                className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => remove(item)}
+                disabled={deleting}
+                aria-label={`Xóa ${item.name}`}
+                className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          );
+        },
+      });
+    }
+
+    return cols;
+  }, [canModify, deleting, info.columns, openForm]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -294,54 +368,53 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         </AdminFilterField>
       </AdminFilterBar>}
 
-      <AdminTableCard>
-        <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
+        <div className="border-b border-line px-5 py-4">
+          <h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
+          <p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${rows.length} mục`}</p>
+        </div>
 
-        <AdminTable className="min-w-[640px]">
-          <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
-          <thead>
-            <tr>
-              {info.columns.map((column) => <th key={column} scope="col">{column}</th>)}
-              <th scope="col">Trạng thái</th>
-              {canModify && <th scope="col" data-actions>Thao tác</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td className="font-semibold text-ink">{row.name}</td>
-                {info.columns.slice(1).map((column, index) => (
-                  <td key={column} className="text-ink-3">{[row.description, row.detail][index] || "—"}</td>
-                ))}
-                <td><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${row.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
-                {canModify && (
-                  <td data-actions>
-                    <div className="flex justify-end gap-1">
-                      <button type="button" onClick={() => openForm(row)} aria-label={`Sửa ${row.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>
-                      <button type="button" onClick={() => void remove(row)} aria-label={`Xóa ${row.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-            {!loading && rows.length === 0 && <AdminTableEmptyRow colSpan={info.columns.length + (canModify ? 2 : 1)}>Không có dữ liệu.</AdminTableEmptyRow>}
-          </tbody>
-        </AdminTable>
+        <DataTable
+          columns={columns}
+          data={rows}
+          caption={`Danh sách ${info.title.toLocaleLowerCase()}`}
+          loading={loading}
+          emptyTitle="Không có dữ liệu."
+          className="border-0 rounded-none shadow-none"
+        />
+
         {directory === "staffs" && (
-          <div className="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <div className="flex items-center gap-3 text-xs text-ink-3">
-              <span>Trang {page} / {pageCount} · {totalCount} nhân viên</span>
-              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary">
-                {[10, 20, 50].map((size) => <option key={size} value={size}>{size} mỗi trang</option>)}
-              </select>
-            </div>
-            <nav aria-label="Phân trang nhân viên" className="flex items-center gap-2">
-              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
-              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
-            </nav>
-          </div>
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setPage}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+            }}
+            pageSizeOptions={[10, 20, 50]}
+            itemName="nhân viên"
+            loading={loading}
+          />
         )}
-      </AdminTableCard>
+      </div>
+
+      <ConfirmDialog
+        open={rowToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setRowToDelete(null);
+        }}
+        title={`Xác nhận xóa ${info.title.toLocaleLowerCase()}`}
+        description={`Bạn có chắc chắn muốn xóa "${rowToDelete?.name}"? Thao tác này không thể hoàn tác.`}
+        confirmLabel="Xóa"
+        cancelLabel="Hủy"
+        variant="danger"
+        isPending={deleting}
+        onConfirm={async () => {
+          if (rowToDelete) await executeDelete(rowToDelete);
+        }}
+      />
 
       {formOpen && (
         <FormDialog title={`${editing ? "Chỉnh sửa" : "Thêm mới"} · ${info.title}`} onClose={() => setFormOpen(false)} busy={saving}>

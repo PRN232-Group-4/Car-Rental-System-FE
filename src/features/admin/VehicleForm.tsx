@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
+import type { ChangeEvent, DragEvent, FormEvent } from "react";
 import { InlineError, InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
@@ -20,6 +20,7 @@ import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
 import { notifySuccess } from "@/components/ui/Toaster";
 import FormDialog from "@/components/ui/FormDialog";
+import { FormField as Field } from "@/components/ui/FormField";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -481,9 +482,6 @@ function messageOf(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-function Field({ label, htmlFor, children }: { label: string; htmlFor: string; children: ReactNode }) {
-  return <div><label htmlFor={htmlFor} className="mb-2 block text-sm font-semibold text-ink-2">{label}</label>{children}</div>;
-}
 
 function ImagePreview({ src, label, onRemove }: { src: string; label: string; onRemove: () => void }) {
   return (

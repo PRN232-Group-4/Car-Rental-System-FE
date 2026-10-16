@@ -10,105 +10,21 @@ import { useNavigationRouter as useRouter } from "@/components/navigation/Naviga
 import { getFacilities, getStaffById } from "./api";
 import {
   Bell,
-  Building2,
-  CarFront,
   ChevronLeft,
-  CircleUserRound,
-  KeyRound,
-  LayoutDashboard,
   LogOut,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  ReceiptText,
-  Tags,
-  WalletCards,
-  UsersRound,
   X,
 } from "lucide-react";
+import { getNavigation } from "@/config/navigation";
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
+import { Drawer } from "@/components/ui/Drawer";
 import styles from "./StaffShell.module.css";
 
-const allNavigation = [
-  {
-    href: "/admin",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/maintenance", label: "Quản lý bảo trì", icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/dispatch", label: "Điều phối tài xế", icon: UsersRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
-  },
-  {
-    href: "/admin/rentals", label: "Vận hành đơn thuê", icon: ReceiptText,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/inspections", label: "Kiểm tra xe", icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/vehicles",
-    label: "Quản lý phương tiện",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/vehicle-types",
-    label: "Loại phương tiện",
-    icon: Tags,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/policies",
-    label: "Chính sách thuê xe",
-    icon: ReceiptText,
-    roles: ["Admin", "Manager"],
-  },
-  {
-    href: "/admin/subscription-plans",
-    label: "Gói Đăng Ký",
-    icon: WalletCards,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/departments",
-    label: "Phòng Ban",
-    icon: Building2,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/facilities",
-    label: "Cơ Sở",
-    icon: Building2,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/staffs",
-    label: "Nhân Viên",
-    icon: UsersRound,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/roles",
-    label: "Vai Trò",
-    icon: KeyRound,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/profile",
-    label: "Hồ sơ nhân viên",
-    icon: CircleUserRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-];
+
 
 export default function StaffShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -130,10 +46,8 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   );
 
   const navigation = useMemo(() => {
-    return allNavigation.filter((item) =>
-      item.roles.some((role) => userRoles.includes(role.toLowerCase())),
-    );
-  }, [userRoles]);
+    return getNavigation(account?.roles ?? user?.roles, "admin");
+  }, [account?.roles, user?.roles]);
 
   // usePortalAccess chỉ trả account; chức danh + tên cơ sở lấy an toàn không crash 403
   useEffect(() => {
@@ -276,10 +190,12 @@ export default function StaffShell({ children }: { children: ReactNode }) {
                     : "text-ink-3 hover:bg-canvas hover:text-ink"
                 }`}
               >
-                <Icon
-                  aria-hidden="true"
-                  className={`h-[18px] w-[18px] shrink-0 ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
-                />
+                {Icon && (
+                  <Icon
+                    aria-hidden="true"
+                    className={`h-[18px] w-[18px] shrink-0 ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
+                  />
+                )}
                 <span className={styles.navLabel}>{label}</span>
                 {active && (
                   <ChevronLeft aria-hidden="true" className={`${styles.activeChevron} ml-auto h-4 w-4 shrink-0 rotate-180 text-white`} />
@@ -366,22 +282,20 @@ export default function StaffShell({ children }: { children: ReactNode }) {
         {sidebar}
       </aside>
 
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-scrim"
-            aria-label="Đóng menu"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <aside
-            id="admin-mobile-navigation"
-            className="relative flex h-full w-[min(86vw,300px)] flex-col bg-surface shadow-e2"
-          >
-            {sidebar}
-          </aside>
-        </div>
-      )}
+      <Drawer
+        open={mobileMenuOpen}
+        onOpenChange={setMobileMenuOpen}
+        side="left"
+        className="lg:hidden"
+        bodyClassName="p-0 flex flex-col h-full"
+      >
+        <aside
+          id="admin-mobile-navigation"
+          className="flex h-full w-full flex-col bg-surface"
+        >
+          {sidebar}
+        </aside>
+      </Drawer>
 
       <div className={`${styles.content} min-h-[100dvh]`}>
         <header className="glass-admin sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line px-4 sm:px-7 lg:px-9">

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Check, Pencil, Plus, ReceiptText, Tags, Trash2, WalletCards } from "lucide-react";
 import {
   createRentalPolicy,
@@ -20,7 +21,9 @@ import { useAuth } from "@/features/auth";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import { InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import FormDialog from "@/components/ui/FormDialog";
-import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
+import { DataTable } from "@/components/ui/DataTable";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type CatalogKey = "vehicle-types" | "policies" | "subscription-plans";
 type CatalogRecord = { id: number; values: Record<string, string>; active: boolean };
@@ -109,6 +112,8 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
   const validation = useInlineValidation();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<CatalogRecord | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadRecords = useCallback(async () => {
     setError("");
@@ -134,13 +139,13 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     return () => window.clearTimeout(timer);
   }, [loadRecords]);
 
-  const openForm = (record?: CatalogRecord) => {
+  const openForm = useCallback((record?: CatalogRecord) => {
     setEditing(record ?? null);
     setValues(record ? { ...record.values } : Object.fromEntries(fieldsByCatalog[catalog].map((field) => [field.key, field.key === "isActive" ? "true" : ""])));
     setError("");
     validation.reset();
     setFormOpen(true);
-  };
+  }, [catalog, validation]);
 
   const submitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -183,24 +188,130 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
     }
   };
 
-  const deleteRecord = async (record: CatalogRecord) => {
-    if (!window.confirm(`Xóa "${record.values.name}"?`)) return;
+  const deleteRecord = (record: CatalogRecord) => {
+    setRecordToDelete(record);
+  };
+
+  const executeDeleteRecord = async (record: CatalogRecord) => {
+    setDeleting(true);
     try {
       if (catalog === "vehicle-types") await deleteVehicleType(record.id);
       else if (catalog === "subscription-plans") await deleteSubscriptionPlan(record.id);
       else return;
       notifySuccess(`Đã xóa "${record.values.name}".`);
+      setRecordToDelete(null);
       await loadRecords();
     } catch (deleteError) {
       notifyApiError(deleteError, "Không thể xóa mục này.");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const columns = catalog === "vehicle-types"
-    ? [{ key: "name", label: "Loại xe" }, { key: "fuelType", label: "Nhiên liệu" }]
-    : catalog === "policies"
-      ? [{ key: "name", label: "Chính sách" }, { key: "vatRate", label: "VAT" }, { key: "overtimeFeeRate", label: "Phí trễ" }, { key: "depositPercentage", label: "Đặt cọc" }, { key: "vehicleType", label: "Loại xe" }]
-      : [{ key: "name", label: "Tên gói" }, { key: "includedHours", label: "Giờ bao gồm" }, { key: "durationDays", label: "Thời hạn" }, { key: "price", label: "Giá gói" }];
+  const columns = useMemo(
+    () =>
+      catalog === "vehicle-types"
+        ? [{ key: "name", label: "Loại xe" }, { key: "fuelType", label: "Nhiên liệu" }]
+        : catalog === "policies"
+          ? [
+              { key: "name", label: "Chính sách" },
+              { key: "vatRate", label: "VAT" },
+              { key: "overtimeFeeRate", label: "Phí trễ" },
+              { key: "depositPercentage", label: "Đặt cọc" },
+              { key: "vehicleType", label: "Loại xe" },
+            ]
+          : [
+              { key: "name", label: "Tên gói" },
+              { key: "includedHours", label: "Giờ bao gồm" },
+              { key: "durationDays", label: "Thời hạn" },
+              { key: "price", label: "Giá gói" },
+            ],
+    [catalog],
+  );
+
+  const tableColumns = useMemo<ColumnDef<CatalogRecord>[]>(() => {
+    const cols: ColumnDef<CatalogRecord>[] = columns.map((col) => ({
+      id: col.key,
+      header: col.label,
+      cell: ({ row }) => {
+        const record = row.original;
+        if (col.key === "price") {
+          return (
+            <span className="font-mono tabular-nums text-ink">
+              {Number(record.values.price || 0).toLocaleString("vi-VN")} ₫
+            </span>
+          );
+        }
+        if (["vatRate", "overtimeFeeRate", "depositPercentage"].includes(col.key)) {
+          return (
+            <span className="font-mono tabular-nums text-ink">
+              {record.values[col.key] ?? "—"}%
+            </span>
+          );
+        }
+        if (col.key === "durationDays") {
+          return (
+            <span className="font-mono tabular-nums text-ink">
+              {record.values.durationDays ?? "—"} ngày
+            </span>
+          );
+        }
+        if (col.key === "includedHours") {
+          return (
+            <span className="font-mono tabular-nums text-ink">
+              {record.values.includedHours || "—"} giờ
+            </span>
+          );
+        }
+        return <span className="text-ink">{record.values[col.key] || "—"}</span>;
+      },
+    }));
+
+    cols.push({
+      id: "status",
+      header: "Trạng thái",
+      cell: ({ row }) => (
+        <StatusBadge status={row.original.active ? "active" : "inactive"} />
+      ),
+    });
+
+    if (canManage) {
+      cols.push({
+        id: "actions",
+        header: () => <span className="block text-right">Thao tác</span>,
+        cell: ({ row }) => {
+          const record = row.original;
+          return (
+            <div className="flex justify-end gap-1">
+              {catalog !== "policies" && (
+                <button
+                  type="button"
+                  onClick={() => openForm(record)}
+                  aria-label={`Sửa ${record.values.name}`}
+                  className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+              )}
+              {canDelete && catalog !== "policies" && (
+                <button
+                  type="button"
+                  onClick={() => deleteRecord(record)}
+                  disabled={deleting}
+                  aria-label={`Xóa ${record.values.name}`}
+                  className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          );
+        },
+      });
+    }
+
+    return cols;
+  }, [canDelete, canManage, catalog, columns, deleting, openForm]);
 
   return (
     <div className="space-y-6">
@@ -225,47 +336,36 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
       <p className="text-sm text-ink-3">{info.description}</p>
       {catalog === "policies" && <p className="rounded-xl border border-primary/30 bg-primary-tint px-4 py-3 text-sm text-warning">API hiện chỉ hỗ trợ xem và tạo chính sách; chưa có cập nhật hoặc xóa.</p>}
 
-      <AdminTableCard>
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
         <div className="border-b border-line px-5 py-4">
           <h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
           <p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${records.length} mục`}</p>
         </div>
-        <AdminTable className="min-w-[680px]">
-          <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
-          <thead>
-            <tr>
-              {columns.map((column) => <th key={column.key} scope="col">{column.label}</th>)}
-              <th scope="col">Trạng thái</th>
-              {canManage && <th scope="col" data-actions>Thao tác</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {records.map((record) => (
-              <tr key={record.id}>
-                {columns.map((column) => (
-                  <td key={column.key} className="text-ink">
-                    {column.key === "price" ? `${Number(record.values.price || 0).toLocaleString("vi-VN")} ₫`
-                      : ["vatRate", "overtimeFeeRate", "depositPercentage"].includes(column.key) ? `${record.values[column.key] ?? "—"}%`
-                        : column.key === "durationDays" ? `${record.values.durationDays ?? "—"} ngày`
-                          : column.key === "includedHours" ? `${record.values.includedHours || "—"} giờ`
-                            : record.values[column.key] || "—"}
-                  </td>
-                ))}
-                <td><span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${record.active ? "bg-primary/10 text-primary" : "bg-sunken text-ink-3"}`}>{record.active ? "Đang hoạt động" : "Tạm ngưng"}</span></td>
-                {canManage && (
-                  <td data-actions>
-                    <div className="flex justify-end gap-1">
-                      {catalog !== "policies" && <button type="button" onClick={() => openForm(record)} aria-label={`Sửa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-primary/10 hover:text-primary"><Pencil className="h-4 w-4" /></button>}
-                      {canDelete && catalog !== "policies" && <button type="button" onClick={() => void deleteRecord(record)} aria-label={`Xóa ${record.values.name}`} className="rounded-lg p-2 text-ink-3 transition hover:bg-danger-bg hover:text-danger"><Trash2 className="h-4 w-4" /></button>}
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-            {!loading && records.length === 0 && <AdminTableEmptyRow colSpan={columns.length + (canManage ? 2 : 1)}>Không có dữ liệu.</AdminTableEmptyRow>}
-          </tbody>
-        </AdminTable>
-      </AdminTableCard>
+        <DataTable
+          columns={tableColumns}
+          data={records}
+          caption={`Danh sách ${info.title.toLocaleLowerCase()}`}
+          loading={loading}
+          emptyTitle="Không có dữ liệu."
+          className="border-0 rounded-none shadow-none"
+        />
+      </div>
+
+      <ConfirmDialog
+        open={recordToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setRecordToDelete(null);
+        }}
+        title={`Xác nhận xóa ${info.title.toLocaleLowerCase()}`}
+        description={`Bạn có chắc chắn muốn xóa "${recordToDelete?.values.name}"? Thao tác này không thể hoàn tác.`}
+        confirmLabel="Xóa"
+        cancelLabel="Hủy"
+        variant="danger"
+        isPending={deleting}
+        onConfirm={async () => {
+          if (recordToDelete) await executeDeleteRecord(recordToDelete);
+        }}
+      />
 
       {formOpen && (
         <FormDialog title={`${editing ? "Chỉnh sửa" : "Thêm mới"} · ${info.title}`} onClose={() => setFormOpen(false)} busy={saving}>

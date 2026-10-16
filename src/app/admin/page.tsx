@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CalendarDays, CarFront, CircleDollarSign, ClipboardCheck, UsersRound } from "lucide-react";
 import { getDashboardData } from "@/features/admin/api";
-
 import { useAuth } from "@/features/auth";
 import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
+import { StatCard } from "@/components/ui/StatCard";
+import { SkeletonStat } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type DashboardEntry = { label: string; value: string };
 
@@ -20,15 +23,23 @@ export default function AdminDashboardPage() {
   const isManager = hasRole("manager");
   const canManage = isAdmin || isManager;
 
+  const loadData = useCallback(() => {
+    setLoading(true);
+    setError("");
+    void getDashboardData()
+      .then((data: unknown) => setEntries(toEntries(data)))
+      .catch((loadError: unknown) =>
+        setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu dashboard."),
+      )
+      .finally(() => setLoading(false));
+  }, []);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void getDashboardData()
-        .then((data: unknown) => setEntries(toEntries(data)))
-        .catch((loadError: unknown) => setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu dashboard."))
-        .finally(() => setLoading(false));
+      loadData();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [loadData]);
 
   const icons = [ClipboardCheck, CarFront, UsersRound, CircleDollarSign];
 
@@ -54,29 +65,41 @@ export default function AdminDashboardPage() {
           <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Dashboard quản trị</h2>
           <p className="mt-2 text-sm text-ink-3">Các chỉ số được tải trực tiếp từ API quản trị.</p>
         </div>
-        {canManage && (
-          <CreateVehicleButton />
-        )}
+        {canManage && <CreateVehicleButton />}
       </div>
 
-      {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
-      {loading && <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3">Đang tải dữ liệu dashboard...</p>}
-      {!loading && !error && entries.length === 0 && <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">API chưa trả về chỉ số dashboard.</p>}
+      {error && <ErrorState message={error} onRetry={loadData} />}
 
-      <section aria-label="Chỉ số hoạt động" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {entries.map((entry, index) => {
-          const Icon = icons[index % icons.length];
-          return (
-            <article key={entry.label} className="rounded-2xl border border-line bg-surface p-5 shadow-e1">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon className="h-5 w-5" />
-              </span>
-              <p className="mt-5 text-sm font-medium text-ink-3">{entry.label}</p>
-              <p className="mt-1 text-2xl font-bold tracking-tight text-ink">{entry.value}</p>
-            </article>
-          );
-        })}
-      </section>
+      {loading && (
+        <section aria-label="Đang tải chỉ số" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <SkeletonStat key={index} />
+          ))}
+        </section>
+      )}
+
+      {!loading && !error && entries.length === 0 && (
+        <EmptyState
+          title="Chưa có dữ liệu"
+          description="API chưa trả về chỉ số dashboard."
+        />
+      )}
+
+      {!loading && !error && entries.length > 0 && (
+        <section aria-label="Chỉ số hoạt động" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {entries.map((entry, index) => {
+            const Icon = icons[index % icons.length];
+            return (
+              <StatCard
+                key={entry.label}
+                icon={Icon}
+                label={entry.label}
+                value={entry.value}
+              />
+            );
+          })}
+        </section>
+      )}
 
       <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6">
         <h3 className="font-bold text-ink">Quản lý hệ thống</h3>
