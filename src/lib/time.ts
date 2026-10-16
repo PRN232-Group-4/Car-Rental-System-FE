@@ -143,3 +143,46 @@ export function formatRange(
     return "";
   }
 }
+
+/**
+ * Ghép Date (chỉ chứa năm, tháng, ngày) và chuỗi giờ "HH:mm" thành đối tượng TZDate GMT+7.
+ */
+export function combineDateAndTimeGmt7(date: Date, timeStr: string): TZDate {
+  const [hoursStr = "0", minutesStr = "0"] = timeStr.split(":");
+  const hours = parseInt(hoursStr, 10) || 0;
+  const minutes = parseInt(minutesStr, 10) || 0;
+  return new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0, GMT7_TIMEZONE);
+}
+
+/**
+ * Tính số giờ chênh lệch giữa hai thời điểm (start -> end).
+ */
+export function diffHours(start: Date | string | number, end: Date | string | number): number {
+  const s = start instanceof Date ? start.getTime() : new Date(start).getTime();
+  const e = end instanceof Date ? end.getTime() : new Date(end).getTime();
+  return (e - s) / 3600000;
+}
+
+/**
+ * Trả về danh sách các slot giờ cách nhau stepMinutes (mặc định 30 phút) từ 00:00 đến 23:30.
+ */
+export function generateTimeSlots(stepMinutes: 15 | 30 = 30): string[] {
+  const slots: string[] = [];
+  const totalMinutes = 24 * 60;
+  for (let m = 0; m < totalMinutes; m += stepMinutes) {
+    const hh = String(Math.floor(m / 60)).padStart(2, "0");
+    const mm = String(m % 60).padStart(2, "0");
+    slots.push(`${hh}:${mm}`);
+  }
+  return slots;
+}
+
+/**
+ * Kiểm tra xem một ngày có nằm trước ngày hôm nay (tính theo GMT+7) hay không.
+ */
+export function isBeforeTodayGmt7(date: Date): boolean {
+  const now = nowGmt7();
+  const todayStart = new TZDate(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, GMT7_TIMEZONE);
+  const target = new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, GMT7_TIMEZONE);
+  return target.getTime() < todayStart.getTime();
+}

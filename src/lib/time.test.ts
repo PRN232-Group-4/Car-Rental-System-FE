@@ -9,6 +9,10 @@ import {
   formatDate,
   formatTime,
   formatRange,
+  combineDateAndTimeGmt7,
+  diffHours,
+  generateTimeSlots,
+  isBeforeTodayGmt7,
 } from "./time";
 
 describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
@@ -98,4 +102,41 @@ describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
       expect(formatDateTime(now)).toBeTruthy();
     });
   });
+
+  describe("combineDateAndTimeGmt7", () => {
+    it("combines Date object and HH:mm string in GMT+7", () => {
+      const date = new Date(2026, 9, 15); // Oct 15, 2026
+      const combined = combineDateAndTimeGmt7(date, "14:30");
+      expect(formatDateTime(combined)).toBe("14:30 15/10/2026");
+    });
+  });
+
+  describe("diffHours", () => {
+    it("accurately calculates hour difference between dates and strings", () => {
+      const start = "2026-10-15T01:00:00.000Z";
+      const end = "2026-10-16T01:00:00.000Z";
+      expect(diffHours(start, end)).toBe(24);
+      expect(diffHours(start, "2026-10-15T03:30:00.000Z")).toBe(2.5);
+    });
+  });
+
+  describe("generateTimeSlots", () => {
+    it("generates 48 30-min slots from 00:00 to 23:30", () => {
+      const slots = generateTimeSlots(30);
+      expect(slots).toHaveLength(48);
+      expect(slots[0]).toBe("00:00");
+      expect(slots[1]).toBe("00:30");
+      expect(slots[47]).toBe("23:30");
+    });
+  });
+
+  describe("isBeforeTodayGmt7", () => {
+    it("correctly identifies past vs today/future dates", () => {
+      const past = new Date(2020, 0, 1);
+      const future = new Date(2030, 0, 1);
+      expect(isBeforeTodayGmt7(past)).toBe(true);
+      expect(isBeforeTodayGmt7(future)).toBe(false);
+    });
+  });
 });
+
