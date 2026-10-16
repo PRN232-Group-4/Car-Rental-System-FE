@@ -74,12 +74,43 @@ export function handleMockRoute(
   }
 
   // 3. Vehicles
-  if (upperMethod === "GET" && path === "vehicles") {
+  if (upperMethod === "GET" && (path === "vehicles" || path === "vehicles/search")) {
     const facilityId = params.get("facilityId") || undefined;
     const category = params.get("category") || undefined;
-    const search = params.get("search") || undefined;
+    const search = params.get("search") || params.get("q") || undefined;
+    const brand = params.get("brand") || undefined;
+    const seats = params.get("seats") ? Number(params.get("seats")) : (params.get("seatCount") ? Number(params.get("seatCount")) : undefined);
+    const transmission = params.get("transmission") || undefined;
+    const fuelType = params.get("fuelType") || undefined;
+    const priceMin = params.get("priceMin") ? Number(params.get("priceMin")) : (params.get("minPrice") ? Number(params.get("minPrice")) : undefined);
+    const priceMax = params.get("priceMax") ? Number(params.get("priceMax")) : (params.get("maxPrice") ? Number(params.get("maxPrice")) : undefined);
+    const sort = (params.get("sort") as "price_asc" | "price_desc" | "year_desc" | "name_asc") || undefined;
+    const page = params.get("page") ? Number(params.get("page")) : undefined;
+    const pageSize = params.get("pageSize") ? Number(params.get("pageSize")) : undefined;
 
-    const vehicles = mockStore.getVehicles({ facilityId, category, search });
+    const filterArgs = {
+      facilityId,
+      category,
+      search,
+      brand,
+      seats,
+      transmission,
+      fuelType,
+      priceMin,
+      priceMax,
+      sort,
+      page,
+      pageSize,
+    };
+
+    if (params.has("page") || params.has("pageSize") || path === "vehicles/search") {
+      return {
+        status: 200,
+        data: mockStore.getVehiclesPaginated(filterArgs),
+      };
+    }
+
+    const vehicles = mockStore.getVehicles(filterArgs);
     return {
       status: 200,
       data: vehicles,
@@ -87,12 +118,42 @@ export function handleMockRoute(
   }
 
   if (upperMethod === "GET" && path.startsWith("vehicles/")) {
-    const id = path.split("/")[1];
+    const parts = path.split("/");
+    const id = parts[1];
+
+    if (parts.length === 3 && parts[2] === "busy-slots") {
+      const from = params.get("from") || undefined;
+      const to = params.get("to") || undefined;
+      return {
+        status: 200,
+        data: mockStore.getVehicleBusySlots(id, from, to),
+      };
+    }
+
+    if (parts.length === 3 && parts[2] === "availability") {
+      const from = params.get("from") || "";
+      const to = params.get("to") || "";
+      return {
+        status: 200,
+        data: mockStore.checkVehicleAvailability(id, from, to),
+      };
+    }
+
     const vehicle = mockStore.getVehicleById(id);
     if (!vehicle) {
       return { status: 404, data: { message: `Vehicle '${id}' not found` } };
     }
     return { status: 200, data: vehicle };
+  }
+
+  if (upperMethod === "GET" && path.startsWith("vehicle-types/") && path.endsWith("/active-policy")) {
+    const parts = path.split("/");
+    const vehicleTypeId = parseInt(parts[1], 10) || 1;
+    const policy = mockStore.getActivePolicyForVehicleType(vehicleTypeId);
+    return {
+      status: 200,
+      data: policy,
+    };
   }
 
   // 4. Subscription Plans

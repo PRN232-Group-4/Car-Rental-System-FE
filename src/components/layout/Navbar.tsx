@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
-import { useAuth } from "@/features/auth";
+import { Menu, X, LogOut, ChevronDown, Car, FileCheck } from "lucide-react";
+import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
+import { getNavigation } from "@/config/navigation";
 import { useMounted } from "@/hooks/use-mounted";
 import { Button } from "@/components/ui/Button";
 import { useGSAP } from "@gsap/react";
@@ -181,11 +182,7 @@ export default function Navbar() {
                     </div>
 
                     <div className="py-1 border-b border-line mb-1 space-y-0.5">
-                      {(hasRole("admin") ||
-                        hasRole("manager") ||
-                        hasRole("staff") ||
-                        hasRole("customerservice") ||
-                        hasRole("maintenance")) && (
+                      {hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) && (
                         <Link
                           href="/admin"
                           onClick={() => setUserMenuOpen(false)}
@@ -208,54 +205,18 @@ export default function Navbar() {
                       )}
 
                       {/* Customer Hub Links */}
-                      {(hasRole("customer") ||
-                        (!hasRole("admin") &&
-                          !hasRole("manager") &&
-                          !hasRole("staff") &&
-                          !hasRole("driver"))) && (
-                        <>
+                      {(hasRole("customer") || !hasAnyRole(user?.roles, STAFF_PORTAL_ROLES)) &&
+                        getNavigation(user?.roles, "customer").map(({ href, label, icon: Icon }) => (
                           <Link
-                            href="/booking"
+                            key={href}
+                            href={href}
                             onClick={() => setUserMenuOpen(false)}
                             className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
-                            <Car className="size-3.5" />
-                            <span>Đặt xe mới</span>
+                            {Icon && <Icon className="size-3.5" />}
+                            <span>{label}</span>
                           </Link>
-                          <Link
-                            href="/my-subscriptions"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <Package className="size-3.5" />
-                            <span>Gói thuê của tôi</span>
-                          </Link>
-                          <Link
-                            href="/invoices"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <FileText className="size-3.5" />
-                            <span>Danh sách hoá đơn</span>
-                          </Link>
-                          <Link
-                            href="/payment-history"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <CreditCard className="size-3.5" />
-                            <span>Lịch sử thanh toán</span>
-                          </Link>
-                          <Link
-                            href="/driver-license"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <FileCheck className="size-3.5" />
-                            <span>Giấy phép lái xe (GPLX)</span>
-                          </Link>
-                        </>
-                      )}
+                        ))}
 
                       <Link
                         href="/profile"
@@ -377,11 +338,7 @@ export default function Navbar() {
                   </div>
 
                   <div className="py-2 border-y border-line my-2 space-y-1">
-                    {(hasRole("admin") ||
-                      hasRole("manager") ||
-                      hasRole("staff") ||
-                      hasRole("customerservice") ||
-                      hasRole("maintenance")) && (
+                    {hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) && (
                       <Link
                         href="/admin"
                         onClick={() => setMobileMenuOpen(false)}
@@ -401,49 +358,17 @@ export default function Navbar() {
                       </Link>
                     )}
 
-                    {(hasRole("customer") ||
-                      (!hasRole("admin") &&
-                        !hasRole("manager") &&
-                        !hasRole("staff") &&
-                        !hasRole("driver"))) && (
-                      <>
+                    {(hasRole("customer") || !hasAnyRole(user?.roles, STAFF_PORTAL_ROLES)) &&
+                      getNavigation(user?.roles, "customer").map(({ href, label }) => (
                         <Link
-                          href="/booking"
+                          key={href}
+                          href={href}
                           onClick={() => setMobileMenuOpen(false)}
                           className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
-                          Đặt xe mới
+                          {label}
                         </Link>
-                        <Link
-                          href="/my-subscriptions"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Gói thuê của tôi
-                        </Link>
-                        <Link
-                          href="/invoices"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Danh sách hoá đơn
-                        </Link>
-                        <Link
-                          href="/payment-history"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Lịch sử thanh toán
-                        </Link>
-                        <Link
-                          href="/driver-license"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Giấy phép lái xe (GPLX)
-                        </Link>
-                      </>
-                    )}
+                      ))}
 
                     <Link
                       href="/profile"
