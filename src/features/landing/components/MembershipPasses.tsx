@@ -169,15 +169,15 @@ export default function MembershipPasses() {
                 key={plan.id}
                 className={`relative rounded-3xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
                   isFeatured
-                    ? "bg-surface border-2 border-primary shadow-[0_16px_36px_rgba(180,83,9,0.15)] scale-[1.02] text-ink"
-                    : "bg-surface border border-line-strong hover:border-ink-2 shadow-sm text-ink"
+                    ? "bg-surface border-2 border-primary shadow-e2 scale-[1.02] text-ink"
+                    : "bg-surface border border-line-strong hover:border-ink-2 shadow-e1 text-ink"
                 }`}
               >
                 {/* Featured Badge */}
                 {isFeatured && (
-                  <div className="absolute -top-3.5 left-8 px-3.5 py-1 rounded-full bg-primary text-white text-xs font-mono font-bold uppercase tracking-wider shadow-md flex items-center gap-1.5">
+                  <div className="absolute -top-3.5 left-8 px-3.5 py-1 rounded-full bg-primary text-white text-xs font-bold shadow-e1 flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>PRIORITY SELECTION</span>
+                    <span>Khuyên dùng</span>
                   </div>
                 )}
 
@@ -207,7 +207,7 @@ export default function MembershipPasses() {
 
                   {/* Price & Quota Box */}
                   <div className="mb-6 p-4 rounded-2xl border bg-surface-raised border-line">
-                    <div className="font-mono text-3xl font-black tracking-tight text-ink">
+                    <div className="font-mono text-3xl font-black tracking-tight text-ink tabular-nums">
                       {formatVND(plan.price)}
                     </div>
                     <div className="mt-2 flex items-center gap-4 text-xs font-mono text-ink-3">

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import styles from "./navigation.module.css";
 
 export function PageLoading({ overlay = false }: { overlay?: boolean }) {
@@ -12,16 +11,9 @@ export function PageLoading({ overlay = false }: { overlay?: boolean }) {
     >
       <div className={overlay ? `${styles.card} glass-admin` : styles.card}>
         <div className={styles.brand}>
-          <Image
-            src="/logo-car.png"
-            alt=""
-            width={124}
-            height={57}
-            loading="eager"
-            unoptimized
-            className={styles.logo}
-          />
-          <p className={styles.wordmark}>Thong Dong</p>
+          <p className={`${styles.wordmark} font-display font-black tracking-tight text-2xl sm:text-3xl text-ink`}>
+            ThongDong.
+          </p>
         </div>
         <div className={styles.track} aria-hidden="true">
           <span className={styles.indicator} />

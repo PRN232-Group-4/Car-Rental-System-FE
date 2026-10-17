@@ -221,13 +221,15 @@ export default function SpatialFleetShowcase({
         {/* Right Column: Deep Telemetry Specs & Direct Booking Action */}
         <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
           <div>
-            <span className="text-xs font-bold text-primary uppercase tracking-wider block mb-1">
-              {activeModel.category}
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mb-2">
-              {activeModel.name}
-            </h3>
-            <p className="text-xs sm:text-sm text-ink-2 font-normal leading-relaxed mb-6">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-black text-ink tracking-tight text-balance">
+                {activeModel.name}
+              </h3>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-tint text-primary border border-primary/20">
+                {activeModel.category}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-ink-2 font-normal leading-relaxed mb-6 text-pretty">
               {activeModel.tagline}
             </p>
 

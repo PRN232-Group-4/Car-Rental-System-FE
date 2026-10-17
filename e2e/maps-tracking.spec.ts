@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const vehicle = { id: 10, brand: "Toyota", model: "Vios", vehicleTypeId: 1, status: "available", mainImageUrl: "/logo.jpg" };
+const vehicle = { id: 10, brand: "Toyota", model: "Vios", vehicleTypeId: 1, status: "available", mainImageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80" };
 const point = { lat: 10.7769, lng: 106.7009, recordedAt: "2026-10-15T03:04:00Z", accuracyM: 10 };
 
 test.beforeEach(async ({ page }) => {
