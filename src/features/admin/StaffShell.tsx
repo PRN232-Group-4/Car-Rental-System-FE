@@ -2,112 +2,15 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
-import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { getFacilities, getStaffById } from "./api";
 import { useAdminTheme } from "./use-admin-theme";
-import {
-  Building2,
-  CarFront,
-  CircleUserRound,
-  KeyRound,
-  LayoutDashboard,
-  ReceiptText,
-  Tags,
-  WalletCards,
-  UsersRound,
-} from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
+import { getNavigation } from "@/config/navigation";
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
 import AppPortalShell, { type PortalNavItem } from "@/components/layout/AppPortalShell";
-
-const allNavigation: (PortalNavItem & { roles: string[] })[] = [
-  {
-    href: "/admin",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/vehicles",
-    label: "Quản lý phương tiện",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/rentals",
-    label: "Vận hành đơn thuê",
-    icon: ReceiptText,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/inspections",
-    label: "Kiểm tra xe",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/maintenance",
-    label: "Quản lý bảo trì",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/dispatch",
-    label: "Điều phối tài xế",
-    icon: UsersRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
-  },
-  {
-    href: "/admin/subscription-plans",
-    label: "Gói Đăng Ký",
-    icon: WalletCards,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/vehicle-types",
-    label: "Loại phương tiện",
-    icon: Tags,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/policies",
-    label: "Chính sách thuê xe",
-    icon: ReceiptText,
-    roles: ["Admin", "Manager"],
-  },
-  {
-    href: "/admin/facilities",
-    label: "Cơ Sở",
-    icon: Building2,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/staffs",
-    label: "Nhân Viên",
-    icon: UsersRound,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/departments",
-    label: "Phòng Ban",
-    icon: Building2,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/roles",
-    label: "Vai Trò",
-    icon: KeyRound,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/profile",
-    label: "Hồ sơ nhân viên",
-    icon: CircleUserRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-];
 
 export default function StaffShell({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -124,11 +27,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
     [account?.roles],
   );
 
-  const navigation = useMemo(() => {
-    return allNavigation.filter((item) =>
-      item.roles.some((role) => userRoles.includes(role.toLowerCase())),
-    );
-  }, [userRoles]);
+  const navigation = useMemo<PortalNavItem[]>(() => {
+    const items = getNavigation(account?.roles ?? user?.roles, "admin");
+    return items.map((item) => ({
+      href: item.href,
+      label: item.label,
+      icon: (item.icon as React.ElementType) || LayoutDashboard,
+    }));
+  }, [account?.roles, user?.roles]);
 
   // Chức danh + tên cơ sở lấy an toàn không crash 403
   useEffect(() => {
@@ -142,31 +48,32 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
         const isAdmin = userRoles.includes("admin");
 
-        if (isAdmin && account.staffId != null) {
+        if (account.staffId) {
           try {
             const staff = await getStaffById(account.staffId);
-            nextStaffRole = staff.staffRole;
-            nextFacilityName = staff.facilityName;
+            if (active && staff) {
+              nextStaffRole = staff.isDriver ? "Tài xế" : "Nhân viên vận hành";
+              if (staff.departmentName) {
+                nextStaffRole = `${nextStaffRole} • ${staff.departmentName}`;
+              }
+              if (staff.facilityName) {
+                nextFacilityName = staff.facilityName;
+              }
+            }
           } catch {
-            // Không chặn nếu role lookup lỗi
+            // bỏ qua lỗi nếu không đọc được staff detail
           }
         }
 
-        if (!nextStaffRole) {
-          if (userRoles.includes("admin")) nextStaffRole = "Quản trị viên";
-          else if (userRoles.includes("manager")) nextStaffRole = "Quản lý";
-          else if (userRoles.includes("customerservice")) nextStaffRole = "Chăm sóc khách hàng";
-          else if (userRoles.includes("maintenance")) nextStaffRole = "Kỹ thuật / Bảo trì";
-          else nextStaffRole = account.departmentName || "Nhân viên";
-        }
-
-        if (!nextFacilityName && account.facilityId != null) {
+        if (!nextFacilityName && account.facilityId && isAdmin) {
           try {
             const facilities = await getFacilities();
-            nextFacilityName =
-              facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+            const facility = facilities.find((f) => f.id === account.facilityId);
+            if (active && facility) {
+              nextFacilityName = facility.name;
+            }
           } catch {
-            // Ignore
+            // bỏ qua lỗi nếu không có quyền đọc danh sách cơ sở
           }
         }
 
@@ -175,26 +82,40 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           setFacilityName(nextFacilityName);
           setProfileError("");
         }
-      } catch (error) {
+      } catch {
         if (active) {
-          setProfileError(
-            error instanceof Error ? error.message : "Không thể tải hồ sơ nhân viên.",
-          );
+          setProfileError("Không thể tải thông tin chi nhánh.");
         }
       } finally {
-        if (active) setProfileLoading(false);
+        if (active) {
+          setProfileLoading(false);
+        }
       }
     };
 
     void loadAssignment();
+
     return () => {
       active = false;
     };
   }, [account, userRoles]);
 
-  const displayName = user?.fullName || account?.fullName || "Tài khoản quản trị";
-  const avatarUrl = user ? user.avatarUrl : account?.avatarUrl;
-  const jobTitle = staffRole || account?.departmentName || "Nhân viên";
+  const displayName = account?.fullName || user?.fullName || "Quản trị viên";
+  const jobTitle =
+    staffRole ||
+    (userRoles.includes("admin")
+      ? "Quản trị viên hệ thống"
+      : userRoles.includes("manager")
+        ? "Quản lý vận hành"
+        : userRoles.includes("customerservice")
+          ? "Chăm sóc khách hàng"
+          : userRoles.includes("maintenance")
+            ? "Kỹ thuật bảo trì"
+            : userRoles.includes("driver")
+              ? "Tài xế"
+              : "Nhân viên");
+
+  const avatarUrl = account?.avatarUrl || user?.avatarUrl;
 
   const handleLogout = async () => {
     await logout();
@@ -203,21 +124,27 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
   if (checkingAccess) {
     return (
-      <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
-        <div className="w-full max-w-3xl"><FormSkeleton label="Đang xác thực tài khoản nhân viên..." /></div>
+      <div className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
+        <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-e2">
+          <FormSkeleton label="Đang kiểm tra quyền truy cập..." fields={3} />
+        </div>
       </div>
     );
   }
 
-  if (accessError || !account) {
+  if (accessError) {
     return (
-      <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
-        <p
-          role="alert"
-          className="max-w-xl rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger"
-        >
-          {accessError || "Tài khoản không có quyền truy cập cổng quản trị."}
-        </p>
+      <div className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
+        <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-e2 text-center space-y-4">
+          <p className="text-sm font-semibold text-danger">{accessError}</p>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-e1 hover:bg-primary-hover"
+          >
+            Đăng nhập lại
+          </button>
+        </div>
       </div>
     );
   }

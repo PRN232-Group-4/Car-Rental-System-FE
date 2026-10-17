@@ -1,473 +1,446 @@
 "use client";
 
-import { Suspense, useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "@/components/navigation/NavigationLink";
+import React, { Suspense, useMemo, useState, useEffect, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import VehicleImage from "@/components/ui/VehicleImage";
-import { BookingModal } from "@/features/rentals";
-import { getVehicles, getInitialVehicles } from "@/features/vehicles/api";
-import type { Vehicle } from "@/features/vehicles/types";
-import { getFacilities, getInitialFacilities } from "@/features/facilities/api";
-import type { Facility } from "@/features/facilities/types";
+import { VehicleCard } from "@/features/vehicles/components/VehicleCard";
+import { VehicleCardSkeleton } from "@/features/vehicles/components/VehicleCardSkeleton";
+import { VehicleFilters } from "@/features/vehicles/components/VehicleFilters";
+import { ActiveFilterChips } from "@/features/vehicles/components/ActiveFilterChips";
+import { DateTimeRangePicker } from "@/components/ui/DateTimeRangePicker";
+import { Pagination } from "@/components/ui/Pagination";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { Skeleton } from "@/components/ui/Skeleton";
-import {
-  Search,
-  MapPin,
-  Car,
-  Zap,
-  ArrowRight,
-  RefreshCw,
-  SlidersHorizontal,
-  ChevronDown,
-} from "lucide-react";
+import { parseSearchParams, serializeSearchParams } from "@/lib/url";
+import { findFilterSchema, FindFilterState } from "./findFilterSchema";
+import { getVehiclesPaginated } from "@/features/vehicles/api";
+import { VehiclePage } from "@/features/vehicles/types";
+import { MOCK_FACILITIES } from "@/api/mock/mock-catalog";
+import { Search, SlidersHorizontal, ArrowUpDown, Car, RotateCcw } from "lucide-react";
+import { gsap } from "@/lib/motion/register";
 
-export default function FindPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-dvh bg-canvas text-ink flex items-center justify-center p-6">
-          <p className="text-sm font-semibold text-ink-3">Đang tải danh sách phương tiện...</p>
-        </div>
-      }
-    >
-      <FindContent />
-    </Suspense>
-  );
-}
+const CATEGORY_TABS = [
+  { value: "all", label: "Tất cả" },
+  { value: "electric_car", label: "Ô tô điện" },
+  { value: "car", label: "Ô tô xăng" },
+  { value: "electric_motorbike", label: "Xe máy điện" },
+  { value: "motorbike", label: "Xe máy xăng" },
+];
 
-function FindContent() {
+const SORT_OPTIONS = [
+  { value: "price_asc", label: "Giá tăng dần" },
+  { value: "price_desc", label: "Giá giảm dần" },
+  { value: "year_desc", label: "Đời xe mới nhất" },
+  { value: "name_asc", label: "Tên xe A — Z" },
+];
+
+function FindCatalogContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const initialMode = searchParams.get("mode") === "longterm" ? "longterm" : "hourly";
-  const initialFacility = searchParams.get("facilityId") || "all";
-  const initialCategory = searchParams.get("category") || "all";
-  const initialSearch = searchParams.get("search") || searchParams.get("q") || "";
-  const initialStartDate = searchParams.get("startDate") || "";
-  const initialStartTime = searchParams.get("startTime") || "";
-  const initialEndDate = searchParams.get("endDate") || "";
-  const initialEndTime = searchParams.get("endTime") || "";
+  // 1. Phân tích trạng thái bộ lọc từ URL (Single Source of Truth)
+  const filters: FindFilterState = useMemo(() => {
+    return parseSearchParams(findFilterSchema, searchParams);
+  }, [searchParams]);
 
-  const [mode, setMode] = useState<"hourly" | "longterm">(initialMode);
-  const [selectedFacility, setSelectedFacility] = useState<string>(initialFacility);
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [keyword, setKeyword] = useState<string>(initialSearch);
-  const [sortBy, setSortBy] = useState<"recommended" | "price-asc" | "price-desc" | "newest">("recommended");
+  // State cục bộ cho ô tìm kiếm (để gõ mượt mà trước khi sync URL)
+  const [searchInput, setSearchInput] = useState(filters.search || "");
+  const [prevSearch, setPrevSearch] = useState(filters.search);
+  if (filters.search !== prevSearch) {
+    setPrevSearch(filters.search);
+    setSearchInput(filters.search || "");
+  }
 
-  const [vehicles, setVehicles] = useState<Vehicle[]>(() => getInitialVehicles());
-  const [facilities, setFacilities] = useState<Facility[]>(() => getInitialFacilities());
-  const [loading, setLoading] = useState<boolean>(true);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // 2. Fetch danh sách xe theo bộ lọc
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pageData, setPageData] = useState<VehiclePage>({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 9,
+  });
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
-  const [bookingVehicle, setBookingVehicle] = useState<Vehicle | null>(null);
-
-  useEffect(() => {
-    getFacilities()
-      .then(setFacilities)
-      .catch(() => {});
-  }, []);
-
-  const loadData = async () => {
+  const [prevFilters, setPrevFilters] = useState(filters);
+  if (filters !== prevFilters) {
+    setPrevFilters(filters);
     setLoading(true);
     setError(null);
-    try {
-      const data = await getVehicles({
-        facilityId: selectedFacility !== "all" ? selectedFacility : undefined,
-        category: selectedCategory !== "all" ? selectedCategory : undefined,
-        search: keyword.trim() || undefined,
-      });
-      setVehicles(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Không thể tải danh sách phương tiện.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }
+
+  const gridContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    void loadData();
-  }, [selectedFacility, selectedCategory]);
+    let active = true;
+    const runFetch = async () => {
+      try {
+        const res = await getVehiclesPaginated({
+          category: filters.category,
+          facilityId: filters.facilityId,
+          brand: filters.brand,
+          seats: filters.seats,
+          transmission: filters.transmission,
+          fuelType: filters.fuelType,
+          priceMin: filters.priceMin,
+          priceMax: filters.priceMax,
+          search: filters.search,
+          sort: filters.sort,
+          page: filters.page,
+          pageSize: filters.pageSize,
+          from: filters.startDate,
+          to: filters.endDate,
+          mode: filters.mode,
+        });
+        if (active) {
+          setPageData(res);
+        }
+      } catch (err: unknown) {
+        if (active) {
+          setError(err instanceof Error ? err.message : "Không thể tải danh sách phương tiện");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void runFetch();
+    return () => {
+      active = false;
+    };
+  }, [filters, retryTrigger]);
+
+  // Hiệu ứng GSAP chuyển động mượt mà khi đổi danh sách
+  useEffect(() => {
+    if (loading || !gridContainerRef.current) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    gsap.fromTo(
+      gridContainerRef.current.children,
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.35, stagger: 0.04, ease: "power2.out" }
+    );
+  }, [pageData.items, loading]);
+
+  // 3. Hàm cập nhật bộ lọc ghi vào URL
+  const updateFilters = (patch: Partial<FindFilterState>) => {
+    const next: FindFilterState = { ...filters, ...patch };
+    // Khi thay đổi bất kỳ tiêu chí nào khác ngoài page, tự động nhảy về trang 1
+    if (!("page" in patch)) {
+      next.page = 1;
+    }
+    const queryString = serializeSearchParams(next as unknown as Record<string, unknown>);
+    router.push(`/find${queryString}`, { scroll: false });
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    void loadData();
+    updateFilters({ search: searchInput.trim() });
   };
 
-  const handleResetFilters = () => {
-    setSelectedFacility("all");
-    setSelectedCategory("all");
-    setKeyword("");
-    setSortBy("recommended");
+  const handleClearAll = () => {
+    setSearchInput("");
+    router.push("/find", { scroll: false });
   };
 
-  const filteredAndSortedVehicles = useMemo(() => {
-    let list = [...vehicles];
-
-    if (keyword.trim()) {
-      const q = keyword.trim().toLowerCase();
-      list = list.filter(
-        (v) =>
-          v.name.toLowerCase().includes(q) ||
-          v.brand?.toLowerCase().includes(q) ||
-          v.model?.toLowerCase().includes(q) ||
-          v.categoryLabel.toLowerCase().includes(q) ||
-          v.facilityName.toLowerCase().includes(q)
-      );
+  const handleRemoveChip = (key: keyof FindFilterState) => {
+    if (key === "search") {
+      setSearchInput("");
+      updateFilters({ search: "" });
+    } else if (key === "seats" || key === "priceMin" || key === "priceMax") {
+      updateFilters({ [key]: 0 });
+    } else if (key === "mode") {
+      updateFilters({ mode: "hourly" });
+    } else {
+      updateFilters({ [key]: "all" });
     }
-
-    if (sortBy === "price-asc") {
-      list.sort((a, b) => (mode === "hourly" ? a.hourlyPrice - b.hourlyPrice : a.monthlyPrice - b.monthlyPrice));
-    } else if (sortBy === "price-desc") {
-      list.sort((a, b) => (mode === "hourly" ? b.hourlyPrice - a.hourlyPrice : b.monthlyPrice - a.monthlyPrice));
-    } else if (sortBy === "newest") {
-      list.sort((a, b) => b.year - a.year);
-    }
-
-    return list;
-  }, [vehicles, keyword, sortBy, mode]);
-
-  const formatVND = (val: number) => {
-    return new Intl.NumberFormat("vi-VN").format(val) + " ₫";
   };
 
-  const buildDetailUrl = (v: Vehicle) => {
-    const params = new URLSearchParams();
-    params.set("id", String(v.id));
-    if (mode) params.set("mode", mode);
-    if (selectedFacility && selectedFacility !== "all") params.set("facilityId", selectedFacility);
-    if (initialStartDate) params.set("startDate", initialStartDate);
-    if (initialStartTime) params.set("startTime", initialStartTime);
-    if (initialEndDate) params.set("endDate", initialEndDate);
-    if (initialEndTime) params.set("endTime", initialEndTime);
-    return `/vehicles/detail?${params.toString()}`;
-  };
-
-  const buildBookingUrl = (v: Vehicle) => {
-    const params = new URLSearchParams();
-    params.set("vehicleId", String(v.id));
-    params.set("mode", mode);
-    if (selectedFacility && selectedFacility !== "all") params.set("facilityId", selectedFacility);
-    if (initialStartDate && initialStartTime) {
-      params.set("startTime", `${initialStartDate}T${initialStartTime}`);
-    }
-    if (initialEndDate && initialEndTime) {
-      params.set("endTime", `${initialEndDate}T${initialEndTime}`);
-    }
-    return `/booking?${params.toString()}`;
-  };
+  // Đếm số lượng bộ lọc đang kích hoạt ngoài mặc định
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filters.search && filters.search.trim()) count++;
+    if (filters.category && filters.category !== "all") count++;
+    if (filters.facilityId && filters.facilityId !== "all") count++;
+    if (filters.brand && filters.brand !== "all") count++;
+    if (filters.seats && Number(filters.seats) > 0) count++;
+    if (filters.transmission && filters.transmission !== "all") count++;
+    if (filters.fuelType && filters.fuelType !== "all") count++;
+    if (filters.priceMin && Number(filters.priceMin) > 0) count++;
+    if (filters.priceMax && Number(filters.priceMax) > 0) count++;
+    if (filters.mode && filters.mode !== "hourly") count++;
+    return count;
+  }, [filters]);
 
   return (
-    <div className="min-h-dvh bg-canvas text-ink flex flex-col selection:bg-primary/20 selection:text-warning">
-      <Navbar />
-
-      <main className="flex-1 pt-24 sm:pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        {/* Header Hero */}
-        <div className="mb-8 border-b border-line pb-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-4xl font-black text-ink tracking-tight text-balance">
-                Tìm Xe & Khám Phá Phương Tiện
-              </h1>
-              <p className="mt-1 text-sm text-ink-3 text-pretty">
-                100% xe kiểm định chính chủ, bàn giao nhanh chóng và hoàn cọc minh bạch.
-              </p>
-            </div>
-
-            {/* Hourly vs Longterm Switcher */}
-            <div className="flex items-center gap-1.5 p-1 bg-surface rounded-xl border border-line shrink-0">
-              <button
-                type="button"
-                onClick={() => setMode("hourly")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  mode === "hourly"
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-ink-3 hover:text-ink hover:bg-sunken"
-                }`}
-              >
-                Thuê theo giờ
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("longterm")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  mode === "longterm"
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-ink-3 hover:text-ink hover:bg-sunken"
-                }`}
-              >
-                Thuê dài hạn
-              </button>
-            </div>
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      {/* 1. Header Trang & Bộ chọn thời gian nhận/trả xe */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-line pb-8">
+        <div>
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
+            <Car className="w-4 h-4" />
+            <span>Danh mục phương tiện</span>
           </div>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-black text-ink tracking-tight">
+            Tìm & Thuê Xe Thong Dong
+          </h1>
+          <p className="mt-1.5 text-sm text-ink-3 max-w-xl">
+            Đội xe sở hữu trực tiếp 100%, kiểm định 12 hạng mục nghiêm ngặt, minh bạch giá cả và hỗ trợ đổi xe linh hoạt.
+          </p>
         </div>
 
-        {/* Filter & Search Bar */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-e1 mb-8 space-y-4">
-          <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-            {/* Search Input */}
-            <div className="sm:col-span-5 relative">
-              <Search className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Thanh chọn lịch trình GMT+7 */}
+        <div className="w-full md:w-80 shrink-0">
+          <label className="block text-xs font-bold text-ink mb-1.5">
+            Lịch trình thuê xe dự kiến:
+          </label>
+          <DateTimeRangePicker
+            value={{
+              from: filters.startDate ?? null,
+              to: filters.endDate ?? null,
+              startTime: filters.startTime,
+              endTime: filters.endTime,
+            }}
+            rentalMode={filters.mode === "longterm" ? "longterm" : "daily"}
+            onChange={(val) => {
+              updateFilters({
+                startDate: val.from ?? undefined,
+                endDate: val.to ?? undefined,
+                startTime: val.startTime,
+                endTime: val.endTime,
+              });
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 2. Dải Tab Phân Khúc Nhanh (Category Quick Tabs) */}
+      <div className="mt-6 flex items-center justify-between gap-4 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center gap-2">
+          {CATEGORY_TABS.map((tab) => {
+            const isSelected = filters.category === tab.value;
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => updateFilters({ category: tab.value as FindFilterState["category"] })}
+                className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-primary text-white shadow-xs"
+                    : "border border-line bg-surface text-ink-2 hover:bg-surface-raised"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Nút mở Drawer trên Mobile (< 1024px) */}
+        <button
+          type="button"
+          onClick={() => setMobileDrawerOpen(true)}
+          className="lg:hidden flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-2 text-xs font-bold text-ink shadow-xs hover:bg-sunken shrink-0 cursor-pointer"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
+          <span>Bộ lọc</span>
+          {activeFiltersCount > 0 && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary font-mono text-[10px] font-bold text-white">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* 3. Bố cục 2 cột (Desktop Sidebar + Catalog Grid) */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+        {/* Desktop Sidebar (>= 1024px) */}
+        <aside className="hidden lg:block sticky top-28 rounded-2xl border border-line bg-surface p-5 shadow-e1">
+          <VehicleFilters
+            filters={filters}
+            facilities={MOCK_FACILITIES}
+            onChange={updateFilters}
+            onReset={handleClearAll}
+          />
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="w-full flex flex-col min-w-0">
+          {/* Thanh Tìm kiếm văn bản, Đếm kết quả & Sắp xếp */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+            <form onSubmit={handleSearchSubmit} className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3" />
               <input
                 type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Tìm theo tên xe, hãng, dòng xe..."
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-sunken text-base sm:text-xs font-semibold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Tìm theo tên xe, hãng xe, đời xe hoặc trạm..."
+                className="w-full rounded-xl border border-line bg-canvas pl-9 pr-20 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:bg-surface focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-primary hover:bg-primary-hover px-3 py-1 text-[11px] font-bold text-white transition-colors cursor-pointer"
+              >
+                Tìm
+              </button>
+            </form>
+
+            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+              <span className="text-xs font-semibold text-ink-3">
+                {loading ? "Đang tải..." : `Tìm thấy ${pageData.totalCount} xe`}
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <ArrowUpDown className="w-3.5 h-3.5 text-primary" />
+                <select
+                  value={filters.sort}
+                  onChange={(e) => updateFilters({ sort: e.target.value as FindFilterState["sort"] })}
+                  className="rounded-xl border border-line bg-canvas px-2.5 py-1.5 text-xs font-bold text-ink transition-colors focus:border-primary focus:outline-none cursor-pointer"
+                >
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Dải Chips bộ lọc đang áp dụng */}
+          <ActiveFilterChips
+            filters={filters}
+            facilities={MOCK_FACILITIES}
+            onRemove={handleRemoveChip}
+            onClearAll={handleClearAll}
+          />
+
+          {/* Trạng thái Lưới xe: Loading / Error / Empty / Grid */}
+          <div className="mt-6">
+            {error ? (
+              <ErrorState
+                title="Không thể tải dữ liệu xe"
+                message={error}
+                onRetry={() => {
+                  setLoading(true);
+                  setError(null);
+                  setRetryTrigger((c) => c + 1);
+                }}
+                className="my-8"
+              />
+            ) : loading ? (
+              <div
+                data-testid="find-skeleton-grid"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+              >
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <VehicleCardSkeleton key={`skel-${i}`} />
+                ))}
+              </div>
+            ) : pageData.items.length === 0 ? (
+              <EmptyState
+                title="Không tìm thấy phương tiện phù hợp"
+                description="Hãy thử nới lỏng các tiêu chí lọc, đổi khoảng giá hoặc tìm kiếm theo từ khóa khác."
+                action={
+                  <Button
+                    variant="primary"
+                    onClick={handleClearAll}
+                    className="flex items-center gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Đặt lại toàn bộ bộ lọc</span>
+                  </Button>
+                }
+                className="my-12 rounded-2xl border border-line bg-surface shadow-e1"
+              />
+            ) : (
+              <div
+                ref={gridContainerRef}
+                data-testid="vehicle-grid"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+              >
+                {pageData.items.map((vehicle, idx) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    priority={idx < 3}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Phân trang */}
+          {!loading && pageData.totalCount > pageData.pageSize && (
+            <div className="mt-10 border-t border-line pt-6">
+              <Pagination
+                page={pageData.page}
+                pageSize={pageData.pageSize}
+                totalCount={pageData.totalCount}
+                pageSizeOptions={[6, 9, 12, 18]}
+                itemName="xe"
+                onPageChange={(nextPage) => updateFilters({ page: nextPage })}
+                onPageSizeChange={(nextSize) => updateFilters({ pageSize: nextSize, page: 1 })}
               />
             </div>
+          )}
+        </main>
+      </div>
 
-            {/* Branch Filter */}
-            <div className="sm:col-span-4 relative">
-              <MapPin className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={selectedFacility}
-                onChange={(e) => setSelectedFacility(e.target.value)}
-                className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-sunken text-xs font-semibold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all appearance-none cursor-pointer"
-              >
-                <option value="all">Tất cả chi nhánh</option>
-                {facilities.map((fac) => (
-                  <option key={fac.id} value={fac.id}>
-                    {fac.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-ink-3 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* Submit & Reset Buttons */}
-            <div className="sm:col-span-3 flex items-center gap-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                className="flex-1 min-h-[38px] text-xs font-bold"
-              >
-                <Search className="w-3.5 h-3.5 mr-1" />
-                <span>Tìm kiếm</span>
-              </Button>
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="px-3 min-h-[38px] rounded-xl bg-sunken hover:bg-canvas text-ink-3 hover:text-ink text-xs font-semibold border border-line transition-colors cursor-pointer"
-                title="Đặt lại bộ lọc"
-              >
-                Đặt lại
-              </button>
-            </div>
-          </form>
-
-          {/* Category Tabs */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-line">
-            {[
-              { id: "all", label: "Tất cả loại xe" },
-              { id: "car", label: "Ô tô xăng" },
-              { id: "electric_car", label: "Ô tô điện" },
-              { id: "motorbike", label: "Xe máy xăng" },
-              { id: "electric_motorbike", label: "Xe máy điện" },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-stage-ink text-white shadow-sm"
-                    : "bg-sunken hover:bg-canvas text-ink-2 hover:text-ink border border-line"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-
-            <div className="ml-auto flex items-center gap-2 text-xs text-ink-3 font-semibold">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
-              <span>Sắp xếp:</span>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  className="bg-sunken pl-2.5 pr-7 py-1 rounded-lg text-xs font-bold text-ink border border-line outline-none cursor-pointer appearance-none"
-                >
-                  <option value="recommended">Đề xuất</option>
-                  <option value="price-asc">Giá: Thấp đến Cao</option>
-                  <option value="price-desc">Giá: Cao đến Thấp</option>
-                  <option value="newest">Đời xe mới nhất</option>
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-ink-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-            </div>
-          </div>
+      {/* Drawer Bộ lọc trên Mobile */}
+      <Drawer
+        open={mobileDrawerOpen}
+        onOpenChange={setMobileDrawerOpen}
+        title="Bộ lọc chi tiết"
+        side="bottom"
+      >
+        <div className="p-5 overflow-y-auto max-h-[75vh]">
+          <VehicleFilters
+            filters={filters}
+            facilities={MOCK_FACILITIES}
+            onChange={updateFilters}
+            onReset={handleClearAll}
+            onApplyMobile={() => setMobileDrawerOpen(false)}
+            isMobileDrawer
+          />
         </div>
+      </Drawer>
+    </div>
+  );
+}
 
-        {/* Results State */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="p-5 rounded-2xl bg-surface border border-line space-y-4">
-                <Skeleton className="h-44 w-full rounded-xl" />
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <div className="pt-2 flex justify-between">
-                  <Skeleton className="h-6 w-1/3" />
-                  <Skeleton className="h-8 w-1/4 rounded-lg" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="p-8 rounded-2xl bg-danger-bg border border-danger/30 text-center space-y-3">
-            <p className="text-sm font-semibold text-danger">{error}</p>
-            <Button variant="secondary" size="sm" onClick={() => void loadData()}>
-              <RefreshCw className="w-3.5 h-3.5 mr-1" />
-              <span>Thử lại</span>
-            </Button>
-          </div>
-        ) : filteredAndSortedVehicles.length === 0 ? (
-          <div className="p-12 rounded-2xl bg-surface border border-line text-center space-y-4 max-w-lg mx-auto">
-            <Car className="w-12 h-12 text-ink-3 mx-auto" />
-            <h3 className="text-base font-bold text-ink">Không tìm thấy phương tiện phù hợp</h3>
-            <p className="text-xs text-ink-3 leading-relaxed">
-              Hãy thử chọn chi nhánh khác, đổi loại xe hoặc tìm kiếm bằng từ khóa chung hơn.
-            </p>
-            <Button variant="primary" size="sm" onClick={handleResetFilters}>
-              <span>Xóa bộ lọc & xem tất cả xe</span>
-            </Button>
-          </div>
-        ) : (
-          <div>
-            <div className="flex items-center justify-between mb-4 px-1 text-xs text-ink-3 font-semibold">
-              <span>Tìm thấy {filteredAndSortedVehicles.length} phương tiện khả dụng</span>
-              {selectedFacility !== "all" && (
-                <span>
-                  Tại chi nhánh: {facilities.find((f) => f.id === selectedFacility)?.name || selectedFacility}
-                </span>
-              )}
-            </div>
+function FindPageSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
+      <div className="h-10 w-64 rounded-xl bg-sunken" />
+      <div className="mt-3 h-4 w-96 rounded bg-sunken/60" />
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-80 rounded-2xl bg-sunken" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAndSortedVehicles.map((vehicle) => {
-                const isElectric = vehicle.category.includes("electric");
-                return (
-                  <article
-                    key={vehicle.id}
-                    className="flex flex-col justify-between rounded-2xl bg-surface border border-line overflow-hidden shadow-e1 hover:shadow-e2 hover:border-primary/40 transition-all duration-200 group"
-                  >
-                    <div>
-                      {/* Vehicle Image Container */}
-                      <div className="relative h-48 w-full bg-sunken overflow-hidden">
-                        <VehicleImage
-                          src={vehicle.imageUrl}
-                          alt={vehicle.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase bg-stage-ink text-white border border-white/20 shadow-xs">
-                            {vehicle.categoryLabel}
-                          </span>
-                          {isElectric && (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase bg-primary text-white shadow-sm flex items-center gap-1">
-                              <Zap className="w-2.5 h-2.5" />
-                              <span>100% ĐIỆN</span>
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="absolute bottom-2.5 right-2.5 px-2 py-1 rounded-md text-[11px] font-bold bg-surface text-ink border border-line shadow-xs">
-                          Đời {vehicle.year}
-                        </div>
-                      </div>
-
-                      {/* Content Card Body */}
-                      <div className="p-5">
-                        <h2 className="text-base font-bold text-ink group-hover:text-primary transition-colors leading-snug text-balance">
-                          {vehicle.name}
-                        </h2>
-
-                        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-ink-3">
-                          <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span className="truncate">{vehicle.facilityName}</span>
-                        </div>
-
-                        {/* Specs Pills */}
-                        <div className="mt-3.5 pt-3.5 border-t border-line grid grid-cols-3 gap-2 text-center text-xs">
-                          {vehicle.seats ? (
-                            <div className="p-2 rounded-xl bg-sunken">
-                              <span className="text-[10px] text-ink-3 block font-medium">Chỗ ngồi</span>
-                              <span className="font-bold text-ink">{vehicle.seats} chỗ</span>
-                            </div>
-                          ) : (
-                            <div className="p-2 rounded-xl bg-sunken">
-                              <span className="text-[10px] text-ink-3 block font-medium">Truyền động</span>
-                              <span className="font-bold text-ink">{vehicle.transmission}</span>
-                            </div>
-                          )}
-
-                          <div className="p-2 rounded-xl bg-sunken">
-                            <span className="text-[10px] text-ink-3 block font-medium">Năng lượng</span>
-                            <span className="font-bold text-ink truncate block">
-                              {vehicle.batteryCapacity || vehicle.fuelType || "Tiêu chuẩn"}
-                            </span>
-                          </div>
-
-                          <div className="p-2 rounded-xl bg-sunken">
-                            <span className="text-[10px] text-ink-3 block font-medium">Kiểm định</span>
-                            <span className="font-bold text-primary">ĐẠT CHUẨN</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom Pricing & CTAs */}
-                    <div className="p-5 pt-0 mt-3 border-t border-line/60">
-                      <div className="flex items-baseline justify-between py-3">
-                        <span className="text-xs font-semibold text-ink-3">Giá niêm yết:</span>
-                        <div className="text-right">
-                          <span className="font-mono text-lg font-black text-primary tabular-nums">
-                            {formatVND(mode === "hourly" ? vehicle.hourlyPrice : vehicle.monthlyPrice)}
-                          </span>
-                          <span className="text-xs text-ink-3 font-semibold">
-                            {mode === "hourly" ? " / giờ" : " / tháng"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <Link
-                          href={buildDetailUrl(vehicle)}
-                          className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-sunken hover:bg-canvas text-ink text-xs font-bold border border-line transition-all text-center"
-                        >
-                          <span>Xem chi tiết</span>
-                        </Link>
-                        <Button
-                          type="button"
-                          variant="primary"
-                          size="sm"
-                          onClick={() => setBookingVehicle(vehicle)}
-                          className="flex items-center justify-center gap-1 text-xs font-bold shadow-sm"
-                        >
-                          <span>Đặt xe ngay</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        )}
+export default function FindPage() {
+  return (
+    <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
+      <Navbar />
+      <main className="flex-1">
+        <Suspense fallback={<FindPageSkeleton />}>
+          <FindCatalogContent />
+        </Suspense>
       </main>
-
-      {/* Booking Modal */}
-      {bookingVehicle && (
-        <BookingModal
-          vehicle={bookingVehicle}
-          onClose={() => setBookingVehicle(null)}
-        />
-      )}
-
       <Footer />
     </div>
   );

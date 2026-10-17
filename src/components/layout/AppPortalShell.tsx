@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import AccountAvatar from "@/components/ui/AccountAvatar";
 import { Skeleton } from "@/components/ui/Skeleton";

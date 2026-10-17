@@ -12,6 +12,7 @@ import { getFacilities, getStaffById, updateStaff } from "./api";
 import type { StaffDto } from "./api";
 import DriverLicenseProfile from "./DriverLicenseProfile";
 import AccountAvatar from "@/components/ui/AccountAvatar";
+import { FormField as Field } from "@/components/ui/FormField";
 import { useAuth } from "@/features/auth";
 
 export default function StaffProfileForm() {
@@ -184,10 +185,10 @@ export default function StaffProfileForm() {
               <div><h3 className="font-bold text-ink">Thông tin cá nhân</h3><p className="mt-1 text-xs text-ink-3">Cập nhật thông tin liên hệ của nhân viên.</p></div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Họ và tên" icon={<UserRound className="h-4 w-4" />}><InlineInput name="fullName" required defaultValue={staff.fullName ?? ""} autoComplete="name" className="admin-input" /></Field>
-              <Field label="Email công việc" icon={<Mail className="h-4 w-4" />}><InlineInput type="email" readOnly value={staff.email ?? ""} className="admin-input bg-sunken text-ink-3" /></Field>
-              <Field label="Số điện thoại" icon={<Phone className="h-4 w-4" />}><InlineInput name="phone" required defaultValue={staff.phone ?? ""} autoComplete="tel" className="admin-input" /></Field>
-              <Field label="Phòng ban" icon={<Building2 className="h-4 w-4" />}><InlineInput readOnly value={staff.departmentName ?? "Chưa phân công"} className="admin-input bg-sunken text-ink-3" /></Field>
+              <Field label="Họ và tên" htmlFor="fullName" icon={<UserRound className="h-4 w-4" />}><InlineInput name="fullName" required defaultValue={staff.fullName ?? ""} autoComplete="name" className="admin-input" /></Field>
+              <Field label="Email công việc" htmlFor="email" icon={<Mail className="h-4 w-4" />}><InlineInput type="email" readOnly value={staff.email ?? ""} className="admin-input bg-sunken text-ink-3" /></Field>
+              <Field label="Số điện thoại" htmlFor="phone" icon={<Phone className="h-4 w-4" />}><InlineInput name="phone" required defaultValue={staff.phone ?? ""} autoComplete="tel" className="admin-input" /></Field>
+              <Field label="Phòng ban" htmlFor="departmentName" icon={<Building2 className="h-4 w-4" />}><InlineInput readOnly value={staff.departmentName ?? "Chưa phân công"} className="admin-input bg-sunken text-ink-3" /></Field>
             </div>
             <div className="mt-6 flex items-start gap-3 rounded-xl border border-line bg-sunken p-4">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-ink-3" />
@@ -206,9 +207,6 @@ export default function StaffProfileForm() {
   );
 }
 
-function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
-  return <div><label className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink"><span className="text-ink-3">{icon}</span>{label}</label>{children}</div>;
-}
 
 function messageOf(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
