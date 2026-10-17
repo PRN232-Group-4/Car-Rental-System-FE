@@ -5,6 +5,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Button } from "@/components/ui/Button";
+import { BookingModal } from "@/features/rentals";
+import type { Vehicle } from "@/features/vehicles/types";
 import { 
   Rotate3d, 
   Gauge, 
@@ -68,6 +70,7 @@ export default function InteractiveStudio3D() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -324,6 +327,30 @@ export default function InteractiveStudio3D() {
     return new Intl.NumberFormat("vi-VN").format(amount) + " ₫";
   };
 
+  const handleBookModel = () => {
+    setSelectedVehicleForBooking({
+      id: activeModel.id,
+      name: activeModel.name,
+      category: "car",
+      categoryLabel: "Xe Thể Thao Đương Đại",
+      brand: "Porsche",
+      model: activeModel.name,
+      year: activeModel.year,
+      seats: 4,
+      transmission: "Tự động PDK 8 cấp",
+      fuelType: "Xăng cao cấp",
+      hourlyPrice: activeModel.hourlyPrice,
+      monthlyPrice: activeModel.hourlyPrice * 160,
+      supportsSubscription: true,
+      facilityId: "fac-q1",
+      facilityName: "Chi nhánh Quận 1 — Trung tâm",
+      imageUrl: "/assets/hero-ev.jpg",
+      status: "available",
+      isAvailable: true,
+      badges: [activeModel.tag, "KIỂM ĐỊNH 100%", "CHÍNH CHỦ"],
+    });
+  };
+
   return (
     <section id="showroom-3d" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
       {/* Background Automotive Blueprint & Calibration Vectors */}
@@ -516,10 +543,10 @@ export default function InteractiveStudio3D() {
             </div>
 
             <Button
-              as="a"
-              href="#tim-xe"
+              type="button"
+              onClick={handleBookModel}
               variant="amber-hero"
-              className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider"
+              className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider cursor-pointer"
             >
               <span>Đặt thuê xe này</span>
               <ArrowUpRight className="w-4 h-4" />
@@ -527,6 +554,13 @@ export default function InteractiveStudio3D() {
           </div>
         </div>
       </div>
+
+      {selectedVehicleForBooking && (
+        <BookingModal
+          vehicle={selectedVehicleForBooking}
+          onClose={() => setSelectedVehicleForBooking(null)}
+        />
+      )}
     </section>
   );
 }

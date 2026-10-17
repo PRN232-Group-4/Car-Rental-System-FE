@@ -207,6 +207,24 @@ export const MOCK_VEHICLES: VehicleCatalogItem[] = [
     isAvailable: true,
     supportsSubscription: true,
   },
+  {
+    id: "porsche-carrera-4s",
+    name: "Porsche 911 Carrera 4S",
+    category: "car",
+    categoryLabel: "Xe Thể Thao Đương Đại",
+    year: 2026,
+    seats: 4,
+    transmission: "Tự động PDK 8 cấp",
+    fuelType: "Xăng cao cấp",
+    hourlyPrice: 450000,
+    monthlyPrice: 65000000,
+    facilityId: "fac-q1",
+    facilityName: "Chi nhánh Quận 1 — Trung tâm",
+    imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+    badges: ["MODERN PERFORMANCE", "Động cơ Twin-Turbo", "Kiểm định 12 hạng mục"],
+    isAvailable: true,
+    supportsSubscription: true,
+  },
 ];
 
 export const MOCK_SUBSCRIPTION_PLANS: SubscriptionPlanCatalogItem[] = [

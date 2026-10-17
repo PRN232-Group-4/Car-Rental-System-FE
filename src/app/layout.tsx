@@ -6,6 +6,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/Toaster";
 import { NavigationProvider } from "@/components/navigation/NavigationProvider";
 import { siteConfig } from "@/config/site";
+import GlobalBlueprintBackground from "@/components/layout/GlobalBlueprintBackground";
 import "./globals.css";
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -36,7 +37,8 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
-      <body className="min-h-full flex flex-col text-ink bg-canvas font-sans">
+      <body className="min-h-full flex flex-col text-ink bg-canvas font-sans relative selection:bg-primary/20 selection:text-warning">
+        <GlobalBlueprintBackground />
         {/* On reload, reset to the top instead of letting the browser restore the
             old scroll position (or re-jump to a leftover #anchor). Runs before the
             browser restores scroll, so there is no visible jump. */}
