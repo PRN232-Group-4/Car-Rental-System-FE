@@ -15,6 +15,7 @@ import {
   CreditCard,
   FileCheck,
   Calendar,
+  Compass,
 } from "lucide-react";
 import type { Role } from "@/features/auth/roles";
 import { hasAnyRole } from "@/features/auth/access";
@@ -41,6 +42,12 @@ export const PUBLIC_NAV_ITEMS: readonly NavItem[] = [
 
 /** Danh mục điều hướng cổng khách hàng cá nhân */
 export const CUSTOMER_NAV_ITEMS: readonly NavItem[] = [
+  {
+    href: "/account/trips",
+    label: "Chuyến của tôi",
+    icon: Compass,
+    roles: ["Customer"],
+  },
   { href: "/booking", label: "Đặt xe", icon: Car },
   {
     href: "/driver-license",
