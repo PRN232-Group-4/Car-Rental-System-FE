@@ -122,7 +122,7 @@ async function main() {
         if (fs.existsSync(axePath)) {
           await page.addScriptTag({ path: axePath });
           const axeResults = await page.evaluate(async () => {
-            // @ts-ignore
+            // @ts-expect-error window.axe is injected dynamically
             return await window.axe.run({
               runOnly: {
                 type: "tag",

@@ -6,7 +6,6 @@ import {
   Car,
   Activity,
   Wrench,
-  ShieldCheck,
   TrendingUp,
   TrendingDown,
   AlertCircle,
@@ -74,8 +73,6 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
   const rentalsTrend = calculatePercentageChange(data.completedRentals.value, data.completedRentals.previous);
   const rentingVehiclesTrend = calculatePercentageChange(data.rentingVehicles.value, data.rentingVehicles.previous);
   const utilizationTrend = calculatePercentageChange(data.utilizationRate.value, data.utilizationRate.previous);
-  const maintenanceTrend = calculatePercentageChange(data.maintenanceCost.value, data.maintenanceCost.previous);
-  const subsTrend = calculatePercentageChange(data.activeSubscriptions.value, data.activeSubscriptions.previous);
 
   const rentingCount = data.rentingVehicles.value ?? 0;
   const totalVehicles = data.totalVehicles.value ?? 0;

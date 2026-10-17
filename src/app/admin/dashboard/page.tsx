@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
-import { BarChart3, Database } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { getPresetDateRange } from "@/features/admin/dashboard/api";
 import {

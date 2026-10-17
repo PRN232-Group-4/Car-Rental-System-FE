@@ -5,41 +5,45 @@ import { WifiOff, Wifi } from "lucide-react";
 
 export function OfflineBanner() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [wasOffline, setWasOffline] = useState<boolean>(false);
   const [showReconnected, setShowReconnected] = useState<boolean>(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // Initial check
-    setIsOnline(window.navigator.onLine);
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
     const handleOnline = () => {
       setIsOnline(true);
-      if (wasOffline) {
-        setShowReconnected(true);
-        const timer = setTimeout(() => {
-          setShowReconnected(false);
-          setWasOffline(false);
-        }, 3500);
-        return () => clearTimeout(timer);
-      }
+      setShowReconnected(true);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        setShowReconnected(false);
+      }, 3500);
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      setWasOffline(true);
       setShowReconnected(false);
+      if (timer) clearTimeout(timer);
     };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
+    if (typeof window !== "undefined" && !window.navigator.onLine) {
+      const id = setTimeout(() => setIsOnline(false), 0);
+      return () => {
+        clearTimeout(id);
+        if (timer) clearTimeout(timer);
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      };
+    }
+
     return () => {
+      if (timer) clearTimeout(timer);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [wasOffline]);
+  }, []);
 
   if (isOnline && !showReconnected) {
     return null;
