@@ -16,6 +16,7 @@ import {
   FileCheck,
   Calendar,
   Compass,
+  MessageSquareWarning,
 } from "lucide-react";
 import type { Role } from "@/features/auth/roles";
 import { hasAnyRole } from "@/features/auth/access";
@@ -103,6 +104,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     label: "Vận hành đơn thuê",
     icon: ReceiptText,
     roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/reports",
+    label: "Báo cáo sự cố",
+    icon: MessageSquareWarning,
+    roles: ["Admin", "Manager", "Staff", "CustomerService"],
   },
   {
     href: "/admin/inspections",
