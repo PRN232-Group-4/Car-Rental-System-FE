@@ -32,9 +32,13 @@ export default function RootLayout({
     <html
       lang="vi"
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
-      <body className="min-h-full flex flex-col text-ink bg-canvas font-sans relative selection:bg-primary/20 selection:text-warning">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col text-ink bg-canvas font-sans relative selection:bg-primary/20 selection:text-warning"
+      >
         <GlobalBlueprintBackground />
         {/* On reload, reset to the top instead of letting the browser restore the
             old scroll position (or re-jump to a leftover #anchor). Runs before the

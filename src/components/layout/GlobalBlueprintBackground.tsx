@@ -13,6 +13,7 @@ export default function GlobalBlueprintBackground() {
     <div
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
       aria-hidden="true"
+      suppressHydrationWarning
     >
       {/* 1. Lưới toạ độ kỹ thuật CAD liên tục (80x80px Metric Coordinate Grid) */}
       <svg
@@ -87,7 +88,10 @@ export default function GlobalBlueprintBackground() {
       </svg>
 
       {/* 3. Thước đo toạ độ dọc bên trái (Left Vertical Datum Axis) */}
-      <div className="hidden xl:flex flex-col justify-between absolute left-3 2xl:left-6 top-36 bottom-36 w-12 border-l border-ink/10 pl-2 font-mono text-[11px] text-ink-3 opacity-35">
+      <div 
+        className="hidden xl:flex flex-col justify-between absolute left-3 2xl:left-6 top-36 bottom-36 w-12 border-l border-ink/10 pl-2 font-mono text-[11px] text-ink-3 opacity-35"
+        suppressHydrationWarning
+      >
         <div>
           <span className="block font-bold text-primary">0000 MM</span>
           <span className="text-[10px] text-ink-3">SYS-INIT</span>
