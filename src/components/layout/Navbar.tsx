@@ -73,6 +73,12 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6 pointer-events-none">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs pointer-events-auto"
+      >
+        Bỏ qua điều hướng
+      </a>
       <nav
         ref={navRef}
         className="glass-1 w-full max-w-6xl rounded-2xl px-5 py-3 pointer-events-auto transition-shadow"

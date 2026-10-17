@@ -121,6 +121,12 @@ export default function InteractiveStudio3D() {
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      setLoadError("Ngữ cảnh đồ họa WebGL bị gián đoạn. Vui lòng tải lại trang.");
+    };
+    renderer.domElement.addEventListener("webglcontextlost", handleContextLost, false);
+
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -235,6 +241,7 @@ export default function InteractiveStudio3D() {
 
     return () => {
       observer.disconnect();
+      renderer.domElement.removeEventListener("webglcontextlost", handleContextLost);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
       if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
