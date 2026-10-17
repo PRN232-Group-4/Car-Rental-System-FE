@@ -35,29 +35,31 @@ export function RatingDistribution({
       </div>
 
       {/* Screen-reader accessible table */}
-      <table className="sr-only">
-        <caption>Bảng phân bố số lượng đánh giá theo mức sao</caption>
-        <thead>
-          <tr>
-            <th scope="col">Mức sao</th>
-            <th scope="col">Số lượng</th>
-            <th scope="col">Tỉ lệ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stars.map((s) => {
-            const count = summary.distribution[s] || 0;
-            const pct = total > 0 ? ((count / total) * 100).toFixed(1) : "0";
-            return (
-              <tr key={s}>
-                <td>{s} sao</td>
-                <td>{count}</td>
-                <td>{pct}%</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="sr-only">
+        <table>
+          <caption>Bảng phân bố số lượng đánh giá theo mức sao</caption>
+          <thead>
+            <tr>
+              <th scope="col">Mức sao</th>
+              <th scope="col">Số lượng</th>
+              <th scope="col">Tỉ lệ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stars.map((s) => {
+              const count = summary.distribution[s] || 0;
+              const pct = total > 0 ? ((count / total) * 100).toFixed(1) : "0";
+              return (
+                <tr key={s}>
+                  <td>{s} sao</td>
+                  <td>{count}</td>
+                  <td>{pct}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       {/* Interactive Visual bars */}
       <div className="flex flex-col gap-2 pt-1" role="group" aria-label="Lọc đánh giá theo số sao">
