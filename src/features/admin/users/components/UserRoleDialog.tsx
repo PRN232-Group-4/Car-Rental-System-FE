@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Role, ROLES } from "@/features/auth/roles";
-import { ShieldAlert, ArrowRight, Plus } from "lucide-react";
+import { ShieldAlert, Plus } from "lucide-react";
 
 export interface UserRoleDialogProps {
   open: boolean;

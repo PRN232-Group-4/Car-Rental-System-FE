@@ -39,12 +39,10 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       const hrefs = managerNav.map((item) => item.href);
 
       expect(hrefs).toContain("/admin");
-      expect(hrefs).toContain("/admin/policies"); // Manager allowed
-      expect(hrefs).toContain("/admin/rentals");
+      expect(hrefs).toContain("/admin/staffs"); // FE-24: Manager allowed to view
       expect(hrefs).not.toContain("/admin/departments"); // Admin only
       expect(hrefs).not.toContain("/admin/facilities"); // Admin only
       expect(hrefs).not.toContain("/admin/roles"); // Admin only
-      expect(hrefs).not.toContain("/admin/staffs"); // Admin only
     });
 
     it("filters out management and admin items for Staff role", () => {

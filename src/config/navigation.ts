@@ -14,6 +14,7 @@ import {
   FileText,
   CreditCard,
   FileCheck,
+  Calendar,
 } from "lucide-react";
 import type { Role } from "@/features/auth/roles";
 import { hasAnyRole } from "@/features/auth/access";
@@ -136,7 +137,13 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     href: "/admin/staffs",
     label: "Nhân Viên",
     icon: UsersRound,
-    roles: ["Admin"],
+    roles: ["Admin", "Manager"],
+  },
+  {
+    href: "/admin/drivers/schedule",
+    label: "Lịch Trình Tài Xế",
+    icon: Calendar,
+    roles: ["Admin", "Manager", "Staff", "CustomerService"],
   },
   {
     href: "/admin/users",
