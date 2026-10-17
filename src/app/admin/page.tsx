@@ -46,6 +46,7 @@ export default function AdminDashboardPage() {
   const adminLinks = [
     { label: "Dashboard biểu đồ", href: "/admin/dashboard", visible: canManage },
     { label: "Báo cáo sự cố", href: "/admin/reports", visible: true },
+    { label: "Đánh giá nhân sự", href: "/admin/reviews", visible: canManage },
     { label: "Quản lý phương tiện", href: "/admin/vehicles", visible: true },
     { label: "Loại phương tiện", href: "/admin/vehicle-types", visible: true },
     { label: "Chính sách thuê xe", href: "/admin/policies", visible: canManage },

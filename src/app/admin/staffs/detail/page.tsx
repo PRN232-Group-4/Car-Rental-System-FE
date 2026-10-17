@@ -27,6 +27,8 @@ import type {
   StaffFacility,
   DriverScheduleItem,
 } from "@/features/admin/staff/types";
+import { StaffRatingPanel } from "@/features/admin/reviews/components/StaffRatingPanel";
+import { useRatingSummary, useReviews } from "@/features/admin/reviews/hooks";
 import {
   ArrowLeft,
   Car,
@@ -37,7 +39,7 @@ import {
   User,
 } from "lucide-react";
 
-type ActiveTab = "profile" | "license" | "schedules" | "activity";
+type ActiveTab = "profile" | "license" | "schedules" | "activity" | "reviews";
 
 interface StaffDetailViewProps {
   staff: StaffDetail;
@@ -57,6 +59,9 @@ function StaffDetailView({
   const updateLicenseMutation = useUpdateStaffLicense();
 
   const [activeTab, setActiveTab] = useState<ActiveTab>("profile");
+
+  const { data: ratingSummary } = useRatingSummary(staff.id);
+  const { data: staffReviews } = useReviews({ staffId: staff.id });
 
   // Form states cho tab Hồ sơ
   const [departmentId, setDepartmentId] = useState<number>(staff.department?.id || 1);
@@ -264,6 +269,24 @@ function StaffDetailView({
           }`}
         >
           Hoạt Động & Nhật Ký
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("reviews")}
+          className={`pb-3 px-4 text-sm font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            activeTab === "reviews"
+              ? "border-primary text-primary"
+              : "border-transparent text-ink-3 hover:text-ink"
+          }`}
+        >
+          <Star className="h-4 w-4 fill-primary/30" />
+          <span>Đánh Giá & Nhận Xét</span>
+          {ratingSummary && (
+            <span className="rounded bg-sunken px-1.5 py-0.2 font-mono text-[11px] font-bold text-ink-2">
+              {ratingSummary.count}
+            </span>
+          )}
         </button>
       </div>
 
@@ -548,6 +571,24 @@ function StaffDetailView({
               </span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Tab 5: Đánh giá & Nhận xét */}
+      {activeTab === "reviews" && (
+        <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8">
+          <StaffRatingPanel
+            staffId={staff.id}
+            staffName={staff.fullName}
+            summary={
+              ratingSummary ?? {
+                average: staff.rating ?? null,
+                count: 0,
+                distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 },
+              }
+            }
+            recentReviews={staffReviews?.items ?? []}
+          />
         </div>
       )}
     </div>

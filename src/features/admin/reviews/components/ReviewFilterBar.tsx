@@ -1,0 +1,112 @@
+"use client";
+
+import { Search, MessageSquare } from "lucide-react";
+import type { ReviewFilterParams, ReviewStatus } from "../types";
+
+interface ReviewFilterBarProps {
+  filters: ReviewFilterParams;
+  onChange: (filters: ReviewFilterParams) => void;
+}
+
+export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Tìm kiếm */}
+        <div className="relative">
+          <label htmlFor="review-search" className="sr-only">
+            Tìm kiếm đánh giá
+          </label>
+          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2">
+            <Search className="h-4 w-4 text-ink-3" aria-hidden="true" />
+            <input
+              id="review-search"
+              type="text"
+              placeholder="Tìm theo nhân viên, khách, nhận xét..."
+              value={filters.search ?? ""}
+              onChange={(e) => onChange({ ...filters, search: e.target.value || undefined })}
+              className="w-full bg-transparent text-xs text-ink placeholder:text-ink-3 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Lọc theo số sao */}
+        <div>
+          <label htmlFor="review-star" className="sr-only">
+            Mức sao
+          </label>
+          <select
+            id="review-star"
+            value={filters.rating ?? ""}
+            onChange={(e) =>
+              onChange({
+                ...filters,
+                rating: e.target.value ? Number(e.target.value) : undefined,
+              })
+            }
+            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none"
+          >
+            <option value="">Tất cả mức sao (1 - 5 sao)</option>
+            <option value="5">5 sao - Rất hài lòng</option>
+            <option value="4">4 sao - Hài lòng</option>
+            <option value="3">3 sao - Bình thường</option>
+            <option value="2">2 sao - Chưa hài lòng</option>
+            <option value="1">1 sao - Kém / Bất bình</option>
+          </select>
+        </div>
+
+        {/* Lọc theo trạng thái kiểm duyệt */}
+        <div>
+          <label htmlFor="review-status" className="sr-only">
+            Trạng thái kiểm duyệt
+          </label>
+          <select
+            id="review-status"
+            value={filters.status ?? "all"}
+            onChange={(e) =>
+              onChange({
+                ...filters,
+                status: (e.target.value as ReviewStatus | "all") || "all",
+              })
+            }
+            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="visible">Hiển thị công khai</option>
+            <option value="reported">Bị báo cáo (Cần duyệt)</option>
+            <option value="hidden">Đã ẩn kiểm duyệt</option>
+          </select>
+        </div>
+
+        {/* Lọc có/chưa phản hồi */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              onChange({
+                ...filters,
+                hasReply: filters.hasReply === undefined ? true : filters.hasReply ? false : undefined,
+              })
+            }
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+              filters.hasReply === true
+                ? "border-primary bg-primary/10 text-primary"
+                : filters.hasReply === false
+                  ? "border-warning bg-warning-bg text-warning"
+                  : "border-line bg-surface text-ink-2 hover:bg-canvas"
+            }`}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            <span>
+              {filters.hasReply === true
+                ? "Đã có phản hồi"
+                : filters.hasReply === false
+                  ? "Chưa có phản hồi"
+                  : "Tất cả phản hồi"}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

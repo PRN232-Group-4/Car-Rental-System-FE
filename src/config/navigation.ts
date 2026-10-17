@@ -17,6 +17,7 @@ import {
   Calendar,
   Compass,
   MessageSquareWarning,
+  Star,
 } from "lucide-react";
 import type { Role } from "@/features/auth/roles";
 import { hasAnyRole } from "@/features/auth/access";
@@ -110,6 +111,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     label: "Báo cáo sự cố",
     icon: MessageSquareWarning,
     roles: ["Admin", "Manager", "Staff", "CustomerService"],
+  },
+  {
+    href: "/admin/reviews",
+    label: "Đánh giá nhân sự",
+    icon: Star,
+    roles: ["Admin", "Manager"],
   },
   {
     href: "/admin/inspections",
