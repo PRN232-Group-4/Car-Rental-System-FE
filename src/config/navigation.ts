@@ -139,6 +139,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     roles: ["Admin"],
   },
   {
+    href: "/admin/users",
+    label: "Người dùng",
+    icon: UsersRound,
+    roles: ["Admin", "Manager"],
+  },
+  {
     href: "/admin/roles",
     label: "Vai Trò",
     icon: KeyRound,
