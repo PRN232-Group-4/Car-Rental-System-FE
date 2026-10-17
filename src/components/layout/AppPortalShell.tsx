@@ -251,6 +251,12 @@ export default function AppPortalShell({
       data-menu-collapsed={!desktopMenuOpen}
       data-menu-animated={menuAnimated}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs"
+      >
+        Bỏ qua điều hướng
+      </a>
       {/* Desktop Sidebar: Fixed inset-y-0 left-0 */}
       <aside
         id="portal-desktop-navigation"
@@ -433,7 +439,7 @@ export default function AppPortalShell({
         </header>
 
         {/* Page Main Content */}
-        <main className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9">
+        <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9 focus:outline-none">
           {children}
         </main>
       </div>

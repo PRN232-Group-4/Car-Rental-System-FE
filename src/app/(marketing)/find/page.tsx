@@ -304,6 +304,7 @@ function FindCatalogContent() {
                 <select
                   value={filters.sort}
                   onChange={(e) => updateFilters({ sort: e.target.value as FindFilterState["sort"] })}
+                  aria-label="Sắp xếp danh sách xe"
                   className="rounded-xl border border-line bg-canvas px-2.5 py-1.5 text-xs font-bold text-ink transition-colors focus:border-primary focus:outline-none cursor-pointer"
                 >
                   {SORT_OPTIONS.map((opt) => (
@@ -436,7 +437,7 @@ export default function FindPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <Suspense fallback={<FindPageSkeleton />}>
           <FindCatalogContent />
         </Suspense>
