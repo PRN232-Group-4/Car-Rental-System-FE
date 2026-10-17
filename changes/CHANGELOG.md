@@ -1,4 +1,5 @@
 # Changelog
+- 2026-10-17 — [Bỏ shell lồng nhau và sửa bảng ẩn gây tràn ngang ở Admin](2026-10-17-admin-shell-duplication-fix.md)
 - 2026-10-15 — [Kiểm tra loại xe, chặn trùng active và cột số lần thuê](2026-10-15-rental-policy-validation-usage.md)
 - 2026-10-15 — [Nút kích hoạt và tạm ngưng chính sách thuê xe](2026-10-15-rental-policy-status.md)
 - 2026-10-15 — [Biểu đồ tổng quan, icon thao tác và rà soát API chính sách](2026-10-15-dashboard-row-actions-policy-audit.md)
