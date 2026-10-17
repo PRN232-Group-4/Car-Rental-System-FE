@@ -16,6 +16,7 @@ import type { OperationField } from "./OperationFields";
 import { getMaintenance, saveMaintenance } from "./extended-api";
 import type { MaintenanceRecord } from "./extended-api";
 import { operationalError, operationsButton } from "./api";
+import { getVehicles } from "@/features/admin/api";
 
 const statuses = { scheduled: "Đã lên lịch", in_progress: "Đang bảo trì", completed: "Hoàn thành", verified: "Đã kiểm tra", cancelled: "Đã hủy" };
 const fields: OperationField[] = [
@@ -35,6 +36,11 @@ export default function MaintenanceManager() {
   const [editing, setEditing] = useState<MaintenanceRecord | null | undefined>();
   const filterValidation = useInlineValidation();
   const query = useQuery({ queryKey: ["maintenance-list", activeFilter], queryFn: () => getMaintenance(activeFilter.vehicleId ? Number(activeFilter.vehicleId) : undefined, activeFilter.status || undefined), retry: false });
+  const vehiclesQuery = useQuery({ queryKey: ["admin-vehicles-for-maintenance"], queryFn: () => getVehicles({ page: 1, pageSize: 100 }), retry: false });
+  const vehicleOptions = (vehiclesQuery.data?.items ?? []).map((v) => ({
+    value: String(v.id),
+    label: `#${v.id} - ${[v.brand, v.model].filter(Boolean).join(" ") || v.licensePlate || `Phương tiện #${v.id}`}`,
+  }));
   return <div className="mx-auto max-w-6xl space-y-6">
     <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Quản lý bảo trì</h1><button type="button" className={operationsButton} onClick={() => setEditing(null)}>Tạo phiếu bảo trì</button></div>
     <ValidatedForm validation={filterValidation} onSubmit={() => setActiveFilter({ ...filter })}>
@@ -74,11 +80,21 @@ export default function MaintenanceManager() {
         </tbody>
       </AdminTable>
     </AdminTableCard>
-    {editing !== undefined && <MaintenanceForm key={editing?.id ?? "new"} record={editing} close={() => setEditing(undefined)} saved={() => query.refetch()} />}
+    {editing !== undefined && <MaintenanceForm key={editing?.id ?? "new"} record={editing} vehicleOptions={vehicleOptions} close={() => setEditing(undefined)} saved={() => query.refetch()} />}
   </div>;
 }
-function MaintenanceForm({ record, close, saved }: { record: MaintenanceRecord | null; close: () => void; saved: () => Promise<unknown> }) {
-  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((field) => [field.name, record?.[field.name as keyof MaintenanceRecord] == null ? field.name === "status" ? "scheduled" : "" : String(record[field.name as keyof MaintenanceRecord])])));
+function MaintenanceForm({ record, vehicleOptions = [], close, saved }: { record: MaintenanceRecord | null; vehicleOptions?: { value: string; label: string }[]; close: () => void; saved: () => Promise<unknown> }) {
+  const formFields = fields.map((f) => {
+    if (f.name === "vehicleId" && vehicleOptions.length > 0) {
+      return {
+        ...f,
+        type: undefined,
+        options: [{ value: "", label: "Chọn phương tiện" }, ...vehicleOptions],
+      };
+    }
+    return f;
+  });
+  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(formFields.map((field) => [field.name, record?.[field.name as keyof MaintenanceRecord] == null ? field.name === "status" ? "scheduled" : "" : String(record[field.name as keyof MaintenanceRecord])])));
   const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const validation = useInlineValidation();
   const submit = async () => {
     if (busy) return; setBusy(true); setError("");
@@ -86,5 +102,5 @@ function MaintenanceForm({ record, close, saved }: { record: MaintenanceRecord |
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <FormDialog title={record ? "Cập nhật phiếu bảo trì" : "Phiếu bảo trì mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="maintenance-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-sm text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu phiếu bảo trì"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
+  return <FormDialog title={record ? "Cập nhật phiếu bảo trì" : "Phiếu bảo trì mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="maintenance-edit" fields={formFields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-sm text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu phiếu bảo trì"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
 }
