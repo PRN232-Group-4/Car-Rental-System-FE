@@ -10,7 +10,7 @@ export function AdminTableCard({ className = "", ...props }: ComponentPropsWitho
 
 export function AdminTable({ className = "", ...props }: ComponentPropsWithoutRef<"table">) {
   return (
-    <div className="overflow-x-auto">
+    <div className="w-full max-w-full overflow-x-auto">
       <table {...props} className={`${styles.table} ${className}`} />
     </div>
   );
