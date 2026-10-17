@@ -55,7 +55,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
                 <span>Sẵn sàng</span>
               </span>
             ) : (
-              <span className="rounded-full bg-sunken px-2.5 py-0.5 text-[11px] font-bold text-ink-3 border border-line shadow-xs">
+              <span className="rounded-full bg-sunken px-2.5 py-0.5 text-[11px] font-bold text-ink-2 border border-line shadow-xs">
                 Đang thuê
               </span>
             )}
