@@ -81,6 +81,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
   {
+    href: "/admin/dashboard",
+    label: "Dashboard biểu đồ",
+    icon: LayoutDashboard,
+    roles: ["Admin", "Manager"],
+  },
+  {
     href: "/admin/maintenance",
     label: "Quản lý bảo trì",
     icon: CarFront,

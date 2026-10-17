@@ -44,6 +44,7 @@ export default function AdminDashboardPage() {
   const icons = [ClipboardCheck, CarFront, UsersRound, CircleDollarSign];
 
   const adminLinks = [
+    { label: "Dashboard biểu đồ", href: "/admin/dashboard", visible: canManage },
     { label: "Quản lý phương tiện", href: "/admin/vehicles", visible: true },
     { label: "Loại phương tiện", href: "/admin/vehicle-types", visible: true },
     { label: "Chính sách thuê xe", href: "/admin/policies", visible: canManage },
