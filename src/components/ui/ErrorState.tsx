@@ -4,7 +4,8 @@ import { cn } from "@/lib/cn";
 
 export interface ErrorStateProps {
   title?: string;
-  message: string;
+  message?: string;
+  error?: unknown;
   traceId?: string;
   onRetry?: () => void;
   action?: ReactNode;
@@ -14,11 +15,23 @@ export interface ErrorStateProps {
 export function ErrorState({
   title = "Đã xảy ra lỗi",
   message,
-  traceId,
+  error,
+  traceId: explicitTraceId,
   onRetry,
   action,
   className,
 }: ErrorStateProps) {
+  // Trích xuất message và traceId từ error object nếu có
+  const resolvedMessage =
+    message ||
+    (error instanceof Error ? error.message : null) ||
+    "Không thể tải hoặc xử lý dữ liệu yêu cầu. Vui lòng thử lại.";
+
+  const resolvedTraceId =
+    explicitTraceId ||
+    (error && typeof error === "object" && "traceId" in error
+      ? String((error as { traceId: unknown }).traceId)
+      : undefined);
   return (
     <div
       role="alert"
@@ -31,10 +44,10 @@ export function ErrorState({
         <AlertTriangle className="h-6 w-6" aria-hidden="true" />
       </div>
       <h3 className="mt-4 text-base font-semibold text-ink">{title}</h3>
-      <p className="mt-1.5 max-w-md text-sm text-ink-2">{message}</p>
-      {traceId && (
+      <p className="mt-1.5 max-w-md text-sm text-ink-2">{resolvedMessage}</p>
+      {resolvedTraceId && (
         <p className="mt-2 text-xs font-mono text-ink-3 bg-surface px-2.5 py-1 rounded-md border border-line">
-          Mã tham chiếu: <span className="select-all">{traceId}</span>
+          Mã tham chiếu: <span className="select-all">{resolvedTraceId}</span>
         </p>
       )}
       <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
