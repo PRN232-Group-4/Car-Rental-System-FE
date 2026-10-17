@@ -12,6 +12,10 @@ import { getInvoices, mapInvoiceFromBE } from "@/features/invoices/api";
 import { createRentalBooking, getBookingPolicies, getBookingVehicles } from "../api";
 import { calculateHourlyEstimate, localDateTime, selectBookingPolicy, validateBookingTimes } from "../booking-rules";
 import type { RentalBookingResponse } from "../types";
+import VehicleImage from "@/components/ui/VehicleImage";
+import VehicleName from "@/features/admin/VehicleName";
+import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
+import BookingPickupMap from "@/features/facilities/components/BookingPickupMap";
 
 const inputClass = "mt-2 w-full rounded-xl border border-line bg-surface px-3 py-3 text-sm text-ink";
 const money = (value: number) => `${value.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} đ`;
@@ -98,6 +102,7 @@ export default function BookingForm() {
   if (result) return <section className="mx-auto max-w-3xl space-y-5 rounded-2xl border border-line bg-surface p-6 sm:p-8" aria-live="polite">
     <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Đặt xe thành công</h1>
     <p>{result.bookingId ? `Mã đơn thuê: #${result.bookingId}` : "Máy chủ đã tiếp nhận đơn thuê. Vui lòng liên hệ chi nhánh để tra cứu mã đơn."}</p>
+    {result.rental && <VehicleName vehicleId={result.rental.vehicleId} />}
     {result.rental && <div className="space-y-2 rounded-xl bg-canvas p-4"><p>Trạng thái: {result.rental.status}</p><p>Tổng tiền thuê từ máy chủ: {money(result.rental.totalPrice)}</p><p>Tiền cọc: {money(result.rental.depositPrice)}</p></div>}
     {resultIsSubscription ? <p>Đơn thuê dùng gói thuê bao. Bạn có thể kiểm tra số giờ còn lại trong Gói của tôi.</p> : <p>Kiểm tra hóa đơn để xem số tiền thanh toán chính xác.</p>}
     {generalError && <p role="alert" className="text-danger">{generalError}</p>}
@@ -129,6 +134,8 @@ export default function BookingForm() {
       </section>
       <aside className="h-fit space-y-4 rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="text-lg font-bold">Tóm tắt đặt xe</h2>
+        {vehiclesQuery.isPending ? <SkeletonBlock label="Đang tải thông tin xe đã chọn"><Skeleton className="h-40 w-full rounded-xl" /></SkeletonBlock> : vehicle && <VehicleImage src={vehicle.imageUrl} alt={vehicle.name} className="h-40 w-full rounded-xl" />}
+        {vehicle && <BookingPickupMap facilityId={vehicle.facilityId} />}
         <p className="text-sm">{vehicle?.name ?? "Chưa chọn phương tiện"}</p><p className="text-sm text-ink-3">Thời gian: {hours.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} giờ</p>
         {vehicle && <p className="text-sm">Đơn giá: {money(rentalType === "longterm" ? vehicle.monthlyPrice : vehicle.hourlyPrice)} / {rentalType === "longterm" ? "tháng" : "giờ"}</p>}
         {paymentMode === "subscription" ? <p className="text-sm">Sử dụng giờ trong gói thuê bao, không tạo hóa đơn thuê trực tiếp.</p> : <>

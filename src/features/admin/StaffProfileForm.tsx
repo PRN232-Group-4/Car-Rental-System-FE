@@ -1,10 +1,12 @@
 "use client";
+import { FormSkeleton } from "@/components/ui/Skeleton";
 
 import { ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { BadgeCheck, Building2, Check, Mail, Phone, Save, ShieldCheck, UserRound } from "lucide-react";
+import { Building2, Check, Mail, Phone, Save, ShieldCheck, UserRound } from "lucide-react";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { getAccountProfile, updateAccountProfile } from "@/features/profile/api";
 import { getFacilities, getStaffById, updateStaff } from "./api";
 import type { StaffDto } from "./api";
@@ -157,7 +159,7 @@ export default function StaffProfileForm() {
         <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Hồ sơ của tôi</h2>
         <p className="mt-2 text-sm text-ink-2">Xem và cập nhật thông tin liên hệ của bạn.</p>
       </div>
-      {loading && <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-2">Đang tải hồ sơ...</p>}
+      {loading && <FormSkeleton label="Đang tải hồ sơ..." fields={4} />}
       {error && <p role="alert" className="rounded-xl border border-danger-bg bg-danger-bg/50 px-4 py-3 text-sm text-danger">{error}</p>}
 
       {staff && (
@@ -170,7 +172,7 @@ export default function StaffProfileForm() {
               <div className="text-white">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-xl font-bold">{staff.fullName ?? staff.email}</h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2.5 py-1 text-xs font-semibold text-primary-tint"><BadgeCheck className="h-3.5 w-3.5" />{staff.isActive ? "Đang hoạt động" : "Tạm ngưng"}</span>
+                  <AdminStatusBadge domain="activity" status={staff.isActive ? "active" : "inactive"}>{staff.isActive ? "Đang hoạt động" : "Tạm ngưng"}</AdminStatusBadge>
                 </div>
                 <p className="mt-1 text-sm text-ink-3">{staff.staffRole ?? "Nhân viên"} {staff.id > 0 ? `· Mã nhân viên ${staff.id}` : ""}</p>
               </div>

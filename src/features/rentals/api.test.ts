@@ -2,9 +2,19 @@ import { beforeEach, expect, it, vi } from "vitest";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
 vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client, isMockMode: false }));
-import { createRentalBooking, getBookingVehicles, mapBookingResponse, updateRentalContract } from "./api";
+import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, updateRentalContract } from "./api";
 
 beforeEach(() => vi.resetAllMocks());
+it("reads every policy page after the list contract changes to pagination", async () => {
+  client.get.mockResolvedValueOnce({ items: [{ id: 1 }], totalCount: 2 }).mockResolvedValueOnce({ items: [{ id: 2 }], totalCount: 2 });
+  expect(await getBookingPolicies()).toEqual([{ id: 1 }, { id: 2 }]);
+  expect(client.get).toHaveBeenLastCalledWith("rental-policies", { page: 2, pageSize: 100 });
+});
+it("retains compatibility with the previous array policy response", async () => {
+  client.get.mockResolvedValueOnce([{ id: 1 }]);
+  expect(await getBookingPolicies()).toEqual([{ id: 1 }]);
+  expect(client.get).toHaveBeenCalledTimes(1);
+});
 it("posts the exact RentalRequest and reads a real backend rental id", async () => {
   client.post.mockResolvedValue({ id: 321, rentalType: "hourly", totalPrice: 324000, depositPrice: 64800 });
   const result = await createRentalBooking({ rentalType: "hourly", vehicleId: "8", policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, customerName: "Do not send this", estimatedCost: 999 });

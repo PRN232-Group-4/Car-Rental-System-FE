@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CarFront, MapPin } from "lucide-react";
-import { getVehicle } from "@/features/admin/api";
+import { MapPin } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { vehicleQueryOptions } from "@/features/admin/vehicle-query";
+import VehicleImage from "@/components/ui/VehicleImage";
+import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import type { VehicleDto } from "@/features/admin/api";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 import { getDriverSchedule } from "./api";
@@ -16,6 +20,7 @@ const statusLabels: Record<string, string> = {
 
 export default function DriverVehicles() {
   const account = useDriverPortalAccount();
+  const queryClient = useQueryClient();
   const [vehicles, setVehicles] = useState<VehicleDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -43,7 +48,7 @@ export default function DriverVehicles() {
                   typeof id === "number" && Number.isInteger(id) && id > 0,
               ),
           )];
-          const assignedVehicles = await Promise.all(vehicleIds.map(getVehicle));
+          const assignedVehicles = await Promise.all(vehicleIds.map((id) => queryClient.fetchQuery(vehicleQueryOptions(id))));
           if (active) setVehicles(assignedVehicles);
         } catch (loadError) {
           if (active) {
@@ -62,7 +67,7 @@ export default function DriverVehicles() {
       active = false;
       window.clearTimeout(timer);
     };
-  }, [account.staffId]);
+  }, [account.staffId, queryClient]);
 
   return (
     <div className="space-y-6">
@@ -81,9 +86,9 @@ export default function DriverVehicles() {
         </p>
       )}
       {loading && (
-        <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3">
-          Đang tải phương tiện được phân công...
-        </p>
+        <SkeletonBlock label="Đang tải phương tiện được phân công" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 3 }, (_, index) => <div key={index} className="overflow-hidden rounded-2xl border border-line bg-surface"><Skeleton className="h-44 w-full rounded-none" /><div className="space-y-3 p-5"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-2/3" /></div></div>)}
+        </SkeletonBlock>
       )}
       {!loading && !error && vehicles.length === 0 && (
         <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">
@@ -98,19 +103,7 @@ export default function DriverVehicles() {
               key={vehicle.id}
               className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1"
             >
-              {vehicle.mainImageUrl ? (
-                // Backend image URLs may come from configured external media storage.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={vehicle.mainImageUrl}
-                  alt={`${vehicle.brand ?? ""} ${vehicle.model ?? "phương tiện"}`.trim()}
-                  className="h-44 w-full bg-sunken object-cover"
-                />
-              ) : (
-                <div className="flex h-44 items-center justify-center bg-primary/10 text-primary">
-                  <CarFront className="h-12 w-12" />
-                </div>
-              )}
+              <VehicleImage src={vehicle.mainImageUrl} alt={[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "Phương tiện"} className="h-44 w-full" />
               <div className="space-y-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -121,9 +114,9 @@ export default function DriverVehicles() {
                       {vehicle.vehicleType ?? "Chưa phân loại"}{vehicle.yearOfManufacture ? ` · ${vehicle.yearOfManufacture}` : ""}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                  <AdminStatusBadge domain="vehicle" status={vehicle.status}>
                     {statusLabels[vehicle.status?.toLowerCase() ?? ""] ?? vehicle.status ?? "Chưa rõ"}
-                  </span>
+                  </AdminStatusBadge>
                 </div>
                 <p className="flex items-center gap-2 text-sm text-ink-3">
                   <MapPin className="h-4 w-4 shrink-0 text-ink-3" />

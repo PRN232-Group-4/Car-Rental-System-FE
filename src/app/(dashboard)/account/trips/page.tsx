@@ -49,7 +49,6 @@ function TripsListContent() {
 
   const items = data?.items ?? [];
   const totalCount = data?.totalCount ?? 0;
-  const totalPages = Math.ceil(totalCount / 12) || 1;
 
   const getEmptyMessage = () => {
     switch (currentTab) {

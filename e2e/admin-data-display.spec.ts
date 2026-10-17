@@ -1,6 +1,6 @@
 import { test, expect, type Locator } from "@playwright/test";
 
-const profile = { email: "admin@test.local", fullName: "Gia Linh", roles: ["Admin"], avatarUrl: "/logo.jpg" };
+const profile = { email: "admin@test.local", fullName: "Gia Linh", roles: ["Admin"], avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80" };
 const vehicle = { id: 10, brand: "Toyota", model: "Vios", licensePlate: "51A-12345", vehicleTypeId: 1, status: "available" };
 const maintenance = [3, 2].map((id) => ({ id, vehicleId: 10, assignedStaffId: null, scheduledDate: "2026-10-20", status: "scheduled", cost: null }));
 
@@ -26,8 +26,6 @@ test("Admin loads account images in header, sidebar, mobile menu and profile", a
   for (const img of await images.all()) {
     await expect.poll(() => img.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   }
-  const brand = page.getByRole("img", { name: "Logo Thong Dong", exact: true });
-  await expect.poll(() => brand.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Mở menu", exact: true }).click();
   const mobile = page.locator("#admin-mobile-navigation");
@@ -92,12 +90,17 @@ test("all Admin list tables use the vehicle table presentation", async ({ page }
   }
 });
 
-test("vehicles hide IDs, display license plates and retain their edit links", async ({ page }) => {
+test("vehicles hide IDs, display license plates and edit in a popup", async ({ page }) => {
   await page.goto("/admin/vehicles");
   const table = page.getByRole("table");
   await expect(table.getByText("51A-12345", { exact: true })).toBeVisible();
   await expect(table).not.toContainText(/\bID\b|#\d+/);
-  await expect(table.getByRole("link", { name: "Chỉnh sửa Toyota Vios", exact: true })).toHaveAttribute("href", "/admin/vehicles/edit?vehicleId=10");
+  await table.getByRole("button", { name: "Chỉnh sửa Toyota Vios", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Chỉnh sửa phương tiện", exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('input[name="brand"]')).toHaveValue("Toyota");
+  await expect(page).toHaveURL(/\/admin\/vehicles$/);
+  await page.keyboard.press("Escape");
   await page.getByPlaceholder("Tìm theo tên, biển số hoặc chi nhánh...").fill("51A-12345");
   await expect(table.getByText("Toyota Vios", { exact: true })).toBeVisible();
 });

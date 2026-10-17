@@ -1,4 +1,9 @@
 # Changelog
+- 2026-10-15 — [Kiểm tra loại xe, chặn trùng active và cột số lần thuê](2026-10-15-rental-policy-validation-usage.md)
+- 2026-10-15 — [Nút kích hoạt và tạm ngưng chính sách thuê xe](2026-10-15-rental-policy-status.md)
+- 2026-10-15 — [Biểu đồ tổng quan, icon thao tác và rà soát API chính sách](2026-10-15-dashboard-row-actions-policy-audit.md)
+- 2026-10-15 — [Rule popup, ảnh xe, Skeleton và Google Maps](2026-10-15-vehicle-images-skeleton-maps.md)
+- 2026-10-15 — [Dark mode, icon sidebar, màu trạng thái và footer popup Admin](2026-10-15-admin-theme-status-dialogs.md)
 - 2026-10-14 — [Bộ lọc dùng chung và quy chuẩn giao diện Admin](2026-10-14-admin-filter-system.md)
 - 2026-10-14 — [Sidebar Admin thu gọn còn icon](2026-10-14-admin-sidebar-icon-rail.md)
 - 2026-10-14 — [Ẩn ID khỏi bảng Admin](2026-10-14-admin-hide-ids.md)

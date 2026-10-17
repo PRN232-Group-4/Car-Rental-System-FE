@@ -92,7 +92,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         {/* 3. H1 Display: Be Vietnam Pro Ultra-Bold with clean typographic flow */}
         <h1
           ref={headingRef}
-          className="text-4xl sm:text-6xl lg:text-7xl font-black text-ink text-center tracking-tight leading-[1.08] mb-5 max-w-5xl"
+          className="text-4xl sm:text-6xl lg:text-7xl font-black text-ink text-center tracking-tight leading-[1.08] mb-5 max-w-5xl text-balance"
         >
           Giải Pháp Thuê Xe Toàn Diện — Tự Do Khởi Hành Sang Trọng
         </h1>
@@ -100,7 +100,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         {/* 4. Subtitle: Single concise, high-contrast narrative statement */}
         <p
           ref={subtitleRef}
-          className="text-ink-2 text-base sm:text-lg md:text-xl max-w-3xl text-center font-normal leading-relaxed mb-8"
+          className="text-ink-2 text-base sm:text-lg md:text-xl max-w-3xl text-center font-normal leading-relaxed mb-8 text-pretty"
         >
           Hệ thống quản lý 4 nhóm phương tiện thuần điện & xăng cao cấp. Tùy chọn tự lái linh hoạt hoặc có tài xế riêng. Bàn giao số hóa 3 phút, kiểm định minh bạch và hoàn cọc tự động qua PayOS.
         </p>

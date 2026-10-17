@@ -1,0 +1,164 @@
+.sidebarSurface {
+  background-color: var(--surface);
+}
+
+.brandCollapsed {
+  display: none;
+}
+
+.brandExpanded {
+  display: flex;
+}
+
+.desktopSidebar {
+  width: 260px;
+}
+
+.navigationScroll {
+  /* Reserve equal space on both sides, including when a scrollbar appears. */
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.sidebarText,
+.navLabel {
+  min-width: 0;
+  white-space: nowrap;
+  transition: opacity 160ms ease;
+}
+
+.navLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navLink {
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.sectionLabel {
+  height: 28px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-wrap: nowrap;
+}
+
+.content {
+  padding-left: 0;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    --portal-sidebar-width: 260px;
+  }
+
+  .shell[data-menu-collapsed="true"] {
+    --portal-sidebar-width: 80px;
+  }
+
+  .desktopSidebar {
+    width: var(--portal-sidebar-width);
+    overflow: hidden;
+  }
+
+  .content {
+    padding-left: var(--portal-sidebar-width);
+    width: auto;
+  }
+
+  .shell[data-menu-animated="true"] .desktopSidebar {
+    transition: width 260ms var(--ease-out);
+  }
+
+  .shell[data-menu-animated="true"] .content {
+    transition: padding-left 260ms var(--ease-out);
+  }
+
+  .desktopSidebar .brandHeader,
+  .desktopSidebar .navigationScroll,
+  .desktopSidebar .navLink,
+  .desktopSidebar .profileIdentity,
+  .desktopSidebar .profileFooter,
+  .desktopSidebar .profileCard {
+    transition: padding 260ms var(--ease-out), gap 260ms var(--ease-out), background-color 160ms ease, border-color 160ms ease;
+  }
+
+  .desktopSidebar .sectionLabel {
+    transition: height 260ms var(--ease-out), padding 260ms var(--ease-out);
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .sidebarText,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLabel {
+    display: none;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandExpanded {
+    display: none !important;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandCollapsed {
+    display: flex !important;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandHeader {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandLink,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLink,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileIdentity,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .logoutButton {
+    gap: 0;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navigationScroll {
+    padding-inline: 6px;
+    padding-top: 12px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .sectionLabel {
+    height: 0;
+    padding-bottom: 0;
+    visibility: hidden;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLink {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileFooter {
+    padding: 12px;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileCard {
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileIdentity {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileLink,
+  .shell[data-menu-collapsed="true"] .desktopSidebar .profileError {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell .desktopSidebar,
+  .shell .content,
+  .shell .desktopSidebar *,
+  .sidebarText,
+  .navLabel {
+    transition: none !important;
+  }
+}

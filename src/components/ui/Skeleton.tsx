@@ -1,5 +1,6 @@
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import styles from "./Skeleton.module.css";
 
 export type SkeletonProps = ComponentPropsWithoutRef<"div">;
 
@@ -7,9 +8,55 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className={cn("animate-pulse rounded-lg bg-sunken", className)}
+      data-skeleton
+      className={cn("animate-pulse rounded-lg bg-sunken", styles?.skeleton, className)}
       {...props}
     />
+  );
+}
+
+export function SkeletonBlock({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label={label}
+      className={className}
+      data-skeleton-block
+    >
+      <span className="sr-only">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+export function FormSkeleton({
+  label = "Đang tải biểu mẫu...",
+  fields = 6,
+}: {
+  label?: string;
+  fields?: number;
+}) {
+  return (
+    <SkeletonBlock label={label} className="space-y-5">
+      <Skeleton className="h-6 w-48 max-w-full" />
+      <div className="grid gap-5 sm:grid-cols-2">
+        {Array.from({ length: fields }, (_, index) => (
+          <div key={index} className="space-y-2">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-11 w-full" />
+          </div>
+        ))}
+      </div>
+    </SkeletonBlock>
   );
 }
 

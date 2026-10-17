@@ -90,34 +90,36 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
+          <div className="hidden md:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
             <Link
-              href="/#tim-xe"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              id="nav-tim-xe"
+              href="/find"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Thuê xe
             </Link>
             <Link
-              href="/#chi-nhanh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              id="nav-chi-nhanh"
+              href="/facilities"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Chi nhánh
             </Link>
             <Link
               href="/#goi-thue-bao"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Gói thuê bao
             </Link>
             <Link
               href="/#quy-trinh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Hướng dẫn
             </Link>
             <Link
               href="/#kiem-dinh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Kiểm định
             </Link>
@@ -258,7 +260,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu toggle button */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer"
@@ -277,16 +279,16 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="lg:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1">
+          <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1">
             <Link
-              href="/#tim-xe"
+              href="/find"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
             >
               Thuê xe
             </Link>
             <Link
-              href="/#chi-nhanh"
+              href="/facilities"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
             >

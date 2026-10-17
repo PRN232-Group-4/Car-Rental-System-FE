@@ -1,5 +1,24 @@
+.sidebarSurface {
+  background-color: var(--surface);
+}
+
+.brandCollapsed {
+  display: none;
+}
+
+.brandExpanded {
+  display: flex;
+}
+
 .desktopSidebar {
   width: 260px;
+}
+
+.navigationScroll {
+  /* Reserve equal space on both sides, including when a scrollbar appears. */
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
 }
 
 .sidebarText,
@@ -67,18 +86,21 @@
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .sidebarText,
-  .shell[data-menu-collapsed="true"] .desktopSidebar .navLabel,
-  .shell[data-menu-collapsed="true"] .desktopSidebar .activeChevron {
-    flex: 0;
-    width: 0;
-    max-width: 0;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
+  .shell[data-menu-collapsed="true"] .desktopSidebar .navLabel {
+    display: none;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandExpanded {
+    display: none !important;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandCollapsed {
+    display: flex !important;
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .brandHeader {
-    padding-inline: 20px;
+    justify-content: center;
+    padding-inline: 0;
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .brandLink,
@@ -89,7 +111,7 @@
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .navigationScroll {
-    padding-inline: 12px;
+    padding-inline: 6px;
     padding-top: 12px;
   }
 
@@ -100,7 +122,8 @@
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .navLink {
-    padding-inline: 19px;
+    justify-content: center;
+    padding-inline: 0;
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .profileFooter {
@@ -114,7 +137,8 @@
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .profileIdentity {
-    padding-inline: 7px;
+    justify-content: center;
+    padding-inline: 0;
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .profileLink,

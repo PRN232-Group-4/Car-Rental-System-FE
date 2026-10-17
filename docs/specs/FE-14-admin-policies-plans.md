@@ -7,8 +7,12 @@
 
 ## 1. Bối cảnh nghiệp vụ
 
+* Cập nhật theo xác nhận 15/10/2026: chặn tạo khi cùng loại xe đã có policy hoạt động; tạm ngưng bản cũ trước, áp dụng cả phạm vi chung null. Kiểm tra loại xe tồn tại và trùng active tại BE, có kiểm tra lại trong transaction; FE hiển thị lỗi VehicleTypeId ngay dưới select, giữ form và dữ liệu. Kích hoạt lại cũng không được tạo thêm một bản active cùng phạm vi.
+* Bổ sung cột **Số lần thuê** = tổng đơn gắn đúng `policy_id`, gồm mọi trạng thái. Dùng `rentalCount` do server đếm, không tính từ danh sách đơn ở FE, hiển thị 0 khi chưa dùng; backend cũ chưa có count hiển thị dấu thiếu dữ liệu. GET danh sách dùng pagination 1/20, tối đa 100; UI có trang trước/sau và tổng số bản ghi. Giữ số đếm khi đổi status.
+
 * **Rental policy là bất biến theo phiên bản** (FR-011): không sửa, không xóa; muốn đổi điều khoản → **tạo phiên bản mới** (`POST /api/rental-policies`), phiên bản cũ giữ làm lịch sử cho các đơn đã tạo; đơn mới dùng policy `is_active` (nếu nhiều policy active cho cùng loại xe, dùng policy **mới nhất** — DESIGN.md B.§22). Đơn đã tạo giữ snapshot giá/policy.
-* Quyền: policy — **Admin, Manager** (đọc và tạo). Gói thuê bao — theo snapshot hợp đồng (mặc định Admin, Manager).
+* Quyền: policy — **Admin, Manager** (đọc, tạo và đặt riêng trạng thái `isActive`). Gói thuê bao — theo snapshot hợp đồng (mặc định Admin, Manager).
+* Bổ sung 15/10/2026 theo yêu cầu người dùng và BE ADR-006: `PATCH /api/rental-policies/{id}/status` với boolean `isActive` bắt buộc. Icon kích hoạt/tạm ngưng trong cột thao tác qua component chung, xác nhận trước gửi, khóa request lặp, giữ badge cũ khi lỗi và cho thử lại. Không sửa điều khoản/xóa, không tự tắt policy khác và không đổi giá đơn cũ. Nếu có nhiều active cùng phạm vi, bản mới nhất vẫn được ưu tiên.
 * **Gói thuê bao** (`subscription_plans`): `name, description, price, duration_days, included_hours, is_active`. Gói đã có người mua **không được xóa cứng**; chỉ ngừng kích hoạt.
 
 ## 2. Route

@@ -21,6 +21,7 @@ export interface RentalPolicyDto {
   overtimeFeeRate: number;
   depositPercentage: number;
   isActive: boolean;
+  rentalCount?: number;
 }
 
 export interface RentalPolicyRequest {
@@ -199,12 +200,19 @@ export function deleteFacility(id: number) {
   return backendApiClient.delete<void>(`facilities/${id}`);
 }
 
-export function getRentalPolicies() {
-  return backendApiClient.get<RentalPolicyDto[]>("rental-policies");
+export async function getRentalPolicies(page = 1, pageSize = 20): Promise<PagedResult<RentalPolicyDto>> {
+  const result = await backendApiClient.get<PagedResult<RentalPolicyDto> | RentalPolicyDto[]>("rental-policies", { page, pageSize });
+  // During rollout, the previous backend returns an array with no usage counts.
+  if (Array.isArray(result)) return { items: result.slice((page - 1) * pageSize, page * pageSize), page, pageSize, totalCount: result.length };
+  return result;
 }
 
 export function createRentalPolicy(body: RentalPolicyRequest) {
   return backendApiClient.post<RentalPolicyDto>("rental-policies", body);
+}
+
+export function setRentalPolicyStatus(id: number, isActive: boolean) {
+  return backendApiClient.patch<RentalPolicyDto>(`rental-policies/${id}/status`, { isActive });
 }
 
 export function getSubscriptionPlans(all = true) {

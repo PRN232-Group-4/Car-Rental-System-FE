@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import VehicleImage from "@/components/ui/VehicleImage";
 import { Zap, Gauge, BatteryCharging, ArrowRight, ShieldCheck, Sparkles, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { BookingModal } from "@/features/rentals";
@@ -180,12 +180,11 @@ export default function SpatialFleetShowcase({
         {/* Left Column: Visual Stage with 3D Perspective */}
         <div className="lg:col-span-7 relative group">
           <div className="relative h-72 sm:h-96 w-full rounded-3xl overflow-hidden bg-stage-ink shadow-e2 [perspective:1200px]">
-            <Image
+            <VehicleImage
               src={activeModel.imageUrl}
               alt={activeModel.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 60vw"
-              className="object-cover group-hover:scale-105 group-hover:rotate-1 transition-transform duration-700 ease-out"
+              className="h-full w-full"
+              imageClassName="group-hover:scale-105 group-hover:rotate-1 transition-transform duration-700 ease-out"
             />
             {/* Flat dark scrim per A4.1 */}
             <div className="absolute inset-0 bg-stage-ink/40 pointer-events-none" />
@@ -222,13 +221,15 @@ export default function SpatialFleetShowcase({
         {/* Right Column: Deep Telemetry Specs & Direct Booking Action */}
         <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
           <div>
-            <span className="text-xs font-bold text-primary uppercase tracking-wider block mb-1">
-              {activeModel.category}
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mb-2">
-              {activeModel.name}
-            </h3>
-            <p className="text-xs sm:text-sm text-ink-2 font-normal leading-relaxed mb-6">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-black text-ink tracking-tight text-balance">
+                {activeModel.name}
+              </h3>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-tint text-primary border border-primary/20">
+                {activeModel.category}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-ink-2 font-normal leading-relaxed mb-6 text-pretty">
               {activeModel.tagline}
             </p>
 

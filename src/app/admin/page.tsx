@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CalendarDays, CarFront, CircleDollarSign, ClipboardCheck, UsersRound } from "lucide-react";
 import { getDashboardData } from "@/features/admin/api";
@@ -9,39 +9,32 @@ import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
 import { StatCard } from "@/components/ui/StatCard";
 import { SkeletonStat } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { EmptyState } from "@/components/ui/EmptyState";
-
-type DashboardEntry = { label: string; value: string };
+import { DashboardCharts } from "@/features/admin/DashboardCharts";
+import { parseDashboardSnapshot } from "@/features/admin/dashboard-data";
 
 export default function AdminDashboardPage() {
   const { hasRole } = useAuth();
-  const [entries, setEntries] = useState<DashboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const dashboard = useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: async () => parseDashboardSnapshot(await getDashboardData()),
+    staleTime: 30_000,
+    retry: false,
+  });
+  const loading = dashboard.isPending;
+  const error = dashboard.isError ? "Không thể tải số liệu tổng quan. Vui lòng thử lại." : "";
+  const data = dashboard.data;
+  const entries = data ? [
+    { label: "Tổng doanh thu hóa đơn đã thanh toán", value: data.revenue === null ? "—" : `${new Intl.NumberFormat("vi-VN").format(data.revenue)} ₫` },
+    { label: "Đơn đang thuê", value: data.renting === null ? "—" : new Intl.NumberFormat("vi-VN").format(data.renting) },
+    { label: "Phiếu bảo dưỡng đang mở", value: data.maintenance === null ? "—" : new Intl.NumberFormat("vi-VN").format(data.maintenance) },
+    { label: "Gói thuê còn hiệu lực", value: data.activeSubscriptions === null ? "—" : new Intl.NumberFormat("vi-VN").format(data.activeSubscriptions) },
+  ] : [];
 
   const isAdmin = hasRole("admin");
   const isManager = hasRole("manager");
   const canManage = isAdmin || isManager;
 
-  const loadData = useCallback(() => {
-    setLoading(true);
-    setError("");
-    void getDashboardData()
-      .then((data: unknown) => setEntries(toEntries(data)))
-      .catch((loadError: unknown) =>
-        setError(loadError instanceof Error ? loadError.message : "Không thể tải dữ liệu dashboard."),
-      )
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      loadData();
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [loadData]);
-
-  const icons = [ClipboardCheck, CarFront, UsersRound, CircleDollarSign];
+  const icons = [CircleDollarSign, ClipboardCheck, CarFront, UsersRound];
 
   const adminLinks = [
     { label: "Dashboard biểu đồ", href: "/admin/dashboard", visible: canManage },
@@ -58,7 +51,7 @@ export default function AdminDashboardPage() {
   ].filter((item) => item.visible);
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink-3">
@@ -71,7 +64,7 @@ export default function AdminDashboardPage() {
         {canManage && <CreateVehicleButton />}
       </div>
 
-      {error && <ErrorState message={error} onRetry={loadData} />}
+      {error && <ErrorState message={error} onRetry={() => void dashboard.refetch()} />}
 
       {loading && (
         <section aria-label="Đang tải chỉ số" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -82,10 +75,9 @@ export default function AdminDashboardPage() {
       )}
 
       {!loading && !error && entries.length === 0 && (
-        <EmptyState
-          title="Chưa có dữ liệu"
-          description="API chưa trả về chỉ số dashboard."
-        />
+        <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">
+          API chưa trả về chỉ số dashboard.
+        </p>
       )}
 
       {!loading && !error && entries.length > 0 && (
@@ -103,6 +95,8 @@ export default function AdminDashboardPage() {
           })}
         </section>
       )}
+
+      <DashboardCharts data={data} loading={loading} error={error} onRetry={() => { void dashboard.refetch(); }} />
 
       <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6">
         <h3 className="font-bold text-ink">Quản lý hệ thống</h3>
@@ -122,14 +116,4 @@ export default function AdminDashboardPage() {
       </section>
     </div>
   );
-}
-
-function toEntries(data: unknown): DashboardEntry[] {
-  if (typeof data !== "object" || data === null) return [];
-  return Object.entries(data)
-    .filter(([, value]) => ["string", "number", "boolean"].includes(typeof value) || value === null)
-    .map(([key, value]) => ({
-      label: key.replace(/([a-z])([A-Z])/g, "$1 $2").replaceAll("_", " ").replace(/^./, (letter) => letter.toLocaleUpperCase()),
-      value: value === null ? "—" : String(value),
-    }));
 }

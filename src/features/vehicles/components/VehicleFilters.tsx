@@ -3,7 +3,7 @@
 import React from "react";
 import { SlidersHorizontal, RotateCcw, Car, Fuel, Building2, Users, Settings2, DollarSign } from "lucide-react";
 import { FacilityCatalogItem } from "@/api/mock/mock-catalog";
-import { FindFilterState } from "@/app/find/findFilterSchema";
+import { FindFilterState } from "../findFilterSchema";
 
 export interface VehicleFiltersProps {
   filters: FindFilterState;

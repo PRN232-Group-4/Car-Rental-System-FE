@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import VehicleImage from "@/components/ui/VehicleImage";
 import { 
   Car, 
   Bike, 
@@ -278,11 +278,11 @@ export default function MultiFleetCatalog() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
+          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight text-balance">
             Danh Mục Phương Tiện Toàn Diện
           </h2>
         </div>
-        <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
+        <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed text-pretty">
           Đầy đủ 4 nhóm phương tiện đạt tiêu chuẩn kiểm định 2 chiều khắt khe: Ô tô & Xe máy, Xăng & Điện, Tự lái & Kèm tài xế riêng.
         </p>
       </div>
@@ -374,12 +374,11 @@ export default function MultiFleetCatalog() {
           >
             {/* Image Container (>= 60% visually balanced) */}
             <div className="relative w-full h-56 overflow-hidden bg-sunken">
-              <Image
+              <VehicleImage
                 src={vehicle.imageUrl}
                 alt={vehicle.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                className="h-full w-full"
+                imageClassName="group-hover:scale-105 transition-transform duration-500"
               />
               {/* Badges Overlay */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
@@ -436,10 +435,10 @@ export default function MultiFleetCatalog() {
               {/* Price & Action */}
               <div className="pt-4 border-t border-line flex items-center justify-between">
                 <div>
-                  <div className="font-mono text-xl font-black text-ink">
+                  <div className="font-mono text-xl font-black text-ink tabular-nums">
                     {formatVND(vehicle.hourlyPrice)}
                   </div>
-                  <div className="text-xs text-ink-3">
+                  <div className="text-xs text-ink-3 tabular-nums font-mono">
                     Thuê tháng: {new Intl.NumberFormat("vi-VN").format(vehicle.monthlyPrice)} ₫
                   </div>
                 </div>

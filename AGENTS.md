@@ -25,3 +25,19 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Bộ lọc/tìm kiếm/tra cứu phải dùng `AdminFilterBar`, `AdminFilterField`, `AdminFilterButton`; bảng danh sách phải dùng `AdminTableCard`, `AdminTable`, `AdminTableEmptyRow`. Không tự dựng style riêng cho từng trang nếu component chung đã đáp ứng.
 - Thay đổi màu, bo góc, kích thước control hoặc bố cục chung tại component dùng chung; dùng token trong `globals.css`. Không thêm viền đen đậm, card lồng card hay toolbar tràn ngang.
 - Giữ nguyên phân quyền, validation, điều kiện lọc và request API khi chỉ sửa style. Kiểm tra desktop/mobile, lỗi inline, áp dụng và đặt lại bộ lọc trước khi hoàn tất.
+
+## Quy tắc bắt buộc: popup tạo và chỉnh sửa Admin
+
+- Dùng `FormDialog` và đặt `FormDialogFooter` bên trong `ValidatedForm`; không tự dựng modal, footer hoặc màu riêng. Quy cách đầy đủ tại `docs/admin-ui.md`, mục “Popup biểu mẫu”.
+- Header và footer giữ nguyên vị trí khi nội dung cuộn; footer dùng nền surface đặc, viền line, nút Hủy/Đóng secondary và Lưu primary. Bố cục phải xuống hàng trên mobile, không che trường đang focus hoặc lỗi inline.
+- Giữ dữ liệu và popup khi API lỗi; khóa gửi lặp và đóng popup khi đang lưu/upload. Không thay quy tắc nghiệp vụ hay kiểu dữ liệu API để sửa style.
+- `lint:design` kiểm tra từng `FormDialog` phải có `FormDialogFooter` trong `ValidatedForm`, kể cả nội dung JSX qua biến cục bộ. Chạy `npx vitest run scripts/admin-popup-rules.test.mjs` khi sửa bộ kiểm tra.
+- Khi tải dữ liệu dùng `Skeleton`/`FormSkeleton` và `AdminTableSkeleton` chung; có thông báo đọc màn hình và `aria-busy` cho bảng. Không dựng bảng rỗng hoặc form có giá trị mặc định tạm thời trong lúc tải.
+
+## Quy tắc bắt buộc: icon thao tác danh sách
+
+- Trong cột `data-actions`, dùng `AdminRowAction` với loại hành động từ `src/components/admin/row-action-rules.ts`; chỉ hiển thị icon, không thêm chữ hoặc icon riêng tại trang.
+- Ánh xạ thống nhất: xem/mở chi tiết = `view`/`Eye`, sửa/cập nhật = `edit`/`Pencil`, xóa = `delete`/`Trash2` màu danger. Thêm hành động mới phải bổ sung quy tắc chung và kiểm thử.
+- Đổi trạng thái dùng `activate`/`CirclePlay` để kích hoạt và `deactivate`/`PauseCircle` để tạm ngưng; có xác nhận, loading và chỉ cập nhật trạng thái hiển thị sau API thành công.
+- Truyền `label` tiếng Việt mô tả hành động và bản ghi khi có; component giữ `aria-label`, tooltip, focus bàn phím, trạng thái disabled/loading. Giữ nguyên phân quyền, xác nhận xóa và request API.
+- Nút ở tiêu đề, bộ lọc và footer biểu mẫu giữ nhãn chữ. Danh sách không có thao tác khả dụng theo thiết kế không dựng cột Thao tác rỗng.
