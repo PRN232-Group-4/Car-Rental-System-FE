@@ -2,7 +2,6 @@
 
 import React, { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useCreateStaff, useDepartments, useFacilities } from "@/features/admin/staff/hooks";
 import { PERMITTED_LICENSE_TYPES } from "@/features/admin/staff/license-utils";
@@ -254,11 +253,9 @@ function CreateStaffContent() {
 export default function CreateStaffPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
           <CreateStaffContent />
         </Suspense>
-      </StaffShell>
     </AuthGate>
   );
 }

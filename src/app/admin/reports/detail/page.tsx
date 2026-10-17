@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation";
 import Link from "@/components/navigation/NavigationLink";
 import { ArrowLeft } from "lucide-react";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -19,7 +18,6 @@ export default function ReportDetailPage() {
 
   return (
     <AuthGate allowedRoles={["Admin", "Manager", "Staff", "CustomerService"]}>
-      <StaffShell>
         <div className="space-y-6">
           {/* Breadcrumb / Back button */}
           <div>
@@ -58,7 +56,6 @@ export default function ReportDetailPage() {
             </div>
           )}
         </div>
-      </StaffShell>
     </AuthGate>
   );
 }

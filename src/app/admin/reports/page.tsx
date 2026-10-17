@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { AlertTriangle, Clock, MessageSquareWarning, ArrowRight } from "lucide-react";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -139,7 +138,6 @@ export default function ReportsPage() {
 
   return (
     <AuthGate allowedRoles={["Admin", "Manager", "Staff", "CustomerService"]}>
-      <StaffShell>
         <div className="space-y-6">
           {/* Header */}
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -192,7 +190,6 @@ export default function ReportsPage() {
             onClose={() => setSelectedReportId(null)}
           />
         </div>
-      </StaffShell>
     </AuthGate>
   );
 }

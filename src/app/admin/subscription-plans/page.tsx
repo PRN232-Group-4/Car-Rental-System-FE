@@ -3,7 +3,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { Plus, Edit2, Trash2, Power, Layers } from "lucide-react";
 import { toast } from "sonner";
-import StaffShell from "@/features/admin/StaffShell";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -206,7 +205,6 @@ export default function SubscriptionPlansPage() {
 
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
             <div>
@@ -284,7 +282,6 @@ export default function SubscriptionPlansPage() {
             />
           )}
         </div>
-      </StaffShell>
     </AuthGate>
   );
 }

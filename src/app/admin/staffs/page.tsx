@@ -3,7 +3,6 @@
 import React, { Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useStaffs, useDepartments, useFacilities } from "@/features/admin/staff/hooks";
 import { StaffFilters } from "@/features/admin/staff/components/StaffFilters";
@@ -284,11 +283,9 @@ function StaffsListContent() {
 export default function StaffsPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
           <StaffsListContent />
         </Suspense>
-      </StaffShell>
     </AuthGate>
   );
 }

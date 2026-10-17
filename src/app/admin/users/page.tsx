@@ -3,7 +3,6 @@
 import React, { Suspense, useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useSession } from "@/features/auth/context/AuthContext";
 import { useAdminUsers, useSetUserActive, useRevokeUserSessions } from "@/features/admin/users/hooks";
@@ -356,11 +355,9 @@ function AdminUsersContent() {
 export default function AdminUsersPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
           <AdminUsersContent />
         </Suspense>
-      </StaffShell>
     </AuthGate>
   );
 }

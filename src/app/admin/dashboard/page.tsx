@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { BarChart3, Database } from "lucide-react";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { getPresetDateRange } from "@/features/admin/dashboard/api";
 import {
@@ -109,7 +108,6 @@ export default function AdminDashboardPage() {
 
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <div className="space-y-6">
           {/* Header */}
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -195,7 +193,6 @@ export default function AdminDashboardPage() {
             />
           </div>
         </div>
-      </StaffShell>
     </AuthGate>
   );
 }

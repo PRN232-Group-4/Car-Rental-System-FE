@@ -4,7 +4,6 @@ import React, { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useSession } from "@/features/auth/context/AuthContext";
 import {
@@ -759,11 +758,9 @@ function UserDetailContent() {
 export default function AdminUserDetailPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
           <UserDetailContent />
         </Suspense>
-      </StaffShell>
     </AuthGate>
   );
 }

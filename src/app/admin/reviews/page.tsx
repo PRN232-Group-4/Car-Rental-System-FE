@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { Star, ShieldAlert, CheckCircle2, MessageSquare, ArrowRight } from "lucide-react";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -147,7 +146,6 @@ export default function AdminReviewsPage() {
 
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <div className="space-y-6">
           {/* Header */}
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -227,7 +225,6 @@ export default function AdminReviewsPage() {
             onClose={() => setSelectedReviewId(null)}
           />
         </div>
-      </StaffShell>
     </AuthGate>
   );
 }

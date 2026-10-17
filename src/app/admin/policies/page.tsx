@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { Plus, ShieldAlert, AlertTriangle, HelpCircle, Shield } from "lucide-react";
-import StaffShell from "@/features/admin/StaffShell";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -132,7 +131,6 @@ export default function PoliciesPage() {
 
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-      <StaffShell>
         <div className="space-y-6">
           {/* Header với tooltip bất biến */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
@@ -268,7 +266,6 @@ export default function PoliciesPage() {
             activePolicies={activePoliciesList}
           />
         </div>
-      </StaffShell>
     </AuthGate>
   );
 }

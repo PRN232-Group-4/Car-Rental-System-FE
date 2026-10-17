@@ -2,7 +2,6 @@
 
 import React, { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
-import StaffShell from "@/features/admin/StaffShell";
 import { AuthGate } from "@/features/auth/AuthGate";
 import {
   useDriverSchedules,
@@ -406,11 +405,9 @@ function DriverScheduleContent() {
 export default function DriverSchedulePage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager", "Staff"]}>
-      <StaffShell>
         <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
           <DriverScheduleContent />
         </Suspense>
-      </StaffShell>
     </AuthGate>
   );
 }
