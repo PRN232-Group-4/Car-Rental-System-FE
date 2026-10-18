@@ -5,6 +5,10 @@ import {
   FacilityCatalogItem,
   VehicleCatalogItem,
   SubscriptionPlanCatalogItem,
+  MockRentalPolicyItem,
+  MockBusySlotItem,
+  MOCK_ACTIVE_POLICIES,
+  MOCK_BUSY_SLOTS,
 } from "./mock-catalog";
 import {
   MOCK_INSPECTION_RECORD,
@@ -291,20 +295,57 @@ export class MockDataStore {
   }
 
   // --- Vehicles ---
+  // --- Vehicles ---
   public getVehicles(params?: {
-    facilityId?: string;
+    facilityId?: string | number;
     category?: string;
+    brand?: string;
+    seats?: number;
+    transmission?: string;
+    fuelType?: string;
+    priceMin?: number;
+    priceMax?: number;
     search?: string;
     status?: string;
+    sort?: "price_asc" | "price_desc" | "year_desc" | "name_asc";
   }): VehicleCatalogItem[] {
     let result = [...this.vehicles];
 
     if (params?.facilityId && params.facilityId !== "all") {
-      result = result.filter((v) => v.facilityId === params.facilityId);
+      result = result.filter((v) => String(v.facilityId) === String(params.facilityId));
     }
 
     if (params?.category && params.category !== "all") {
       result = result.filter((v) => v.category === params.category);
+    }
+
+    if (params?.brand && params.brand !== "all") {
+      result = result.filter((v) => v.brand?.toLowerCase() === params.brand?.toLowerCase());
+    }
+
+    if (params?.seats && Number(params.seats) > 0) {
+      result = result.filter((v) => v.seats === Number(params.seats));
+    }
+
+    if (params?.transmission && params.transmission !== "all") {
+      result = result.filter((v) => v.transmission.toLowerCase().includes(params.transmission!.toLowerCase()));
+    }
+
+    if (params?.fuelType && params.fuelType !== "all") {
+      const ft = params.fuelType.toLowerCase();
+      result = result.filter((v) => {
+        if (ft === "electric") return v.category.includes("electric");
+        if (ft === "petrol" || ft === "xăng") return !v.category.includes("electric");
+        return v.fuelType?.toLowerCase().includes(ft);
+      });
+    }
+
+    if (params?.priceMin && Number(params.priceMin) > 0) {
+      result = result.filter((v) => v.hourlyPrice >= Number(params.priceMin));
+    }
+
+    if (params?.priceMax && Number(params.priceMax) > 0) {
+      result = result.filter((v) => v.hourlyPrice <= Number(params.priceMax));
     }
 
     if (params?.search && params.search.trim()) {
@@ -313,15 +354,130 @@ export class MockDataStore {
         (v) =>
           v.name.toLowerCase().includes(q) ||
           v.categoryLabel.toLowerCase().includes(q) ||
-          v.facilityName.toLowerCase().includes(q)
+          v.facilityName.toLowerCase().includes(q) ||
+          (v.brand && v.brand.toLowerCase().includes(q)) ||
+          (v.model && v.model.toLowerCase().includes(q))
       );
+    }
+
+    // Sắp xếp
+    if (params?.sort) {
+      switch (params.sort) {
+        case "price_asc":
+          result.sort((a, b) => a.hourlyPrice - b.hourlyPrice);
+          break;
+        case "price_desc":
+          result.sort((a, b) => b.hourlyPrice - a.hourlyPrice);
+          break;
+        case "year_desc":
+          result.sort((a, b) => b.year - a.year);
+          break;
+        case "name_asc":
+          result.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+          break;
+      }
     }
 
     return result;
   }
 
+  public getVehiclesPaginated(params?: {
+    facilityId?: string | number;
+    category?: string;
+    brand?: string;
+    seats?: number;
+    transmission?: string;
+    fuelType?: string;
+    priceMin?: number;
+    priceMax?: number;
+    search?: string;
+    status?: string;
+    sort?: "price_asc" | "price_desc" | "year_desc" | "name_asc";
+    page?: number;
+    pageSize?: number;
+  }): { items: VehicleCatalogItem[]; totalCount: number; page: number; pageSize: number } {
+    const allFiltered = this.getVehicles(params);
+    const totalCount = allFiltered.length;
+    const page = Math.max(1, Number(params?.page) || 1);
+    const pageSize = Math.max(1, Number(params?.pageSize) || 9);
+    const startIndex = (page - 1) * pageSize;
+    const items = allFiltered.slice(startIndex, startIndex + pageSize);
+
+    return {
+      items,
+      totalCount,
+      page,
+      pageSize,
+    };
+  }
+
   public getVehicleById(id: string): VehicleCatalogItem | undefined {
-    return this.vehicles.find((v) => v.id === id);
+    return this.vehicles.find((v) => String(v.id) === String(id));
+  }
+
+  public getVehicleBusySlots(vehicleId: string, from?: string, to?: string): MockBusySlotItem[] {
+    const defaultSlots = MOCK_BUSY_SLOTS[vehicleId] ?? [
+      {
+        from: "2026-10-25T01:00:00.000Z",
+        to: "2026-10-27T10:00:00.000Z",
+        reason: "Đã có đơn thuê",
+        isBuffer: false,
+      },
+      {
+        from: "2026-10-27T10:00:00.000Z",
+        to: "2026-10-27T11:00:00.000Z",
+        reason: "Đệm kỹ thuật 60 phút",
+        isBuffer: true,
+      },
+    ];
+
+    if (!from && !to) return defaultSlots;
+
+    return defaultSlots.filter((slot) => {
+      if (from && new Date(slot.to).getTime() < new Date(from).getTime()) return false;
+      if (to && new Date(slot.from).getTime() > new Date(to).getTime()) return false;
+      return true;
+    });
+  }
+
+  public checkVehicleAvailability(vehicleId: string, from: string, to: string): {
+    vehicleId: string;
+    available: boolean;
+    reason?: string;
+    nextAvailableFrom?: string;
+    conflictingBooking?: { from: string; to: string };
+  } {
+    const busySlots = this.getVehicleBusySlots(vehicleId);
+    const reqStart = new Date(from).getTime();
+    const reqEnd = new Date(to).getTime();
+
+    for (const slot of busySlots) {
+      const slotStart = new Date(slot.from).getTime();
+      const slotEnd = new Date(slot.to).getTime();
+
+      // Overlap: reqStart < slotEnd && reqEnd > slotStart
+      if (reqStart < slotEnd && reqEnd > slotStart) {
+        return {
+          vehicleId,
+          available: false,
+          reason: slot.reason || "Trùng lịch đơn thuê hoặc bảo dưỡng",
+          nextAvailableFrom: slot.to,
+          conflictingBooking: {
+            from: slot.from,
+            to: slot.to,
+          },
+        };
+      }
+    }
+
+    return {
+      vehicleId,
+      available: true,
+    };
+  }
+
+  public getActivePolicyForVehicleType(vehicleTypeId: number): MockRentalPolicyItem | undefined {
+    return MOCK_ACTIVE_POLICIES[vehicleTypeId] ?? MOCK_ACTIVE_POLICIES[1];
   }
 
   // --- Subscription Plans ---

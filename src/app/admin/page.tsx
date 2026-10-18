@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CalendarDays, CarFront, CircleDollarSign, ClipboardCheck, UsersRound } from "lucide-react";
 import { getDashboardData } from "@/features/admin/api";
-
 import { useAuth } from "@/features/auth";
 import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
 import { DashboardCharts } from "@/features/admin/DashboardCharts";
@@ -36,6 +35,9 @@ export default function AdminDashboardPage() {
   const icons = [CircleDollarSign, ClipboardCheck, CarFront, UsersRound];
 
   const adminLinks = [
+    { label: "Dashboard biểu đồ", href: "/admin/dashboard", visible: canManage },
+    { label: "Báo cáo sự cố", href: "/admin/reports", visible: true },
+    { label: "Đánh giá nhân sự", href: "/admin/reviews", visible: canManage },
     { label: "Quản lý phương tiện", href: "/admin/vehicles", visible: true },
     { label: "Loại phương tiện", href: "/admin/vehicle-types", visible: true },
     { label: "Chính sách thuê xe", href: "/admin/policies", visible: canManage },
@@ -57,9 +59,7 @@ export default function AdminDashboardPage() {
           <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Dashboard quản trị</h2>
           <p className="mt-2 text-sm text-ink-3">Các chỉ số được tải trực tiếp từ API quản trị.</p>
         </div>
-        {canManage && (
-          <CreateVehicleButton />
-        )}
+        {canManage && <CreateVehicleButton />}
       </div>
 
       {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}

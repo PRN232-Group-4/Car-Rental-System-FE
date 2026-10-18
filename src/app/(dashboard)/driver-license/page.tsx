@@ -2,7 +2,7 @@
 
 import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   FileCheck,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
+import BookingLicenseReturn from "@/features/licenses/components/BookingLicenseReturn";
 
 export default function GPLXPage() {
   const queryClient = useQueryClient();
@@ -72,6 +73,10 @@ export default function GPLXPage() {
           Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp.
         </p>
       </div>
+
+      <Suspense fallback={null}>
+        <BookingLicenseReturn license={license} />
+      </Suspense>
 
       {/* Current Status Card */}
       <div className="p-6 rounded-3xl bg-surface border border-line shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">

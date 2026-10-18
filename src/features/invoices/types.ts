@@ -10,6 +10,11 @@ export interface Invoice {
   status: InvoiceStatus | (string & {});
   issuedAt: string;
   dueAt?: string | null;
+  /** Returned by the detail endpoint; omitted on invoice summaries. */
+  canPay?: boolean;
+  paymentBlockedReason?: string | null;
+  paymentMethod?: "payos" | "cash" | string;
+  orderId?: number | string | null;
 }
 
 export interface CheckoutResult {
