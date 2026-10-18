@@ -1,5 +1,13 @@
 .sidebarSurface {
-  background-color: color-mix(in srgb, var(--primary) 10%, var(--surface));
+  background-color: var(--surface);
+}
+
+.brandCollapsed {
+  display: none;
+}
+
+.brandExpanded {
+  display: flex;
 }
 
 .desktopSidebar {
@@ -80,6 +88,14 @@
   .shell[data-menu-collapsed="true"] .desktopSidebar .sidebarText,
   .shell[data-menu-collapsed="true"] .desktopSidebar .navLabel {
     display: none;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandExpanded {
+    display: none !important;
+  }
+
+  .shell[data-menu-collapsed="true"] .desktopSidebar .brandCollapsed {
+    display: flex !important;
   }
 
   .shell[data-menu-collapsed="true"] .desktopSidebar .brandHeader {

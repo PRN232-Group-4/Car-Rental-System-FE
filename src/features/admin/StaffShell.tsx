@@ -12,119 +12,21 @@ import { getFacilities, getStaffById } from "./api";
 import { useAdminTheme } from "./use-admin-theme";
 import {
   Bell,
-  Building2,
-  CarFront,
-  CircleUserRound,
-  KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
-  ReceiptText,
   Sun,
-  Tags,
-  WalletCards,
-  UsersRound,
   X,
 } from "lucide-react";
+import { getNavigation } from "@/config/navigation";
+import type { PortalNavItem } from "@/components/layout/AppPortalShell";
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
 import styles from "./StaffShell.module.css";
-
-const allNavigation = [
-  {
-    href: "/admin",
-    label: "Tổng quan",
-    icon: LayoutDashboard,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/maintenance", label: "Quản lý bảo trì", icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/dispatch", label: "Điều phối tài xế", icon: UsersRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
-  },
-  {
-    href: "/admin/rentals", label: "Vận hành đơn thuê", icon: ReceiptText,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/inspections", label: "Kiểm tra xe", icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/vehicles",
-    label: "Quản lý phương tiện",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/vehicle-types",
-    label: "Loại phương tiện",
-    icon: Tags,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/policies",
-    label: "Chính sách thuê xe",
-    icon: ReceiptText,
-    roles: ["Admin", "Manager"],
-  },
-  {
-    href: "/admin/subscription-plans",
-    label: "Gói Đăng Ký",
-    icon: WalletCards,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/departments",
-    label: "Phòng Ban",
-    icon: Building2,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/facilities",
-    label: "Cơ Sở",
-    icon: Building2,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/staffs",
-    label: "Nhân Viên",
-    icon: UsersRound,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/roles",
-    label: "Vai Trò",
-    icon: KeyRound,
-    roles: ["Admin"],
-  },
-  {
-    href: "/admin/profile",
-    label: "Hồ sơ nhân viên",
-    icon: CircleUserRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-];
-
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
-import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
-import { getFacilities, getStaffById } from "./api";
-import { useAdminTheme } from "./use-admin-theme";
-import { LayoutDashboard } from "lucide-react";
-import { getNavigation } from "@/config/navigation";
-import { useAuth } from "@/features/auth";
-import { usePortalAccess } from "@/features/auth/use-portal-access";
-import { isAdminOrStaffAccount } from "@/features/profile/api";
-import AppPortalShell, { type PortalNavItem } from "@/components/layout/AppPortalShell";
-
 
 export default function StaffShell({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -132,6 +34,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(true);
   const { theme, toggleTheme } = useAdminTheme();
+  const pathname = usePathname();
   const [menuAnimated, setMenuAnimated] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const { account, checkingAccess, accessError } = usePortalAccess(isAdminOrStaffAccount);
@@ -153,6 +56,13 @@ export default function StaffShell({ children }: { children: ReactNode }) {
       icon: (item.icon as React.ElementType) || LayoutDashboard,
     }));
   }, [account?.roles, user?.roles]);
+
+  const currentPage =
+    navigation.find((item) =>
+      item.href === "/admin"
+        ? pathname === "/admin"
+        : pathname === item.href || pathname.startsWith(`${item.href}/`),
+    )?.label ?? "Tổng quan";
 
   // Chức danh + tên cơ sở lấy an toàn không crash 403
   useEffect(() => {
@@ -236,8 +146,14 @@ export default function StaffShell({ children }: { children: ReactNode }) {
   const avatarUrl = account?.avatarUrl || user?.avatarUrl;
 
   const handleLogout = async () => {
-    await logout();
-    router.replace("/login");
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await logout();
+      router.replace("/login");
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
   const sidebar = (
@@ -397,8 +313,8 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             id="admin-mobile-navigation"
             className={`${styles.sidebarSurface} relative flex h-full w-[min(86vw,300px)] flex-col shadow-e2`}
           >
-            Đăng nhập lại
-          </button>
+            {sidebar}
+          </aside>
         </div>
       )}
 
@@ -476,44 +392,6 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
-    );
-  }
-
-  return (
-    <AppPortalShell
-      portalLabel="Staff portal"
-      portalSubLabel="Cổng quản trị / Nhân viên"
-      brandHref="/admin"
-      navItems={navigation}
-      user={{
-        name: displayName,
-        subtitle: jobTitle,
-        avatarUrl,
-        initials: (displayName || "A").charAt(0).toUpperCase(),
-        badge: facilityName,
-      }}
-      profileHref="/admin/profile"
-      profileButtonText="Xem hồ sơ nhân viên"
-      profileLoading={profileLoading}
-      profileError={profileError}
-      theme={theme}
-      onToggleTheme={toggleTheme}
-      rightHeaderActions={
-        facilityName ? (
-          <span className="hidden rounded-full border border-line bg-sunken px-3 py-1.5 text-xs font-semibold text-ink md:inline-flex">
-            {profileLoading ? (
-              <span role="status" aria-label="Đang tải chi nhánh...">
-                <Skeleton className="h-3 w-28" />
-              </span>
-            ) : (
-              facilityName
-            )}
-          </span>
-        ) : null
-      }
-      onLogout={handleLogout}
-    >
-      {children}
-    </AppPortalShell>
+    </div>
   );
 }
