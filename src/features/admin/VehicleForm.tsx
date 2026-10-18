@@ -21,7 +21,6 @@ import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
 import { notifySuccess } from "@/components/ui/Toaster";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
-import { FormField as Field } from "@/components/ui/FormField";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 

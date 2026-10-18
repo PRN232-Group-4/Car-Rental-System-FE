@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { MapPin, Clock, Phone, Car, ArrowUpRight } from "lucide-react";
-import Link from "@/components/navigation/NavigationLink";
 import { getFacilities, getInitialFacilities } from "../api";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
@@ -55,15 +54,6 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
             {current.phone && <div><dt className="mb-1 flex items-center gap-1.5 text-xs text-ink-3"><Phone aria-hidden="true" className="h-4 w-4" />Điện thoại</dt><dd className="font-mono">{current.phone}</dd></div>}
           </dl>}
           <GoogleMap title={`Vị trí ${current.name}`} location={{ address, latitude: current.latitude, longitude: current.longitude }} />
-          <div className="pt-2">
-            <Link
-              href={`/find?facilityId=${encodeURIComponent(current.id)}`}
-              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-e1 hover:bg-primary-hover transition-colors"
-            >
-              <span>Xem xe khả dụng tại chi nhánh này</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
         </div>
       </article>
     </div>}

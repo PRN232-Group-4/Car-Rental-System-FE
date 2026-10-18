@@ -6,11 +6,9 @@ import { ArrowRight, CalendarDays, CarFront, CircleDollarSign, ClipboardCheck, U
 import { getDashboardData } from "@/features/admin/api";
 import { useAuth } from "@/features/auth";
 import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
-import { StatCard } from "@/components/ui/StatCard";
-import { SkeletonStat } from "@/components/ui/Skeleton";
-import { ErrorState } from "@/components/ui/ErrorState";
 import { DashboardCharts } from "@/features/admin/DashboardCharts";
 import { parseDashboardSnapshot } from "@/features/admin/dashboard-data";
+import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 
 export default function AdminDashboardPage() {
   const { hasRole } = useAuth();
@@ -64,37 +62,24 @@ export default function AdminDashboardPage() {
         {canManage && <CreateVehicleButton />}
       </div>
 
-      {error && <ErrorState message={error} onRetry={() => void dashboard.refetch()} />}
+      {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
+      {loading && <SkeletonBlock label="Đang tải chỉ số tổng quan..." className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <div key={index} className="space-y-5 rounded-2xl border border-line bg-surface p-5"><Skeleton className="h-11 w-11 rounded-xl" /><Skeleton className="h-4 w-36 max-w-full" /><Skeleton className="h-8 w-24" /></div>)}</SkeletonBlock>}
+      {!loading && !error && data && Object.values(data).every((value) => value === null) && <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">API chưa trả về chỉ số dashboard.</p>}
 
-      {loading && (
-        <section aria-label="Đang tải chỉ số" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <SkeletonStat key={index} />
-          ))}
-        </section>
-      )}
-
-      {!loading && !error && entries.length === 0 && (
-        <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">
-          API chưa trả về chỉ số dashboard.
-        </p>
-      )}
-
-      {!loading && !error && entries.length > 0 && (
-        <section aria-label="Chỉ số hoạt động" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {entries.map((entry, index) => {
-            const Icon = icons[index % icons.length];
-            return (
-              <StatCard
-                key={entry.label}
-                icon={Icon}
-                label={entry.label}
-                value={entry.value}
-              />
-            );
-          })}
-        </section>
-      )}
+      <section aria-label="Chỉ số hoạt động" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {!loading && !error && entries.map((entry, index) => {
+          const Icon = icons[index % icons.length];
+          return (
+            <article key={entry.label} className="rounded-2xl border border-line bg-surface p-5 shadow-e1">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </span>
+              <p className="mt-5 text-sm font-medium text-ink-3">{entry.label}</p>
+              <p className="mt-1 break-words font-mono text-2xl font-bold tracking-tight text-ink tabular-nums">{entry.value}</p>
+            </article>
+          );
+        })}
+      </section>
 
       <DashboardCharts data={data} loading={loading} error={error} onRetry={() => { void dashboard.refetch(); }} />
 

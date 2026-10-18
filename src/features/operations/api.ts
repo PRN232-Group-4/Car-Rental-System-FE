@@ -12,6 +12,9 @@ export interface InspectionRequest {
   imageUrls: string | null;
 }
 
+export function getOperationalRental(id: number) {
+  return backendApiClient.get<OperationalRental>(`rentals/${id}`);
+
 export async function getOperationalRental(id: number): Promise<OperationalRental> {
   try {
     return await backendApiClient.get<OperationalRental>(`rentals/${id}`);
@@ -40,6 +43,7 @@ export async function getOperationalRental(id: number): Promise<OperationalRenta
     }
     throw error;
   }
+
 }
 
 export async function getOperationalDrivers(): Promise<StaffDto[]> {
@@ -120,6 +124,7 @@ export function assignRental(id: number, driverStaffId: number | null) {
 }
 
 export function changeRentalStatus(id: number, status: string) {
+  if (status === "pre_inspection") return backendApiClient.post<unknown>(`rentals/${id}/confirm`);
   return backendApiClient.post<OperationalRental>(`rentals/${id}/status/${encodeURIComponent(status)}`);
 }
 
