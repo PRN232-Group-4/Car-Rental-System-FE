@@ -46,7 +46,37 @@ const allNavigation = [
     roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
   {
+<<<<<<< Updated upstream
     href: "/admin/dispatch", label: "Điều phối tài xế", icon: UsersRound,
+=======
+    href: "/admin/rentals",
+    label: "Vận hành đơn thuê",
+    icon: ReceiptText,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/inspections",
+    label: "Kiểm tra xe",
+    icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/maintenance",
+    label: "Quản lý bảo trì",
+    icon: CarFront,
+    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+  },
+  {
+    href: "/admin/customers",
+    label: "Khách hàng",
+    icon: UsersRound,
+    roles: ["Admin", "Manager", "CustomerService"],
+  },
+  {
+    href: "/admin/dispatch",
+    label: "Điều phối tài xế",
+    icon: UsersRound,
+>>>>>>> Stashed changes
     roles: ["Admin", "Manager", "Staff", "CustomerService"],
   },
   {

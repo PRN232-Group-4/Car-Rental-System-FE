@@ -19,6 +19,7 @@ import { useAuth } from "@/features/auth";
 
 const NAV_ITEMS: AppNavItem[] = [
   { label: "Đặt xe", href: "/booking", icon: Car },
+  { label: "Đơn thuê của tôi", href: "/my-rentals", icon: Car },
   { label: "Giấy phép lái xe (GPLX)", href: "/driver-license", icon: FileCheck },
   { label: "Hợp đồng dài hạn", href: "/rental-contract", icon: FileText },
   { label: "Gói của tôi", href: "/my-subscriptions", icon: Package },

@@ -45,7 +45,7 @@ function PaymentResultContent() {
     queryFn: () => getInvoiceById(orderCode),
     enabled: !isPlanPurchase && hasOrderCode,
     refetchInterval: (query) =>
-      query.state.data?.status === "paid" ||
+      (query.state.data?.status === "paid" && !!query.state.data?.orderId) ||
       query.state.data?.status === "cancelled" ||
       urlCancelled ||
       pollCount >= 15
@@ -71,6 +71,7 @@ function PaymentResultContent() {
   const serverStatus = isPlanPurchase ? planPurchase?.status : invoice?.status;
   const isCancelled = urlCancelled || serverStatus === "cancelled";
   const isPaid = serverStatus === "paid";
+  const waitingOrder = isPaid && !isPlanPurchase && !invoice?.orderId;
   const refetch = isPlanPurchase ? planQuery.refetch : invoiceQuery.refetch;
   const isFetching = isPlanPurchase ? planQuery.isFetching : invoiceQuery.isFetching;
 
@@ -89,15 +90,15 @@ function PaymentResultContent() {
   }, [urlCancelled, hasOrderCode, orderCode, isPlanPurchase, refetchInvoice, refetchPlan]);
 
   useEffect(() => {
-    if (!isCancelled && !isPaid && pollCount < 15) {
+    if (!isCancelled && (!isPaid || waitingOrder) && pollCount < 15) {
       const timer = setTimeout(() => {
         setPollCount((prev) => prev + 1);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [pollCount, isPaid, isCancelled]);
+  }, [pollCount, isPaid, isCancelled, waitingOrder]);
 
-  const isSuccess = isPaid || urlStatus === "PAID";
+  const isSuccess = isPaid && (isPlanPurchase || !!invoice?.orderId);
 
   return (
     <div className="max-w-2xl mx-auto py-8 sm:py-12">
@@ -126,8 +127,8 @@ function PaymentResultContent() {
                   <span className="font-bold text-ink">{invoice.invoiceNumber}</span>
                 </div>
                 <div className="flex justify-between text-ink-3">
-                  <span>Mã đơn thuê:</span>
-                  <span className="font-bold text-ink">#{invoice.rentalId}</span>
+                  <span>Mã đơn thuê chính thức:</span>
+                  <span className="font-bold text-ink">#{invoice.orderId}</span>
                 </div>
                 <div className="flex justify-between text-ink-3">
                   <span>Số tiền đã thanh toán:</span>
@@ -143,7 +144,7 @@ function PaymentResultContent() {
               <span>
                 {isPlanPurchase
                   ? "Gói thuê bao đã được kích hoạt. Bạn có thể dùng ngay khi đặt xe."
-                  : "Xe đã sẵn sàng bàn giao theo lịch hẹn. Nhân viên chi nhánh sẽ liên hệ hỗ trợ bạn."}
+                  : "Đơn thuê đã được phát hành. Nhân viên sẽ chuẩn bị, kiểm định và bàn giao xe theo lịch hẹn."}
               </span>
             </div>
 
@@ -220,7 +221,7 @@ function PaymentResultContent() {
 
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-                Đang đối soát giao dịch...
+                {waitingOrder ? "Đã nhận thanh toán, đang hoàn tất đơn thuê..." : "Đang đối soát giao dịch..."}
               </h1>
               <p className="text-xs sm:text-sm text-ink-3">
                 Hệ thống đang chờ tín hiệu xác nhận từ cổng ngân hàng / PayOS (lần thử {pollCount}/15).

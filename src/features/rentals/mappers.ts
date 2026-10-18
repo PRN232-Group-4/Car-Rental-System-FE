@@ -25,6 +25,7 @@ export function mapRentalFromBE(raw: BERental | Record<string, unknown>): Rental
 
   return {
     id,
+    orderId: (r.orderId ?? r.OrderId ?? null) as number | string | null,
     customerId,
     vehicleId,
     vehicleName,

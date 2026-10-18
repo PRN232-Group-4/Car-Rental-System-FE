@@ -12,7 +12,11 @@ export interface InspectionRequest {
   imageUrls: string | null;
 }
 
+<<<<<<< Updated upstream
 export function getOperationalRental(id: number) {
+=======
+export async function getOperationalRental(id: number): Promise<OperationalRental> {
+>>>>>>> Stashed changes
   return backendApiClient.get<OperationalRental>(`rentals/${id}`);
 }
 
@@ -33,6 +37,7 @@ export function assignRental(id: number, driverStaffId: number | null) {
 }
 
 export function changeRentalStatus(id: number, status: string) {
+  if (status === "pre_inspection") return backendApiClient.post<unknown>(`rentals/${id}/confirm`);
   return backendApiClient.post<OperationalRental>(`rentals/${id}/status/${encodeURIComponent(status)}`);
 }
 
