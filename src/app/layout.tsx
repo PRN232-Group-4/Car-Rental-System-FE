@@ -35,6 +35,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full scroll-smooth antialiased font-sans`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){function c(e){if(!e||!e.removeAttribute)return;if(e.hasAttribute('bis_skin_checked'))e.removeAttribute('bis_skin_checked');if(e.hasAttribute('bis_register'))e.removeAttribute('bis_register');var a=e.attributes;if(a){for(var i=a.length-1;i>=0;i--){var n=a[i].name;if(n==='bis_skin_checked'||n==='bis_register'||n==='fdprocessedid'||n.indexOf('__processed_')===0||n.indexOf('bis_')===0){e.removeAttribute(n);}}}}try{c(document.documentElement);c(document.body);document.querySelectorAll('*').forEach(c);if(window.MutationObserver){var o=new MutationObserver(function(m){for(var i=0;i<m.length;i++){var x=m[i];if(x.type==='attributes'){c(x.target);}else if(x.type==='childList'){for(var j=0;j<x.addedNodes.length;j++){var node=x.addedNodes[j];if(node.nodeType===1){c(node);if(node.querySelectorAll)node.querySelectorAll('*').forEach(c);}}}}});o.observe(document.documentElement,{childList:true,subtree:true,attributes:true});window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){o.disconnect();},4000);});}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
         suppressHydrationWarning
         className="min-h-full flex flex-col text-ink bg-canvas font-sans relative selection:bg-primary/20 selection:text-warning"

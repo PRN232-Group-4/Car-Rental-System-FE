@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 /**
  * Nền kiến trúc kỹ thuật ô tô toàn hệ thống (Global Automotive CAD Blueprint)
@@ -9,6 +9,22 @@ import React from "react";
  * Tuân thủ 100% DESIGN.md Phần A: Zero-Gradient, Warm Canvas, Hairline CAD Grid.
  */
 export default function GlobalBlueprintBackground() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+        aria-hidden="true"
+        suppressHydrationWarning
+      />
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
