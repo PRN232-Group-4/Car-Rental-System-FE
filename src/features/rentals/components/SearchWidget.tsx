@@ -15,6 +15,7 @@ import {
 import { getFacilities, getInitialFacilities } from "@/features/facilities";
 import type { Facility } from "@/features/facilities";
 import { Button } from "@/components/ui/Button";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 
 export type RentalMode = "hourly" | "longterm";
 
@@ -33,6 +34,12 @@ function defaultRange(): { startDate: string; endDate: string } {
 }
 
 interface SearchWidgetProps {
+  initialMode?: RentalMode;
+  initialFacilityId?: string;
+  initialStartDate?: string;
+  initialStartTime?: string;
+  initialEndDate?: string;
+  initialEndTime?: string;
   onSearch?: (criteria: {
     mode: RentalMode;
     facilityId: string;
@@ -43,15 +50,24 @@ interface SearchWidgetProps {
   }) => void;
 }
 
-export default function SearchWidget({ onSearch }: SearchWidgetProps) {
+export default function SearchWidget({
+  initialMode = "hourly",
+  initialFacilityId = "all",
+  initialStartDate,
+  initialStartTime = "21:00",
+  initialEndDate,
+  initialEndTime = "20:00",
+  onSearch,
+}: SearchWidgetProps) {
+  const router = useRouter();
   const [facilities, setFacilities] = useState<Facility[]>(getInitialFacilities());
-  const [mode, setMode] = useState<RentalMode>("hourly");
-  const [facilityId, setFacilityId] = useState<string>("all");
-  const initialRange = useMemo(() => defaultRange(), []);
-  const [startDate, setStartDate] = useState<string>(initialRange.startDate);
-  const [startTime, setStartTime] = useState<string>("21:00");
-  const [endDate, setEndDate] = useState<string>(initialRange.endDate);
-  const [endTime, setEndTime] = useState<string>("20:00");
+  const [mode, setMode] = useState<RentalMode>(initialMode);
+  const [facilityId, setFacilityId] = useState<string>(initialFacilityId);
+  const defaultDates = useMemo(() => defaultRange(), []);
+  const [startDate, setStartDate] = useState<string>(initialStartDate || defaultDates.startDate);
+  const [startTime, setStartTime] = useState<string>(initialStartTime);
+  const [endDate, setEndDate] = useState<string>(initialEndDate || defaultDates.endDate);
+  const [endTime, setEndTime] = useState<string>(initialEndTime);
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
   const [showStationPicker, setShowStationPicker] = useState<boolean>(false);
 
@@ -119,10 +135,15 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
         endTime,
       });
     }
-    const element = document.getElementById("doi-xe");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    const params = new URLSearchParams();
+    if (mode) params.set("mode", mode);
+    if (facilityId && facilityId !== "all") params.set("facilityId", facilityId);
+    if (startDate) params.set("startDate", startDate);
+    if (startTime) params.set("startTime", startTime);
+    if (endDate) params.set("endDate", endDate);
+    if (endTime) params.set("endTime", endTime);
+
+    router.push(`/find?${params.toString()}`);
   };
 
   return (
@@ -206,7 +227,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                 <div className="px-3 py-2 text-xs font-mono font-bold text-ink-3 uppercase tracking-wider border-b border-line mb-1">
                   Hệ thống trạm thông minh (Smart EV Hub)
                 </div>
-                <div className="max-h-64 overflow-y-auto space-y-1 pr-1">
+                <div className="max-h-64 overflow-y-auto overscroll-contain space-y-1 pr-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -352,7 +373,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                           setStartDate(e.target.value);
                           if (endDate < e.target.value) setEndDate(e.target.value);
                         }}
-                        className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                        className="w-full bg-sunken px-3 py-2 rounded-xl text-base sm:text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -361,7 +382,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                         type="time"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                        className="w-full bg-sunken px-3 py-2 rounded-xl text-base sm:text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
                       />
                     </div>
                   </div>
@@ -378,7 +399,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                         value={endDate}
                         min={startDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                        className="w-full bg-sunken px-3 py-2 rounded-xl text-base sm:text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -387,7 +408,7 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
                         type="time"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full bg-sunken px-3 py-2 rounded-xl text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
+                        className="w-full bg-sunken px-3 py-2 rounded-xl text-base sm:text-xs font-bold text-ink border border-line outline-none focus:border-primary focus:bg-surface transition-all"
                       />
                     </div>
                   </div>
@@ -415,10 +436,12 @@ export default function SearchWidget({ onSearch }: SearchWidgetProps) {
           {/* Column 3: Nút Tìm Xe */}
           <div className="shrink-0 pt-1 md:pt-0">
             <Button
+              id="btn-tim-xe"
+              data-testid="btn-tim-xe"
               type="submit"
               variant="amber-hero"
               size="lg"
-              className="w-full md:w-auto px-9 py-4 font-bold shadow-e2"
+              className="w-full md:w-auto px-9 py-4 font-bold shadow-e2 cursor-pointer"
             >
               <Search className="w-4 h-4 stroke-[2.5]" />
               <span>Tìm Xe</span>

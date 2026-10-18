@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, Package, FileText, CreditCard, FileCheck } from "lucide-react";
-import { useAuth } from "@/features/auth";
+import { Menu, X, LogOut, ChevronDown, Car, FileCheck } from "lucide-react";
+import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
+import { getNavigation } from "@/config/navigation";
 import { useMounted } from "@/hooks/use-mounted";
 import { Button } from "@/components/ui/Button";
 import { useGSAP } from "@gsap/react";
@@ -89,34 +90,36 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
+          <div className="hidden md:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
             <Link
-              href="/#tim-xe"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              id="nav-tim-xe"
+              href="/find"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Thuê xe
             </Link>
             <Link
-              href="/#chi-nhanh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              id="nav-chi-nhanh"
+              href="/facilities"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Chi nhánh
             </Link>
             <Link
               href="/#goi-thue-bao"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Gói thuê bao
             </Link>
             <Link
               href="/#quy-trinh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Hướng dẫn
             </Link>
             <Link
               href="/#kiem-dinh"
-              className="px-3 py-1.5 text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
+              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Kiểm định
             </Link>
@@ -181,11 +184,7 @@ export default function Navbar() {
                     </div>
 
                     <div className="py-1 border-b border-line mb-1 space-y-0.5">
-                      {(hasRole("admin") ||
-                        hasRole("manager") ||
-                        hasRole("staff") ||
-                        hasRole("customerservice") ||
-                        hasRole("maintenance")) && (
+                      {hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) && (
                         <Link
                           href="/admin"
                           onClick={() => setUserMenuOpen(false)}
@@ -208,54 +207,18 @@ export default function Navbar() {
                       )}
 
                       {/* Customer Hub Links */}
-                      {(hasRole("customer") ||
-                        (!hasRole("admin") &&
-                          !hasRole("manager") &&
-                          !hasRole("staff") &&
-                          !hasRole("driver"))) && (
-                        <>
+                      {(hasRole("customer") || !hasAnyRole(user?.roles, STAFF_PORTAL_ROLES)) &&
+                        getNavigation(user?.roles, "customer").map(({ href, label, icon: Icon }) => (
                           <Link
-                            href="/booking"
+                            key={href}
+                            href={href}
                             onClick={() => setUserMenuOpen(false)}
                             className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                           >
-                            <Car className="size-3.5" />
-                            <span>Đặt xe mới</span>
+                            {Icon && <Icon className="size-3.5" />}
+                            <span>{label}</span>
                           </Link>
-                          <Link
-                            href="/my-subscriptions"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <Package className="size-3.5" />
-                            <span>Gói thuê của tôi</span>
-                          </Link>
-                          <Link
-                            href="/invoices"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <FileText className="size-3.5" />
-                            <span>Danh sách hoá đơn</span>
-                          </Link>
-                          <Link
-                            href="/payment-history"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <CreditCard className="size-3.5" />
-                            <span>Lịch sử thanh toán</span>
-                          </Link>
-                          <Link
-                            href="/driver-license"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
-                            <FileCheck className="size-3.5" />
-                            <span>Giấy phép lái xe (GPLX)</span>
-                          </Link>
-                        </>
-                      )}
+                        ))}
 
                       <Link
                         href="/profile"
@@ -297,7 +260,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu toggle button */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer"
@@ -316,16 +279,16 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="lg:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1">
+          <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1">
             <Link
-              href="/#tim-xe"
+              href="/find"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
             >
               Thuê xe
             </Link>
             <Link
-              href="/#chi-nhanh"
+              href="/facilities"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
             >
@@ -377,11 +340,7 @@ export default function Navbar() {
                   </div>
 
                   <div className="py-2 border-y border-line my-2 space-y-1">
-                    {(hasRole("admin") ||
-                      hasRole("manager") ||
-                      hasRole("staff") ||
-                      hasRole("customerservice") ||
-                      hasRole("maintenance")) && (
+                    {hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) && (
                       <Link
                         href="/admin"
                         onClick={() => setMobileMenuOpen(false)}
@@ -401,49 +360,17 @@ export default function Navbar() {
                       </Link>
                     )}
 
-                    {(hasRole("customer") ||
-                      (!hasRole("admin") &&
-                        !hasRole("manager") &&
-                        !hasRole("staff") &&
-                        !hasRole("driver"))) && (
-                      <>
+                    {(hasRole("customer") || !hasAnyRole(user?.roles, STAFF_PORTAL_ROLES)) &&
+                      getNavigation(user?.roles, "customer").map(({ href, label }) => (
                         <Link
-                          href="/booking"
+                          key={href}
+                          href={href}
                           onClick={() => setMobileMenuOpen(false)}
                           className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                         >
-                          Đặt xe mới
+                          {label}
                         </Link>
-                        <Link
-                          href="/my-subscriptions"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Gói thuê của tôi
-                        </Link>
-                        <Link
-                          href="/invoices"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Danh sách hoá đơn
-                        </Link>
-                        <Link
-                          href="/payment-history"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Lịch sử thanh toán
-                        </Link>
-                        <Link
-                          href="/driver-license"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
-                          Giấy phép lái xe (GPLX)
-                        </Link>
-                      </>
-                    )}
+                      ))}
 
                     <Link
                       href="/profile"

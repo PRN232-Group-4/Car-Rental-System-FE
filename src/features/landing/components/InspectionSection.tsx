@@ -213,13 +213,15 @@ export default function InspectionSection() {
 
             {/* Current Active Point Telemetry Focus */}
             <div className="p-4 rounded-2xl bg-surface-raised border border-line mb-5">
-              <span className="text-xs font-mono text-primary uppercase tracking-widest block mb-1 font-bold">
-                TIÊU CHUẨN ĐANG CHỌN // {activePoint.code}
-              </span>
-              <h4 className="font-display text-lg font-bold text-ink mb-1">
-                {activePoint.name}
-              </h4>
-              <p className="text-xs text-ink-2 leading-relaxed">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <h4 className="font-display text-lg font-bold text-ink text-balance">
+                  {activePoint.name}
+                </h4>
+                <span className="font-mono text-xs text-primary font-bold px-2 py-0.5 rounded bg-primary-tint border border-primary/20 shrink-0">
+                  {activePoint.code}
+                </span>
+              </div>
+              <p className="text-xs text-ink-2 leading-relaxed text-pretty">
                 {activePoint.desc}
               </p>
             </div>

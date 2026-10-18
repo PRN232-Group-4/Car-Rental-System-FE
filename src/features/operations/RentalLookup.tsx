@@ -36,6 +36,22 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
           <InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} placeholder="Nhập mã yêu cầu đặt xe" />
         </AdminFilterField>
       </AdminFilterBar>
+      <div className="flex items-center gap-2 text-xs text-ink-3 pt-1">
+        <span>Mã đơn mẫu kiểm tra:</span>
+        {[1, 101, 98].map((sampleId) => (
+          <button
+            key={sampleId}
+            type="button"
+            onClick={() => {
+              setId(String(sampleId));
+              setLookup(String(sampleId));
+            }}
+            className="px-2 py-0.5 rounded-md bg-surface hover:bg-sunken border border-line text-primary font-bold transition-colors cursor-pointer"
+          >
+            #{sampleId}
+          </button>
+        ))}
+      </div>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-sm text-danger">{operationalError(query.error)}</p>}
     {query.isFetching && !query.data && <FormSkeleton label="Đang tải thông tin đơn thuê" fields={4} />}

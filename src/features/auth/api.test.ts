@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiClientError } from "@/api/api-client";
-import { AUTH_USER_STORAGE_KEY } from "@/api/token-refresh";
 import { getProfile } from "./api";
 import type { AuthUser } from "./types";
 
@@ -10,53 +9,56 @@ vi.mock("@/api/default-api-client", () => ({
   defaultApiClient: { get: mocks.get, post: vi.fn() },
 }));
 
-const cachedUser: AuthUser = {
-  email: "cached@example.com",
-  fullName: "Cached User",
+const testUser: AuthUser = {
+  email: "user@example.com",
+  fullName: "Nguyen Van A",
   roles: ["Customer"],
 };
 
 function installLocalStorage() {
   const store = new Map<string, string>();
   const storage = {
-    getItem: (key: string) => store.get(key) ?? null,
-    setItem: (key: string, value: string) => void store.set(key, value),
-    removeItem: (key: string) => void store.delete(key),
+    getItem: vi.fn((key: string) => store.get(key) ?? null),
+    setItem: vi.fn((key: string, value: string) => void store.set(key, value)),
+    removeItem: vi.fn((key: string) => void store.delete(key)),
   };
-  // auth/api.ts đọc cả `window.localStorage` lẫn biến global `localStorage`.
   vi.stubGlobal("localStorage", storage);
   vi.stubGlobal("window", { localStorage: storage });
-  return store;
+  return { store, storage };
 }
 
-describe("getProfile cache handling", () => {
-  let store: Map<string, string>;
+describe("getProfile in-memory handling & Zero PII in localStorage", () => {
+  let localStorageMock: ReturnType<typeof installLocalStorage>;
 
   beforeEach(() => {
     mocks.get.mockReset();
-    store = installLocalStorage();
+    localStorageMock = installLocalStorage();
   });
 
-  it("caches the profile on success", async () => {
-    mocks.get.mockResolvedValue(cachedUser);
+  it("returns user profile on HTTP 200 without writing to localStorage (Zero PII)", async () => {
+    mocks.get.mockResolvedValue(testUser);
 
-    await expect(getProfile()).resolves.toEqual(cachedUser);
-    expect(store.get(AUTH_USER_STORAGE_KEY)).toBe(JSON.stringify(cachedUser));
+    const result = await getProfile();
+    expect(result).toEqual(testUser);
+    // Crucial: No PII stored in localStorage
+    expect(localStorageMock.storage.setItem).not.toHaveBeenCalled();
+    expect(localStorageMock.store.size).toBe(0);
   });
 
-  it("clears the cache on 401 (session thực sự chết)", async () => {
-    store.set(AUTH_USER_STORAGE_KEY, JSON.stringify(cachedUser));
-    mocks.get.mockRejectedValue(new ApiClientError(401, "Unauthorized", { detail: "hết hạn" }));
+  it("returns null on HTTP 401 (guest/anonymous) without throwing error", async () => {
+    mocks.get.mockRejectedValue(
+      new ApiClientError(401, "Unauthorized", { detail: "Phiên chưa đăng nhập hoặc đã hết hạn" }),
+    );
 
-    await expect(getProfile()).resolves.toBeNull();
-    expect(store.has(AUTH_USER_STORAGE_KEY)).toBe(false);
+    const result = await getProfile();
+    expect(result).toBeNull();
+    expect(localStorageMock.storage.setItem).not.toHaveBeenCalled();
   });
 
-  it("keeps the cache on network/offline errors", async () => {
-    store.set(AUTH_USER_STORAGE_KEY, JSON.stringify(cachedUser));
+  it("throws error on network/server errors so TanStack Query handles retry", async () => {
     mocks.get.mockRejectedValue(new TypeError("Failed to fetch"));
 
-    await expect(getProfile()).resolves.toEqual(cachedUser);
-    expect(store.has(AUTH_USER_STORAGE_KEY)).toBe(true);
+    await expect(getProfile()).rejects.toThrow("Failed to fetch");
+    expect(localStorageMock.storage.setItem).not.toHaveBeenCalled();
   });
 });

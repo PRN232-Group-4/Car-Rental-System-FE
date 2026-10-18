@@ -50,9 +50,21 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
   const status = String(r.status ?? r.Status ?? "available").toLowerCase();
   const isAvailable = status === "available";
 
-  const badges: string[] = [];
-  if (category.includes("electric")) badges.push("Eco Friendly");
-  if (isAvailable) badges.push("Sẵn sàng giao");
+  const badges: string[] = Array.isArray(r.badges) ? [...r.badges as string[]] : [];
+  if (category.includes("electric") && !badges.includes("Eco Friendly")) badges.push("Eco Friendly");
+  if (isAvailable && !badges.includes("Sẵn sàng giao")) badges.push("Sẵn sàng giao");
+
+  const chargingType = (detail.chargingType ?? r.chargingType) as string | undefined;
+  const chargingTimeHours = (detail.chargingTimeHours ?? r.chargingTimeHours) as string | undefined;
+  const trunkCapacity = detail.trunkCapacity ? Number(detail.trunkCapacity) : (r.trunkCapacity ? Number(r.trunkCapacity) : undefined);
+  const bikeType = (detail.bikeType ?? r.bikeType) as string | undefined;
+  const color = (r.color ?? detail.color) as string | undefined;
+  const modelUrl = (r.modelUrl ?? detail.modelUrl) as string | undefined;
+  const features = Array.isArray(detail.features)
+    ? (detail.features as string[])
+    : Array.isArray(r.features)
+      ? (r.features as string[])
+      : undefined;
 
   return {
     id,
@@ -67,18 +79,29 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
     transmission,
     fuelType,
     batteryCapacity,
+    chargingType,
+    chargingTimeHours,
     maxRange,
     storageCapacity,
+    trunkCapacity,
+    bikeType,
+    color,
     hourlyPrice,
     monthlyPrice,
     facilityId,
     facilityName,
     imageUrl,
+    modelUrl,
     badges,
     isAvailable,
     supportsSubscription: true,
     status,
     description: (r.description ?? r.Description) as string | undefined,
-    galleryImages: Array.isArray(detail.galleryImages) ? detail.galleryImages : undefined,
+    features,
+    galleryImages: Array.isArray(detail.galleryImages)
+      ? (detail.galleryImages as string[])
+      : Array.isArray(r.galleryImages)
+        ? (r.galleryImages as string[])
+        : undefined,
   };
 }

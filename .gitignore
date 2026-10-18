@@ -67,3 +67,4 @@ node_modules/
 .github/hooks/
 .github/skills/
 .mcp.json
+.pi/

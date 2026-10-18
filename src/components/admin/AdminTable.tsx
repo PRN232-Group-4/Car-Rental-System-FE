@@ -1,6 +1,9 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import styles from "./AdminTable.module.css";
 
+export { DataTable } from "@/components/ui/DataTable";
+export type { DataTableProps } from "@/components/ui/DataTable";
+
 export function AdminTableCard({ className = "", ...props }: ComponentPropsWithoutRef<"section">) {
   return <section {...props} className={`overflow-hidden rounded-2xl border border-line bg-surface shadow-e1 ${className}`} />;
 }

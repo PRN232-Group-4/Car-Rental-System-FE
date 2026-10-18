@@ -131,16 +131,18 @@ export default function DiagnosticDeck() {
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <span className="text-xs font-mono uppercase tracking-wider block text-white/50 mb-0.5">
-                        {pt.tag}
-                      </span>
-                      <h4
-                        className={`text-xs font-bold line-clamp-1 ${
-                          isSelected ? "text-white" : "text-white/90"
-                        }`}
-                      >
-                        {pt.label}
-                      </h4>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <h4
+                          className={`text-xs font-bold line-clamp-1 ${
+                            isSelected ? "text-white" : "text-white/90"
+                          }`}
+                        >
+                          {pt.label}
+                        </h4>
+                        <span className="text-[10px] font-mono text-white/50">
+                          {pt.tag}
+                        </span>
+                      </div>
                       <span className="text-xs font-mono font-semibold text-primary-tint block mt-1">
                         {pt.value}
                       </span>

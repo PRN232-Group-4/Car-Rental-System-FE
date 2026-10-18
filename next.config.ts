@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
-// Backend origin used by the dev-only /api rewrite. Override with BACKEND_ORIGIN.
+// Backend origin used by dev-only /api rewrite. Override with DEV_API_ORIGIN or BACKEND_ORIGIN.
 const backendOrigin =
+  process.env.DEV_API_ORIGIN?.replace(/\/+$/, "") ||
   process.env.BACKEND_ORIGIN?.replace(/\/+$/, "") ||
   "https://car-rental-system-be-production.up.railway.app";
 

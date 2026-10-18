@@ -1,6 +1,5 @@
 import { defaultApiClient } from "@/api/default-api-client";
 import { ApiClientError } from "@/api/api-client";
-import { AUTH_USER_STORAGE_KEY } from "@/api/token-refresh";
 import {
   AuthUser,
   LoginCredentials,
@@ -9,26 +8,10 @@ import {
   VerifyRegistrationData,
 } from "./types";
 
-const LOCAL_STORAGE_USER_KEY = AUTH_USER_STORAGE_KEY;
-
-function cacheUser(user: AuthUser): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
-  } catch {
-    // Ignore localStorage errors (e.g. private mode)
-  }
-}
-
-function clearCachedUser(): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-  } catch {
-    // Ignore
-  }
-}
-
+/**
+ * Đăng nhập người dùng qua API backend hoặc mock mode.
+ * Quản lý phiên 100% trong bộ nhớ (In-Memory) — KHÔNG lưu bất kỳ thông tin cá nhân (PII) nào vào localStorage.
+ */
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser> {
   const response = await defaultApiClient.post<LoginResponse | undefined>(
     "auth/login",
@@ -36,12 +19,12 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       email: credentials.email.trim(),
       password: credentials.password,
       rememberMe: credentials.rememberMe ?? false,
-    }
+    },
   );
 
   let user: AuthUser;
 
-  // If response contains user object (mock mode or extended BE)
+  // Nếu phản hồi có sẵn đối tượng người dùng (chế độ mock hoặc API mở rộng)
   if (response && response.email && response.fullName) {
     user = {
       email: response.email,
@@ -52,56 +35,45 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
       roles: response.roles || ["Customer"],
     };
   } else {
-    // Backend standard behavior (returns 204 No Content with Set-Cookie)
-    // Fetch user profile using session cookie. Xoá cache cũ trước để nếu bước này
-    // lỗi thì không "đăng nhập" nhầm bằng hồ sơ của tài khoản trước đó.
-    clearCachedUser();
+    // Hành vi tiêu chuẩn của Backend (trả về 204 No Content kèm Set-Cookie HttpOnly)
+    // Lấy thông tin hồ sơ người dùng từ cookie phiên hiện tại
     const profile = await getProfile();
     if (!profile) {
-      throw new Error("Không thể tải thông tin hồ sơ người dùng.");
+      throw new Error("Không thể tải thông tin hồ sơ người dùng sau khi đăng nhập.");
     }
     user = profile;
   }
 
-  // Cache user info in localStorage for seamless client-side state
-  cacheUser(user);
-
   return user;
 }
 
+/**
+ * Lấy thông tin hồ sơ người dùng hiện tại từ endpoint account/profile.
+ * - HTTP 200: trả về AuthUser
+ * - HTTP 401: coi là khách vãng lai (unauthenticated/anonymous), trả về null
+ * - Lỗi khác (mạng/timeout): ném lỗi để TanStack Query xử lý
+ */
 export async function getProfile(): Promise<AuthUser | null> {
   try {
     const profile = await defaultApiClient.get<AuthUser>("account/profile");
-    if (profile) cacheUser(profile);
     return profile;
   } catch (error) {
-    // 401 = phiên thực sự chết → xoá cache.
-    // Lỗi mạng/offline → giữ cache để người dùng không bị đăng xuất oan.
     if (error instanceof ApiClientError && error.status === 401) {
-      clearCachedUser();
       return null;
     }
-    return getCachedUser();
+    throw error;
   }
 }
 
+/**
+ * Đăng xuất tài khoản khỏi hệ thống:
+ * Gửi yêu cầu huỷ cookie phiên tới backend.
+ */
 export async function logoutUser(): Promise<void> {
   try {
     await defaultApiClient.post("auth/logout");
   } catch (err) {
     console.warn("[Auth API] Logout API warning:", err);
-  } finally {
-    clearCachedUser();
-  }
-}
-
-export function getCachedUser(): AuthUser | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch {
-    return null;
   }
 }
 
@@ -125,7 +97,6 @@ export async function resendRegistrationOtp(email: string): Promise<void> {
     email: email.trim(),
   });
 }
-
 
 export async function startPasswordReset(email: string): Promise<void> {
   await defaultApiClient.post("account/password-resets", {

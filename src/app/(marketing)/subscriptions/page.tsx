@@ -20,14 +20,14 @@ export default function GoiThueBaoPage() {
         {/* Hero Section */}
         <section className="relative px-4 sm:px-6 lg:px-8 py-16 sm:py-20 max-w-7xl mx-auto text-center">
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-ink max-w-4xl mx-auto leading-tight sm:leading-none mb-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-ink max-w-4xl mx-auto leading-tight sm:leading-none mb-6 text-balance">
             Thuê xe theo giờ trả trước. <br />
             <span className="text-primary">
               Chủ động mọi hành trình.
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-ink-3 max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-base sm:text-lg text-ink-3 max-w-2xl mx-auto leading-relaxed mb-8 text-pretty">
             Giải pháp hoàn hảo cho cá nhân và gia đình thường xuyên di chuyển nội đô hoặc đi công tác.
             Không cần thủ tục thanh toán lặp lại, trừ số giờ chính xác theo từng lượt lăn bánh.
           </p>
@@ -35,13 +35,13 @@ export default function GoiThueBaoPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
               href="#goi-thue-bao"
-              className="px-6 py-3.5 rounded-2xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-lg shadow-primary/25 transition-all"
+              className="px-6 py-3.5 rounded-2xl bg-primary hover:bg-primary-hover active:scale-[0.98] text-white font-bold text-sm shadow-e1 hover:shadow-e2 transition-all cursor-pointer"
             >
               Xem các gói cước
             </a>
             <Link
               href="/my-subscriptions"
-              className="px-6 py-3.5 rounded-2xl bg-sunken hover:bg-sunken text-ink font-bold text-sm transition-all"
+              className="px-6 py-3.5 rounded-2xl bg-surface hover:bg-sunken active:scale-[0.98] text-ink border border-line font-bold text-sm shadow-e1 transition-all"
             >
               Gói thuê của tôi
             </Link>

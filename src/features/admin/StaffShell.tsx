@@ -46,37 +46,7 @@ const allNavigation = [
     roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
   {
-<<<<<<< Updated upstream
     href: "/admin/dispatch", label: "Điều phối tài xế", icon: UsersRound,
-=======
-    href: "/admin/rentals",
-    label: "Vận hành đơn thuê",
-    icon: ReceiptText,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/inspections",
-    label: "Kiểm tra xe",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/maintenance",
-    label: "Quản lý bảo trì",
-    icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
-  },
-  {
-    href: "/admin/customers",
-    label: "Khách hàng",
-    icon: UsersRound,
-    roles: ["Admin", "Manager", "CustomerService"],
-  },
-  {
-    href: "/admin/dispatch",
-    label: "Điều phối tài xế",
-    icon: UsersRound,
->>>>>>> Stashed changes
     roles: ["Admin", "Manager", "Staff", "CustomerService"],
   },
   {
@@ -143,8 +113,20 @@ const allNavigation = [
   },
 ];
 
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
+import { getFacilities, getStaffById } from "./api";
+import { useAdminTheme } from "./use-admin-theme";
+import { LayoutDashboard } from "lucide-react";
+import { getNavigation } from "@/config/navigation";
+import { useAuth } from "@/features/auth";
+import { usePortalAccess } from "@/features/auth/use-portal-access";
+import { isAdminOrStaffAccount } from "@/features/profile/api";
+import AppPortalShell, { type PortalNavItem } from "@/components/layout/AppPortalShell";
+
+
 export default function StaffShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -163,13 +145,16 @@ export default function StaffShell({ children }: { children: ReactNode }) {
     [account?.roles],
   );
 
-  const navigation = useMemo(() => {
-    return allNavigation.filter((item) =>
-      item.roles.some((role) => userRoles.includes(role.toLowerCase())),
-    );
-  }, [userRoles]);
+  const navigation = useMemo<PortalNavItem[]>(() => {
+    const items = getNavigation(account?.roles ?? user?.roles, "admin");
+    return items.map((item) => ({
+      href: item.href,
+      label: item.label,
+      icon: (item.icon as React.ElementType) || LayoutDashboard,
+    }));
+  }, [account?.roles, user?.roles]);
 
-  // usePortalAccess chỉ trả account; chức danh + tên cơ sở lấy an toàn không crash 403
+  // Chức danh + tên cơ sở lấy an toàn không crash 403
   useEffect(() => {
     if (!account) return;
     let active = true;
@@ -181,31 +166,32 @@ export default function StaffShell({ children }: { children: ReactNode }) {
 
         const isAdmin = userRoles.includes("admin");
 
-        if (isAdmin && account.staffId != null) {
+        if (account.staffId) {
           try {
             const staff = await getStaffById(account.staffId);
-            nextStaffRole = staff.staffRole;
-            nextFacilityName = staff.facilityName;
+            if (active && staff) {
+              nextStaffRole = staff.isDriver ? "Tài xế" : "Nhân viên vận hành";
+              if (staff.departmentName) {
+                nextStaffRole = `${nextStaffRole} • ${staff.departmentName}`;
+              }
+              if (staff.facilityName) {
+                nextFacilityName = staff.facilityName;
+              }
+            }
           } catch {
-            // Không chặn nếu role lookup lỗi
+            // bỏ qua lỗi nếu không đọc được staff detail
           }
         }
 
-        if (!nextStaffRole) {
-          if (userRoles.includes("admin")) nextStaffRole = "Quản trị viên";
-          else if (userRoles.includes("manager")) nextStaffRole = "Quản lý";
-          else if (userRoles.includes("customerservice")) nextStaffRole = "Chăm sóc khách hàng";
-          else if (userRoles.includes("maintenance")) nextStaffRole = "Kỹ thuật / Bảo trì";
-          else nextStaffRole = account.departmentName || "Nhân viên";
-        }
-
-        if (!nextFacilityName && account.facilityId != null) {
+        if (!nextFacilityName && account.facilityId && isAdmin) {
           try {
             const facilities = await getFacilities();
-            nextFacilityName =
-              facilities.find((facility) => facility.id === account.facilityId)?.name ?? null;
+            const facility = facilities.find((f) => f.id === account.facilityId);
+            if (active && facility) {
+              nextFacilityName = facility.name;
+            }
           } catch {
-            // Ignore
+            // bỏ qua lỗi nếu không có quyền đọc danh sách cơ sở
           }
         }
 
@@ -214,40 +200,44 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           setFacilityName(nextFacilityName);
           setProfileError("");
         }
-      } catch (error) {
+      } catch {
         if (active) {
-          setProfileError(
-            error instanceof Error ? error.message : "Không thể tải hồ sơ nhân viên.",
-          );
+          setProfileError("Không thể tải thông tin chi nhánh.");
         }
       } finally {
-        if (active) setProfileLoading(false);
+        if (active) {
+          setProfileLoading(false);
+        }
       }
     };
 
     void loadAssignment();
+
     return () => {
       active = false;
     };
   }, [account, userRoles]);
 
-  const currentPage =
-    navigation.find((item) => item.href === pathname)?.label ??
-    (pathname === "/admin/vehicles/new" || pathname.endsWith("/edit")
-      ? "Quản lý phương tiện"
-      : "Tổng quan");
-  const displayName = user?.fullName || account?.fullName || "Tài khoản quản trị";
-  const avatarUrl = user ? user.avatarUrl : account?.avatarUrl;
-  const jobTitle = staffRole || account?.departmentName || "Nhân viên";
+  const displayName = account?.fullName || user?.fullName || "Quản trị viên";
+  const jobTitle =
+    staffRole ||
+    (userRoles.includes("admin")
+      ? "Quản trị viên hệ thống"
+      : userRoles.includes("manager")
+        ? "Quản lý vận hành"
+        : userRoles.includes("customerservice")
+          ? "Chăm sóc khách hàng"
+          : userRoles.includes("maintenance")
+            ? "Kỹ thuật bảo trì"
+            : userRoles.includes("driver")
+              ? "Tài xế"
+              : "Nhân viên");
+
+  const avatarUrl = account?.avatarUrl || user?.avatarUrl;
 
   const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await logout();
-      router.replace("/login");
-    } finally {
-      setLoggingOut(false);
-    }
+    await logout();
+    router.replace("/login");
   };
 
   const sidebar = (
@@ -373,7 +363,7 @@ export default function StaffShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (accessError || !account) {
+  if (accessError) {
     return (
       <div data-admin-theme={theme} className="flex min-h-[100dvh] items-center justify-center bg-canvas p-6">
         <p
@@ -407,8 +397,8 @@ export default function StaffShell({ children }: { children: ReactNode }) {
             id="admin-mobile-navigation"
             className={`${styles.sidebarSurface} relative flex h-full w-[min(86vw,300px)] flex-col shadow-e2`}
           >
-            {sidebar}
-          </aside>
+            Đăng nhập lại
+          </button>
         </div>
       )}
 
@@ -486,6 +476,44 @@ export default function StaffShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <AppPortalShell
+      portalLabel="Staff portal"
+      portalSubLabel="Cổng quản trị / Nhân viên"
+      brandHref="/admin"
+      navItems={navigation}
+      user={{
+        name: displayName,
+        subtitle: jobTitle,
+        avatarUrl,
+        initials: (displayName || "A").charAt(0).toUpperCase(),
+        badge: facilityName,
+      }}
+      profileHref="/admin/profile"
+      profileButtonText="Xem hồ sơ nhân viên"
+      profileLoading={profileLoading}
+      profileError={profileError}
+      theme={theme}
+      onToggleTheme={toggleTheme}
+      rightHeaderActions={
+        facilityName ? (
+          <span className="hidden rounded-full border border-line bg-sunken px-3 py-1.5 text-xs font-semibold text-ink md:inline-flex">
+            {profileLoading ? (
+              <span role="status" aria-label="Đang tải chi nhánh...">
+                <Skeleton className="h-3 w-28" />
+              </span>
+            ) : (
+              facilityName
+            )}
+          </span>
+        ) : null
+      }
+      onLogout={handleLogout}
+    >
+      {children}
+    </AppPortalShell>
   );
 }
