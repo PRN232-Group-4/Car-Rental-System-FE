@@ -40,6 +40,10 @@ export function mapInvoiceFromBE(raw: Record<string, unknown>): Invoice {
     status: normalizeInvoiceStatus(String(raw.status ?? raw.Status ?? "pending")),
     issuedAt: String(raw.issuedAt ?? raw.IssuedAt ?? new Date().toISOString()),
     dueAt: (raw.dueAt ?? raw.DueAt) as string | null | undefined,
+    canPay: (raw.canPay ?? raw.CanPay) === true,
+    paymentBlockedReason: (raw.paymentBlockedReason ?? raw.PaymentBlockedReason ?? null) as string | null,
+    paymentMethod: String(raw.paymentMethod ?? raw.PaymentMethod ?? "payos"),
+    orderId: (raw.orderId ?? raw.OrderId ?? null) as number | string | null,
   };
 }
 
@@ -86,4 +90,8 @@ export async function checkoutInvoice(id: number | string): Promise<CheckoutResu
       checkoutUrl: `/payment/result?orderCode=${id}&status=PAID`,
     };
   }
+}
+
+export function confirmCashReceipt(id: number | string) {
+  return defaultApiClient.post<{ paymentId: number; invoiceId: number; status: string; orderId: number | null }>(`invoices/${encodeURIComponent(id)}/cash-confirmation`);
 }

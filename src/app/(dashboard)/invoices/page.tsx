@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
-  CreditCard,
   ArrowRight,
   Search,
 } from "lucide-react";
@@ -49,7 +48,7 @@ export default function HoaDonPage() {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
             <Clock className="w-3.5 h-3.5 text-primary-graphic" />
-            Chờ thanh toán
+            Chưa thanh toán
           </span>
         );
       case "overdue":
@@ -107,7 +106,7 @@ export default function HoaDonPage() {
         <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
           {[
             { id: "all", label: "Tất cả" },
-            { id: "pending", label: "Chờ thanh toán" },
+            { id: "pending", label: "Chưa thanh toán" },
             { id: "paid", label: "Đã thanh toán" },
             { id: "cancelled", label: "Đã huỷ" },
             { id: "overdue", label: "Quá hạn" },
@@ -161,7 +160,6 @@ export default function HoaDonPage() {
       ) : (
         <div className="space-y-4">
           {filteredInvoices.map((inv) => {
-            const isPending = inv.status === "pending";
             return (
               <div
                 key={inv.id}
@@ -210,15 +208,6 @@ export default function HoaDonPage() {
                       Chi tiết
                     </Link>
 
-                    {isPending && (
-                      <Link
-                        href={`/invoices/${inv.id}`}
-                        className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
-                      >
-                        <CreditCard className="w-3.5 h-3.5" />
-                        <span>Thanh toán</span>
-                      </Link>
-                    )}
                   </div>
                 </div>
               </div>

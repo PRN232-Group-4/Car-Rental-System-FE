@@ -12,6 +12,7 @@ export function toRentalRequest(input: RentalBookingRequest) {
     endTime: input.endTime,
     subscriptionId: input.subscriptionId ? Number(input.subscriptionId) : null,
     hasDriver: input.hasDriver ?? false,
+    paymentMethod: input.paymentMethod ?? "payos",
   };
 }
 
@@ -56,15 +57,26 @@ export async function getBookingPolicies() {
   }
 }
 
-export async function getBookingVehicles(from?: string, to?: string, facilityId?: string) {
+export async function getBookingVehicles(from?: string, to?: string, facilityId?: string, hasDriver = false, rentalType = "hourly", signal?: AbortSignal) {
   const items: import("@/features/vehicles").Vehicle[] = [];
   let page = 1;
   while (true) {
-    const raw = await defaultApiClient.get<Record<string, unknown> | unknown[]>("vehicles", {
-      from, to, facilityId, status: "available", page, pageSize: 100,
-    });
+    const raw = await defaultApiClient.get<Record<string, unknown> | unknown[]>("vehicles/search", {
+      from, to, facilityId, hasDriver, rentalType, page, pageSize: 100,
+    }, { signal });
     const batch = Array.isArray(raw) ? raw : Array.isArray(raw.items) ? raw.items : [];
-    items.push(...batch.map((vehicle) => mapVehicleFromBE(vehicle as Record<string, unknown>)));
+    items.push(...batch.map((vehicle) => {
+      const row = vehicle as Record<string, unknown>;
+      const type = (row.vehicleType ?? {}) as Record<string, unknown>;
+      const facility = (row.facility ?? {}) as Record<string, unknown>;
+      return mapVehicleFromBE({
+        ...row, vehicleTypeId: type.id, vehicleType: `${type.name ?? ""} ${type.fuelType ?? ""}`,
+        facilityId: facility.id, facility: facility.name, detail: row.summary,
+        hourlyPrice: row.priceHourly, longtermPrice: row.priceLongterm,
+        // Search has already checked availability for the requested window.
+        status: "available",
+      });
+    }));
     if (Array.isArray(raw) || !batch.length || items.length >= Number(raw.totalCount ?? items.length)) break;
     page += 1;
   }

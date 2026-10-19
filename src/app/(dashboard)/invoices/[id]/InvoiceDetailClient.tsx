@@ -20,13 +20,15 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
   const { data: invoice, isLoading } = useQuery<Invoice | null>({
     queryKey: ["invoice", id],
     queryFn: () => getInvoiceById(id),
+    refetchInterval: (query) => query.state.data?.status === "paid" && query.state.data?.orderId ? false : 5000,
+    refetchOnWindowFocus: "always",
   });
 
   const [paying, setPaying] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCheckout = async () => {
-    if (!invoice) return;
+    if (!invoice || invoice.canPay !== true || invoice.paymentMethod === "cash" || paying) return;
     setPaying(true);
     setErrorMessage(null);
     try {
@@ -72,8 +74,10 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
   }
 
   const isPaid = invoice.status === "paid";
-  const depositAmount = 2000000;
-  const rentalFee = Math.max(0, invoice.amount - invoice.vatAmount - depositAmount);
+  const canPay = !isPaid && invoice.canPay === true && invoice.paymentMethod !== "cash";
+  const waitingCash = !isPaid && invoice.canPay === true && invoice.paymentMethod === "cash";
+  const waitingConfirmation = !isPaid && invoice.paymentBlockedReason === "RENTAL_CONFIRMATION_REQUIRED";
+  const beforeVat = Math.max(0, invoice.amount - invoice.vatAmount);
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -101,12 +105,12 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
               ) : (
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
                   <Clock className="w-3.5 h-3.5 text-primary-graphic" />
-                  Chờ thanh toán
+                  {waitingConfirmation ? "Chờ xác nhận đơn" : invoice.status === "cancelled" ? "Đã hủy" : "Chưa thanh toán"}
                 </span>
               )}
             </div>
             <p className="text-xs sm:text-sm text-ink-3 mt-1">
-              Áp dụng cho chuyến xe #{invoice.rentalId} · Ngày phát hành:{" "}
+              Mã yêu cầu #{invoice.rentalId}{invoice.orderId ? ` · Đơn thuê chính thức #${invoice.orderId}` : " · Chưa phát hành đơn thuê"} · Ngày phát hành:{" "}
               {new Date(invoice.issuedAt).toLocaleDateString("vi-VN")}
             </p>
           </div>
@@ -132,38 +136,21 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
         <div className="space-y-4 text-sm">
           <div className="flex justify-between items-center py-2 border-b border-line">
             <div>
-              <div className="font-bold text-ink">Tiền thuê phương tiện</div>
-              <div className="text-xs text-ink-3">Tính theo giờ thực tế trong đơn thuê xe</div>
+              <div className="font-bold text-ink">Giá trị trước thuế</div>
+              <div className="text-xs text-ink-3">Các khoản tiền thuê và cọc theo hóa đơn</div>
             </div>
             <span className="font-bold text-ink">
-              {rentalFee.toLocaleString("vi-VN")} đ
+              {beforeVat.toLocaleString("vi-VN")} đ
             </span>
           </div>
 
           <div className="flex justify-between items-center py-2 border-b border-line">
             <div>
-              <div className="font-bold text-ink">Thuế giá trị gia tăng (VAT 10%)</div>
+              <div className="font-bold text-ink">Thuế giá trị gia tăng (VAT)</div>
               <div className="text-xs text-ink-3">Hoá đơn điện tử hợp lệ</div>
             </div>
             <span className="font-bold text-ink">
               {invoice.vatAmount.toLocaleString("vi-VN")} đ
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center py-2 border-b border-line">
-            <div>
-              <div className="font-bold text-ink flex items-center gap-2">
-                <span>Tiền đặt cọc xe</span>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-info-bg text-info">
-                  Hoàn lại 100%
-                </span>
-              </div>
-              <div className="text-xs text-ink-3">
-                Tự động hoàn về tài khoản sau khi bàn giao xe và kiểm định đạt yêu cầu
-              </div>
-            </div>
-            <span className="font-bold text-ink">
-              {depositAmount.toLocaleString("vi-VN")} đ
             </span>
           </div>
 
@@ -181,19 +168,23 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
           <div className="space-y-0.5">
             <p className="font-bold text-ink">Cơ chế bảo đảm tiền cọc:</p>
             <p>
-              Sau khi trả xe và nhân viên kiểm định ngoại quan không có hư hỏng phát sinh, hệ thống sẽ tự động kích hoạt lệnh hoàn trả số tiền đặt cọc {depositAmount.toLocaleString("vi-VN")} đ về tài khoản của bạn.
+              Tiền cọc được đối soát sau khi trả xe và kiểm định. Khoản hoàn thực tế được xác định theo chính sách thuê và các khoản phát sinh.
             </p>
           </div>
         </div>
 
         {errorMessage && (
-          <div className="p-4 rounded-2xl bg-danger-bg border border-danger/30 text-danger text-xs font-semibold">
+          <div role="alert" className="p-4 rounded-2xl bg-danger-bg border border-danger/30 text-danger text-xs font-semibold">
             {errorMessage}
           </div>
         )}
 
+        {waitingConfirmation && <p role="status" className="rounded-xl border border-line bg-sunken p-4 text-sm text-ink-2">Đơn thuê đang chờ nhân viên xác nhận. Bạn có thể thanh toán sau khi đơn được duyệt. Trạng thái sẽ tự cập nhật.</p>}
+        {waitingCash && <p role="status" className="rounded-xl border border-line bg-sunken p-4 text-sm text-ink-2">Yêu cầu đã được duyệt. Vui lòng thanh toán tiền mặt tại cơ sở. Đơn thuê chính thức chỉ được phát hành sau khi nhân viên xác nhận đã thu tiền.</p>}
+        {isPaid && invoice.orderId && <p role="status" className="text-sm font-semibold text-success">Đã thanh toán · Đơn thuê chính thức #{invoice.orderId}</p>}
+
         {/* Action Button */}
-        <div className="pt-4 border-t border-line flex items-center justify-between gap-4">
+        <div className="pt-4 border-t border-line flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/payment-history"
             className="text-xs font-bold text-ink-3 hover:text-ink transition-colors"
@@ -201,7 +192,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
             Xem lịch sử thanh toán
           </Link>
 
-          {!isPaid ? (
+          {canPay ? (
             <button
               onClick={handleCheckout}
               disabled={paying}
@@ -220,12 +211,12 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
                 </>
               )}
             </button>
-          ) : (
+          ) : isPaid ? (
             <div className="flex items-center gap-2 text-primary font-bold text-sm">
               <CheckCircle2 className="w-5 h-5" />
               <span>Hoá đơn đã được thanh toán</span>
             </div>
-          )}
+          ) : <span className="text-sm font-semibold text-ink-3">{waitingConfirmation ? "Chờ nhân viên duyệt yêu cầu" : waitingCash ? "Chờ xác nhận thu tiền mặt" : "Hóa đơn chưa thể thanh toán"}</span>}
         </div>
       </div>
     </div>

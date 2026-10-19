@@ -20,6 +20,7 @@ import { getNavigation } from "@/config/navigation";
 const FALLBACK_NAV_ITEMS: PortalNavItem[] = [
   { label: "Chuyến của tôi", href: "/account/trips", icon: Compass },
   { label: "Đặt xe", href: "/booking", icon: Car },
+  { label: "Đơn thuê của tôi", href: "/my-rentals", icon: Car },
   { label: "Giấy phép lái xe (GPLX)", href: "/driver-license", icon: FileCheck },
   { label: "Hợp đồng dài hạn", href: "/rental-contract", icon: FileText },
   { label: "Gói của tôi", href: "/my-subscriptions", icon: Package },

@@ -17,7 +17,8 @@ export default function BookingModal({ vehicle, onClose }: { vehicle: Vehicle | 
   }, [vehicle]);
   if (!vehicle) return null;
   // Landing showcase cards can have editorial IDs. Only real numeric IDs preselect a vehicle.
-  const query = Number.isInteger(Number(vehicle.id)) && Number(vehicle.id) > 0 ? `&vehicleId=${vehicle.id}` : "";
+  const query = (Number.isInteger(Number(vehicle.id)) && Number(vehicle.id) > 0 ? `&vehicleId=${vehicle.id}` : "")
+    + (Number.isInteger(Number(vehicle.facilityId)) && Number(vehicle.facilityId) > 0 ? `&facilityId=${vehicle.facilityId}` : "");
   return <dialog ref={dialog} onCancel={onClose} aria-labelledby="booking-modal-title" className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-2xl border border-line bg-surface p-6 text-ink shadow-xl backdrop:bg-scrim">
     <div className="flex items-start justify-between gap-4"><h2 id="booking-modal-title" className="text-xl font-bold">Đặt xe {vehicle.name}</h2><button type="button" onClick={onClose} aria-label="Đóng hộp thoại đặt xe" className="rounded-lg border border-line px-3 py-2">×</button></div>
     <VehicleImage src={vehicle.imageUrl} alt={vehicle.name} className="mt-5 h-48 w-full rounded-xl" />

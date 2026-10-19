@@ -18,7 +18,7 @@ it("retains compatibility with the previous array policy response", async () => 
 it("posts the exact RentalRequest and reads a real backend rental id", async () => {
   client.post.mockResolvedValue({ id: 321, rentalType: "hourly", totalPrice: 324000, depositPrice: 64800 });
   const result = await createRentalBooking({ rentalType: "hourly", vehicleId: "8", policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, customerName: "Do not send this", estimatedCost: 999 });
-  expect(client.post).toHaveBeenCalledWith("rentals/hourly", { vehicleId: 8, policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, subscriptionId: null });
+  expect(client.post).toHaveBeenCalledWith("rentals/hourly", { vehicleId: 8, policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, subscriptionId: null, paymentMethod: "payos" });
   expect(result.bookingId).toBe(321);
   expect(result.invoiceId).toBeUndefined();
 });
@@ -30,9 +30,12 @@ it("uses the longterm endpoint and retains failures without fabricating confirma
   expect(mapBookingResponse(null).bookingId).toBeUndefined();
 });
 it("queries availability by time and reads all vehicle pages", async () => {
-  client.get.mockResolvedValueOnce({ items: [{ id: 8, status: "available" }], totalCount: 2 }).mockResolvedValueOnce({ items: [{ id: 9, status: "available" }], totalCount: 2 });
-  expect((await getBookingVehicles("from", "to")).map((v) => v.id)).toEqual([8, 9]);
-  expect(client.get).toHaveBeenLastCalledWith("vehicles", { from: "from", to: "to", facilityId: undefined, status: "available", page: 2, pageSize: 100 });
+  const row = { vehicleType: { id: 2, name: "Ô tô", fuelType: "gasoline" }, facility: { id: 5, name: "Quận 1" }, summary: { seatCount: 7, transmission: "Số sàn" }, priceHourly: 120000, priceLongterm: 18000000, mainImageUrl: "https://example.test/car.png" };
+  client.get.mockResolvedValueOnce({ items: [{ ...row, id: 8 }], totalCount: 2 }).mockResolvedValueOnce({ items: [{ ...row, id: 9 }], totalCount: 2 });
+  const vehicles = await getBookingVehicles("from", "to", "5", true, "hourly");
+  expect(vehicles.map((v) => v.id)).toEqual([8, 9]);
+  expect(vehicles[0]).toMatchObject({ vehicleTypeId: 2, facilityId: 5, facilityName: "Quận 1", seats: 7, hourlyPrice: 120000, monthlyPrice: 18000000, isAvailable: true });
+  expect(client.get).toHaveBeenLastCalledWith("vehicles/search", { from: "from", to: "to", facilityId: "5", hasDriver: true, rentalType: "hourly", page: 2, pageSize: 100 }, { signal: undefined });
 });
 it("records a contract with the deployed request fields", async () => {
   client.put.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });

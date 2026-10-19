@@ -10,6 +10,7 @@ import { isSafeContractLink, localDateTime } from "../booking-rules";
 import type { RentalContract } from "../types";
 import VehicleName from "@/features/admin/VehicleName";
 import { FormSkeleton } from "@/components/ui/Skeleton";
+import RentalStatusTracker from "./RentalStatusTracker";
 
 const inputClass = "mt-2 w-full rounded-xl border border-line bg-surface px-3 py-3 text-sm";
 
@@ -53,7 +54,8 @@ function ContractForm({ rental }: { rental: RentalContract }) {
     } finally { setSubmitting(false); }
   };
   return <div className="space-y-5 rounded-2xl border border-line bg-surface p-5 sm:p-6">
-    <h2 className="text-lg font-bold">Đơn thuê #{rental.id}</h2>
+    <h2 className="text-lg font-bold">{rental.orderId ? `Đơn thuê chính thức #${rental.orderId}` : `Yêu cầu thuê #${rental.id}`}</h2>
+    <RentalStatusTracker status={rental.status} />
     <VehicleName vehicleId={rental.vehicleId} />
     <p className="text-sm">Trạng thái: {rental.status} · Tổng tiền thuê: {rental.totalPrice.toLocaleString("vi-VN")} đ</p>
     {rental.contractLink && isSafeContractLink(rental.contractLink) ? <a href={rental.contractLink} target="_blank" rel="noopener noreferrer" className="inline-block rounded-xl border border-line-strong px-4 py-3 text-primary">Mở tài liệu hợp đồng</a> : <p className="text-sm text-ink-3">Chưa có đường dẫn hợp đồng hợp lệ. Vui lòng liên hệ chi nhánh để nhận tài liệu.</p>}
