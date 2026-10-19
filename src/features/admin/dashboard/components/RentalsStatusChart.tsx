@@ -86,7 +86,7 @@ export function RentalsStatusChart({
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--line)" />
             <XAxis
               type="number"
-              tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+              tick={{ fill: "var(--td-ink-muted, var(--ink-3))", fontSize: 11 }}
               tickLine={false}
               axisLine={{ stroke: "var(--line)" }}
             />
@@ -105,8 +105,11 @@ export function RentalsStatusChart({
                 borderColor: "var(--line)",
                 borderRadius: "12px",
                 fontSize: "12px",
+                color: "var(--ink)",
                 boxShadow: "var(--shadow-e2)",
               }}
+              itemStyle={{ color: "var(--ink)" }}
+              labelStyle={{ color: "var(--ink-2)" }}
             />
             <Bar
               dataKey="count"

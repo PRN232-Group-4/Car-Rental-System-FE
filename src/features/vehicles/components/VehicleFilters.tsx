@@ -119,6 +119,7 @@ export function VehicleFilters({
         <select
           value={filters.facilityId || "all"}
           onChange={(e) => onChange({ facilityId: e.target.value })}
+          aria-label="Chi nhánh giao nhận"
           className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:outline-none"
         >
           <option value="all">Tất cả chi nhánh</option>
@@ -202,6 +203,7 @@ export function VehicleFilters({
           <select
             value={filters.transmission || "all"}
             onChange={(e) => onChange({ transmission: e.target.value })}
+            aria-label="Loại hộp số"
             className="w-full rounded-xl border border-line bg-surface px-2.5 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:outline-none"
           >
             {TRANSMISSION_OPTIONS.map((opt) => (
@@ -220,6 +222,7 @@ export function VehicleFilters({
           <select
             value={filters.fuelType || "all"}
             onChange={(e) => onChange({ fuelType: e.target.value })}
+            aria-label="Loại nhiên liệu"
             className="w-full rounded-xl border border-line bg-surface px-2.5 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:outline-none"
           >
             {FUEL_OPTIONS.map((opt) => (

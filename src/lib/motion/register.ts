@@ -17,6 +17,20 @@ export function registerMotion(): void {
     return;
   }
 
+  // Headless test environments (e.g. jsdom) do not implement window.matchMedia
+  if (typeof window.matchMedia !== "function") {
+    window.matchMedia = (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    } as unknown as MediaQueryList);
+  }
+
   gsap.registerPlugin(useGSAP, ScrollTrigger, Flip, SplitText);
   isRegistered = true;
 }

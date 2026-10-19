@@ -1,18 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * Nền kiến trúc kỹ thuật ô tô toàn hệ thống (Global Automotive CAD Blueprint)
  * Đồng bộ hậu cảnh thống nhất cho toàn bộ các trang từ Landing page, Catalog,
  * Chi tiết xe, Dashboard khách hàng cho đến Cổng quản trị Admin & Tài xế.
  * Tuân thủ 100% DESIGN.md Phần A: Zero-Gradient, Warm Canvas, Hairline CAD Grid.
+ * Lưu ý: Tuyệt đối không mount trên /admin để tránh đè watermark lên dữ liệu vận hành (Phase 3C P0-03).
  */
 export default function GlobalBlueprintBackground() {
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <div
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
       aria-hidden="true"
+      suppressHydrationWarning
     >
       {/* 1. Lưới toạ độ kỹ thuật CAD liên tục (80x80px Metric Coordinate Grid) */}
       <svg
@@ -87,7 +101,10 @@ export default function GlobalBlueprintBackground() {
       </svg>
 
       {/* 3. Thước đo toạ độ dọc bên trái (Left Vertical Datum Axis) */}
-      <div className="hidden xl:flex flex-col justify-between absolute left-3 2xl:left-6 top-36 bottom-36 w-12 border-l border-ink/10 pl-2 font-mono text-[11px] text-ink-3 opacity-35">
+      <div 
+        className="hidden xl:flex flex-col justify-between absolute left-3 2xl:left-6 top-36 bottom-36 w-12 border-l border-ink/10 pl-2 font-mono text-[11px] text-ink-3 opacity-35"
+        suppressHydrationWarning
+      >
         <div>
           <span className="block font-bold text-primary">0000 MM</span>
           <span className="text-[10px] text-ink-3">SYS-INIT</span>

@@ -7,6 +7,7 @@ export interface EmptyStateProps {
   icon?: LucideIcon;
   title: string;
   description?: string;
+  suggestions?: string[];
   action?: ReactNode;
   className?: string;
 }
@@ -15,6 +16,7 @@ export function EmptyState({
   icon: Icon = Inbox,
   title,
   description,
+  suggestions,
   action,
   className,
 }: EmptyStateProps) {
@@ -32,6 +34,16 @@ export function EmptyState({
       <h3 className="mt-4 text-base font-semibold text-ink">{title}</h3>
       {description && (
         <p className="mt-1.5 max-w-sm text-sm text-ink-3">{description}</p>
+      )}
+      {suggestions && suggestions.length > 0 && (
+        <div className="mt-4 rounded-xl border border-line bg-canvas p-3.5 text-left text-xs text-ink-2">
+          <p className="font-semibold text-ink">Hãy thử:</p>
+          <ul className="mt-1.5 list-disc list-inside space-y-1 text-ink-3">
+            {suggestions.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        </div>
       )}
       {action && <div className="mt-5">{action}</div>}
     </div>

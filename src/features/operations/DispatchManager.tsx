@@ -65,7 +65,7 @@ export default function DispatchManager() {
         <caption className="sr-only">Danh sách ca làm tài xế</caption>
         <thead><tr>{["Tài xế", "Bắt đầu", "Kết thúc", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>
-          {shifts.isPending ? <AdminTableSkeleton columns={5} label="Đang tải ca làm" /> : shifts.data?.map((item) => (
+          {shifts.isPending ? <AdminTableSkeleton columns={5} label="Đang tải ca làm" /> : (Array.isArray(shifts.data) ? shifts.data : ((shifts.data as any)?.items ?? [])).map((item: any) => (
             <tr key={item.id}>
               <td className="font-semibold"><StaffName staffId={item.driverStaffId} name={driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
               <td className="text-ink-3">{dateLabel(item.startTime)}</td>
@@ -74,7 +74,7 @@ export default function DispatchManager() {
               <td data-actions><AdminRowAction action="edit" label="Sửa / hủy ca" onClick={() => setEditing(item)} /></td>
             </tr>
           ))}
-          {shifts.data?.length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
+          {!shifts.isPending && (Array.isArray(shifts.data) ? shifts.data : ((shifts.data as any)?.items ?? [])).length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
     </AdminTableCard>
@@ -88,7 +88,7 @@ export default function DispatchManager() {
         <caption className="sr-only">Lịch chuyến được phân cho tài xế</caption>
         <thead><tr>{["Tài xế", "Xe", "Nhận xe", "Trả xe", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>
-          {schedule.isPending ? <AdminTableSkeleton columns={6} label="Đang tải lịch chuyến" /> : schedule.data?.map((item, index) => (
+          {schedule.isPending ? <AdminTableSkeleton columns={6} label="Đang tải lịch chuyến" /> : (Array.isArray(schedule.data) ? schedule.data : ((schedule.data as any)?.items ?? [])).map((item: any, index: number) => (
             <tr key={item.assignmentId ?? index}>
               <td><StaffName staffId={item.driverStaffId} name={item.driverName?.trim() || driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
               <td>{item.vehicleId != null ? <VehicleName vehicleId={item.vehicleId} /> : "Chưa có thông tin xe"}</td>
@@ -98,7 +98,7 @@ export default function DispatchManager() {
               <td data-actions>{item.rentalId != null ? <AdminRowAction action="view" label="Mở đơn thuê" href={`/admin/rentals?rentalId=${item.rentalId}`} /> : "—"}</td>
             </tr>
           ))}
-          {schedule.data?.length === 0 && <AdminTableEmptyRow colSpan={6}>Chưa có chuyến đã phân công trong khoảng thời gian này.</AdminTableEmptyRow>}
+          {!schedule.isPending && (Array.isArray(schedule.data) ? schedule.data : ((schedule.data as any)?.items ?? [])).length === 0 && <AdminTableEmptyRow colSpan={6}>Chưa có chuyến đã phân công trong khoảng thời gian này.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
     </AdminTableCard>

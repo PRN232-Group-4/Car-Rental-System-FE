@@ -59,27 +59,34 @@ export default function MaintenanceManager() {
       </AdminFilterBar>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-danger">{operationalError(query.error)} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
-    <AdminTableCard>
-      <div className="border-b border-line px-5 py-4">
-        <h2 className="font-bold text-ink">Danh sách phiếu bảo trì</h2>
-        <p className="mt-1 text-xs text-ink-3">{query.isPending ? "Đang tải..." : `${query.data?.length ?? 0} phiếu`}</p>
-      </div>
-      <AdminTable className="min-w-[900px]" aria-busy={query.isPending}>
-        <caption className="sr-only">Danh sách phiếu bảo trì</caption>
-        <thead><tr>{["Xe", "Nhân viên", "Ngày dự kiến", "Trạng thái", "Chi phí"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
-        <tbody>
-          {query.isPending ? <AdminTableSkeleton columns={6} label="Đang tải phiếu bảo trì" /> : query.data?.map((item) => <tr key={item.id}>
-            <td><VehicleName vehicleId={item.vehicleId} /></td>
-            <td className="text-ink-3"><StaffName staffId={item.assignedStaffId} /></td>
-            <td className="text-ink-3">{formatAdminDate(item.scheduledDate)}</td>
-            <td><AdminStatusBadge domain="maintenance" status={item.status}>{statuses[item.status as keyof typeof statuses] ?? item.status ?? "—"}</AdminStatusBadge></td>
-            <td className="font-medium text-ink">{item.cost == null ? "—" : item.cost.toLocaleString("vi-VN") + " ₫"}</td>
-            <td data-actions><AdminRowAction action="edit" label="Cập nhật" onClick={() => setEditing(item)} /></td>
-          </tr>)}
-          {!query.isPending && !query.error && !query.data?.length && <AdminTableEmptyRow colSpan={6}>Không có phiếu bảo trì phù hợp.</AdminTableEmptyRow>}
-        </tbody>
-      </AdminTable>
-    </AdminTableCard>
+    {(() => {
+      const maintenanceList: MaintenanceRecord[] = Array.isArray(query.data)
+        ? query.data
+        : ((query.data as any)?.items ?? []);
+      return (
+        <AdminTableCard>
+          <div className="border-b border-line px-5 py-4">
+            <h2 className="font-bold text-ink">Danh sách phiếu bảo trì</h2>
+            <p className="mt-1 text-xs text-ink-3">{query.isPending ? "Đang tải..." : `${maintenanceList.length} phiếu`}</p>
+          </div>
+          <AdminTable className="min-w-[900px]" aria-busy={query.isPending}>
+            <caption className="sr-only">Danh sách phiếu bảo trì</caption>
+            <thead><tr>{["Xe", "Nhân viên", "Ngày dự kiến", "Trạng thái", "Chi phí"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
+            <tbody>
+              {query.isPending ? <AdminTableSkeleton columns={6} label="Đang tải phiếu bảo trì" /> : maintenanceList.map((item) => <tr key={item.id}>
+                <td><VehicleName vehicleId={item.vehicleId} /></td>
+                <td className="text-ink-3"><StaffName staffId={item.assignedStaffId} /></td>
+                <td className="text-ink-3">{formatAdminDate(item.scheduledDate)}</td>
+                <td><AdminStatusBadge domain="maintenance" status={item.status}>{statuses[item.status as keyof typeof statuses] ?? item.status ?? "—"}</AdminStatusBadge></td>
+                <td className="font-medium text-ink">{item.cost == null ? "—" : item.cost.toLocaleString("vi-VN") + " ₫"}</td>
+                <td data-actions><AdminRowAction action="edit" label="Cập nhật" onClick={() => setEditing(item)} /></td>
+              </tr>)}
+              {!query.isPending && !query.error && !maintenanceList.length && <AdminTableEmptyRow colSpan={6}>Không có phiếu bảo trì phù hợp.</AdminTableEmptyRow>}
+            </tbody>
+          </AdminTable>
+        </AdminTableCard>
+      );
+    })()}
     {editing !== undefined && <MaintenanceForm key={editing?.id ?? "new"} record={editing} vehicleOptions={vehicleOptions} close={() => setEditing(undefined)} saved={() => query.refetch()} />}
   </div>;
 }

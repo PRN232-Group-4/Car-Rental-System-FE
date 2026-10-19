@@ -89,12 +89,12 @@ export function RevenueChart({ data = [], isLoading, isError, onRetry }: Revenue
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--line)" />
             <XAxis
               dataKey="bucket"
-              tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+              tick={{ fill: "var(--td-ink-muted, var(--ink-3))", fontSize: 11 }}
               tickLine={false}
               axisLine={{ stroke: "var(--line)" }}
             />
             <YAxis
-              tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+              tick={{ fill: "var(--td-ink-muted, var(--ink-3))", fontSize: 11 }}
               tickLine={false}
               axisLine={{ stroke: "var(--line)" }}
               tickFormatter={formatVndAxis}
@@ -116,13 +116,21 @@ export function RevenueChart({ data = [], isLoading, isError, onRetry }: Revenue
                 borderRadius: "12px",
                 fontSize: "12px",
                 boxShadow: "var(--shadow-e2)",
+                color: "var(--ink)",
+              }}
+              itemStyle={{
+                color: "var(--ink)",
+              }}
+              labelStyle={{
+                color: "var(--ink-2)",
+                fontWeight: 600,
               }}
             />
             <Legend
               verticalAlign="top"
               align="right"
               iconType="circle"
-              wrapperStyle={{ fontSize: 11, paddingBottom: 10 }}
+              wrapperStyle={{ fontSize: 11, paddingBottom: 10, color: "var(--ink-2)" }}
             />
             <Bar
               dataKey="byGroup.Ô tô xăng"
