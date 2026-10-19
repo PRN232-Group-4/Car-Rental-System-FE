@@ -95,6 +95,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
   },
   {
+    href: "/admin/vehicle-license",
+    label: "Duyệt giấy phép lái xe",
+    icon: FileCheck,
+    roles: ["Admin", "Manager", "CustomerService"],
+  },
+  {
     href: "/admin/dispatch",
     label: "Điều phối tài xế",
     icon: UsersRound,
