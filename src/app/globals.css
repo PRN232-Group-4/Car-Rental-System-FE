@@ -537,3 +537,19 @@ main {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ==================================================================
+   ORGANIC LIQUID VIEW TRANSITIONS FOR THEME SWITCHING (ZERO FLICKER)
+   ================================================================== */
+html[data-theme-transitioning="true"]::view-transition-old(root) {
+  animation: none !important;
+  z-index: 1 !important;
+}
+
+html[data-theme-transitioning="true"]::view-transition-new(root) {
+  animation: none !important;
+  z-index: 999998 !important;
+  clip-path: url(#liquidFloodClip) !important;
+  -webkit-clip-path: url(#liquidFloodClip) !important;
+  mix-blend-mode: normal !important;
+}

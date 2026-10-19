@@ -443,6 +443,7 @@
   height: 2px;
   background-color: var(--dossier-hairline);
   margin: 0 0.25rem;
+  transition: background-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stepperLinePassed {
@@ -463,6 +464,11 @@
   background-color: var(--dossier-bg);
   color: var(--dossier-muted);
   flex-shrink: 0;
+  transition:
+    background-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stepperGlyphPassed {
@@ -494,6 +500,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  transition: color 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stepperLabelPassed {
@@ -888,6 +895,26 @@
 }
 
 /* TERMINAL CONFIRMATION MODAL */
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalContentScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -899,6 +926,7 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   padding: 1rem;
+  animation: modalBackdropFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .modalDialog {
@@ -913,6 +941,7 @@
   flex-direction: column;
   gap: 1rem;
   color: var(--dossier-text);
+  animation: modalContentScaleIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .modalIconCompleted {
@@ -1023,11 +1052,16 @@
 @media (prefers-reduced-motion: reduce) {
   .queueItem,
   .stepperItem,
+  .stepperGlyph,
+  .stepperLine,
+  .stepperLabel,
   .primaryActionButton,
   .consequentialActionButton,
   .secondaryActionButton,
   .inputField,
-  .stageWrapper {
+  .stageWrapper,
+  .modalOverlay,
+  .modalDialog {
     transition: none !important;
     animation: none !important;
   }

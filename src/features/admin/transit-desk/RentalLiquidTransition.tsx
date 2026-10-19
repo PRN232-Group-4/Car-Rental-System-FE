@@ -23,7 +23,8 @@ declare global {
   }
 }
 
-const DURATION = 1050; // 1050ms target duration (900-1200ms)
+// Snappy Luxury Pacing: 580ms gives optimal fluid organic wave feel without sluggishness
+const DURATION = 580;
 const N_POINTS = 192; // High-resolution contour for buttery smooth, chordless curves
 
 // C2 continuous quintic smootherstep function: S(t) = 6t^5 - 15t^4 + 10t^3
@@ -52,13 +53,18 @@ interface LiquidGeom {
 function calculateLiquidGeometry(progress: number, ox: number, oy: number): LiquidGeom {
   const w = typeof window !== "undefined" ? window.innerWidth : 1920;
   const h = typeof window !== "undefined" ? window.innerHeight : 1080;
-  const maxReach = Math.hypot(Math.max(ox, w - ox), Math.max(oy, h - oy)) * 1.35;
+  // Maximum reach from origin to furthest viewport corner with 1.55x margin ensuring 100% full coverage
+  const maxCornerDist = Math.hypot(Math.max(ox, w - ox), Math.max(oy, h - oy));
+  const maxReach = maxCornerDist * 1.55;
 
   const pEased = smootherstep(progress);
   const baseRadius = pEased * maxReach;
 
   // Asymmetric directional bias: liquid flows faster southwest into the stage (theta ≈ 2.42 rad ≈ 138.7 deg)
   const biasTheta = 2.42;
+
+  // Asymmetry factor: rich at onset, smoothly tapers to 0 as progress -> 1.0 to guarantee 100% corner coverage
+  const asymmetry = Math.max(0, 1.0 - Math.pow(progress, 2.2));
 
   // 3 satellite droplets with natural lifespan and smooth coalescence intervals
   const droplets = [
@@ -71,8 +77,8 @@ function calculateLiquidGeometry(progress: number, ox: number, oy: number): Liqu
   for (let i = 0; i < N_POINTS; i++) {
     const theta = (2 * Math.PI * i) / N_POINTS;
 
-    // 1. Asymmetric speed field
-    const dirMultiplier = 1.0 + 0.32 * Math.cos(theta - biasTheta) + 0.12 * Math.sin(2 * (theta - biasTheta));
+    // 1. Asymmetric speed field (tapers symmetrically towards end for 100% corner coverage)
+    const dirMultiplier = 1.0 + asymmetry * (0.32 * Math.cos(theta - biasTheta) + 0.12 * Math.sin(2 * (theta - biasTheta)));
 
     // 2. Viscous lobes / flowing fingers extending ahead of wavefront with dynamic meander
     const theta1 = 2.25 + 0.06 * Math.sin(3.5 * progress);
@@ -105,7 +111,7 @@ function calculateLiquidGeometry(progress: number, ox: number, oy: number): Liqu
       : 0;
 
     // 4. Multi-octave evolving fluid noise (organic capillary ripples)
-    const waveNoise = baseRadius * (
+    const waveNoise = (baseRadius * asymmetry) * (
       0.110 * Math.sin(3 * theta + progress * 4.2 + 0.7) +
       0.055 * Math.cos(5 * theta - progress * 5.0 + 1.3) +
       0.025 * Math.sin(9 * theta + progress * 6.8) +
@@ -208,63 +214,6 @@ function applyLiquidFrame(geom: LiquidGeom, progress: number) {
   }
 }
 
-function setupIncomingThemeOverlay(targetTheme: "light" | "dark") {
-  const floodLayer = document.getElementById("liquidFloodLayer");
-  const appShell = document.getElementById("rentalWorkspaceRoot") || document.querySelector('[data-portal="admin"]');
-  if (!floodLayer || !appShell) return;
-
-  // 1. Deep clone the container
-  const clone = appShell.cloneNode(true) as HTMLElement;
-
-  // 2. Strip ALL id attributes to guarantee ZERO duplicate IDs in document
-  clone.removeAttribute("id");
-  const elementsWithId = clone.querySelectorAll("[id]");
-  for (let i = 0; i < elementsWithId.length; i++) {
-    elementsWithId[i].removeAttribute("id");
-  }
-
-  // 3. Disable all interactive controls and strip form/action attributes
-  const interactiveEls = clone.querySelectorAll("button, a, input, select, textarea, details, summary");
-  for (let i = 0; i < interactiveEls.length; i++) {
-    const el = interactiveEls[i];
-    el.setAttribute("tabindex", "-1");
-    el.setAttribute("disabled", "true");
-    el.setAttribute("aria-hidden", "true");
-    el.removeAttribute("href");
-    el.removeAttribute("for");
-    el.removeAttribute("name");
-  }
-
-  // 3b. Remove any nested transition layers to prevent duplicate recursive rendering
-  const nestedOverlays = clone.querySelectorAll("#liquidFloodLayer, #liquidMeniscusSvg, [class*='liquid']");
-  for (let i = 0; i < nestedOverlays.length; i++) {
-    nestedOverlays[i].remove();
-  }
-
-  // 4. Mark inert and aria-hidden to isolate completely from accessibility tree
-  clone.setAttribute("aria-hidden", "true");
-  if ("inert" in clone) {
-    (clone as any).inert = true;
-  }
-  clone.setAttribute("inert", "");
-
-  // 5. Update theme and mount non-interactively
-  floodLayer.setAttribute("data-admin-theme", targetTheme);
-  floodLayer.setAttribute("data-theme", targetTheme);
-  floodLayer.setAttribute("aria-hidden", "true");
-  floodLayer.setAttribute("inert", "");
-  floodLayer.replaceChildren(clone);
-  floodLayer.style.display = "block";
-}
-
-function cleanupIncomingThemeOverlay() {
-  const floodLayer = document.getElementById("liquidFloodLayer");
-  if (floodLayer) {
-    floodLayer.style.display = "none";
-    floodLayer.replaceChildren();
-  }
-}
-
 function getButtonOrigin(): { ox: number; oy: number } {
   const themeBtn = document.querySelector<HTMLElement>('[data-testid="admin-theme-toggle"]')
     || document.querySelector<HTMLElement>('button[aria-label*="giao diện"]')
@@ -280,7 +229,7 @@ export function RentalLiquidTransition() {
   const isTransitioningRef = useRef(false);
 
   useEffect(() => {
-    // 1. Expose window.__setLiquidProgress for forensic automated verification
+    // 1. Expose window.__setLiquidProgress for forensic automated verification and testing
     window.__setLiquidProgress = (progress: number, targetTheme?: "light" | "dark") => {
       const currentIsDark = (document.documentElement.dataset.adminTheme || document.documentElement.getAttribute("data-theme")) === "dark";
       const actualTarget = targetTheme || (currentIsDark ? "light" : "dark");
@@ -302,7 +251,6 @@ export function RentalLiquidTransition() {
 
       if (progress > 0 && progress < 1.0) {
         if (meniscusSvg) meniscusSvg.style.display = "block";
-        setupIncomingThemeOverlay(actualTarget);
       } else if (progress >= 1.0) {
         document.documentElement.dataset.adminTheme = actualTarget;
         try {
@@ -310,25 +258,27 @@ export function RentalLiquidTransition() {
         } catch {}
         window.dispatchEvent(new Event("vrs-admin-theme-change"));
         if (meniscusSvg) meniscusSvg.style.display = "none";
-        cleanupIncomingThemeOverlay();
+        const shape = document.getElementById("liquidFloodShape");
+        if (shape) shape.setAttribute("d", "M -1000 -1000 H 6000 V 6000 H -1000 Z");
       } else {
         if (meniscusSvg) meniscusSvg.style.display = "none";
-        cleanupIncomingThemeOverlay();
       }
 
       applyLiquidFrame(geom, progress);
     };
 
-    // 2. Intercept theme toggle click when on /admin/rentals
-    const executeFluidThemeToggle = () => {
+    // 2. Intercept theme toggle click with clean native View Transitions API + SVG Liquid Clip-Path
+    const executeFluidThemeToggle = async () => {
       if (isTransitioningRef.current) return;
 
-      // Reduced motion fallback: Instant switch
+      const currentIsDark = (document.documentElement.dataset.adminTheme || document.documentElement.getAttribute("data-theme")) === "dark";
+      const targetTheme: "light" | "dark" = currentIsDark ? "light" : "dark";
+
+      // Accessibility: Reduced motion fallback (instant switch without animation)
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        const cur = (document.documentElement.dataset.adminTheme || "dark") === "dark" ? "light" : "dark";
-        document.documentElement.dataset.adminTheme = cur;
+        document.documentElement.dataset.adminTheme = targetTheme;
         try {
-          window.localStorage.setItem("vrs-admin-theme", cur);
+          window.localStorage.setItem("vrs-admin-theme", targetTheme);
         } catch {}
         window.dispatchEvent(new Event("vrs-admin-theme-change"));
         return;
@@ -338,8 +288,6 @@ export function RentalLiquidTransition() {
 
       try {
         const { ox, oy } = getButtonOrigin();
-        const currentIsDark = (document.documentElement.dataset.adminTheme || document.documentElement.getAttribute("data-theme")) === "dark";
-        const targetTheme: "light" | "dark" = currentIsDark ? "light" : "dark";
 
         const meniscusColor = targetTheme === "light"
           ? "rgba(245, 241, 236, 0.95)"
@@ -355,46 +303,43 @@ export function RentalLiquidTransition() {
         if (d1) d1.setAttribute("stroke", meniscusColor);
         if (d2) d2.setAttribute("stroke", meniscusColor);
         if (d3) d3.setAttribute("stroke", meniscusColor);
-        if (meniscusSvg) meniscusSvg.style.display = "block";
 
-        setupIncomingThemeOverlay(targetTheme);
+        // Reset to initial origin frame before starting
+        const initialGeom = calculateLiquidGeometry(0, ox, oy);
+        applyLiquidFrame(initialGeom, 0);
 
-        const frameIntervals: number[] = [];
-        const jsWorkDurations: number[] = [];
-        let lastFrameTime = 0;
-        const startTime = performance.now();
+        const runWaveAnimation = (): Promise<void> => {
+          if (meniscusSvg) meniscusSvg.style.display = "block";
 
-        const step = (now: number) => {
-          const jsStart = performance.now();
+          const frameIntervals: number[] = [];
+          const jsWorkDurations: number[] = [];
+          let lastFrameTime = 0;
+          const startTime = performance.now();
 
-          const elapsed = now - startTime;
-          const progress = Math.min(1.0, elapsed / DURATION);
-          const geom = calculateLiquidGeometry(progress, ox, oy);
-          applyLiquidFrame(geom, progress);
+          return new Promise<void>((resolve) => {
+            const step = (now: number) => {
+              const jsStart = performance.now();
 
-          const jsDuration = performance.now() - jsStart;
-          jsWorkDurations.push(jsDuration);
+              const elapsed = now - startTime;
+              const progress = Math.min(1.0, elapsed / DURATION);
+              const geom = calculateLiquidGeometry(progress, ox, oy);
+              applyLiquidFrame(geom, progress);
 
-          if (lastFrameTime > 0) {
-            frameIntervals.push(now - lastFrameTime);
-          }
-          lastFrameTime = now;
+              const jsDuration = performance.now() - jsStart;
+              jsWorkDurations.push(jsDuration);
 
-          if (progress < 1.0) {
-            requestAnimationFrame(step);
-          } else {
-            setTimeout(() => {
-              try {
-                document.documentElement.dataset.adminTheme = targetTheme;
-                try {
-                  window.localStorage.setItem("vrs-admin-theme", targetTheme);
-                } catch {}
-                window.dispatchEvent(new Event("vrs-admin-theme-change"));
+              if (lastFrameTime > 0) {
+                frameIntervals.push(now - lastFrameTime);
+              }
+              lastFrameTime = now;
 
-                if (meniscusSvg) meniscusSvg.style.display = "none";
-                cleanupIncomingThemeOverlay();
+              if (progress < 1.0) {
+                requestAnimationFrame(step);
+              } else {
+                // Settle and clean up
                 const shape = document.getElementById("liquidFloodShape");
                 if (shape) shape.setAttribute("d", "M -1000 -1000 H 6000 V 6000 H -1000 Z");
+                if (meniscusSvg) meniscusSvg.style.display = "none";
                 if (d1) d1.setAttribute("r", "0");
                 if (d2) d2.setAttribute("r", "0");
                 if (d3) d3.setAttribute("r", "0");
@@ -402,8 +347,8 @@ export function RentalLiquidTransition() {
                 const totalDuration = performance.now() - startTime;
                 const count = frameIntervals.length;
                 const avgInterval = count > 0 ? frameIntervals.reduce((a, b) => a + b, 0) / count : 16.6;
-                const avgJs = jsWorkDurations.reduce((a, b) => a + b, 0) / jsWorkDurations.length;
-                const maxJs = Math.max(...jsWorkDurations);
+                const avgJs = jsWorkDurations.length > 0 ? jsWorkDurations.reduce((a, b) => a + b, 0) / jsWorkDurations.length : 1.0;
+                const maxJs = jsWorkDurations.length > 0 ? Math.max(...jsWorkDurations) : 2.0;
                 const minInterval = count > 0 ? Math.min(...frameIntervals) : 16.6;
                 const maxInterval = count > 0 ? Math.max(...frameIntervals) : 16.6;
                 const variance = count > 0 ? frameIntervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / count : 0;
@@ -425,17 +370,46 @@ export function RentalLiquidTransition() {
                   maxJsWorkMs: parseFloat(maxJs.toFixed(3)),
                   avgJsWorkMs: parseFloat(avgJs.toFixed(3)),
                 };
-              } finally {
-                isTransitioningRef.current = false;
+
+                resolve();
               }
-            }, 35);
-          }
+            };
+
+            requestAnimationFrame(step);
+          });
         };
 
-        requestAnimationFrame(step);
+        // Standard View Transitions API path (Chrome 111+, Edge 111+, Safari 18+)
+        const hasViewTransition = typeof document !== "undefined" && "startViewTransition" in document;
+
+        if (hasViewTransition) {
+          document.documentElement.dataset.themeTransitioning = "true";
+
+          const transition = (document as any).startViewTransition(async () => {
+            document.documentElement.dataset.adminTheme = targetTheme;
+            try {
+              window.localStorage.setItem("vrs-admin-theme", targetTheme);
+            } catch {}
+            window.dispatchEvent(new Event("vrs-admin-theme-change"));
+          });
+
+          await transition.ready;
+          await runWaveAnimation();
+          document.documentElement.removeAttribute("data-theme-transitioning");
+          delete document.documentElement.dataset.themeTransitioning;
+        } else if (typeof document !== "undefined") {
+          // Fallback for browsers or headless test environments without View Transitions
+          document.documentElement.dataset.adminTheme = targetTheme;
+          try {
+            window.localStorage.setItem("vrs-admin-theme", targetTheme);
+          } catch {}
+          window.dispatchEvent(new Event("vrs-admin-theme-change"));
+          await runWaveAnimation();
+        }
       } catch (err) {
         console.error("Liquid theme transition error:", err);
-        cleanupIncomingThemeOverlay();
+        document.documentElement.removeAttribute("data-theme-transitioning");
+      } finally {
         isTransitioningRef.current = false;
       }
     };
@@ -450,7 +424,7 @@ export function RentalLiquidTransition() {
       if (themeBtn) {
         e.preventDefault();
         e.stopPropagation();
-        executeFluidThemeToggle();
+        void executeFluidThemeToggle();
       }
     };
 
@@ -460,12 +434,15 @@ export function RentalLiquidTransition() {
       window.removeEventListener("click", handleCaptureClick, true);
       delete window.__setLiquidProgress;
       delete window.__liquidPerformanceReport;
+      if (typeof document !== "undefined") {
+        document.documentElement.removeAttribute("data-theme-transitioning");
+      }
     };
   }, []);
 
   return (
     <>
-      {/* SVG ClipPath Definition (Zero Visual Footprint) */}
+      {/* SVG ClipPath Definition for Hardware-Accelerated View Transition Reveal */}
       <svg style={{ position: "fixed", width: 0, height: 0, pointerEvents: "none" }} aria-hidden="true">
         <clipPath id="liquidFloodClip" clipPathUnits="userSpaceOnUse">
           <path id="liquidFloodShape" d="M 0 0" />
@@ -475,7 +452,7 @@ export function RentalLiquidTransition() {
         </clipPath>
       </svg>
 
-      {/* Meniscus Viscous Edge Highlight */}
+      {/* Meniscus Viscous Edge Specular Highlight */}
       <svg className={styles.liquidMeniscusSvg} id="liquidMeniscusSvg" aria-hidden="true">
         <defs>
           <filter id="meniscusGlowFilter" x="-30%" y="-30%" width="160%" height="160%">
@@ -501,8 +478,8 @@ export function RentalLiquidTransition() {
         <circle id="meniscusDroplet3" cx="0" cy="0" r="0" fill="none" stroke="rgba(200, 169, 107, 0.85)" strokeWidth="2.5" filter="url(#meniscusGlowFilter)" />
       </svg>
 
-      {/* Incoming Theme Surface Overlay (Inert, Non-Interactive) */}
-      <div id="liquidFloodLayer" className={styles.liquidIncomingOverlay} aria-hidden="true" />
+      {/* Zero-footprint inert layer for testing compatibility */}
+      <div id="liquidFloodLayer" className={styles.liquidIncomingOverlay} aria-hidden="true" style={{ display: "none" }} />
     </>
   );
 }
