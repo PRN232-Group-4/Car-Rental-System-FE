@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, type ReactNode } from "react";
+import React, { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
@@ -20,6 +20,7 @@ import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
 import { Moon, Sun, Search, LogOut, User } from "lucide-react";
+import { gsap } from "@/lib/motion/register";
 
 export interface TransitDeskShellProps {
   children: ReactNode;
@@ -164,6 +165,48 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     return chaptersWithRoutes.get(activeChapter) || [];
   }, [chaptersWithRoutes, activeChapter]);
 
+  const chaptersNavRef = useRef<HTMLElement>(null);
+  const gliderRef = useRef<HTMLDivElement>(null);
+
+  // Smooth floating glider physics for active chapter wayfinding
+  useEffect(() => {
+    const updateGlider = (immediate = false) => {
+      if (!chaptersNavRef.current || !gliderRef.current) return;
+      const activeBtn = chaptersNavRef.current.querySelector<HTMLElement>('[aria-current="true"]');
+      if (activeBtn) {
+        const navRect = chaptersNavRef.current.getBoundingClientRect();
+        const btnRect = activeBtn.getBoundingClientRect();
+        const targetX = btnRect.left - navRect.left + chaptersNavRef.current.scrollLeft + 16;
+        const targetWidth = Math.max(0, btnRect.width - 32);
+
+        if (immediate) {
+          gsap.set(gliderRef.current, { x: targetX, width: targetWidth, opacity: 1 });
+        } else {
+          gsap.to(gliderRef.current, {
+            x: targetX,
+            width: targetWidth,
+            opacity: 1,
+            duration: 0.32,
+            ease: "expo.out",
+            overwrite: "auto",
+          });
+        }
+      } else {
+        gsap.to(gliderRef.current, { opacity: 0, duration: 0.2 });
+      }
+    };
+
+    // Defer one frame to ensure DOM layout has settled
+    const raf = requestAnimationFrame(() => updateGlider());
+    const handleResize = () => updateGlider(true);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [activeChapter]);
+
   const handleLogout = async () => {
     await logout();
     router.replace("/login");
@@ -229,7 +272,8 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
         </Link>
 
         {/* Chapter Index (Wayfinding Segments) */}
-        <nav className={styles.chapters} aria-label="Nhóm chức năng">
+        <nav ref={chaptersNavRef} className={styles.chapters} aria-label="Nhóm chức năng">
+          <div ref={gliderRef} className={styles.chapterGlider} aria-hidden="true" />
           {Array.from(chaptersWithRoutes.entries()).map(([chapter, routes]) => {
             const isActive = chapter === activeChapter;
             const primaryHref = routes[0]?.href || "/admin";
@@ -369,7 +413,11 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
       </div>
 
       {/* Main Work Area */}
-      <main className={styles.mainContent}>{children}</main>
+      <main className={styles.mainContent}>
+        <div key={activeChapter} className={styles.chapterPageTransition}>
+          {children}
+        </div>
+      </main>
 
       {/* Route Index Command Dialog */}
       <TransitDeskRouteIndex

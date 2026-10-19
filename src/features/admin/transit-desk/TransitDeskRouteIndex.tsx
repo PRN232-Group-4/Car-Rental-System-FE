@@ -6,6 +6,8 @@ import { Search, X } from "lucide-react";
 import { ADMIN_NAV_ITEMS, type NavItem } from "@/config/navigation";
 import { hasAnyRole } from "@/features/auth/access";
 import type { Role } from "@/features/auth/roles";
+import { gsap } from "@/lib/motion/register";
+import styles from "./transit-desk.module.css";
 
 export interface TransitDeskRouteIndexProps {
   isOpen: boolean;
@@ -82,6 +84,7 @@ export function TransitDeskRouteIndex({
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -137,17 +140,49 @@ export function TransitDeskRouteIndex({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Manage focus when opening / closing (P1-04)
+  // Manage focus & spring entrance when opening / closing (P1-04)
   useEffect(() => {
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
       setQuery("");
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
+
+      const prefersReduced =
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+      if (!prefersReduced && dialogRef.current && scrimRef.current) {
+        gsap.fromTo(
+          scrimRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.22, ease: "power2.out" }
+        );
+        gsap.fromTo(
+          dialogRef.current,
+          { scale: 0.94, y: -12, opacity: 0 },
+          { scale: 1, y: 0, opacity: 1, duration: 0.32, ease: "back.out(1.4)" }
+        );
+      }
     } else if (previousFocusRef.current) {
       previousFocusRef.current.focus();
     }
   }, [isOpen]);
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dialogRef.current) return;
+    const rect = dialogRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    dialogRef.current.style.setProperty("--spotlight-x", `${x}px`);
+    dialogRef.current.style.setProperty("--spotlight-y", `${y}px`);
+    dialogRef.current.style.setProperty("--spotlight-opacity", "1");
+  };
+
+  const handlePointerLeave = () => {
+    if (!dialogRef.current) return;
+    dialogRef.current.style.setProperty("--spotlight-opacity", "0");
+  };
 
   // Focus trap on Tab within modal dialog (P1-04)
   const handleDialogKeyDown = (e: React.KeyboardEvent) => {
@@ -195,9 +230,10 @@ export function TransitDeskRouteIndex({
 
   return (
     <div
+      ref={scrimRef}
       role="presentation"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-start justify-center bg-scrim p-4 pt-16 sm:p-6 sm:pt-24"
+      className={styles.routeIndexScrim}
     >
       <div
         ref={dialogRef}
@@ -206,8 +242,11 @@ export function TransitDeskRouteIndex({
         aria-labelledby="routeIndexTitle"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleDialogKeyDown}
-        className="w-full max-w-2xl overflow-hidden rounded-lg border border-td-rule bg-td-paper shadow-2xl"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        className={styles.routeIndexDialog}
       >
+        <div className={styles.routeIndexSpotlight} aria-hidden="true" />
         {/* Header */}
         <div className="flex items-center justify-between border-b border-td-rule bg-td-white px-5 py-3.5">
           <div>
@@ -282,8 +321,8 @@ export function TransitDeskRouteIndex({
                   type="button"
                   onClick={() => handleSelect(route.href)}
                   onMouseEnter={() => setSelectedIndex(index)}
-                  className={`flex w-full items-center justify-between gap-4 rounded px-3 py-2.5 text-left transition-colors cursor-pointer ${
-                    isSelected ? "bg-td-chalk text-td-ink" : "text-td-ink hover:bg-td-chalk/50"
+                  className={`${styles.routeIndexItem} ${
+                    isSelected ? styles.routeIndexItemSelected : ""
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">

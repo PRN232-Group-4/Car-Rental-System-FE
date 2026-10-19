@@ -40,6 +40,7 @@ import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@
 import TransitDeskStatus from "./TransitDeskStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useOptionalSession } from "@/features/auth/AuthContext";
+import { gsap } from "@/lib/motion/register";
 import styles from "./rental-workspace-v4.module.css";
 
 export type RentalDetailState =
@@ -130,6 +131,67 @@ export function RentalWorkspaceV4() {
       setLookupId(q);
     }
   }, [params, lookupId]);
+
+  // Audit 3: Central Dossier Stage 3D Micro-Tilt & Specular Sheen
+  const stageRef = useRef<HTMLDivElement>(null);
+  const dossierRef = useRef<HTMLElement>(null);
+  const quickToX = useRef<gsap.QuickToFunc | null>(null);
+  const quickToY = useRef<gsap.QuickToFunc | null>(null);
+
+  useEffect(() => {
+    if (!stageRef.current) return;
+
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+    if (prefersReduced) return;
+
+    gsap.set(stageRef.current, {
+      transformPerspective: 1200,
+      transformStyle: "preserve-3d",
+    });
+
+    quickToX.current = gsap.quickTo(stageRef.current, "rotationX", {
+      duration: 0.5,
+      ease: "power2.out",
+    });
+    quickToY.current = gsap.quickTo(stageRef.current, "rotationY", {
+      duration: 0.5,
+      ease: "power2.out",
+    });
+  }, []);
+
+  const handleStagePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!stageRef.current) return;
+    const rect = stageRef.current.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width - 0.5;
+    const relY = (e.clientY - rect.top) / rect.height - 0.5;
+
+    // Subtle micro-tilt capped at +/-0.75 deg
+    const targetRotY = relX * 1.5;
+    const targetRotX = -relY * 1.5;
+
+    quickToX.current?.(targetRotX);
+    quickToY.current?.(targetRotY);
+
+    if (dossierRef.current) {
+      const dRect = dossierRef.current.getBoundingClientRect();
+      const dx = e.clientX - dRect.left;
+      const dy = e.clientY - dRect.top;
+      dossierRef.current.style.setProperty("--dossier-mouse-x", `${dx}px`);
+      dossierRef.current.style.setProperty("--dossier-mouse-y", `${dy}px`);
+      dossierRef.current.style.setProperty("--dossier-sheen-opacity", "1");
+    }
+  };
+
+  const handleStagePointerLeave = () => {
+    quickToX.current?.(0);
+    quickToY.current?.(0);
+    if (dossierRef.current) {
+      dossierRef.current.style.setProperty("--dossier-sheen-opacity", "0");
+    }
+  };
 
   const validation = useInlineValidation();
   const session = useOptionalSession();
@@ -424,7 +486,12 @@ export function RentalWorkspaceV4() {
 
   return (
     <div className={styles.workspaceRoot} id="rentalWorkspaceRoot">
-      <div className={styles.stageWrapper}>
+      <div
+        ref={stageRef}
+        onPointerMove={handleStagePointerMove}
+        onPointerLeave={handleStagePointerLeave}
+        className={styles.stageWrapper}
+      >
         {/* 3-COLUMN COCKPIT LAYOUT */}
         <div className={styles.cockpitGrid}>
         {/* ========================================================================= */}
@@ -575,7 +642,11 @@ export function RentalWorkspaceV4() {
         {/* ========================================================================= */}
         {/* CENTER COLUMN: RENTAL DOSSIER (FLUID)                                     */}
         {/* ========================================================================= */}
-        <main className={styles.dossierPanel} aria-label="Hồ sơ chi tiết đơn thuê">
+        <main
+          ref={dossierRef}
+          className={styles.dossierPanel}
+          aria-label="Hồ sơ chi tiết đơn thuê"
+        >
           {/* Masthead Wayfinding Banner */}
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--v4-rule)]">
             <div className="space-y-0.5">

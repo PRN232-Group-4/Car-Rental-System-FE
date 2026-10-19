@@ -395,6 +395,8 @@
   --color-td-ink: #1F1B22;
   --color-td-muted: #615967;
 
+  position: relative;
+  overflow: hidden;
   background: var(--dossier-bg);
   color: var(--dossier-text);
   border: 1px solid var(--dossier-hairline-strong);
@@ -404,6 +406,35 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.dossierPanel > * {
+  position: relative;
+  z-index: 2;
+}
+
+.dossierPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: var(--dossier-sheen-opacity, 0);
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    650px circle at var(--dossier-mouse-x, 50%) var(--dossier-mouse-y, 0%),
+    rgba(255, 255, 255, 0.45),
+    transparent 70%
+  );
+  z-index: 1;
+}
+
+:global(html[data-admin-theme="dark"]) .dossierPanel::before {
+  background: radial-gradient(
+    650px circle at var(--dossier-mouse-x, 50%) var(--dossier-mouse-y, 0%),
+    rgba(200, 169, 107, 0.14),
+    transparent 65%
+  );
 }
 
 /* ADAPTIVE HORIZONTAL STEPPER RAIL (ZERO COLLISION) */
