@@ -16,7 +16,14 @@ export async function getOperationalRental(id: number): Promise<OperationalRenta
   try {
     return await backendApiClient.get<OperationalRental>(`rentals/${id}`);
   } catch (error) {
-    if (id === 1 || id === 101 || id === 98) {
+    // SECURITY & DATA INTEGRITY (SEC-01):
+    // In production, fail closed immediately. Never silently return fixtures.
+    // Fixtures are only permitted in automated test environments or when explicitly configured.
+    const isFixturePermitted =
+      process.env.NODE_ENV !== "production" &&
+      (process.env.NODE_ENV === "test" || process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK === "true");
+
+    if (isFixturePermitted && (id === 1 || id === 101 || id === 98)) {
       return {
         id,
         customerId: 1,
@@ -66,50 +73,56 @@ export async function getOperationalDrivers(): Promise<StaffDto[]> {
       // ignore
     }
 
-    return [
-      {
-        id: 1,
-        userId: 101,
-        fullName: "Nguyễn Văn Hùng (Tài xế Chi nhánh 1)",
-        email: "driver.hung@thongdong.vn",
-        phone: "0901111222",
-        departmentId: 1,
-        departmentName: "Tài xế",
-        facilityId: 1,
-        facilityName: "Chi nhánh Quận 1",
-        hiredDate: "2024-01-01",
-        isDriver: true,
-        licenseNumber: "B2-998877",
-        licenseType: "B2",
-        licenseIssueDate: "2023-01-01",
-        licenseExpiryDate: "2033-01-01",
-        licenseImageUrl: null,
-        rating: 5,
-        isActive: true,
-        staffRole: "Tài xế",
-      },
-      {
-        id: 2,
-        userId: 102,
-        fullName: "Trần Quốc Toàn (Tài xế Chi nhánh 2)",
-        email: "driver.toan@thongdong.vn",
-        phone: "0903333444",
-        departmentId: 1,
-        departmentName: "Tài xế",
-        facilityId: 2,
-        facilityName: "Chi nhánh Tân Bình",
-        hiredDate: "2024-01-01",
-        isDriver: true,
-        licenseNumber: "B2-665544",
-        licenseType: "B2",
-        licenseIssueDate: "2023-01-01",
-        licenseExpiryDate: "2033-01-01",
-        licenseImageUrl: null,
-        rating: 5,
-        isActive: true,
-        staffRole: "Tài xế",
-      },
-    ];
+    const isFixturePermitted =
+      process.env.NODE_ENV !== "production" &&
+      (process.env.NODE_ENV === "test" || process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK === "true");
+
+    if (isFixturePermitted) {
+      return [
+        {
+          id: 1,
+          userId: 101,
+          fullName: "Nguyễn Văn Hùng (Tài xế Chi nhánh 1)",
+          email: "driver.hung@thongdong.vn",
+          phone: "0901111222",
+          departmentId: 1,
+          departmentName: "Tài xế",
+          facilityId: 1,
+          facilityName: "Chi nhánh Quận 1",
+          hiredDate: "2024-01-01",
+          isDriver: true,
+          licenseNumber: "B2-998877",
+          licenseType: "B2",
+          licenseIssueDate: "2023-01-01",
+          licenseExpiryDate: "2033-01-01",
+          licenseImageUrl: null,
+          rating: 5,
+          isActive: true,
+          staffRole: "Tài xế",
+        },
+        {
+          id: 2,
+          userId: 102,
+          fullName: "Trần Quốc Toàn (Tài xế Chi nhánh 2)",
+          email: "driver.toan@thongdong.vn",
+          phone: "0903333444",
+          departmentId: 1,
+          departmentName: "Tài xế",
+          facilityId: 2,
+          facilityName: "Chi nhánh Tân Bình",
+          hiredDate: "2024-01-01",
+          isDriver: true,
+          licenseNumber: "B2-665544",
+          licenseType: "B2",
+          licenseIssueDate: "2023-01-01",
+          licenseExpiryDate: "2033-01-01",
+          licenseImageUrl: null,
+          rating: 5,
+          isActive: true,
+          staffRole: "Tài xế",
+        },
+      ];
+    }
   }
 
   return drivers;
@@ -144,6 +157,21 @@ export const rentalStatuses: Record<string, string> = {
 export const operationsInput = "admin-input mt-2 w-full";
 export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50";
 export const operationsPanel = "space-y-4 rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6";
+export async function listOperationalRentals(params?: { status?: string; page?: number; pageSize?: number }): Promise<PagedResult<OperationalRental>> {
+  try {
+    return await backendApiClient.get<PagedResult<OperationalRental>>("rentals", params);
+  } catch (error) {
+    const isFixturePermitted =
+      process.env.NODE_ENV !== "production" &&
+      (process.env.NODE_ENV === "test" || process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK === "true");
+
+    if (isFixturePermitted) {
+      return { items: [], totalCount: 0, page: 1, pageSize: 20 };
+    }
+    throw error;
+  }
+}
+
 export function operationalError(error: unknown) {
   return error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : error instanceof Error ? error.message : "Không thể lưu thông tin. Vui lòng thử lại.";
 }

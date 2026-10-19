@@ -29,6 +29,7 @@
   --primary-press: #78350f;
   --primary-tint: #fef3c7;
   --primary-graphic: #d97706;
+  --on-primary: #ffffff;
 
   /* Status Pairs (text / bg >= 5.0:1) */
   --success: #166534;
@@ -91,20 +92,53 @@
   --shadow-1: var(--e1);
   --shadow-2: var(--e2);
   --shadow-3: var(--e3);
+
+  /* Transit Desk A1.1 Tokens (Graphite Glass Deck / Palette A — Light Mode) */
+  --td-paper: #FAF8F5;
+  --td-white: #FFFFFF;
+  --td-ink: #1F1B22;
+  --td-ink-muted: #58515E;
+  --td-rule: rgba(31, 27, 34, 0.12);
+  --td-oxide: #5A2B41;
+  --td-oxide-hover: #482033;
+  --td-teal: #7A5B18;
+  --td-teal-hover: #63470D;
+  --td-cobalt: #6E3A52;
+  --td-chalk: #F0ECE6;
+}
+
+/* Scoped Admin Light Mode Palette A Neutrals */
+html:not([data-admin-theme="dark"]) [data-portal="admin"],
+html[data-admin-theme="light"] [data-portal="admin"],
+[data-portal="admin"][data-admin-theme="light"],
+[data-admin-theme="light"] {
+  --canvas: #FAF8F5;
+  --sunken: #F0ECE6;
+  --surface: #FFFFFF;
+  --surface-raised: #FAF8F5;
+  --ink: #1F1B22;
+  --ink-2: #3C3642;
+  --ink-3: #58515E;
+  --line: rgba(31, 27, 34, 0.12);
+  --line-strong: rgba(31, 27, 34, 0.22);
+  --ink-muted: var(--ink-3);
 }
 
 /* Admin owns this attribute only while its shell is mounted, including portals. */
+html[data-admin-theme="dark"],
+html[data-admin-theme="dark"] [data-portal="admin"],
+[data-portal="admin"][data-admin-theme="dark"],
 [data-admin-theme="dark"] {
   color-scheme: dark;
-  --canvas: #10151e;
-  --sunken: #1c2635;
-  --surface: #17202e;
-  --surface-raised: #202c3d;
-  --ink: #f1f5f9;
-  --ink-2: #d1dbe8;
-  --ink-3: #a5b5ca;
-  --line: rgba(203, 213, 225, 0.14);
-  --line-strong: rgba(203, 213, 225, 0.3);
+  --canvas: #17161B;
+  --sunken: #1C1A20;
+  --surface: #242126;
+  --surface-raised: #2C2730;
+  --ink: #F5F1EC;
+  --ink-2: #C5BFB8;
+  --ink-3: #9E97A3;
+  --line: rgba(245, 241, 236, 0.14);
+  --line-strong: rgba(245, 241, 236, 0.28);
   --amber: #f6ba7c;
   --amber-hover: #efad68;
   --amber-press: #e8a25a;
@@ -142,22 +176,49 @@
   --chart-3: #a5b5ca;
   --chart-4: #86efac;
   --chart-5: #fcd68b;
+
+  /* Transit Desk A1.1 Tokens (Graphite Glass Deck / Palette A — Dark Mode) */
+  --td-paper: #17161B;
+  --td-white: #242126;
+  --td-ink: #F5F1EC;
+  --td-ink-muted: #9E97A3;
+  --td-rule: rgba(245, 241, 236, 0.14);
+  --td-oxide: #6E3A52;
+  --td-oxide-hover: #844763;
+  --td-teal: #C8A96B;
+  --td-teal-hover: #D9BE84;
+  --td-cobalt: #8A5A72;
+  --td-chalk: #1C1A20;
+  --ink-muted: var(--ink-3);
 }
 
-/* Keep existing solid Admin actions readable with the lighter dark-mode accent. */
-:where([data-admin-theme="dark"]) .bg-primary:not(:disabled),
-:where([data-admin-theme="dark"]) .bg-primary:not(:disabled) .text-white {
-  color: var(--on-primary);
+/* Keep solid Admin actions readable with the lighter dark-mode accent. */
+html[data-admin-theme="dark"] .bg-primary:not(:disabled),
+html[data-admin-theme="dark"] button.bg-primary:not(:disabled),
+html[data-admin-theme="dark"] a.bg-primary:not(:disabled),
+[data-admin-theme="dark"] .bg-primary:not(:disabled),
+[data-admin-theme="dark"] .bg-primary:not(:disabled).text-white,
+[data-admin-theme="dark"] button.bg-primary:not(:disabled).text-white,
+[data-admin-theme="dark"] a.bg-primary:not(:disabled).text-white,
+[data-admin-theme="dark"] .bg-primary:not(:disabled) .text-white {
+  color: #2b190b !important;
 }
 
-:where([data-admin-theme="dark"]) .bg-danger:not(:disabled),
-:where([data-admin-theme="dark"]) .bg-danger:not(:disabled) .text-white {
-  color: var(--on-danger);
+html[data-admin-theme="dark"] .bg-danger:not(:disabled),
+html[data-admin-theme="dark"] button.bg-danger:not(:disabled),
+html[data-admin-theme="dark"] a.bg-danger:not(:disabled),
+[data-admin-theme="dark"] .bg-danger:not(:disabled),
+[data-admin-theme="dark"] .bg-danger:not(:disabled).text-white,
+[data-admin-theme="dark"] button.bg-danger:not(:disabled).text-white,
+[data-admin-theme="dark"] a.bg-danger:not(:disabled).text-white,
+[data-admin-theme="dark"] .bg-danger:not(:disabled) .text-white {
+  color: var(--on-danger) !important;
 }
 
 @theme inline {
   --font-sans: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --color-canvas: var(--canvas);
@@ -188,6 +249,19 @@
 
   --color-stage-ink: var(--stage-ink);
   --color-scrim: var(--scrim);
+
+  /* Transit Desk v3 Themes */
+  --color-td-paper: var(--td-paper);
+  --color-td-white: var(--td-white);
+  --color-td-ink: var(--td-ink);
+  --color-td-muted: var(--td-ink-muted);
+  --color-td-rule: var(--td-rule);
+  --color-td-oxide: var(--td-oxide);
+  --color-td-oxide-hover: var(--td-oxide-hover);
+  --color-td-teal: var(--td-teal);
+  --color-td-teal-hover: var(--td-teal-hover);
+  --color-td-cobalt: var(--td-cobalt);
+  --color-td-chalk: var(--td-chalk);
 
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);

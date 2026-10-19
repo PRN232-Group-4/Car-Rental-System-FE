@@ -28,7 +28,7 @@ export interface SessionContextType {
   refreshProfile: () => Promise<void>;
 }
 
-const SessionContext = createContext<SessionContextType | undefined>(undefined);
+export const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 const BROADCAST_CHANNEL_NAME = "vrs-auth";
 
@@ -208,6 +208,11 @@ export function useSession(): SessionContextType {
     throw new Error("useSession must be used within an AuthProvider");
   }
   return context;
+}
+
+/** Hook an toàn khi component có thể chạy ngoài AuthProvider (test fixtures) */
+export function useOptionalSession(): SessionContextType | null {
+  return useContext(SessionContext) ?? null;
 }
 
 /** Hook tương thích ngược cho các component hiện có */

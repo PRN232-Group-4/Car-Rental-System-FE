@@ -1,0 +1,336 @@
+﻿/* Transit Desk v3.0 â€” Wayfinding Frame & Operational Components */
+
+.container {
+  min-height: 100dvh;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  background-color: var(--color-td-paper);
+  color: var(--color-td-ink);
+  font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1. Global Masthead (64â€“84px) */
+.masthead {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) auto;
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-td-rule);
+  background-color: var(--color-td-white);
+  min-height: 72px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.logoZone {
+  background-color: var(--color-td-ink);
+  color: var(--color-td-white);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.logoZone::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 12px;
+  height: 100%;
+  background-color: var(--color-td-oxide);
+  transform: skewX(-12deg) translateX(7px);
+}
+
+.tdMark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--color-td-white);
+}
+
+.tdMarkSlash {
+  color: var(--color-td-oxide);
+}
+
+.brandName {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.brandKicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* Chapter Index */
+.chapters {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding-left: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chapters::-webkit-scrollbar {
+  display: none;
+}
+
+.chapterBtn {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-td-muted);
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.16s ease-out;
+  text-decoration: none;
+}
+
+.chapterBtn:hover {
+  color: var(--color-td-ink);
+}
+
+.chapterBtn[aria-current="true"] {
+  color: var(--color-td-ink);
+}
+
+.chapterBtn::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 3px;
+  background-color: var(--color-td-oxide);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chapterBtn[aria-current="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Utilities / Header Right */
+.utilities {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 10px 20px;
+  border-left: 1px solid var(--color-td-rule);
+}
+
+.utilityMeta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-td-muted);
+  text-align: right;
+}
+
+.commandTrigger {
+  background-color: var(--color-td-ink);
+  color: var(--color-td-white);
+  height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.16s ease-out;
+}
+
+.commandTrigger:hover {
+  background-color: var(--color-td-teal);
+}
+
+.commandTrigger kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.themeToggle {
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--color-td-rule);
+  border-radius: 4px;
+  color: var(--color-td-ink);
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.themeToggle:hover {
+  background-color: var(--color-td-chalk);
+}
+
+/* 2. Operations Context Strip (48â€“54px) */
+.contextStrip {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 48px;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--color-td-rule);
+  background-color: var(--color-td-paper);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.contextLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--color-td-muted);
+  font-weight: 600;
+}
+
+.contextLinks {
+  display: flex;
+  align-self: stretch;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.contextLink {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-td-muted);
+  position: relative;
+  text-decoration: none;
+  padding: 0 4px;
+  transition: color 0.15s ease-out;
+}
+
+.contextLink:hover {
+  color: var(--color-td-ink);
+}
+
+.contextLink[aria-current="page"] {
+  color: var(--color-td-ink);
+}
+
+.contextLink[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: var(--color-td-ink);
+}
+
+.contextTotal {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-td-muted);
+}
+
+/* Main Work Area */
+.mainContent {
+  flex: 1;
+  padding: 32px 48px 64px;
+  max-width: 1860px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 1450px) {
+  .utilityMeta {
+    display: none;
+  }
+  .mainContent {
+    padding: 24px 32px 56px;
+  }
+  .contextStrip {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .masthead {
+    grid-template-columns: 200px 1fr;
+  }
+  .utilities {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    border-left: none;
+  }
+  .chapters {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 44px;
+    border-top: 1px solid var(--color-td-rule);
+    padding-left: 8px;
+  }
+  .mainContent {
+    padding: 20px 20px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .masthead {
+    grid-template-columns: 1fr auto;
+  }
+  .commandTrigger kbd {
+    display: none;
+  }
+  .contextStrip {
+    padding: 0 16px;
+    gap: 16px;
+  }
+  .contextTotal {
+    display: none;
+  }
+}
+
+/* Phase 4 A1.1 Graphite Glass Deck Harmonization across all Admin routes */
+.tdMarkSlash {
+  color: var(--color-td-teal);
+}
+
+.logoZone::after {
+  background-color: var(--color-td-oxide);
+}
+
+.chapterBtn[aria-current="true"]::after {
+  background-color: var(--color-td-oxide);
+}

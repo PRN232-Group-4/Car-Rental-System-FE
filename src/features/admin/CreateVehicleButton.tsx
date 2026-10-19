@@ -9,7 +9,12 @@ export default function CreateVehicleButton({ onSaved }: { onSaved?: () => void 
   const close = useCallback(() => setOpen(false), []);
 
   return <>
-    <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover">
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      style={{ color: "var(--on-primary)" }}
+      className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold shadow-e1 transition hover:bg-primary-hover cursor-pointer"
+    >
       <CirclePlus className="h-4 w-4" /> Thêm phương tiện
     </button>
     {open && <VehicleForm onClose={close} onSaved={() => { close(); onSaved?.(); }} />}
