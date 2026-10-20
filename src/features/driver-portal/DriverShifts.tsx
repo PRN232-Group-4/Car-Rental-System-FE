@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarClock, Clock3, RefreshCw } from "lucide-react";
-import VehicleName from "@/features/admin/VehicleName";
+import { CalendarClock, RefreshCw } from "lucide-react";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 import { getDriverSchedule } from "./api";
@@ -41,25 +42,35 @@ function statusLabel(status: string | null | undefined): string {
     confirmed: "Đã xác nhận",
     ongoing: "Đang thực hiện",
     active: "Đang thực hiện",
+    renting: "Đang thuê",
+    pre_inspection: "Kiểm tra trước thuê",
+    post_inspection: "Kiểm tra trả xe",
     completed: "Hoàn thành",
     cancelled: "Đã hủy",
   };
   return labels[normalized] ?? status.replaceAll("_", " ");
 }
 
-function statusStyle(status: string | null | undefined): string {
+/** Map trạng thái chuyến của tài xế về tone chuẩn của StatusBadge. */
+function statusToneKey(status: string | null | undefined): string {
   switch (status?.trim().toLocaleLowerCase()) {
     case "ongoing":
     case "active":
-      return "bg-info-bg text-info";
+    case "renting":
+      return "rented";
+    case "pre_inspection":
+    case "post_inspection":
+      return "reserved";
     case "completed":
-      return "bg-primary-tint text-primary";
+      return "completed";
     case "cancelled":
-      return "bg-danger-bg text-danger";
+      return "cancelled";
     case "pending":
-      return "bg-primary-tint text-warning";
+      return "pending";
+    case "confirmed":
+      return "reserved";
     default:
-      return "bg-td-chalk text-td-ink";
+      return "unavailable";
   }
 }
 
@@ -132,139 +143,122 @@ export default function DriverShifts() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
-            Ca làm việc
-          </h2>
-          <p className="mt-2 text-sm text-td-muted">
-            Xem các chuyến xe được phân công cho bạn trong khoảng thời gian đã chọn.
-          </p>
+      <TransitFolio
+        index="10"
+        tag="NV"
+        kicker="NHÂN VIÊN · LỊCH PHÂN CÔNG"
+        title={<>Ca <em className="italic text-td-teal">làm việc.</em></>}
+        description="Xem các chuyến xe được phân công cho bạn trong khoảng thời gian đã chọn."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG SỐ CA</span>
+          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
+            {loading ? "—" : String(shifts.length).padStart(2, "0")}
+          </strong>
         </div>
         <button
           type="button"
           onClick={() => setReloadKey((current) => current + 1)}
           disabled={loading || !canLoad}
-          className="inline-flex items-center justify-center gap-2 rounded border border-td-rule bg-td-white px-4 py-2.5 text-sm font-semibold text-td-ink transition hover:border-primary/40 hover:text-primary disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
           Làm mới
         </button>
-      </div>
+      </TransitFolio>
 
-      <section className="flex flex-col gap-4 rounded border border-td-rule/80 bg-td-white p-4 shadow-sm sm:flex-row sm:items-end sm:p-5">
-        <label className="flex-1 text-sm font-semibold text-td-ink">
+      <section className="flex flex-col gap-4 border-y border-td-rule py-3 sm:flex-row sm:items-end">
+        <label className="flex-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
           Từ ngày
           <input
             type="date"
             value={fromDate}
             max={toDate || undefined}
             onChange={(event) => setFromDate(event.currentTarget.value)}
-            className="admin-input mt-2"
+            className="admin-input mt-1 font-sans text-xs"
           />
         </label>
-        <label className="flex-1 text-sm font-semibold text-td-ink">
+        <label className="flex-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
           Đến ngày
           <input
             type="date"
             value={toDate}
             min={fromDate || undefined}
             onChange={(event) => setToDate(event.currentTarget.value)}
-            className="admin-input mt-2"
+            className="admin-input mt-1 font-sans text-xs"
           />
         </label>
         {!canLoad && (
-          <p role="alert" className="text-sm text-danger">
+          <p role="alert" className="text-xs text-danger">
             Ngày kết thúc phải bằng hoặc sau ngày bắt đầu.
           </p>
         )}
       </section>
 
       {error && (
-        <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
           {error}
         </p>
       )}
       {canLoad && loading && (
-        <SkeletonBlock label="Đang tải lịch làm việc" className="space-y-3">
-          {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-4 rounded border border-td-rule bg-td-white p-5"><Skeleton className="h-5 w-40" /><div className="grid gap-4 sm:grid-cols-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div></div>)}
+        <SkeletonBlock label="Đang tải lịch làm việc" className="space-y-2">
+          {Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="h-16 w-full rounded" />)}
         </SkeletonBlock>
       )}
 
       {!loading && !error && canLoad && (
-        <div className="flex flex-wrap gap-3 text-sm">
-          <span className="rounded border border-td-rule bg-td-white px-4 py-2.5 font-medium text-td-ink">
-            Tổng số ca: <strong>{shifts.length}</strong>
-          </span>
-          <span className="rounded border border-primary/30 bg-primary-tint px-4 py-2.5 font-medium text-warning">
-            Đã hoàn thành: <strong>{completedCount}</strong>
-          </span>
-        </div>
+        <p className="font-mono text-[11px] text-td-muted">
+          {shifts.length} ca · {completedCount} đã hoàn thành
+        </p>
       )}
 
       {!loading && !error && canLoad && shifts.length === 0 && (
-        <div className="rounded border border-td-rule bg-td-white px-5 py-10 text-center">
-          <CalendarClock className="mx-auto h-9 w-9 text-td-muted" />
-          <p className="mt-3 font-semibold text-td-ink">Không có ca làm việc</p>
-          <p className="mt-1 text-sm text-td-muted">
+        <div className="border-t border-td-ink py-12 text-center">
+          <CalendarClock className="mx-auto h-8 w-8 text-td-muted" aria-hidden="true" />
+          <p className="mt-3 text-sm font-bold text-td-ink">Không có ca làm việc</p>
+          <p className="mt-1 text-xs text-td-muted">
             Chưa có chuyến nào được phân công trong khoảng thời gian này.
           </p>
         </div>
       )}
 
       {canLoad && !loading && shifts.length > 0 && (
-        <section aria-label="Danh sách ca làm việc" className="space-y-3">
-          {shifts.map((shift, index) => (
-            <article
-              key={`${shift.assignmentId ?? "assignment"}-${shift.rentalId ?? "rental"}-${index}`}
-              className="rounded border border-td-rule/80 bg-td-white p-5 shadow-sm"
-            >
-              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-                <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
-                    <CalendarClock className="h-5 w-5" />
+        <section aria-label="Danh sách ca làm việc" className="border-t border-td-ink">
+          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+            <span className="col-span-4">Ca / Chuyến</span>
+            <span className="col-span-3">Bắt đầu</span>
+            <span className="col-span-3">Kết thúc</span>
+            <span className="col-span-2 text-right">Trạng thái</span>
+          </div>
+          <div className="divide-y divide-td-rule border-b border-td-rule">
+            {shifts.map((shift, index) => (
+              <div
+                key={`${shift.assignmentId ?? "assignment"}-${shift.rentalId ?? "rental"}-${index}`}
+                className="grid grid-cols-12 items-center gap-4 py-3.5"
+              >
+                <div className="col-span-4 min-w-0">
+                  <span className="block font-mono text-xs font-bold text-td-ink">
+                    Ca #{shift.assignmentId ?? index + 1}
                   </span>
-                  <div>
-                    <h3 className="font-bold text-td-ink">
-                      Ca #{shift.assignmentId ?? index + 1}
-                    </h3>
-                    <p className="mt-1 text-sm text-td-muted">
-                      Mã chuyến: {shift.rentalId ? `#${shift.rentalId}` : "Chưa có"}
-                    </p>
-                  </div>
+                  <span className="mt-0.5 block truncate text-xs text-td-muted">
+                    {shift.rentalId ? `Chuyến #${shift.rentalId}` : "Chưa có chuyến"}
+                    {shift.vehicleId ? ` · Xe #${shift.vehicleId}` : ""}
+                  </span>
                 </div>
-                <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${statusStyle(shift.rentalStatus)}`}>
-                  {statusLabel(shift.rentalStatus)}
+                <span className="col-span-3 font-mono text-[11px] text-td-ink">
+                  {formatDateTime(shift.startTime)}
                 </span>
-              </div>
-              <div className="mt-5 grid gap-3 border-t border-td-rule pt-4 text-sm sm:grid-cols-3">
-                <p className="flex items-start gap-2 text-td-muted">
-                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-td-muted" />
-                  <span>
-                    <span className="block text-xs text-td-muted">Bắt đầu</span>
-                    <strong className="mt-1 block font-semibold text-td-ink">
-                      {formatDateTime(shift.startTime)}
-                    </strong>
-                  </span>
-                </p>
-                <p className="flex items-start gap-2 text-td-muted">
-                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-td-muted" />
-                  <span>
-                    <span className="block text-xs text-td-muted">Kết thúc</span>
-                    <strong className="mt-1 block font-semibold text-td-ink">
-                      {formatDateTime(shift.endTime)}
-                    </strong>
-                  </span>
-                </p>
-                <div className="flex items-start gap-2 text-td-muted">
-                  <span>
-                    <span className="block text-xs text-td-muted">Phương tiện</span>
-                    <span className="mt-1 block">{shift.vehicleId ? <VehicleName vehicleId={shift.vehicleId} /> : "Chưa phân công"}</span>
-                  </span>
+                <span className="col-span-3 font-mono text-[11px] text-td-ink">
+                  {formatDateTime(shift.endTime)}
+                </span>
+                <div className="col-span-2 flex justify-end">
+                  <StatusBadge status={statusToneKey(shift.rentalStatus)}>
+                    {statusLabel(shift.rentalStatus)}
+                  </StatusBadge>
                 </div>
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </section>
       )}
     </div>

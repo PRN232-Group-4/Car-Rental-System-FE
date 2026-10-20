@@ -5,6 +5,7 @@ import { CalendarDays, CircleDollarSign, ClipboardCheck } from "lucide-react";
 import { getDriverRental, getDriverSchedule } from "./api";
 import type { DriverRentalDto, DriverScheduleEntry } from "./api";
 import { useDriverPortalAccount } from "./DriverPortalShell";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 type CompletedRental = {
   rental: DriverRentalDto;
@@ -96,17 +97,21 @@ export default function DriverRevenueDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
-            Doanh thu chuyến xe
-          </h2>
-          <p className="mt-2 text-sm text-td-muted">
-            Tổng giá trị thuê của các chuyến đã hoàn thành và được phân công cho bạn.
-          </p>
+      <TransitFolio
+        index="10"
+        tag="NV"
+        kicker="NHÂN VIÊN · DOANH THU CHUYẾN"
+        title={<>Doanh thu <em className="italic text-td-teal">chuyến xe.</em></>}
+        description="Tổng giá trị thuê của các chuyến đã hoàn thành và được phân công cho bạn."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG GIÁ TRỊ</span>
+          <strong className="block font-sans text-2xl font-bold tracking-tight text-td-ink">
+            {loading ? "—" : `${totalRevenue.toLocaleString("vi-VN")} ₫`}
+          </strong>
         </div>
-        <label className="flex items-center gap-2 rounded border border-td-rule bg-td-white px-3 py-2.5 text-sm font-semibold text-td-ink">
-          <CalendarDays className="h-4 w-4 text-primary" />
+        <label className="flex items-center gap-2 rounded border border-td-rule px-2.5 py-1.5 font-mono text-[11px] text-td-ink">
+          <CalendarDays className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
           <span className="sr-only">Chọn tháng</span>
           <input
             type="month"
@@ -115,70 +120,71 @@ export default function DriverRevenueDashboard() {
             className="bg-transparent outline-none"
           />
         </label>
-      </div>
+      </TransitFolio>
 
-      <p className="rounded border border-info/30 bg-info-bg px-4 py-3 text-sm leading-6 text-info">
+      <p className="max-w-3xl border-l-2 border-info pl-3 text-xs leading-relaxed text-td-muted">
         Số liệu là tổng giá trị thuê của chuyến đã hoàn thành, không phải hoa hồng cá nhân hoặc doanh thu đã đối soát thanh toán.
       </p>
       {error && (
-        <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
           {error}
         </p>
       )}
       {loading && (
-        <p role="status" className="rounded border border-td-rule bg-td-white px-4 py-3 text-sm text-td-muted">
+        <p role="status" className="font-mono text-[11px] text-td-muted">
           Đang tải doanh thu...
         </p>
       )}
 
-      <section aria-label="Chỉ số doanh thu" className="grid gap-4 sm:grid-cols-2">
-        <article className="rounded border border-td-rule/80 bg-td-white p-5 shadow-sm">
-          <span className="flex h-11 w-11 items-center justify-center rounded bg-primary/10 text-primary">
-            <CircleDollarSign className="h-5 w-5" />
+      <section aria-label="Chỉ số doanh thu" className="grid gap-6 border-y-2 border-td-ink py-6 sm:grid-cols-2">
+        <div className="relative pl-5 first:pl-5 sm:border-l sm:border-td-rule sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
+          <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase text-td-muted">
+            <CircleDollarSign className="h-3.5 w-3.5" aria-hidden="true" /> 01 · Tổng giá trị chuyến hoàn thành
           </span>
-          <p className="mt-5 text-sm font-medium text-td-muted">Tổng giá trị chuyến hoàn thành</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-td-ink">
+          <strong className="mt-2 block font-sans text-4xl font-bold tracking-tight text-td-ink">
             {loading ? "—" : `${totalRevenue.toLocaleString("vi-VN")} ₫`}
-          </p>
-        </article>
-        <article className="rounded border border-td-rule/80 bg-td-white p-5 shadow-sm">
-          <span className="flex h-11 w-11 items-center justify-center rounded bg-info-bg text-info">
-            <ClipboardCheck className="h-5 w-5" />
+          </strong>
+        </div>
+        <div className="relative pl-5 sm:border-l sm:border-td-rule sm:pl-5">
+          <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase text-td-muted">
+            <ClipboardCheck className="h-3.5 w-3.5" aria-hidden="true" /> 02 · Chuyến được phân công trong tháng
           </span>
-          <p className="mt-5 text-sm font-medium text-td-muted">Chuyến được phân công trong tháng</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-td-ink">
+          <strong className="mt-2 block font-sans text-4xl font-bold tracking-tight text-td-ink">
             {loading ? "—" : assignments.length.toLocaleString("vi-VN")}
-          </p>
-        </article>
+          </strong>
+        </div>
       </section>
 
-      <section className="overflow-hidden rounded border border-td-rule/80 bg-td-white shadow-sm">
-        <div className="border-b border-td-rule px-5 py-4">
-          <h3 className="font-bold text-td-ink">Chuyến đã hoàn thành</h3>
+      <section aria-label="Chuyến đã hoàn thành">
+        <div className="flex items-baseline justify-between border-b border-td-ink pb-2">
+          <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+            Chuyến đã hoàn thành
+          </h3>
+          <span className="font-mono text-[11px] text-td-muted">{completedRentals.length} chuyến</span>
         </div>
         {!loading && !error && completedRentals.length === 0 && (
-          <p className="px-5 py-6 text-sm text-td-muted">
+          <p className="py-8 text-center text-xs text-td-muted">
             Chưa có chuyến hoàn thành trong tháng đã chọn.
           </p>
         )}
         {completedRentals.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left">
-              <thead className="bg-td-chalk/80 text-xs font-bold uppercase tracking-wider text-td-muted">
-                <tr>
-                  <th className="px-5 py-3">Mã chuyến</th>
-                  <th className="px-4 py-3">Thời gian</th>
-                  <th className="px-5 py-3 text-right">Giá trị thuê</th>
+              <thead>
+                <tr className="border-b border-td-rule font-mono text-[11px] uppercase tracking-wider text-td-muted">
+                  <th className="py-2.5 pr-4 font-bold">Mã chuyến</th>
+                  <th className="px-4 py-2.5 font-bold">Thời gian</th>
+                  <th className="py-2.5 pl-4 text-right font-bold">Giá trị thuê</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-td-rule">
                 {completedRentals.map(({ rental, assignment }) => (
-                  <tr key={`${rental.id}-${assignment.assignmentId ?? assignment.startTime ?? ""}`} className="text-sm">
-                    <td className="px-5 py-4 font-semibold text-td-ink">#{rental.id}</td>
-                    <td className="px-4 py-4 text-td-muted">
+                  <tr key={`${rental.id}-${assignment.assignmentId ?? assignment.startTime ?? ""}`} className="text-xs">
+                    <td className="py-3 pr-4 font-mono font-bold text-td-ink">#{rental.id}</td>
+                    <td className="px-4 py-3 font-mono text-td-muted">
                       {formatDate(rental.endTime ?? assignment.endTime ?? rental.startTime ?? assignment.startTime)}
                     </td>
-                    <td className="px-5 py-4 text-right font-semibold text-td-ink">
+                    <td className="py-3 pl-4 text-right font-mono font-bold text-td-ink">
                       {(rental.totalPrice ?? 0).toLocaleString("vi-VN")} ₫
                     </td>
                   </tr>

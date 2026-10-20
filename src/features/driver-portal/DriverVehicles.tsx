@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin } from "lucide-react";
+import { CarFront, MapPin } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { vehicleQueryOptions } from "@/features/admin/vehicle-query";
 import VehicleImage from "@/components/ui/VehicleImage";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import type { VehicleDto } from "@/features/admin/api";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 import { getDriverSchedule } from "./api";
@@ -71,65 +72,83 @@ export default function DriverVehicles() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
-          Phương tiện của tôi
-        </h2>
-        <p className="mt-2 text-sm text-td-muted">
-          Danh sách xe có lịch phân công cho bạn trong khoảng một năm trước và sau ngày hiện tại.
-        </p>
-      </div>
+      <TransitFolio
+        index="10"
+        tag="NV"
+        kicker="NHÂN VIÊN · PHƯƠNG TIỆN PHÂN CÔNG"
+        title={<>Phương tiện <em className="italic text-td-teal">của tôi.</em></>}
+        description="Danh sách xe có lịch phân công cho bạn trong khoảng một năm trước và sau ngày hiện tại."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">ĐƯỢC PHÂN CÔNG</span>
+          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
+            {loading ? "—" : String(vehicles.length).padStart(2, "0")}
+          </strong>
+        </div>
+      </TransitFolio>
 
       {error && (
-        <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
           {error}
         </p>
       )}
       {loading && (
-        <SkeletonBlock label="Đang tải phương tiện được phân công" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 3 }, (_, index) => <div key={index} className="overflow-hidden rounded border border-td-rule bg-td-white"><Skeleton className="h-44 w-full rounded-none" /><div className="space-y-3 p-5"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-2/3" /></div></div>)}
+        <SkeletonBlock label="Đang tải phương tiện được phân công" className="space-y-2">
+          {Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="h-16 w-full rounded" />)}
         </SkeletonBlock>
       )}
       {!loading && !error && vehicles.length === 0 && (
-        <p className="rounded border border-td-rule bg-td-white px-4 py-5 text-sm text-td-muted">
-          Chưa có phương tiện nào được phân công trong khoảng thời gian này.
-        </p>
+        <div className="border-t border-td-ink py-12 text-center">
+          <CarFront className="mx-auto h-8 w-8 text-td-muted" aria-hidden="true" />
+          <p className="mt-3 text-sm font-bold text-td-ink">Chưa có phương tiện được phân công</p>
+          <p className="mt-1 text-xs text-td-muted">Trong khoảng thời gian này bạn chưa được giao xe nào.</p>
+        </div>
       )}
 
       {vehicles.length > 0 && (
-        <section aria-label="Phương tiện được phân công" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {vehicles.map((vehicle) => (
-            <article
-              key={vehicle.id}
-              className="overflow-hidden rounded border border-td-rule bg-td-white"
-            >
-              <VehicleImage src={vehicle.mainImageUrl} alt={[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "Phương tiện"} className="h-44 w-full" />
-              <div className="space-y-3 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-bold text-td-ink">
+        <section aria-label="Phương tiện được phân công" className="border-t border-td-ink">
+          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+            <span className="col-span-5">Phương tiện</span>
+            <span className="col-span-3">Vị trí</span>
+            <span className="col-span-2">Giá thuê</span>
+            <span className="col-span-2 text-right">Trạng thái</span>
+          </div>
+          <div className="divide-y divide-td-rule border-b border-td-rule">
+            {vehicles.map((vehicle) => (
+              <div key={vehicle.id} className="grid grid-cols-12 items-center gap-4 py-3">
+                <div className="col-span-5 flex min-w-0 items-center gap-3">
+                  <VehicleImage
+                    src={vehicle.mainImageUrl}
+                    alt={[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "Phương tiện"}
+                    className="h-11 w-16 shrink-0 rounded object-cover"
+                  />
+                  <div className="min-w-0">
+                    <span className="block truncate text-sm font-bold text-td-ink">
                       {[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || `Phương tiện #${vehicle.id}`}
-                    </h3>
-                    <p className="mt-1 text-sm text-td-muted">
-                      {vehicle.vehicleType ?? "Chưa phân loại"}{vehicle.yearOfManufacture ? ` · ${vehicle.yearOfManufacture}` : ""}
-                    </p>
+                    </span>
+                    <span className="mt-0.5 block truncate font-mono text-[11px] text-td-muted">
+                      {vehicle.licensePlate ?? "Chưa có biển số"} · {vehicle.vehicleType ?? "Chưa phân loại"}
+                      {vehicle.yearOfManufacture ? ` · ${vehicle.yearOfManufacture}` : ""}
+                    </span>
                   </div>
+                </div>
+                <span className="col-span-3 flex min-w-0 items-center gap-1.5 text-xs text-td-muted">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{vehicle.location || vehicle.facility || "Chưa có vị trí"}</span>
+                </span>
+                <span className="col-span-2 font-mono text-[11px] text-td-ink">
+                  {vehicle.hourlyPrice === null
+                    ? "Chưa cập nhật"
+                    : `${vehicle.hourlyPrice.toLocaleString("vi-VN")} ₫/h`}
+                </span>
+                <div className="col-span-2 flex justify-end">
                   <AdminStatusBadge domain="vehicle" status={vehicle.status}>
                     {statusLabels[vehicle.status?.toLowerCase() ?? ""] ?? vehicle.status ?? "Chưa rõ"}
                   </AdminStatusBadge>
                 </div>
-                <p className="flex items-center gap-2 text-sm text-td-muted">
-                  <MapPin className="h-4 w-4 shrink-0 text-td-muted" />
-                  {vehicle.location || vehicle.facility || "Chưa có vị trí"}
-                </p>
-                <p className="border-t border-td-rule pt-3 text-sm font-semibold text-td-ink">
-                  {vehicle.hourlyPrice === null
-                    ? "Giá thuê chưa được cập nhật"
-                    : `${vehicle.hourlyPrice.toLocaleString("vi-VN")} ₫ / giờ`}
-                </p>
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </section>
       )}
     </div>

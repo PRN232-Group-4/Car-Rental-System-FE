@@ -2,6 +2,7 @@
 
 import Link from "@/components/navigation/NavigationLink";
 import { ArrowRight, CarFront, CircleDollarSign, UserRound } from "lucide-react";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 
 const shortcuts = [
@@ -29,31 +30,39 @@ export default function DriverPortalOverview() {
   const account = useDriverPortalAccount();
 
   return (
-    <div className="space-y-7">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
-          Xin chào, {account.fullName ?? "Tài xế"}
-        </h2>
-        <p className="mt-2 text-sm text-td-muted">
-          Quản lý phương tiện được phân công, xem doanh thu chuyến xe và cập nhật hồ sơ.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <TransitFolio
+        index="10"
+        tag="NV"
+        kicker="NHÂN VIÊN · TÀI XẾ"
+        title={<>Xin chào, <em className="italic text-td-teal">{account.fullName ?? "Tài xế"}.</em></>}
+        description="Quản lý phương tiện được phân công, xem doanh thu chuyến xe và cập nhật hồ sơ."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">BỘ PHẬN</span>
+          <strong className="block text-sm font-bold text-td-ink">
+            {account.departmentName?.trim() || "Đội xe & Tài xế"}
+          </strong>
+        </div>
+      </TransitFolio>
 
-      <section aria-label="Lối tắt" className="grid gap-4 lg:grid-cols-3">
+      <section aria-label="Lối tắt" className="border-t border-td-ink">
         {shortcuts.map(({ href, label, detail, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className="group rounded border border-td-rule bg-td-white p-5 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-e2"
+            className="group flex items-center justify-between gap-4 border-b border-td-rule py-4 transition-colors hover:bg-td-chalk/50"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded bg-primary/10 text-primary">
-              <Icon className="h-5 w-5" />
+            <span className="flex min-w-0 items-center gap-4">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-td-rule text-primary">
+                <Icon className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-bold text-td-ink">{label}</span>
+                <span className="mt-0.5 block text-xs text-td-muted">{detail}</span>
+              </span>
             </span>
-            <h3 className="mt-5 flex items-center justify-between font-bold text-td-ink">
-              {label}
-              <ArrowRight className="h-4 w-4 text-td-muted transition group-hover:translate-x-1 group-hover:text-primary" />
-            </h3>
-            <p className="mt-1 text-sm text-td-muted">{detail}</p>
+            <ArrowRight className="h-4 w-4 shrink-0 text-td-muted transition-colors group-hover:text-primary" aria-hidden="true" />
           </Link>
         ))}
       </section>

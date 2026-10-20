@@ -87,14 +87,14 @@ export default function AppPortalShell({
     };
   }, [headerProfileOpen]);
 
+  // Các mục gốc của portal chỉ khớp chính xác, nếu không "/staff" sẽ sáng cùng mọi trang con.
+  const isActiveHref = (href: string) =>
+    href === "/" || href === "/admin" || href === "/staff"
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`);
+
   const currentPage =
-    navItems.find((item) =>
-      item.href === "/"
-        ? pathname === "/"
-        : item.href === "/admin"
-          ? pathname === "/admin"
-          : pathname === item.href || pathname.startsWith(`${item.href}/`)
-    )?.label ?? portalLabel;
+    navItems.find((item) => isActiveHref(item.href))?.label ?? portalLabel;
 
   const handleLogout = async () => {
     if (loggingOut) return;
@@ -152,12 +152,7 @@ export default function AppPortalShell({
         </p>
         <nav aria-label={`Điều hướng ${portalLabel.toLowerCase()}`} className="space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => {
-            const active =
-              href === "/"
-                ? pathname === "/"
-                : href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname === href || pathname.startsWith(`${href}/`);
+            const active = isActiveHref(href);
             return (
               <Link
                 key={href}
