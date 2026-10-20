@@ -2,17 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
-import {
-  FileText,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  XCircle,
-  ArrowRight,
-  Search,
-} from "lucide-react";
+import { FileText, ArrowRight, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoices, Invoice } from "@/features/invoices";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function HoaDonPage() {
   const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
@@ -35,75 +29,45 @@ export default function HoaDonPage() {
     return true;
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "paid":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-            <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-            Đã thanh toán
-          </span>
-        );
-      case "pending":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-            <Clock className="w-3.5 h-3.5 text-primary-graphic" />
-            Chưa thanh toán
-          </span>
-        );
-      case "overdue":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-danger-bg text-danger">
-            <AlertCircle className="w-3.5 h-3.5 text-danger" />
-            Quá hạn
-          </span>
-        );
-      case "cancelled":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-td-chalk text-td-muted">
-            <XCircle className="w-3.5 h-3.5 text-td-muted" />
-            Đã hủy
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-td-chalk text-td-ink">
-            {status}
-          </span>
-        );
-    }
+  const statusLabel: Record<string, string> = {
+    paid: "Đã thanh toán",
+    pending: "Chưa thanh toán",
+    overdue: "Quá hạn",
+    cancelled: "Đã huỷ",
   };
+
+  const getStatusBadge = (status: string) => (
+    <StatusBadge status={status.toLowerCase()} label={statusLabel[status.toLowerCase()]} />
+  );
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-warning text-xs font-bold mb-2">
-            <FileText className="w-3.5 h-3.5 text-primary" />
-            <span>Quản lý tài chính & Hoá đơn</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-td-ink tracking-tight">
-            Danh sách hoá đơn
-          </h1>
-          <p className="text-sm text-td-muted mt-1">
-            Tra cứu hoá đơn tiền thuê xe trực tiếp, tiền đặt cọc và thanh toán trực tuyến qua cổng PayOS.
-          </p>
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · TÀI CHÍNH & HOÁ ĐƠN"
+        title={<>Danh sách <em className="italic text-td-teal">hoá đơn.</em></>}
+        description="Tra cứu hoá đơn tiền thuê xe trực tiếp, tiền đặt cọc và thanh toán trực tuyến qua cổng PayOS."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG HOÁ ĐƠN</span>
+          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
+            {isLoading ? "—" : String(invoices.length).padStart(2, "0")}
+          </strong>
         </div>
-
         <Link
           href="/booking"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-bold shadow-md shadow-primary/20 transition-all shrink-0"
+          className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover"
         >
           <span>Tạo đơn thuê mới</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
-      </div>
+      </TransitFolio>
 
       {/* Filters and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-td-white p-4 rounded border border-td-rule shadow-xs">
+      <div className="flex flex-col items-start justify-between gap-4 border-y border-td-rule py-3 sm:flex-row sm:items-center">
         {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
           {[
             { id: "all", label: "Tất cả" },
             { id: "pending", label: "Chưa thanh toán" },
@@ -114,10 +78,10 @@ export default function HoaDonPage() {
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
-              className={`px-3.5 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
+              className={`cursor-pointer border-b-2 px-3 py-1 font-bold transition-colors ${
                 activeFilter === tab.id
-                  ? "bg-primary text-white shadow-xs"
-                  : "text-td-muted hover:bg-td-chalk"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-td-muted hover:text-td-ink"
               }`}
             >
               {tab.label}
@@ -126,14 +90,15 @@ export default function HoaDonPage() {
         </div>
 
         {/* Search Input */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-td-muted absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-td-muted" aria-hidden="true" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm theo số hoá đơn, mã đơn..."
-            className="w-full pl-9 pr-4 py-2 rounded border border-td-rule text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+            aria-label="Tìm hoá đơn"
+            className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 font-mono text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
           />
         </div>
       </div>
@@ -146,74 +111,57 @@ export default function HoaDonPage() {
           ))}
         </div>
       ) : filteredInvoices.length === 0 ? (
-        <div className="p-12 rounded bg-td-white border border-dashed border-td-rule text-center space-y-3">
-          <div className="w-12 h-12 rounded bg-td-chalk text-td-muted flex items-center justify-center mx-auto">
-            <FileText className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-td-ink">Không tìm thấy hoá đơn phù hợp</h3>
-          <p className="text-xs text-td-muted">
+        <div className="border-t border-td-ink py-12 text-center">
+          <FileText className="mx-auto h-8 w-8 text-td-muted" aria-hidden="true" />
+          <h3 className="mt-3 text-sm font-bold text-td-ink">Không tìm thấy hoá đơn phù hợp</h3>
+          <p className="mt-1 text-xs text-td-muted">
             {searchQuery
               ? "Hãy thử tìm kiếm với từ khoá khác hoặc xoá bộ lọc."
               : "Bạn chưa có hoá đơn thuê xe trực tiếp nào trong mục này."}
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredInvoices.map((inv) => {
-            return (
-              <div
-                key={inv.id}
-                className="p-5 sm:p-6 rounded bg-td-white border border-td-rule shadow-xs hover:border-primary/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-5"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded bg-primary-tint text-primary flex items-center justify-center shrink-0 mt-0.5">
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-extrabold text-base text-td-ink">
-                        {inv.invoiceNumber}
-                      </span>
-                      {getStatusBadge(inv.status)}
-                    </div>
-                    <div className="text-xs text-td-muted flex flex-wrap items-center gap-3">
-                      <span>Mã chuyến xe: #{inv.rentalId}</span>
-                      <span>·</span>
-                      <span>Ngày lập: {new Date(inv.issuedAt).toLocaleDateString("vi-VN")}</span>
-                      {inv.dueAt && (
-                        <>
-                          <span>·</span>
-                          <span>Hạn nộp: {new Date(inv.dueAt).toLocaleDateString("vi-VN")}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
+        <section aria-label="Danh sách hoá đơn" className="border-t border-td-ink">
+          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+            <span className="col-span-5">Hoá đơn</span>
+            <span className="col-span-3">Mốc thời gian</span>
+            <span className="col-span-2 text-right">Tổng thanh toán</span>
+            <span className="col-span-2 text-right">Trạng thái</span>
+          </div>
+          <div className="divide-y divide-td-rule border-b border-td-rule">
+            {filteredInvoices.map((inv) => (
+              <div key={inv.id} className="grid grid-cols-12 items-center gap-4 py-3.5">
+                <div className="col-span-5 min-w-0">
+                  <Link
+                    href={`/invoices/${inv.id}`}
+                    className="block truncate font-mono text-xs font-bold text-td-ink hover:text-primary"
+                  >
+                    {inv.invoiceNumber}
+                  </Link>
+                  <span className="mt-0.5 block truncate text-xs text-td-muted">
+                    Chuyến #{inv.rentalId}
+                  </span>
                 </div>
-
-                <div className="flex items-center justify-between md:justify-end gap-5 pt-3 md:pt-0 border-t md:border-t-0 border-td-rule">
-                  <div className="text-left md:text-right">
-                    <div className="text-xs text-td-muted font-semibold uppercase tracking-wider">
-                      Tổng thanh toán
-                    </div>
-                    <div className="text-lg font-bold text-td-ink">
-                      {inv.amount.toLocaleString("vi-VN")} đ
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/invoices/${inv.id}`}
-                      className="px-4 py-2 rounded border border-td-rule hover:bg-td-chalk text-td-ink text-xs font-bold transition-colors"
-                    >
-                      Chi tiết
-                    </Link>
-
-                  </div>
+                <div className="col-span-3 font-mono text-[11px] text-td-muted">
+                  <span className="block">Lập {new Date(inv.issuedAt).toLocaleDateString("vi-VN")}</span>
+                  {inv.dueAt && <span className="block">Hạn {new Date(inv.dueAt).toLocaleDateString("vi-VN")}</span>}
+                </div>
+                <span className="col-span-2 text-right font-mono text-xs font-bold text-td-ink">
+                  {inv.amount.toLocaleString("vi-VN")} đ
+                </span>
+                <div className="col-span-2 flex items-center justify-end gap-3">
+                  {getStatusBadge(inv.status)}
+                  <Link
+                    href={`/invoices/${inv.id}`}
+                    className="rounded border border-td-rule px-2 py-1 text-[11px] font-bold text-td-ink transition-colors hover:bg-td-chalk"
+                  >
+                    Chi tiết
+                  </Link>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
