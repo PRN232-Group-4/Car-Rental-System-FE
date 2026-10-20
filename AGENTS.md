@@ -21,9 +21,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Quy tắc bắt buộc: đồng bộ giao diện Admin
 
-- Khi tạo hoặc sửa `/admin/**` hay component dùng trong Admin, đọc và tuân theo `docs/admin-ui.md` cùng Phần A của `DESIGN.md`.
-- Bộ lọc/tìm kiếm/tra cứu phải dùng `AdminFilterBar`, `AdminFilterField`, `AdminFilterButton`; bảng danh sách phải dùng `AdminTableCard`, `AdminTable`, `AdminTableEmptyRow`. Không tự dựng style riêng cho từng trang nếu component chung đã đáp ứng.
-- Thay đổi màu, bo góc, kích thước control hoặc bố cục chung tại component dùng chung; dùng token trong `globals.css`. Không thêm viền đen đậm, card lồng card hay toolbar tràn ngang.
+- Khi tạo hoặc sửa `/admin/**` hay component dùng trong Admin, đọc và tuân theo `docs/admin-ui.md` cùng Phần A9 của `DESIGN.md` (Transit Desk: folio + sổ mở).
+- Trang cấp 1 mở bằng `TransitFolio`; bộ lọc/tìm kiếm/tra cứu dùng `AdminFilterBar`, `AdminFilterField`, `AdminFilterButton`; bảng danh sách dùng `AdminTableCard`, `AdminTable`, `AdminTableEmptyRow` (hoặc `DataTable` khi có sắp xếp); trạng thái dùng `AdminStatusBadge`. Không tự dựng style riêng cho từng trang nếu component chung đã đáp ứng, và không dùng pill `StatusBadge` trong Admin.
+- Thay đổi màu, bo góc, kích thước control hoặc bố cục chung tại component dùng chung; dùng token `td-*` trong `globals.css` (CTA `td-oxide`, rule `td-ink`/`td-rule`, bo 4px/6px). Viền đậm `border-td-ink` chỉ dùng làm rule đầu bảng/khối — không dùng làm khung card; không lồng card, không shadow, không toolbar tràn ngang.
 - Giữ nguyên phân quyền, validation, điều kiện lọc và request API khi chỉ sửa style. Kiểm tra desktop/mobile, lỗi inline, áp dụng và đặt lại bộ lọc trước khi hoàn tất.
 
 ## Quy tắc bắt buộc: popup tạo và chỉnh sửa Admin
