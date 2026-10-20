@@ -123,7 +123,7 @@ describe("FE-23 Admin Users — List Page Component", () => {
   it("hiển thị tiêu đề trang và bảng danh sách người dùng", async () => {
     renderUsersPage();
 
-    expect(screen.getByText("Quản Lý Người Dùng & Phân Quyền")).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Người dùng & phân quyền.");
 
     // Chờ dữ liệu bảng tải xong
     await waitFor(() => {
