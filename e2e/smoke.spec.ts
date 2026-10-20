@@ -38,7 +38,8 @@ test.describe("Smoke Tests — Hệ Thống Thuê Xe Thong Dong", () => {
     await expect(viewPlansBtn).toBeVisible();
   });
 
-  test("3. Trang đăng nhập (/login) hiển thị form đăng nhập và tài khoản mẫu", async ({ page }) => {
+  test("3. Trang đăng nhập (/login) hiển thị form không có tài khoản mẫu", async ({ page }) => {
+    await page.route("**/account/profile", (route) => route.fulfill({ status: 401, json: {} }));
     await page.goto("/login");
 
     // Kiểm tra input email & password
@@ -50,9 +51,9 @@ test.describe("Smoke Tests — Hệ Thống Thuê Xe Thong Dong", () => {
     await expect(passwordInput).toBeVisible();
     await expect(submitBtn).toBeVisible();
 
-    // Kiểm tra các nút tài khoản demo có hiển thị
-    await expect(page.getByText("Tài khoản mẫu thử nghiệm")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Khách hàng/i })).toBeVisible();
+    await expect(page.getByText("Tài khoản mẫu thử nghiệm:")).toHaveCount(0);
+    await expect(emailInput).toHaveValue("");
+    await expect(passwordInput).toHaveValue("");
   });
 
   test("4. Route Guard: Tự động điều hướng về /login khi truy cập Dashboard chưa xác thực", async ({ page }) => {

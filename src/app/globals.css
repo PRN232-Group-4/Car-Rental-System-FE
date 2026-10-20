@@ -99,11 +99,11 @@
   --td-ink: #1F1B22;
   --td-ink-muted: #58515E;
   --td-rule: rgba(31, 27, 34, 0.12);
-  --td-oxide: #5A2B41;
-  --td-oxide-hover: #482033;
+  --td-oxide: var(--primary);
+  --td-oxide-hover: var(--primary-hover);
   --td-teal: #7A5B18;
   --td-teal-hover: #63470D;
-  --td-cobalt: #6E3A52;
+  --td-cobalt: var(--primary-graphic);
   --td-chalk: #F0ECE6;
 }
 
@@ -122,12 +122,12 @@ html[data-admin-theme="light"] [data-portal="admin"],
   --line: rgba(31, 27, 34, 0.12);
   --line-strong: rgba(31, 27, 34, 0.22);
   --ink-muted: var(--ink-3);
-  /* Transit Desk CTA: mulberry oxide, không dùng amber của marketing. */
-  --primary: #5A2B41;
-  --primary-hover: #482033;
-  --primary-press: #3A1B2B;
-  --primary-tint: #EFE7EA;
-  --primary-graphic: #6E3A52;
+  /* Cùng màu cam thương hiệu cho mọi cổng. */
+  --primary: var(--amber);
+  --primary-hover: var(--amber-hover);
+  --primary-press: var(--amber-press);
+  --primary-tint: var(--amber-tint);
+  --primary-graphic: #d97706;
   --on-primary: #FFFFFF;
 }
 
@@ -154,12 +154,12 @@ html[data-admin-theme="dark"] [data-portal="admin"],
   --amber-hover: #efad68;
   --amber-press: #e8a25a;
   --amber-tint: #3c2a18;
-  --primary: #6E3A52;
-  --primary-hover: #844763;
-  --primary-press: #96526F;
-  --primary-tint: #35232C;
-  --primary-graphic: #8A5A72;
-  --on-primary: #F5F1EC;
+  --primary: var(--amber);
+  --primary-hover: var(--amber-hover);
+  --primary-press: var(--amber-press);
+  --primary-tint: var(--amber-tint);
+  --primary-graphic: #fcd68b;
+  --on-primary: #17161B;
   --success: #86efac;
   --success-bg: #123322;
   --warning: #fcd68b;
@@ -194,13 +194,19 @@ html[data-admin-theme="dark"] [data-portal="admin"],
   --td-ink: #F5F1EC;
   --td-ink-muted: #9E97A3;
   --td-rule: rgba(245, 241, 236, 0.14);
-  --td-oxide: #6E3A52;
-  --td-oxide-hover: #844763;
+  --td-oxide: var(--primary);
+  --td-oxide-hover: var(--primary-hover);
   --td-teal: #C8A96B;
   --td-teal-hover: #D9BE84;
-  --td-cobalt: #8A5A72;
+  --td-cobalt: var(--primary-graphic);
   --td-chalk: #1C1A20;
   --ink-muted: var(--ink-3);
+}
+
+/* Legacy CTA markup uses text-white; dark amber needs dark text. */
+[data-admin-theme="dark"] :is(.bg-primary, .bg-td-oxide):not(:disabled),
+[data-admin-theme="dark"] :is(.bg-primary, .bg-td-oxide):not(:disabled) .text-white {
+  color: var(--on-primary);
 }
 
 html[data-admin-theme="dark"] .bg-danger:not(:disabled),

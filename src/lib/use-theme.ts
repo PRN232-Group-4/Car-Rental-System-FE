@@ -65,6 +65,7 @@ function subscribe(onChange: () => void) {
  * Theme dùng chung cho mọi cổng (admin, khách hàng, nhân viên):
  * lưu `light|dark` ở localStorage, áp lên `documentElement[data-admin-theme]`
  * để token `td-*` đổi theo, đồng bộ giữa các tab và theo OS nếu chưa chọn.
+ * Gỡ thuộc tính khi rời cổng để theme không tràn sang trang công khai.
  */
 export function useTheme() {
   const theme = useSyncExternalStore(subscribe, readTheme, () => "light" as const);
@@ -74,6 +75,9 @@ export function useTheme() {
     if (root.dataset.adminTheme !== theme) {
       root.dataset.adminTheme = theme;
     }
+    return () => {
+      root.removeAttribute("data-admin-theme");
+    };
   }, [theme]);
 
   const setTheme = (next: PortalTheme) => {

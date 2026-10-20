@@ -8,12 +8,12 @@
 - Masthead và dải route ngữ cảnh nằm trong một khối `.topBar` **dính đỉnh** (`position: sticky; top: 0`), nên cả hai luôn hiện khi cuộn và vẫn dính liền khi masthead xuống hai dòng ở `≤1280px`. `html[data-admin-theme]` có `scroll-padding-top: 132px` để anchor và trường được focus không bị thanh dính che.
 - Chương điều hướng (`Ca trực`, `Vận hành`, `Điều phối`, `Chăm sóc & Sự cố`, `Đội xe`, `Chính sách`, `Tổ chức`, `Cá nhân`) lấy từ `ADMIN_NAV_ITEMS` + `ROUTE_CHAPTER_MAP`, lọc theo quyền. Thêm route mới phải thêm vào cả hai nơi.
 - `Ctrl/⌘ + K` mở `TransitDeskRouteIndex`. Không thêm phím tắt trùng.
-- Theme: `localStorage.vrs-admin-theme` (`light|dark`), chỉ áp dụng khi shell mount, gỡ khi rời Admin; chuyển theme đi qua `RentalLiquidTransition` và tôn trọng `prefers-reduced-motion`.
+- Theme: dùng chung `localStorage.vrs-admin-theme` (`light|dark`) cho các cổng, chỉ áp dụng khi shell mount, gỡ khi rời cổng; chuyển theme đi qua `RentalLiquidTransition` và tôn trọng `prefers-reduced-motion`.
 
 ## 2. Token, hình khối, chữ
 
 - Màu chỉ dùng token `--color-td-*` (khai báo trong `globals.css`): `td-paper` (nền trang), `td-white` (bề mặt), `td-ink` / `td-muted` (chữ), `td-rule` (đường kẻ), `td-oxide` (CTA, nhấn), `td-teal` (nhấn chữ nghiêng), `td-chalk` (nền phụ). Không dùng palette Tailwind thô hoặc hex tuỳ ý.
-- CTA admin là **mulberry `td-oxide`** (`--primary` đã map về `td-oxide` cho cả hai theme). Marketing/cổng khách vẫn dùng amber.
+- CTA mọi cổng dùng **cam amber thương hiệu**. `td-oxide` tham chiếu `--primary`, không khai báo palette tím riêng cho Admin. Light: `#B45309` với chữ trắng; dark: `#F6BA7C` với chữ `#17161B` qua `--on-primary`.
 - Hình khối: nút và control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**, stage của trang thuê xe 10–18px. Không dùng bo 12/16px cho phần tử mới.
 - Đường kẻ thay cho card: `border-td-rule` (1px) phân tách, `border-td-ink` (1px) làm rule đầu bảng/khối. **Không** dùng `shadow-e1/e2`, không lồng card chỉ để trang trí.
 - Nhãn phụ, số liệu, ID, ngày giờ, trạng thái dùng `font-mono` chữ hoa nhỏ (`text-[10px]/text-[11px]`, `tracking-wider`). Tiêu đề dùng `font-sans`, nhấn bằng `<em className="italic text-td-teal">`.
@@ -40,7 +40,7 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 ## 4. Trang danh sách
 
-- Bộ lọc: `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton` (`src/components/admin/AdminFilters.tsx`) — nhãn mono chữ hoa, control gạch chân 36px, nút áp dụng mulberry, "Đặt lại" secondary. Không dựng toolbar lọc riêng.
+- Bộ lọc: `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton` (`src/components/admin/AdminFilters.tsx`) — nhãn mono chữ hoa, control gạch chân 36px, nút áp dụng cam amber, "Đặt lại" secondary. Không dựng toolbar lọc riêng.
 - Bảng: `AdminTableCard` + `AdminTable` + `AdminTableEmptyRow` (`src/components/admin/AdminTable.tsx`) hoặc `DataTable` (`src/components/ui/DataTable.tsx`, dùng cho bảng có sắp xếp). Cả hai render kiểu **sổ mở**: header trong, chân bảng là đường `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`.
 - Cột thao tác đánh dấu `data-actions`, căn phải, chỉ dùng `AdminRowAction` với ánh xạ tại `row-action-rules.ts` (`view`=Eye, `edit`=Pencil, `delete`=Trash2 danger, `activate`=CirclePlay, `deactivate`=PauseCircle). Không tự dựng icon/nhãn trong cột này; không dựng cột Thao tác rỗng.
 - Phân trang, số bản ghi, mô tả trạng thái trống dùng mono `text-[11px] text-td-muted`.
@@ -52,7 +52,7 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 - Folio + lưới 12 cột: cột trái 4 (hồ sơ định danh trong `rounded border border-td-rule bg-td-white p-6`), cột phải 8 (biểu mẫu/bảng chi tiết). Dưới `lg` xếp một cột.
 - Hồ sơ định danh: avatar 64px bo 4px, tên `text-lg font-bold`, `AdminStatusBadge`, rồi danh sách `dl` dòng `flex justify-between` với `divide-y divide-td-rule` (nhãn `text-td-muted`, giá trị `font-semibold text-td-ink`). Không dùng banner nền tối/navy.
-- Biểu mẫu: `ValidatedForm` + `FormField`/`InlineInput` với `.admin-input`; tiêu đề mục là `text-sm font-bold text-td-ink` + mô tả mono; hàng lưu có `border-t border-td-rule`, nút mulberry 4px.
+- Biểu mẫu: `ValidatedForm` + `FormField`/`InlineInput` với `.admin-input`; tiêu đề mục là `text-sm font-bold text-td-ink` + mô tả mono; hàng lưu có `border-t border-td-rule`, nút cam amber 4px.
 - Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide pl-3 text-xs text-td-muted`, không dùng khối nền màu.
 - Lỗi luôn hiển thị ngay dưới trường (theo `AGENTS.md`), lỗi chung đặt ở vùng lỗi phía trên nội dung.
 
@@ -65,8 +65,9 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 ## 7. Ngoại lệ: `/admin/rentals` (Graphite Glass Deck)
 
+- Màu nhấn vẫn dùng cam amber chung; mặt hồ sơ luôn sáng dùng `--stage-amber` để giữ tương phản. Không khai báo lại màu tím trong CSS riêng.
 - Trang Vận hành đơn thuê giữ art-direction riêng: `RentalWorkspaceV4` + `rental-workspace-v4.module.css`, canvas tối riêng, stage kính, 3 cột (hàng đợi · hồ sơ · bảng lệnh).
-- Route này **full-bleed**: `[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width, `workspaceRoot` cao `calc(100dvh - 120px)` (masthead 72 + dải route 48). Không bọc thêm khung giấy của shell.
+- Route này **full-bleed**: `[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width. Trên desktop `>1200px`, shell cao `100dvh`, header không co và workspace nhận phần chiều cao còn lại bằng flex; stage rộng hết vùng làm việc, ba cột cuộn độc lập. Không trừ cứng chiều cao header vì masthead có thể xuống dòng. Ở `≤1200px`, các cột xếp dọc và trang cuộn tự nhiên, hàng đợi cuộn riêng. Không bọc thêm khung giấy của shell.
 - Không áp `TransitFolio` cho route này; nhưng vẫn dùng `AdminStatusBadge`/`status-rules` cho trạng thái và tuân thủ a11y/form rules.
 
 ## 8. Ảnh và thành phần tham chiếu

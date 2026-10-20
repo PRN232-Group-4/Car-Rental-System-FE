@@ -385,7 +385,7 @@ Bộ lọc SVG `feDisplacementMap` + `feTurbulence` làm hậu cảnh bị bẻ 
 | **Error state**           | Thông điệp thân thiện + nút "Thử lại" + mã tham chiếu (`traceId` từ ProblemDetails) cho staff; không lộ 500/stack.                                                                                                                              |
 | **Chart**                 | A9. Màu phẳng, không gradient fill; vùng (area) dùng màu đặc alpha 0.12 + đường viền.                                                                                                                                                           |
 
-> **Biến thể Admin (Transit Desk — A9):** trong `/admin/**`, các thành phần trên dùng token `td-*`: CTA mulberry `td-oxide` (không phải Emerald), control 36px bo 4px, input `.admin-input` 6px, bảng kiểu sổ mở với rule `td-ink`/`td-rule` (không card, không shadow), trạng thái render bằng `AdminStatusBadge` (glyph + mono) thay cho chip pill. Chi tiết tại A9 và `docs/admin-ui.md`.
+> **Biến thể Admin (Transit Desk — A9):** trong `/admin/**`, các thành phần trên dùng token `td-*`: CTA cam amber `td-oxide` (cùng màu thương hiệu với khu khách), control 36px bo 4px, input `.admin-input` 6px, bảng kiểu sổ mở với rule `td-ink`/`td-rule` (không card, không shadow), trạng thái render bằng `AdminStatusBadge` (glyph + mono) thay cho chip pill. Chi tiết tại A9 và `docs/admin-ui.md`.
 
 ---
 
@@ -478,11 +478,11 @@ Kỹ thuật & ngân sách:
 
 ## A9. Khu vực Admin / Staff — “Transit Desk” (Graphite Glass Deck · Palette A)
 
-**Quy chuẩn triển khai:** xem `docs/admin-ui.md`. Admin dùng ngôn ngữ thị giác **Transit Desk**: nền giấy ấm, mực graphite, CTA mulberry, nhấn champagne; bố cục **folio + sổ mở (open ledger)** thay cho lưới card bo tròn. Component chuẩn: `TransitDeskShell` (khung + điều hướng + theme), `TransitFolio` (tiêu đề trang), `AdminFilters` (bộ lọc), `AdminTable`/`DataTable` (bảng), `AdminStatusBadge` (trạng thái), `FormDialog` (popup). Sửa style tại các component này để mọi trang cập nhật cùng nhau.
+**Quy chuẩn triển khai:** xem `docs/admin-ui.md`. Admin dùng ngôn ngữ thị giác **Transit Desk**: nền giấy ấm, mực graphite, CTA cam amber, nhấn champagne; bố cục **folio + sổ mở (open ledger)** thay cho lưới card bo tròn. Component chuẩn: `TransitDeskShell` (khung + điều hướng + theme), `TransitFolio` (tiêu đề trang), `AdminFilters` (bộ lọc), `AdminTable`/`DataTable` (bảng), `AdminStatusBadge` (trạng thái), `FormDialog` (popup). Sửa style tại các component này để mọi trang cập nhật cùng nhau.
 
 **Khung và điều hướng.** Masthead + dải route ngữ cảnh nằm trong một khối **dính đỉnh** (`.topBar`, `position: sticky; top: 0; z-index: 30`), nên cả hai luôn hiện khi cuộn và không bị lệch khi masthead xuống hai dòng ở `≤1280px`. `html[data-admin-theme]` đặt `scroll-padding-top: 132px` để anchor/focus không bị thanh dính che. Route điều hướng theo 8 chương (`Ca trực`, `Vận hành`, `Điều phối`, `Chăm sóc & Sự cố`, `Đội xe`, `Chính sách`, `Tổ chức`, `Cá nhân`), mỗi chương có số hiệu folio cố định (01 OPS · 02 FLT · 03 TRI · 04 OPS/INS · 05 DSP · 06 PLC · 07 ORG · 08 ME). `Ctrl/⌘ + K` mở `TransitDeskRouteIndex`.
 
-**Bảng màu (Palette A).** Light: `td-paper #FAF8F5`, `td-white #FFFFFF`, `td-ink #1F1B22`, `td-muted #58515E`, `td-rule rgba(31,27,34,.12)`, `td-oxide #5A2B41`, `td-teal #7A5B18`, `td-chalk #F0ECE6`. Dark: `td-paper #17161B`, `td-white #242126`, `td-ink #F5F1EC`, `td-muted #9E97A3`, `td-oxide #6E3A52`, `td-teal #C8A96B`, `td-chalk #1C1A20`. `--primary` của Admin map về `td-oxide` (CTA mulberry) ở cả hai theme; amber chỉ dùng cho khu khách.
+**Bảng màu (Palette A).** Light: `td-paper #FAF8F5`, `td-white #FFFFFF`, `td-ink #1F1B22`, `td-muted #58515E`, `td-rule rgba(31,27,34,.12)`, `td-oxide #B45309`, `td-teal #7A5B18`, `td-chalk #F0ECE6`. Dark: `td-paper #17161B`, `td-white #242126`, `td-ink #F5F1EC`, `td-muted #9E97A3`, `td-oxide #F6BA7C`, `td-teal #C8A96B`, `td-chalk #1C1A20`. `td-oxide` tham chiếu `--primary` ở cả hai theme; mọi cổng dùng chung cam amber. Chữ CTA dùng `--on-primary`: trắng ở light, `#17161B` ở dark.
 
 **Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<em class="italic text-td-teal">`.
 
@@ -492,12 +492,12 @@ Kỹ thuật & ngân sách:
 
 **Trang chi tiết/hồ sơ.** Lưới 12 cột: 4 cột hồ sơ định danh (avatar 64px bo 4px, tên, badge, danh sách `dl` dòng `divide-y`), 8 cột biểu mẫu/bảng. Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide`; không dùng banner nền tối hay khối nền màu.
 
-**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, cockpit 3 cột, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width; `workspaceRoot` cao `calc(100dvh - 120px)`) nên không lồng trong khung giấy của shell và không dùng `TransitFolio`.
+**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, cockpit 3 cột, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width; desktop dùng shell `100dvh` và flex chia phần chiều cao còn lại cho workspace, ba cột cuộn độc lập; ở `≤1200px` xếp dọc và cuộn trang tự nhiên) nên không lồng trong khung giấy của shell và không dùng `TransitFolio`.
 
 Các quy tắc vẫn giữ nguyên:
 
 - **Popup:** bắt buộc `FormDialog` với `FormDialogFooter` nằm trong `ValidatedForm`; header/footer sticky, khôi phục focus, khóa đóng/gửi khi busy. `ADMIN_POPUP_FORM` trong design lint kiểm tra cấu trúc.
-- **Bộ lọc:** `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton`; nhãn mono, control 36px gạch chân, nút áp dụng mulberry, tách giá trị đang nhập và giá trị đã áp dụng khi submit.
+- **Bộ lọc:** `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton`; nhãn mono, control 36px gạch chân, nút áp dụng cam amber, tách giá trị đang nhập và giá trị đã áp dụng khi submit.
 - **Tải dữ liệu:** `SkeletonBlock`, `FormSkeleton`, `AdminTableSkeleton` theo hình dạng nội dung; thông báo tiếng Việt cho trình đọc màn hình; tắt chuyển động khi reduced motion; không hiện dữ liệu trống khi request chưa xong.
 - **Thao tác danh sách:** cột `data-actions` dùng `AdminRowAction`, chỉ icon + tooltip tiếng Việt, vùng bấm 36px; ánh xạ `view`/`edit`/`delete`/`activate`/`deactivate` tại `row-action-rules.ts`; không dựng cột trống khi nghiệp vụ không có thao tác.
 - **Trạng thái áp dụng:** `activate` = `CirclePlay`, `deactivate` = `PauseCircle`; xác nhận trước gửi, khóa khi chờ, badge đổi sau khi API thành công. Chính sách chỉ đổi `isActive`, điều khoản lưu theo phiên bản (FR-011/ADR-006).

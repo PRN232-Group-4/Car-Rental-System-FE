@@ -193,7 +193,7 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
             </button>
 
             {/* Menu tài khoản: thông tin + hồ sơ + đăng xuất nằm trong avatar */}
-            <div className="relative" ref={userMenuRef}>
+            <div ref={userMenuRef}>
               <button
                 type="button"
                 onClick={() => setIsUserMenuOpen((prev) => !prev)}
@@ -208,7 +208,7 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
               {isUserMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full z-40 mt-2 w-56 rounded-md border border-td-rule bg-td-white p-2 text-xs shadow-xl"
+                  className={styles.accountMenu}
                 >
                   <div className="mb-1 border-b border-td-rule px-3 py-2">
                     <div className="font-bold text-td-ink">{displayName}</div>

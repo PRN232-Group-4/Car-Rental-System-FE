@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Xác thực & Form Đăng nhập (Auth & LoginForm)", () => {
   test.beforeEach(async ({ page }) => {
+    await page.route("**/account/profile", (route) => route.fulfill({ status: 401, json: {} }));
     await page.goto("/login");
   });
 
@@ -19,23 +20,11 @@ test.describe("Xác thực & Form Đăng nhập (Auth & LoginForm)", () => {
     await expect(alertBox).toBeVisible();
   });
 
-  test("2. Tính năng chọn tài khoản mẫu (Demo Accounts) tự động điền form", async ({ page }) => {
-    const emailInput = page.locator("#login-email");
-    const passwordInput = page.locator("#login-password");
-
-    // Click vào pill tài khoản "Khách hàng"
-    const customerPill = page.getByRole("button", { name: /Khách hàng/i });
-    await customerPill.click();
-
-    // Form phải được điền email customer@example.com
-    await expect(emailInput).toHaveValue("customer@example.com");
-    await expect(passwordInput).toHaveValue("a-secure-password");
-
-    // Click sang pill "Quản trị viên (Admin)"
-    const adminPill = page.getByRole("button", { name: /Quản trị viên/i });
-    await adminPill.click();
-
-    await expect(emailInput).toHaveValue("admin@thongdong.vn");
+  test("2. Không hiển thị tài khoản mẫu và không tự điền thông tin đăng nhập", async ({ page }) => {
+    await expect(page.getByText("Tài khoản mẫu thử nghiệm:")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^(Khách hàng|Quản trị viên|Điều phối)$/ })).toHaveCount(0);
+    await expect(page.locator("#login-email")).toHaveValue("");
+    await expect(page.locator("#login-password")).toHaveValue("");
   });
 
   test("3. Nút ẩn/hiện mật khẩu hoạt động chính xác", async ({ page }) => {
