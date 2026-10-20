@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useAuth } from "@/features/auth";
 import { initialsFor } from "@/features/profile/api";
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut, Moon, Sun, User } from "lucide-react";
+import { useTheme } from "@/lib/use-theme";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "@/features/admin/transit-desk/transit-desk.module.css";
 
@@ -69,7 +70,29 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Đóng menu tài khoản khi bấm ra ngoài hoặc nhấn Escape
+  useEffect(() => {
+    if (!isUserMenuOpen) return;
+    const handlePointerDown = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsUserMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isUserMenuOpen]);
 
   // Ctrl/⌘ + K mở bảng tìm kiếm, giống cổng quản trị
   useEffect(() => {
@@ -101,13 +124,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
       CUSTOMER_CHAPTERS[0]
     );
   }, [pathname]);
-
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      delete document.documentElement.dataset.adminTheme;
-      document.documentElement.removeAttribute("data-admin-theme");
-    }
-  }, []);
 
   const displayName = user?.fullName || "Khách hàng";
   const displayEmail = user?.email || "Chưa cập nhật email";
@@ -155,37 +171,73 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
           </nav>
 
           <div className={styles.utilities}>
+            {/* Cùng vị trí với "Trạm / Nhân sự vận hành" của admin: nơi đang đứng + tư cách tài khoản */}
             <div className={styles.utilityMeta}>
-              <div className="font-bold text-td-ink">{displayName}</div>
-              <div className="text-[10px] text-td-muted">{displayEmail}</div>
+              <div className="font-bold text-td-ink">Khu khách hàng</div>
+              <div className="text-[10px] text-td-muted">Thành viên Thong Dong</div>
             </div>
 
             <CommandTrigger onClick={() => setIsCommandOpen(true)} />
 
-            <Link
-              href="/profile"
-              className="inline-flex h-9 w-9 items-center justify-center rounded border border-td-rule text-td-ink transition-colors hover:bg-td-chalk"
-              aria-label="Hồ sơ cá nhân"
-            >
-              <UserRound className="h-4 w-4" aria-hidden="true" />
-            </Link>
-
             <button
               type="button"
-              onClick={() => void handleLogout()}
+              onClick={toggleTheme}
               className={styles.themeToggle}
-              aria-label="Đăng xuất"
+              aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
             >
-              <LogOut className="h-4 w-4" aria-hidden="true" />
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4" aria-hidden="true" />
+              )}
             </button>
 
-            <Link
-              href="/profile"
-              aria-label={`Tài khoản ${displayName}`}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-td-rule bg-td-chalk font-mono text-xs font-bold text-td-oxide"
-            >
-              {initialsFor(user?.fullName ?? user?.email ?? "") || "K"}
-            </Link>
+            {/* Menu tài khoản: thông tin + hồ sơ + đăng xuất nằm trong avatar */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                aria-label="Tài khoản cá nhân"
+                aria-expanded={isUserMenuOpen}
+                aria-haspopup="menu"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-td-rule bg-td-white text-xs font-bold text-td-ink hover:border-td-ink"
+              >
+                {initialsFor(user?.fullName ?? user?.email ?? "") || "K"}
+              </button>
+
+              {isUserMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-40 mt-2 w-56 rounded-md border border-td-rule bg-td-white p-2 text-xs shadow-xl"
+                >
+                  <div className="mb-1 border-b border-td-rule px-3 py-2">
+                    <div className="font-bold text-td-ink">{displayName}</div>
+                    <div className="text-[11px] text-td-muted">{displayEmail}</div>
+                  </div>
+                  <Link
+                    href="/profile"
+                    role="menuitem"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk"
+                  >
+                    <User className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Hồ sơ cá nhân</span>
+                  </Link>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      void handleLogout();
+                    }}
+                    className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-2 text-left text-td-oxide hover:bg-td-chalk"
+                  >
+                    <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Đăng xuất</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
