@@ -33,17 +33,17 @@ export function RatingStars({
       className={`inline-flex items-center gap-1.5 ${className}`}
     >
       {showNumber && (
-        <span className="font-mono text-xs font-bold tabular-nums text-ink">
+        <span className="font-mono text-xs font-bold tabular-nums text-td-ink">
           {roundedRating.toFixed(1)}
         </span>
       )}
 
-      <div className="flex items-center gap-0.5 text-primary" aria-hidden="true">
+      <div className="flex items-center gap-0.5 text-td-oxide" aria-hidden="true">
         {Array.from({ length: fullStars }).map((_, i) => (
-          <Star key={`full-${i}`} className={`${starSizeClass} fill-primary text-primary`} />
+          <Star key={`full-${i}`} className={`${starSizeClass} fill-td-oxide text-td-oxide`} />
         ))}
         {hasHalfStar && (
-          <StarHalf className={`${starSizeClass} fill-primary text-primary`} />
+          <StarHalf className={`${starSizeClass} fill-td-oxide text-td-oxide`} />
         )}
         {Array.from({ length: emptyStars }).map((_, i) => (
           <Star key={`empty-${i}`} className={`${starSizeClass} text-line fill-transparent`} />

@@ -45,3 +45,18 @@
 - **Ngày & Giờ:** Theo múi giờ GMT+7 (Hà Nội, TP.HCM), định dạng `DD/MM/YYYY HH:mm` (ví dụ: `15/10/2026 14:30`). Tuyệt đối không để lộ múi giờ UTC (`Z`, `+00:00`) ra người dùng.
 - **Biển số xe:** Viết hoa toàn bộ theo chuẩn đăng kiểm Việt Nam: `51K-999.88`, `29A-888.66`.
 - **Số liệu kỹ thuật (Khu Admin - Density 7):** Dùng `font-mono` (`tabular-nums`) cho ID, số Odometer (`45.210 km`), dung lượng pin (`85%`), công suất (`443 HP`).
+
+---
+
+## 4. Từ Vựng Nội Bộ Transit Desk (chỉ dùng trong tài liệu/code Admin)
+
+Không hiển thị các từ này cho khách hàng; đây là tên gọi thống nhất trong code, tài liệu và trao đổi nội bộ.
+
+| Thuật ngữ | Nghĩa | Quy ước dùng |
+|---|---|---|
+| **Folio** | Khối tiêu đề đầu trang Admin: số chương + tag mono, kicker, tiêu đề, mô tả, số liệu/hành động bên phải | Component `TransitFolio` + `TransitFolioMetric` |
+| **Sổ mở (Open ledger)** | Danh sách kiểu sổ: head mono chữ hoa, rule `td-ink`, hàng phân cách `td-rule`, không card | `AdminTable`, `DataTable` |
+| **Chương (Chapter)** | Nhóm route trong masthead (Ca trực, Vận hành, Điều phối, Chăm sóc & Sự cố, Đội xe, Chính sách, Tổ chức, Cá nhân) | `ROUTE_CHAPTER_MAP`, `ADMIN_NAV_ITEMS` |
+| **Dải route ngữ cảnh** | Thanh route con nằm dưới masthead, dính đỉnh cùng masthead | `.topBar` trong `TransitDeskShell` |
+| **Hồ sơ định danh** | Cột trái 4/12 của trang chi tiết: avatar, tên, trạng thái, danh sách `dl` | `StaffProfileForm`, `users/detail`, `staffs/detail` |
+| **Deck / Cockpit** | Bố cục 3 cột riêng của `/admin/rentals` (hàng đợi · hồ sơ · bảng lệnh) | `RentalWorkspaceV4` |

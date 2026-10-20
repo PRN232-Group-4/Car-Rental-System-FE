@@ -15,7 +15,8 @@ import {
 import { LicenseBadge } from "@/features/admin/staff/components/LicenseBadge";
 import { LicenseUploader } from "@/features/admin/staff/components/LicenseUploader";
 import { PERMITTED_LICENSE_TYPES, getLicenseState } from "@/features/admin/staff/license-utils";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -142,51 +143,58 @@ function StaffDetailView({
             }
             router.push("/admin/staffs");
           }}
-          className="text-ink-3 hover:text-ink cursor-pointer"
+          className="text-td-muted hover:text-td-ink cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           <span>Danh sách nhân viên</span>
         </Button>
       </div>
 
-      {/* 2. Header thẻ thông tin nhân viên */}
-      <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-e1">
+      {/* 2. Folio + thẻ thông tin nhân viên */}
+      <TransitFolio
+        index="07"
+        tag="ORG"
+        kicker="TỔ CHỨC · HỒ SƠ NHÂN SỰ"
+        title={<>Hồ sơ <em className="italic text-td-teal">nhân sự.</em></>}
+        description="Thông tin công tác, giấy phép lái xe và lịch sử hoạt động của nhân viên tại trạm."
+      />
+
+      <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-line bg-canvas font-mono text-2xl font-black text-primary shadow-xs">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide shadow-xs">
               {staff.fullName
                 .split(" ")
                 .map((n) => n[0])
                 .slice(-2)
                 .join("")
-                .toUpperCase() || <User className="w-8 h-8 text-ink-3" />}
+                .toUpperCase() || <User className="w-8 h-8 text-td-muted" />}
             </div>
 
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-ink tracking-tight">
+                <h2 className="text-xl font-bold tracking-tight text-td-ink">
                   {staff.fullName}
-                </h1>
-                <StatusBadge
-                  status={staff.isActive ? "approved" : "rejected"}
-                  label={staff.isActive ? "Đang làm việc" : "Tạm ngừng"}
-                />
+                </h2>
+                <AdminStatusBadge domain="activity" status={staff.isActive ? "active" : "inactive"}>
+                  {staff.isActive ? "Đang làm việc" : "Tạm ngừng"}
+                </AdminStatusBadge>
                 {staff.isDriver && (
-                  <span className="rounded-full bg-primary-tint/30 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary flex items-center gap-1">
+                  <span className="rounded-full bg-td-chalk border border-td-oxide/30 px-2.5 py-0.5 text-xs font-bold text-td-oxide flex items-center gap-1">
                     <Car className="w-3.5 h-3.5" />
                     Tài xế chuyên nghiệp
                   </span>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 text-xs text-ink-3 font-mono">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-td-muted font-mono">
                 <span>{staff.email}</span>
                 <span>•</span>
                 <span>{staff.phone || "Chưa có SĐT"}</span>
                 <span>•</span>
                 <Link
                   href={`/admin/users/detail?id=${staff.userId}`}
-                  className="text-primary hover:underline inline-flex items-center gap-1"
+                  className="text-td-oxide hover:underline inline-flex items-center gap-1"
                 >
                   <span>Tài khoản hệ thống #{staff.userId}</span>
                   <ExternalLink className="w-3 h-3" />
@@ -195,34 +203,34 @@ function StaffDetailView({
             </div>
           </div>
 
-          <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-line pt-4 md:pt-0 md:pl-6">
+          <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-td-rule pt-4 md:pt-0 md:pl-6">
             {staff.rating ? (
               <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-xl font-black text-ink">
-                  <Star className="w-5 h-5 text-primary fill-primary" />
+                <div className="flex items-center justify-center gap-1 text-xl font-black text-td-ink">
+                  <Star className="w-5 h-5 text-td-oxide fill-td-oxide" />
                   <span>{staff.rating.toFixed(2)}</span>
                 </div>
-                <span className="text-[11px] text-ink-3">Điểm đánh giá</span>
+                <span className="text-[11px] text-td-muted">Điểm đánh giá</span>
               </div>
             ) : null}
 
             <div className="text-center">
-              <span className="block text-xl font-black text-ink">{staff.totalTrips || 0}</span>
-              <span className="text-[11px] text-ink-3">Chuyến hoàn tất</span>
+              <span className="block text-xl font-black text-td-ink">{staff.totalTrips || 0}</span>
+              <span className="text-[11px] text-td-muted">Chuyến hoàn tất</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* 3. Điều hướng Tab */}
-      <div className="border-b border-line flex gap-2">
+      <div className="border-b border-td-rule flex gap-2">
         <button
           type="button"
           onClick={() => setActiveTab("profile")}
           className={`pb-3 px-4 text-sm font-bold border-b-2 transition-colors cursor-pointer ${
             activeTab === "profile"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           Thông Tin Hồ Sơ
@@ -233,8 +241,8 @@ function StaffDetailView({
           onClick={() => setActiveTab("license")}
           className={`pb-3 px-4 text-sm font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
             activeTab === "license"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           <span>Giấy Phép Lái Xe</span>
@@ -247,12 +255,12 @@ function StaffDetailView({
             onClick={() => setActiveTab("schedules")}
             className={`pb-3 px-4 text-sm font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
               activeTab === "schedules"
-                ? "border-primary text-primary"
-                : "border-transparent text-ink-3 hover:text-ink"
+                ? "border-td-oxide text-td-oxide"
+                : "border-transparent text-td-muted hover:text-td-ink"
             }`}
           >
             <span>Lịch Trình & Chuyến Đi</span>
-            <span className="rounded bg-sunken px-1.5 py-0.2 font-mono text-[11px] font-bold text-ink-2">
+            <span className="rounded bg-td-chalk px-1.5 py-0.2 font-mono text-[11px] font-bold text-td-ink">
               {schedules.length}
             </span>
           </button>
@@ -263,8 +271,8 @@ function StaffDetailView({
           onClick={() => setActiveTab("activity")}
           className={`pb-3 px-4 text-sm font-bold border-b-2 transition-colors cursor-pointer ${
             activeTab === "activity"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           Hoạt Động & Nhật Ký
@@ -275,14 +283,14 @@ function StaffDetailView({
           onClick={() => setActiveTab("reviews")}
           className={`pb-3 px-4 text-sm font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
             activeTab === "reviews"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
-          <Star className="h-4 w-4 fill-primary/30" />
+          <Star className="h-4 w-4 fill-td-oxide/30" />
           <span>Đánh Giá & Nhận Xét</span>
           {ratingSummary && (
-            <span className="rounded bg-sunken px-1.5 py-0.2 font-mono text-[11px] font-bold text-ink-2">
+            <span className="rounded bg-td-chalk px-1.5 py-0.2 font-mono text-[11px] font-bold text-td-ink">
               {ratingSummary.count}
             </span>
           )}
@@ -292,7 +300,7 @@ function StaffDetailView({
       {/* 4. Nội dung từng tab */}
       {/* Tab 1: Hồ sơ */}
       {activeTab === "profile" && (
-        <form onSubmit={handleSaveProfile} className="rounded-3xl border border-line bg-surface p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSaveProfile} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Phòng ban làm việc" required>
               <select
@@ -301,7 +309,7 @@ function StaffDetailView({
                   setDepartmentId(parseInt(e.target.value, 10));
                   setProfileDirty(true);
                 }}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
                 {departments.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -318,7 +326,7 @@ function StaffDetailView({
                   setFacilityId(parseInt(e.target.value, 10));
                   setProfileDirty(true);
                 }}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
                 {facilities.map((f) => (
                   <option key={f.id} value={f.id}>
@@ -333,7 +341,7 @@ function StaffDetailView({
                 type="text"
                 disabled
                 value={staff.hiredDate ? formatDate(staff.hiredDate, "dd/MM/yyyy") : "—"}
-                className="h-11 w-full rounded-xl border border-line bg-sunken px-3 text-sm font-mono text-ink-3"
+                className="h-11 w-full rounded border border-td-rule bg-td-chalk px-3 text-sm font-mono text-td-muted"
               />
             </FormField>
 
@@ -346,11 +354,11 @@ function StaffDetailView({
                     setIsDriver(e.target.checked);
                     setProfileDirty(true);
                   }}
-                  className="h-4 w-4 rounded border-line text-primary focus:ring-primary/20"
+                  className="h-4 w-4 rounded border-td-rule text-td-oxide focus:ring-td-oxide/20"
                 />
-                <span className="text-sm font-bold text-ink">Đăng ký làm Tài xế chuyên nghiệp</span>
+                <span className="text-sm font-bold text-td-ink">Đăng ký làm Tài xế chuyên nghiệp</span>
               </label>
-              <p className="text-xs text-ink-3">
+              <p className="text-xs text-td-muted">
                 Bật cờ này cho phép nhân viên được phân công vào các chuyến thuê xe có tài xế.
               </p>
             </div>
@@ -358,7 +366,7 @@ function StaffDetailView({
 
           {/* Cảnh báo nếu bật isDriver nhưng chưa có GPLX */}
           {isDriver && (!staff.license || !staff.license.number) && (
-            <div className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-bg/30 p-4 text-xs text-warning">
+            <div className="flex items-start gap-3 rounded border border-warning/40 bg-warning-bg/30 p-4 text-xs text-warning">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Chưa có thông tin giấy phép lái xe hợp lệ</p>
@@ -369,7 +377,7 @@ function StaffDetailView({
             </div>
           )}
 
-          <div className="flex justify-end pt-4 border-t border-line">
+          <div className="flex justify-end pt-4 border-t border-td-rule">
             <Button type="submit" variant="primary" disabled={!profileDirty || updateStaffMutation.isPending}>
               {updateStaffMutation.isPending ? "Đang lưu..." : "Lưu thay đổi hồ sơ"}
             </Button>
@@ -379,10 +387,10 @@ function StaffDetailView({
 
       {/* Tab 2: Giấy phép lái xe */}
       {activeTab === "license" && (
-        <form onSubmit={handleSaveLicense} className="rounded-3xl border border-line bg-surface p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSaveLicense} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
           {/* Cảnh báo tình trạng hạn bằng */}
           {licenseCalc.state === "expired" && (
-            <div className="flex items-start gap-3 rounded-2xl border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger">
+            <div className="flex items-start gap-3 rounded border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Giấy phép lái xe đã hết hạn</p>
@@ -394,7 +402,7 @@ function StaffDetailView({
           )}
 
           {licenseCalc.state === "expiring" && (
-            <div className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-bg/40 p-4 text-xs text-warning">
+            <div className="flex items-start gap-3 rounded border border-warning/40 bg-warning-bg/40 p-4 text-xs text-warning">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Giấy phép lái xe sắp hết hạn ({licenseCalc.daysRemaining} ngày còn lại)</p>
@@ -415,7 +423,7 @@ function StaffDetailView({
                   setLicenseDirty(true);
                 }}
                 placeholder="Ví dụ: 790123456789"
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-mono text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-mono text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
             </FormField>
 
@@ -426,7 +434,7 @@ function StaffDetailView({
                   setLicenseType(e.target.value);
                   setLicenseDirty(true);
                 }}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-bold text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-bold text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
                 {PERMITTED_LICENSE_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -444,7 +452,7 @@ function StaffDetailView({
                   setIssueDate(e.target.value);
                   setLicenseDirty(true);
                 }}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
             </FormField>
 
@@ -457,14 +465,14 @@ function StaffDetailView({
                   setLicenseDirty(true);
                   if (licenseError) setLicenseError(null);
                 }}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
             </FormField>
           </div>
 
           {/* Phần tải ảnh GPLX */}
-          <div className="space-y-2 pt-2 border-t border-line">
-            <h4 className="text-sm font-bold text-ink">Bản chụp giấy phép lái xe</h4>
+          <div className="space-y-2 pt-2 border-t border-td-rule">
+            <h4 className="text-sm font-bold text-td-ink">Bản chụp giấy phép lái xe</h4>
             <LicenseUploader
               currentUrl={licenseImgUrl}
               onUploadSuccess={(url) => {
@@ -478,7 +486,7 @@ function StaffDetailView({
             />
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-line">
+          <div className="flex justify-end pt-4 border-t border-td-rule">
             <Button type="submit" variant="primary" disabled={!licenseDirty || updateLicenseMutation.isPending}>
               {updateLicenseMutation.isPending ? "Đang lưu..." : "Lưu thông tin giấy phép"}
             </Button>
@@ -488,11 +496,11 @@ function StaffDetailView({
 
       {/* Tab 3: Lịch trình & Chuyến đi */}
       {activeTab === "schedules" && staff.isDriver && (
-        <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 space-y-6">
+        <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-ink">Lịch Trình Công Tác</h3>
-              <p className="text-xs text-ink-3">
+              <h3 className="text-lg font-bold text-td-ink">Lịch Trình Công Tác</h3>
+              <p className="text-xs text-td-muted">
                 Các chuyến thuê đã được phân công cho tài xế {staff.fullName}.
               </p>
             </div>
@@ -504,7 +512,7 @@ function StaffDetailView({
           </div>
 
           {schedules.length === 0 ? (
-            <div className="rounded-2xl border border-line bg-canvas p-8 text-center text-xs text-ink-3">
+            <div className="rounded border border-td-rule bg-td-paper p-8 text-center text-xs text-td-muted">
               Hiện chưa có chuyến thuê nào được gán cho tài xế này trong tuần hiện tại.
             </div>
           ) : (
@@ -512,25 +520,25 @@ function StaffDetailView({
               {schedules.map((s) => (
                 <div
                   key={s.assignmentId}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-line bg-canvas p-4"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded border border-td-rule bg-td-paper p-4"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-ink">Đơn thuê #{s.rentalId}</span>
-                      <span className="rounded bg-primary-tint px-2 py-0.5 text-xs font-bold text-primary">
+                      <span className="font-bold text-sm text-td-ink">Đơn thuê #{s.rentalId}</span>
+                      <span className="rounded bg-td-chalk px-2 py-0.5 text-xs font-bold text-td-oxide">
                         {s.vehicleName} ({s.licensePlate})
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-ink-3 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
+                    <div className="flex items-center gap-2 text-xs text-td-muted font-mono">
+                      <Clock className="w-3.5 h-3.5 text-td-oxide" />
                       <span>{formatDate(s.start, "HH:mm dd/MM/yyyy")}</span>
                       <span>—</span>
                       <span>{formatDate(s.end, "HH:mm dd/MM/yyyy")}</span>
-                      <span className="rounded bg-sunken px-1.5 py-0.5 text-[10px] text-ink-2 font-sans font-bold">
+                      <span className="rounded bg-td-chalk px-1.5 py-0.5 text-[10px] text-td-ink font-sans font-bold">
                         Đệm: {s.bufferMinutes || 60}p
                       </span>
                     </div>
-                    {s.note && <p className="text-xs text-ink-2 italic">{s.note}</p>}
+                    {s.note && <p className="text-xs text-td-ink italic">{s.note}</p>}
                   </div>
 
                   <Link href={`/admin/rentals?id=${s.rentalId}`}>
@@ -548,24 +556,24 @@ function StaffDetailView({
 
       {/* Tab 4: Hoạt động */}
       {activeTab === "activity" && (
-        <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 space-y-6">
-          <h3 className="text-lg font-bold text-ink">Tổng Quan Hoạt Động</h3>
+        <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
+          <h3 className="text-lg font-bold text-td-ink">Tổng Quan Hoạt Động</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-line bg-canvas p-4 text-center">
-              <span className="text-xs text-ink-3 block">Trạng thái công tác</span>
-              <span className="text-base font-bold text-ink mt-1 block">
+            <div className="rounded border border-td-rule bg-td-paper p-4 text-center">
+              <span className="text-xs text-td-muted block">Trạng thái công tác</span>
+              <span className="text-base font-bold text-td-ink mt-1 block">
                 {staff.isActive ? "Đang hoạt động" : "Tạm khóa"}
               </span>
             </div>
-            <div className="rounded-2xl border border-line bg-canvas p-4 text-center">
-              <span className="text-xs text-ink-3 block">Tổng số chuyến hoàn tất</span>
-              <span className="text-base font-bold text-ink mt-1 block">
+            <div className="rounded border border-td-rule bg-td-paper p-4 text-center">
+              <span className="text-xs text-td-muted block">Tổng số chuyến hoàn tất</span>
+              <span className="text-base font-bold text-td-ink mt-1 block">
                 {staff.totalTrips || 0} chuyến
               </span>
             </div>
-            <div className="rounded-2xl border border-line bg-canvas p-4 text-center">
-              <span className="text-xs text-ink-3 block">Đánh giá trung bình</span>
-              <span className="text-base font-bold text-ink mt-1 block">
+            <div className="rounded border border-td-rule bg-td-paper p-4 text-center">
+              <span className="text-xs text-td-muted block">Đánh giá trung bình</span>
+              <span className="text-base font-bold text-td-ink mt-1 block">
                 {staff.rating ? `${staff.rating.toFixed(2)} / 5.0 sao` : "Chưa có"}
               </span>
             </div>
@@ -575,7 +583,7 @@ function StaffDetailView({
 
       {/* Tab 5: Đánh giá & Nhận xét */}
       {activeTab === "reviews" && (
-        <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8">
+        <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
           <StaffRatingPanel
             staffId={staff.id}
             staffName={staff.fullName}
@@ -609,9 +617,9 @@ function StaffDetailContent() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-10 w-48 rounded-xl bg-sunken animate-pulse" />
-        <div className="h-40 rounded-3xl bg-surface animate-pulse" />
-        <div className="h-96 rounded-3xl bg-surface animate-pulse" />
+        <div className="h-10 w-48 rounded bg-td-chalk animate-pulse" />
+        <div className="h-40 rounded bg-td-white animate-pulse" />
+        <div className="h-96 rounded bg-td-white animate-pulse" />
       </div>
     );
   }
@@ -647,7 +655,7 @@ function StaffDetailContent() {
 export default function StaffDetailPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-        <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
+        <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <StaffDetailContent />
         </Suspense>
     </AuthGate>

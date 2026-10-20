@@ -50,7 +50,7 @@ export function RentalsStatusChart({
   if (isLoading || !mounted) {
     return (
       <ChartCard title="Đơn thuê theo trạng thái" description="Phân bổ toàn bộ đơn thuê trong kỳ">
-        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded-xl bg-sunken text-xs text-ink-3">
+        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
           Đang tải phân bổ đơn thuê...
         </div>
       </ChartCard>

@@ -57,7 +57,7 @@ export function RevenueChart({ data = [], isLoading, isError, onRetry }: Revenue
   if (isLoading || !mounted) {
     return (
       <ChartCard title="Doanh thu theo thời gian" description="Tổng doanh thu đã thu phân bổ theo ngày">
-        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded-xl bg-sunken text-xs text-ink-3">
+        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
           Đang tải dữ liệu biểu đồ doanh thu...
         </div>
       </ChartCard>

@@ -32,7 +32,7 @@ export function FleetStatusChart({ data, isLoading, isError, onRetry }: FleetSta
   if (isLoading || !mounted) {
     return (
       <ChartCard title="Tình trạng đội xe" description="Phân bổ hiện trạng toàn bộ phương tiện">
-        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded-xl bg-sunken text-xs text-ink-3">
+        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
           Đang tải tình trạng đội xe...
         </div>
       </ChartCard>
@@ -74,7 +74,7 @@ export function FleetStatusChart({ data, isLoading, isError, onRetry }: FleetSta
       >
         {/* Thanh xếp chồng 1 thanh (Stacked Single Bar) */}
         <div>
-          <div className="flex h-7 w-full overflow-hidden rounded-xl border border-line bg-sunken p-0.5">
+          <div className="flex h-7 w-full overflow-hidden rounded border border-td-rule bg-td-chalk p-0.5">
             {data.available > 0 && (
               <div
                 style={{ width: `${getPercent(data.available)}%` }}
@@ -85,7 +85,7 @@ export function FleetStatusChart({ data, isLoading, isError, onRetry }: FleetSta
             {data.renting > 0 && (
               <div
                 style={{ width: `${getPercent(data.renting)}%` }}
-                className="bg-primary transition-all"
+                className="bg-td-oxide transition-all"
                 title={`Đang thuê: ${data.renting} xe (${getPercent(data.renting).toFixed(1)}%)`}
               />
             )}
@@ -113,20 +113,20 @@ export function FleetStatusChart({ data, isLoading, isError, onRetry }: FleetSta
             const pct = getPercent(count).toFixed(1);
             const info = FLEET_LABELS[key];
             return (
-              <div key={key} className="flex flex-col rounded-xl border border-line bg-surface p-3">
+              <div key={key} className="flex flex-col rounded border border-td-rule bg-td-white p-3">
                 <div className="flex items-center gap-2">
                   <span
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: info.color }}
                     aria-hidden="true"
                   />
-                  <span className="text-xs font-semibold text-ink-2">{info.label}</span>
+                  <span className="text-xs font-semibold text-td-ink">{info.label}</span>
                 </div>
                 <div className="mt-2 flex items-baseline justify-between">
-                  <span className="font-mono text-xl font-bold text-ink">{count}</span>
-                  <span className="font-mono text-xs text-ink-3">{pct}%</span>
+                  <span className="font-mono text-xl font-bold text-td-ink">{count}</span>
+                  <span className="font-mono text-xs text-td-muted">{pct}%</span>
                 </div>
-                <span className="mt-1 text-[11px] text-ink-3">{info.desc}</span>
+                <span className="mt-1 text-[11px] text-td-muted">{info.desc}</span>
               </div>
             );
           })}

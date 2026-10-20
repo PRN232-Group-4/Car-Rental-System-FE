@@ -64,7 +64,7 @@ describe("FE-19 Admin Reports — List & Detail Components", () => {
   it("hiển thị danh sách báo cáo, chip đếm trạng thái và bảng dữ liệu", async () => {
     renderWithClient(<ReportsPage />);
 
-    expect(screen.getByText("Xử lý khiếu nại & Báo cáo sự cố")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Xử lý khiếu nại & báo cáo sự cố.");
     expect(screen.getByText("Tất cả")).toBeInTheDocument();
     expect(screen.getByText("Mới tiếp nhận")).toBeInTheDocument();
     expect(screen.getByText("Đang xử lý")).toBeInTheDocument();

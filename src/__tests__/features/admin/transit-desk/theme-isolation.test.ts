@@ -76,7 +76,7 @@ describe("Phase 4 Final Closure — Theme Isolation and Contrast Integrity", () 
   it("1. globals.css defines --ink-muted alias in both Light and Dark mode scopes", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "src/app/globals.css"), "utf8");
     expect(css).toMatch(/--ink-muted:\s*var\(--ink-3\);/);
-    expect(css).toContain("--on-primary: #2b190b;");
+    expect(css).toContain("--on-primary: #F5F1EC;");
   });
 
   it("2. All 3 chart components configure tick fill with semantic --td-ink-muted / --ink-3", () => {
@@ -117,7 +117,7 @@ describe("Phase 4 Final Closure — Theme Isolation and Contrast Integrity", () 
     expect(contrast).toBeCloseTo(5.5, 0.5);
   });
 
-  it("4. Dark mode CTA text #2B190B against Peach #F6BA7C exceeds WCAG AAA (>= 7.0:1)", () => {
+  it("4. Dark mode CTA text #F5F1EC against Oxide #6E3A52 exceeds WCAG AAA (>= 7.0:1)", () => {
     const getLum = ([r, g, b]: [number, number, number]) => {
       const [rs, gs, bs] = [r, g, b].map((val) => {
         const c = val / 255;
@@ -125,12 +125,12 @@ describe("Phase 4 Final Closure — Theme Isolation and Contrast Integrity", () 
       });
       return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
     };
-    const lumPeach = getLum([246, 186, 124]);
-    const lumOnPrimary = getLum([43, 25, 11]);
-    const contrast = (lumPeach + 0.05) / (lumOnPrimary + 0.05);
+    const lumOxide = getLum([110, 58, 82]);
+    const lumOnPrimary = getLum([245, 241, 236]);
+    const contrast = (lumOnPrimary + 0.05) / (lumOxide + 0.05);
 
     expect(contrast).toBeGreaterThanOrEqual(7.0);
-    expect(contrast).toBeCloseTo(9.87, 0.5);
+    expect(contrast).toBeCloseTo(7.8, 0.5);
   });
 
   it("5. TransitDeskShell unmount cleans up documentElement data-admin-theme attribute", () => {

@@ -10,22 +10,22 @@ interface ReviewFilterBarProps {
 
 export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+    <div className="flex flex-col gap-3 border-t border-td-ink pt-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Tìm kiếm */}
         <div className="relative">
           <label htmlFor="review-search" className="sr-only">
             Tìm kiếm đánh giá
           </label>
-          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2">
-            <Search className="h-4 w-4 text-ink-3" aria-hidden="true" />
+          <div className="flex items-center gap-2 rounded border border-td-rule bg-transparent px-2 py-1.5">
+            <Search className="h-4 w-4 text-td-muted" aria-hidden="true" />
             <input
               id="review-search"
               type="text"
               placeholder="Tìm theo nhân viên, khách, nhận xét..."
               value={filters.search ?? ""}
               onChange={(e) => onChange({ ...filters, search: e.target.value || undefined })}
-              className="w-full bg-transparent text-xs text-ink placeholder:text-ink-3 focus:outline-none"
+              className="w-full bg-transparent text-xs text-td-ink placeholder:text-td-muted focus:border-td-ink focus:outline-none"
             />
           </div>
         </div>
@@ -44,7 +44,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
                 rating: e.target.value ? Number(e.target.value) : undefined,
               })
             }
-            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none"
+            className="w-full rounded border border-td-rule bg-transparent px-2 py-1.5 text-xs text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="">Tất cả mức sao (1 - 5 sao)</option>
             <option value="5">5 sao - Rất hài lòng</option>
@@ -69,7 +69,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
                 status: (e.target.value as ReviewStatus | "all") || "all",
               })
             }
-            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none"
+            className="w-full rounded border border-td-rule bg-transparent px-2 py-1.5 text-xs text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Tất cả trạng thái</option>
             <option value="visible">Hiển thị công khai</option>
@@ -88,12 +88,12 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
                 hasReply: filters.hasReply === undefined ? true : filters.hasReply ? false : undefined,
               })
             }
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded border px-3 py-2 text-xs font-semibold transition ${
               filters.hasReply === true
-                ? "border-primary bg-primary/10 text-primary"
+                ? "border-td-oxide bg-td-chalk text-td-oxide"
                 : filters.hasReply === false
                   ? "border-warning bg-warning-bg text-warning"
-                  : "border-line bg-surface text-ink-2 hover:bg-canvas"
+                  : "border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
             }`}
           >
             <MessageSquare className="h-3.5 w-3.5" />

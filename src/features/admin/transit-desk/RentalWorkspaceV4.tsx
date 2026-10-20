@@ -694,7 +694,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "not-found" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-not-found-state"
             >
@@ -732,7 +732,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "forbidden" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-forbidden-state"
             >
@@ -746,7 +746,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "error" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-error-state"
             >
@@ -769,7 +769,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "invalid-data" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-invalid-data-state"
             >
@@ -791,7 +791,7 @@ export function RentalWorkspaceV4() {
               </div>
             </div>
           ) : !activeRental ? (
-            <div className="p-12 text-center space-y-4 border border-dashed border-[var(--v4-rule)] rounded-lg" data-testid="rental-idle-state">
+            <div className="p-12 text-center space-y-4 border border-dashed border-[var(--v4-rule)] rounded" data-testid="rental-idle-state">
               <Car className="h-10 w-10 text-[var(--v4-mineral)] mx-auto opacity-60" />
               <div className="space-y-1">
                 <h2 className="text-sm font-bold text-[var(--v4-ink)]">
@@ -902,7 +902,7 @@ export function RentalWorkspaceV4() {
                 {/* VEHICLE & JOURNEY IDENTITY ROW */}
                 <div className={styles.vehicleIdentityCard}>
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-lg bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
+                    <div className="p-2.5 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
                       <Car className="h-6 w-6" />
                     </div>
                     <div>
@@ -963,7 +963,7 @@ export function RentalWorkspaceV4() {
               </div>
 
               {/* OPERATIONAL ACTIVITY & VERIFICATION LOG (TRUTHFUL DATA) */}
-              <div className="p-3.5 border border-[var(--v4-rule)] rounded-lg bg-[var(--v4-surface-card)] space-y-2.5">
+              <div className="p-3.5 border border-[var(--v4-rule)] rounded bg-[var(--v4-surface-card)] space-y-2.5">
                 <div className="flex items-center justify-between pb-1.5 border-b border-[var(--v4-rule)]">
                   <span className="text-xs font-bold text-[var(--v4-ink)] flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-[var(--v4-marine)]" />
@@ -1054,7 +1054,7 @@ export function RentalWorkspaceV4() {
 
           {/* COMMAND SHELVES OR EMPTY PROMPT */}
           {!activeRental ? (
-            <div className="p-8 text-center space-y-2 border border-dashed border-[var(--v4-rule)] rounded-lg" data-testid="command-inactive-state">
+            <div className="p-8 text-center space-y-2 border border-dashed border-[var(--v4-rule)] rounded" data-testid="command-inactive-state">
               <UserCheck className="h-8 w-8 text-[var(--v4-mineral)] mx-auto opacity-60" />
               <h2 className="text-xs font-bold text-[var(--v4-ink)]">
                 {detailState.status === "loading"
@@ -1084,7 +1084,7 @@ export function RentalWorkspaceV4() {
 
                 {/* Contextual Primary Action Button */}
                 {nextRecommendedAction ? (
-                  <div className="p-3 rounded-lg bg-[var(--v4-surface-muted)] space-y-2">
+                  <div className="p-3 rounded bg-[var(--v4-surface-muted)] space-y-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--v4-mineral)] block">
                       Hành động tiếp theo hợp lệ
                     </span>

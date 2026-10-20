@@ -12,6 +12,7 @@ import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ArrowRight, Clock, RefreshCw } from "lucide-react";
+import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 
 export function OperatingPulse() {
   const { hasRole } = useAuth();
@@ -81,36 +82,16 @@ export function OperatingPulse() {
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* 1. Folio Top / Masthead Summary */}
-      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 lg:flex-row lg:items-end">
-        <div className="flex items-start gap-5">
-          <span className="font-mono text-xs font-bold text-td-oxide border-t-2 border-td-oxide pt-1 min-w-[42px]">
-            01<br />OPS
-          </span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
-              TRẠM VẬN HÀNH · CA TRỰC ĐIỀU HÀNH
-            </span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Ca trực <em className="italic text-td-teal">đang diễn ra.</em>
-            </h1>
-            <p className="mt-2 max-w-xl text-xs sm:text-sm text-td-muted leading-relaxed">
-              Các mốc quyết định trong một hành trình thuê xe. Tập trung vào sự cố sắp vượt hạn SLA và đơn cần bàn giao tại trạm.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 self-start lg:self-end">
-          <div className="border-l border-td-rule pl-4 text-right">
-            <span className="block font-mono text-[10px] text-td-muted tracking-wider">
-              NHẬT KÝ CA · ASIA/HO_CHI_MINH
-            </span>
-            <strong className="block font-sans text-3xl font-bold tracking-tight text-td-ink">
-              {todayStr}
-            </strong>
-          </div>
-          {canManage && <CreateVehicleButton />}
-        </div>
-      </div>
+      <TransitFolio
+        index="01"
+        tag="OPS"
+        kicker="TRẠM VẬN HÀNH · CA TRỰC ĐIỀU HÀNH"
+        title={<>Ca trực <em className="italic text-td-teal">đang diễn ra.</em></>}
+        description="Các mốc quyết định trong một hành trình thuê xe. Tập trung vào sự cố sắp vượt hạn SLA và đơn cần bàn giao tại trạm."
+      >
+        <TransitFolioMetric label="NHẬT KÝ CA · ASIA/HO_CHI_MINH" value={todayStr} />
+        {canManage && <CreateVehicleButton />}
+      </TransitFolio>
 
       {isError && (
         <ErrorState

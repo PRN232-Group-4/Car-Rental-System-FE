@@ -10,7 +10,21 @@ import type { OperationalRental } from "./api";
 const checkItems = ["Ngoại thất và hư hỏng", "Lốp, phanh và vận hành", "Đèn, còi và phụ kiện", "Nhiên liệu / pin"];
 
 export default function RentalInspections() {
-  return <RentalLookup title="Kiểm tra xe trước / sau thuê">{(rental, refresh) => <InspectionForm rental={rental} refresh={refresh} />}</RentalLookup>;
+  return (
+    <div className="space-y-6">
+      <div className="border-b border-td-rule pb-6">
+        <div className="flex items-start gap-5">
+          <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">04<br />INS</span>
+          <div>
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">VẬN HÀNH · BIÊN BẢN TRẠM</span>
+            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Kiểm tra xe <em className="italic text-td-teal">trước / sau thuê.</em></h1>
+            <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Ghi nhận hiện trạng xe bằng checklist và ảnh, để tranh chấp về sau có bằng chứng tại trạm.</p>
+          </div>
+        </div>
+      </div>
+      <RentalLookup title="Tra cứu đơn thuê">{(rental, refresh) => <InspectionForm rental={rental} refresh={refresh} />}</RentalLookup>
+    </div>
+  );
 }
 
 function InspectionForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
@@ -78,10 +92,10 @@ function InspectionForm({ rental, refresh }: { rental: OperationalRental; refres
       <div className="space-y-3"><h3 className="font-semibold">Checklist kiểm tra</h3>{checkItems.map((item, index) => <div key={item} className="grid items-start gap-2 sm:grid-cols-2"><label htmlFor={`inspection-check-${index}`} className="pt-4 text-sm">{item}</label><InlineSelect id={`inspection-check-${index}`} name={`check${index}`} className={operationsInput} value={checks[item] ?? ""} onChange={(event) => setChecks((current) => ({ ...current, [item]: event.target.value }))}><option value="">Chưa ghi nhận</option><option value="pass">Đạt</option><option value="fail">Không đạt</option></InlineSelect></div>)}</div>
       <div><label htmlFor="inspection-notes" className="text-sm font-semibold">Mô tả hư hỏng / ghi chú</label><InlineTextarea id="inspection-notes" name="damageNotes" rows={4} className={operationsInput} value={damageNotes} onChange={(event) => setDamageNotes(event.target.value)} /></div>
       <div className="space-y-3"><h3 className="font-semibold">Ảnh kiểm tra và hư hỏng</h3>
-        <button type="button" data-validation-field="imageUrls" aria-describedby={validation.errors.imageUrls ? "inspection-images-error" : undefined} onClick={() => document.getElementById("inspection-images")?.click()} className={`rounded-xl border px-4 py-3 text-sm ${validation.errors.imageUrls ? "border-danger" : "border-line"}`}>Chọn ảnh kiểm tra</button>
+        <button type="button" data-validation-field="imageUrls" aria-describedby={validation.errors.imageUrls ? "inspection-images-error" : undefined} onClick={() => document.getElementById("inspection-images")?.click()} className={`rounded border px-4 py-3 text-sm ${validation.errors.imageUrls ? "border-danger" : "border-td-rule"}`}>Chọn ảnh kiểm tra</button>
         <InlineInput id="inspection-images" name="imageUrls" type="file" accept="image/*" multiple showError={false} className="hidden" onChange={upload} />
         <InlineError name="imageUrls" inputId="inspection-images" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{images.map((image, index) => <div key={`${image.url}-${index}`} className="space-y-2 rounded-xl border border-line p-2"><Image src={image.url} alt={image.name} width={240} height={160} unoptimized className="h-28 w-full rounded-lg object-cover" /><p className="truncate text-xs">{image.name}</p><button type="button" className="text-xs text-danger underline" onClick={() => setImages((current) => current.filter((_, itemIndex) => itemIndex !== index))}>Bỏ khỏi biên bản</button></div>)}</div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{images.map((image, index) => <div key={`${image.url}-${index}`} className="space-y-2 rounded border border-td-rule p-2"><Image src={image.url} alt={image.name} width={240} height={160} unoptimized className="h-28 w-full rounded object-cover" /><p className="truncate text-xs">{image.name}</p><button type="button" className="text-xs text-danger underline" onClick={() => setImages((current) => current.filter((_, itemIndex) => itemIndex !== index))}>Bỏ khỏi biên bản</button></div>)}</div>
       </div>
       <div><label htmlFor="inspection-result" className="text-sm font-semibold">Kết luận kiểm tra *</label><InlineSelect id="inspection-result" name="isOk" required className={operationsInput} value={isOk} onChange={(event) => setIsOk(event.target.value)}><option value="">Chọn kết luận</option><option value="true">Đạt</option><option value="false">Không đạt</option></InlineSelect></div>
     </fieldset>

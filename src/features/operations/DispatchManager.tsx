@@ -16,7 +16,10 @@ import OperationFields from "./OperationFields";
 import type { OperationField } from "./OperationFields";
 import { getDriverShifts, getDispatchSchedule, saveDriverShift } from "./extended-api";
 import type { DriverShift } from "./extended-api";
-import { getOperationalDrivers, operationalError, operationsButton } from "./api";
+import type { DriverScheduleEntry } from "@/features/driver-portal/api";
+import { getOperationalDrivers, operationalError, operationsButton, toList } from "./api";
+
+type ScheduleEntry = DriverScheduleEntry & { driverName?: string | null };
 import RentalLookup from "./RentalLookup";
 import { AssignmentForm } from "./RentalOperations";
 
@@ -35,8 +38,18 @@ export default function DispatchManager() {
   const schedule = useQuery({ queryKey: ["dispatch-schedule", activeFilter], queryFn: () => getDispatchSchedule(from, to, driverId), retry: false });
   const driverOptions = (drivers.data ?? []).map((item) => ({ value: String(item.id), label: item.fullName?.trim() || item.email?.trim() || "Chưa có tên tài xế" }));
   const refresh = async () => { await Promise.all([shifts.refetch(), schedule.refetch()]); };
-  return <div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Điều phối tài xế</h1><button type="button" className={operationsButton} onClick={() => setEditing(null)}>Tạo ca làm</button></div>
+  return <div className="space-y-6">
+    <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
+      <div className="flex items-start gap-5">
+        <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">05<br />DSP</span>
+        <div>
+          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · CA LÀM & PHÂN CHUYẾN</span>
+          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Điều phối <em className="italic text-td-teal">tài xế.</em></h1>
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Xếp ca theo tài xế trước, đọc lịch chuyến sau. Mọi thay đổi đi qua một bảng tra cứu duy nhất.</p>
+        </div>
+      </div>
+      <button type="button" className={`${operationsButton} self-start sm:self-end`} onClick={() => setEditing(null)}>Tạo ca làm</button>
+    </div>
     <ValidatedForm validation={validation} validate={() => validateBookingTimes(filter.startTime, filter.endTime)} onSubmit={() => setActiveFilter({ ...filter })}>
       <AdminFilterBar description="Lọc ca làm và lịch chuyến theo tài xế, khoảng thời gian." actions={<>
         <AdminFilterButton type="submit">Xem lịch</AdminFilterButton>
@@ -57,48 +70,48 @@ export default function DispatchManager() {
     </ValidatedForm>
     {drivers.error && <p role="alert" className="text-danger">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
     <AdminTableCard>
-      <div className="border-b border-line px-5 py-4">
-        <h2 className="font-bold text-ink">Ca làm việc</h2>
-        {shifts.error && <p role="alert" className="mt-1 text-sm text-danger">{operationalError(shifts.error)} <button type="button" className="underline" onClick={() => void shifts.refetch()}>Thử lại</button></p>}
+      <div className="flex items-baseline justify-between gap-3 border-b border-td-rule pb-2 pt-3">
+        <h2 className="text-sm font-bold text-td-ink">Ca làm việc</h2>
+        {shifts.error && <p role="alert" className="text-sm text-danger">{operationalError(shifts.error)} <button type="button" className="underline" onClick={() => void shifts.refetch()}>Thử lại</button></p>}
       </div>
       <AdminTable className="min-w-[760px]" aria-busy={shifts.isPending}>
         <caption className="sr-only">Danh sách ca làm tài xế</caption>
         <thead><tr>{["Tài xế", "Bắt đầu", "Kết thúc", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>
-          {shifts.isPending ? <AdminTableSkeleton columns={5} label="Đang tải ca làm" /> : (Array.isArray(shifts.data) ? shifts.data : ((shifts.data as any)?.items ?? [])).map((item: any) => (
+          {shifts.isPending ? <AdminTableSkeleton columns={5} label="Đang tải ca làm" /> : toList<DriverShift>(shifts.data).map((item) => (
             <tr key={item.id}>
               <td className="font-semibold"><StaffName staffId={item.driverStaffId} name={driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
-              <td className="text-ink-3">{dateLabel(item.startTime)}</td>
-              <td className="text-ink-3">{dateLabel(item.endTime)}</td>
+              <td className="text-td-muted">{dateLabel(item.startTime)}</td>
+              <td className="text-td-muted">{dateLabel(item.endTime)}</td>
               <td><AdminStatusBadge domain="shift" status={item.status}>{item.status ?? "—"}</AdminStatusBadge></td>
               <td data-actions><AdminRowAction action="edit" label="Sửa / hủy ca" onClick={() => setEditing(item)} /></td>
             </tr>
           ))}
-          {!shifts.isPending && (Array.isArray(shifts.data) ? shifts.data : ((shifts.data as any)?.items ?? [])).length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
+          {!shifts.isPending && toList<DriverShift>(shifts.data).length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
     </AdminTableCard>
     {editing !== undefined && <ShiftForm key={editing?.id ?? "new"} record={editing} drivers={driverOptions} close={() => setEditing(undefined)} saved={refresh} />}
     <AdminTableCard>
-      <div className="border-b border-line px-5 py-4">
-        <h2 className="font-bold text-ink">Các chuyến đã phân công</h2>
-        {schedule.error && <p role="alert" className="mt-1 text-sm text-danger">{operationalError(schedule.error)} <button type="button" className="underline" onClick={() => void schedule.refetch()}>Thử lại</button></p>}
+      <div className="flex items-baseline justify-between gap-3 border-b border-td-rule pb-2 pt-3">
+        <h2 className="text-sm font-bold text-td-ink">Các chuyến đã phân công</h2>
+        {schedule.error && <p role="alert" className="text-sm text-danger">{operationalError(schedule.error)} <button type="button" className="underline" onClick={() => void schedule.refetch()}>Thử lại</button></p>}
       </div>
       <AdminTable className="min-w-[760px]" aria-busy={schedule.isPending}>
         <caption className="sr-only">Lịch chuyến được phân cho tài xế</caption>
         <thead><tr>{["Tài xế", "Xe", "Nhận xe", "Trả xe", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>
-          {schedule.isPending ? <AdminTableSkeleton columns={6} label="Đang tải lịch chuyến" /> : (Array.isArray(schedule.data) ? schedule.data : ((schedule.data as any)?.items ?? [])).map((item: any, index: number) => (
+          {schedule.isPending ? <AdminTableSkeleton columns={6} label="Đang tải lịch chuyến" /> : toList<ScheduleEntry>(schedule.data).map((item, index) => (
             <tr key={item.assignmentId ?? index}>
               <td><StaffName staffId={item.driverStaffId} name={item.driverName?.trim() || driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
               <td>{item.vehicleId != null ? <VehicleName vehicleId={item.vehicleId} /> : "Chưa có thông tin xe"}</td>
-              <td className="text-ink-3">{dateLabel(item.startTime)}</td>
-              <td className="text-ink-3">{dateLabel(item.endTime)}</td>
+              <td className="text-td-muted">{dateLabel(item.startTime)}</td>
+              <td className="text-td-muted">{dateLabel(item.endTime)}</td>
               <td><AdminStatusBadge domain="rental" status={item.rentalStatus}>{item.rentalStatus ?? "—"}</AdminStatusBadge></td>
               <td data-actions>{item.rentalId != null ? <AdminRowAction action="view" label="Mở đơn thuê" href={`/admin/rentals?rentalId=${item.rentalId}`} /> : "—"}</td>
             </tr>
           ))}
-          {!schedule.isPending && (Array.isArray(schedule.data) ? schedule.data : ((schedule.data as any)?.items ?? [])).length === 0 && <AdminTableEmptyRow colSpan={6}>Chưa có chuyến đã phân công trong khoảng thời gian này.</AdminTableEmptyRow>}
+          {!schedule.isPending && toList<ScheduleEntry>(schedule.data).length === 0 && <AdminTableEmptyRow colSpan={6}>Chưa có chuyến đã phân công trong khoảng thời gian này.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
     </AdminTableCard>
@@ -116,5 +129,5 @@ function ShiftForm({ record, drivers, close, saved }: { record: DriverShift | nu
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
+  return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded border border-td-rule px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
 }

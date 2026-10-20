@@ -12,8 +12,8 @@ export function VehicleIdentity({ vehicle }: { vehicle: Pick<VehicleDto, "brand"
   return <span className="flex min-w-0 items-center gap-3">
     <VehicleImage src={vehicle.mainImageUrl} alt={label} />
     <span className="min-w-0">
-      <span className="block font-semibold text-ink">{label}</span>
-      {name && vehicle.licensePlate && <span className="mt-1 block text-xs text-ink-3">{vehicle.licensePlate}</span>}
+      <span className="block font-semibold text-td-ink">{label}</span>
+      {name && vehicle.licensePlate && <span className="mt-1 block text-xs text-td-muted">{vehicle.licensePlate}</span>}
     </span>
   </span>;
 }
@@ -24,11 +24,11 @@ export default function VehicleName({ vehicleId }: { vehicleId: number | string 
   const vehicle = useQuery(vehicleQueryOptions(numericId));
 
   if (!Number.isSafeInteger(numericId) || numericId <= 0) return <VehicleIdentity vehicle={{ brand: null, model: null, licensePlate: null, mainImageUrl: null }} />;
-  if (vehicle.isPending) return <span role="status" aria-label="Đang tải phương tiện" data-skeleton-block className="flex items-center gap-3"><Skeleton className="h-12 w-[68px] rounded-lg" /><span className="space-y-2"><Skeleton className="h-4 w-28" /><Skeleton className="h-3 w-20" /></span></span>;
-  if (vehicle.isError) return <span className="flex items-center gap-3 text-ink-3">
+  if (vehicle.isPending) return <span role="status" aria-label="Đang tải phương tiện" data-skeleton-block className="flex items-center gap-3"><Skeleton className="h-12 w-[68px] rounded" /><span className="space-y-2"><Skeleton className="h-4 w-28" /><Skeleton className="h-3 w-20" /></span></span>;
+  if (vehicle.isError) return <span className="flex items-center gap-3 text-td-muted">
     <VehicleImage alt="Phương tiện" />
     <span>Không tải được tên xe
-      <button type="button" onClick={() => void vehicle.refetch()} className="mt-1 block text-xs font-semibold text-primary hover:underline">Tải lại tên xe</button>
+      <button type="button" onClick={() => void vehicle.refetch()} className="mt-1 block text-xs font-semibold text-td-oxide hover:underline">Tải lại tên xe</button>
     </span>
   </span>;
 

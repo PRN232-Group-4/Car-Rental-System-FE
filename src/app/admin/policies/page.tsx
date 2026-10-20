@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, ShieldAlert, AlertTriangle, HelpCircle, Shield } from "lucide-react";
+import { Plus, ShieldAlert, AlertTriangle, HelpCircle } from "lucide-react";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Button } from "@/components/ui/Button";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { formatDateTime } from "@/lib/time";
 import {
@@ -59,7 +59,7 @@ export default function PoliciesPage() {
         id: "vehicleType",
         header: "Loại xe áp dụng",
         cell: ({ row }) => (
-          <div className="font-semibold text-ink">
+          <div className="font-semibold text-td-ink">
             {row.original.vehicleTypeName || `Loại xe #${row.original.vehicleTypeId}`}
           </div>
         ),
@@ -69,8 +69,8 @@ export default function PoliciesPage() {
         header: "Tên phiên bản",
         cell: ({ row }) => (
           <div>
-            <div className="font-medium text-ink">{row.original.name}</div>
-            <div className="text-[11px] text-ink-3 font-mono">Mã bản: #{row.original.id}</div>
+            <div className="font-medium text-td-ink">{row.original.name}</div>
+            <div className="text-[11px] text-td-muted font-mono">Mã bản: #{row.original.id}</div>
           </div>
         ),
       },
@@ -78,14 +78,14 @@ export default function PoliciesPage() {
         id: "vatRate",
         header: "Thuế VAT",
         cell: ({ row }) => (
-          <span className="font-mono font-medium text-ink">{row.original.vatRate}%</span>
+          <span className="font-mono font-medium text-td-ink">{row.original.vatRate}%</span>
         ),
       },
       {
         id: "depositPercentage",
         header: "Đặt cọc",
         cell: ({ row }) => (
-          <span className="font-mono font-medium text-ink">
+          <span className="font-mono font-medium text-td-ink">
             {row.original.depositPercentage}%
           </span>
         ),
@@ -94,7 +94,7 @@ export default function PoliciesPage() {
         id: "overtimeFeeRate",
         header: "Phí trễ",
         cell: ({ row }) => (
-          <span className="font-mono font-medium text-ink">
+          <span className="font-mono font-medium text-td-ink">
             {row.original.overtimeFeeRate}% / giờ
           </span>
         ),
@@ -103,17 +103,16 @@ export default function PoliciesPage() {
         id: "status",
         header: "Trạng thái",
         cell: ({ row }) => (
-          <StatusBadge
-            status={row.original.isActive ? "active" : "draft"}
-            label={row.original.isActive ? "Đang áp dụng" : "Đã ngừng"}
-          />
+          <AdminStatusBadge domain="activity" status={row.original.isActive ? "active" : "inactive"}>
+            {row.original.isActive ? "Đang áp dụng" : "Đã ngừng"}
+          </AdminStatusBadge>
         ),
       },
       {
         id: "createdAt",
         header: "Thời gian tạo (GMT+7)",
         cell: ({ row }) => (
-          <span className="text-xs text-ink-3 font-mono">
+          <span className="text-xs text-td-muted font-mono">
             {row.original.createdAt ? formatDateTime(row.original.createdAt) : "—"}
           </span>
         ),
@@ -122,7 +121,7 @@ export default function PoliciesPage() {
         id: "managedBy",
         header: "Người lập",
         cell: ({ row }) => (
-          <span className="text-xs text-ink-2">{row.original.managedBy || "Hệ thống"}</span>
+          <span className="text-xs text-td-ink">{row.original.managedBy || "Hệ thống"}</span>
         ),
       },
     ],
@@ -132,51 +131,44 @@ export default function PoliciesPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
-          {/* Header với tooltip bất biến */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-                <Shield className="w-4 h-4" />
-                <span>Điều Khoản & Pháp Lý</span>
-              </div>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-ink mt-1">
-                Chính sách thuê & Đặt cọc
-              </h1>
-              <p className="text-sm text-ink-3 mt-1 max-w-2xl">
-                Chính sách thuê là bất biến theo phiên bản nhằm bảo vệ tính toàn vẹn của hợp đồng đã ký. Để điều chỉnh điều khoản, vui lòng tạo một phiên bản mới.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div
-                className="hidden sm:flex items-center gap-1.5 text-xs text-ink-3 bg-surface border border-line px-3 py-1.5 rounded-lg"
-                title="Quy tắc hệ thống: Không có chức năng Sửa hoặc Xóa chính sách đã ban hành"
-              >
-                <HelpCircle className="w-4 h-4 text-ink-3" aria-hidden="true" />
-                <span>Chính sách bất biến</span>
-              </div>
-              <Button
-                variant="primary"
-                onClick={() => setDrawerOpen(true)}
-                className="flex items-center gap-1.5"
-              >
-                <Plus className="w-4 h-4" aria-hidden="true" />
-                <span>Tạo phiên bản mới</span>
-              </Button>
-            </div>
-          </div>
+          {/* Header */}
+          <TransitFolio
+            index="06"
+            tag="PLC"
+            kicker="CHÍNH SÁCH · ĐIỀU KHOẢN & PHÁP LÝ"
+            title={<>Chính sách thuê & <em className="italic text-td-teal">đặt cọc.</em></>}
+            description="Chính sách thuê là bất biến theo phiên bản nhằm bảo vệ tính toàn vẹn của hợp đồng đã ký. Để điều chỉnh điều khoản, vui lòng tạo một phiên bản mới."
+          >
+            <TransitFolioMetric label="PHIÊN BẢN · ĐANG HIỂN THỊ" value={String(filteredPolicies.length).padStart(2, "0")} />
+            <span
+              className="hidden items-center gap-1.5 border-l border-td-rule pl-4 text-[11px] text-td-muted sm:flex"
+              title="Quy tắc hệ thống: Không có chức năng Sửa hoặc Xóa chính sách đã ban hành"
+            >
+              <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Chính sách bất biến</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover"
+            >
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              <span>Tạo phiên bản mới</span>
+            </button>
+          </TransitFolio>
 
           {/* Banner cảnh báo xung đột (nhiều policy active) */}
           {conflicts.map((c) => (
             <div
               key={c.vehicleTypeId}
-              className="flex items-start gap-3 p-4 rounded-xl bg-warning-bg/40 border border-warning/20 text-ink text-sm"
+              className="flex items-start gap-3 border-l-2 border-warning bg-warning-bg/40 px-4 py-3 text-sm text-td-ink"
             >
               <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" aria-hidden="true" />
               <div className="space-y-1">
-                <p className="font-semibold text-ink">
+                <p className="font-semibold text-td-ink">
                   Cảnh báo: Có {c.activeCount} chính sách cùng đang áp dụng cho loại xe &quot;{c.vehicleTypeName}&quot;
                 </p>
-                <p className="text-xs text-ink-2">
+                <p className="text-xs text-td-ink">
                   Hệ thống theo quy tắc sẽ tự động áp dụng phiên bản mới nhất (&quot;
                   {c.latestActivePolicy?.name}&quot; #{c.latestActivePolicy?.id}) cho các đơn thuê mới.
                 </p>
@@ -188,14 +180,14 @@ export default function PoliciesPage() {
           {missings.map((m) => (
             <div
               key={m.vehicleTypeId}
-              className="flex items-start gap-3 p-4 rounded-xl bg-danger-bg/40 border border-danger/20 text-ink text-sm"
+              className="flex items-start gap-3 border-l-2 border-danger bg-danger-bg/40 px-4 py-3 text-sm text-td-ink"
             >
               <ShieldAlert className="w-5 h-5 text-danger shrink-0 mt-0.5" aria-hidden="true" />
               <div className="space-y-1">
                 <p className="font-semibold text-danger">
                   Chặn nghiệp vụ: Loại xe &quot;{m.vehicleTypeName}&quot; chưa có chính sách đang áp dụng
                 </p>
-                <p className="text-xs text-ink-2">
+                <p className="text-xs text-td-ink">
                   Khách hàng sẽ không thể đặt xe thuộc loại này cho đến khi có ít nhất một chính sách được kích hoạt.
                 </p>
               </div>
@@ -203,7 +195,7 @@ export default function PoliciesPage() {
           ))}
 
           {/* Bộ lọc loại xe và trạng thái */}
-          <div className="bg-surface rounded-xl border border-line p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-y border-td-rule py-3">
             <div className="flex flex-wrap items-center gap-3">
               <div>
                 <label htmlFor="filter-vehicle-type" className="sr-only">
@@ -213,7 +205,7 @@ export default function PoliciesPage() {
                   id="filter-vehicle-type"
                   value={selectedVehicleTypeFilter}
                   onChange={(e) => setSelectedVehicleTypeFilter(e.target.value)}
-                  className="h-10 px-3 rounded-lg border border-line bg-surface text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="h-8 rounded border border-td-rule bg-transparent px-2 font-mono text-xs text-td-ink focus:border-td-ink focus:outline-none"
                 >
                   <option value="ALL">Tất cả loại xe ({vehicleTypes.length})</option>
                   {vehicleTypes.map((vt) => (
@@ -232,7 +224,7 @@ export default function PoliciesPage() {
                   id="filter-status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="h-10 px-3 rounded-lg border border-line bg-surface text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="h-8 rounded border border-td-rule bg-transparent px-2 font-mono text-xs text-td-ink focus:border-td-ink focus:outline-none"
                 >
                   <option value="ALL">Tất cả trạng thái</option>
                   <option value="ACTIVE">Đang áp dụng</option>
@@ -241,14 +233,15 @@ export default function PoliciesPage() {
               </div>
             </div>
 
-            <div className="text-xs text-ink-3 font-mono">
+            <div className="font-mono text-[11px] text-td-muted">
               Hiển thị {filteredPolicies.length} phiên bản chính sách
             </div>
           </div>
 
           {/* Danh sách bảng chính sách */}
-          <div className="bg-surface rounded-2xl border border-line shadow-sm overflow-hidden">
+          <div className="border-t border-td-ink">
             <DataTable
+              className="!border-t-0"
               caption="Danh sách các phiên bản chính sách thuê và đặt cọc"
               columns={columns}
               data={filteredPolicies}
