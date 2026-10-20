@@ -625,7 +625,7 @@ export function RentalWorkspaceV4() {
                       {item.vehicleName || "Phương tiện #" + item.vehicleId}
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-[var(--v4-mineral)]">
-                      <span>{item.rentalType === "hourly" ? "Thuê giờ" : "Dài hạn"}</span>
+                      <span>{item.rentalType === "hourly" ? "Thuê giờ" : item.rentalType === "longterm" ? "Dài hạn" : "Chưa có hình thức thuê"}</span>
                       {item.endTime && (
                         <span>Hạn: {formatAdminDateTime(item.endTime).slice(0, 10)}</span>
                       )}

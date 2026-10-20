@@ -1,5 +1,6 @@
 import { backendApiClient } from "@/api/backend-api-client";
 import type { RentalContract } from "@/features/rentals/types";
+import type { OperationalRentalListItem } from "./rental-list-api";
 import type { StaffDto, PagedResult } from "@/features/admin/api";
 
 export type OperationalRental = RentalContract & { invoiceId?: number; customerName?: string | null; customerEmail?: string | null };
@@ -76,8 +77,12 @@ export const rentalStatuses: Record<string, string> = {
 export const operationsInput = "admin-input mt-2 w-full";
 export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-td-oxide-hover disabled:cursor-not-allowed disabled:opacity-50";
 export const operationsPanel = "space-y-4 rounded border border-td-rule bg-td-white p-5 sm:p-6";
-export async function listOperationalRentals(params?: { status?: string; page?: number; pageSize?: number }) {
-  const result = await backendApiClient.get<PagedResult<import("./rental-list-api").OperationalRentalListItem>>("rentals", params);
+export type OperationalRentalQueueItem = Pick<OperationalRental, "id" | "vehicleId" | "status"> &
+  Partial<Omit<OperationalRental, "id" | "vehicleId" | "status">> &
+  Partial<Pick<OperationalRentalListItem, "customerName" | "customerEmail" | "vehicleModel" | "licensePlate" | "driverName">>;
+
+export async function listOperationalRentals(params?: { status?: string; page?: number; pageSize?: number }): Promise<PagedResult<OperationalRentalQueueItem>> {
+  const result = await backendApiClient.get<PagedResult<OperationalRentalListItem>>("rentals", params);
   return { ...result, items: (result.items ?? []).map((item) => ({ ...item, vehicleName: item.vehicleModel })) };
 }
 
