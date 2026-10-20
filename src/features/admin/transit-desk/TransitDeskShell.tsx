@@ -42,16 +42,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     return (account?.roles ?? user?.roles ?? []) as Role[];
   }, [account?.roles, user?.roles]);
 
-  // Clean up data-admin-theme when navigating away from Admin portal
-  useEffect(() => {
-    return () => {
-      if (typeof document !== "undefined") {
-        delete document.documentElement.dataset.adminTheme;
-        document.documentElement.removeAttribute("data-admin-theme");
-      }
-    };
-  }, []);
-
   // Load operator assignment details safely
   useEffect(() => {
     if (!account) return;
@@ -335,7 +325,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
           </button>
 
           {/* User Account Menu */}
-          <div className="relative">
+          <div>
             <button
               type="button"
               onClick={() => setIsUserMenuOpen((prev) => !prev)}
@@ -347,7 +337,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
 
             {isUserMenuOpen && (
               <div
-                className="absolute right-0 top-full mt-2 w-56 rounded-md border border-td-rule bg-td-white p-2 shadow-xl z-40 text-xs"
+                className={styles.accountMenu}
                 onMouseLeave={() => setIsUserMenuOpen(false)}
               >
                 <div className="px-3 py-2 border-b border-td-rule mb-1">
