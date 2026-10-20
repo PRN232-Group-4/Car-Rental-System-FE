@@ -31,10 +31,10 @@ export default function DriverPortalOverview() {
   return (
     <div className="space-y-7">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
           Xin chào, {account.fullName ?? "Tài xế"}
         </h2>
-        <p className="mt-2 text-sm text-ink-3">
+        <p className="mt-2 text-sm text-td-muted">
           Quản lý phương tiện được phân công, xem doanh thu chuyến xe và cập nhật hồ sơ.
         </p>
       </div>
@@ -44,16 +44,16 @@ export default function DriverPortalOverview() {
           <Link
             key={href}
             href={href}
-            className="group rounded-2xl border border-line bg-surface p-5 shadow-e1 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-e2"
+            className="group rounded border border-td-rule bg-td-white p-5 transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-e2"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <span className="flex h-11 w-11 items-center justify-center rounded bg-primary/10 text-primary">
               <Icon className="h-5 w-5" />
             </span>
-            <h3 className="mt-5 flex items-center justify-between font-bold text-ink">
+            <h3 className="mt-5 flex items-center justify-between font-bold text-td-ink">
               {label}
-              <ArrowRight className="h-4 w-4 text-ink-3 transition group-hover:translate-x-1 group-hover:text-primary" />
+              <ArrowRight className="h-4 w-4 text-td-muted transition group-hover:translate-x-1 group-hover:text-primary" />
             </h3>
-            <p className="mt-1 text-sm text-ink-3">{detail}</p>
+            <p className="mt-1 text-sm text-td-muted">{detail}</p>
           </Link>
         ))}
       </section>

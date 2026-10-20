@@ -22,58 +22,58 @@ export function TripCard({ trip }: TripCardProps) {
     <li className="list-none">
       <div
         aria-label={a11ySummary}
-        className="bg-surface rounded-2xl border border-line p-5 shadow-sm hover:border-primary/40 transition-colors flex flex-col justify-between gap-4 h-full group"
+        className="bg-td-white rounded border border-td-rule p-5 shadow-sm hover:border-primary/40 transition-colors flex flex-col justify-between gap-4 h-full group"
       >
         <div className="space-y-3">
           {/* Header xe & Trạng thái */}
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-base font-bold text-ink group-hover:text-primary transition-colors">
+                <h3 className="font-display text-base font-bold text-td-ink group-hover:text-primary transition-colors">
                   {vehicle.brand} {vehicle.model}
                 </h3>
                 {vehicle.licensePlate && (
-                  <span className="font-mono text-[11px] font-semibold bg-sunken px-2 py-0.5 rounded border border-line text-ink-2">
+                  <span className="font-mono text-[11px] font-semibold bg-td-chalk px-2 py-0.5 rounded border border-td-rule text-td-ink">
                     {vehicle.licensePlate}
                   </span>
                 )}
               </div>
               {vehicle.category && (
-                <span className="text-xs text-ink-3 block mt-0.5">{vehicle.category}</span>
+                <span className="text-xs text-td-muted block mt-0.5">{vehicle.category}</span>
               )}
             </div>
             <TripStatusBadge status={status} />
           </div>
 
           {/* Thời gian nhận - trả GMT+7 */}
-          <div className="space-y-1 text-xs text-ink-2 font-mono bg-sunken rounded-xl p-3">
+          <div className="space-y-1 text-xs text-td-ink font-mono bg-td-chalk rounded p-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" />
               <span>
-                Nhận: <strong className="text-ink">{formatDateTime(start)}</strong>
+                Nhận: <strong className="text-td-ink">{formatDateTime(start)}</strong>
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="w-3.5 h-3.5 text-ink-3 shrink-0" aria-hidden="true" />
+              <Calendar className="w-3.5 h-3.5 text-td-muted shrink-0" aria-hidden="true" />
               <span>
-                Trả: <strong className="text-ink">{formatDateTime(end)}</strong>
+                Trả: <strong className="text-td-ink">{formatDateTime(end)}</strong>
               </span>
             </div>
           </div>
 
           {/* Trạm giao nhận xe */}
           {trip.facility && (
-            <div className="flex items-center gap-2 text-xs text-ink-3">
-              <MapPin className="w-3.5 h-3.5 text-ink-3 shrink-0" aria-hidden="true" />
+            <div className="flex items-center gap-2 text-xs text-td-muted">
+              <MapPin className="w-3.5 h-3.5 text-td-muted shrink-0" aria-hidden="true" />
               <span className="truncate">{trip.facility.name}</span>
             </div>
           )}
         </div>
 
         {/* Footer: Giá & CTA */}
-        <div className="pt-3 border-t border-line flex items-center justify-between gap-2">
+        <div className="pt-3 border-t border-td-rule flex items-center justify-between gap-2">
           <div>
-            <span className="text-[10px] text-ink-3 uppercase font-bold tracking-wider block">
+            <span className="text-[10px] text-td-muted uppercase font-bold tracking-wider block">
               {isSubscription ? "Hình thức" : "Tổng chi phí"}
             </span>
             {isSubscription ? (
@@ -81,7 +81,7 @@ export function TripCard({ trip }: TripCardProps) {
                 Trừ {subscriptionHoursUsed ?? 0} giờ gói
               </span>
             ) : (
-              <span className="font-mono text-base font-bold text-ink">
+              <span className="font-mono text-base font-bold text-td-ink">
                 {formatVnd(totalPrice)}
               </span>
             )}
@@ -91,7 +91,7 @@ export function TripCard({ trip }: TripCardProps) {
             {trip.nextAction === "report_issue" && (
               <Link
                 href={`/report-incident?rentalId=${trip.id}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-warning hover:underline px-2.5 py-1.5 rounded-lg border border-warning/30 bg-warning-bg/30"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-warning hover:underline px-2.5 py-1.5 rounded border border-warning/30 bg-warning-bg/30"
               >
                 <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Báo sự cố</span>
@@ -101,7 +101,7 @@ export function TripCard({ trip }: TripCardProps) {
             {trip.nextAction === "rebook" && (
               <Link
                 href={`/vehicles/detail?id=${vehicle.id}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-ink-2 hover:text-primary px-2.5 py-1.5 rounded-lg border border-line bg-surface"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-td-ink hover:text-primary px-2.5 py-1.5 rounded border border-td-rule bg-td-white"
               >
                 <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Đặt lại</span>
@@ -110,7 +110,7 @@ export function TripCard({ trip }: TripCardProps) {
 
             <Link
               href={`/account/trips/detail?id=${trip.id}`}
-              className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline px-3 py-1.5 rounded-lg bg-primary-tint/40"
+              className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline px-3 py-1.5 rounded bg-primary-tint/40"
             >
               <span>Chi tiết</span>
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

@@ -80,22 +80,22 @@ function TripsListContent() {
   return (
     <div className="space-y-6">
       {/* Header trang */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-td-rule pb-5">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
             <Compass className="w-4 h-4" />
             <span>Hành Trình Của Bạn</span>
           </div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-ink mt-1">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-td-ink mt-1">
             Chuyến của tôi
           </h1>
-          <p className="text-sm text-ink-3 mt-1">
+          <p className="text-sm text-td-muted mt-1">
             Theo dõi hành trình, kiểm tra biên bản bàn giao xe và quản lý các đơn thuê xe của bạn.
           </p>
         </div>
         <div className="flex items-center gap-2">
           {isFetching && !isLoading && (
-            <span className="text-xs text-ink-3 flex items-center gap-1 font-mono">
+            <span className="text-xs text-td-muted flex items-center gap-1 font-mono">
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-primary" />
               <span>Đang đồng bộ...</span>
             </span>
@@ -110,7 +110,7 @@ function TripsListContent() {
       </div>
 
       {/* Tabs thanh điều hướng */}
-      <div className="flex items-center gap-2 border-b border-line overflow-x-auto pb-px" role="tablist">
+      <div className="flex items-center gap-2 border-b border-td-rule overflow-x-auto pb-px" role="tablist">
         {TABS.map((tab) => {
           const isActive = currentTab === tab.key;
           return (
@@ -122,7 +122,7 @@ function TripsListContent() {
               className={`h-11 px-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/20 ${
                 isActive
                   ? "border-primary text-primary"
-                  : "border-transparent text-ink-3 hover:text-ink hover:border-line-strong"
+                  : "border-transparent text-td-muted hover:text-td-ink hover:border-td-rule"
               }`}
             >
               {tab.label}
@@ -135,15 +135,15 @@ function TripsListContent() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-surface rounded-2xl border border-line p-5 space-y-4">
+            <div key={i} className="bg-td-white rounded border border-td-rule p-5 space-y-4">
               <div className="flex justify-between items-start">
                 <Skeleton className="h-6 w-32 rounded" />
                 <Skeleton className="h-5 w-20 rounded-full" />
               </div>
-              <Skeleton className="h-16 w-full rounded-xl" />
-              <div className="pt-3 border-t border-line flex justify-between items-center">
+              <Skeleton className="h-16 w-full rounded" />
+              <div className="pt-3 border-t border-td-rule flex justify-between items-center">
                 <Skeleton className="h-6 w-24 rounded" />
-                <Skeleton className="h-8 w-20 rounded-lg" />
+                <Skeleton className="h-8 w-20 rounded" />
               </div>
             </div>
           ))}
@@ -176,7 +176,7 @@ function TripsListContent() {
           </ul>
 
           {totalCount > 12 && (
-            <div className="pt-6 border-t border-line flex justify-center">
+            <div className="pt-6 border-t border-td-rule flex justify-center">
               <Pagination
                 page={currentPage}
                 pageSize={12}
@@ -196,7 +196,7 @@ export default function MyTripsPage() {
     <AuthGate allowedRoles={["Customer"]}>
       <Suspense
         fallback={
-          <div className="p-8 text-center text-sm text-ink-3">
+          <div className="p-8 text-center text-sm text-td-muted">
             Đang tải dữ liệu chuyến đi...
           </div>
         }

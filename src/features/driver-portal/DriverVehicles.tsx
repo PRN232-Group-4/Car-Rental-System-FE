@@ -72,26 +72,26 @@ export default function DriverVehicles() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
           Phương tiện của tôi
         </h2>
-        <p className="mt-2 text-sm text-ink-3">
+        <p className="mt-2 text-sm text-td-muted">
           Danh sách xe có lịch phân công cho bạn trong khoảng một năm trước và sau ngày hiện tại.
         </p>
       </div>
 
       {error && (
-        <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+        <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
       {loading && (
         <SkeletonBlock label="Đang tải phương tiện được phân công" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 3 }, (_, index) => <div key={index} className="overflow-hidden rounded-2xl border border-line bg-surface"><Skeleton className="h-44 w-full rounded-none" /><div className="space-y-3 p-5"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-2/3" /></div></div>)}
+          {Array.from({ length: 3 }, (_, index) => <div key={index} className="overflow-hidden rounded border border-td-rule bg-td-white"><Skeleton className="h-44 w-full rounded-none" /><div className="space-y-3 p-5"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-2/3" /></div></div>)}
         </SkeletonBlock>
       )}
       {!loading && !error && vehicles.length === 0 && (
-        <p className="rounded-xl border border-line bg-surface px-4 py-5 text-sm text-ink-3">
+        <p className="rounded border border-td-rule bg-td-white px-4 py-5 text-sm text-td-muted">
           Chưa có phương tiện nào được phân công trong khoảng thời gian này.
         </p>
       )}
@@ -101,16 +101,16 @@ export default function DriverVehicles() {
           {vehicles.map((vehicle) => (
             <article
               key={vehicle.id}
-              className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1"
+              className="overflow-hidden rounded border border-td-rule bg-td-white"
             >
               <VehicleImage src={vehicle.mainImageUrl} alt={[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || "Phương tiện"} className="h-44 w-full" />
               <div className="space-y-3 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-ink">
+                    <h3 className="font-bold text-td-ink">
                       {[vehicle.brand, vehicle.model].filter(Boolean).join(" ") || `Phương tiện #${vehicle.id}`}
                     </h3>
-                    <p className="mt-1 text-sm text-ink-3">
+                    <p className="mt-1 text-sm text-td-muted">
                       {vehicle.vehicleType ?? "Chưa phân loại"}{vehicle.yearOfManufacture ? ` · ${vehicle.yearOfManufacture}` : ""}
                     </p>
                   </div>
@@ -118,11 +118,11 @@ export default function DriverVehicles() {
                     {statusLabels[vehicle.status?.toLowerCase() ?? ""] ?? vehicle.status ?? "Chưa rõ"}
                   </AdminStatusBadge>
                 </div>
-                <p className="flex items-center gap-2 text-sm text-ink-3">
-                  <MapPin className="h-4 w-4 shrink-0 text-ink-3" />
+                <p className="flex items-center gap-2 text-sm text-td-muted">
+                  <MapPin className="h-4 w-4 shrink-0 text-td-muted" />
                   {vehicle.location || vehicle.facility || "Chưa có vị trí"}
                 </p>
-                <p className="border-t border-line pt-3 text-sm font-semibold text-ink">
+                <p className="border-t border-td-rule pt-3 text-sm font-semibold text-td-ink">
                   {vehicle.hourlyPrice === null
                     ? "Giá thuê chưa được cập nhật"
                     : `${vehicle.hourlyPrice.toLocaleString("vi-VN")} ₫ / giờ`}

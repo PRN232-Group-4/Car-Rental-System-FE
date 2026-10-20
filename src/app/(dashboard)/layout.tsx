@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         rightHeaderActions={
           <Link
             href="/booking"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-hover shadow-e1 transition-all"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-bold bg-primary text-white hover:bg-primary-hover transition-all"
           >
             <Car className="w-3.5 h-3.5" />
             <span>Đặt xe mới</span>

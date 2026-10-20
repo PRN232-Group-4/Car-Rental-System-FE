@@ -98,14 +98,14 @@ export default function DriverRevenueDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
             Doanh thu chuyến xe
           </h2>
-          <p className="mt-2 text-sm text-ink-3">
+          <p className="mt-2 text-sm text-td-muted">
             Tổng giá trị thuê của các chuyến đã hoàn thành và được phân công cho bạn.
           </p>
         </div>
-        <label className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2.5 text-sm font-semibold text-ink-2">
+        <label className="flex items-center gap-2 rounded border border-td-rule bg-td-white px-3 py-2.5 text-sm font-semibold text-td-ink">
           <CalendarDays className="h-4 w-4 text-primary" />
           <span className="sr-only">Chọn tháng</span>
           <input
@@ -117,68 +117,68 @@ export default function DriverRevenueDashboard() {
         </label>
       </div>
 
-      <p className="rounded-xl border border-info/30 bg-info-bg px-4 py-3 text-sm leading-6 text-info">
+      <p className="rounded border border-info/30 bg-info-bg px-4 py-3 text-sm leading-6 text-info">
         Số liệu là tổng giá trị thuê của chuyến đã hoàn thành, không phải hoa hồng cá nhân hoặc doanh thu đã đối soát thanh toán.
       </p>
       {error && (
-        <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+        <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
       {loading && (
-        <p role="status" className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3">
+        <p role="status" className="rounded border border-td-rule bg-td-white px-4 py-3 text-sm text-td-muted">
           Đang tải doanh thu...
         </p>
       )}
 
       <section aria-label="Chỉ số doanh thu" className="grid gap-4 sm:grid-cols-2">
-        <article className="rounded-2xl border border-line/80 bg-surface p-5 shadow-sm">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <article className="rounded border border-td-rule/80 bg-td-white p-5 shadow-sm">
+          <span className="flex h-11 w-11 items-center justify-center rounded bg-primary/10 text-primary">
             <CircleDollarSign className="h-5 w-5" />
           </span>
-          <p className="mt-5 text-sm font-medium text-ink-3">Tổng giá trị chuyến hoàn thành</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-ink">
+          <p className="mt-5 text-sm font-medium text-td-muted">Tổng giá trị chuyến hoàn thành</p>
+          <p className="mt-1 text-2xl font-bold tracking-tight text-td-ink">
             {loading ? "—" : `${totalRevenue.toLocaleString("vi-VN")} ₫`}
           </p>
         </article>
-        <article className="rounded-2xl border border-line/80 bg-surface p-5 shadow-sm">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-info-bg text-info">
+        <article className="rounded border border-td-rule/80 bg-td-white p-5 shadow-sm">
+          <span className="flex h-11 w-11 items-center justify-center rounded bg-info-bg text-info">
             <ClipboardCheck className="h-5 w-5" />
           </span>
-          <p className="mt-5 text-sm font-medium text-ink-3">Chuyến được phân công trong tháng</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-ink">
+          <p className="mt-5 text-sm font-medium text-td-muted">Chuyến được phân công trong tháng</p>
+          <p className="mt-1 text-2xl font-bold tracking-tight text-td-ink">
             {loading ? "—" : assignments.length.toLocaleString("vi-VN")}
           </p>
         </article>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-line/80 bg-surface shadow-sm">
-        <div className="border-b border-line px-5 py-4">
-          <h3 className="font-bold text-ink">Chuyến đã hoàn thành</h3>
+      <section className="overflow-hidden rounded border border-td-rule/80 bg-td-white shadow-sm">
+        <div className="border-b border-td-rule px-5 py-4">
+          <h3 className="font-bold text-td-ink">Chuyến đã hoàn thành</h3>
         </div>
         {!loading && !error && completedRentals.length === 0 && (
-          <p className="px-5 py-6 text-sm text-ink-3">
+          <p className="px-5 py-6 text-sm text-td-muted">
             Chưa có chuyến hoàn thành trong tháng đã chọn.
           </p>
         )}
         {completedRentals.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left">
-              <thead className="bg-sunken/80 text-xs font-bold uppercase tracking-wider text-ink-3">
+              <thead className="bg-td-chalk/80 text-xs font-bold uppercase tracking-wider text-td-muted">
                 <tr>
                   <th className="px-5 py-3">Mã chuyến</th>
                   <th className="px-4 py-3">Thời gian</th>
                   <th className="px-5 py-3 text-right">Giá trị thuê</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-td-rule">
                 {completedRentals.map(({ rental, assignment }) => (
                   <tr key={`${rental.id}-${assignment.assignmentId ?? assignment.startTime ?? ""}`} className="text-sm">
-                    <td className="px-5 py-4 font-semibold text-ink">#{rental.id}</td>
-                    <td className="px-4 py-4 text-ink-3">
+                    <td className="px-5 py-4 font-semibold text-td-ink">#{rental.id}</td>
+                    <td className="px-4 py-4 text-td-muted">
                       {formatDate(rental.endTime ?? assignment.endTime ?? rental.startTime ?? assignment.startTime)}
                     </td>
-                    <td className="px-5 py-4 text-right font-semibold text-ink">
+                    <td className="px-5 py-4 text-right font-semibold text-td-ink">
                       {(rental.totalPrice ?? 0).toLocaleString("vi-VN")} ₫
                     </td>
                   </tr>

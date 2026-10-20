@@ -13,13 +13,37 @@ const getMountedServerSnapshot = () => false;
  * Đồng bộ hậu cảnh thống nhất cho toàn bộ các trang từ Landing page, Catalog,
  * Chi tiết xe, Dashboard khách hàng cho đến Cổng quản trị Admin & Tài xế.
  * Tuân thủ 100% DESIGN.md Phần A: Zero-Gradient, Warm Canvas, Hairline CAD Grid.
- * Lưu ý: Tuyệt đối không mount trên /admin để tránh đè watermark lên dữ liệu vận hành (Phase 3C P0-03).
+ * Lưu ý: chỉ dùng cho khu công khai. Các cổng nội bộ (admin, khách hàng, nhân viên, tài xế)
+ * dùng nền giấy phẳng theo Transit Desk để watermark không đè lên dữ liệu nghiệp vụ.
  */
+const PORTAL_PREFIXES = [
+  "/admin",
+  "/account",
+  "/booking",
+  "/driver-license",
+  "/invoices",
+  "/my-",
+  "/my-rentals",
+  "/my-subscriptions",
+  "/payment",
+  "/rental-contract",
+  "/report-incident",
+  "/staff",
+  "/profile",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/result",
+  "/forbidden",
+];
+
+const isPortalRoute = (pathname: string | null | undefined) =>
+  !!pathname && PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
 export default function GlobalBlueprintBackground() {
   const mounted = useSyncExternalStore(subscribeMounted, getMountedSnapshot, getMountedServerSnapshot);
   const pathname = usePathname();
 
-  if (!mounted || pathname?.startsWith("/admin")) {
+  if (!mounted || isPortalRoute(pathname)) {
     return null;
   }
 
@@ -31,7 +55,7 @@ export default function GlobalBlueprintBackground() {
     >
       {/* 1. Lưới toạ độ kỹ thuật CAD liên tục (80x80px Metric Coordinate Grid) */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-[0.035] text-ink"
+        className="absolute inset-0 w-full h-full opacity-[0.035] text-td-ink"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -62,7 +86,7 @@ export default function GlobalBlueprintBackground() {
 
       {/* 2. Đường nét khí động học Aero Streamlines mờ nhẹ ở phần trên viewport */}
       <svg
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1440px] h-[720px] max-w-none opacity-[0.06] text-ink"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1440px] h-[720px] max-w-none opacity-[0.06] text-td-ink"
         viewBox="0 0 1440 720"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -103,48 +127,48 @@ export default function GlobalBlueprintBackground() {
 
       {/* 3. Thước đo toạ độ dọc bên trái (Left Vertical Datum Axis) */}
       <div 
-        className="hidden xl:flex flex-col justify-between absolute left-3 2xl:left-6 top-36 bottom-36 w-12 border-l border-ink/10 pl-2 font-mono text-[11px] text-ink-3 opacity-35"
+        className="hidden xl:flex flex-col justify-between absolute left-3 2xl:left-6 top-36 bottom-36 w-12 border-l border-ink/10 pl-2 font-mono text-[11px] text-td-muted opacity-35"
         suppressHydrationWarning
       >
         <div>
           <span className="block font-bold text-primary">0000 MM</span>
-          <span className="text-[10px] text-ink-3">SYS-INIT</span>
+          <span className="text-[10px] text-td-muted">SYS-INIT</span>
         </div>
         <div>
-          <span className="block font-bold text-ink">1200 MM</span>
-          <span className="text-[10px] text-ink-3">CATALOG</span>
+          <span className="block font-bold text-td-ink">1200 MM</span>
+          <span className="text-[10px] text-td-muted">CATALOG</span>
         </div>
         <div>
-          <span className="block font-bold text-ink">2400 MM</span>
-          <span className="text-[10px] text-ink-3">TELEMETRY</span>
+          <span className="block font-bold text-td-ink">2400 MM</span>
+          <span className="text-[10px] text-td-muted">TELEMETRY</span>
         </div>
         <div>
-          <span className="block font-bold text-ink">3600 MM</span>
-          <span className="text-[10px] text-ink-3">INSPECTION</span>
+          <span className="block font-bold text-td-ink">3600 MM</span>
+          <span className="text-[10px] text-td-muted">INSPECTION</span>
         </div>
         <div>
           <span className="block font-bold text-primary">4800 MM</span>
-          <span className="text-[10px] text-ink-3">STATION</span>
+          <span className="text-[10px] text-td-muted">STATION</span>
         </div>
       </div>
 
       {/* 4. Thước đo toạ độ dọc bên phải (Right Vertical Technical Datum Axis) */}
-      <div className="hidden xl:flex flex-col justify-between absolute right-3 2xl:right-6 top-36 bottom-36 w-24 border-r border-ink/10 pr-2 text-right font-mono text-[11px] text-ink-3 opacity-35">
+      <div className="hidden xl:flex flex-col justify-between absolute right-3 2xl:right-6 top-36 bottom-36 w-24 border-r border-ink/10 pr-2 text-right font-mono text-[11px] text-td-muted opacity-35">
         <div>
-          <span className="block font-bold text-ink">10.7626° N</span>
-          <span className="text-[10px] text-ink-3">106.6602° E</span>
+          <span className="block font-bold text-td-ink">10.7626° N</span>
+          <span className="text-[10px] text-td-muted">106.6602° E</span>
         </div>
         <div>
-          <span className="block font-bold text-ink">ISO-26262</span>
-          <span className="text-[10px] text-ink-3">ROAD SAFETY</span>
+          <span className="block font-bold text-td-ink">ISO-26262</span>
+          <span className="text-[10px] text-td-muted">ROAD SAFETY</span>
         </div>
         <div>
-          <span className="block font-bold text-ink">PAYOS-API</span>
-          <span className="text-[10px] text-ink-3">VERIFIED</span>
+          <span className="block font-bold text-td-ink">PAYOS-API</span>
+          <span className="text-[10px] text-td-muted">VERIFIED</span>
         </div>
         <div>
           <span className="block font-bold text-primary">OBD-II</span>
-          <span className="text-[10px] text-ink-3">DIAGNOSTIC</span>
+          <span className="text-[10px] text-td-muted">DIAGNOSTIC</span>
         </div>
       </div>
     </div>

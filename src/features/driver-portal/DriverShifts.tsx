@@ -59,7 +59,7 @@ function statusStyle(status: string | null | undefined): string {
     case "pending":
       return "bg-primary-tint text-warning";
     default:
-      return "bg-sunken text-ink-2";
+      return "bg-td-chalk text-td-ink";
   }
 }
 
@@ -134,10 +134,10 @@ export default function DriverShifts() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">
             Ca làm việc
           </h2>
-          <p className="mt-2 text-sm text-ink-3">
+          <p className="mt-2 text-sm text-td-muted">
             Xem các chuyến xe được phân công cho bạn trong khoảng thời gian đã chọn.
           </p>
         </div>
@@ -145,15 +145,15 @@ export default function DriverShifts() {
           type="button"
           onClick={() => setReloadKey((current) => current + 1)}
           disabled={loading || !canLoad}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink-2 transition hover:border-primary/40 hover:text-primary disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded border border-td-rule bg-td-white px-4 py-2.5 text-sm font-semibold text-td-ink transition hover:border-primary/40 hover:text-primary disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Làm mới
         </button>
       </div>
 
-      <section className="flex flex-col gap-4 rounded-2xl border border-line/80 bg-surface p-4 shadow-sm sm:flex-row sm:items-end sm:p-5">
-        <label className="flex-1 text-sm font-semibold text-ink-2">
+      <section className="flex flex-col gap-4 rounded border border-td-rule/80 bg-td-white p-4 shadow-sm sm:flex-row sm:items-end sm:p-5">
+        <label className="flex-1 text-sm font-semibold text-td-ink">
           Từ ngày
           <input
             type="date"
@@ -163,7 +163,7 @@ export default function DriverShifts() {
             className="admin-input mt-2"
           />
         </label>
-        <label className="flex-1 text-sm font-semibold text-ink-2">
+        <label className="flex-1 text-sm font-semibold text-td-ink">
           Đến ngày
           <input
             type="date"
@@ -181,32 +181,32 @@ export default function DriverShifts() {
       </section>
 
       {error && (
-        <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+        <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
       {canLoad && loading && (
         <SkeletonBlock label="Đang tải lịch làm việc" className="space-y-3">
-          {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-4 rounded-2xl border border-line bg-surface p-5"><Skeleton className="h-5 w-40" /><div className="grid gap-4 sm:grid-cols-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div></div>)}
+          {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-4 rounded border border-td-rule bg-td-white p-5"><Skeleton className="h-5 w-40" /><div className="grid gap-4 sm:grid-cols-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div></div>)}
         </SkeletonBlock>
       )}
 
       {!loading && !error && canLoad && (
         <div className="flex flex-wrap gap-3 text-sm">
-          <span className="rounded-xl border border-line bg-surface px-4 py-2.5 font-medium text-ink-2">
+          <span className="rounded border border-td-rule bg-td-white px-4 py-2.5 font-medium text-td-ink">
             Tổng số ca: <strong>{shifts.length}</strong>
           </span>
-          <span className="rounded-xl border border-primary/30 bg-primary-tint px-4 py-2.5 font-medium text-warning">
+          <span className="rounded border border-primary/30 bg-primary-tint px-4 py-2.5 font-medium text-warning">
             Đã hoàn thành: <strong>{completedCount}</strong>
           </span>
         </div>
       )}
 
       {!loading && !error && canLoad && shifts.length === 0 && (
-        <div className="rounded-2xl border border-line bg-surface px-5 py-10 text-center">
-          <CalendarClock className="mx-auto h-9 w-9 text-ink-3" />
-          <p className="mt-3 font-semibold text-ink-2">Không có ca làm việc</p>
-          <p className="mt-1 text-sm text-ink-3">
+        <div className="rounded border border-td-rule bg-td-white px-5 py-10 text-center">
+          <CalendarClock className="mx-auto h-9 w-9 text-td-muted" />
+          <p className="mt-3 font-semibold text-td-ink">Không có ca làm việc</p>
+          <p className="mt-1 text-sm text-td-muted">
             Chưa có chuyến nào được phân công trong khoảng thời gian này.
           </p>
         </div>
@@ -217,18 +217,18 @@ export default function DriverShifts() {
           {shifts.map((shift, index) => (
             <article
               key={`${shift.assignmentId ?? "assignment"}-${shift.rentalId ?? "rental"}-${index}`}
-              className="rounded-2xl border border-line/80 bg-surface p-5 shadow-sm"
+              className="rounded border border-td-rule/80 bg-td-white p-5 shadow-sm"
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                 <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
                     <CalendarClock className="h-5 w-5" />
                   </span>
                   <div>
-                    <h3 className="font-bold text-ink">
+                    <h3 className="font-bold text-td-ink">
                       Ca #{shift.assignmentId ?? index + 1}
                     </h3>
-                    <p className="mt-1 text-sm text-ink-3">
+                    <p className="mt-1 text-sm text-td-muted">
                       Mã chuyến: {shift.rentalId ? `#${shift.rentalId}` : "Chưa có"}
                     </p>
                   </div>
@@ -237,28 +237,28 @@ export default function DriverShifts() {
                   {statusLabel(shift.rentalStatus)}
                 </span>
               </div>
-              <div className="mt-5 grid gap-3 border-t border-line pt-4 text-sm sm:grid-cols-3">
-                <p className="flex items-start gap-2 text-ink-3">
-                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-ink-3" />
+              <div className="mt-5 grid gap-3 border-t border-td-rule pt-4 text-sm sm:grid-cols-3">
+                <p className="flex items-start gap-2 text-td-muted">
+                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-td-muted" />
                   <span>
-                    <span className="block text-xs text-ink-3">Bắt đầu</span>
-                    <strong className="mt-1 block font-semibold text-ink">
+                    <span className="block text-xs text-td-muted">Bắt đầu</span>
+                    <strong className="mt-1 block font-semibold text-td-ink">
                       {formatDateTime(shift.startTime)}
                     </strong>
                   </span>
                 </p>
-                <p className="flex items-start gap-2 text-ink-3">
-                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-ink-3" />
+                <p className="flex items-start gap-2 text-td-muted">
+                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-td-muted" />
                   <span>
-                    <span className="block text-xs text-ink-3">Kết thúc</span>
-                    <strong className="mt-1 block font-semibold text-ink">
+                    <span className="block text-xs text-td-muted">Kết thúc</span>
+                    <strong className="mt-1 block font-semibold text-td-ink">
                       {formatDateTime(shift.endTime)}
                     </strong>
                   </span>
                 </p>
-                <div className="flex items-start gap-2 text-ink-3">
+                <div className="flex items-start gap-2 text-td-muted">
                   <span>
-                    <span className="block text-xs text-ink-3">Phương tiện</span>
+                    <span className="block text-xs text-td-muted">Phương tiện</span>
                     <span className="mt-1 block">{shift.vehicleId ? <VehicleName vehicleId={shift.vehicleId} /> : "Chưa phân công"}</span>
                   </span>
                 </div>
