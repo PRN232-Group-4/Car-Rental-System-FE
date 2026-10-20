@@ -2,17 +2,11 @@
 
 import React from "react";
 import Link from "@/components/navigation/NavigationLink";
-import {
-  Package,
-  Clock,
-  Calendar,
-  AlertTriangle,
-  ArrowRight,
-  PlusCircle,
-  HelpCircle,
-} from "lucide-react";
+import { Package, AlertTriangle, ArrowRight, PlusCircle, HelpCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getMySubscriptions, CustomerSubscription } from "@/features/subscriptions";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function MySubscriptionsPage() {
   const { data: subscriptions = [], isLoading } = useQuery<CustomerSubscription[]>({
@@ -25,29 +19,27 @@ export default function MySubscriptionsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-warning text-xs font-bold mb-2">
-            <Package className="w-3.5 h-3.5 text-primary" />
-            <span>Gói thuê bao xe trả trước</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-td-ink tracking-tight">
-            Gói thuê bao của tôi
-          </h1>
-          <p className="text-sm text-td-muted mt-1">
-            Theo dõi số giờ di chuyển khả dụng, thời hạn sử dụng và lịch sử trừ giờ theo từng chuyến đi.
-          </p>
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · GÓI THUÊ BAO"
+        title={<>Gói thuê bao <em className="italic text-td-teal">của tôi.</em></>}
+        description="Theo dõi số giờ di chuyển khả dụng, thời hạn sử dụng và lịch sử trừ giờ theo từng chuyến đi."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">GÓI ĐANG HOẠT ĐỘNG</span>
+          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
+            {isLoading ? "—" : String(activeSubscriptions.length).padStart(2, "0")}
+          </strong>
         </div>
-
         <Link
           href="/subscriptions"
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-md shadow-primary/20 transition-all shrink-0"
+          className="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover"
         >
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircle className="h-4 w-4" aria-hidden="true" />
           <span>Mua thêm gói cước</span>
         </Link>
-      </div>
+      </TransitFolio>
 
       {/* Active Subscriptions Grid */}
       {isLoading ? (
@@ -76,7 +68,7 @@ export default function MySubscriptionsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section aria-label="Gói đang hoạt động" className="border-t border-td-ink">
           {activeSubscriptions.map((sub) => {
             const endDate = new Date(sub.endDate);
             const now = new Date();
@@ -93,27 +85,31 @@ export default function MySubscriptionsPage() {
             return (
               <div
                 key={sub.id}
-                className="p-6 sm:p-7 rounded bg-td-white border border-td-rule shadow-sm relative overflow-hidden flex flex-col justify-between"
+                className="border-b border-td-rule py-5"
               >
-                {/* Status Banner / Badges */}
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-primary-tint text-primary">
-                    <span className="w-2 h-2 rounded-full bg-primary" />
-                    Đang hoạt động
-                  </span>
-                  <span className="text-xs font-semibold text-td-muted">
-                    Mã gói: #{sub.id}
-                  </span>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold tracking-tight text-td-ink">{sub.planName}</h3>
+                      <StatusBadge status="active">Đang hoạt động</StatusBadge>
+                    </div>
+                    <p className="mt-1 font-mono text-[11px] text-td-muted">
+                      Mã gói #{sub.id} · {new Date(sub.startDate).toLocaleDateString("vi-VN")} → {endDate.toLocaleDateString("vi-VN")} ({daysRemaining} ngày)
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="block font-mono text-[10px] uppercase tracking-wider text-td-muted">Số giờ còn lại</span>
+                    <span className="font-mono text-xl font-bold text-td-ink">
+                      {sub.remainingHours}
+                      <span className="ml-1 font-sans text-xs font-semibold text-td-muted">/ {sub.totalHours} giờ</span>
+                    </span>
+                  </div>
                 </div>
-
-                <h3 className="text-xl sm:text-2xl font-bold text-td-ink tracking-tight mb-2">
-                  {sub.planName}
-                </h3>
 
                 {/* Warning Alerts */}
                 {(isLowHours || isExpiringSoon) && (
-                  <div className="mb-5 p-3.5 rounded bg-primary-tint border border-primary/30 text-warning text-xs font-semibold flex items-start gap-2.5">
-                    <AlertTriangle className="w-4 h-4 text-primary-graphic shrink-0 mt-0.5" />
+                  <div className="mt-3 flex items-start gap-2.5 border-l-2 border-warning pl-3 text-xs font-semibold text-td-muted">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
                     <div className="space-y-0.5">
                       {isLowHours && (
                         <p>
@@ -129,78 +125,34 @@ export default function MySubscriptionsPage() {
                   </div>
                 )}
 
-                {/* Remaining Hours Gauge */}
-                <div className="p-5 rounded bg-td-paper border border-td-rule mb-6">
-                  <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-td-muted">
-                      Số giờ còn lại
-                    </span>
-                    <div className="text-right">
-                      <span className="text-3xl font-bold text-primary">
-                        {sub.remainingHours}
-                      </span>
-                      <span className="text-sm font-bold text-td-muted ml-1">
-                        / {sub.totalHours} giờ
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="w-full h-3 rounded-full bg-td-chalk overflow-hidden">
+                {/* Thanh giờ còn lại */}
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-td-chalk">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isLowHours
-                          ? "bg-primary-hover"
-                          : "bg-primary"
-                      }`}
+                      className={`h-full transition-all duration-500 ${isLowHours ? "bg-warning" : "bg-primary"}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                </div>
-
-                  {/* Dates metadata */}
-                  <div className="grid grid-cols-2 gap-4 text-xs mb-6">
-                    <div className="flex items-center gap-2 text-td-muted">
-                      <Calendar className="w-4 h-4 text-td-muted" />
-                      <div>
-                        <div className="text-td-muted">Bắt đầu</div>
-                        <div className="font-semibold text-td-ink">
-                          {new Date(sub.startDate).toLocaleDateString("vi-VN")}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-td-muted">
-                      <Clock className="w-4 h-4 text-td-muted" />
-                      <div>
-                        <div className="text-td-muted">Hết hạn</div>
-                        <div className="font-semibold text-td-ink">
-                          {endDate.toLocaleDateString("vi-VN")} ({daysRemaining} ngày)
-                        </div>
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href={`/booking?subscriptionId=${sub.id}`}
+                      className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-primary-hover"
+                    >
+                      <span>Dùng gói đặt xe</span>
+                      <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                    </Link>
+                    <Link
+                      href="/subscriptions"
+                      className="inline-flex items-center rounded border border-td-rule px-3 py-1.5 text-[11px] font-bold text-td-ink transition-colors hover:bg-td-chalk"
+                    >
+                      Gia hạn
+                    </Link>
                   </div>
-
-                {/* Card Bottom CTA */}
-                <div className="pt-4 border-t border-td-rule flex items-center justify-between gap-3">
-                  <Link
-                    href={`/booking?subscriptionId=${sub.id}`}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-bold shadow-xs transition-colors"
-                  >
-                    <span>Dùng gói đặt xe</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-
-                  <Link
-                    href="/subscriptions"
-                    className="inline-flex items-center justify-center px-4 py-2.5 rounded border border-td-rule hover:bg-td-chalk text-td-ink text-xs sm:text-sm font-semibold transition-colors"
-                  >
-                    <span>Gia hạn gói</span>
-                  </Link>
                 </div>
               </div>
             );
           })}
-        </div>
+        </section>
       )}
 
       {/* History of Expired/Past Subscriptions */}

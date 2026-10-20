@@ -7,9 +7,23 @@ import RentalLookup from "./RentalLookup";
 import OperationFields from "./OperationFields";
 import { getReports, sendReport, uploadReportImage } from "./extended-api";
 import { operationalError, operationsButton, operationsPanel } from "./api";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function IncidentReporter() {
-  return <RentalLookup title="Báo cáo sự cố" staffLinks={false}>{(rental) => <ReportForm rentalId={Number(rental.id)} />}</RentalLookup>;
+  return (
+    <div className="space-y-6">
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · HỖ TRỢ SỰ CỐ"
+        title={<>Báo cáo <em className="italic text-td-teal">sự cố.</em></>}
+        description="Gửi mô tả và ảnh hiện trạng để trạm tiếp nhận và xử lý theo SLA."
+      />
+      <RentalLookup title="Tra cứu đơn thuê" staffLinks={false}>
+        {(rental) => <ReportForm rentalId={Number(rental.id)} />}
+      </RentalLookup>
+    </div>
+  );
 }
 function ReportForm({ rentalId }: { rentalId: number }) {
   const [values, setValues] = useState({ type: "", description: "" });

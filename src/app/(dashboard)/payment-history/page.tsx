@@ -2,16 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
-import {
-  CreditCard,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
-} from "lucide-react";
+import { CreditCard, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { getPayments, PaymentSummary } from "@/features/payments";
 
 export default function LichSuThanhToanPage() {
@@ -40,43 +34,22 @@ export default function LichSuThanhToanPage() {
     .filter((p) => p.type === "deposit" && (p.status === "paid" || p.status === "requested"))
     .reduce((sum, p) => sum + p.amount, 0);
 
+  const STATUS_LABELS: Record<string, string> = {
+    paid: "Thành công",
+    requested: "Đang xử lý hoàn",
+    refunded: "Đã hoàn cọc",
+    rejected: "Từ chối hoàn",
+  };
+  const STATUS_TONE: Record<string, string> = {
+    paid: "approved",
+    requested: "pending",
+    refunded: "reserved",
+    rejected: "rejected",
+  };
+
   const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "paid":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-            <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-            Thành công
-          </span>
-        );
-      case "requested":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-            <Clock className="w-3.5 h-3.5 text-primary-graphic" />
-            Đang xử lý hoàn
-          </span>
-        );
-      case "refunded":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-info-bg text-info">
-            <RotateCcw className="w-3.5 h-3.5 text-info" />
-            Đã hoàn cọc
-          </span>
-        );
-      case "rejected":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-danger-bg text-danger">
-            <XCircle className="w-3.5 h-3.5 text-danger" />
-            Từ chối hoàn
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-td-chalk text-td-muted">
-            {status}
-          </span>
-        );
-    }
+    const key = status.toLowerCase();
+    return <StatusBadge status={STATUS_TONE[key] ?? key}>{STATUS_LABELS[key] ?? status}</StatusBadge>;
   };
 
   const getTypeLabel = (type?: string | null) => {
@@ -95,20 +68,21 @@ export default function LichSuThanhToanPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-warning text-xs font-bold mb-2">
-          <CreditCard className="w-3.5 h-3.5 text-primary" />
-          <span>Sổ cái tài chính & Lịch sử giao dịch</span>
+    <div className="space-y-8">
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · SỔ CÁI TÀI CHÍNH"
+        title={<>Lịch sử thanh toán & <em className="italic text-td-teal">hoàn cọc.</em></>}
+        description="Minh bạch toàn bộ dòng tiền: tiền thuê, tiền cọc đã nộp và trạng thái hoàn cọc sau khi kết thúc chuyến xe."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">SỐ GIAO DỊCH</span>
+          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
+            {isLoading ? "—" : String(filteredPayments.length).padStart(2, "0")}
+          </strong>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-td-ink tracking-tight">
-          Lịch sử thanh toán & Hoàn cọc
-        </h1>
-        <p className="text-sm text-td-muted mt-1">
-          Minh bạch toàn bộ dòng tiền: tiền thuê, tiền cọc đã nộp và trạng thái hoàn cọc sau khi kết thúc chuyến xe.
-        </p>
-      </div>
+      </TransitFolio>
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

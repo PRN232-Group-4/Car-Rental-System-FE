@@ -11,6 +11,7 @@ import type { RentalContract } from "../types";
 import VehicleName from "@/features/admin/VehicleName";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import RentalStatusTracker from "./RentalStatusTracker";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 const inputClass = "mt-2 w-full rounded border border-td-rule bg-td-white px-3 py-3 text-sm";
 
@@ -20,11 +21,17 @@ export default function RentalContractManager() {
   const [lookupId, setLookupId] = useState(params.get("rentalId") ?? "");
   const validation = useInlineValidation();
   const query = useQuery({ queryKey: ["rental-contract", lookupId], queryFn: () => getRentalById(lookupId), enabled: /^[1-9]\d*$/.test(lookupId), retry: false });
-  return <section className="mx-auto max-w-3xl space-y-6">
-    <div><h1 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">Hợp đồng thuê dài hạn</h1><p className="mt-2 text-sm text-td-muted">Tra cứu đơn thuê, xem tài liệu và ghi nhận thông tin hợp đồng đã ký.</p></div>
-    <ValidatedForm validation={validation} onSubmit={() => setLookupId(rentalId)} className="rounded border border-td-rule bg-td-white p-5">
-      <label htmlFor="rentalId" className="text-sm font-semibold">Mã đơn thuê</label><InlineInput id="rentalId" name="rentalId" type="number" min="1" step="1" required value={rentalId} onChange={(event) => setRentalId(event.target.value)} className={inputClass} />
-      <button type="submit" className="mt-4 rounded bg-primary px-4 py-3 text-white">Tra cứu hợp đồng</button>
+  return <section className="space-y-6">
+    <TransitFolio
+      index="09"
+      tag="KH"
+      kicker="KHÁCH HÀNG · HỢP ĐỒNG DÀI HẠN"
+      title={<>Hợp đồng <em className="italic text-td-teal">thuê dài hạn.</em></>}
+      description="Tra cứu đơn thuê, xem tài liệu và ghi nhận thông tin hợp đồng đã ký."
+    />
+    <ValidatedForm validation={validation} onSubmit={() => setLookupId(rentalId)} className="space-y-3 border-y border-td-rule py-4">
+      <label htmlFor="rentalId" className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">Mã đơn thuê</label><InlineInput id="rentalId" name="rentalId" type="number" min="1" step="1" required value={rentalId} onChange={(event) => setRentalId(event.target.value)} className={inputClass} />
+      <button type="submit" className="rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover">Tra cứu hợp đồng</button>
     </ValidatedForm>
     {query.isFetching && !query.data && <FormSkeleton label="Đang tải hợp đồng" fields={4} />}
     {query.error && <p role="alert" className="text-danger">{query.error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : query.error.message} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
@@ -53,7 +60,7 @@ function ContractForm({ rental }: { rental: RentalContract }) {
       setGeneralError(error instanceof TypeError ? "Không thể kết nối máy chủ. Thông tin chưa được lưu, vui lòng thử lại." : message);
     } finally { setSubmitting(false); }
   };
-  return <div className="space-y-5 rounded border border-td-rule bg-td-white p-5 sm:p-6">
+  return <div className="space-y-5 border-t border-td-ink pt-4">
     <h2 className="text-lg font-bold">{rental.orderId ? `Đơn thuê chính thức #${rental.orderId}` : `Yêu cầu thuê #${rental.id}`}</h2>
     <RentalStatusTracker status={rental.status} />
     <VehicleName vehicleId={rental.vehicleId} />

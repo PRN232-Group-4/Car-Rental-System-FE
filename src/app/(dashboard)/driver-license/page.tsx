@@ -4,14 +4,14 @@ import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSel
 
 import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   FileCheck,
   ShieldCheck,
   AlertCircle,
-  Clock,
   Upload,
   CheckCircle2,
-  XCircle,
   Camera,
   Loader2,
 } from "lucide-react";
@@ -27,52 +27,24 @@ export default function GPLXPage() {
   });
 
   const getStatusBadge = (status?: string) => {
-    switch (status?.toLowerCase()) {
-      case "approved":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-            <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-            Đã xác minh (Hợp lệ)
-          </span>
-        );
-      case "rejected":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-danger-bg text-danger">
-            <XCircle className="w-3.5 h-3.5 text-danger" />
-            Bị từ chối duyệt
-          </span>
-        );
-      case "pending":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-            <Clock className="w-3.5 h-3.5 text-primary-graphic" />
-            Đang chờ duyệt
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-td-chalk text-td-muted">
-            Chưa cập nhật
-          </span>
-        );
-    }
+    const key = status?.toLowerCase() ?? "";
+    if (key === "approved") return <StatusBadge status="approved">Đã xác minh (Hợp lệ)</StatusBadge>;
+    if (key === "rejected") return <StatusBadge status="rejected">Bị từ chối duyệt</StatusBadge>;
+    if (key === "pending") return <StatusBadge status="pending">Đang chờ duyệt</StatusBadge>;
+    return <StatusBadge status="unavailable">Chưa cập nhật</StatusBadge>;
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-tint border border-primary/30 text-warning text-xs font-bold mb-2">
-          <FileCheck className="w-3.5 h-3.5 text-primary" />
-          <span>Hồ sơ lái xe & Định danh điện tử</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-td-ink tracking-tight">
-          Giấy phép lái xe (GPLX)
-        </h1>
-        <p className="text-sm text-td-muted mt-1">
-          Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · HỒ SƠ LÁI XE"
+        title={<>Giấy phép <em className="italic text-td-teal">lái xe.</em></>}
+        description="Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp."
+      >
+        {getStatusBadge(license?.status)}
+      </TransitFolio>
 
       <Suspense fallback={null}>
         <BookingLicenseReturn license={license} />

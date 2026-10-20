@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useAuth } from "@/features/auth";
 import { initialsFor } from "@/features/profile/api";
 import { LogOut, UserRound } from "lucide-react";
+import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "@/features/admin/transit-desk/transit-desk.module.css";
 
 interface CustomerRoute {
@@ -68,6 +69,31 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+
+  // Ctrl/⌘ + K mở bảng tìm kiếm, giống cổng quản trị
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const commandRoutes = useMemo<CommandRoute[]>(
+    () =>
+      CUSTOMER_CHAPTERS.flatMap((entry) =>
+        entry.routes.map((route) => ({
+          chapter: entry.chapter,
+          href: route.href,
+          label: route.label,
+        })),
+      ),
+    [],
+  );
 
   const activeChapter = useMemo(() => {
     return (
@@ -134,6 +160,8 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
               <div className="text-[10px] text-td-muted">{displayEmail}</div>
             </div>
 
+            <CommandTrigger onClick={() => setIsCommandOpen(true)} />
+
             <Link
               href="/profile"
               className="inline-flex h-9 w-9 items-center justify-center rounded border border-td-rule text-td-ink transition-colors hover:bg-td-chalk"
@@ -187,6 +215,18 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
           {children}
         </div>
       </main>
+
+      {isCommandOpen && (
+        <CommandPalette
+          isOpen
+          onClose={() => setIsCommandOpen(false)}
+          routes={commandRoutes}
+          storageKey="thong_dong_customer_recent_routes"
+          title="Tìm chức năng khách hàng"
+          placeholder="Gõ tên trang hoặc đường dẫn (ví dụ: hoá đơn, gplx, /invoices)..."
+          emptyHint="Không tìm thấy trang phù hợp trong cổng khách hàng."
+        />
+      )}
     </div>
   );
 }
