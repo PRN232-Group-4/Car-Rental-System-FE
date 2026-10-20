@@ -2,12 +2,12 @@
 
 import React from "react";
 import { SlidersHorizontal, RotateCcw, Car, Fuel, Building2, Users, Settings2, DollarSign } from "lucide-react";
-import { FacilityCatalogItem } from "@/api/mock/mock-catalog";
+import type { Facility } from "@/features/facilities/types";
 import { FindFilterState } from "../findFilterSchema";
 
 export interface VehicleFiltersProps {
   filters: FindFilterState;
-  facilities?: FacilityCatalogItem[];
+  facilities?: Facility[];
   brands?: string[];
   onChange: (patch: Partial<FindFilterState>) => void;
   onReset: () => void;
@@ -66,15 +66,15 @@ export function VehicleFilters({
     <div className={`space-y-6 ${className}`}>
       {/* Tiêu đề sidebar */}
       {!isMobileDrawer && (
-        <div className="flex items-center justify-between border-b border-line pb-3.5">
-          <div className="flex items-center gap-2 font-bold text-ink">
+        <div className="flex items-center justify-between border-b border-td-rule pb-3.5">
+          <div className="flex items-center gap-2 font-bold text-td-ink">
             <SlidersHorizontal className="w-4 h-4 text-primary" />
             <h2 className="text-base">Bộ lọc tìm xe</h2>
           </div>
           <button
             type="button"
             onClick={onReset}
-            className="flex items-center gap-1 text-xs font-semibold text-ink-3 hover:text-primary transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-xs font-semibold text-td-muted hover:text-primary transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Đặt lại</span>
@@ -84,7 +84,7 @@ export function VehicleFilters({
 
       {/* 1. Phân khúc xe */}
       <div className="space-y-2">
-        <label className="flex items-center gap-1.5 text-xs font-bold text-ink">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
           <Car className="w-3.5 h-3.5 text-primary" />
           <span>Phân khúc phương tiện</span>
         </label>
@@ -96,10 +96,10 @@ export function VehicleFilters({
                 key={cat.value}
                 type="button"
                 onClick={() => onChange({ category: cat.value as FindFilterState["category"] })}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all text-left cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded px-3 py-2 text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
                     ? "bg-primary text-white font-bold shadow-xs"
-                    : "text-ink hover:bg-surface-raised"
+                    : "text-td-ink hover:bg-td-chalk"
                 }`}
               >
                 <span>{cat.label}</span>
@@ -111,15 +111,16 @@ export function VehicleFilters({
       </div>
 
       {/* 2. Chi nhánh / Trạm đón xe */}
-      <div className="space-y-2 border-t border-line pt-4">
-        <label className="flex items-center gap-1.5 text-xs font-bold text-ink">
+      <div className="space-y-2 border-t border-td-rule pt-4">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
           <Building2 className="w-3.5 h-3.5 text-primary" />
           <span>Chi nhánh giao nhận</span>
         </label>
         <select
           value={filters.facilityId || "all"}
           onChange={(e) => onChange({ facilityId: e.target.value })}
-          className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:outline-none"
+          aria-label="Chi nhánh giao nhận"
+          className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
         >
           <option value="all">Tất cả chi nhánh</option>
           {facilities.map((fac) => (
@@ -131,16 +132,16 @@ export function VehicleFilters({
       </div>
 
       {/* 3. Thương hiệu xe */}
-      <div className="space-y-2 border-t border-line pt-4">
-        <label className="text-xs font-bold text-ink">Thương hiệu</label>
+      <div className="space-y-2 border-t border-td-rule pt-4">
+        <label className="text-xs font-bold text-td-ink">Thương hiệu</label>
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
             onClick={() => onChange({ brand: "all" })}
-            className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+            className={`rounded px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
               filters.brand === "all" || !filters.brand
                 ? "bg-primary text-white font-bold shadow-xs"
-                : "border border-line bg-surface text-ink-2 hover:bg-surface-raised"
+                : "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
             }`}
           >
             Tất cả
@@ -152,10 +153,10 @@ export function VehicleFilters({
                 key={b}
                 type="button"
                 onClick={() => onChange({ brand: isSelected ? "all" : b })}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+                className={`rounded px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
                   isSelected
                     ? "bg-primary text-white font-bold shadow-xs"
-                    : "border border-line bg-surface text-ink-2 hover:bg-surface-raised"
+                    : "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
                 }`}
               >
                 {b}
@@ -166,8 +167,8 @@ export function VehicleFilters({
       </div>
 
       {/* 4. Số chỗ ngồi */}
-      <div className="space-y-2 border-t border-line pt-4">
-        <label className="flex items-center gap-1.5 text-xs font-bold text-ink">
+      <div className="space-y-2 border-t border-td-rule pt-4">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
           <Users className="w-3.5 h-3.5 text-primary" />
           <span>Số chỗ ngồi (ô tô)</span>
         </label>
@@ -179,10 +180,10 @@ export function VehicleFilters({
                 key={seat.value}
                 type="button"
                 onClick={() => onChange({ seats: seat.value })}
-                className={`rounded-lg py-1.5 text-xs font-medium transition-all text-center cursor-pointer ${
+                className={`rounded py-1.5 text-xs font-medium transition-all text-center cursor-pointer ${
                   isSelected
                     ? "bg-primary text-white font-bold shadow-xs"
-                    : "border border-line bg-surface text-ink-2 hover:bg-surface-raised"
+                    : "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
                 }`}
               >
                 {seat.label}
@@ -193,16 +194,17 @@ export function VehicleFilters({
       </div>
 
       {/* 5. Loại hộp số & Nhiên liệu */}
-      <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
+      <div className="grid grid-cols-2 gap-3 border-t border-td-rule pt-4">
         <div className="space-y-2">
-          <label className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
             <Settings2 className="w-3.5 h-3.5 text-primary" />
             <span>Hộp số</span>
           </label>
           <select
             value={filters.transmission || "all"}
             onChange={(e) => onChange({ transmission: e.target.value })}
-            className="w-full rounded-xl border border-line bg-surface px-2.5 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:outline-none"
+            aria-label="Loại hộp số"
+            className="w-full rounded border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
           >
             {TRANSMISSION_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -213,14 +215,15 @@ export function VehicleFilters({
         </div>
 
         <div className="space-y-2">
-          <label className="flex items-center gap-1.5 text-xs font-bold text-ink">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
             <Fuel className="w-3.5 h-3.5 text-primary" />
             <span>Nhiên liệu</span>
           </label>
           <select
             value={filters.fuelType || "all"}
             onChange={(e) => onChange({ fuelType: e.target.value })}
-            className="w-full rounded-xl border border-line bg-surface px-2.5 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:outline-none"
+            aria-label="Loại nhiên liệu"
+            className="w-full rounded border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
           >
             {FUEL_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -232,8 +235,8 @@ export function VehicleFilters({
       </div>
 
       {/* 6. Mức giá thuê theo giờ */}
-      <div className="space-y-2 border-t border-line pt-4">
-        <label className="flex items-center gap-1.5 text-xs font-bold text-ink">
+      <div className="space-y-2 border-t border-td-rule pt-4">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
           <DollarSign className="w-3.5 h-3.5 text-primary" />
           <span>Khoảng giá thuê / giờ</span>
         </label>
@@ -253,10 +256,10 @@ export function VehicleFilters({
                     onChange({ priceMin: p.min, priceMax: p.max });
                   }
                 }}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-1.5 text-xs transition-colors text-left cursor-pointer ${
+                className={`flex w-full items-center justify-between rounded px-3 py-1.5 text-xs transition-colors text-left cursor-pointer ${
                   isMatch
                     ? "bg-primary-tint font-bold text-primary border border-primary/20"
-                    : "text-ink-2 hover:bg-surface-raised"
+                    : "text-td-ink hover:bg-td-chalk"
                 }`}
               >
                 <span>{p.label}</span>
@@ -269,18 +272,18 @@ export function VehicleFilters({
 
       {/* Nút Áp dụng trên Mobile Bottom Sheet */}
       {isMobileDrawer && (
-        <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-line bg-surface p-4 flex gap-3">
+        <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-td-rule bg-td-white p-4 flex gap-3">
           <button
             type="button"
             onClick={onReset}
-            className="flex-1 rounded-xl border border-line py-2.5 text-xs font-bold text-ink-2 hover:bg-sunken transition-colors cursor-pointer"
+            className="flex-1 rounded border border-td-rule py-2.5 text-xs font-bold text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
           >
             Đặt lại
           </button>
           <button
             type="button"
             onClick={onApplyMobile}
-            className="flex-2 rounded-xl bg-primary py-2.5 text-xs font-bold text-white shadow-e1 hover:bg-primary-hover transition-colors cursor-pointer"
+            className="flex-2 rounded bg-primary py-2.5 text-xs font-bold text-white hover:bg-primary-hover transition-colors cursor-pointer"
           >
             Xem kết quả
           </button>

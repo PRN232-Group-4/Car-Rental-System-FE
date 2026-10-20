@@ -40,15 +40,15 @@ export function ChartCard({
   return (
     <article
       className={cn(
-        "flex flex-col rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6",
+        "flex flex-col border-t border-td-ink pt-4",
         className,
       )}
     >
-      <div className="flex flex-col justify-between gap-4 border-b border-line pb-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-td-rule pb-3 sm:flex-row sm:items-end">
         <div>
-          <h3 className="text-base font-bold text-ink">{title}</h3>
+          <h3 className="text-sm font-bold text-td-ink">{title}</h3>
           {description && (
-            <p className="mt-1 text-xs text-ink-3">{description}</p>
+            <p className="mt-1 font-mono text-[11px] text-td-muted">{description}</p>
           )}
         </div>
 
@@ -61,16 +61,16 @@ export function ChartCard({
               onClick={() => setShowTable((prev) => !prev)}
               aria-pressed={showTable}
               aria-label={showTable ? "Chuyển sang xem biểu đồ" : "Chuyển sang xem dạng bảng"}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink-2 transition hover:bg-canvas active:bg-sunken"
+              className="inline-flex items-center gap-1.5 rounded border border-td-rule px-2.5 py-1 text-[11px] font-bold text-td-ink transition hover:bg-td-chalk"
             >
               {showTable ? (
                 <>
-                  <BarChart3 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                  <BarChart3 className="h-3.5 w-3.5 text-td-oxide" aria-hidden="true" />
                   <span>Xem biểu đồ</span>
                 </>
               ) : (
                 <>
-                  <TableIcon className="h-3.5 w-3.5 text-ink-3" aria-hidden="true" />
+                  <TableIcon className="h-3.5 w-3.5 text-td-muted" aria-hidden="true" />
                   <span>Xem dạng bảng</span>
                 </>
               )}
@@ -79,30 +79,30 @@ export function ChartCard({
         </div>
       </div>
 
-      <div className="mt-5 min-h-[260px] flex-1">
+      <div className="mt-4 min-h-[260px] flex-1">
         {showTable && tableData ? (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-xs">
               <caption className="sr-only">Bảng số liệu cho {title}</caption>
               <thead>
-                <tr className="border-b border-line bg-sunken font-bold uppercase tracking-wider text-ink-3">
+                <tr className="border-b border-td-ink font-mono text-[11px] uppercase tracking-wider text-td-muted">
                   {tableData.headers.map((h, i) => (
-                    <th key={i} scope="col" className="px-3 py-2.5">
+                    <th key={i} scope="col" className="px-2 py-2">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-td-rule">
                 {tableData.rows.map((row, rIdx) => (
-                  <tr key={rIdx} className="hover:bg-surface-raised">
+                  <tr key={rIdx} className="hover:bg-td-chalk/50">
                     {row.map((cell, cIdx) => (
                       <td
                         key={cIdx}
                         className={cn(
-                          "px-3 py-2.5",
-                          typeof cell === "number" && "font-mono tabular-nums text-ink",
-                          typeof cell !== "number" && "text-ink-2",
+                          "px-2 py-2",
+                          typeof cell === "number" && "font-mono tabular-nums text-td-ink",
+                          typeof cell !== "number" && "text-td-muted",
                         )}
                       >
                         {cell}

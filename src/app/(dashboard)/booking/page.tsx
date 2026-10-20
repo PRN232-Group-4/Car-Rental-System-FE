@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={<p className="p-6 text-center text-sm font-semibold text-ink-3">Đang tải biểu mẫu đặt xe...</p>}>
+    <Suspense fallback={<p className="p-6 text-center text-sm font-semibold text-td-muted">Đang tải biểu mẫu đặt xe...</p>}>
       <BookingLicenseGate>
         <BookingForm />
       </BookingLicenseGate>

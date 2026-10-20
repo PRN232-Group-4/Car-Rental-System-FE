@@ -12,34 +12,9 @@ export interface InspectionRequest {
   imageUrls: string | null;
 }
 
-export async function getOperationalRental(id: number): Promise<OperationalRental> {
-  try {
-    return await backendApiClient.get<OperationalRental>(`rentals/${id}`);
-  } catch (error) {
-    if (id === 1 || id === 101 || id === 98) {
-      return {
-        id,
-        customerId: 1,
-        vehicleId: 1,
-        vehicleName: "Toyota Corolla Cross 1.8V",
-        startTime: new Date(Date.now() - 3600000 * 2).toISOString(),
-        endTime: new Date(Date.now() + 3600000 * 6).toISOString(),
-        status: "renting",
-        rentalType: "hourly",
-        hasDriver: false,
-        isSubscription: false,
-        vatPrice: 45000,
-        depositPrice: 2000000,
-        overtimePrice: 0,
-        totalPrice: 450000,
-        contractLink: null,
-        signedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-        hourlyPriceSnapshot: 150000,
-        monthlyPriceSnapshot: null,
-      };
-    }
-    throw error;
-  }
+export function getOperationalRental(id: number): Promise<OperationalRental> {
+  // Luôn fail closed: không trả dữ liệu mẫu cho hồ sơ đơn thuê.
+  return backendApiClient.get<OperationalRental>(`rentals/${id}`);
 }
 
 export async function getOperationalDrivers(): Promise<StaffDto[]> {
@@ -65,51 +40,6 @@ export async function getOperationalDrivers(): Promise<StaffDto[]> {
     } catch {
       // ignore
     }
-
-    return [
-      {
-        id: 1,
-        userId: 101,
-        fullName: "Nguyễn Văn Hùng (Tài xế Chi nhánh 1)",
-        email: "driver.hung@thongdong.vn",
-        phone: "0901111222",
-        departmentId: 1,
-        departmentName: "Tài xế",
-        facilityId: 1,
-        facilityName: "Chi nhánh Quận 1",
-        hiredDate: "2024-01-01",
-        isDriver: true,
-        licenseNumber: "B2-998877",
-        licenseType: "B2",
-        licenseIssueDate: "2023-01-01",
-        licenseExpiryDate: "2033-01-01",
-        licenseImageUrl: null,
-        rating: 5,
-        isActive: true,
-        staffRole: "Tài xế",
-      },
-      {
-        id: 2,
-        userId: 102,
-        fullName: "Trần Quốc Toàn (Tài xế Chi nhánh 2)",
-        email: "driver.toan@thongdong.vn",
-        phone: "0903333444",
-        departmentId: 1,
-        departmentName: "Tài xế",
-        facilityId: 2,
-        facilityName: "Chi nhánh Tân Bình",
-        hiredDate: "2024-01-01",
-        isDriver: true,
-        licenseNumber: "B2-665544",
-        licenseType: "B2",
-        licenseIssueDate: "2023-01-01",
-        licenseExpiryDate: "2033-01-01",
-        licenseImageUrl: null,
-        rating: 5,
-        isActive: true,
-        staffRole: "Tài xế",
-      },
-    ];
   }
 
   return drivers;
@@ -142,8 +72,19 @@ export const rentalStatuses: Record<string, string> = {
   post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
 };
 export const operationsInput = "admin-input mt-2 w-full";
-export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50";
-export const operationsPanel = "space-y-4 rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6";
+export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-td-oxide-hover disabled:cursor-not-allowed disabled:opacity-50";
+export const operationsPanel = "space-y-4 rounded border border-td-rule bg-td-white p-5 sm:p-6";
+export function listOperationalRentals(params?: { status?: string; page?: number; pageSize?: number }): Promise<PagedResult<OperationalRental>> {
+  return backendApiClient.get<PagedResult<OperationalRental>>("rentals", params);
+}
+
+/** Một số endpoint trả mảng trực tiếp, một số trả envelope { items } — chuẩn hoá lại. */
+export function toList<T>(data: unknown): T[] {
+  if (Array.isArray(data)) return data as T[];
+  const items = (data as { items?: unknown } | null | undefined)?.items;
+  return Array.isArray(items) ? (items as T[]) : [];
+}
+
 export function operationalError(error: unknown) {
   return error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : error instanceof Error ? error.message : "Không thể lưu thông tin. Vui lòng thử lại.";
 }

@@ -9,7 +9,7 @@ import { activityChartItems, chartScale, getDashboardFleet, type DashboardChartI
 
 const number = new Intl.NumberFormat("vi-VN");
 const percent = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 });
-const button = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-3 text-xs font-semibold text-ink-2 hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50";
+const button = "inline-flex min-h-11 items-center justify-center gap-2 rounded border border-td-rule bg-td-white px-3 text-xs font-semibold text-td-ink hover:bg-td-chalk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50";
 
 export function DashboardCharts({ data, loading, error, onRetry }: { data?: DashboardSnapshot; loading: boolean; error: string; onRetry: () => void }) {
   const fleet = useQuery({ queryKey: ["admin-dashboard-fleet"], queryFn: getDashboardFleet, staleTime: 30_000, retry: false });
@@ -30,7 +30,7 @@ function ChartCard({ title, description, kind, items, loading, error, onRetry, e
   let content: ReactNode;
   if (loading) content = <SkeletonBlock label={`Đang tải ${title.toLocaleLowerCase()}...`} className="flex min-h-72 items-end gap-5 px-5 pb-6"><Skeleton className="h-32 flex-1" /><Skeleton className="h-56 flex-1" /><Skeleton className="h-44 flex-1" /></SkeletonBlock>;
   else if (error) content = <div className="flex min-h-72 flex-col items-start justify-center gap-4 p-5"><p role="alert" className="text-sm text-danger">{error}</p><button type="button" className={button} onClick={onRetry}><RefreshCw aria-hidden="true" className="h-4 w-4" />Thử lại</button></div>;
-  else if (!items.length || total === 0) content = <p role="status" className="flex min-h-72 items-center justify-center px-5 text-center text-sm text-ink-3">{empty}</p>;
+  else if (!items.length || total === 0) content = <p role="status" className="flex min-h-72 items-center justify-center px-5 text-center text-sm text-td-muted">{empty}</p>;
   else content = <>
     {!table && (kind === "bar" ? <ActivityBars items={items} /> : <FleetPie items={items} total={total} />)}
     <div id={`${id}-table`} className={table ? "min-h-72" : "sr-only"}>
@@ -41,8 +41,8 @@ function ChartCard({ title, description, kind, items, loading, error, onRetry, e
     </div>
   </>;
   return <AdminTableCard aria-labelledby={`${id}-title`} aria-busy={loading} className="min-w-0">
-    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line p-5">
-      <div className="min-w-0 flex-1"><h3 id={`${id}-title`} className="flex items-center gap-2 font-bold text-ink"><Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-primary" />{title}</h3><p className="mt-2 text-xs leading-5 text-ink-3">{description}</p></div>
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-td-rule p-5">
+      <div className="min-w-0 flex-1"><h3 id={`${id}-title`} className="flex items-center gap-2 font-bold text-td-ink"><Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-td-oxide" />{title}</h3><p className="mt-2 text-xs leading-5 text-td-muted">{description}</p></div>
       <button type="button" disabled={loading || !!error || !total} onClick={() => setTable(!table)} aria-pressed={table} aria-controls={`${id}-table`} className={button}><Table2 aria-hidden="true" className="h-4 w-4" />{table ? "Xem biểu đồ" : "Xem dạng bảng"}</button>
     </div>
     {content}
@@ -53,17 +53,17 @@ function ActivityBars({ items }: { items: DashboardChartItem[] }) {
   const scale = chartScale(Math.max(...items.map((item) => item.value)));
   const summary = items.map((item) => `${item.label}: ${number.format(item.value)}`).join("; ");
   return <div className="p-5">
-    <p className="mb-2 text-xs text-ink-3">Đơn vị: số lượng</p>
+    <p className="mb-2 text-xs text-td-muted">Đơn vị: số lượng</p>
     <div role="img" aria-label={`Biểu đồ cột hoạt động hiện tại. ${summary}`} className="pb-2 pt-5">
-      <div aria-hidden="true" className="relative ml-10 h-48 border-b border-line-strong">
-        {scale.ticks.map((tick) => <div key={tick} className="absolute right-0 left-0 border-t border-dashed border-line-strong" style={{ bottom: `${tick / scale.max * 100}%` }}><span className="absolute right-full -translate-y-1/2 pr-2 text-xs tabular-nums text-ink-3">{tick < 1000 ? number.format(tick) : new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 1 }).format(tick)}</span></div>)}
+      <div aria-hidden="true" className="relative ml-10 h-48 border-b border-td-rule">
+        {scale.ticks.map((tick) => <div key={tick} className="absolute right-0 left-0 border-t border-dashed border-td-rule" style={{ bottom: `${tick / scale.max * 100}%` }}><span className="absolute right-full -translate-y-1/2 pr-2 text-xs tabular-nums text-td-muted">{tick < 1000 ? number.format(tick) : new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 1 }).format(tick)}</span></div>)}
         <div className="absolute inset-0 grid items-end gap-4 px-3 sm:gap-6" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
-          {items.map((item) => <div key={item.key} className="relative mx-auto w-full max-w-14 rounded-t" style={{ height: `${item.value / scale.max * 100}%`, backgroundColor: item.color }}><span className="absolute -top-6 right-0 left-0 text-center font-mono text-sm font-semibold tabular-nums text-ink">{number.format(item.value)}</span></div>)}
+          {items.map((item) => <div key={item.key} className="relative mx-auto w-full max-w-14 rounded-t" style={{ height: `${item.value / scale.max * 100}%`, backgroundColor: item.color }}><span className="absolute -top-6 right-0 left-0 text-center font-mono text-sm font-semibold tabular-nums text-td-ink">{number.format(item.value)}</span></div>)}
         </div>
       </div>
-      <div aria-hidden="true" className="mt-3 ml-10 grid gap-3 text-center text-xs leading-5 text-ink-3" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>{items.map((item) => <span key={item.key}>{item.label}</span>)}</div>
+      <div aria-hidden="true" className="mt-3 ml-10 grid gap-3 text-center text-xs leading-5 text-td-muted" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>{items.map((item) => <span key={item.key}>{item.label}</span>)}</div>
     </div>
-    {items.length < 3 && <p className="text-xs text-ink-3">Một số chỉ số chưa được API cung cấp.</p>}
+    {items.length < 3 && <p className="text-xs text-td-muted">Một số chỉ số chưa được API cung cấp.</p>}
   </div>;
 }
 
@@ -76,8 +76,8 @@ function FleetPie({ items, total }: { items: DashboardChartItem[]; total: number
       <text x="110" y="131" textAnchor="middle" fill="var(--ink-3)" fontSize="12">phương tiện</text>
     </svg>
     <ul className="w-full min-w-0 space-y-4 text-sm">{segments.map((item) => <li key={item.key} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-      <span className="flex items-center gap-2 text-ink-2"><span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />{item.label}</span>
-      <span className="font-mono text-xs font-semibold tabular-nums text-ink">{number.format(item.value)} xe <span className="font-normal text-ink-3">({percent.format(item.share)}%)</span></span>
+      <span className="flex items-center gap-2 text-td-ink"><span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />{item.label}</span>
+      <span className="font-mono text-xs font-semibold tabular-nums text-td-ink">{number.format(item.value)} xe <span className="font-normal text-td-muted">({percent.format(item.share)}%)</span></span>
     </li>)}</ul>
   </div>;
 }

@@ -41,7 +41,7 @@ describe("FE-14 Admin Policies & Plans — Component Tests", () => {
     it("hiển thị tiêu đề, mô tả và nút Tạo phiên bản mới", async () => {
       renderWithClient(<PoliciesPage />);
 
-      expect(screen.getByText("Chính sách thuê & Đặt cọc")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Chính sách thuê & đặt cọc.");
       expect(
         screen.getByText(/Chính sách thuê là bất biến theo phiên bản/i)
       ).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("FE-14 Admin Policies & Plans — Component Tests", () => {
     it("hiển thị tiêu đề gói thuê bao và nút Tạo gói mới", async () => {
       renderWithClient(<SubscriptionPlansPage />);
 
-      expect(screen.getByText("Gói thuê bao di chuyển")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gói thuê bao di chuyển.");
       expect(screen.getByText("Tạo gói mới")).toBeInTheDocument();
     });
 

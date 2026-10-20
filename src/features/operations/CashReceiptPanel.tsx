@@ -35,17 +35,17 @@ export default function CashReceiptPanel({ rental, refresh }: { rental: Operatio
   };
   return <section className={operationsPanel} aria-busy={query.isFetching || busy}>
     <h2 className="text-lg font-bold">Thanh toán và phát hành đơn thuê</h2>
-    {query.isPending ? <p role="status" className="text-sm text-ink-3">Đang kiểm tra hóa đơn...</p>
+    {query.isPending ? <p role="status" className="text-sm text-td-muted">Đang kiểm tra hóa đơn...</p>
       : query.error ? <p role="alert" className="text-sm text-danger">{operationalError(query.error)} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>
-      : !invoice ? <p className="text-sm text-ink-3">Chưa có hóa đơn của yêu cầu này.</p>
+      : !invoice ? <p className="text-sm text-td-muted">Chưa có hóa đơn của yêu cầu này.</p>
       : <>
         <p className="text-sm">{invoice.invoiceNumber} · {invoice.amount.toLocaleString("vi-VN")} đ · {invoice.paymentMethod === "cash" ? "Tiền mặt" : "Online qua PayOS"}</p>
         {invoice.orderId && <p className="text-sm font-semibold text-success">Đơn thuê chính thức #{invoice.orderId} · Đã thanh toán</p>}
         {invoice.status !== "paid" && invoice.paymentMethod === "cash" && <>
-          <p className="text-sm text-ink-3">{invoice.canPay ? "Chỉ xác nhận sau khi đã thực nhận đủ tiền. Hệ thống sẽ ghi người thu và phát hành đơn thuê." : "Duyệt yêu cầu trước khi xác nhận thu tiền mặt."}</p>
+          <p className="text-sm text-td-muted">{invoice.canPay ? "Chỉ xác nhận sau khi đã thực nhận đủ tiền. Hệ thống sẽ ghi người thu và phát hành đơn thuê." : "Duyệt yêu cầu trước khi xác nhận thu tiền mặt."}</p>
           <button type="button" disabled={!invoice.canPay || busy || query.isFetching} onClick={() => void confirm()} className={operationsButton}>{busy ? "Đang ghi nhận..." : "Xác nhận đã thu tiền mặt"}</button>
         </>}
-        {invoice.status !== "paid" && invoice.paymentMethod !== "cash" && <p className="text-sm text-ink-3">Khách thanh toán sau khi yêu cầu được duyệt. PayOS xác nhận đã nhận tiền thì hệ thống tự phát hành đơn thuê.</p>}
+        {invoice.status !== "paid" && invoice.paymentMethod !== "cash" && <p className="text-sm text-td-muted">Khách thanh toán sau khi yêu cầu được duyệt. PayOS xác nhận đã nhận tiền thì hệ thống tự phát hành đơn thuê.</p>}
       </>}
     {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     {success && <p role="status" className="text-sm text-success">{success}</p>}

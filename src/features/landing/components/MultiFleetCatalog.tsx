@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import BookingModal from "@/features/rentals/components/BookingModal";
+import { formatVnd } from "@/lib/format";
 import type { Vehicle, VehicleCategory } from "@/features/vehicles/types";
 
 interface FleetVehicle {
@@ -187,10 +188,6 @@ export default function MultiFleetCatalog() {
       badges: v.badges,
     };
     setSelectedVehicleForBooking(mockVehicle);
-  };
-
-  const formatVND = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount) + " ₫/giờ";
   };
 
   return (
@@ -435,11 +432,17 @@ export default function MultiFleetCatalog() {
               {/* Price & Action */}
               <div className="pt-4 border-t border-line flex items-center justify-between">
                 <div>
-                  <div className="font-mono text-xl font-black text-ink tabular-nums">
-                    {formatVND(vehicle.hourlyPrice)}
+                  <div
+                    className="font-mono text-xl font-black text-ink tabular-nums"
+                    suppressHydrationWarning
+                  >
+                    {formatVnd(vehicle.hourlyPrice)}/giờ
                   </div>
-                  <div className="text-xs text-ink-3 tabular-nums font-mono">
-                    Thuê tháng: {new Intl.NumberFormat("vi-VN").format(vehicle.monthlyPrice)} ₫
+                  <div
+                    className="text-xs text-ink-3 tabular-nums font-mono"
+                    suppressHydrationWarning
+                  >
+                    Thuê tháng: {formatVnd(vehicle.monthlyPrice)}
                   </div>
                 </div>
 

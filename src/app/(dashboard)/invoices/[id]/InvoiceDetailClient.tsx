@@ -47,7 +47,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
 
   if (isLoading) {
     return (
-      <div className="p-12 text-center text-sm text-ink-3">
+      <div className="p-12 text-center text-sm text-td-muted">
         <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-primary" />
         <span>Đang tải thông tin chi tiết hoá đơn...</span>
       </div>
@@ -56,15 +56,15 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
 
   if (!invoice) {
     return (
-      <div className="p-12 max-w-lg mx-auto bg-surface rounded-3xl border border-line text-center space-y-4">
+      <div className="p-12 max-w-lg mx-auto bg-td-white rounded border border-td-rule text-center space-y-4">
         <AlertCircle className="w-12 h-12 text-primary-graphic mx-auto" />
-        <h2 className="text-xl font-bold text-ink">Không tìm thấy hoá đơn</h2>
-        <p className="text-sm text-ink-3">
+        <h2 className="text-xl font-bold text-td-ink">Không tìm thấy hoá đơn</h2>
+        <p className="text-sm text-td-muted">
           Hoá đơn này không tồn tại hoặc bạn không có quyền xem thông tin.
         </p>
         <Link
           href="/invoices"
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-stage-ink text-white text-xs font-bold"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded bg-stage-ink text-white text-xs font-bold"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Quay lại danh sách</span>
@@ -85,7 +85,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       <div>
         <Link
           href="/invoices"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-ink-3 hover:text-ink transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-td-muted hover:text-td-ink transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Danh sách hoá đơn</span>
@@ -94,7 +94,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-td-ink tracking-tight">
                 {invoice.invoiceNumber}
               </h1>
               {isPaid ? (
@@ -109,14 +109,14 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
                 </span>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-ink-3 mt-1">
+            <p className="text-xs sm:text-sm text-td-muted mt-1">
               Mã yêu cầu #{invoice.rentalId}{invoice.orderId ? ` · Đơn thuê chính thức #${invoice.orderId}` : " · Chưa phát hành đơn thuê"} · Ngày phát hành:{" "}
               {new Date(invoice.issuedAt).toLocaleDateString("vi-VN")}
             </p>
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-ink-3 font-semibold uppercase tracking-wider block">
+            <span className="text-xs text-td-muted font-semibold uppercase tracking-wider block">
               Tổng tiền
             </span>
             <span className="text-2xl sm:text-3xl font-bold text-primary">
@@ -127,46 +127,46 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       </div>
 
       {/* Invoice Breakdown Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-surface border border-line shadow-sm space-y-6">
-        <h2 className="text-base font-bold text-ink border-b border-line pb-3 flex items-center gap-2">
+      <div className="p-6 sm:p-8 rounded bg-td-white border border-td-rule shadow-sm space-y-6">
+        <h2 className="text-base font-bold text-td-ink border-b border-td-rule pb-3 flex items-center gap-2">
           <Receipt className="w-4 h-4 text-primary" />
           <span>Bảng kê chi tiết thanh toán</span>
         </h2>
 
         <div className="space-y-4 text-sm">
-          <div className="flex justify-between items-center py-2 border-b border-line">
+          <div className="flex justify-between items-center py-2 border-b border-td-rule">
             <div>
-              <div className="font-bold text-ink">Giá trị trước thuế</div>
-              <div className="text-xs text-ink-3">Các khoản tiền thuê và cọc theo hóa đơn</div>
+              <div className="font-bold text-td-ink">Giá trị trước thuế</div>
+              <div className="text-xs text-td-muted">Các khoản tiền thuê và cọc theo hóa đơn</div>
             </div>
-            <span className="font-bold text-ink">
+            <span className="font-bold text-td-ink">
               {beforeVat.toLocaleString("vi-VN")} đ
             </span>
           </div>
 
-          <div className="flex justify-between items-center py-2 border-b border-line">
+          <div className="flex justify-between items-center py-2 border-b border-td-rule">
             <div>
-              <div className="font-bold text-ink">Thuế giá trị gia tăng (VAT)</div>
-              <div className="text-xs text-ink-3">Hoá đơn điện tử hợp lệ</div>
+              <div className="font-bold text-td-ink">Thuế giá trị gia tăng (VAT)</div>
+              <div className="text-xs text-td-muted">Hoá đơn điện tử hợp lệ</div>
             </div>
-            <span className="font-bold text-ink">
+            <span className="font-bold text-td-ink">
               {invoice.vatAmount.toLocaleString("vi-VN")} đ
             </span>
           </div>
 
           <div className="pt-2 flex justify-between items-baseline">
-            <span className="text-base font-bold text-ink">Tổng cộng cần thanh toán:</span>
-            <span className="text-2xl font-bold text-ink">
+            <span className="text-base font-bold text-td-ink">Tổng cộng cần thanh toán:</span>
+            <span className="text-2xl font-bold text-td-ink">
               {invoice.amount.toLocaleString("vi-VN")} đ
             </span>
           </div>
         </div>
 
         {/* Security & Refund note */}
-        <div className="p-4 rounded-2xl bg-sunken border border-line flex items-start gap-3 text-xs text-ink-3">
+        <div className="p-4 rounded bg-td-chalk border border-td-rule flex items-start gap-3 text-xs text-td-muted">
           <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <div className="space-y-0.5">
-            <p className="font-bold text-ink">Cơ chế bảo đảm tiền cọc:</p>
+            <p className="font-bold text-td-ink">Cơ chế bảo đảm tiền cọc:</p>
             <p>
               Tiền cọc được đối soát sau khi trả xe và kiểm định. Khoản hoàn thực tế được xác định theo chính sách thuê và các khoản phát sinh.
             </p>
@@ -174,20 +174,20 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
         </div>
 
         {errorMessage && (
-          <div role="alert" className="p-4 rounded-2xl bg-danger-bg border border-danger/30 text-danger text-xs font-semibold">
+          <div role="alert" className="p-4 rounded bg-danger-bg border border-danger/30 text-danger text-xs font-semibold">
             {errorMessage}
           </div>
         )}
 
-        {waitingConfirmation && <p role="status" className="rounded-xl border border-line bg-sunken p-4 text-sm text-ink-2">Đơn thuê đang chờ nhân viên xác nhận. Bạn có thể thanh toán sau khi đơn được duyệt. Trạng thái sẽ tự cập nhật.</p>}
-        {waitingCash && <p role="status" className="rounded-xl border border-line bg-sunken p-4 text-sm text-ink-2">Yêu cầu đã được duyệt. Vui lòng thanh toán tiền mặt tại cơ sở. Đơn thuê chính thức chỉ được phát hành sau khi nhân viên xác nhận đã thu tiền.</p>}
+        {waitingConfirmation && <p role="status" className="rounded border border-td-rule bg-td-chalk p-4 text-sm text-td-ink">Đơn thuê đang chờ nhân viên xác nhận. Bạn có thể thanh toán sau khi đơn được duyệt. Trạng thái sẽ tự cập nhật.</p>}
+        {waitingCash && <p role="status" className="rounded border border-td-rule bg-td-chalk p-4 text-sm text-td-ink">Yêu cầu đã được duyệt. Vui lòng thanh toán tiền mặt tại cơ sở. Đơn thuê chính thức chỉ được phát hành sau khi nhân viên xác nhận đã thu tiền.</p>}
         {isPaid && invoice.orderId && <p role="status" className="text-sm font-semibold text-success">Đã thanh toán · Đơn thuê chính thức #{invoice.orderId}</p>}
 
         {/* Action Button */}
-        <div className="pt-4 border-t border-line flex flex-wrap items-center justify-between gap-4">
+        <div className="pt-4 border-t border-td-rule flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/payment-history"
-            className="text-xs font-bold text-ink-3 hover:text-ink transition-colors"
+            className="text-xs font-bold text-td-muted hover:text-td-ink transition-colors"
           >
             Xem lịch sử thanh toán
           </Link>
@@ -196,7 +196,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
             <button
               onClick={handleCheckout}
               disabled={paying}
-              className="px-8 py-3.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              className="px-8 py-3.5 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {paying ? (
                 <>
@@ -216,7 +216,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
               <CheckCircle2 className="w-5 h-5" />
               <span>Hoá đơn đã được thanh toán</span>
             </div>
-          ) : <span className="text-sm font-semibold text-ink-3">{waitingConfirmation ? "Chờ nhân viên duyệt yêu cầu" : waitingCash ? "Chờ xác nhận thu tiền mặt" : "Hóa đơn chưa thể thanh toán"}</span>}
+          ) : <span className="text-sm font-semibold text-td-muted">{waitingConfirmation ? "Chờ nhân viên duyệt yêu cầu" : waitingCash ? "Chờ xác nhận thu tiền mặt" : "Hóa đơn chưa thể thanh toán"}</span>}
         </div>
       </div>
     </div>

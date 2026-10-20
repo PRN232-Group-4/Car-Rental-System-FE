@@ -164,7 +164,7 @@ export default function InspectionSection() {
                       className={`px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider ${
                         isSelected
                           ? "bg-primary-tint text-primary"
-                          : "bg-sunken text-ink-3"
+                          : "bg-sunken text-ink-2"
                       }`}
                     >
                       {point.status}
@@ -185,7 +185,7 @@ export default function InspectionSection() {
                   {point.specs.map((spec, sIdx) => (
                     <span
                       key={sIdx}
-                      className="text-xs font-mono text-ink-3 bg-sunken px-2 py-0.5 rounded-md"
+                      className="text-xs font-mono text-ink-2 font-medium bg-sunken px-2 py-0.5 rounded-md"
                     >
                       {spec}
                     </span>

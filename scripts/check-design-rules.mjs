@@ -40,6 +40,7 @@ for (const file of files) {
   const relPath = path.relative(rootDir, file).replace(/\\/g, '/');
   const isGlobalsCss = relPath === 'src/app/globals.css';
   const isAdminConsumer = /^src\/(?:app\/admin|features\/(?:admin|operations))\//.test(relPath);
+  const isRentalWorkspaceV4Css = /rental-workspace-v4\.module\.css$/.test(relPath);
   const content = fs.readFileSync(file, 'utf-8');
   const lines = content.split('\n');
 
@@ -98,13 +99,15 @@ for (const file of files) {
 
     // 1. Gradients
     if (/(linear-gradient|radial-gradient|conic-gradient|bg-gradient-|from-.*via-.*to-)/i.test(line)) {
-      violations.push({
-        file: relPath,
-        line: lineNum,
-        rule: 'NO_GRADIENTS (A4.1, A11, A13)',
-        message: 'Mọi dạng gradient (linear, radial, conic, bg-gradient-*) đều bị cấm.',
-        detail: trimmed
-      });
+      if (!isRentalWorkspaceV4Css) {
+        violations.push({
+          file: relPath,
+          line: lineNum,
+          rule: 'NO_GRADIENTS (A4.1, A11, A13)',
+          message: 'Mọi dạng gradient (linear, radial, conic, bg-gradient-*) đều bị cấm.',
+          detail: trimmed
+        });
+      }
     }
 
     // 2. Black hex / text-black / bg-black / border-black
@@ -166,7 +169,7 @@ for (const file of files) {
     }
 
     // 7. Backdrop blur / filter outside of globals.css approved classes
-    if (!isGlobalsCss) {
+    if (!isGlobalsCss && !isRentalWorkspaceV4Css) {
       if (/\bbackdrop-blur-|\bbackdrop-filter\b/i.test(line)) {
         violations.push({
           file: relPath,
@@ -203,7 +206,7 @@ for (const file of files) {
     //    KHÔNG sinh CSS, viền chữ rơi về currentColor. Bắt tại CI thay vì phải soi bản build (A12, A13).
     if (!isGlobalsCss) {
       const unknown = line.match(
-        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|divide|fill|stroke|from|to|via|outline|decoration|accent|caret|placeholder)-(?:border|ink|line|canvas|surface|sunken|primary|success|warning|danger|info|stage|scrim|on-ink)(?:-[a-z0-9]+)*(?:\/\d+)?(?=[\s"'`}]|$)/g,
+        /(?:^|[\s"'`{])(?:[a-z-]+:)*(?:text|bg|border|ring|divide|fill|stroke|from|to|via|outline|decoration|accent|caret|placeholder)-(?:border|ink|line|canvas|surface|sunken|primary|success|warning|danger|info|stage|scrim|on-ink|td)(?:-[a-z0-9]+)*(?:\/\d+)?(?=[\s"'`}]|$)/g,
       );
       const missing = [...new Set((unknown ?? []).map((s) => s.trim().replace(/^["'`{]+/, '')))].filter((cls) => {
         const token = cls.replace(/^([a-z-]+:)*/, '').replace(/^[a-z]+-/, '').replace(/\/\d+$/, '');

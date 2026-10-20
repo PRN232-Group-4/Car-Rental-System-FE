@@ -87,14 +87,14 @@ export default function AppPortalShell({
     };
   }, [headerProfileOpen]);
 
+  // Các mục gốc của portal chỉ khớp chính xác, nếu không "/staff" sẽ sáng cùng mọi trang con.
+  const isActiveHref = (href: string) =>
+    href === "/" || href === "/admin" || href === "/staff"
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`);
+
   const currentPage =
-    navItems.find((item) =>
-      item.href === "/"
-        ? pathname === "/"
-        : item.href === "/admin"
-          ? pathname === "/admin"
-          : pathname === item.href || pathname.startsWith(`${item.href}/`)
-    )?.label ?? portalLabel;
+    navItems.find((item) => isActiveHref(item.href))?.label ?? portalLabel;
 
   const handleLogout = async () => {
     if (loggingOut) return;
@@ -108,8 +108,8 @@ export default function AppPortalShell({
 
   const sidebarContent = (
     <>
-      {/* Brand Header: Exactly h-16 (64px) with border-b border-line */}
-      <div className={`${styles.brandHeader} flex h-16 shrink-0 items-center justify-between border-b border-line px-6 bg-surface`}>
+      {/* Brand Header: Exactly h-16 (64px) with border-b border-td-rule */}
+      <div className={`${styles.brandHeader} flex h-16 shrink-0 items-center justify-between border-b border-td-rule px-6 bg-td-white`}>
         <Link
           href={brandHref}
           className={`${styles.brandLink} flex min-w-0 items-center justify-center py-1 group select-none`}
@@ -119,7 +119,7 @@ export default function AppPortalShell({
         >
           {/* Expanded: text only */}
           <div className={`${styles.brandExpanded} flex flex-col`}>
-            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink group-hover:text-primary transition-colors">
+            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-td-ink group-hover:text-primary transition-colors">
               ThongDong.
             </span>
             <span className={`${styles.sidebarText} block text-[10px] font-bold uppercase tracking-[0.2em] text-primary mt-0.5`}>
@@ -129,7 +129,7 @@ export default function AppPortalShell({
 
           {/* Collapsed: small car logo */}
           <div className={`${styles.brandCollapsed} items-center justify-center`}>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-e1">
+            <span className="flex h-9 w-9 items-center justify-center rounded bg-primary text-white">
               <CarFront className="h-5 w-5" />
             </span>
           </div>
@@ -139,7 +139,7 @@ export default function AppPortalShell({
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Đóng menu"
-          className="rounded-lg p-2 text-ink-3 hover:bg-sunken hover:text-ink lg:hidden cursor-pointer"
+          className="rounded p-2 text-td-muted hover:bg-td-chalk hover:text-td-ink lg:hidden cursor-pointer"
         >
           <X className="h-5 w-5" />
         </button>
@@ -147,17 +147,12 @@ export default function AppPortalShell({
 
       {/* Navigation Scroll Container */}
       <div className={`${styles.navigationScroll} min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-6`}>
-        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-ink-3`}>
+        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-td-muted`}>
           Không gian làm việc
         </p>
         <nav aria-label={`Điều hướng ${portalLabel.toLowerCase()}`} className="space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => {
-            const active =
-              href === "/"
-                ? pathname === "/"
-                : href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname === href || pathname.startsWith(`${href}/`);
+            const active = isActiveHref(href);
             return (
               <Link
                 key={href}
@@ -166,15 +161,15 @@ export default function AppPortalShell({
                 aria-current={active ? "page" : undefined}
                 aria-label={label}
                 title={label}
-                className={`${styles.navLink} group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                className={`${styles.navLink} group flex items-center gap-3 rounded px-3.5 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   active
-                    ? "bg-primary font-bold text-white shadow-e1"
-                    : "text-ink-3 hover:bg-canvas hover:text-ink"
+                    ? "bg-primary font-bold text-white"
+                    : "text-td-muted hover:bg-td-paper hover:text-td-ink"
                 }`}
               >
                 <Icon
                   aria-hidden="true"
-                  className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-ink-3 group-hover:text-primary"}`}
+                  className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-td-muted group-hover:text-primary"}`}
                 />
                 <span className={styles.navLabel}>{label}</span>
               </Link>
@@ -185,13 +180,13 @@ export default function AppPortalShell({
 
       {/* Profile Footer Card */}
       <div className={`${styles.profileFooter} mt-auto shrink-0 p-4`}>
-        <div className={`${styles.profileCard} rounded-2xl border border-line bg-canvas p-4`}>
+        <div className={`${styles.profileCard} rounded border border-td-rule bg-td-paper p-4`}>
           <Link
             href={profileHref}
             onClick={() => setMobileMenuOpen(false)}
             aria-label={`Hồ sơ ${user.name}`}
             title={`${user.name} · ${user.subtitle}`}
-            className={`${styles.profileIdentity} flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-primary`}
+            className={`${styles.profileIdentity} flex items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-primary`}
           >
             <AccountAvatar
               src={user.avatarUrl}
@@ -199,10 +194,10 @@ export default function AppPortalShell({
               className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-sm font-bold text-white shadow-sm"
             />
             <span className={styles.sidebarText}>
-              <span className="block truncate text-sm font-bold text-ink">
+              <span className="block truncate text-sm font-bold text-td-ink">
                 {user.name}
               </span>
-              <span className="block truncate text-xs text-ink-3">
+              <span className="block truncate text-xs text-td-muted">
                 {profileLoading ? (
                   <span role="status" aria-label="Đang tải hồ sơ...">
                     <Skeleton className="h-3 w-24" />
@@ -221,7 +216,7 @@ export default function AppPortalShell({
           <Link
             href={profileHref}
             onClick={() => setMobileMenuOpen(false)}
-            className={`${styles.profileLink} mt-3 block rounded-xl border border-line-strong px-3 py-2 text-center text-xs font-semibold text-ink-2 transition hover:bg-sunken hover:text-ink`}
+            className={`${styles.profileLink} mt-3 block rounded border border-td-rule px-3 py-2 text-center text-xs font-semibold text-td-ink transition hover:bg-td-chalk hover:text-td-ink`}
           >
             {profileButtonText}
           </Link>
@@ -234,7 +229,7 @@ export default function AppPortalShell({
             disabled={loggingOut}
             aria-label={loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
             title="Đăng xuất"
-            className={`${styles.logoutButton} mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-ink-3 transition hover:bg-sunken hover:text-ink disabled:cursor-wait disabled:opacity-60 cursor-pointer`}
+            className={`${styles.logoutButton} mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded px-3 py-2 text-xs font-semibold text-td-muted transition hover:bg-td-chalk hover:text-td-ink disabled:cursor-wait disabled:opacity-60 cursor-pointer`}
           >
             <LogOut aria-hidden="true" className="h-4 w-4 shrink-0 text-danger" />
             <span className={styles.sidebarText}>{loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}</span>
@@ -246,15 +241,21 @@ export default function AppPortalShell({
 
   return (
     <div
-      className={`${styles.shell} min-h-[100dvh] bg-canvas text-ink`}
+      className={`${styles.shell} min-h-[100dvh] bg-td-paper text-td-ink`}
       data-admin-theme={theme}
       data-menu-collapsed={!desktopMenuOpen}
       data-menu-animated={menuAnimated}
     >
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs"
+      >
+        Bỏ qua điều hướng
+      </a>
       {/* Desktop Sidebar: Fixed inset-y-0 left-0 */}
       <aside
         id="portal-desktop-navigation"
-        className={`${styles.desktopSidebar} ${styles.sidebarSurface} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line lg:flex bg-surface`}
+        className={`${styles.desktopSidebar} ${styles.sidebarSurface} fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-td-rule lg:flex bg-td-white`}
       >
         {sidebarContent}
       </aside>
@@ -270,7 +271,7 @@ export default function AppPortalShell({
           />
           <aside
             id="portal-mobile-navigation"
-            className={`${styles.sidebarSurface} relative flex h-full w-[min(86vw,300px)] flex-col bg-surface shadow-e2`}
+            className={`${styles.sidebarSurface} relative flex h-full w-[min(86vw,300px)] flex-col bg-td-white`}
           >
             {sidebarContent}
           </aside>
@@ -279,8 +280,8 @@ export default function AppPortalShell({
 
       {/* Content Area */}
       <div className={`${styles.content} min-h-[100dvh]`}>
-        {/* Top Header: Exactly h-16 (64px) with border-b border-line - 100% aligned with sidebar brand header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line px-4 sm:px-7 lg:px-9 bg-surface">
+        {/* Top Header: Exactly h-16 (64px) with border-b border-td-rule - 100% aligned with sidebar brand header */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-td-rule px-4 sm:px-7 lg:px-9 bg-td-white">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             {/* Mobile Menu Button */}
             <button
@@ -289,7 +290,7 @@ export default function AppPortalShell({
               aria-label="Mở menu"
               aria-expanded={mobileMenuOpen}
               aria-controls="portal-mobile-navigation"
-              className="rounded-xl border border-line p-2 text-ink-3 hover:bg-sunken lg:hidden cursor-pointer"
+              className="rounded border border-td-rule p-2 text-td-muted hover:bg-td-chalk lg:hidden cursor-pointer"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -305,7 +306,7 @@ export default function AppPortalShell({
               aria-expanded={desktopMenuOpen}
               aria-controls="portal-desktop-navigation"
               title={desktopMenuOpen ? "Đóng menu" : "Mở menu"}
-              className="hidden rounded-xl border border-line p-2 text-ink-3 transition hover:bg-sunken lg:inline-flex cursor-pointer"
+              className="hidden rounded border border-td-rule p-2 text-td-muted transition hover:bg-td-chalk lg:inline-flex cursor-pointer"
             >
               {desktopMenuOpen ? (
                 <PanelLeftClose className="h-5 w-5" />
@@ -316,10 +317,10 @@ export default function AppPortalShell({
 
             {/* Page Title & Breadcrumb */}
             <div className="min-w-0">
-              <p className="text-xs font-medium text-ink-3 truncate">
+              <p className="text-xs font-medium text-td-muted truncate">
                 {portalSubLabel}
               </p>
-              <h1 className="mt-0.5 truncate text-base font-bold text-ink">
+              <h1 className="mt-0.5 truncate text-base font-bold text-td-ink">
                 {currentPage}
               </h1>
             </div>
@@ -336,7 +337,7 @@ export default function AppPortalShell({
                 aria-label="Đổi giao diện sáng/tối"
                 aria-pressed={theme === "dark"}
                 title={theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line text-ink-2 transition hover:bg-sunken focus-visible:outline-2 focus-visible:outline-primary cursor-pointer"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule text-td-ink transition hover:bg-td-chalk focus-visible:outline-2 focus-visible:outline-primary cursor-pointer"
               >
                 {theme === "dark" ? (
                   <Sun aria-hidden="true" className="h-4 w-4" />
@@ -348,7 +349,7 @@ export default function AppPortalShell({
 
             <span
               aria-hidden="true"
-              className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line text-ink-3 transition hover:bg-sunken cursor-pointer"
+              className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule text-td-muted transition hover:bg-td-chalk cursor-pointer"
               title="Thông báo"
             >
               <Bell className="h-4 w-4" />
@@ -361,18 +362,18 @@ export default function AppPortalShell({
                 onClick={() => setHeaderProfileOpen((open) => !open)}
                 aria-label="Menu tài khoản"
                 aria-expanded={headerProfileOpen}
-                className="flex items-center gap-2 rounded-xl border border-line p-1 hover:bg-sunken transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-primary"
+                className="flex items-center gap-2 rounded border border-td-rule p-1 hover:bg-td-chalk transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-primary"
               >
                 <AccountAvatar
                   src={user.avatarUrl}
                   name={user.name}
                   className="h-8 w-8 rounded-full bg-primary/10 text-xs font-bold text-primary"
                 />
-                <span className="hidden xl:block max-w-[120px] truncate text-xs font-bold text-ink text-left">
+                <span className="hidden xl:block max-w-[120px] truncate text-xs font-bold text-td-ink text-left">
                   {user.name}
                 </span>
                 <ChevronDown
-                  className={`hidden xl:block h-3.5 w-3.5 text-ink-3 transition-transform duration-200 ${
+                  className={`hidden xl:block h-3.5 w-3.5 text-td-muted transition-transform duration-200 ${
                     headerProfileOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -380,19 +381,19 @@ export default function AppPortalShell({
 
               {headerProfileOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-64 rounded-2xl border border-line bg-surface p-3 shadow-e2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 mt-2 w-64 rounded border border-td-rule bg-td-white p-3 z-50 animate-in fade-in zoom-in-95 duration-150"
                   role="menu"
                   aria-label="Tuỳ chọn tài khoản"
                 >
-                  <div className="flex items-center gap-3 border-b border-line px-2 pb-3 mb-2">
+                  <div className="flex items-center gap-3 border-b border-td-rule px-2 pb-3 mb-2">
                     <AccountAvatar
                       src={user.avatarUrl}
                       name={user.name}
                       className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-xs font-bold text-white shadow-sm"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-bold text-ink">{user.name}</p>
-                      <p className="truncate text-[11px] text-ink-3">{user.subtitle}</p>
+                      <p className="truncate text-xs font-bold text-td-ink">{user.name}</p>
+                      <p className="truncate text-[11px] text-td-muted">{user.subtitle}</p>
                       {user.badge && (
                         <p className="truncate text-[10px] text-primary font-medium mt-0.5">
                           {user.badge}
@@ -405,14 +406,14 @@ export default function AppPortalShell({
                     <Link
                       href={profileHref}
                       onClick={() => setHeaderProfileOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold text-ink-2 hover:bg-canvas hover:text-ink transition-colors"
+                      className="flex items-center gap-2.5 rounded px-2.5 py-2 text-xs font-semibold text-td-ink hover:bg-td-paper hover:text-td-ink transition-colors"
                     >
                       <CircleUserRound className="h-4 w-4 text-primary" />
                       <span>{profileButtonText}</span>
                     </Link>
                   </div>
 
-                  <div className="border-t border-line mt-2 pt-2">
+                  <div className="border-t border-td-rule mt-2 pt-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -420,7 +421,7 @@ export default function AppPortalShell({
                         void handleLogout();
                       }}
                       disabled={loggingOut}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold text-danger hover:bg-danger-bg transition-colors cursor-pointer text-left disabled:opacity-60"
+                      className="flex w-full items-center gap-2.5 rounded px-2.5 py-2 text-xs font-semibold text-danger hover:bg-danger-bg transition-colors cursor-pointer text-left disabled:opacity-60"
                     >
                       <LogOut className="h-4 w-4 text-danger shrink-0" />
                       <span>{loggingOut ? "Đang đăng xuất..." : "Đăng xuất"}</span>
@@ -433,7 +434,7 @@ export default function AppPortalShell({
         </header>
 
         {/* Page Main Content */}
-        <main className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9">
+        <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1500px] p-4 sm:p-7 lg:p-9 focus:outline-none">
           {children}
         </main>
       </div>

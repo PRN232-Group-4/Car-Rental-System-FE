@@ -57,7 +57,7 @@ export function RevenueChart({ data = [], isLoading, isError, onRetry }: Revenue
   if (isLoading || !mounted) {
     return (
       <ChartCard title="Doanh thu theo thời gian" description="Tổng doanh thu đã thu phân bổ theo ngày">
-        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded-xl bg-sunken text-xs text-ink-3">
+        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
           Đang tải dữ liệu biểu đồ doanh thu...
         </div>
       </ChartCard>
@@ -89,12 +89,12 @@ export function RevenueChart({ data = [], isLoading, isError, onRetry }: Revenue
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--line)" />
             <XAxis
               dataKey="bucket"
-              tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+              tick={{ fill: "var(--td-ink-muted, var(--ink-3))", fontSize: 11 }}
               tickLine={false}
               axisLine={{ stroke: "var(--line)" }}
             />
             <YAxis
-              tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+              tick={{ fill: "var(--td-ink-muted, var(--ink-3))", fontSize: 11 }}
               tickLine={false}
               axisLine={{ stroke: "var(--line)" }}
               tickFormatter={formatVndAxis}
@@ -116,13 +116,21 @@ export function RevenueChart({ data = [], isLoading, isError, onRetry }: Revenue
                 borderRadius: "12px",
                 fontSize: "12px",
                 boxShadow: "var(--shadow-e2)",
+                color: "var(--ink)",
+              }}
+              itemStyle={{
+                color: "var(--ink)",
+              }}
+              labelStyle={{
+                color: "var(--ink-2)",
+                fontWeight: 600,
               }}
             />
             <Legend
               verticalAlign="top"
               align="right"
               iconType="circle"
-              wrapperStyle={{ fontSize: 11, paddingBottom: 10 }}
+              wrapperStyle={{ fontSize: 11, paddingBottom: 10, color: "var(--ink-2)" }}
             />
             <Bar
               dataKey="byGroup.Ô tô xăng"

@@ -1,25 +1,14 @@
-import { defaultApiClient, isMockMode } from "@/api/default-api-client";
-import { MOCK_INSPECTION_RECORD } from "@/api/mock/mock-grading";
+import { defaultApiClient } from "@/api/default-api-client";
 import { InspectionRecord } from "./types";
 
 export async function getLatestInspectionRecord(): Promise<InspectionRecord> {
-  try {
-    return await defaultApiClient.get<InspectionRecord>("inspections/latest");
-  } catch (error) {
-    console.warn("[Inspections API] Fallback to static mock:", error);
-    return MOCK_INSPECTION_RECORD;
-  }
+  return defaultApiClient.get<InspectionRecord>("inspections/latest");
 }
 
 export async function getInspectionByRentalId(rentalId: string): Promise<InspectionRecord> {
-  try {
-    return await defaultApiClient.get<InspectionRecord>(`rentals/${rentalId}/inspections`);
-  } catch (error) {
-    if (!isMockMode) throw error;
-    return MOCK_INSPECTION_RECORD;
-  }
+  return defaultApiClient.get<InspectionRecord>(`rentals/${rentalId}/inspections`);
 }
 
 export function getInitialInspectionRecord(): InspectionRecord | null {
-  return isMockMode ? MOCK_INSPECTION_RECORD : null;
+  return null;
 }

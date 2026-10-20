@@ -181,7 +181,10 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         </div>
 
         {/* 7. Minimal Inline Trust Strip (Pure typographic elegance, no nested card boxes) */}
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-4 mb-10 text-xs sm:text-sm text-ink-2">
+        <div 
+          className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-4 mb-10 text-xs sm:text-sm text-ink-2"
+          suppressHydrationWarning
+        >
           <div className="flex items-center gap-2.5">
             <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
             <span className="font-bold text-ink">100% Xe Chính Chủ</span>

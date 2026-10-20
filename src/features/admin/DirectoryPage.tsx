@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Building2, Check, ChevronLeft, ChevronRight, KeyRound, Plus, Search, UsersRound } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Search,
+} from "lucide-react";
 import {
   createDepartment,
   createFacility,
@@ -27,6 +33,8 @@ import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/adm
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import GoogleMap from "@/components/maps/GoogleMap";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
@@ -40,11 +48,11 @@ type Row = {
 };
 type FormValues = Record<string, string>;
 
-const pageInfo: Record<Directory, { title: string; description: string; columns: string[]; icon: typeof Building2 }> = {
-  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", columns: ["Phòng ban"], icon: Building2 },
-  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", columns: ["Chi nhánh", "Địa chỉ"], icon: Building2 },
-  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"], icon: UsersRound },
-  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", columns: ["Vai trò", "Nguồn", "Số nhân viên"], icon: KeyRound },
+const pageInfo: Record<Directory, { title: string; description: string; kicker: string; folio: React.ReactNode; columns: string[] }> = {
+  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", kicker: "TỔ CHỨC · PHÒNG BAN", folio: <>Phòng <em className="italic text-td-teal">ban.</em></>, columns: ["Phòng ban"] },
+  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", kicker: "TỔ CHỨC · CHI NHÁNH", folio: <>Chi <em className="italic text-td-teal">nhánh.</em></>, columns: ["Chi nhánh", "Địa chỉ"] },
+  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", kicker: "TỔ CHỨC · NHÂN SỰ", folio: <>Nhân <em className="italic text-td-teal">viên.</em></>, columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"] },
+  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", kicker: "TỔ CHỨC · PHÂN QUYỀN", folio: <>Vai <em className="italic text-td-teal">trò.</em></>, columns: ["Vai trò", "Nguồn", "Số nhân viên"] },
 };
 
 export default function DirectoryPage({ directory }: { directory: Directory }) {
@@ -53,7 +61,6 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   const canModify = isAdmin && directory !== "roles";
 
   const info = pageInfo[directory];
-  const Icon = info.icon;
   const [rows, setRows] = useState<Row[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [departments, setDepartments] = useState<OrganizationUnitDto[]>([]);
@@ -282,15 +289,28 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
-          <div><h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2></div>
-        </div>
-        {canModify && <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover"><Plus className="h-4 w-4" /> Thêm mới</button>}
-      </div>
-      <p className="text-sm text-ink-3">{info.description}</p>
-      {directory === "roles" && <p className="rounded-xl border border-primary/30 bg-primary-tint px-4 py-3 text-sm text-warning">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
+      <TransitFolio
+        index="07"
+        tag="ORG"
+        kicker={info.kicker}
+        title={info.folio}
+        description={info.description}
+      >
+        <TransitFolioMetric
+          label="DANH MỤC · TỔNG SỐ"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
+        />
+        {canModify && (
+          <button
+            type="button"
+            onClick={() => openForm()}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover"
+          >
+            <Plus className="h-4 w-4" /> Thêm mới
+          </button>
+        )}
+      </TransitFolio>
+      {directory === "roles" && <p className="border-l-2 border-td-oxide pl-3 text-xs text-td-muted">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
 
       {directory === "staffs" && <AdminFilterBar description="Tìm nhân viên theo tên hoặc email." actions={
         <AdminFilterButton variant="secondary" disabled={!search} onClick={() => { setSearch(""); setPage(1); }}>Đặt lại</AdminFilterButton>
@@ -301,7 +321,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       </AdminFilterBar>}
 
       <AdminTableCard>
-        <div className="border-b border-line px-5 py-4"><h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
+        <div className="border-b border-td-rule pb-2 pt-3"><h3 className="text-sm font-bold text-td-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 font-mono text-[11px] text-td-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
 
         <AdminTable aria-busy={loading} className="min-w-[640px]">
           <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
@@ -315,9 +335,9 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           <tbody>
             {loading ? <AdminTableSkeleton columns={info.columns.length + (canModify ? 2 : 1)} /> : rows.map((row) => (
               <tr key={row.id}>
-                <td className="font-semibold text-ink">{row.name}</td>
+                <td className="font-semibold text-td-ink">{row.name}</td>
                 {info.columns.slice(1).map((column, index) => (
-                  <td key={column} className="text-ink-3">{[row.description, row.detail][index] || "—"}</td>
+                  <td key={column} className="text-td-muted">{[row.description, row.detail][index] || "—"}</td>
                 ))}
                 <td><AdminStatusBadge domain="activity" status={row.active ? "active" : "inactive"}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</AdminStatusBadge></td>
                 {canModify && (
@@ -334,16 +354,16 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           </tbody>
         </AdminTable>
         {directory === "staffs" && (
-          <div className="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <div className="flex items-center gap-3 text-xs text-ink-3">
+          <div className="flex flex-col gap-3 border-t border-td-rule py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 font-mono text-[11px] text-td-muted">
               <span>Trang {page} / {pageCount} · {totalCount} nhân viên</span>
-              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary">
+              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded border border-td-rule bg-transparent px-2 py-1 text-xs text-td-ink outline-none focus:border-td-ink">
                 {[10, 20, 50].map((size) => <option key={size} value={size}>{size} mỗi trang</option>)}
               </select>
             </div>
             <nav aria-label="Phân trang nhân viên" className="flex items-center gap-2">
-              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
-              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
+              <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
+              <button type="button" disabled={page >= pageCount || loading} onClick={() => setPage((current) => Math.min(pageCount, current + 1))} aria-label="Trang sau" className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
             </nav>
           </div>
         )}
@@ -355,7 +375,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
               <div className={`grid gap-x-4 gap-y-2.5 ${directory === "staffs" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
                 {fields.map((field) => (
                   <div key={field.key} className={directory !== "staffs" ? "sm:col-span-2" : ""}>
-                    <label className="block text-xs font-semibold text-ink">
+                    <label className="block text-xs font-semibold text-td-ink">
                       <span className="mb-1 block">{field.label}</span>
                       {field.type === "department" || field.type === "facility" ? (
                         <InlineSelect name={field.key} className="admin-input !py-1.5 !px-3 text-xs sm:text-sm" value={values[field.key] ?? ""} onChange={(event) => {
@@ -388,13 +408,13 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
                 ))}
               </div>
               {directory === "facilities" && <div className="mt-4 space-y-3">
-                <button type="button" disabled={!mapAddress && !values.address?.trim()} onClick={() => setMapAddress((current) => current ? null : values.address?.trim() || null)} className="rounded-xl border border-line bg-surface px-4 py-2 text-sm font-semibold text-primary hover:bg-sunken disabled:opacity-60">{mapAddress ? "Ẩn bản đồ" : "Xem địa chỉ trên bản đồ"}</button>
-                {mapAddress && <><p className="text-xs text-ink-3">Đang xem: {mapAddress}</p><GoogleMap title="Vị trí cơ sở" location={mapAddress} /></>}
+                <button type="button" disabled={!mapAddress && !values.address?.trim()} onClick={() => setMapAddress((current) => current ? null : values.address?.trim() || null)} className="rounded border border-td-rule bg-transparent px-4 py-2 text-sm font-semibold text-td-ink hover:bg-td-chalk disabled:opacity-60">{mapAddress ? "Ẩn bản đồ" : "Xem địa chỉ trên bản đồ"}</button>
+                {mapAddress && <><p className="text-xs text-td-muted">Đang xem: {mapAddress}</p><GoogleMap title="Vị trí cơ sở" location={mapAddress} /></>}
               </div>}
-              {error && <p role="alert" className="mt-2.5 whitespace-pre-line text-xs font-medium text-danger bg-danger/10 p-2 rounded-lg border border-danger/20">{error}</p>}
+              {error && <p role="alert" className="mt-2.5 whitespace-pre-line text-xs font-medium text-danger bg-danger/10 p-2 rounded border border-danger/20">{error}</p>}
               <FormDialogFooter>
-                <button type="button" disabled={saving} onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button>
-                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+                <button type="button" disabled={saving} onClick={() => setFormOpen(false)} className="rounded border border-td-rule px-4 py-2 text-sm font-semibold text-td-ink hover:bg-td-chalk disabled:opacity-60">Hủy</button>
+                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded bg-td-oxide px-4 py-2 text-sm font-semibold text-white hover:bg-td-oxide-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </FormDialogFooter>
             </ValidatedForm>
         </FormDialog>

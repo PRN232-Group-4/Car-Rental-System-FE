@@ -18,7 +18,8 @@ import {
 import { UserRoleDialog } from "@/features/admin/users/components/UserRoleDialog";
 import { UserLockDialog } from "@/features/admin/users/components/UserLockDialog";
 import { UserLoyaltyDialog } from "@/features/admin/users/components/UserLoyaltyDialog";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -80,9 +81,9 @@ function UserDetailContent() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-10 w-48 rounded-xl bg-sunken animate-pulse" />
-        <div className="h-40 rounded-3xl bg-surface animate-pulse" />
-        <div className="h-96 rounded-3xl bg-surface animate-pulse" />
+        <div className="h-10 w-48 rounded bg-td-chalk animate-pulse" />
+        <div className="h-40 rounded bg-td-white animate-pulse" />
+        <div className="h-96 rounded bg-td-white animate-pulse" />
       </div>
     );
   }
@@ -165,43 +166,50 @@ function UserDetailContent() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/admin/users")}
-          className="text-ink-3 hover:text-ink cursor-pointer"
+          className="text-td-muted hover:text-td-ink cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           <span>Danh sách người dùng</span>
         </Button>
       </div>
 
-      {/* 2. Thẻ hồ sơ tổng quan trên đầu trang */}
-      <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-e1">
+      {/* 2. Folio + thẻ hồ sơ tổng quan */}
+      <TransitFolio
+        index="07"
+        tag="ORG"
+        kicker="TỔ CHỨC · HỒ SƠ NGƯỜI DÙNG"
+        title={<>Hồ sơ <em className="italic text-td-teal">người dùng.</em></>}
+        description="Tài khoản, vai trò, hồ sơ khách hàng / nhân viên và lịch sử bảo mật của một người dùng."
+      />
+
+      <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-line bg-canvas font-mono text-2xl font-black text-primary shadow-xs">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide shadow-xs">
               {user.fullName
                 .split(" ")
                 .map((n) => n[0])
                 .slice(-2)
                 .join("")
-                .toUpperCase() || <User className="w-8 h-8 text-ink-3" />}
+                .toUpperCase() || <User className="w-8 h-8 text-td-muted" />}
             </div>
 
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-ink tracking-tight">
+                <h2 className="text-xl font-bold tracking-tight text-td-ink">
                   {user.fullName}
-                </h1>
-                <StatusBadge
-                  status={user.isActive ? "approved" : "rejected"}
-                  label={user.isActive ? "Hoạt động" : "Đã khóa"}
-                />
+                </h2>
+                <AdminStatusBadge domain="activity" status={user.isActive ? "active" : "inactive"}>
+                  {user.isActive ? "Hoạt động" : "Đã khóa"}
+                </AdminStatusBadge>
                 {isSelf && (
-                  <span className="rounded-full bg-primary-tint px-2 py-0.5 font-mono text-[10px] font-bold text-primary">
+                  <span className="rounded-full bg-td-chalk px-2 py-0.5 font-mono text-[10px] font-bold text-td-oxide">
                     Tài khoản của bạn
                   </span>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-ink-3">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-td-muted">
                 <span className="flex items-center gap-1 font-mono">
                   <Mail className="w-3.5 h-3.5" />
                   <span>{user.email}</span>
@@ -259,7 +267,7 @@ function UserDetailContent() {
 
         {/* Cảnh báo khóa tài khoản */}
         {!user.isActive && user.lockInfo && (
-          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger">
+          <div className="mt-6 flex items-start gap-3 rounded border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="font-bold">Tài khoản này đang bị khóa</p>
@@ -273,14 +281,14 @@ function UserDetailContent() {
       </div>
 
       {/* 3. Dải Tabs điều hướng */}
-      <div className="flex border-b border-line gap-2 overflow-x-auto">
+      <div className="flex border-b border-td-rule gap-2 overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab("overview")}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "overview"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           <User className="w-4 h-4" />
@@ -292,8 +300,8 @@ function UserDetailContent() {
           onClick={() => setActiveTab("roles")}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "roles"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           <KeyRound className="w-4 h-4" />
@@ -305,8 +313,8 @@ function UserDetailContent() {
           onClick={() => setActiveTab("profiles")}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "profiles"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           <Briefcase className="w-4 h-4" />
@@ -318,8 +326,8 @@ function UserDetailContent() {
           onClick={() => setActiveTab("security")}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "security"
-              ? "border-primary text-primary"
-              : "border-transparent text-ink-3 hover:text-ink"
+              ? "border-td-oxide text-td-oxide"
+              : "border-transparent text-td-muted hover:text-td-ink"
           }`}
         >
           <Shield className="w-4 h-4" />
@@ -332,58 +340,58 @@ function UserDetailContent() {
       {/* TAB 1: TỔNG QUAN */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 space-y-4">
-            <h3 className="text-base font-bold text-ink border-b border-line pb-3">
+          <div className="rounded border border-td-rule bg-td-white p-6 space-y-4">
+            <h3 className="text-base font-bold text-td-ink border-b border-td-rule pb-3">
               Thông tin tài khoản gốc
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Mã tài khoản (User ID)</span>
-                <span className="font-mono font-bold text-ink">#{user.id}</span>
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Mã tài khoản (User ID)</span>
+                <span className="font-mono font-bold text-td-ink">#{user.id}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Họ và tên</span>
-                <span className="font-bold text-ink">{user.fullName}</span>
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Họ và tên</span>
+                <span className="font-bold text-td-ink">{user.fullName}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Email đăng ký</span>
-                <span className="font-mono text-ink">{user.email}</span>
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Email đăng ký</span>
+                <span className="font-mono text-td-ink">{user.email}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Trạng thái xác minh Email</span>
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Trạng thái xác minh Email</span>
                 <span className="font-semibold text-success flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Đã xác minh</span>
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Số điện thoại</span>
-                <span className="font-mono text-ink">{user.phone || "Chưa cập nhật"}</span>
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Số điện thoại</span>
+                <span className="font-mono text-td-ink">{user.phone || "Chưa cập nhật"}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-ink-3">Giới tính</span>
-                <span className="text-ink">{user.gender || "Chưa cập nhật"}</span>
+                <span className="text-td-muted">Giới tính</span>
+                <span className="text-td-ink">{user.gender || "Chưa cập nhật"}</span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 space-y-4">
-            <h3 className="text-base font-bold text-ink border-b border-line pb-3">
+          <div className="rounded border border-td-rule bg-td-white p-6 space-y-4">
+            <h3 className="text-base font-bold text-td-ink border-b border-td-rule pb-3">
               Thời gian & Lần truy cập
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Ngày tạo tài khoản</span>
-                <span className="font-mono text-ink">{formatDate(user.createdAt, "HH:mm dd/MM/yyyy")}</span>
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Ngày tạo tài khoản</span>
+                <span className="font-mono text-td-ink">{formatDate(user.createdAt, "HH:mm dd/MM/yyyy")}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/60">
-                <span className="text-ink-3">Lần đăng nhập gần nhất</span>
-                <span className="font-mono text-ink">
+              <div className="flex justify-between py-1 border-b border-td-rule/60">
+                <span className="text-td-muted">Lần đăng nhập gần nhất</span>
+                <span className="font-mono text-td-ink">
                   {user.lastLoginAt ? formatDate(user.lastLoginAt, "HH:mm dd/MM/yyyy") : "Chưa có dữ liệu"}
                 </span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-ink-3">Trạng thái tài khoản</span>
+                <span className="text-td-muted">Trạng thái tài khoản</span>
                 <span className={user.isActive ? "text-success font-bold" : "text-danger font-bold"}>
                   {user.isActive ? "Đang hoạt động" : "Đã bị vô hiệu hóa"}
                 </span>
@@ -395,11 +403,11 @@ function UserDetailContent() {
 
       {/* TAB 2: VAI TRÒ */}
       {activeTab === "roles" && (
-        <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
+        <div className="rounded border border-td-rule bg-td-white p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-td-rule pb-4">
             <div>
-              <h3 className="text-base font-bold text-ink">Danh sách vai trò & Quyền truy cập</h3>
-              <p className="text-xs text-ink-3">
+              <h3 className="text-base font-bold text-td-ink">Danh sách vai trò & Quyền truy cập</h3>
+              <p className="text-xs text-td-muted">
                 Một tài khoản có thể đảm nhận nhiều vai trò để phục vụ nghiệp vụ vận hành và thuê xe.
               </p>
             </div>
@@ -424,18 +432,18 @@ function UserDetailContent() {
               return (
                 <div
                   key={role}
-                  className="flex items-center justify-between rounded-xl border border-line bg-canvas p-4"
+                  className="flex items-center justify-between rounded border border-td-rule bg-td-paper p-4"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm font-bold text-ink">{role}</span>
+                      <span className="font-mono text-sm font-bold text-td-ink">{role}</span>
                       {isAdmin && (
-                        <span className="rounded bg-primary-tint px-2 py-0.5 text-[10px] font-bold text-primary">
+                        <span className="rounded bg-td-chalk px-2 py-0.5 text-[10px] font-bold text-td-oxide">
                           Toàn quyền
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-ink-3">
+                    <p className="text-xs text-td-muted">
                       {role === "Admin" && "Quản trị toàn quyền cấu hình, nhân sự và chính sách"}
                       {role === "Manager" && "Quản lý điều hành đội xe, trạm đón và xem báo cáo"}
                       {role === "Staff" && "Nhân viên giao nhận xe, kiểm tra tình trạng phương tiện"}
@@ -476,13 +484,13 @@ function UserDetailContent() {
         <div className="space-y-6">
           {/* Hồ sơ khách hàng */}
           {user.customer ? (
-            <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 space-y-6">
-              <div className="flex items-center justify-between border-b border-line pb-4">
+            <div className="rounded border border-td-rule bg-td-white p-6 space-y-6">
+              <div className="flex items-center justify-between border-b border-td-rule pb-4">
                 <div className="flex items-center gap-2.5">
-                  <FileCheck className="w-5 h-5 text-primary" />
+                  <FileCheck className="w-5 h-5 text-td-oxide" />
                   <div>
-                    <h3 className="text-base font-bold text-ink">Hồ sơ khách hàng</h3>
-                    <p className="text-xs text-ink-3">Thông tin định danh GPLX và điểm thưởng hội viên</p>
+                    <h3 className="text-base font-bold text-td-ink">Hồ sơ khách hàng</h3>
+                    <p className="text-xs text-td-muted">Thông tin định danh GPLX và điểm thưởng hội viên</p>
                   </div>
                 </div>
 
@@ -492,7 +500,7 @@ function UserDetailContent() {
                     size="sm"
                     onClick={() => setLoyaltyDialogOpen(true)}
                   >
-                    <Award className="w-4 h-4 mr-1.5 text-primary" />
+                    <Award className="w-4 h-4 mr-1.5 text-td-oxide" />
                     <span>Điều chỉnh điểm thưởng</span>
                   </Button>
                 )}
@@ -500,8 +508,8 @@ function UserDetailContent() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between py-1 border-b border-line/60">
-                    <span className="text-ink-3">Trạng thái GPLX</span>
+                  <div className="flex justify-between py-1 border-b border-td-rule/60">
+                    <span className="text-td-muted">Trạng thái GPLX</span>
                     <span
                       className={`font-bold capitalize ${
                         user.customer.licenseStatus === "approved"
@@ -518,19 +526,19 @@ function UserDetailContent() {
                         : "Bị từ chối"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-line/60">
-                    <span className="text-ink-3">Số giấy phép</span>
-                    <span className="font-mono font-bold text-ink">
+                  <div className="flex justify-between py-1 border-b border-td-rule/60">
+                    <span className="text-td-muted">Số giấy phép</span>
+                    <span className="font-mono font-bold text-td-ink">
                       {user.customer.licenseNumber || "—"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-line/60">
-                    <span className="text-ink-3">Hạng bằng</span>
-                    <span className="font-mono text-ink">{user.customer.licenseType || "—"}</span>
+                  <div className="flex justify-between py-1 border-b border-td-rule/60">
+                    <span className="text-td-muted">Hạng bằng</span>
+                    <span className="font-mono text-td-ink">{user.customer.licenseType || "—"}</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-ink-3">Ngày hết hạn</span>
-                    <span className="font-mono text-ink">
+                    <span className="text-td-muted">Ngày hết hạn</span>
+                    <span className="font-mono text-td-ink">
                       {user.customer.licenseExpiry
                         ? formatDate(user.customer.licenseExpiry, "dd/MM/yyyy")
                         : "—"}
@@ -540,9 +548,9 @@ function UserDetailContent() {
 
                 {/* Ảnh chụp GPLX */}
                 <div>
-                  <span className="text-xs font-semibold text-ink-3 block mb-2">Ảnh chụp GPLX:</span>
+                  <span className="text-xs font-semibold text-td-muted block mb-2">Ảnh chụp GPLX:</span>
                   {user.customer.licenseImgUrl ? (
-                    <div className="relative aspect-[3/2] w-full max-w-xs overflow-hidden rounded-xl border border-line bg-canvas">
+                    <div className="relative aspect-[3/2] w-full max-w-xs overflow-hidden rounded border border-td-rule bg-td-paper">
                       <Image
                         src={user.customer.licenseImgUrl}
                         alt="Ảnh GPLX"
@@ -551,27 +559,27 @@ function UserDetailContent() {
                       />
                     </div>
                   ) : (
-                    <div className="flex aspect-[3/2] w-full max-w-xs items-center justify-center rounded-xl border border-dashed border-line bg-canvas text-xs text-ink-3">
+                    <div className="flex aspect-[3/2] w-full max-w-xs items-center justify-center rounded border border-dashed border-td-rule bg-td-paper text-xs text-td-muted">
                       Chưa tải ảnh GPLX
                     </div>
                   )}
                 </div>
 
                 {/* Điểm thưởng & Phê duyệt */}
-                <div className="rounded-xl border border-line bg-canvas p-4 space-y-4">
+                <div className="rounded border border-td-rule bg-td-paper p-4 space-y-4">
                   <div>
-                    <span className="text-xs font-semibold text-ink-3">Điểm thưởng Thong Dong:</span>
+                    <span className="text-xs font-semibold text-td-muted">Điểm thưởng Thong Dong:</span>
                     <div className="mt-1 flex items-baseline gap-1">
-                      <span className="font-mono text-2xl font-black tabular-nums text-primary">
+                      <span className="font-mono text-2xl font-black tabular-nums text-td-oxide">
                         {(user.customer.loyaltyPoint || 0).toLocaleString("vi-VN")}
                       </span>
-                      <span className="text-xs font-bold text-ink-3">điểm</span>
+                      <span className="text-xs font-bold text-td-muted">điểm</span>
                     </div>
                   </div>
 
                   {!isManagerOnly && user.customer.licenseStatus === "pending" && (
-                    <div className="space-y-2 pt-2 border-t border-line">
-                      <span className="text-xs font-bold text-ink">Duyệt hồ sơ GPLX:</span>
+                    <div className="space-y-2 pt-2 border-t border-td-rule">
+                      <span className="text-xs font-bold text-td-ink">Duyệt hồ sơ GPLX:</span>
                       <div className="flex gap-2">
                         <Button
                           variant="primary"
@@ -600,26 +608,26 @@ function UserDetailContent() {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 text-center py-8 text-xs text-ink-3">
+            <div className="rounded border border-td-rule bg-td-white p-6 text-center py-8 text-xs text-td-muted">
               Người dùng này chưa có hồ sơ khách hàng.
             </div>
           )}
 
           {/* Hồ sơ nhân viên */}
           {user.staff ? (
-            <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 space-y-4">
-              <div className="flex items-center justify-between border-b border-line pb-4">
+            <div className="rounded border border-td-rule bg-td-white p-6 space-y-4">
+              <div className="flex items-center justify-between border-b border-td-rule pb-4">
                 <div className="flex items-center gap-2.5">
-                  <Briefcase className="w-5 h-5 text-primary" />
+                  <Briefcase className="w-5 h-5 text-td-oxide" />
                   <div>
-                    <h3 className="text-base font-bold text-ink">Hồ sơ nhân viên nội bộ</h3>
-                    <p className="text-xs text-ink-3">Thông tin phòng ban, chi nhánh và chức danh vận hành</p>
+                    <h3 className="text-base font-bold text-td-ink">Hồ sơ nhân viên nội bộ</h3>
+                    <p className="text-xs text-td-muted">Thông tin phòng ban, chi nhánh và chức danh vận hành</p>
                   </div>
                 </div>
 
                 <Link
                   href={`/admin/staffs/detail?id=${user.staff.id}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-td-oxide hover:underline"
                 >
                   <span>Xem hồ sơ nhân sự</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -627,24 +635,24 @@ function UserDetailContent() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="rounded-xl border border-line bg-canvas p-3">
-                  <span className="text-xs text-ink-3 block">Phòng ban:</span>
-                  <span className="font-bold text-ink">{user.staff.department || "—"}</span>
+                <div className="rounded border border-td-rule bg-td-paper p-3">
+                  <span className="text-xs text-td-muted block">Phòng ban:</span>
+                  <span className="font-bold text-td-ink">{user.staff.department || "—"}</span>
                 </div>
-                <div className="rounded-xl border border-line bg-canvas p-3">
-                  <span className="text-xs text-ink-3 block">Cơ sở / Trạm trực:</span>
-                  <span className="font-bold text-ink">{user.staff.facility || "—"}</span>
+                <div className="rounded border border-td-rule bg-td-paper p-3">
+                  <span className="text-xs text-td-muted block">Cơ sở / Trạm trực:</span>
+                  <span className="font-bold text-td-ink">{user.staff.facility || "—"}</span>
                 </div>
-                <div className="rounded-xl border border-line bg-canvas p-3">
-                  <span className="text-xs text-ink-3 block">Đội tài xế:</span>
-                  <span className="font-bold text-ink">
+                <div className="rounded border border-td-rule bg-td-paper p-3">
+                  <span className="text-xs text-td-muted block">Đội tài xế:</span>
+                  <span className="font-bold text-td-ink">
                     {user.staff.isDriver ? `Có (Đánh giá: ${user.staff.rating || 5.0}/5.0)` : "Không"}
                   </span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 text-center py-8 text-xs text-ink-3">
+            <div className="rounded border border-td-rule bg-td-white p-6 text-center py-8 text-xs text-td-muted">
               Người dùng này không thuộc đội ngũ nhân viên Thong Dong.
             </div>
           )}
@@ -653,19 +661,19 @@ function UserDetailContent() {
 
       {/* TAB 4: BẢO MẬT & PHIÊN */}
       {activeTab === "security" && (
-        <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1 space-y-6">
-          <div className="border-b border-line pb-4">
-            <h3 className="text-base font-bold text-ink">Kiểm soát an toàn & Phiên đăng nhập</h3>
-            <p className="text-xs text-ink-3">
+        <div className="rounded border border-td-rule bg-td-white p-6 space-y-6">
+          <div className="border-b border-td-rule pb-4">
+            <h3 className="text-base font-bold text-td-ink">Kiểm soát an toàn & Phiên đăng nhập</h3>
+            <p className="text-xs text-td-muted">
               Quản lý các thao tác khẩn cấp nhằm bảo vệ tài khoản khỏi các rủi ro xâm nhập.
             </p>
           </div>
 
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-line p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded border border-td-rule p-4">
               <div>
-                <span className="font-bold text-sm text-ink block">Thu hồi phiên hoạt động</span>
-                <span className="text-xs text-ink-3">
+                <span className="font-bold text-sm text-td-ink block">Thu hồi phiên hoạt động</span>
+                <span className="text-xs text-td-muted">
                   Hủy toàn bộ cookie và refresh token đang hoạt động của người này trên các thiết bị.
                 </span>
               </div>
@@ -682,10 +690,10 @@ function UserDetailContent() {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-line p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded border border-td-rule p-4">
               <div>
-                <span className="font-bold text-sm text-ink block">Trạng thái khóa tài khoản</span>
-                <span className="text-xs text-ink-3">
+                <span className="font-bold text-sm text-td-ink block">Trạng thái khóa tài khoản</span>
+                <span className="text-xs text-td-muted">
                   Khóa tài khoản sẽ chặn đăng nhập tức thì trên cả Web và Ứng dụng di động.
                 </span>
               </div>
@@ -758,7 +766,7 @@ function UserDetailContent() {
 export default function AdminUserDetailPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-        <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
+        <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <UserDetailContent />
         </Suspense>
     </AuthGate>

@@ -57,7 +57,7 @@ export function UserLockDialog({
       <form onSubmit={handleSubmit} className="space-y-4">
         {isCurrentlyActive ? (
           <>
-            <div className="flex items-start gap-2.5 rounded-xl border border-danger/20 bg-danger-bg/40 p-3 text-xs text-danger">
+            <div className="flex items-start gap-2.5 rounded border border-danger/20 bg-danger-bg/40 p-3 text-xs text-danger">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 Người dùng này sẽ bị hủy các phiên đăng nhập hiện tại và không thể thao tác trên ứng dụng di động cũng như cổng web.
@@ -78,17 +78,17 @@ export function UserLockDialog({
                 }}
                 rows={3}
                 placeholder="Ví dụ: Vi phạm quy định thuê xe, nghi vấn gian lận thông tin giấy tờ..."
-                className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/20"
+                className="w-full rounded border border-td-rule bg-td-white p-3 text-sm text-td-ink focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/20"
               />
             </FormField>
           </>
         ) : (
-          <p className="text-sm text-ink-2 py-2">
+          <p className="text-sm text-td-ink py-2">
             Sau khi mở khóa, người dùng có thể đăng nhập và tiếp tục sử dụng dịch vụ của Thong Dong.
           </p>
         )}
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-td-rule">
           <Button
             type="button"
             variant="secondary"
