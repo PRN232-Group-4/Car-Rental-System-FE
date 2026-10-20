@@ -28,17 +28,17 @@ export function EmptyState({
         className,
       )}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sunken text-ink-3 shadow-e1">
-        <Icon className="h-6 w-6" aria-hidden="true" />
+      <div className="flex h-10 w-10 items-center justify-center rounded border border-td-rule bg-td-chalk text-td-muted">
+        <Icon className="h-5 w-5" aria-hidden="true" />
       </div>
-      <h3 className="mt-4 text-base font-semibold text-ink">{title}</h3>
+      <h3 className="mt-4 text-sm font-bold text-td-ink">{title}</h3>
       {description && (
-        <p className="mt-1.5 max-w-sm text-sm text-ink-3">{description}</p>
+        <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-td-muted">{description}</p>
       )}
       {suggestions && suggestions.length > 0 && (
-        <div className="mt-4 rounded-xl border border-line bg-canvas p-3.5 text-left text-xs text-ink-2">
-          <p className="font-semibold text-ink">Hãy thử:</p>
-          <ul className="mt-1.5 list-disc list-inside space-y-1 text-ink-3">
+        <div className="mt-4 rounded border border-td-rule p-3.5 text-left text-xs text-td-ink">
+          <p className="font-semibold">Hãy thử:</p>
+          <ul className="mt-1.5 list-inside list-disc space-y-1 text-td-muted">
             {suggestions.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}

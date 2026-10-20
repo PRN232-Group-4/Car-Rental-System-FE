@@ -71,22 +71,22 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6",
+        "flex flex-col gap-4 border-t border-td-rule py-3 font-mono text-[11px] sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-td-muted">
         <span>
           Hiển thị{" "}
-          <strong className="font-semibold text-ink font-mono tabular-nums">
+          <strong className="font-semibold text-td-ink tabular-nums">
             {firstResult}
           </strong>
           –
-          <strong className="font-semibold text-ink font-mono tabular-nums">
+          <strong className="font-semibold text-td-ink tabular-nums">
             {lastResult}
           </strong>{" "}
           trong{" "}
-          <strong className="font-semibold text-ink font-mono tabular-nums">
+          <strong className="font-semibold text-td-ink tabular-nums">
             {totalCount}
           </strong>{" "}
           {itemName}
@@ -102,7 +102,7 @@ export function Pagination({
               onChange={(e) => {
                 onPageSizeChange(Number(e.currentTarget.value));
               }}
-              className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs text-ink outline-none transition focus:border-primary disabled:opacity-50"
+              className="rounded border border-td-rule bg-transparent px-2 py-1 text-[11px] text-td-ink outline-none transition focus:border-primary disabled:opacity-50"
               aria-label={`Số ${itemName} mỗi trang`}
             >
               {pageSizeOptions.map((size) => (
@@ -124,7 +124,7 @@ export function Pagination({
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage <= 1 || loading}
           aria-label="Trang trước"
-          className="rounded-xl border border-line bg-surface p-2 text-ink-3 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -135,7 +135,7 @@ export function Pagination({
               <span
                 key={`ellipsis-${index}`}
                 aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center text-ink-3"
+                className="flex h-8 w-8 items-center justify-center text-td-muted"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </span>
@@ -152,10 +152,10 @@ export function Pagination({
               aria-label={`Trang ${item}`}
               aria-current={isCurrent ? "page" : undefined}
               className={cn(
-                "h-9 min-w-9 rounded-xl px-2.5 text-xs font-semibold font-mono tabular-nums transition",
+                "h-8 min-w-8 rounded px-2 text-[11px] font-bold tabular-nums transition",
                 isCurrent
-                  ? "bg-primary text-white shadow-e1"
-                  : "border border-line bg-surface text-ink-2 hover:bg-canvas",
+                  ? "bg-primary text-white"
+                  : "border border-td-rule text-td-ink hover:bg-td-chalk",
                 loading && "disabled:cursor-not-allowed disabled:opacity-50",
               )}
             >
@@ -169,7 +169,7 @@ export function Pagination({
           onClick={() => onPageChange(Math.min(pageCount, currentPage + 1))}
           disabled={currentPage >= pageCount || loading}
           aria-label="Trang tiếp theo"
-          className="rounded-xl border border-line bg-surface p-2 text-ink-3 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
