@@ -121,15 +121,14 @@ export default function DriverLicenseProfile({
 
   return (
     <div className="space-y-6">
-      <section
-        aria-label="Tiến trình xác minh hồ sơ"
-        className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7"
-      >
-        <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+      <section aria-label="Tiến trình xác minh hồ sơ">
+        <div className="flex flex-col justify-between gap-3 border-b border-td-ink pb-2 sm:flex-row sm:items-end">
           <div>
-            <h3 className="font-bold text-ink">Trạng thái hồ sơ tài xế</h3>
-            <p className="mt-1 text-sm text-ink-3">
-              Tiến trình kiểm duyệt và xác thực giấy phép lái xe trong hệ thống.
+            <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+              Tiến trình xác minh hồ sơ tài xế
+            </h3>
+            <p className="mt-1 text-sm text-td-ink">
+              Kiểm duyệt và xác thực giấy phép lái xe trong hệ thống.
             </p>
           </div>
           <AdminStatusBadge domain="license" status={staff.licenseStatus?.trim() || (licenseComplete ? "pending" : "incomplete")}>
@@ -142,7 +141,7 @@ export default function DriverLicenseProfile({
                   : "CHƯA HOÀN TẤT"}
           </AdminStatusBadge>
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 divide-y divide-td-rule border-b border-td-rule sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <ProgressStep
             number="01"
             title="Thông tin cá nhân"
@@ -173,64 +172,54 @@ export default function DriverLicenseProfile({
       </section>
 
       {!isAdmin ? (
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7 space-y-5">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <BadgeCheck className="h-6 w-6" />
-            </div>
+        <section aria-label="Thông tin giấy phép lái xe" className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
+          <div className="flex items-start justify-between gap-4 border-b border-td-rule pb-3">
             <div>
-              <h3 className="text-xl font-bold text-ink">
-                Thông tin giấy phép lái xe
-              </h3>
-              <p className="mt-1 text-sm text-ink-3">
-                Hồ sơ giấy phép lái xe được lưu trong hệ thống nhân sự.
+              <h3 className="text-sm font-bold text-td-ink">Giấy phép lái xe</h3>
+              <p className="mt-1 font-mono text-[11px] text-td-muted">
+                Hồ sơ giấy phép được lưu trong hệ thống nhân sự.
               </p>
             </div>
+            <BadgeCheck className="h-5 w-5 shrink-0 text-td-oxide" aria-hidden="true" />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-3">Số giấy phép lái xe</span>
-              <p className="text-sm font-semibold text-ink mt-1">{staff.licenseNumber || "Chưa cập nhật"}</p>
-            </div>
-            <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-3">Hạng giấy phép</span>
-              <p className="text-sm font-semibold text-ink mt-1">{staff.licenseType || "Chưa cập nhật"}</p>
-            </div>
-            <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-3">Ngày cấp</span>
-              <p className="text-sm font-semibold text-ink mt-1">{formatAdminDate(staff.licenseIssueDate)}</p>
-            </div>
-            <div className="rounded-xl border border-line bg-canvas p-4">
-              <span className="text-xs text-ink-3">Ngày hết hạn</span>
-              <p className="text-sm font-semibold text-ink mt-1">{formatAdminDate(staff.licenseExpiryDate)}</p>
-            </div>
-          </div>
+          <dl className="divide-y divide-td-rule font-mono text-xs">
+            {[
+              { term: "Số giấy phép lái xe", detail: staff.licenseNumber || "Chưa cập nhật" },
+              { term: "Hạng giấy phép", detail: staff.licenseType || "Chưa cập nhật" },
+              { term: "Ngày cấp", detail: formatAdminDate(staff.licenseIssueDate) },
+              { term: "Ngày hết hạn", detail: formatAdminDate(staff.licenseExpiryDate) },
+            ].map((row) => (
+              <div key={row.term} className="flex items-baseline justify-between gap-4 py-2.5">
+                <dt className="text-td-muted">{row.term}</dt>
+                <dd className="text-right font-semibold text-td-ink">{row.detail}</dd>
+              </div>
+            ))}
+          </dl>
 
           {staff.licenseImageUrl && (
-            <div className="flex items-center gap-3 rounded-xl border border-line bg-canvas p-3">
-              <FileCheck className="h-5 w-5 shrink-0 text-primary" />
-              <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
-                Ảnh giấy phép lái xe đã được lưu trên hệ thống
-              </p>
-            </div>
+            <p className="mt-4 flex items-center gap-2 border-t border-td-rule pt-3 font-mono text-[11px] text-td-muted">
+              <FileCheck className="h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
+              <span className="truncate">Ảnh giấy phép lái xe đã được lưu trên hệ thống</span>
+            </p>
           )}
 
-          <p className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs leading-5 text-primary">
-            <UserRound className="mt-0.5 h-4 w-4 shrink-0" />
-            Thông tin giấy phép lái xe do Quản trị viên cập nhật và xác thực theo hồ sơ nhân sự. Nếu cần thay đổi thông tin, vui lòng liên hệ ban quản trị.
+          <p className="mt-4 flex items-start gap-2 border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">
+            <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
+            Thông tin giấy phép do quản trị viên cập nhật và xác thực theo hồ sơ nhân sự. Cần thay đổi, vui lòng liên hệ ban quản trị.
           </p>
         </section>
       ) : isApproved && !editingApprovedLicense ? (
-        <section className="rounded-2xl border border-primary/20 bg-primary/5 p-5 shadow-e1 sm:p-7">
-          <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <BadgeCheck className="h-6 w-6" />
-            </span>
+        <section
+          aria-label="Giấy phép đã xác minh"
+          className="flex flex-col justify-between gap-4 border-l-2 border-td-oxide bg-td-white px-5 py-4 sm:flex-row sm:items-center"
+        >
+          <div className="flex items-start gap-3">
+            <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-td-oxide" aria-hidden="true" />
             <div>
-              <h3 className="font-bold text-ink">Giấy phép đã được xác minh</h3>
-              <p className="mt-1 text-sm leading-6 text-ink-3">
-                Thông tin tải lên đã được phê duyệt. Nếu bạn đã gia hạn giấy phép, bạn có thể gửi thông tin mới để cập nhật hồ sơ.
+              <h3 className="text-sm font-bold text-td-ink">Giấy phép đã được xác minh</h3>
+              <p className="mt-1 text-xs leading-relaxed text-td-muted">
+                Thông tin tải lên đã được phê duyệt. Nếu bạn đã gia hạn giấy phép, hãy gửi thông tin mới để cập nhật hồ sơ.
               </p>
             </div>
           </div>
@@ -238,31 +227,24 @@ export default function DriverLicenseProfile({
             type="button"
             onClick={() => setEditingApprovedLicense(true)}
             aria-expanded={editingApprovedLicense}
-            className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-surface px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/10"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded border border-td-rule px-3 py-2 text-xs font-bold text-td-ink transition-colors hover:bg-td-chalk"
           >
-            <FileCheck className="h-4 w-4" />
+            <FileCheck className="h-3.5 w-3.5" aria-hidden="true" />
             Cập nhật giấy phép đã gia hạn
           </button>
         </section>
       ) : (
-      <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
-        <div className="mb-6 flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <BadgeCheck className="h-6 w-6" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-ink">
-              Giấy phép lái xe
-            </h3>
-            <p className="mt-1 text-sm text-ink-3">
-              Tải lên giấy phép hợp lệ để quản trị viên xác minh.
-            </p>
-          </div>
+      <section className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
+        <div className="border-b border-td-rule pb-3">
+          <h3 className="text-sm font-bold text-td-ink">Tải lên giấy phép lái xe</h3>
+          <p className="mt-1 font-mono text-[11px] text-td-muted">
+            Giấy phép hợp lệ sẽ được quản trị viên xác minh.
+          </p>
         </div>
 
         <ValidatedForm validation={validation} validate={() => !file && !staff.licenseImageUrl ? { imageUrl: "Vui lòng tải lên ảnh giấy phép lái xe." } : {}} key={`driver-license-${staff.id}`} onSubmit={submit} className="space-y-5">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-semibold text-ink">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
               Số giấy phép lái xe
               <InlineInput
                 name="licenseNumber"
@@ -271,7 +253,7 @@ export default function DriverLicenseProfile({
                 className="admin-input mt-2"
               />
             </label>
-            <label className="text-sm font-semibold text-ink">
+            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
               Hạng giấy phép
               <InlineInput
                 name="licenseType"
@@ -281,7 +263,7 @@ export default function DriverLicenseProfile({
                 className="admin-input mt-2"
               />
             </label>
-            <label className="text-sm font-semibold text-ink">
+            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
               Ngày cấp
               <InlineInput
                 name="licenseIssueDate"
@@ -290,7 +272,7 @@ export default function DriverLicenseProfile({
                 className="admin-input mt-2"
               />
             </label>
-            <label className="text-sm font-semibold text-ink">
+            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
               Ngày hết hạn
               <InlineInput
                 name="licenseExpiryDate"
@@ -313,24 +295,24 @@ export default function DriverLicenseProfile({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="flex min-h-40 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-primary/30 bg-canvas px-5 py-6 text-center transition hover:border-primary hover:bg-primary/5"
+            className="flex min-h-36 w-full flex-col items-center justify-center rounded border border-dashed border-td-rule bg-td-paper px-5 py-6 text-center transition-colors hover:border-td-oxide"
           >
-            <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-surface text-primary shadow-sm">
-              <Upload className="h-5 w-5" />
+            <span className="mb-3 flex h-10 w-10 items-center justify-center rounded border border-td-rule bg-td-white text-td-oxide">
+              <Upload className="h-4 w-4" aria-hidden="true" />
             </span>
-            <span className="text-sm font-bold text-ink">
+            <span className="text-sm font-bold text-td-ink">
               {file ? "Chọn ảnh khác" : "Nhấn để tải ảnh giấy phép"}
             </span>
-            <span className="mt-2 text-xs text-ink-3">
-              JPG, PNG hoặc WEBP · Tối đa 10 MB
+            <span className="mt-1 font-mono text-[11px] text-td-muted">
+              JPG, PNG hoặc WEBP · tối đa 10 MB
             </span>
           </button>
 
           <InlineError name="imageUrl" inputId="staff-license-image" />
           {(file || staff.licenseImageUrl) && (
-            <div className="flex items-center gap-3 rounded-xl border border-line bg-canvas p-3">
-              <FileCheck className="h-5 w-5 shrink-0 text-primary" />
-              <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
+            <div className="flex items-center gap-3 border-t border-td-rule pt-3">
+              <FileCheck className="h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
+              <p className="min-w-0 flex-1 truncate font-mono text-[11px] text-td-ink">
                 {file?.name ?? "Ảnh giấy phép đã tải lên"}
               </p>
               {file && (
@@ -338,7 +320,7 @@ export default function DriverLicenseProfile({
                   type="button"
                   onClick={() => setFile(null)}
                   aria-label="Bỏ ảnh đã chọn"
-                  className="rounded-lg p-2 text-ink-3 hover:bg-surface"
+                  className="rounded p-2 text-td-muted hover:bg-td-white"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -353,14 +335,14 @@ export default function DriverLicenseProfile({
             </p>
           )}
           {saved && (
-            <p role="status" className="text-sm font-medium text-primary">
+            <p role="status" className="text-sm font-medium text-td-oxide">
               Đã lưu giấy phép. Hồ sơ đang chờ quản trị viên xác minh.
             </p>
           )}
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover disabled:opacity-60"
           >
             {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
             {saving ? "Đang lưu..." : "Lưu giấy phép"}
@@ -394,28 +376,20 @@ function ProgressStep({
   complete: boolean;
 }) {
   return (
-    <div
-      className={`flex items-center gap-3 rounded-2xl border p-4 ${
-        complete
-          ? "border-primary/20 bg-primary/5"
-          : "border-line bg-surface"
-      }`}
-    >
+    <div className="px-0 py-3.5 sm:px-4 sm:first:pl-0 sm:last:pr-0">
       <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
-          complete
-            ? "bg-primary text-white"
-            : "bg-sunken text-ink-3"
+        className={`flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider ${
+          complete ? "text-td-ink" : "text-td-muted"
         }`}
       >
-        {complete ? <Check className="h-5 w-5" /> : number}
+        {complete ? (
+          <Check className="h-3.5 w-3.5 text-td-oxide" aria-hidden="true" />
+        ) : (
+          <span className="inline-block h-1.5 w-1.5 rounded-full border border-td-muted" aria-hidden="true" />
+        )}
+        {number} · {title}
       </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-bold text-ink">{title}</span>
-        <span className="mt-0.5 block text-xs text-ink-3">
-          {description}
-        </span>
-      </span>
+      <span className="mt-1 block text-xs text-td-muted">{description}</span>
     </div>
   );
 }
