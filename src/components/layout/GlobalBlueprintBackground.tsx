@@ -1,7 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
+
+// false khi SSR, true sau khi hydrate — không cần setState trong effect.
+const subscribeMounted = () => () => {};
+const getMountedSnapshot = () => true;
+const getMountedServerSnapshot = () => false;
 
 /**
  * Nền kiến trúc kỹ thuật ô tô toàn hệ thống (Global Automotive CAD Blueprint)
@@ -11,12 +16,8 @@ import { usePathname } from "next/navigation";
  * Lưu ý: Tuyệt đối không mount trên /admin để tránh đè watermark lên dữ liệu vận hành (Phase 3C P0-03).
  */
 export default function GlobalBlueprintBackground() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeMounted, getMountedSnapshot, getMountedServerSnapshot);
   const pathname = usePathname();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted || pathname?.startsWith("/admin")) {
     return null;

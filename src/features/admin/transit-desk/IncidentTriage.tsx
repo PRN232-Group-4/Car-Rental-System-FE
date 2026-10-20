@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -26,19 +26,22 @@ import TransitDeskStatus from "./TransitDeskStatus";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 
+const subscribeNoChange = () => () => {};
+const getReportIdFromUrl = () => {
+  const id = new URLSearchParams(window.location.search).get("id");
+  const parsed = id ? Number(id) : Number.NaN;
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
 export function IncidentTriage() {
   const [filters, setFilters] = useState<ReportFilterParams>({});
   const [search, setSearch] = useState("");
-  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [manualReportId, setManualReportId] = useState<number | null>(null);
   const [drawerReportId, setDrawerReportId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const idStr = params.get("id");
-      if (idStr) setSelectedReportId(Number(idStr));
-    }
-  }, []);
+  // Đọc ?id= từ URL một lần ở client (null khi SSR) để không phải setState trong effect.
+  const urlReportId = useSyncExternalStore(subscribeNoChange, getReportIdFromUrl, () => null);
+  const selectedReportId = manualReportId ?? urlReportId;
 
   const { data, isLoading, refetch } = useReports(filters);
 
@@ -109,7 +112,7 @@ export function IncidentTriage() {
                 <button
                   key={btn.label}
                   type="button"
-                  onClick={() => setFilters((prev) => ({ ...prev, status: btn.id as any }))}
+                  onClick={() => setFilters((prev) => ({ ...prev, status: btn.id }))}
                   className={`border-b-2 px-3 py-1 font-semibold transition-colors cursor-pointer ${
                     isSelected
                       ? "border-td-oxide text-td-oxide"
@@ -159,7 +162,7 @@ export function IncidentTriage() {
                   <button
                     key={report.id}
                     type="button"
-                    onClick={() => setSelectedReportId(report.id)}
+                    onClick={() => setManualReportId(report.id)}
                     className={`grid w-full grid-cols-12 items-start gap-3 py-3.5 px-2 text-left transition-colors cursor-pointer relative ${
                       isSelected ? "bg-td-chalk/70" : "hover:bg-td-chalk/30"
                     }`}
