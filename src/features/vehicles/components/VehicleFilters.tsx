@@ -2,12 +2,12 @@
 
 import React from "react";
 import { SlidersHorizontal, RotateCcw, Car, Fuel, Building2, Users, Settings2, DollarSign } from "lucide-react";
-import { FacilityCatalogItem } from "@/api/mock/mock-catalog";
+import type { Facility } from "@/features/facilities/types";
 import { FindFilterState } from "../findFilterSchema";
 
 export interface VehicleFiltersProps {
   filters: FindFilterState;
-  facilities?: FacilityCatalogItem[];
+  facilities?: Facility[];
   brands?: string[];
   onChange: (patch: Partial<FindFilterState>) => void;
   onReset: () => void;

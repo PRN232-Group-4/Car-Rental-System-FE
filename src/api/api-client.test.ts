@@ -1,6 +1,27 @@
 import { describe, it, expect } from "vitest";
 import { ApiClient, ApiClientError } from "./api-client";
-import { mockFetch } from "./mock/mock-fetch";
+
+/** fetch giả lập cục bộ cho test — không dùng mock engine của app. */
+const fakeFetch = async (input: RequestInfo | URL): Promise<Response> => {
+  const url = new URL(String(input), "http://localhost");
+  const path = url.pathname.replace(/^\/api\//, "");
+  const json = (data: unknown) =>
+    new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json" } });
+
+  if (path === "health") return json({ status: "ok" });
+  if (path === "facilities") return json([{ id: "1", name: "Trạm Quận 1" }]);
+  if (path === "vehicles") {
+    const category = url.searchParams.get("category");
+    const items = [
+      { id: "1", category: "car" },
+      { id: "2", category: "motorbike" },
+    ];
+    return json(category ? items.filter((item) => item.category === category) : items);
+  }
+  if (path === "rentals/hourly") return json({ success: true, bookingId: "BK-0001" });
+
+  return new Response("Not Found", { status: 404, statusText: "Not Found" });
+};
 
 it("preserves nested ProblemDetails from the deployed envelope for inline validation", () => {
   const error = new ApiClientError(400, "Bad Request", { is_success: false, error: { errors: { "request.EndTime": ["Giờ trả xe không hợp lệ."] }, detail: "Thông tin chưa hợp lệ." } });
@@ -11,7 +32,7 @@ it("preserves nested ProblemDetails from the deployed envelope for inline valida
 describe("ApiClient Unit Tests", () => {
   const client = new ApiClient({
     baseUrl: "http://localhost/api",
-    customFetch: mockFetch,
+    customFetch: fakeFetch,
   });
 
   it("GET /health returns status ok", async () => {

@@ -3,7 +3,7 @@
 import React from "react";
 import { X, RotateCcw } from "lucide-react";
 import { formatVnd } from "@/lib/format";
-import { FacilityCatalogItem } from "@/api/mock/mock-catalog";
+import type { Facility } from "@/features/facilities/types";
 
 export interface ActiveFiltersState {
   search?: string;
@@ -23,7 +23,7 @@ export interface ActiveFiltersState {
 
 export interface ActiveFilterChipsProps {
   filters: ActiveFiltersState;
-  facilities?: FacilityCatalogItem[];
+  facilities?: Facility[];
   onRemove: (key: keyof ActiveFiltersState) => void;
   onClearAll: () => void;
   className?: string;
