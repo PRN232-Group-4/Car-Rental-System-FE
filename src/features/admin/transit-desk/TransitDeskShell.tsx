@@ -16,7 +16,7 @@ import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/
 import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
-import { Moon, Sun, LogOut, User } from "lucide-react";
+import { House, Moon, Sun, LogOut, User } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 
 export interface TransitDeskShellProps {
@@ -346,6 +346,14 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
                     {account?.email || user?.email}
                   </div>
                 </div>
+                <Link
+                  href="/"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer"
+                >
+                  <House aria-hidden="true" className="h-3.5 w-3.5" />
+                  <span>Về trang chủ</span>
+                </Link>
                 <Link
                   href="/admin/profile"
                   onClick={() => setIsUserMenuOpen(false)}

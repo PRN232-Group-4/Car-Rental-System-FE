@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, RefreshCw } from "lucide-react";
-import GoogleMap from "@/components/maps/GoogleMap";
+import MapboxMap from "@/components/maps/MapboxMap";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { formatAdminDateTime } from "@/lib/date-time";
 import { getVehiclePosition, trackingError } from "./api";
@@ -28,7 +28,7 @@ export default function VehicleTrackingPanel({ vehicleId }: { vehicleId: number 
         <p className="text-sm text-ink-2">Vị trí ghi nhận lúc <strong className="font-mono tabular-nums">{formatAdminDateTime(position.data.recordedAt)}</strong>. Dữ liệu được cập nhật khi thiết bị GPS gửi vị trí.</p>
         {position.data.address && <p className="text-sm text-ink-2">{position.data.address}</p>}
         {position.data.accuracyM != null && <p className="text-xs text-ink-3">Độ chính xác GPS: khoảng {Math.round(position.data.accuracyM)} m.</p>}
-        <GoogleMap title="Vị trí GPS gần nhất của xe" location={{ latitude: position.data.lat, longitude: position.data.lng }} />
+        <MapboxMap title="Vị trí GPS gần nhất của xe" location={{ latitude: position.data.lat, longitude: position.data.lng }} />
       </div>}
       {!position.isPending && <button type="button" disabled={position.isFetching} onClick={() => void position.refetch()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-primary disabled:opacity-50"><RefreshCw aria-hidden="true" className="h-4 w-4" />{position.isFetching ? "Đang cập nhật..." : "Cập nhật vị trí"}</button>}
     </>}

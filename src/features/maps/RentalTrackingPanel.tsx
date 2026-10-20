@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import GoogleMap from "@/components/maps/GoogleMap";
+import MapboxMap from "@/components/maps/MapboxMap";
 import { AdminTable, AdminTableCard } from "@/components/admin/AdminTable";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { formatAdminDateTime } from "@/lib/date-time";
@@ -39,7 +39,7 @@ export default function RentalTrackingPanel({ rentalId }: { rentalId: number | s
             <div><dt className="text-ink-3">Thời gian giữa điểm đầu / cuối</dt><dd className="font-mono tabular-nums">{Math.round(route.data.durationSeconds / 60).toLocaleString("vi-VN")} phút</dd></div>
           </dl>
           <p className="text-sm text-ink-3">Bản đồ hiển thị điểm GPS cuối cùng lúc {formatAdminDateTime(last?.recordedAt)}. Lịch sử bên dưới giữ các điểm ghi nhận; quãng đường có thể thiếu khi mất tín hiệu GPS.</p>
-          <GoogleMap title="Điểm GPS cuối cùng trong hành trình thuê" location={mapLocation} />
+          <MapboxMap title="Điểm GPS cuối cùng trong hành trình thuê" location={mapLocation} />
           <AdminTableCard>
             <AdminTable aria-label="Lịch sử điểm GPS">
               <thead><tr><th scope="col">Ghi nhận lúc</th><th scope="col">Vĩ độ</th><th scope="col">Kinh độ</th><th scope="col">Tốc độ</th></tr></thead>
