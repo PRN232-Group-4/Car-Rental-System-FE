@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Compass, Car, RefreshCw } from "lucide-react";
+import { Car, RefreshCw } from "lucide-react";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useMyTrips } from "@/features/account/trips/hooks";
 import { TripCard } from "@/features/account/trips/components/TripCard";
@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Button } from "@/components/ui/Button";
 import type { TripTab } from "@/features/account/trips/types";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 const TABS: { key: TripTab; label: string }[] = [
   { key: "upcoming", label: "Sắp tới" },
@@ -79,38 +80,35 @@ function TripsListContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header trang */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-            <Compass className="w-4 h-4" />
-            <span>Hành Trình Của Bạn</span>
-          </div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-ink mt-1">
-            Chuyến của tôi
-          </h1>
-          <p className="text-sm text-ink-3 mt-1">
-            Theo dõi hành trình, kiểm tra biên bản bàn giao xe và quản lý các đơn thuê xe của bạn.
-          </p>
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · HÀNH TRÌNH"
+        title={<>Chuyến <em className="italic text-td-teal">của tôi.</em></>}
+        description="Theo dõi hành trình, kiểm tra biên bản bàn giao xe và quản lý các đơn thuê xe của bạn."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG CHUYẾN</span>
+          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
+            {isLoading ? "—" : String(totalCount).padStart(2, "0")}
+          </strong>
         </div>
-        <div className="flex items-center gap-2">
-          {isFetching && !isLoading && (
-            <span className="text-xs text-ink-3 flex items-center gap-1 font-mono">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-primary" />
-              <span>Đang đồng bộ...</span>
-            </span>
-          )}
-          <Link href="/find">
-            <Button variant="primary" className="flex items-center gap-1.5">
-              <Car className="w-4 h-4" />
-              <span>Đặt xe mới</span>
-            </Button>
-          </Link>
-        </div>
-      </div>
+        {isFetching && !isLoading && (
+          <span className="flex items-center gap-1 font-mono text-[11px] text-td-muted">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-primary" aria-hidden="true" />
+            <span>Đang đồng bộ</span>
+          </span>
+        )}
+        <Link href="/find">
+          <Button variant="primary" className="inline-flex items-center gap-1.5">
+            <Car className="h-4 w-4" aria-hidden="true" />
+            <span>Đặt xe mới</span>
+          </Button>
+        </Link>
+      </TransitFolio>
 
       {/* Tabs thanh điều hướng */}
-      <div className="flex items-center gap-2 border-b border-line overflow-x-auto pb-px" role="tablist">
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-td-ink pb-2 font-mono text-xs" role="tablist">
         {TABS.map((tab) => {
           const isActive = currentTab === tab.key;
           return (
@@ -119,10 +117,10 @@ function TripsListContent() {
               role="tab"
               aria-selected={isActive}
               onClick={() => handleTabChange(tab.key)}
-              className={`h-11 px-4 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/20 ${
+              className={`cursor-pointer whitespace-nowrap border-b-2 px-3 py-1 font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                 isActive
                   ? "border-primary text-primary"
-                  : "border-transparent text-ink-3 hover:text-ink hover:border-line-strong"
+                  : "border-transparent text-td-muted hover:text-td-ink"
               }`}
             >
               {tab.label}
@@ -135,15 +133,15 @@ function TripsListContent() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-surface rounded-2xl border border-line p-5 space-y-4">
+            <div key={i} className="bg-td-white rounded border border-td-rule p-5 space-y-4">
               <div className="flex justify-between items-start">
                 <Skeleton className="h-6 w-32 rounded" />
                 <Skeleton className="h-5 w-20 rounded-full" />
               </div>
-              <Skeleton className="h-16 w-full rounded-xl" />
-              <div className="pt-3 border-t border-line flex justify-between items-center">
+              <Skeleton className="h-16 w-full rounded" />
+              <div className="pt-3 border-t border-td-rule flex justify-between items-center">
                 <Skeleton className="h-6 w-24 rounded" />
-                <Skeleton className="h-8 w-20 rounded-lg" />
+                <Skeleton className="h-8 w-20 rounded" />
               </div>
             </div>
           ))}
@@ -169,14 +167,20 @@ function TripsListContent() {
         />
       ) : (
         <>
-          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <ul className="border-t border-td-ink">
+            <li className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted" aria-hidden="true">
+              <span className="col-span-4">Phương tiện</span>
+              <span className="col-span-4">Nhận / Trả xe</span>
+              <span className="col-span-2 text-right">Chi phí</span>
+              <span className="col-span-2 text-right">Trạng thái</span>
+            </li>
             {items.map((trip) => (
               <TripCard key={trip.id} trip={trip} />
             ))}
           </ul>
 
           {totalCount > 12 && (
-            <div className="pt-6 border-t border-line flex justify-center">
+            <div className="pt-6 border-t border-td-rule flex justify-center">
               <Pagination
                 page={currentPage}
                 pageSize={12}
@@ -196,7 +200,7 @@ export default function MyTripsPage() {
     <AuthGate allowedRoles={["Customer"]}>
       <Suspense
         fallback={
-          <div className="p-8 text-center text-sm text-ink-3">
+          <div className="p-8 text-center text-sm text-td-muted">
             Đang tải dữ liệu chuyến đi...
           </div>
         }

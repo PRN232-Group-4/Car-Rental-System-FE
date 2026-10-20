@@ -1,0 +1,184 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "name": "Trang chủ (Landing)",
+      "area": "public",
+      "loadTimeMs": 3829,
+      "backdropCount": 3,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 1,
+      "axePass": false,
+      "axeDetails": "color-contrast (serious)"
+    },
+    {
+      "route": "/find",
+      "name": "Tìm kiếm xe (/find)",
+      "area": "public",
+      "loadTimeMs": 912,
+      "backdropCount": 1,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 1,
+      "axePass": false,
+      "axeDetails": "select-name (critical)"
+    },
+    {
+      "route": "/vehicles",
+      "name": "Danh mục xe (/vehicles)",
+      "area": "public",
+      "loadTimeMs": 992,
+      "backdropCount": 1,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 1,
+      "axePass": false,
+      "axeDetails": "select-name (critical)"
+    },
+    {
+      "route": "/vehicles/detail",
+      "name": "Chi tiết xe (/vehicles/detail)",
+      "area": "public",
+      "loadTimeMs": 894,
+      "backdropCount": 1,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/facilities",
+      "name": "Hệ thống trạm (/facilities)",
+      "area": "public",
+      "loadTimeMs": 646,
+      "backdropCount": 1,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/subscriptions",
+      "name": "Gói hội viên (/subscriptions)",
+      "area": "public",
+      "loadTimeMs": 1008,
+      "backdropCount": 1,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/account/trips",
+      "name": "Chuyến của tôi (/account/trips)",
+      "area": "public",
+      "loadTimeMs": 1037,
+      "backdropCount": 0,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/booking",
+      "name": "Đặt xe (/booking)",
+      "area": "public",
+      "loadTimeMs": 775,
+      "backdropCount": 0,
+      "backdropBudget": 4,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/admin",
+      "name": "Admin Tổng quan (/admin)",
+      "area": "admin",
+      "loadTimeMs": 947,
+      "backdropCount": 0,
+      "backdropBudget": 3,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/admin/dashboard",
+      "name": "Admin Dashboard (/admin/dashboard)",
+      "area": "admin",
+      "loadTimeMs": 764,
+      "backdropCount": 0,
+      "backdropBudget": 3,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/admin/vehicles",
+      "name": "Admin Đội xe (/admin/vehicles)",
+      "area": "admin",
+      "loadTimeMs": 798,
+      "backdropCount": 0,
+      "backdropBudget": 3,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    },
+    {
+      "route": "/admin/rentals",
+      "name": "Admin Đơn thuê (/admin/rentals)",
+      "area": "admin",
+      "loadTimeMs": 782,
+      "backdropCount": 0,
+      "backdropBudget": 3,
+      "backdropPass": true,
+      "axeCriticalSerious": 0,
+      "axePass": true,
+      "axeDetails": ""
+    }
+  ],
+  "motionLeak": {
+    "initialST": 0,
+    "finalST": 0,
+    "leakST": 0,
+    "leakTweens": 0
+  },
+  "perf": [
+    {
+      "path": "/",
+      "domContentLoaded": 64,
+      "loadComplete": 145,
+      "fcp": 148,
+      "domNodes": 1318
+    },
+    {
+      "path": "/find",
+      "domContentLoaded": 21,
+      "loadComplete": 60,
+      "fcp": 64,
+      "domNodes": 401
+    },
+    {
+      "path": "/vehicles/detail",
+      "domContentLoaded": 17,
+      "loadComplete": 47,
+      "fcp": 52,
+      "domNodes": 212
+    },
+    {
+      "path": "/account/trips",
+      "domContentLoaded": 20,
+      "loadComplete": 40,
+      "fcp": 48,
+      "domNodes": 182
+    }
+  ]
+}

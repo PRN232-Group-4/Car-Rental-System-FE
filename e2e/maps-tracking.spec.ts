@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { mockMapbox } from "./mapbox-helpers";
 
-const vehicle = { id: 10, brand: "Toyota", model: "Vios", vehicleTypeId: 1, status: "available", mainImageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80" };
+const vehicle = { id: 10, brand: "Toyota", model: "Vios", vehicleTypeId: 1, status: "available", mainImageUrl: "/logo.jpg" };
 const point = { lat: 10.7769, lng: 106.7009, recordedAt: "2026-10-15T03:04:00Z", accuracyM: 10 };
 
 test.beforeEach(async ({ page }) => {
-  // Every API and map iframe is isolated from external providers.
-  await page.route("https://www.google.com/maps/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>Map preview</p>" }));
+  await mockMapbox(page);
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const json = path.endsWith("/account/profile") ? { fullName: "Admin", email: "admin@test.local", roles: ["Admin"] }
@@ -22,17 +22,15 @@ test.beforeEach(async ({ page }) => {
 test("vehicle GPS loads on demand, exposes a real point and never submits the edit form", async ({ page }) => {
   let trackingRequests = 0;
   let writes = 0;
-  page.on("request", (request) => { if (request.method() !== "GET") writes++; });
+  page.on("request", (request) => { if (request.method() !== "GET" && new URL(request.url()).pathname.startsWith("/api/")) writes++; });
   await page.route("**/api/tracking/vehicles/10/last-position", (route) => { trackingRequests++; return route.fulfill({ json: point }); });
-  await page.goto("/admin/vehicles");
-  await page.getByRole("button", { name: "Chỉnh sửa Toyota Vios", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  const panel = dialog.getByRole("region", { name: "Vị trí xe", exact: true });
+  await page.goto("/admin/vehicles/edit?vehicleId=10");
+  const panel = page.getByRole("region", { name: "Vị trí xe", exact: true });
   await expect(panel.getByRole("button", { name: "Xem vị trí xe", exact: true })).toBeVisible();
   expect(trackingRequests).toBe(0);
   await panel.getByRole("button", { name: "Xem vị trí xe", exact: true }).click();
   await expect(panel.getByText("15/10/2026 10:04", { exact: true })).toBeVisible();
-  await expect(panel.getByRole("link", { name: /Chỉ đường trên Google Maps/ })).toHaveAttribute("href", /destination=10\.7769%2C106\.7009/);
+  await expect(panel.getByRole("region", { name: "Bản đồ Mapbox: Vị trí GPS gần nhất của xe" })).toBeVisible();
   await expect(panel.getByText(/Độ chính xác GPS: khoảng 10 m/)).toBeVisible();
   expect(trackingRequests).toBe(1);
   expect(writes).toBe(0);
@@ -66,7 +64,7 @@ test("rental GPS has a loading skeleton, truthful endpoint map and paginated his
   const table = page.getByRole("table", { name: "Lịch sử điểm GPS", exact: true });
   await expect(table.locator("tbody tr")).toHaveCount(10);
   await expect(page.getByText(/Bản đồ hiển thị điểm GPS cuối cùng lúc 15\/10\/2026 10:11/)).toBeVisible();
-  await expect(page.getByRole("link", { name: /Chỉ đường trên Google Maps/ })).toHaveAttribute("href", /destination=10\.88%2C106\.7009/);
+  await expect(page.getByRole("region", { name: "Bản đồ Mapbox: Điểm GPS cuối cùng trong hành trình thuê" })).toBeVisible();
   await page.getByRole("button", { name: "Trang sau", exact: true }).click();
   await expect(table.locator("tbody tr")).toHaveCount(2);
   await expect(table.getByRole("cell", { name: "15/10/2026 10:11", exact: true })).toBeVisible();
@@ -74,20 +72,23 @@ test("rental GPS has a loading skeleton, truthful endpoint map and paginated his
 
 test("facility form previews an explicit address snapshot without saving", async ({ page }) => {
   let writes = 0;
-  page.on("request", (request) => { if (request.method() !== "GET") writes++; });
+  const addresses: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (request.method() !== "GET" && url.pathname.startsWith("/api/")) writes++;
+    if (url.pathname.includes("/search/geocode/")) addresses.push(url.searchParams.get("q") || "");
+  });
   await page.goto("/admin/facilities");
   await page.getByRole("button", { name: "Thêm mới", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("button", { name: "Xem địa chỉ trên bản đồ", exact: true })).toBeDisabled();
   await dialog.locator('[name="address"]').fill("123 Nguyễn Huệ & Lê Lợi, TP.HCM");
   await dialog.getByRole("button", { name: "Xem địa chỉ trên bản đồ", exact: true }).click();
-  const directions = dialog.getByRole("link", { name: /Chỉ đường trên Google Maps/ });
-  const first = await directions.getAttribute("href");
-  expect(new URL(first!).searchParams.get("destination")).toBe("123 Nguyễn Huệ & Lê Lợi, TP.HCM");
+  await expect.poll(() => addresses).toEqual(["123 Nguyễn Huệ & Lê Lợi, TP.HCM"]);
   await dialog.locator('[name="address"]').fill("Địa chỉ mới");
-  await expect(directions).toHaveAttribute("href", first!);
+  expect(addresses).toHaveLength(1);
   await dialog.getByRole("button", { name: "Ẩn bản đồ", exact: true }).click();
   await dialog.getByRole("button", { name: "Xem địa chỉ trên bản đồ", exact: true }).click();
-  expect(new URL((await directions.getAttribute("href"))!).searchParams.get("destination")).toBe("Địa chỉ mới");
+  await expect.poll(() => addresses.at(-1)).toBe("Địa chỉ mới");
   expect(writes).toBe(0);
 });

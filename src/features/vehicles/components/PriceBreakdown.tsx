@@ -77,23 +77,23 @@ export function PriceBreakdown({
   return (
     <div
       data-testid="price-breakdown"
-      className={`rounded-2xl border border-line bg-canvas p-4 text-xs space-y-3 ${className}`}
+      className={`rounded border border-td-rule bg-td-paper p-4 text-xs space-y-3 ${className}`}
     >
-      <div className="flex items-center justify-between border-b border-line pb-2.5">
-        <span className="font-bold text-ink text-sm">Dự toán chi phí minh bạch</span>
+      <div className="flex items-center justify-between border-b border-td-rule pb-2.5">
+        <span className="font-bold text-td-ink text-sm">Dự toán chi phí minh bạch</span>
         <span className="rounded-md bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
           {rentalType === "hourly" ? "Thuê theo giờ" : "Thuê dài hạn"}
         </span>
       </div>
 
       {/* Danh sách các khoản tính */}
-      <div className="space-y-2 text-ink-2">
+      <div className="space-y-2 text-td-ink">
         {/* Tiền thuê cơ sở */}
         <div className="flex items-center justify-between">
-          <span className="text-ink-3">
+          <span className="text-td-muted">
             Tiền thuê xe ({calculation.safeHours}h × {formatVnd(hourlyRate)})
           </span>
-          <span className="font-mono tabular-nums font-semibold text-ink">
+          <span className="font-mono tabular-nums font-semibold text-td-ink">
             {formatVnd(calculation.baseRentalFee)}
           </span>
         </div>
@@ -101,10 +101,10 @@ export function PriceBreakdown({
         {/* Phụ phí tài xế nếu có */}
         {hasDriver && (
           <div className="flex items-center justify-between">
-            <span className="text-ink-3">
+            <span className="text-td-muted">
               Tài xế riêng ({calculation.driverDays} ngày × {formatVnd(driverFeePerDay)})
             </span>
-            <span className="font-mono tabular-nums font-semibold text-ink">
+            <span className="font-mono tabular-nums font-semibold text-td-ink">
               {formatVnd(calculation.driverFee)}
             </span>
           </div>
@@ -112,14 +112,14 @@ export function PriceBreakdown({
 
         {/* Thuế VAT */}
         <div className="flex items-center justify-between">
-          <span className="text-ink-3">Thuế VAT ({calculation.vatRate}%)</span>
-          <span className="font-mono tabular-nums font-semibold text-ink">
+          <span className="text-td-muted">Thuế VAT ({calculation.vatRate}%)</span>
+          <span className="font-mono tabular-nums font-semibold text-td-ink">
             {formatVnd(calculation.vatFee)}
           </span>
         </div>
 
         {/* Tổng tiền thuê dịch vụ (A) */}
-        <div className="flex items-center justify-between border-t border-line/60 pt-2 font-bold text-ink">
+        <div className="flex items-center justify-between border-t border-td-rule/60 pt-2 font-bold text-td-ink">
           <span>Tiền thuê chuyến xe (A)</span>
           <span className="font-mono tabular-nums text-primary text-sm">
             {formatVnd(calculation.rentalSubtotal)}
@@ -127,29 +127,29 @@ export function PriceBreakdown({
         </div>
 
         {/* Tiền đặt cọc (B) */}
-        <div className="flex items-start justify-between border-t border-line/60 pt-2">
+        <div className="flex items-start justify-between border-t border-td-rule/60 pt-2">
           <div>
-            <div className="flex items-center gap-1 font-semibold text-ink">
+            <div className="flex items-center gap-1 font-semibold text-td-ink">
               <span>Tiền đặt cọc hoàn lại ({calculation.depositRate}%)</span>
               <span className="text-[10px] text-success font-bold bg-success-bg px-1.5 py-0.2 rounded">
                 Hoàn 100%
               </span>
             </div>
-            <p className="text-[10px] text-ink-3 mt-0.5">
+            <p className="text-[10px] text-td-muted mt-0.5">
               Hoàn trả vào tài khoản trong 24h sau bàn giao
             </p>
           </div>
-          <span className="font-mono tabular-nums font-bold text-ink">
+          <span className="font-mono tabular-nums font-bold text-td-ink">
             {formatVnd(calculation.depositAmount)}
           </span>
         </div>
       </div>
 
       {/* Tổng thanh toán ban đầu (A + B) */}
-      <div className="flex items-center justify-between border-t border-line pt-3 bg-surface -mx-4 -mb-4 p-4 rounded-b-2xl">
+      <div className="flex items-center justify-between border-t border-td-rule pt-3 bg-td-white -mx-4 -mb-4 p-4 rounded-b-2xl">
         <div>
-          <span className="font-bold text-ink text-sm">Tổng thanh toán dự kiến:</span>
-          <p className="text-[10px] text-ink-3">Bao gồm cọc hoàn lại khi trả xe</p>
+          <span className="font-bold text-td-ink text-sm">Tổng thanh toán dự kiến:</span>
+          <p className="text-[10px] text-td-muted">Bao gồm cọc hoàn lại khi trả xe</p>
         </div>
         <div className="text-right">
           <span className="font-mono tabular-nums text-lg font-black text-primary">
@@ -159,7 +159,7 @@ export function PriceBreakdown({
       </div>
 
       {/* Cam kết minh bạch */}
-      <div className="flex items-center gap-1.5 text-[11px] text-ink-3 pt-1">
+      <div className="flex items-center gap-1.5 text-[11px] text-td-muted pt-1">
         <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />
         <span>Đã bao gồm VAT và bảo hiểm trách nhiệm dân sự bắt buộc.</span>
       </div>

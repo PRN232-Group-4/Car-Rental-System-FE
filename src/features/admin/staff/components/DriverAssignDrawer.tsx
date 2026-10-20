@@ -80,7 +80,7 @@ export function DriverAssignDrawer({
       side="right"
       title={
         <div className="flex items-center gap-2">
-          <UserCheck className="w-5 h-5 text-primary" />
+          <UserCheck className="w-5 h-5 text-td-oxide" />
           <span>{currentDriverName ? "Điều Phối / Thay Đổi Tài Xế" : "Chỉ Định Tài Xế Cho Đơn Thuê"}</span>
         </div>
       }
@@ -90,18 +90,18 @@ export function DriverAssignDrawer({
       <form onSubmit={handleSubmit} className="flex h-full flex-col justify-between">
         <div className="space-y-6 overflow-y-auto p-4 sm:p-6 flex-1">
           {/* Thông tin vắn tắt về đơn thuê */}
-          <div className="rounded-2xl border border-line bg-canvas p-4 space-y-2 text-xs">
+          <div className="rounded border border-td-rule bg-td-paper p-4 space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-ink-3">Khung giờ di chuyển:</span>
-              <span className="font-bold text-ink flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-primary" />
+              <span className="text-td-muted">Khung giờ di chuyển:</span>
+              <span className="font-bold text-td-ink flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-td-oxide" />
                 {timeRange}
               </span>
             </div>
             {currentDriverName && (
-              <div className="flex items-center justify-between border-t border-line/60 pt-2">
-                <span className="text-ink-3">Tài xế hiện tại:</span>
-                <span className="font-bold text-ink-2">{currentDriverName}</span>
+              <div className="flex items-center justify-between border-t border-td-rule/60 pt-2">
+                <span className="text-td-muted">Tài xế hiện tại:</span>
+                <span className="font-bold text-td-ink">{currentDriverName}</span>
               </div>
             )}
           </div>
@@ -109,24 +109,24 @@ export function DriverAssignDrawer({
           {/* Danh sách tài xế */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-td-muted">
                 Danh sách tài xế ({drivers.length})
               </h4>
-              <span className="text-[11px] text-ink-3">Đã tính 60 phút đệm</span>
+              <span className="text-[11px] text-td-muted">Đã tính 60 phút đệm</span>
             </div>
 
             {isLoading ? (
               <div className="space-y-2">
-                <div className="h-16 rounded-xl bg-sunken animate-pulse" />
-                <div className="h-16 rounded-xl bg-sunken animate-pulse" />
-                <div className="h-16 rounded-xl bg-sunken animate-pulse" />
+                <div className="h-16 rounded bg-td-chalk animate-pulse" />
+                <div className="h-16 rounded bg-td-chalk animate-pulse" />
+                <div className="h-16 rounded bg-td-chalk animate-pulse" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger text-center">
+              <div className="rounded border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger text-center">
                 Không thể tải danh sách tài xế khả dụng.
               </div>
             ) : drivers.length === 0 ? (
-              <div className="rounded-xl border border-line bg-surface p-6 text-xs text-ink-3 text-center">
+              <div className="rounded border border-td-rule bg-td-white p-6 text-xs text-td-muted text-center">
                 Không có tài xế nào trong hệ thống.
               </div>
             ) : (
@@ -144,17 +144,17 @@ export function DriverAssignDrawer({
                           if (validationError) setValidationError(null);
                         }
                       }}
-                      className={`relative rounded-xl border p-3.5 transition-all cursor-pointer ${
+                      className={`relative rounded border p-3.5 transition-all cursor-pointer ${
                         !isEligible
-                          ? "border-line/70 bg-sunken/40 opacity-75 cursor-not-allowed"
+                          ? "border-td-rule/70 bg-td-chalk/40 opacity-75 cursor-not-allowed"
                           : isSelected
-                          ? "border-primary bg-primary-tint/20 ring-2 ring-primary/20 shadow-xs"
-                          : "border-line bg-surface hover:border-primary/50 hover:bg-canvas"
+                          ? "border-td-oxide bg-td-chalk/20 ring-2 ring-td-oxide/20 shadow-xs"
+                          : "border-td-rule bg-td-white hover:border-td-oxide/50 hover:bg-td-paper"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface font-mono text-xs font-bold text-primary shadow-xs">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-white font-mono text-xs font-bold text-td-oxide shadow-xs">
                             {d.fullName
                               .split(" ")
                               .map((n) => n[0])
@@ -165,15 +165,15 @@ export function DriverAssignDrawer({
 
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm text-ink">{d.fullName}</span>
+                              <span className="font-bold text-sm text-td-ink">{d.fullName}</span>
                               {d.rating && (
-                                <span className="inline-flex items-center gap-0.5 rounded bg-sunken px-1.5 py-0.5 text-[10px] font-bold text-ink-2">
-                                  <Star className="w-3 h-3 text-primary fill-primary" />
+                                <span className="inline-flex items-center gap-0.5 rounded bg-td-chalk px-1.5 py-0.5 text-[10px] font-bold text-td-ink">
+                                  <Star className="w-3 h-3 text-td-oxide fill-td-oxide" />
                                   <span>{d.rating.toFixed(1)}</span>
                                 </span>
                               )}
                             </div>
-                            <p className="font-mono text-xs text-ink-3">
+                            <p className="font-mono text-xs text-td-muted">
                               {d.licenseType ? `Hạng ${d.licenseType} • Số: ${d.licenseNumber || "—"}` : "Chưa có GPLX"}
                             </p>
                           </div>
@@ -197,7 +197,7 @@ export function DriverAssignDrawer({
 
                       {/* Hiển thị lý do loại trừ nếu không hợp lệ */}
                       {!isEligible && d.reasons.length > 0 && (
-                        <div className="mt-2.5 rounded-lg border border-danger/20 bg-danger-bg/30 p-2 text-xs text-danger space-y-1">
+                        <div className="mt-2.5 rounded border border-danger/20 bg-danger-bg/30 p-2 text-xs text-danger space-y-1">
                           {d.reasons.map((r, idx) => (
                             <div key={idx} className="flex items-start gap-1.5">
                               <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
@@ -214,12 +214,12 @@ export function DriverAssignDrawer({
           </div>
 
           {/* Lý do và ghi chú */}
-          <div className="space-y-4 pt-2 border-t border-line">
+          <div className="space-y-4 pt-2 border-t border-td-rule">
             <FormField label="Lý do điều phối / thay đổi" required>
               <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value as AssignDriverReason)}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
                 <option value="driver_request">Yêu cầu từ tài xế (Bận đột xuất/sức khỏe)</option>
                 <option value="customer_request">Khách hàng yêu cầu đổi tài xế</option>
@@ -234,20 +234,20 @@ export function DriverAssignDrawer({
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
                 placeholder="Nhập ghi chú chi tiết nếu có..."
-                className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink placeholder:text-ink-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded border border-td-rule bg-td-white p-3 text-sm text-td-ink placeholder:text-td-muted focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
             </FormField>
           </div>
 
           {validationError && (
-            <div className="rounded-xl border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
+            <div className="rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
               {validationError}
             </div>
           )}
         </div>
 
         {/* Nút hành động */}
-        <div className="flex items-center justify-end gap-3 border-t border-line bg-surface p-4">
+        <div className="flex items-center justify-end gap-3 border-t border-td-rule bg-td-white p-4">
           <Button
             type="button"
             variant="secondary"

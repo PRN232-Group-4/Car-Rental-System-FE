@@ -20,10 +20,10 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
     <article
       data-vehicle-id={vehicle.id}
       data-testid="vehicle-card"
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface shadow-e1 glass-lift transition-all duration-300 ${className}`}
+      className={`group relative flex flex-col justify-between overflow-hidden rounded border border-td-rule bg-td-white glass-lift transition-all duration-300 ${className}`}
     >
       {/* 1. Khung ảnh tỷ lệ 4:3 (>=60% diện tích trực quan), zoom 1.04 khi hover */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-sunken">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-td-chalk">
         <Image
           src={vehicle.imageUrl}
           alt={vehicle.name}
@@ -42,7 +42,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
               </span>
             )}
             {vehicle.categoryLabel && (
-              <span className="rounded-md bg-surface/90 px-2 py-0.5 text-[11px] font-semibold text-ink shadow-xs border border-line">
+              <span className="rounded-md bg-td-white/90 px-2 py-0.5 text-[11px] font-semibold text-td-ink shadow-xs border border-td-rule">
                 {vehicle.categoryLabel}
               </span>
             )}
@@ -55,7 +55,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
                 <span>Sẵn sàng</span>
               </span>
             ) : (
-              <span className="rounded-full bg-sunken px-2.5 py-0.5 text-[11px] font-bold text-ink-3 border border-line shadow-xs">
+              <span className="rounded-full bg-td-chalk px-2.5 py-0.5 text-[11px] font-bold text-td-ink border border-td-rule shadow-xs">
                 Đang thuê
               </span>
             )}
@@ -79,17 +79,17 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
           {/* Tên xe & Đời xe (TUYỆT ĐỐI KHÔNG HIỂN THỊ BIỂN SỐ XE) */}
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h3 className="font-bold text-base text-ink line-clamp-1 group-hover:text-primary transition-colors">
+              <h3 className="font-bold text-base text-td-ink line-clamp-1 group-hover:text-primary transition-colors">
                 {vehicle.name}
               </h3>
-              <p className="text-xs text-ink-3 mt-0.5">
+              <p className="text-xs text-td-muted mt-0.5">
                 Đời {vehicle.year} {vehicle.brand ? `• ${vehicle.brand}` : ""}
               </p>
             </div>
           </div>
 
           {/* Lưới 4 chip thông số kỹ thuật chuẩn A6 */}
-          <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-ink-2 bg-canvas rounded-xl p-2.5 border border-line">
+          <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-td-ink bg-td-paper rounded p-2.5 border border-td-rule">
             <div className="flex items-center gap-1.5 truncate">
               <Users className="w-3.5 h-3.5 text-primary shrink-0" />
               <span className="truncate">{vehicle.seats ? `${vehicle.seats} chỗ` : "Tiêu chuẩn"}</span>
@@ -123,16 +123,16 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
         </div>
 
         {/* 3. Giá & CTA điều hướng */}
-        <div className="mt-4 flex items-center justify-between border-t border-line pt-3.5">
+        <div className="mt-4 flex items-center justify-between border-t border-td-rule pt-3.5">
           <div>
             <div className="flex items-baseline gap-1">
               <span className="font-mono text-lg font-black tabular-nums text-primary">
                 {formatVnd(vehicle.hourlyPrice)}
               </span>
-              <span className="text-xs font-semibold text-ink-3">/giờ</span>
+              <span className="text-xs font-semibold text-td-muted">/giờ</span>
             </div>
             {vehicle.monthlyPrice > 0 && (
-              <p className="text-[11px] font-mono tabular-nums text-ink-3">
+              <p className="text-[11px] font-mono tabular-nums text-td-muted">
                 {formatVnd(vehicle.monthlyPrice)}/tháng
               </p>
             )}
@@ -140,7 +140,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
 
           <Link
             href={`/vehicles/detail?id=${vehicle.id}`}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-all hover:bg-primary-hover group-hover:shadow-e1 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 rounded bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-all hover:bg-primary-hover group-hover:shadow-e1 cursor-pointer"
           >
             <span>Chi tiết</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />

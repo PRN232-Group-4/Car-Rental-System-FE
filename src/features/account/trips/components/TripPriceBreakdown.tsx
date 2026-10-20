@@ -9,20 +9,20 @@ interface TripPriceBreakdownProps {
 export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
   if (trip.isSubscription) {
     return (
-      <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm space-y-4">
+      <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
           <Package className="w-4 h-4" aria-hidden="true" />
           <span>Hình thức thanh toán theo gói</span>
         </div>
 
-        <div className="bg-primary-tint/20 border border-primary/20 rounded-xl p-4">
+        <div className="bg-primary-tint/20 border border-primary/20 rounded p-4">
           <div className="flex items-baseline justify-between mb-1">
-            <span className="text-sm font-bold text-ink">Số giờ gói đã sử dụng</span>
+            <span className="text-sm font-bold text-td-ink">Số giờ gói đã sử dụng</span>
             <span className="font-mono text-xl font-black text-primary">
               {trip.subscriptionHoursUsed == null ? "Chưa có dữ liệu" : `${trip.subscriptionHoursUsed} giờ`}
             </span>
           </div>
-          <p className="text-xs text-ink-3 leading-relaxed">
+          <p className="text-xs text-td-muted leading-relaxed">
             Chuyến đi được trừ trực tiếp vào số dư thời gian của gói thuê bao đang hoạt động. Bạn không cần thanh toán tiền thuê hoặc tiền cọc cho đơn này.
           </p>
         </div>
@@ -61,21 +61,21 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+    <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
         Chi tiết thanh toán & Đặt cọc
       </h3>
 
       <div className="space-y-2 text-sm font-mono">
-        <div className="flex justify-between text-ink-2">
+        <div className="flex justify-between text-td-ink">
           <span>Tiền thuê xe</span>
           <span>{formatVnd(price.rent)}</span>
         </div>
-        <div className="flex justify-between text-ink-2">
+        <div className="flex justify-between text-td-ink">
           <span>Thuế VAT</span>
           <span>+{formatVnd(price.vat)}</span>
         </div>
-        <div className="flex justify-between text-ink-2">
+        <div className="flex justify-between text-td-ink">
           <span>Tiền đặt cọc</span>
           <span>+{formatVnd(price.deposit)}</span>
         </div>
@@ -86,7 +86,7 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
           </div>
         )}
 
-        <div className="border-t border-line pt-2.5 flex justify-between font-bold text-ink text-base">
+        <div className="border-t border-td-rule pt-2.5 flex justify-between font-bold text-td-ink text-base">
           <span>Tổng giá trị đơn</span>
           <span className="text-primary">{formatVnd(price.total)}</span>
         </div>
@@ -94,13 +94,13 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
 
       {/* Khối quyết toán & hoàn tiền cọc */}
       {settlement && (
-        <div className="mt-4 pt-4 border-t border-line space-y-3 bg-sunken rounded-xl p-4 text-xs font-mono">
-          <div className="flex items-center justify-between font-bold text-ink text-sm">
+        <div className="mt-4 pt-4 border-t border-td-rule space-y-3 bg-td-chalk rounded p-4 text-xs font-mono">
+          <div className="flex items-center justify-between font-bold text-td-ink text-sm">
             <span>Quyết toán tiền cọc</span>
             {renderRefundStatus(settlement.refundStatus)}
           </div>
 
-          <div className="space-y-1.5 text-ink-2">
+          <div className="space-y-1.5 text-td-ink">
             <div className="flex justify-between">
               <span>Tiền cọc ban đầu đã giữ:</span>
               <span>{formatVnd(settlement.depositHeld)}</span>
@@ -111,13 +111,13 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
                 <span>-{formatVnd(settlement.depositDeducted)}</span>
               </div>
             )}
-            <div className="border-t border-line pt-1.5 flex justify-between font-bold text-ink text-sm">
+            <div className="border-t border-td-rule pt-1.5 flex justify-between font-bold text-td-ink text-sm">
               <span>Số tiền hoàn cọc thực nhận:</span>
               <span className="text-success">{settlement.refundAmount == null ? "Chưa có dữ liệu" : formatVnd(settlement.refundAmount)}</span>
             </div>
           </div>
 
-          <p className="text-[11px] text-ink-3 font-sans leading-relaxed pt-1">
+          <p className="text-[11px] text-td-muted font-sans leading-relaxed pt-1">
             Quy tắc: Phí trả trễ hoặc phát sinh được khấu trừ trực tiếp vào tiền đặt cọc. Phần dư được hoàn trả tự động vào phương thức thanh toán ban đầu của quý khách.
           </p>
         </div>

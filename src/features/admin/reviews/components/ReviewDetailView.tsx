@@ -13,7 +13,7 @@ import {
   ArrowRight,
   Info,
 } from "lucide-react";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { formatDateTime } from "@/lib/time";
@@ -94,7 +94,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       {review.status === "reported" && (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-bg p-4 text-xs font-semibold text-warning"
+          className="flex items-start gap-3 rounded border border-warning/30 bg-warning-bg p-4 text-xs font-semibold text-warning"
         >
           <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
           <div>
@@ -105,14 +105,14 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       )}
 
       {/* Thông tin header */}
-      <div className="flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-td-rule pb-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-base font-bold text-ink">Đánh giá #{review.id}</span>
-            <StatusBadge status={statusMeta.statusType}>{statusMeta.label}</StatusBadge>
+            <span className="font-mono text-base font-bold text-td-ink">Đánh giá #{review.id}</span>
+            <AdminStatusBadge domain="review" status={review.status}>{statusMeta.label}</AdminStatusBadge>
             <RatingStars rating={review.rating} size="md" />
           </div>
-          <p className="mt-1 text-xs text-ink-3">
+          <p className="mt-1 text-xs text-td-muted">
             Khách hàng <strong>{review.customerName}</strong> gửi lúc{" "}
             {formatDateTime(review.createdAt, "dd/MM/yyyy HH:mm")}
           </p>
@@ -181,15 +181,15 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
 
       {/* Thông tin ẩn kiểm duyệt nếu đã ẩn */}
       {review.status === "hidden" && review.hiddenInfo && (
-        <div className="rounded-2xl border border-line bg-sunken p-4 text-xs">
-          <div className="flex items-center gap-1.5 font-bold text-ink">
-            <Info className="h-4 w-4 text-ink-3" />
+        <div className="rounded border border-td-rule bg-td-chalk p-4 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-td-ink">
+            <Info className="h-4 w-4 text-td-muted" />
             <span>Thông tin kiểm duyệt đã ẩn</span>
           </div>
-          <p className="mt-1 text-ink-2">
+          <p className="mt-1 text-td-ink">
             Lý do: <strong className="text-danger">{review.hiddenInfo.reason}</strong>
           </p>
-          <p className="mt-0.5 text-ink-3">
+          <p className="mt-0.5 text-td-muted">
             Thực hiện bởi {review.hiddenInfo.by || "Quản trị viên"} lúc{" "}
             {formatDateTime(review.hiddenInfo.at, "dd/MM/yyyy HH:mm")}
           </p>
@@ -197,9 +197,9 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       )}
 
       {/* Nội dung nhận xét - CHỐNG XSS: Render văn bản thuần */}
-      <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">Nội dung nhận xét</h3>
-        <div className="mt-3 whitespace-pre-wrap rounded-xl border border-line bg-sunken p-4 text-sm leading-relaxed text-ink">
+      <section className="rounded border border-td-rule bg-td-white p-5">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">Nội dung nhận xét</h3>
+        <div className="mt-3 whitespace-pre-wrap rounded border border-td-rule bg-td-chalk p-4 text-sm leading-relaxed text-td-ink">
           {review.comment}
         </div>
       </section>
@@ -207,28 +207,28 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       {/* Thẻ nhân viên và đơn gốc */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Nhân sự được đánh giá */}
-        <section className="flex flex-col justify-between rounded-2xl border border-line bg-surface p-5 shadow-e1">
+        <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-3">
-              <User className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+              <User className="h-4 w-4 text-td-oxide" />
               <span>Nhân sự được đánh giá</span>
             </div>
             <div className="mt-3 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-bold text-primary">
+              <div className="flex h-10 w-10 items-center justify-center rounded bg-td-chalk font-bold text-td-oxide">
                 {review.staff.fullName.charAt(0)}
               </div>
               <div>
-                <p className="font-semibold text-ink">{review.staff.fullName}</p>
-                <p className="text-xs text-ink-3">
+                <p className="font-semibold text-td-ink">{review.staff.fullName}</p>
+                <p className="text-xs text-td-muted">
                   {review.staff.isDriver ? "Tài xế chuyên nghiệp" : "Nhân viên vận hành"} · {review.staff.departmentName || "Khối Vận Hành"}
                 </p>
               </div>
             </div>
           </div>
-          <div className="mt-4 border-t border-line pt-3">
+          <div className="mt-4 border-t border-td-rule pt-3">
             <Link
               href={`/admin/staffs/detail?id=${review.staff.id}`}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-oxide hover:underline"
             >
               <span>Xem hồ sơ & lịch sử nhân sự</span>
               <ArrowRight className="h-3 w-3" />
@@ -237,34 +237,36 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
         </section>
 
         {/* Đơn thuê gốc */}
-        <section className="flex flex-col justify-between rounded-2xl border border-line bg-surface p-5 shadow-e1">
+        <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-3">
-              <Car className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+              <Car className="h-4 w-4 text-td-oxide" />
               <span>Chuyến đi liên quan</span>
             </div>
             {review.rental ? (
               <div className="mt-3 space-y-1.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-ink">Đơn thuê #{review.rentalId}</span>
-                  <StatusBadge status={review.rental.status || "completed"} />
+                  <span className="font-semibold text-td-ink">Đơn thuê #{review.rentalId}</span>
+                  <AdminStatusBadge domain="rental" status={review.rental.status || "completed"}>
+                    {review.rental.status || "Hoàn tất"}
+                  </AdminStatusBadge>
                 </div>
-                <p className="font-semibold text-primary">{review.rental.vehicleName}</p>
+                <p className="font-semibold text-td-oxide">{review.rental.vehicleName}</p>
                 {review.rental.licensePlate && (
-                  <p className="font-mono text-ink-3">Biển số: {review.rental.licensePlate}</p>
+                  <p className="font-mono text-td-muted">Biển số: {review.rental.licensePlate}</p>
                 )}
-                <p className="text-ink-3">
+                <p className="text-td-muted">
                   Thời gian: {formatDateTime(review.rental.start, "dd/MM HH:mm")} → {formatDateTime(review.rental.end, "dd/MM HH:mm")}
                 </p>
               </div>
             ) : (
-              <div className="mt-3 text-xs text-ink-3">Đơn thuê #{review.rentalId}</div>
+              <div className="mt-3 text-xs text-td-muted">Đơn thuê #{review.rentalId}</div>
             )}
           </div>
-          <div className="mt-4 border-t border-line pt-3">
+          <div className="mt-4 border-t border-td-rule pt-3">
             <Link
               href={`/admin/rentals?id=${review.rentalId}`}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-oxide hover:underline"
             >
               <span>Xem chi tiết hợp đồng đơn thuê</span>
               <ArrowRight className="h-3 w-3" />
@@ -274,11 +276,11 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       </div>
 
       {/* Phản hồi từ quản lý */}
-      <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1">
-        <div className="flex items-center justify-between border-b border-line pb-3">
+      <section className="rounded border border-td-rule bg-td-white p-5">
+        <div className="flex items-center justify-between border-b border-td-rule pb-3">
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-primary" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+            <MessageSquare className="h-4 w-4 text-td-oxide" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
               Phản hồi chính thức cho khách
             </h3>
           </div>
@@ -286,7 +288,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
             <button
               type="button"
               onClick={() => setIsEditingReply(true)}
-              className="text-xs font-semibold text-primary hover:underline"
+              className="text-xs font-semibold text-td-oxide hover:underline"
             >
               Sửa phản hồi
             </button>
@@ -296,7 +298,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
         {isEditingReply ? (
           <form onSubmit={handleSendReply} className="mt-4 space-y-3">
             {replyError && (
-              <div className="rounded-xl border border-danger/30 bg-danger-bg p-3 text-xs text-danger">
+              <div className="rounded border border-danger/30 bg-danger-bg p-3 text-xs text-danger">
                 {replyError}
               </div>
             )}
@@ -309,7 +311,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
               placeholder="Nhập phản hồi từ đại diện Thong Dong gửi khách hàng (5 - 1000 ký tự)..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink placeholder:text-ink-3 focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink placeholder:text-td-muted focus:outline-none focus:ring-1 focus:ring-td-oxide"
             />
             <div className="flex items-center justify-end gap-2">
               {review.reply && (
@@ -328,12 +330,12 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
             </div>
           </form>
         ) : review.reply ? (
-          <div className="mt-4 rounded-xl border border-line bg-sunken p-4 text-xs">
+          <div className="mt-4 rounded border border-td-rule bg-td-chalk p-4 text-xs">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-ink">{review.reply.by || "Đại diện Thong Dong"}</span>
-              <span className="font-mono text-ink-3">{formatDateTime(review.reply.at, "dd/MM/yyyy HH:mm")}</span>
+              <span className="font-semibold text-td-ink">{review.reply.by || "Đại diện Thong Dong"}</span>
+              <span className="font-mono text-td-muted">{formatDateTime(review.reply.at, "dd/MM/yyyy HH:mm")}</span>
             </div>
-            <p className="mt-2 text-ink-2 leading-relaxed">{review.reply.text}</p>
+            <p className="mt-2 text-td-ink leading-relaxed">{review.reply.text}</p>
           </div>
         ) : null}
       </section>
@@ -353,7 +355,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       >
         <form onSubmit={handleConfirmHide} className="space-y-4 pt-2">
           {hideError && (
-            <div className="rounded-xl border border-danger/30 bg-danger-bg p-3 text-xs text-danger">
+            <div className="rounded border border-danger/30 bg-danger-bg p-3 text-xs text-danger">
               {hideError}
             </div>
           )}
@@ -362,8 +364,8 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
           {impact && (() => {
             const diff = impact.diff ?? Number((impact.averageAfter - impact.averageBefore).toFixed(2));
             return (
-              <div className="rounded-xl border border-line bg-sunken p-3 text-xs">
-                <span className="font-semibold text-ink">Cân nhắc tác động điểm số:</span> Ẩn đánh giá {review.rating} sao này sẽ thay đổi điểm trung bình của {review.staff.fullName} từ{" "}
+              <div className="rounded border border-td-rule bg-td-chalk p-3 text-xs">
+                <span className="font-semibold text-td-ink">Cân nhắc tác động điểm số:</span> Ẩn đánh giá {review.rating} sao này sẽ thay đổi điểm trung bình của {review.staff.fullName} từ{" "}
                 <strong>{impact.averageBefore.toFixed(2)}</strong> sang{" "}
                 <strong className={diff > 0 ? "text-success" : "text-danger"}>
                   {impact.averageAfter.toFixed(2)} ({diff > 0 ? `+${diff}` : diff})
@@ -373,14 +375,14 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
           })()}
 
           <div>
-            <label htmlFor="hide-reason-select" className="block text-xs font-semibold text-ink">
+            <label htmlFor="hide-reason-select" className="block text-xs font-semibold text-td-ink">
               Lý do kiểm duyệt bắt buộc <span className="text-danger">*</span>
             </label>
             <select
               id="hide-reason-select"
               value={selectedReason}
               onChange={(e) => setSelectedReason(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-danger"
+              className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink focus:outline-none focus:ring-1 focus:ring-danger"
             >
               {STANDARD_HIDE_REASONS.map((r) => (
                 <option key={r} value={r}>
@@ -392,7 +394,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
 
           {selectedReason === "Khác (vui lòng nhập giải trình chi tiết)" && (
             <div>
-              <label htmlFor="hide-custom-reason" className="block text-xs font-semibold text-ink">
+              <label htmlFor="hide-custom-reason" className="block text-xs font-semibold text-td-ink">
                 Chi tiết giải trình lý do ẩn
               </label>
               <textarea
@@ -401,13 +403,13 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Nhập giải trình chi tiết vì sao ẩn đánh giá..."
-                className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-danger"
+                className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink focus:outline-none focus:ring-1 focus:ring-danger"
                 required
               />
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
+          <div className="flex items-center justify-end gap-2 border-t border-td-rule pt-4">
             <Button
               type="button"
               variant="secondary"

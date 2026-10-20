@@ -68,8 +68,8 @@ describe("Admin Reviews Page & Moderation (FE-25)", () => {
   it("render trang quản trị đánh giá với đầy đủ tiêu đề và danh sách từ mock", async () => {
     renderWithClient(<AdminReviewsPage />);
 
-    expect(screen.getByText("Đánh giá nhân sự & Tài xế")).toBeInTheDocument();
-    expect(screen.getByText("Điểm trung bình toàn hệ thống")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Đánh giá nhân sự & tài xế.");
+    expect(screen.getByText("01 · Điểm trung bình")).toBeInTheDocument();
 
     await waitFor(() => {
       // Tìm thấy nhân viên từ mock

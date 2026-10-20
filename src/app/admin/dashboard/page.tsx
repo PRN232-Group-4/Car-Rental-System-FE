@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
-import { BarChart3, Database } from "lucide-react";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { getPresetDateRange } from "@/features/admin/dashboard/api";
 import {
@@ -110,25 +110,18 @@ export default function AdminDashboardPage() {
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <BarChart3 className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                  Dashboard điều hành & Biểu đồ
-                </h1>
-                <span className="inline-flex items-center gap-1 rounded-full border border-line bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-ink-3">
-                  <Database className="h-3 w-3 text-primary" />
-                  Dữ liệu mẫu BE-28
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-ink-3">
-                Theo dõi doanh thu, hiệu suất khai thác đội xe, chi phí bảo trì và gói hội viên theo thời gian thực (FR-030).
-              </p>
-            </div>
-          </div>
+          <TransitFolio
+            index="01"
+            tag="OPS"
+            kicker="TRẠM VẬN HÀNH · DASHBOARD BIỂU ĐỒ"
+            title={<>Chỉ huy điều hành & <em className="italic text-td-teal">doanh thu.</em></>}
+            description="Giám sát dòng tiền thực thu, hiệu suất khai thác đội xe, tỷ lệ đơn hàng và rủi ro chi phí theo múi giờ GMT+7."
+          >
+            <span className="inline-flex items-center gap-1.5 border-l border-td-rule pl-4 text-[11px] font-semibold text-td-muted">
+              <span className="h-2 w-2 rounded-full bg-success animate-pulse" aria-hidden="true" />
+              Thời gian thực (FR-030)
+            </span>
+          </TransitFolio>
 
           {/* Thanh bộ lọc và xuất CSV */}
           <DashboardFiltersBar
@@ -140,7 +133,7 @@ export default function AdminDashboardPage() {
             exportData={exportData}
           />
 
-          {/* Dải chỉ số KPI */}
+          {/* Dải chỉ số Hero Telemetry */}
           <KpiStrip
             data={kpisQuery.data}
             isLoading={kpisQuery.isLoading}
@@ -148,50 +141,86 @@ export default function AdminDashboardPage() {
             onRetry={() => kpisQuery.refetch()}
           />
 
-          {/* Lưới biểu đồ điều hành */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Hàng 1: Doanh thu theo thời gian + Hiện trạng đội xe */}
-            <RevenueChart
-              data={revenueQuery.data}
-              isLoading={revenueQuery.isLoading}
-              isError={revenueQuery.isError}
-              onRetry={() => revenueQuery.refetch()}
-            />
-            <FleetStatusChart
-              data={fleetQuery.data}
-              isLoading={fleetQuery.isLoading}
-              isError={fleetQuery.isError}
-              onRetry={() => fleetQuery.refetch()}
-            />
+          {/* Phân khu 1: Dòng tiền & Cân đối Đội xe */}
+          <section aria-labelledby="cashflow-heading" className="space-y-4">
+            <div className="flex items-center justify-between border-b border-td-ink pb-2">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 bg-td-oxide" aria-hidden="true" />
+                <h2 id="cashflow-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
+                  Phân khu 1: Dòng tiền & Cân đối Đội xe
+                </h2>
+              </div>
+              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // CASHFLOW</span>
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <RevenueChart
+                data={revenueQuery.data}
+                isLoading={revenueQuery.isLoading}
+                isError={revenueQuery.isError}
+                onRetry={() => revenueQuery.refetch()}
+              />
+              <FleetStatusChart
+                data={fleetQuery.data}
+                isLoading={fleetQuery.isLoading}
+                isError={fleetQuery.isError}
+                onRetry={() => fleetQuery.refetch()}
+              />
+            </div>
+          </section>
 
-            {/* Hàng 2: Top phương tiện + Phân bổ đơn theo trạng thái */}
-            <TopVehiclesTable
-              data={topVehiclesQuery.data}
-              isLoading={topVehiclesQuery.isLoading}
-              isError={topVehiclesQuery.isError}
-              onRetry={() => topVehiclesQuery.refetch()}
-            />
-            <RentalsStatusChart
-              data={rentalsQuery.data}
-              isLoading={rentalsQuery.isLoading}
-              isError={rentalsQuery.isError}
-              onRetry={() => rentalsQuery.refetch()}
-            />
+          {/* Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê */}
+          <section aria-labelledby="productivity-heading" className="space-y-4">
+            <div className="flex items-center justify-between border-b border-td-ink pb-2">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 bg-td-oxide" aria-hidden="true" />
+                <h2 id="productivity-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
+                  Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê
+                </h2>
+              </div>
+              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // ASSET_YIELD</span>
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <TopVehiclesTable
+                data={topVehiclesQuery.data}
+                isLoading={topVehiclesQuery.isLoading}
+                isError={topVehiclesQuery.isError}
+                onRetry={() => topVehiclesQuery.refetch()}
+              />
+              <RentalsStatusChart
+                data={rentalsQuery.data}
+                isLoading={rentalsQuery.isLoading}
+                isError={rentalsQuery.isError}
+                onRetry={() => rentalsQuery.refetch()}
+              />
+            </div>
+          </section>
 
-            {/* Hàng 3: Bảo dưỡng vs Doanh thu + Hiệu quả gói thuê bao */}
-            <MaintenanceVsRevenueChart
-              data={maintenanceQuery.data}
-              isLoading={maintenanceQuery.isLoading}
-              isError={maintenanceQuery.isError}
-              onRetry={() => maintenanceQuery.refetch()}
-            />
-            <PlanUsageChart
-              data={planUsageQuery.data}
-              isLoading={planUsageQuery.isLoading}
-              isError={planUsageQuery.isError}
-              onRetry={() => planUsageQuery.refetch()}
-            />
-          </div>
+          {/* Phân khu 3: Rủi ro Bảo dưỡng & Hội viên Thuê bao */}
+          <section aria-labelledby="risk-heading" className="space-y-4">
+            <div className="flex items-center justify-between border-b border-td-ink pb-2">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 bg-warning" aria-hidden="true" />
+                <h2 id="risk-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
+                  Phân khu 3: Kiểm soát Chi phí Bảo dưỡng & Hội viên Thuê bao
+                </h2>
+              </div>
+              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // RISK_ANALYSIS</span>
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <MaintenanceVsRevenueChart
+                data={maintenanceQuery.data}
+                isLoading={maintenanceQuery.isLoading}
+                isError={maintenanceQuery.isError}
+                onRetry={() => maintenanceQuery.refetch()}
+              />
+              <PlanUsageChart
+                data={planUsageQuery.data}
+                isLoading={planUsageQuery.isLoading}
+                isError={planUsageQuery.isError}
+                onRetry={() => planUsageQuery.refetch()}
+              />
+            </div>
+          </section>
         </div>
     </AuthGate>
   );

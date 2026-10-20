@@ -6,14 +6,13 @@ import { expect } from 'e2e';
  * (POLICY_DENIED). Các test dưới chỉ ghi vào ô và kiểm chứng qua thứ khác.
  */
 describe('Xác thực — trang đăng nhập', () => {
-  test('form có đủ trường và nút gửi', async ({ app, browser, screen }) => {
+  test('form có đủ trường và nút gửi', async ({ app, browser }) => {
     await app.open('/login');
 
     for (const id of ['#login-email', '#login-password']) {
       await expect(browser.locator(id)).toBeVisible();
     }
     await expect(browser.locator('button[type="submit"]')).toBeVisible();
-    await expect(screen.getByText(/Tài khoản mẫu thử nghiệm/)).toBeVisible();
   });
 
   test('mật khẩu dưới 6 ký tự bị chặn kèm lỗi ngay dưới trường', async ({ app, browser }) => {
@@ -35,16 +34,6 @@ describe('Xác thực — trang đăng nhập', () => {
 
     await expect(browser.locator('#login-email-error')).toBeVisible();
     await expect(browser.locator('#login-email')).toHaveAttribute('aria-invalid', 'true');
-  });
-
-  test('chọn tài khoản mẫu thì điền email tương ứng', async ({ app, browser, screen }) => {
-    await app.open('/login');
-
-    await screen.getByRole('button', { name: /Khách hàng/i }).click();
-    await expect(browser.locator('#login-email')).toHaveValue('customer@example.com');
-
-    await screen.getByRole('button', { name: /Quản trị viên/i }).click();
-    await expect(browser.locator('#login-email')).toHaveValue('admin@thongdong.vn');
   });
 
   test('nút ẩn/hiện mật khẩu đổi nhãn theo trạng thái', async ({ app, screen }) => {

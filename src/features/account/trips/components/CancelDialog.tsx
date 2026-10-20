@@ -82,20 +82,20 @@ export function CancelDialog({ open, onClose, trip, onSuccess }: CancelDialogPro
       <div className="space-y-5">
         {/* Khối xem trước hoàn tiền từ backend preview */}
         {previewLoading ? (
-          <div className="flex items-center justify-center p-6 bg-sunken rounded-xl text-xs text-ink-3">
+          <div className="flex items-center justify-center p-6 bg-td-chalk rounded text-xs text-td-muted">
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
             <span>Đang tải thông tin hoàn tiền theo hợp đồng...</span>
           </div>
         ) : preview ? (
-          <div className="bg-sunken border border-line rounded-xl p-4 space-y-3 font-mono text-xs">
-            <div className="flex items-center justify-between font-bold text-ink text-sm font-sans">
+          <div className="bg-td-chalk border border-td-rule rounded p-4 space-y-3 font-mono text-xs">
+            <div className="flex items-center justify-between font-bold text-td-ink text-sm font-sans">
               <span>Ước tính phí phạt & Hoàn tiền</span>
               <span className={preview.cancellationFee === 0 ? "text-success" : "text-warning"}>
                 {preview.cancellationFee === 0 ? "Hủy miễn phí" : `Giữ lại ${100 - preview.refundPercentage}%`}
               </span>
             </div>
 
-            <div className="space-y-1.5 text-ink-2">
+            <div className="space-y-1.5 text-td-ink">
               <div className="flex justify-between">
                 <span>Tổng giá trị đơn:</span>
                 <span>{formatVnd(trip.totalPrice)}</span>
@@ -104,14 +104,14 @@ export function CancelDialog({ open, onClose, trip, onSuccess }: CancelDialogPro
                 <span>Phí hủy giữ lại:</span>
                 <span>-{formatVnd(preview.cancellationFee)}</span>
               </div>
-              <div className="border-t border-line pt-1.5 flex justify-between font-bold text-ink text-sm">
+              <div className="border-t border-td-rule pt-1.5 flex justify-between font-bold text-td-ink text-sm">
                 <span>Số tiền hoàn trả dự kiến:</span>
                 <span className="text-success">{formatVnd(preview.refundAmount)}</span>
               </div>
             </div>
 
             {preview.rulesExplanation && (
-              <p className="text-[11px] text-ink-3 font-sans leading-relaxed pt-1">
+              <p className="text-[11px] text-td-muted font-sans leading-relaxed pt-1">
                 {preview.rulesExplanation}
               </p>
             )}
@@ -120,14 +120,14 @@ export function CancelDialog({ open, onClose, trip, onSuccess }: CancelDialogPro
 
         {/* Lựa chọn lý do hủy */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-ink mb-2">
+          <label className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
             Lý do bạn muốn hủy chuyến <span className="text-primary">*</span>
           </label>
           <div className="space-y-2">
             {PRESET_REASONS.map((reason) => (
               <label
                 key={reason}
-                className="flex items-center gap-2.5 p-2.5 rounded-lg border border-line bg-surface hover:bg-sunken cursor-pointer text-xs text-ink transition-colors"
+                className="flex items-center gap-2.5 p-2.5 rounded border border-td-rule bg-td-white hover:bg-td-chalk cursor-pointer text-xs text-td-ink transition-colors"
               >
                 <input
                   type="radio"
@@ -150,9 +150,9 @@ export function CancelDialog({ open, onClose, trip, onSuccess }: CancelDialogPro
                 onChange={(e) => setCustomReason(e.target.value)}
                 maxLength={500}
                 placeholder="Nhập lý do cụ thể của bạn (tối đa 500 ký tự)..."
-                className="w-full p-3 rounded-lg border border-line bg-surface text-ink text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full p-3 rounded border border-td-rule bg-td-white text-td-ink text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
-              <span className="text-[10px] text-ink-3 block text-right">
+              <span className="text-[10px] text-td-muted block text-right">
                 {customReason.length}/500 ký tự
               </span>
             </div>
@@ -161,7 +161,7 @@ export function CancelDialog({ open, onClose, trip, onSuccess }: CancelDialogPro
 
         {/* Thông báo lỗi nếu có */}
         {errorMessage && (
-          <div className="flex items-start gap-2.5 p-3.5 bg-danger-bg/40 border border-danger/20 rounded-xl text-xs text-danger">
+          <div className="flex items-start gap-2.5 p-3.5 bg-danger-bg/40 border border-danger/20 rounded text-xs text-danger">
             <ShieldAlert className="w-4 h-4 text-danger shrink-0 mt-0.5" aria-hidden="true" />
             <div className="space-y-1">
               <p className="font-semibold">Không thể hủy chuyến:</p>
@@ -172,7 +172,7 @@ export function CancelDialog({ open, onClose, trip, onSuccess }: CancelDialogPro
 
         {/* Hotline chi nhánh hỗ trợ */}
         {trip.facility?.phone && (
-          <div className="flex items-center justify-between text-xs text-ink-3 pt-2 border-t border-line">
+          <div className="flex items-center justify-between text-xs text-td-muted pt-2 border-t border-td-rule">
             <span>Cần trợ giúp ngay lập tức?</span>
             <a
               href={`tel:${trip.facility.phone}`}

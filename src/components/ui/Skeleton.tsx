@@ -14,8 +14,8 @@ export function SkeletonBlock({ label, children, className = "" }: { label: stri
 }
 
 export function SkeletonStat({ className = "" }: { className?: string }) {
-  return <div aria-hidden="true" className={`rounded-2xl border border-line bg-surface p-5 shadow-e1 ${className}`}>
-    <Skeleton className="h-11 w-11 rounded-xl" />
+  return <div aria-hidden="true" className={`border-t border-td-rule pt-4 ${className}`}>
+    <Skeleton className="h-9 w-9 rounded" />
     <Skeleton className="mt-5 h-4 w-24" />
     <Skeleton className="mt-2 h-7 w-32" />
   </div>;

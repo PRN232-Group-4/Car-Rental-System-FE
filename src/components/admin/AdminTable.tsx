@@ -5,12 +5,12 @@ export { DataTable } from "@/components/ui/DataTable";
 export type { DataTableProps } from "@/components/ui/DataTable";
 
 export function AdminTableCard({ className = "", ...props }: ComponentPropsWithoutRef<"section">) {
-  return <section {...props} className={`overflow-hidden rounded-2xl border border-line bg-surface shadow-e1 ${className}`} />;
+  return <section {...props} className={`border-t border-td-ink ${className}`} />;
 }
 
 export function AdminTable({ className = "", ...props }: ComponentPropsWithoutRef<"table">) {
   return (
-    <div className="overflow-x-auto">
+    <div className="w-full max-w-full overflow-x-auto">
       <table {...props} className={`${styles.table} ${className}`} />
     </div>
   );

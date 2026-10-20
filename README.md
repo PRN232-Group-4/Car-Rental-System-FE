@@ -133,7 +133,7 @@ worker/                   # Cloudflare Worker proxy cho production
 
 ### 3. Chuẩn hóa API Envelope & Type Safety
 - **Tự động Unwrap Envelope**: Backend trả về dạng `{ message, is_success, data }`. `ApiClient` tự động kiểm tra `is_success` và giải nén dữ liệu trong `data`, đồng thời bắt lỗi `ProblemDetails` theo chuẩn RFC 7807.
-- **Offline Mock Support**: Khi `NEXT_PUBLIC_USE_MOCK=true`, hệ thống sử dụng Mock Handlers giả lập toàn bộ API với dữ liệu mẫu trong bộ nhớ, cho phép phát triển FE ngay cả khi mất mạng hoặc Backend bảo trì.
+- **Không có dữ liệu mẫu trong app**: mọi màn hình đọc từ backend thật (dev proxy qua `next.config.ts`, production qua Cloudflare Worker). Lỗi mạng hiển thị trạng thái lỗi + nút thử lại, không tự thay bằng dữ liệu giả.
 
 ---
 

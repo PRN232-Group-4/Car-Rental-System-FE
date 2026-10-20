@@ -1,4 +1,4 @@
-import { defaultApiClient, isMockMode } from "@/api/default-api-client";
+import { defaultApiClient } from "@/api/default-api-client";
 import { mapVehicleFromBE } from "@/features/vehicles/mappers";
 import { mapRentalFromBE } from "./mappers";
 import type { RentalBookingRequest, RentalBookingResponse, RentalContract, RentalPolicy } from "./types";
@@ -6,7 +6,7 @@ import type { RentalBookingRequest, RentalBookingResponse, RentalContract, Renta
 /** Only send the fields supported by the deployed RentalRequest. */
 export function toRentalRequest(input: RentalBookingRequest) {
   return {
-    vehicleId: isMockMode ? input.vehicleId : Number(input.vehicleId),
+    vehicleId: Number(input.vehicleId),
     policyId: input.policyId ?? null,
     startTime: input.startTime,
     endTime: input.endTime,

@@ -44,6 +44,39 @@ export const PUBLIC_NAV_ITEMS: readonly NavItem[] = [
   { href: "/#ve-chung-toi", label: "Về Thong Dong" },
 ] as const;
 
+/** Chương điều hướng của từng route Admin (dùng cho masthead + command palette). */
+export const ROUTE_CHAPTER_MAP: Record<string, string> = {
+  "/admin": "Ca trực",
+  "/admin/dashboard": "Ca trực",
+  "/admin/vehicles": "Đội xe",
+  "/admin/vehicles/new": "Đội xe",
+  "/admin/vehicles/edit": "Đội xe",
+  "/admin/vehicle-types": "Đội xe",
+  "/admin/rentals": "Vận hành",
+  "/admin/handovers": "Vận hành",
+  "/admin/vehicle-license": "Chăm sóc & Sự cố",
+  "/admin/tracking": "Điều phối",
+  "/admin/inspections": "Vận hành",
+  "/admin/maintenance": "Vận hành",
+  "/admin/dispatch": "Điều phối",
+  "/admin/drivers/schedule": "Điều phối",
+  "/admin/reports": "Chăm sóc & Sự cố",
+  "/admin/reports/detail": "Chăm sóc & Sự cố",
+  "/admin/reviews": "Chăm sóc & Sự cố",
+  "/admin/reviews/detail": "Chăm sóc & Sự cố",
+  "/admin/policies": "Chính sách",
+  "/admin/subscription-plans": "Chính sách",
+  "/admin/users": "Tổ chức",
+  "/admin/users/detail": "Tổ chức",
+  "/admin/staffs": "Tổ chức",
+  "/admin/staffs/new": "Tổ chức",
+  "/admin/staffs/detail": "Tổ chức",
+  "/admin/departments": "Tổ chức",
+  "/admin/facilities": "Tổ chức",
+  "/admin/roles": "Tổ chức",
+  "/admin/profile": "Cá nhân",
+};
+
 /** Danh mục điều hướng cổng khách hàng cá nhân */
 export const CUSTOMER_NAV_ITEMS: readonly NavItem[] = [
   {

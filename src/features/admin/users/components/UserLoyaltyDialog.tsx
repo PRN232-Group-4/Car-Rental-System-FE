@@ -63,12 +63,12 @@ export function UserLoyaltyDialog({
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-center justify-between rounded-xl border border-line bg-canvas p-3">
+        <div className="flex items-center justify-between rounded border border-td-rule bg-td-paper p-3">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-primary" />
-            <span className="text-xs font-semibold text-ink-3">Số dư điểm hiện tại:</span>
+            <Award className="w-5 h-5 text-td-oxide" />
+            <span className="text-xs font-semibold text-td-muted">Số dư điểm hiện tại:</span>
           </div>
-          <span className="font-mono text-base font-black tabular-nums text-primary">
+          <span className="font-mono text-base font-black tabular-nums text-td-oxide">
             {currentPoints.toLocaleString("vi-VN")} điểm
           </span>
         </div>
@@ -77,10 +77,10 @@ export function UserLoyaltyDialog({
           <button
             type="button"
             onClick={() => setDirection("add")}
-            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-2 rounded border p-3 text-xs font-bold transition-all cursor-pointer ${
               direction === "add"
-                ? "border-primary bg-primary-tint/30 text-primary shadow-xs"
-                : "border-line bg-surface text-ink-3 hover:text-ink"
+                ? "border-td-oxide bg-td-chalk text-td-oxide shadow-xs"
+                : "border-td-rule bg-td-white text-td-muted hover:text-td-ink"
             }`}
           >
             <PlusCircle className="w-4 h-4" />
@@ -89,10 +89,10 @@ export function UserLoyaltyDialog({
           <button
             type="button"
             onClick={() => setDirection("subtract")}
-            className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-2 rounded border p-3 text-xs font-bold transition-all cursor-pointer ${
               direction === "subtract"
                 ? "border-danger bg-danger-bg/40 text-danger shadow-xs"
-                : "border-line bg-surface text-ink-3 hover:text-ink"
+                : "border-td-rule bg-td-white text-td-muted hover:text-td-ink"
             }`}
           >
             <MinusCircle className="w-4 h-4" />
@@ -110,7 +110,7 @@ export function UserLoyaltyDialog({
               if (error) setError(null);
             }}
             placeholder="Ví dụ: 100"
-            className="flex h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-mono font-bold text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-mono font-bold text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
           />
         </FormField>
 
@@ -128,11 +128,11 @@ export function UserLoyaltyDialog({
             }}
             rows={2}
             placeholder="Ví dụ: Đền bù trải nghiệm dịch vụ chuyến thuê #409..."
-            className="w-full rounded-xl border border-line bg-surface p-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded border border-td-rule bg-td-white p-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
           />
         </FormField>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-td-rule">
           <Button
             type="button"
             variant="secondary"

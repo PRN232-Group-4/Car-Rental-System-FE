@@ -38,7 +38,7 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
   ]);
   if (!allowed) return <p role="alert" className="text-sm text-danger">Bạn không có quyền tra cứu yêu cầu tại trang này.</p>;
   return <div className="mx-auto max-w-6xl space-y-6">
-    <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1><p className="mt-2 text-sm text-ink-3">Nhập mã yêu cầu đặt xe để tải thông tin yêu cầu và đơn thuê liên quan.</p></div>
+    <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1><p className="mt-2 text-sm text-td-muted">Nhập mã yêu cầu đặt xe để tải thông tin yêu cầu và đơn thuê liên quan.</p></div>
     <ValidatedForm validation={validation} onSubmit={() => { const normalized = String(Number(id)); if (lookup === normalized) void query.refetch(); else setLookup(normalized); }}>
       <AdminFilterBar title="Tra cứu yêu cầu / đơn thuê" actions={<>
         <AdminFilterButton type="submit" disabled={query.isFetching}>{query.isFetching ? "Đang tải..." : "Tra cứu đơn thuê"}</AdminFilterButton>
@@ -56,15 +56,15 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{query.data.orderId ? `Đơn thuê chính thức #${query.data.orderId}` : `Yêu cầu thuê #${query.data.id}`}</h2><AdminStatusBadge domain="rental" status={query.data.status}>{rentalStatuses[query.data.status] ?? query.data.status}</AdminStatusBadge></div>
         <RentalStatusTracker status={query.data.status} />
         <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-          <div><dt className="text-ink-3">Khách hàng</dt><dd>{query.data.customerName || query.data.customerEmail || "Chưa có thông tin"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-ink-3">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
-          <div><dt className="text-ink-3">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-ink-3">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
+          <div><dt className="text-td-muted">Khách hàng</dt><dd>{query.data.customerName || query.data.customerEmail || "Chưa có thông tin"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-td-muted">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
+          <div><dt className="text-td-muted">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-td-muted">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
         </dl>
         <p className="text-sm">{query.data.rentalType === "longterm" ? "Thuê dài hạn" : "Thuê theo giờ"} · {query.data.hasDriver ? "Có tài xế" : "Tự lái"} · Tổng tiền thuê: {query.data.totalPrice.toLocaleString("vi-VN")} đ</p>
-        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-primary"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
+        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?view=list&rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
       </section>
       {staffLinks && <RentalTrackingPanel key={`gps-${query.data.id}`} rentalId={query.data.id} />}
       <div key={query.data.id}>{children(query.data, refresh)}</div>
     </>}
-    {!lookup && <p className="text-sm text-ink-3">Chưa chọn yêu cầu / đơn thuê. Nhập mã yêu cầu đặt xe do khách hàng cung cấp để bắt đầu.</p>}
+    {!lookup && <p className="text-sm text-td-muted">Chưa chọn yêu cầu / đơn thuê. Nhập mã yêu cầu đặt xe do khách hàng cung cấp để bắt đầu.</p>}
   </div>;
 }

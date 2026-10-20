@@ -9,6 +9,8 @@ const statusTones = {
   maintenance: { scheduled: "info", in_progress: "warning", completed: "success", verified: "success", cancelled: "neutral" },
   license: { approved: "success", pending: "warning", expiring: "warning", rejected: "danger", expired: "danger", incomplete: "neutral" },
   shift: { active: "success", scheduled: "info", completed: "neutral", cancelled: "danger" },
+  report: { new: "warning", pending: "warning", in_progress: "info", investigating: "info", resolved: "success", rejected: "danger", dismissed: "danger" },
+  review: { visible: "success", published: "success", hidden: "neutral", reported: "warning" },
 } satisfies Record<string, Record<string, AdminStatusTone>>;
 
 export type AdminStatusDomain = keyof typeof statusTones;
@@ -23,6 +25,7 @@ export const adminStatusToneClasses: Record<AdminStatusTone, string> = {
 
 export function getAdminStatusTone(domain: AdminStatusDomain, status: string | null | undefined): AdminStatusTone {
   const key = status?.trim().toLowerCase() ?? "";
-  const tones: Record<string, AdminStatusTone> = statusTones[domain];
+  const tones: Record<string, AdminStatusTone> | undefined = (statusTones as Record<string, Record<string, AdminStatusTone>>)[domain];
+  if (!tones) return "neutral";
   return Object.hasOwn(tones, key) ? tones[key] : "neutral";
 }

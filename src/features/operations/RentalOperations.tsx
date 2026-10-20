@@ -32,8 +32,8 @@ export function AssignmentForm({ rental, refresh }: { rental: OperationalRental;
   };
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Phân xe và tài xế</h2>
-    <div className="text-sm"><p className="mb-2 text-ink-3">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>
-    <p className="text-xs text-ink-3">Phân công sử dụng phương tiện đã chọn trong đơn thuê.</p>
+    <div className="text-sm"><p className="mb-2 text-td-muted">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>
+    <p className="text-xs text-td-muted">Phân công sử dụng phương tiện đã chọn trong đơn thuê.</p>
     <div><label htmlFor="assignment-driver" className="text-sm font-semibold">Tài xế</label><InlineSelect id="assignment-driver" name="driverStaffId" className={operationsInput} value={driverId} onChange={(event) => setDriverId(event.target.value)} disabled={busy || drivers.isPending || !!drivers.error}><option value="">Không phân tài xế (tự lái)</option>{(drivers.data ?? []).filter((driver) => driver.eligible).map((driver) => <option key={driver.staffId} value={driver.staffId}>{driver.fullName ?? "Chưa có tên tài xế"}</option>)}</InlineSelect></div>
     {drivers.error && <p role="alert" className="text-sm text-danger">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
     {error && <p role="alert" className="text-sm text-danger">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
@@ -56,7 +56,7 @@ function StatusForm({ rental, refresh }: { rental: OperationalRental; refresh: (
     finally { lock.current = false; setBusy(false); }
   };
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
-    <h2 className="text-lg font-bold">Duyệt yêu cầu và cập nhật trạng thái</h2><p className="text-sm text-ink-3">Duyệt yêu cầu để khách thanh toán. Đơn trực tiếp cần thanh toán và hoàn thành kiểm tra, phân công trước khi bàn giao xe.</p>
+    <h2 className="text-lg font-bold">Duyệt yêu cầu và cập nhật trạng thái</h2><p className="text-sm text-td-muted">Duyệt yêu cầu để khách thanh toán. Đơn trực tiếp cần thanh toán và hoàn thành kiểm tra, phân công trước khi bàn giao xe.</p>
     <div><label htmlFor="rental-next-status" className="text-sm font-semibold">Thao tác</label><InlineSelect id="rental-next-status" name="status" required className={operationsInput} value={status} onChange={(event) => setStatus(event.target.value)} disabled={busy}><option value="">Chọn thao tác</option><option value="pre_inspection">Duyệt yêu cầu — mở thanh toán</option><option value="post_inspection">Nhận xe — kiểm tra sau thuê</option><option value="completed">Hoàn tất đơn thuê</option><option value="cancelled">Hủy yêu cầu / đơn thuê</option></InlineSelect></div>
     {error && <p role="alert" className="text-sm text-danger">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
     <button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang cập nhật..." : "Xác nhận cập nhật trạng thái"}</button>

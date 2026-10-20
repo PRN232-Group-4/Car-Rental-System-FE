@@ -103,7 +103,7 @@ describe("FE-24 Admin Staff — List Page Component", () => {
   it("hiển thị tiêu đề trang và danh sách nhân sự", async () => {
     renderStaffsPage();
 
-    expect(screen.getByText("Quản Lý Nhân Viên & Tài Xế")).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Nhân viên & tài xế.");
 
     await waitFor(() => {
       expect(screen.getByText("Nguyễn Văn Quản Trị")).toBeDefined();

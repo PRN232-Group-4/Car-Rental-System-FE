@@ -15,6 +15,7 @@ import ResultPagination from "@/components/ui/ResultPagination";
 import VehicleName from "@/features/admin/VehicleName";
 import { formatAdminDateTime } from "@/lib/date-time";
 import RentalOperations from "./RentalOperations";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import HandoverPanel from "./HandoverPanel";
 import { operationalError, rentalStatuses } from "./api";
 import { getOperationalRentals } from "./rental-list-api";
@@ -53,7 +54,7 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
   if (isLoading) return <p role="status">Đang kiểm tra quyền truy cập...</p>;
   if (!allowed) return <p role="alert" className="text-sm text-danger">Bạn không có quyền xem danh sách này.</p>;
   return <div className="space-y-6">
-    <header><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{handovers ? "Bàn giao xe" : "Đơn thuê xe"}</h1><p className="mt-2 text-sm text-ink-3">Mã yêu cầu dùng để tra cứu và thao tác. Mã đơn chính thức xuất hiện sau thanh toán, hoặc sau duyệt với gói trả trước.</p></header>
+    <TransitFolio index="04" tag="OPS" kicker="VẬN HÀNH · HỒ SƠ THUÊ XE" title={handovers ? "Bàn giao xe" : "Danh sách yêu cầu và đơn thuê"} description="Mã yêu cầu dùng để tra cứu và thao tác; mã đơn chính thức xuất hiện sau thanh toán hoặc sau duyệt với gói trả trước." />
     <ValidatedForm validation={{ ...validation, errors: { ...filterErrors, ...validation.errors } }} validate={() => draft.from && draft.to && new Date(draft.to) < new Date(draft.from) ? { to: "Ngày kết thúc phải từ ngày bắt đầu trở đi." } : {}} onSubmit={() => { setFilter({ ...draft }); setPage(1); }}>
       <AdminFilterBar title="Lọc danh sách" actions={<><AdminFilterButton type="submit">Áp dụng</AdminFilterButton><AdminFilterButton variant="secondary" onClick={() => { setDraft(initial); setFilter(initial); setPage(1); validation.reset(); }}>Đặt lại</AdminFilterButton></>}>
         <AdminFilterField label="Trạng thái" htmlFor="rental-filter-status" select><InlineSelect id="rental-filter-status" name="status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>{handovers ? <><option value="pending">Chờ bàn giao</option><option value="completed">Đã bàn giao</option><option value="all">Tất cả</option></> : <><option value="">Tất cả</option>{Object.entries(rentalStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</>}</InlineSelect></AdminFilterField>
@@ -69,14 +70,14 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
         <caption className="sr-only">{handovers ? "Danh sách bàn giao xe" : "Danh sách yêu cầu và đơn thuê"}</caption>
         <thead><tr>{["Khách hàng", "Phương tiện", "Thời gian thuê", "Hình thức lái", "Tổng tiền", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>{query.isFetching ? <AdminTableSkeleton columns={7} label="Đang tải danh sách..." /> : items.map((rental) => <tr key={rental.id}>
-          <td><p className="font-semibold">{rental.customerName || rental.customerEmail || "Chưa có tên khách hàng"}</p><p className="text-xs text-ink-3">{rental.customerEmail}</p></td>
+          <td><p className="font-semibold">{rental.customerName || rental.customerEmail || "Chưa có tên khách hàng"}</p><p className="text-xs text-td-muted">{rental.customerEmail}</p></td>
           <td><VehicleName vehicleId={rental.vehicleId} /></td><td className="text-xs"><p>{formatAdminDateTime(rental.startTime)}</p><p>{formatAdminDateTime(rental.endTime)}</p></td>
           <td>{rental.hasDriver ? rental.driverName || "Chưa phân tài xế" : "Tự lái"}</td><td>{rental.totalPrice.toLocaleString("vi-VN")} đ</td>
           <td><AdminStatusBadge domain="rental" status={rental.status}>{rentalStatuses[rental.status] ?? rental.status}</AdminStatusBadge></td>
-          <td data-actions><AdminRowAction action="view" href={`/admin/${handovers ? "handovers" : "rentals"}?rentalId=${rental.id}#rental-detail`} label={`Xem yêu cầu của ${rental.customerName || rental.customerEmail || "khách hàng"}`} /></td>
+          <td data-actions><AdminRowAction action="view" href={`/admin/${handovers ? "handovers" : "rentals"}?${handovers ? "" : "view=list&"}rentalId=${rental.id}#rental-detail`} label={`Xem yêu cầu của ${rental.customerName || rental.customerEmail || "khách hàng"}`} /></td>
         </tr>)}{!query.isFetching && !items.length && <AdminTableEmptyRow colSpan={7}>{query.error ? "Chưa tải được dữ liệu." : "Không có kết quả phù hợp."}</AdminTableEmptyRow>}</tbody>
       </AdminTable>
-      <div className="border-t border-line px-5 pt-4"><label className="text-xs text-ink-3">Số mục mỗi trang <select className="admin-input ml-2" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}</select></label></div>
+      <div className="border-t border-td-rule px-5 pt-4"><label className="text-xs text-td-muted">Số mục mỗi trang <select className="admin-input ml-2" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}</select></label></div>
       <ResultPagination page={query.data?.page ?? page} pageSize={query.data?.pageSize ?? pageSize} totalCount={query.data?.totalCount ?? 0} busy={query.isFetching || !!query.error} onPage={setPage} />
     </AdminTableCard>
     {/^[1-9]\d*$/.test(rentalId) && <div id="rental-detail" className="scroll-mt-24">{handovers ? <HandoverPanel key={rentalId} rentalId={rentalId} /> : <RentalOperations key={rentalId} />}</div>}

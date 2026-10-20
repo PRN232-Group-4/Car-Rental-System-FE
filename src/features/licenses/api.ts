@@ -1,4 +1,4 @@
-import { defaultApiClient, isMockMode } from "@/api/default-api-client";
+import { defaultApiClient } from "@/api/default-api-client";
 import { ApiClientError } from "@/api/api-client";
 import { CustomerLicense, SaveLicensePayload } from "./types";
 
@@ -7,10 +7,6 @@ export async function getCustomerLicense(): Promise<CustomerLicense | null> {
     const res = await defaultApiClient.get<CustomerLicense>("customer/license");
     return res;
   } catch (error) {
-    if (isMockMode) {
-      console.warn("[License API] Unable to fetch license:", error);
-      return null;
-    }
     // No license on record is a legitimate "not set" state; anything else is a real error.
     if (error instanceof ApiClientError && error.status === 404) return null;
     throw error;

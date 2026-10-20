@@ -46,19 +46,19 @@ export function PolicyDiff({
     }
 
     return (
-      <div className="flex items-center justify-between py-2 border-b border-line last:border-b-0 text-sm">
-        <span className="text-ink-2 font-medium">{label}</span>
+      <div className="flex items-center justify-between py-2 border-b border-td-rule last:border-b-0 text-sm">
+        <span className="text-td-ink font-medium">{label}</span>
         <div className="flex items-center gap-2">
           {currentVal !== null ? (
             <>
-              <span className="font-mono text-ink-3 line-through">{currentVal}{unit}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-ink-3" aria-hidden="true" />
-              <span className={`font-mono font-bold ${isUnchanged ? "text-ink" : isIncrease ? "text-primary" : "text-success"}`}>
+              <span className="font-mono text-td-muted line-through">{currentVal}{unit}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-td-muted" aria-hidden="true" />
+              <span className={`font-mono font-bold ${isUnchanged ? "text-td-ink" : isIncrease ? "text-td-oxide" : "text-success"}`}>
                 {newVal}{unit}
               </span>
             </>
           ) : (
-            <span className="font-mono font-bold text-ink">{newVal}{unit}</span>
+            <span className="font-mono font-bold text-td-ink">{newVal}{unit}</span>
           )}
           <span className="sr-only">({diffText})</span>
         </div>
@@ -69,13 +69,13 @@ export function PolicyDiff({
   return (
     <div className="space-y-4">
       {/* Khối so sánh thông số */}
-      <div className="bg-surface border border-line rounded-xl p-4 shadow-sm">
+      <div className="bg-td-white border border-td-rule rounded p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-td-muted">
             Bảng so sánh điều khoản {vehicleTypeName ? `· ${vehicleTypeName}` : ""}
           </h4>
           {currentPolicy && (
-            <span className="text-xs text-ink-3 font-mono">
+            <span className="text-xs text-td-muted font-mono">
               Bản hiện tại: #{currentPolicy.id}
             </span>
           )}
@@ -89,34 +89,34 @@ export function PolicyDiff({
       </div>
 
       {/* Khối ví dụ minh họa theo DESIGN.md §23 */}
-      <div className="bg-sunken border border-line rounded-xl p-4 text-xs">
-        <div className="flex items-center gap-1.5 font-bold text-ink mb-2">
-          <Info className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
+      <div className="bg-td-chalk border border-td-rule rounded p-4 text-xs">
+        <div className="flex items-center gap-1.5 font-bold text-td-ink mb-2">
+          <Info className="w-4 h-4 text-td-oxide shrink-0" aria-hidden="true" />
           <span>Mô phỏng tính giá trên đơn mẫu (30 giờ × 90.000đ)</span>
         </div>
-        <p className="text-ink-3 mb-3 leading-relaxed">
+        <p className="text-td-muted mb-3 leading-relaxed">
           Công thức chuẩn DESIGN.md §23: Tiền thuê mẫu {formatVnd(SAMPLE_BASE_RENTAL)} cộng VAT ({newVat}%) và Tiền cọc ({newDeposit}% trên tổng có VAT).
         </p>
 
         <div className="space-y-1.5 font-mono">
-          <div className="flex justify-between text-ink-2">
+          <div className="flex justify-between text-td-ink">
             <span>Tiền thuê (30 giờ)</span>
             <span>{formatVnd(newQuote.baseRental)}</span>
           </div>
-          <div className="flex justify-between text-ink-2">
+          <div className="flex justify-between text-td-ink">
             <span>VAT ({newQuote.vatRate}%)</span>
             <span>+{formatVnd(newQuote.vatAmount)}</span>
           </div>
-          <div className="flex justify-between text-ink-2">
+          <div className="flex justify-between text-td-ink">
             <span>Đặt cọc ({newQuote.depositRate}%)</span>
             <span>+{formatVnd(newQuote.depositAmount)}</span>
           </div>
-          <div className="border-t border-line pt-1.5 flex justify-between font-bold text-ink text-sm">
+          <div className="border-t border-td-rule pt-1.5 flex justify-between font-bold text-td-ink text-sm">
             <span>Tổng ước tính tạm thu</span>
-            <span className="text-primary">{formatVnd(newQuote.totalEstimated)}</span>
+            <span className="text-td-oxide">{formatVnd(newQuote.totalEstimated)}</span>
           </div>
           {currentQuote && currentQuote.totalEstimated !== newQuote.totalEstimated && (
-            <div className="text-[11px] text-ink-3 pt-1 text-right">
+            <div className="text-[11px] text-td-muted pt-1 text-right">
               Chênh lệch so với bản cũ: {newQuote.totalEstimated > currentQuote.totalEstimated ? "+" : ""}
               {formatVnd(newQuote.totalEstimated - currentQuote.totalEstimated)}
             </div>
@@ -125,10 +125,10 @@ export function PolicyDiff({
       </div>
 
       {/* Chú thích tác động hợp đồng */}
-      <div className="flex items-start gap-2 text-xs text-ink-2 bg-warning-bg/40 border border-warning/20 rounded-xl p-3">
+      <div className="flex items-start gap-2 text-xs text-td-ink bg-warning-bg/40 border border-warning/20 rounded p-3">
         <AlertCircle className="w-4 h-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
         <p className="leading-relaxed">
-          <strong className="text-ink font-semibold">Quy tắc bất biến:</strong> Chính sách mới chỉ áp dụng cho các đơn thuê tạo từ thời điểm này trở đi. Tất cả các đơn đã tạo trước đó giữ nguyên vẹn snapshot giá và điều khoản trong hợp đồng.
+          <strong className="text-td-ink font-semibold">Quy tắc bất biến:</strong> Chính sách mới chỉ áp dụng cho các đơn thuê tạo từ thời điểm này trở đi. Tất cả các đơn đã tạo trước đó giữ nguyên vẹn snapshot giá và điều khoản trong hợp đồng.
         </p>
       </div>
     </div>

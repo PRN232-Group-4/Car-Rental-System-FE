@@ -5,6 +5,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { NavigationProvider } from "@/components/navigation/NavigationProvider";
 import { AuthProvider } from "@/features/auth";
 import { Toaster } from "@/components/ui/Toaster";
+import { OfflineBanner } from "@/components/ui/OfflineBanner";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -13,9 +14,10 @@ export interface ProvidersProps {
 /**
  * Root Client Providers theo FE-FOUNDATION mục 5:
  * - QueryClientProvider + ReactQueryDevtools
- * - NavigationProvider (loading router state)
+ * - NavigationProvider (focus sau khi chuyển trang)
  * - AuthProvider (phiên đăng nhập và RBAC)
  * - Toaster (thông báo Toast từ sonner chuẩn token v3.1)
+ * - OfflineBanner (cảnh báo trạng thái mạng trực quan)
  */
 export function Providers({ children }: ProvidersProps) {
   return (
@@ -24,6 +26,7 @@ export function Providers({ children }: ProvidersProps) {
         <AuthProvider>{children}</AuthProvider>
       </NavigationProvider>
       <Toaster />
+      <OfflineBanner />
     </QueryProvider>
   );
 }

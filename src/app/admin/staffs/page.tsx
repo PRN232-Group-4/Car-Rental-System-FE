@@ -10,12 +10,12 @@ import { LicenseBadge } from "@/features/admin/staff/components/LicenseBadge";
 import { StaffListItem, StaffFilterParams } from "@/features/admin/staff/types";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Pagination } from "@/components/ui/Pagination";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import {
-  Users,
   Eye,
   Plus,
   Car,
@@ -84,17 +84,17 @@ function StaffsListContent() {
 
           return (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface font-mono text-xs font-black text-primary shadow-xs">
-                {initials || <User className="w-4 h-4 text-ink-3" />}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-chalk font-mono text-xs font-bold text-td-oxide">
+                {initials || <User className="w-4 h-4 text-td-muted" />}
               </div>
               <div className="min-w-0">
                 <Link
                   href={`/admin/staffs/detail?id=${s.id}`}
-                  className="font-bold text-sm text-ink hover:text-primary transition-colors block truncate"
+                  className="font-bold text-sm text-td-ink hover:text-td-oxide transition-colors block truncate"
                 >
                   {s.fullName}
                 </Link>
-                <span className="font-mono text-xs text-ink-3 block truncate">{s.email}</span>
+                <span className="font-mono text-[11px] text-td-muted block truncate">{s.email}</span>
               </div>
             </div>
           );
@@ -104,7 +104,7 @@ function StaffsListContent() {
         id: "department",
         header: "Phòng ban",
         cell: ({ row }) => (
-          <span className="text-xs font-medium text-ink-2">
+          <span className="text-xs font-medium text-td-muted">
             {row.original.department?.name || "Chưa phân bổ"}
           </span>
         ),
@@ -113,7 +113,7 @@ function StaffsListContent() {
         id: "facility",
         header: "Cơ sở trực",
         cell: ({ row }) => (
-          <span className="text-xs font-medium text-ink-2 truncate block max-w-[180px]">
+          <span className="text-xs font-medium text-td-muted truncate block max-w-[180px]">
             {row.original.facility?.name || "Chưa phân bổ"}
           </span>
         ),
@@ -125,7 +125,7 @@ function StaffsListContent() {
           const isDriver = row.original.isDriver;
           return isDriver ? (
             <span
-              className="inline-flex items-center gap-1 rounded-full bg-primary-tint/30 border border-primary/20 px-2 py-0.5 text-xs font-bold text-primary"
+              className="inline-flex items-center gap-1 rounded border border-td-oxide/30 bg-td-chalk px-2 py-0.5 text-[11px] font-bold text-td-oxide"
               title="Nhân viên thuộc đội ngũ tài xế"
             >
               <Car className="w-3.5 h-3.5" />
@@ -133,7 +133,7 @@ function StaffsListContent() {
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1 rounded-full bg-sunken px-2 py-0.5 text-xs font-medium text-ink-3"
+              className="inline-flex items-center gap-1 rounded border border-td-rule px-2 py-0.5 text-[11px] font-medium text-td-muted"
               title="Nhân viên văn phòng / vận hành"
             >
               <Briefcase className="w-3.5 h-3.5" />
@@ -151,7 +151,7 @@ function StaffsListContent() {
             <div className="space-y-0.5">
               <LicenseBadge expiryDate={s.license?.expiryDate} />
               {s.license?.type && (
-                <span className="block font-mono text-[10px] text-ink-3">
+                <span className="block font-mono text-[10px] text-td-muted">
                   Hạng {s.license.type}
                 </span>
               )}
@@ -165,12 +165,12 @@ function StaffsListContent() {
         cell: ({ row }) => {
           const rating = row.original.rating;
           return rating ? (
-            <span className="inline-flex items-center gap-1 rounded-lg bg-sunken px-2 py-1 text-xs font-bold text-ink">
-              <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+            <span className="inline-flex items-center gap-1 rounded border border-td-rule bg-td-chalk px-2 py-1 font-mono text-xs font-bold text-td-ink">
+              <Star className="w-3.5 h-3.5 text-td-oxide fill-td-oxide" />
               <span>{rating.toFixed(2)}</span>
             </span>
           ) : (
-            <span className="font-mono text-xs text-ink-3">—</span>
+            <span className="font-mono text-xs text-td-muted">—</span>
           );
         },
       },
@@ -180,10 +180,9 @@ function StaffsListContent() {
         cell: ({ row }) => {
           const active = row.original.isActive;
           return (
-            <StatusBadge
-              status={active ? "approved" : "rejected"}
-              label={active ? "Đang làm việc" : "Tạm ngừng"}
-            />
+            <AdminStatusBadge domain="activity" status={active ? "active" : "inactive"}>
+              {active ? "Đang làm việc" : "Tạm ngừng"}
+            </AdminStatusBadge>
           );
         },
       },
@@ -196,7 +195,7 @@ function StaffsListContent() {
             <div className="flex items-center justify-end gap-1.5">
               <Link
                 href={`/admin/staffs/detail?id=${s.id}`}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-surface text-ink-2 hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule text-td-ink hover:border-td-oxide hover:text-td-oxide transition-colors cursor-pointer"
                 title="Xem chi tiết hồ sơ"
               >
                 <Eye className="w-4 h-4" />
@@ -211,29 +210,25 @@ function StaffsListContent() {
   return (
     <div className="space-y-6">
       {/* Header trang */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-            <Users className="w-4 h-4" />
-            <span>Đội Ngũ & Nhân Sự</span>
-          </div>
-          <h1 className="mt-1 text-2xl font-black text-ink tracking-tight">
-            Quản Lý Nhân Viên & Tài Xế
-          </h1>
-          <p className="mt-1 text-xs text-ink-3">
-            Theo dõi phân bổ phòng ban, trạm trực, tình trạng giấy phép lái xe và lịch công tác.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link href="/admin/staffs/new">
-            <Button variant="primary">
-              <Plus className="w-4 h-4 mr-1.5" />
-              <span>Thêm nhân viên</span>
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <TransitFolio
+        index="07"
+        tag="ORG"
+        kicker="TỔ CHỨC · ĐỘI NGŨ & NHÂN SỰ"
+        title={<>Nhân viên & <em className="italic text-td-teal">tài xế.</em></>}
+        description="Theo dõi phân bổ phòng ban, trạm trực, tình trạng giấy phép lái xe và lịch công tác."
+      >
+        <TransitFolioMetric
+          label="ĐỘI NGŨ · TỔNG NHÂN SỰ"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(data?.totalCount ?? 0).padStart(2, "0")}
+        />
+        <Link
+          href="/admin/staffs/new"
+          className="inline-flex items-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Thêm nhân viên</span>
+        </Link>
+      </TransitFolio>
 
       {/* Bộ lọc */}
       <StaffFilters
@@ -263,7 +258,7 @@ function StaffsListContent() {
           />
 
           {data && data.totalCount > 0 && (
-            <div className="border-t border-line pt-4">
+            <div className="border-t border-td-rule pt-3">
               <Pagination
                 page={data.page}
                 pageSize={data.pageSize}
@@ -283,7 +278,7 @@ function StaffsListContent() {
 export default function StaffsPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-        <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
+        <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <StaffsListContent />
         </Suspense>
     </AuthGate>

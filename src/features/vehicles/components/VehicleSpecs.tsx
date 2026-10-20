@@ -164,18 +164,18 @@ export function VehicleSpecs({
     <div className={`space-y-6 ${className}`}>
       {/* 1. Bento Grid thông số kỹ thuật */}
       <div>
-        <h3 className="text-base font-bold text-ink mb-3">Thông số kỹ thuật</h3>
+        <h3 className="text-base font-bold text-td-ink mb-3">Thông số kỹ thuật</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {specItems.map((spec, idx) => (
             <div
               key={`spec-${idx}`}
-              className="flex flex-col justify-between rounded-xl border border-line bg-sunken p-3 transition-colors hover:border-line-strong"
+              className="flex flex-col justify-between rounded border border-td-rule bg-td-chalk p-3 transition-colors hover:border-td-rule"
             >
-              <div className="flex items-center gap-2 text-ink-3">
+              <div className="flex items-center gap-2 text-td-muted">
                 {spec.icon}
                 <span className="text-[11px] font-medium truncate">{spec.label}</span>
               </div>
-              <p className="mt-2 text-sm font-bold text-ink truncate font-mono tabular-nums">
+              <p className="mt-2 text-sm font-bold text-td-ink truncate font-mono tabular-nums">
                 {spec.value}
               </p>
             </div>
@@ -185,16 +185,16 @@ export function VehicleSpecs({
 
       {/* 2. Danh sách trang bị & tiện nghi nổi bật (Features) */}
       {features.length > 0 && (
-        <div className="border-t border-line pt-6">
+        <div className="border-t border-td-rule pt-6">
           <div className="flex items-center gap-2 mb-3">
             <Shield className="w-4 h-4 text-primary" />
-            <h3 className="text-base font-bold text-ink">Trang bị & Tiện nghi đi kèm</h3>
+            <h3 className="text-base font-bold text-td-ink">Trang bị & Tiện nghi đi kèm</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {features.map((feat, idx) => (
               <div
                 key={`feat-${idx}`}
-                className="flex items-center gap-2.5 rounded-xl border border-line bg-surface p-2.5 text-xs font-medium text-ink shadow-xs"
+                className="flex items-center gap-2.5 rounded border border-td-rule bg-td-white p-2.5 text-xs font-medium text-td-ink shadow-xs"
               >
                 <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                 <span className="truncate">{feat}</span>

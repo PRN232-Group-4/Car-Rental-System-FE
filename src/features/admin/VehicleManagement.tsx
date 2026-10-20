@@ -114,8 +114,8 @@ export default function VehicleManagement() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Phương tiện</h2>
-          <p className="mt-2 text-sm text-ink-3">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">Phương tiện</h2>
+          <p className="mt-2 text-sm text-td-muted">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
         </div>
         {canManage && (
           <CreateVehicleButton onSaved={() => { void loadPage(page, pageSize, category, status); }} />
@@ -158,9 +158,9 @@ export default function VehicleManagement() {
                 <td>
                   <VehicleIdentity vehicle={vehicle} />
                 </td>
-                <td className="text-ink-3">{vehicle.vehicleType?.trim() || vehicleTypes.find((type) => type.id === vehicle.vehicleTypeId)?.name || "Chưa có loại xe"}<span className="mt-1 block text-xs text-ink-3">{vehicle.yearOfManufacture ?? "—"}</span></td>
-                <td className="text-ink-3">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
-                <td className="font-medium text-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
+                <td className="text-td-muted">{vehicle.vehicleType?.trim() || vehicleTypes.find((type) => type.id === vehicle.vehicleTypeId)?.name || "Chưa có loại xe"}<span className="mt-1 block text-xs text-td-muted">{vehicle.yearOfManufacture ?? "—"}</span></td>
+                <td className="text-td-muted">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
+                <td className="font-medium text-td-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
                 <td><AdminStatusBadge domain="vehicle" status={vehicle.status}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</AdminStatusBadge></td>
                 {canManage && (
                   <td data-actions>
@@ -177,8 +177,8 @@ export default function VehicleManagement() {
             )}
           </tbody>
         </AdminTable>
-        <div className="flex flex-col gap-4 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-3">
+        <div className="flex flex-col gap-4 border-t border-td-rule px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-td-muted">
             <span>Hiển thị {firstResult}–{lastResult} trong {totalCount} phương tiện</span>
             <label className="flex items-center gap-2">
               <span>Số dòng:</span>
@@ -188,7 +188,7 @@ export default function VehicleManagement() {
                   setPageSize(Number(event.currentTarget.value));
                   setPage(1);
                 }}
-                className="rounded-lg border border-line bg-surface px-2 py-1.5 text-xs text-ink outline-none focus:border-primary"
+                className="rounded border border-td-rule bg-td-white px-2 py-1.5 text-xs text-td-ink outline-none focus:border-td-oxide"
                 aria-label="Số phương tiện mỗi trang"
               >
                 {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
@@ -201,7 +201,7 @@ export default function VehicleManagement() {
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={currentPage === 1 || loading}
               aria-label="Trang trước"
-              className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded border border-td-rule p-2 text-td-muted transition hover:bg-td-paper disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -213,10 +213,10 @@ export default function VehicleManagement() {
                 disabled={loading}
                 aria-label={`Trang ${pageNumber}`}
                 aria-current={currentPage === pageNumber ? "page" : undefined}
-                className={`h-9 min-w-9 rounded-lg px-2 text-xs font-semibold transition ${
+                className={`h-9 min-w-9 rounded px-2 text-xs font-semibold transition ${
                   currentPage === pageNumber
-                    ? "bg-primary text-white"
-                    : "border border-line text-ink-3 hover:bg-canvas"
+                    ? "bg-td-oxide text-white"
+                    : "border border-td-rule text-td-muted hover:bg-td-paper"
                 }`}
               >
                 {pageNumber}
@@ -227,7 +227,7 @@ export default function VehicleManagement() {
               onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
               disabled={currentPage === pageCount || loading}
               aria-label="Trang tiếp theo"
-              className="rounded-lg border border-line p-2 text-ink-3 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded border border-td-rule p-2 text-td-muted transition hover:bg-td-paper disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

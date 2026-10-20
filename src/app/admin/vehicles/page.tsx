@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import VehicleManagement from "@/features/admin/VehicleManagement";
+import FleetRegistry from "@/features/admin/transit-desk/FleetRegistry";
 
 export const metadata: Metadata = {
-  title: "Quản lý phương tiện | Cổng quản trị Thong Dong",
+  title: "Sổ phương tiện · Transit Desk | Thong Dong",
 };
 
 export default function VehiclesPage() {
-  return <VehicleManagement />;
+  return <FleetRegistry />;
 }

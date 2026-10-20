@@ -18,16 +18,16 @@ export function RatingDistribution({
   const stars: ("5" | "4" | "3" | "2" | "1")[] = ["5", "4", "3", "2", "1"];
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5 shadow-e1">
-      <div className="flex items-center justify-between border-b border-line pb-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+    <div className="flex flex-col gap-3 border-t border-td-ink pt-4">
+      <div className="flex items-center justify-between border-b border-td-rule pb-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
           Phân bố đánh giá
         </h3>
         {selectedStar && (
           <button
             type="button"
             onClick={() => onSelectStar?.(undefined)}
-            className="text-xs font-semibold text-primary hover:underline"
+            className="text-xs font-semibold text-td-oxide hover:underline"
           >
             Xóa lọc {selectedStar} sao
           </button>
@@ -75,29 +75,29 @@ export function RatingDistribution({
               type="button"
               onClick={() => onSelectStar?.(isSelected ? undefined : numStar)}
               aria-pressed={isSelected}
-              className={`group flex items-center gap-3 rounded-xl p-1.5 transition ${
+              className={`group flex items-center gap-3 rounded p-1.5 transition ${
                 isSelected
-                  ? "bg-primary/10 ring-1 ring-primary"
-                  : "hover:bg-canvas"
+                  ? "bg-td-chalk ring-1 ring-td-oxide"
+                  : "hover:bg-td-chalk"
               }`}
             >
               {/* Star label */}
-              <div className="flex w-12 items-center gap-1 font-mono text-xs font-bold text-ink">
+              <div className="flex w-12 items-center gap-1 font-mono text-xs font-bold text-td-ink">
                 <span>{s}</span>
-                <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+                <Star className="h-3.5 w-3.5 fill-td-oxide text-td-oxide" />
               </div>
 
               {/* Progress Bar */}
-              <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-sunken">
+              <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-td-chalk">
                 <div
-                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  className="h-full rounded-full bg-td-oxide transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
               </div>
 
               {/* Count and percent */}
-              <div className="flex w-16 items-center justify-end gap-1 font-mono text-xs tabular-nums text-ink-3">
-                <span className="font-semibold text-ink">{count}</span>
+              <div className="flex w-16 items-center justify-end gap-1 font-mono text-xs tabular-nums text-td-muted">
+                <span className="font-semibold text-td-ink">{count}</span>
                 <span className="text-[11px]">({pct.toFixed(0)}%)</span>
               </div>
             </button>

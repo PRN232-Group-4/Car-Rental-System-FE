@@ -1,11 +1,10 @@
 "use client";
 import { FormSkeleton } from "@/components/ui/Skeleton";
-
 import { ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Building2, Check, Mail, Phone, Save, ShieldCheck, UserRound } from "lucide-react";
+import { Check, Save, ShieldCheck } from "lucide-react";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { getAccountProfile, updateAccountProfile } from "@/features/profile/api";
 import { getFacilities, getStaffById, updateStaff } from "./api";
@@ -14,6 +13,8 @@ import DriverLicenseProfile from "./DriverLicenseProfile";
 import AccountAvatar from "@/components/ui/AccountAvatar";
 import { FormField as Field } from "@/components/ui/FormField";
 import { useAuth } from "@/features/auth";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import { formatAdminDate } from "@/lib/date-time";
 
 export default function StaffProfileForm() {
   const { user, refreshProfile } = useAuth();
@@ -41,11 +42,13 @@ export default function StaffProfileForm() {
           const facility = facilities.find((f) => f.id === account.facilityId);
 
           let staffData: StaffDto | null = null;
-          if (adminCheck && account.staffId != null) {
+          // Mọi vai trò đều cần hồ sơ nhân sự của chính mình (hồ sơ, GPLX, ca trực).
+          // Admin không có bản ghi staff thì rơi xuống nhánh tổng hợp từ tài khoản.
+          if (account.staffId != null) {
             try {
               staffData = await getStaffById(account.staffId);
             } catch {
-              // Fallback to synthesizing profile from account
+              // Không có quyền hoặc chưa có bản ghi staff → tổng hợp từ tài khoản
             }
           }
 
@@ -153,60 +156,167 @@ export default function StaffProfileForm() {
     }
   };
 
+  const identityRows = staff
+    ? [
+        { term: "Email", detail: staff.email ?? "—" },
+        { term: "Số điện thoại", detail: staff.phone ?? "Chưa cập nhật" },
+        { term: "Vai trò", detail: staff.staffRole ?? "Nhân viên" },
+        { term: "Phòng ban", detail: staff.departmentName ?? "Chưa phân công" },
+        { term: "Cơ sở trực", detail: staff.facilityName ?? "Chưa phân công" },
+        {
+          term: "Ngày nhận việc",
+          detail: staff.hiredDate ? formatAdminDate(staff.hiredDate) : "Chưa cập nhật",
+        },
+      ]
+    : [];
+
   return (
-    <div className="mx-auto max-w-5xl space-y-7">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">Hồ sơ của tôi</h2>
-        <p className="mt-2 text-sm text-ink-2">Xem và cập nhật thông tin liên hệ của bạn.</p>
-      </div>
+    <div className="space-y-7">
+      <TransitFolio
+        index="08"
+        tag="ME"
+        kicker="CÁ NHÂN · HỒ SƠ NHÂN VIÊN"
+        title={<>Hồ sơ <em className="italic text-td-teal">của tôi.</em></>}
+        description="Xem và cập nhật thông tin liên hệ của bạn."
+      >
+        <div className="border-l border-td-rule pl-4 text-right">
+          <span className="block font-mono text-[10px] tracking-wider text-td-muted">VAI TRÒ</span>
+          <strong className="block text-sm font-bold text-td-ink">
+            {staff?.staffRole?.trim() || "Nhân sự vận hành"}
+          </strong>
+          <span className="mt-1 block font-mono text-[10px] text-td-muted">
+            {staff?.facilityName?.trim() || "Chưa gán trạm"}
+          </span>
+        </div>
+      </TransitFolio>
+
       {loading && <FormSkeleton label="Đang tải hồ sơ..." fields={4} />}
-      {error && <p role="alert" className="rounded-xl border border-danger-bg bg-danger-bg/50 px-4 py-3 text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
+          {error}
+        </p>
+      )}
 
       {staff && (
         <>
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
-          <div className="relative bg-stage-ink border-b border-white/10 px-6 pb-6 pt-8 sm:px-8">
-            <div className="absolute right-8 top-6 hidden opacity-10 sm:block"><UserRound className="h-32 w-32 text-white" /></div>
-            <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <AccountAvatar src={user?.avatarUrl} name={staff.fullName ?? staff.email} size={76} className="h-[76px] w-[76px] rounded-2xl border border-white/20 bg-surface/10 text-2xl font-bold text-white shadow-lg" />
-              <div className="text-white">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-bold">{staff.fullName ?? staff.email}</h3>
-                  <AdminStatusBadge domain="activity" status={staff.isActive ? "active" : "inactive"}>{staff.isActive ? "Đang hoạt động" : "Tạm ngưng"}</AdminStatusBadge>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+            {/* Hồ sơ định danh */}
+            <aside aria-label="Thông tin định danh nhân viên" className="lg:col-span-4">
+              <div className="rounded border border-td-rule bg-td-white p-6">
+                <div className="flex items-start gap-4 border-b border-td-rule pb-5">
+                  <AccountAvatar
+                    src={user?.avatarUrl}
+                    name={staff.fullName ?? staff.email}
+                    size={64}
+                    className="h-16 w-16 rounded border border-td-rule bg-td-chalk font-mono text-lg font-bold text-td-oxide"
+                  />
+                  <div className="min-w-0 space-y-1">
+                    <span className="block font-mono text-[10px] uppercase tracking-wider text-td-muted">
+                      {staff.id > 0 ? `SỔ NHÂN SỰ · #${staff.id}` : "TÀI KHOẢN CÁ NHÂN"}
+                    </span>
+                    <p className="truncate font-sans text-lg font-bold tracking-tight text-td-ink">
+                      {staff.fullName ?? staff.email}
+                    </p>
+                    <AdminStatusBadge
+                      domain="activity"
+                      status={staff.isActive ? "active" : "inactive"}
+                    >
+                      {staff.isActive ? "Đang hoạt động" : "Tạm ngưng"}
+                    </AdminStatusBadge>
+                  </div>
                 </div>
-                <p className="mt-1 text-sm text-ink-3">{staff.staffRole ?? "Nhân viên"} {staff.id > 0 ? `· Mã nhân viên ${staff.id}` : ""}</p>
+
+                <dl className="divide-y divide-td-rule font-mono text-xs">
+                  {identityRows.map((row) => (
+                    <div key={row.term} className="flex items-baseline justify-between gap-4 py-2.5">
+                      <dt className="text-td-muted">{row.term}</dt>
+                      <dd className="text-right font-semibold text-td-ink">{row.detail}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
+
+              <p className="mt-4 flex items-start gap-2 border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
+                Chức vụ, phòng ban và cơ sở trực do quản trị viên cập nhật theo hồ sơ nhân sự.
+              </p>
+            </aside>
+
+            {/* Biểu mẫu liên hệ */}
+            <div className="lg:col-span-8">
+              <ValidatedForm
+                validation={validation}
+                key={staff.id}
+                onSubmit={submit}
+                onChange={() => setSaved(false)}
+                className="rounded border border-td-rule bg-td-white p-5 sm:p-7"
+              >
+                <div className="border-b border-td-rule pb-3">
+                  <h2 className="text-sm font-bold text-td-ink">Thông tin liên hệ</h2>
+                  <p className="mt-1 font-mono text-[11px] text-td-muted">
+                    Chỉ họ tên và số điện thoại có thể tự cập nhật.
+                  </p>
+                </div>
+
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                  <Field label="Họ và tên" htmlFor="fullName">
+                    <InlineInput
+                      name="fullName"
+                      required
+                      defaultValue={staff.fullName ?? ""}
+                      autoComplete="name"
+                      className="admin-input"
+                    />
+                  </Field>
+                  <Field label="Số điện thoại" htmlFor="phone">
+                    <InlineInput
+                      name="phone"
+                      required
+                      defaultValue={staff.phone ?? ""}
+                      autoComplete="tel"
+                      className="admin-input"
+                    />
+                  </Field>
+                  <Field label="Email công việc" htmlFor="email">
+                    <InlineInput
+                      type="email"
+                      readOnly
+                      value={staff.email ?? ""}
+                      className="admin-input bg-td-chalk text-td-muted"
+                    />
+                  </Field>
+                  <Field label="Phòng ban" htmlFor="departmentName">
+                    <InlineInput
+                      readOnly
+                      value={staff.departmentName ?? "Chưa phân công"}
+                      className="admin-input bg-td-chalk text-td-muted"
+                    />
+                  </Field>
+                </div>
+
+                <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-td-rule pt-4 sm:flex-row sm:items-center">
+                  <p aria-live="polite" className="font-mono text-[11px] text-success">
+                    {saved ? "Đã lưu hồ sơ nhân viên." : ""}
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="inline-flex items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover disabled:opacity-60"
+                  >
+                    {saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                    {saving ? "Đang lưu..." : "Lưu thay đổi"}
+                  </button>
+                </div>
+              </ValidatedForm>
             </div>
           </div>
 
-          <ValidatedForm validation={validation} key={staff.id} onSubmit={submit} onChange={() => setSaved(false)} className="p-5 sm:p-8">
-            <div className="mb-6 flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><UserRound className="h-5 w-5" /></div>
-              <div><h3 className="font-bold text-ink">Thông tin cá nhân</h3><p className="mt-1 text-xs text-ink-3">Cập nhật thông tin liên hệ của nhân viên.</p></div>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Họ và tên" htmlFor="fullName" icon={<UserRound className="h-4 w-4" />}><InlineInput name="fullName" required defaultValue={staff.fullName ?? ""} autoComplete="name" className="admin-input" /></Field>
-              <Field label="Email công việc" htmlFor="email" icon={<Mail className="h-4 w-4" />}><InlineInput type="email" readOnly value={staff.email ?? ""} className="admin-input bg-sunken text-ink-3" /></Field>
-              <Field label="Số điện thoại" htmlFor="phone" icon={<Phone className="h-4 w-4" />}><InlineInput name="phone" required defaultValue={staff.phone ?? ""} autoComplete="tel" className="admin-input" /></Field>
-              <Field label="Phòng ban" htmlFor="departmentName" icon={<Building2 className="h-4 w-4" />}><InlineInput readOnly value={staff.departmentName ?? "Chưa phân công"} className="admin-input bg-sunken text-ink-3" /></Field>
-            </div>
-            <div className="mt-6 flex items-start gap-3 rounded-xl border border-line bg-sunken p-4">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-ink-3" />
-              <div><p className="text-sm font-semibold text-ink">Thông tin công việc</p><p className="mt-1 text-xs leading-5 text-ink-2">{staff.staffRole ?? "Nhân viên"} · {staff.facilityName ?? "Chưa phân công chi nhánh"}. Liên hệ quản trị viên để thay đổi chức vụ hoặc chi nhánh.</p></div>
-            </div>
-            <div className="mt-6 flex flex-col items-start justify-between gap-3 border-t border-line pt-5 sm:flex-row sm:items-center">
-              <p aria-live="polite" className="text-sm font-medium text-success">{saved ? "Đã lưu hồ sơ nhân viên." : ""}</p>
-              <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover disabled:opacity-60">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
-            </div>
-          </ValidatedForm>
-        </div>
-        {staff.isDriver && <DriverLicenseProfile staff={staff} onUpdated={setStaff} />}
+          {staff.isDriver && <DriverLicenseProfile staff={staff} onUpdated={setStaff} />}
         </>
       )}
     </div>
   );
 }
-
 
 function messageOf(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;

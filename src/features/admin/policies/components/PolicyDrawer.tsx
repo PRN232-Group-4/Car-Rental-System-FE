@@ -116,15 +116,15 @@ export function PolicyDrawer({
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="vehicleTypeId"
-                className="block text-xs font-bold uppercase tracking-wider text-ink"
+                className="block text-xs font-bold uppercase tracking-wider text-td-ink"
               >
-                Loại xe áp dụng <span className="text-primary">*</span>
+                Loại xe áp dụng <span className="text-td-oxide">*</span>
               </label>
               {currentActivePolicy && (
                 <button
                   type="button"
                   onClick={handleCopyFromCurrent}
-                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                  className="inline-flex items-center gap-1 text-xs text-td-oxide hover:underline font-medium"
                 >
                   <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Sao chép bản đang áp dụng</span>
@@ -134,7 +134,7 @@ export function PolicyDrawer({
             <select
               id="vehicleTypeId"
               {...register("vehicleTypeId", { valueAsNumber: true })}
-              className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
             >
               {vehicleTypes.map((vt) => (
                 <option key={vt.id} value={vt.id}>
@@ -158,7 +158,7 @@ export function PolicyDrawer({
               type="text"
               {...register("name")}
               placeholder="Nhập tên gọi phiên bản..."
-              className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
             />
           </FormField>
 
@@ -174,7 +174,7 @@ export function PolicyDrawer({
                 type="number"
                 step="0.01"
                 {...register("vatRate", { valueAsNumber: true })}
-                className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface font-mono text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white font-mono text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
               />
             </FormField>
 
@@ -188,7 +188,7 @@ export function PolicyDrawer({
                 type="number"
                 step="0.01"
                 {...register("depositPercentage", { valueAsNumber: true })}
-                className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface font-mono text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white font-mono text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
               />
             </FormField>
 
@@ -202,16 +202,16 @@ export function PolicyDrawer({
                 type="number"
                 step="0.01"
                 {...register("overtimeFeeRate", { valueAsNumber: true })}
-                className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface font-mono text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white font-mono text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
               />
             </FormField>
           </div>
 
           {/* Công tắc áp dụng ngay */}
-          <div className="flex items-center justify-between p-3.5 bg-surface rounded-xl border border-line">
+          <div className="flex items-center justify-between p-3.5 bg-td-white rounded border border-td-rule">
             <div>
-              <span className="text-sm font-bold text-ink block">Áp dụng ngay cho đơn mới</span>
-              <span className="text-xs text-ink-3 block">
+              <span className="text-sm font-bold text-td-ink block">Áp dụng ngay cho đơn mới</span>
+              <span className="text-xs text-td-muted block">
                 Nếu bật, hệ thống sẽ sử dụng phiên bản này cho tất cả đơn thuê tạo sau thời điểm này.
               </span>
             </div>
@@ -224,8 +224,8 @@ export function PolicyDrawer({
                   role="switch"
                   aria-checked={field.value}
                   onClick={() => field.onChange(!field.value)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/20 ${
-                    field.value ? "bg-primary" : "bg-line-strong"
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-td-oxide/20 ${
+                    field.value ? "bg-td-oxide" : "bg-line-strong"
                   }`}
                 >
                   <span
@@ -246,7 +246,7 @@ export function PolicyDrawer({
           />
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-td-rule">
             <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
               Hủy bỏ
             </Button>

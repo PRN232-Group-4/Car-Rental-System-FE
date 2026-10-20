@@ -10,6 +10,7 @@ import { useMounted } from "@/hooks/use-mounted";
 import { Button } from "@/components/ui/Button";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
+import styles from "./Navbar.module.css";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -73,9 +74,15 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6 pointer-events-none">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs pointer-events-auto"
+      >
+        Bỏ qua điều hướng
+      </a>
       <nav
         ref={navRef}
-        className="glass-1 w-full max-w-6xl rounded-2xl px-5 py-3 pointer-events-auto transition-shadow"
+        className={`${styles.navbar} glass-1 w-full max-w-6xl rounded-2xl px-5 py-3 pointer-events-auto transition-shadow`}
       >
         <div className="flex items-center justify-between gap-4">
           {/* Brand Name & Logo */}
@@ -90,7 +97,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
+          <div className="hidden lg:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
             <Link
               id="nav-tim-xe"
               href="/find"
@@ -126,11 +133,13 @@ export default function Navbar() {
           </div>
 
           {/* Right Action buttons */}
-          <div className="hidden sm:flex items-center gap-2.5 whitespace-nowrap">
+          <div className="ml-auto hidden sm:flex items-center gap-2.5 whitespace-nowrap">
             {mounted && isAuthenticated && user ? (
-              <div className="relative">
+              <div>
                 <button
                   type="button"
+                  aria-expanded={userMenuOpen}
+                  aria-controls="landing-account-menu"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface-raised border border-line text-sm font-medium text-ink transition-all cursor-pointer shadow-e1"
                 >
@@ -156,7 +165,7 @@ export default function Navbar() {
 
                 {/* User dropdown menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-2xl p-2 bg-surface border border-line shadow-e2 z-50">
+                  <div id="landing-account-menu" className={`${styles.accountMenu} glass-1`}>
                     <div className="px-3 py-2 border-b border-line mb-1">
                       <p className="text-xs font-bold text-ink truncate">
                         {user.fullName}
@@ -260,7 +269,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu toggle button */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer"
@@ -279,7 +288,7 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="md:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1">
+          <div id="mobile-nav-menu" className={`${styles.mobileMenu} lg:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1`}>
             <Link
               href="/find"
               onClick={() => setMobileMenuOpen(false)}
@@ -317,7 +326,7 @@ export default function Navbar() {
             </Link>
             <div className="pt-3 border-t border-line flex flex-col gap-2">
               {mounted && isAuthenticated && user ? (
-                <div className="p-3 bg-surface rounded-xl border border-line">
+                <div className="p-3 border-t border-line">
                   <div className="flex items-center gap-2.5 mb-2">
                     {user.avatarUrl ? (
                       <Image
