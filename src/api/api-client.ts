@@ -14,6 +14,9 @@ export interface RequestOptions extends RequestInit {
 }
 
 export interface ApiEnvelope<T = unknown> {
+  code?: number;
+  status?: string;
+  error?: unknown;
   message?: string;
   is_success?: boolean;
   data?: T;

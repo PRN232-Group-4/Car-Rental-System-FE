@@ -75,6 +75,8 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
     mockSearchParams = new URLSearchParams();
     // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
+    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([]);
+    vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
   it("hiển thị thanh tra cứu đơn và trạng thái rỗng khi chưa có ID", () => {
@@ -110,28 +112,8 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([
-      {
-        id: 1,
-        userId: 101,
-        fullName: "Nguyễn Văn Hùng",
-        email: "driver.hung@thongdong.vn",
-        phone: "0901111222",
-        departmentId: 1,
-        departmentName: "Tài xế",
-        facilityId: 1,
-        facilityName: "Chi nhánh Quận 1",
-        hiredDate: "2024-01-01",
-        isDriver: true,
-        licenseNumber: "B2-998877",
-        licenseType: "B2",
-        licenseIssueDate: "2023-01-01",
-        licenseExpiryDate: "2033-01-01",
-        licenseImageUrl: null,
-        rating: 5,
-        isActive: true,
-        staffRole: "Tài xế",
-      },
+    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([
+      { staffId: 1, fullName: "Nguyễn Văn Hùng", eligible: true, reasons: [], rating: 5 },
     ]);
     const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as never);
 
@@ -141,6 +123,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
       expect(screen.getByLabelText("Tài xế nhận lệnh")).toBeInTheDocument();
     });
 
+    await screen.findByRole("option", { name: "Nguyễn Văn Hùng" });
     // Chọn tài xế và submit
     const driverSelect = screen.getByLabelText("Tài xế nhận lệnh");
     fireEvent.change(driverSelect, { target: { value: "1" } });

@@ -18,6 +18,6 @@ export interface OperationalRentalListItem {
   driverName: string | null;
 }
 
-export function getOperationalRentals(query: { status?: string; page: number; pageSize: number }, signal?: AbortSignal) {
+export function getOperationalRentals(query: import("./handover-api").RentalFilters, signal?: AbortSignal) {
   return backendApiClient.get<PagedResult<OperationalRentalListItem>>("rentals", { ...query }, { signal });
 }

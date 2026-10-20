@@ -10,7 +10,7 @@ import type { TripTab, CancelTripInput } from "./types";
 
 export const TRIP_KEYS = {
   all: ["my-trips"] as const,
-  list: (tab: TripTab, page: number) => ["my-trips", "list", { tab, page }] as const,
+  list: (tab: TripTab, page: number, pageSize = 12) => ["my-trips", "list", { tab, page, pageSize }] as const,
   detail: (id: number) => ["my-trips", "detail", id] as const,
   cancellationPreview: (id: number) => ["my-trips", "cancel-preview", id] as const,
 };
@@ -27,7 +27,7 @@ export function useMyTrips({
   const isAutoRefetchTab = tab === "ongoing" || tab === "upcoming";
 
   return useQuery({
-    queryKey: TRIP_KEYS.list(tab, page),
+    queryKey: TRIP_KEYS.list(tab, page, pageSize),
     queryFn: () => fetchMyTrips(tab, page, pageSize),
     staleTime: 15 * 1000,
     refetchInterval: isAutoRefetchTab ? 30 * 1000 : false,
