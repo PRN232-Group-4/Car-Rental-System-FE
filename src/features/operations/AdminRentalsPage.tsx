@@ -3,87 +3,82 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuth } from "@/features/auth";
 import { AdminFilterBar, AdminFilterButton, AdminFilterField } from "@/components/admin/AdminFilters";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
-import { InlineSelect, ValidatedForm, mapValidationErrors, useInlineValidation } from "@/components/forms/inline-validation";
+import { InlineInput, InlineSelect, ValidatedForm, mapValidationErrors, useInlineValidation } from "@/components/forms/inline-validation";
 import { ApiClientError } from "@/api/api-client";
+import ResultPagination from "@/components/ui/ResultPagination";
 import VehicleName from "@/features/admin/VehicleName";
 import { formatAdminDateTime } from "@/lib/date-time";
 import RentalOperations from "./RentalOperations";
-import { rentalStatuses } from "./api";
+import HandoverPanel from "./HandoverPanel";
+import { operationalError, rentalStatuses } from "./api";
 import { getOperationalRentals } from "./rental-list-api";
+import { getHandovers } from "./handover-api";
 
-const pageButtonClass = "inline-flex h-10 w-10 items-center justify-center rounded-control border border-line bg-surface text-ink-2 hover:bg-sunken disabled:opacity-40";
-
-export default function AdminRentalsPage() {
+export default function AdminRentalsPage({ handovers = false }: { handovers?: boolean }) {
   const params = useSearchParams();
   const rentalId = params.get("rentalId") ?? "";
-  const [status, setStatus] = useState("");
-  const [appliedStatus, setAppliedStatus] = useState("");
+  const { hasAnyRole, isLoading } = useAuth();
+  const allowed = hasAnyRole(["Admin", "Manager", "CustomerService"]);
+  const initial = { status: handovers ? "pending" : "", customerId: "", vehicleId: "", from: "", to: "" };
+  const [draft, setDraft] = useState(initial);
+  const [filter, setFilter] = useState(initial);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const validation = useInlineValidation();
   const query = useQuery({
-    queryKey: ["admin-rentals", appliedStatus, page, pageSize],
-    queryFn: ({ signal }) => getOperationalRentals({ status: appliedStatus || undefined, page, pageSize }, signal),
-    retry: false,
+    queryKey: [handovers ? "handovers" : "admin-rentals", filter, page, pageSize],
+    queryFn: async ({ signal }) => {
+      const request = { status: filter.status || undefined, customerId: filter.customerId ? Number(filter.customerId) : undefined, vehicleId: filter.vehicleId ? Number(filter.vehicleId) : undefined, from: filter.from ? new Date(filter.from).toISOString() : undefined, to: filter.to ? new Date(filter.to).toISOString() : undefined, page, pageSize };
+      if (!handovers) return getOperationalRentals(request, signal);
+      const result = await getHandovers(request, signal);
+      return { ...result, items: (result.items ?? []).map((item) => item.rental) };
+    }, enabled: allowed, retry: false,
   });
-  const items = query.data?.items ?? [];
-  const totalCount = query.data?.totalCount ?? 0;
-  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
-  const backendValidation = mapValidationErrors(query.error instanceof ApiClientError ? query.error.data : null, ["status"]);
-  const statusError = status === appliedStatus ? backendValidation.errors.status : undefined;
-  const filterValidation = { ...validation, errors: { ...(statusError ? { status: statusError } : {}), ...validation.errors } };
+  const mapped = mapValidationErrors(query.error instanceof ApiClientError ? query.error.data : null, Object.keys(draft));
   useEffect(() => {
-    if (query.error instanceof ApiClientError && mapValidationErrors(query.error.data, ["status"]).errors.status) {
-      document.getElementById("admin-rental-status")?.focus();
+    if (query.error instanceof ApiClientError) {
+      const first = Object.keys(mapValidationErrors(query.error.data, ["status", "customerId", "vehicleId", "from", "to"]).errors)[0];
+      const ids: Record<string, string> = { status: "status", customerId: "customer", vehicleId: "vehicle", from: "from", to: "to" };
+      if (first) document.getElementById(`rental-filter-${ids[first]}`)?.focus();
     }
   }, [query.error]);
-  const error = backendValidation.remaining.join(" ") || (Object.keys(backendValidation.errors).length ? "" : query.error instanceof ApiClientError && query.error.status === 403
-    ? "Tài khoản không có quyền xem danh sách đơn thuê."
-    : "Không thể tải danh sách đơn thuê. Vui lòng thử lại.");
-
+  const filterErrors = Object.fromEntries(Object.entries(mapped.errors).filter(([key]) => draft[key as keyof typeof draft] === filter[key as keyof typeof filter]));
+  const items = query.error ? [] : query.data?.items ?? [];
+  if (isLoading) return <p role="status">Đang kiểm tra quyền truy cập...</p>;
+  if (!allowed) return <p role="alert" className="text-sm text-danger">Bạn không có quyền xem danh sách này.</p>;
   return <div className="space-y-6">
-    <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Đơn thuê xe</h1><p className="mt-2 text-sm text-ink-3">Tất cả yêu cầu đặt xe và đơn thuê chính thức. Chọn biểu tượng xem để mở chi tiết và vận hành.</p></div>
-    <ValidatedForm validation={filterValidation} onSubmit={() => { setAppliedStatus(status); setPage(1); }}>
-      <AdminFilterBar title="Lọc đơn thuê" actions={<>
-        <AdminFilterButton type="submit">Lọc danh sách</AdminFilterButton>
-        <AdminFilterButton variant="secondary" disabled={!status && !appliedStatus} onClick={() => { setStatus(""); setAppliedStatus(""); setPage(1); validation.reset(); }}>Đặt lại</AdminFilterButton>
-      </>}>
-        <AdminFilterField label="Trạng thái đơn thuê" htmlFor="admin-rental-status" select>
-          <InlineSelect id="admin-rental-status" name="status" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Tất cả trạng thái</option>{Object.entries(rentalStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</InlineSelect>
-        </AdminFilterField>
+    <header><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{handovers ? "Bàn giao xe" : "Đơn thuê xe"}</h1><p className="mt-2 text-sm text-ink-3">Mã yêu cầu dùng để tra cứu và thao tác. Mã đơn chính thức xuất hiện sau thanh toán, hoặc sau duyệt với gói trả trước.</p></header>
+    <ValidatedForm validation={{ ...validation, errors: { ...filterErrors, ...validation.errors } }} validate={() => draft.from && draft.to && new Date(draft.to) < new Date(draft.from) ? { to: "Ngày kết thúc phải từ ngày bắt đầu trở đi." } : {}} onSubmit={() => { setFilter({ ...draft }); setPage(1); }}>
+      <AdminFilterBar title="Lọc danh sách" actions={<><AdminFilterButton type="submit">Áp dụng</AdminFilterButton><AdminFilterButton variant="secondary" onClick={() => { setDraft(initial); setFilter(initial); setPage(1); validation.reset(); }}>Đặt lại</AdminFilterButton></>}>
+        <AdminFilterField label="Trạng thái" htmlFor="rental-filter-status" select><InlineSelect id="rental-filter-status" name="status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>{handovers ? <><option value="pending">Chờ bàn giao</option><option value="completed">Đã bàn giao</option><option value="all">Tất cả</option></> : <><option value="">Tất cả</option>{Object.entries(rentalStatuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</>}</InlineSelect></AdminFilterField>
+        <AdminFilterField label="Mã khách hàng" htmlFor="rental-filter-customer"><InlineInput id="rental-filter-customer" name="customerId" type="number" min="1" step="1" value={draft.customerId} onChange={(event) => setDraft({ ...draft, customerId: event.target.value })} /></AdminFilterField>
+        <AdminFilterField label="Mã phương tiện" htmlFor="rental-filter-vehicle"><InlineInput id="rental-filter-vehicle" name="vehicleId" type="number" min="1" step="1" value={draft.vehicleId} onChange={(event) => setDraft({ ...draft, vehicleId: event.target.value })} /></AdminFilterField>
+        <AdminFilterField label="Từ ngày giờ" htmlFor="rental-filter-from"><InlineInput id="rental-filter-from" name="from" type="datetime-local" value={draft.from} onChange={(event) => setDraft({ ...draft, from: event.target.value })} /></AdminFilterField>
+        <AdminFilterField label="Đến ngày giờ" htmlFor="rental-filter-to"><InlineInput id="rental-filter-to" name="to" type="datetime-local" value={draft.to} onChange={(event) => setDraft({ ...draft, to: event.target.value })} /></AdminFilterField>
       </AdminFilterBar>
     </ValidatedForm>
-    {query.error && error && <p role="alert" className="text-sm text-danger">{error} <button type="button" className="font-semibold underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
+    {query.error && <p role="alert" className="text-sm text-danger">{mapped.remaining.join(" ") || (Object.keys(mapped.errors).length ? "Vui lòng sửa bộ lọc theo hướng dẫn tại từng trường." : operationalError(query.error))} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
     <AdminTableCard>
-      <div className="border-b border-line px-5 py-4"><h2 className="font-bold text-ink">Danh sách đơn thuê</h2><p aria-live="polite" className="mt-1 text-xs text-ink-3">{query.isPending ? "Đang tải đơn thuê..." : query.error ? "Chưa tải được danh sách" : `${totalCount.toLocaleString("vi-VN")} yêu cầu / đơn thuê`}</p></div>
-      <AdminTable className="min-w-[1100px]" aria-busy={query.isFetching}>
-        <caption className="sr-only">Tất cả yêu cầu đặt xe và đơn thuê chính thức</caption>
-        <thead><tr>{["Mã yêu cầu / đơn", "Khách hàng", "Phương tiện", "Thời gian thuê", "Hình thức lái", "Tổng tiền", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Xem chi tiết</th></tr></thead>
-        <tbody>
-          {query.isFetching ? <AdminTableSkeleton columns={8} label="Đang tải danh sách đơn thuê" /> : !query.error && items.map((rental) => <tr key={rental.id}>
-            <td className="whitespace-nowrap text-sm"><p className="font-semibold">Yêu cầu #{rental.id}</p>{rental.orderId && <p className="mt-1 text-xs text-ink-3">Đơn #{rental.orderId}</p>}</td>
-            <td><p className="font-semibold text-ink">{rental.customerName?.trim() || rental.customerEmail || "Chưa có tên khách hàng"}</p><p className="mt-1 text-xs text-ink-3">{rental.customerEmail}</p></td>
-            <td><VehicleName vehicleId={rental.vehicleId} /></td>
-            <td className="whitespace-nowrap text-xs tabular-nums"><p>Nhận: {formatAdminDateTime(rental.startTime)}</p><p className="mt-1 text-ink-3">Trả: {formatAdminDateTime(rental.endTime)}</p></td>
-            <td><p>{rental.hasDriver ? "Có tài xế" : "Tự lái"}</p>{rental.hasDriver && <p className="mt-1 text-xs text-ink-3">{rental.driverName?.trim() || "Chưa phân công tài xế"}</p>}</td>
-            <td className="whitespace-nowrap font-mono tabular-nums">{rental.totalPrice.toLocaleString("vi-VN")} đ</td>
-            <td><AdminStatusBadge domain="rental" status={rental.status}>{rentalStatuses[rental.status] ?? "Chưa xác định"}</AdminStatusBadge><p className="mt-2 text-xs text-ink-3">{rental.orderId ? "Đơn thuê chính thức" : "Yêu cầu đặt xe"}</p></td>
-            <td data-actions><AdminRowAction action="view" href={`/admin/rentals?rentalId=${rental.id}#rental-detail`} label={`Xem chi tiết đơn thuê của ${rental.customerName?.trim() || rental.customerEmail || "khách hàng"}`} /></td>
-          </tr>)}
-          {!query.isFetching && !query.error && !items.length && <AdminTableEmptyRow colSpan={8}>Không có đơn thuê phù hợp. Hãy thử đặt lại bộ lọc.</AdminTableEmptyRow>}
-        </tbody>
+      <AdminTable aria-busy={query.isFetching} className="min-w-[960px]">
+        <caption className="sr-only">{handovers ? "Danh sách bàn giao xe" : "Danh sách yêu cầu và đơn thuê"}</caption>
+        <thead><tr>{["Khách hàng", "Phương tiện", "Thời gian thuê", "Hình thức lái", "Tổng tiền", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
+        <tbody>{query.isFetching ? <AdminTableSkeleton columns={7} label="Đang tải danh sách..." /> : items.map((rental) => <tr key={rental.id}>
+          <td><p className="font-semibold">{rental.customerName || rental.customerEmail || "Chưa có tên khách hàng"}</p><p className="text-xs text-ink-3">{rental.customerEmail}</p></td>
+          <td><VehicleName vehicleId={rental.vehicleId} /></td><td className="text-xs"><p>{formatAdminDateTime(rental.startTime)}</p><p>{formatAdminDateTime(rental.endTime)}</p></td>
+          <td>{rental.hasDriver ? rental.driverName || "Chưa phân tài xế" : "Tự lái"}</td><td>{rental.totalPrice.toLocaleString("vi-VN")} đ</td>
+          <td><AdminStatusBadge domain="rental" status={rental.status}>{rentalStatuses[rental.status] ?? rental.status}</AdminStatusBadge></td>
+          <td data-actions><AdminRowAction action="view" href={`/admin/${handovers ? "handovers" : "rentals"}?rentalId=${rental.id}#rental-detail`} label={`Xem yêu cầu của ${rental.customerName || rental.customerEmail || "khách hàng"}`} /></td>
+        </tr>)}{!query.isFetching && !items.length && <AdminTableEmptyRow colSpan={7}>{query.error ? "Chưa tải được dữ liệu." : "Không có kết quả phù hợp."}</AdminTableEmptyRow>}</tbody>
       </AdminTable>
-      <div className="flex flex-col gap-3 border-t border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex flex-wrap items-center gap-3 text-xs text-ink-3">Số đơn thuê mỗi trang<select aria-label="Số đơn thuê mỗi trang" className="h-10 rounded-control border border-line-strong bg-surface px-3 text-sm text-ink" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}</select></label>
-        <nav aria-label="Phân trang đơn thuê" className="flex items-center gap-3"><span className="text-xs text-ink-3">Trang {page} / {pageCount}</span><button type="button" aria-label="Trang trước" disabled={page <= 1 || query.isFetching} onClick={() => setPage((current) => current - 1)} className={pageButtonClass}><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button><button type="button" aria-label="Trang sau" disabled={page >= pageCount || query.isFetching || !!query.error} onClick={() => setPage((current) => current + 1)} className={pageButtonClass}><ChevronRight aria-hidden="true" className="h-4 w-4" /></button></nav>
-      </div>
+      <div className="border-t border-line px-5 pt-4"><label className="text-xs text-ink-3">Số mục mỗi trang <select className="admin-input ml-2" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}</select></label></div>
+      <ResultPagination page={query.data?.page ?? page} pageSize={query.data?.pageSize ?? pageSize} totalCount={query.data?.totalCount ?? 0} busy={query.isFetching || !!query.error} onPage={setPage} />
     </AdminTableCard>
-    {/^[1-9]\d*$/.test(rentalId) && <div id="rental-detail" className="scroll-mt-24"><RentalOperations key={rentalId} /></div>}
+    {/^[1-9]\d*$/.test(rentalId) && <div id="rental-detail" className="scroll-mt-24">{handovers ? <HandoverPanel key={rentalId} rentalId={rentalId} /> : <RentalOperations key={rentalId} />}</div>}
   </div>;
 }

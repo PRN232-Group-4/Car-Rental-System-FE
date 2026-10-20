@@ -45,7 +45,7 @@ export function TripCard({ trip }: TripCardProps) {
             <TripStatusBadge status={status} />
           </div>
 
-          {/* Thời gian nhận - trả GMT+7 */}
+          <p className="text-xs text-ink-3">Mã yêu cầu: #{trip.id}{trip.orderId ? ` · Mã đơn chính thức: #${trip.orderId}` : " · Chưa phát hành đơn chính thức"}</p>
           <div className="space-y-1 text-xs text-ink-2 font-mono bg-sunken rounded-xl p-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" />
@@ -78,7 +78,7 @@ export function TripCard({ trip }: TripCardProps) {
             </span>
             {isSubscription ? (
               <span className="font-mono text-sm font-bold text-primary">
-                Trừ {subscriptionHoursUsed ?? 0} giờ gói
+                {subscriptionHoursUsed == null ? "Thanh toán theo gói" : `Trừ ${subscriptionHoursUsed} giờ gói`}
               </span>
             ) : (
               <span className="font-mono text-base font-bold text-ink">

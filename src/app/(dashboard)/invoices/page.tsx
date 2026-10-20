@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getInvoices, Invoice } from "@/features/invoices";
 
 export default function HoaDonPage() {
-  const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
+  const { data: invoices = [], isLoading, error, refetch } = useQuery<Invoice[]>({
     queryKey: ["invoices"],
     queryFn: getInvoices,
   });
@@ -29,7 +29,7 @@ export default function HoaDonPage() {
       const q = searchQuery.toLowerCase().trim();
       return (
         inv.invoiceNumber.toLowerCase().includes(q) ||
-        String(inv.rentalId).includes(q)
+        String(inv.rentalId).includes(q) || (inv.orderId != null && String(inv.orderId).includes(q))
       );
     }
     return true;
@@ -145,6 +145,8 @@ export default function HoaDonPage() {
             <div key={i} className="h-28 rounded-2xl bg-surface border border-line animate-pulse" />
           ))}
         </div>
+      ) : error ? (
+        <p role="alert" className="text-sm text-danger">{error instanceof Error ? error.message : "Không tải được hóa đơn."} <button type="button" className="underline" onClick={() => void refetch()}>Thử lại</button></p>
       ) : filteredInvoices.length === 0 ? (
         <div className="p-12 rounded-3xl bg-surface border border-dashed border-line-strong text-center space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-sunken text-ink-3 flex items-center justify-center mx-auto">
@@ -177,7 +179,7 @@ export default function HoaDonPage() {
                       {getStatusBadge(inv.status)}
                     </div>
                     <div className="text-xs text-ink-3 flex flex-wrap items-center gap-3">
-                      <span>Mã chuyến xe: #{inv.rentalId}</span>
+                      <span>Mã yêu cầu: #{inv.rentalId}{inv.orderId ? ` · Mã đơn chính thức: #${inv.orderId}` : ""}</span>
                       <span>·</span>
                       <span>Ngày lập: {new Date(inv.issuedAt).toLocaleDateString("vi-VN")}</span>
                       {inv.dueAt && (

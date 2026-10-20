@@ -29,7 +29,7 @@ export default function CustomerRentals() {
     <header><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Đơn thuê của tôi</h1><p className="mt-2 text-sm text-ink-3">Theo dõi yêu cầu đặt xe và tiến trình thuê xe của bạn.</p></header>
     {params.has("rentalId") && !validSelection && <p role="alert" className="text-sm text-danger">Mã yêu cầu không hợp lệ. Vui lòng chọn một yêu cầu trong danh sách bên dưới.</p>}
     {validSelection && <section id="rental-progress" className={panel} aria-busy={detail.isFetching}>
-      {detail.isPending ? <FormSkeleton label="Đang tải tiến trình thuê xe" fields={3} /> : detail.error ? <p role="alert" className="text-sm text-danger">{errorText(detail.error)} <button type="button" className="underline" onClick={() => void detail.refetch()}>Thử lại</button></p> : rental && <>
+      {detail.isPending ? <FormSkeleton label="Đang tải tiến trình thuê xe" fields={3} /> : detail.error ? <p role="alert" className="text-sm text-danger">{errorText(detail.error)} <button type="button" className="underline" onClick={() => void detail.refetch()}>Thử lại</button></p> : rental && !detail.error && <>
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{rental.orderId ? `Đơn thuê chính thức #${rental.orderId}` : `Yêu cầu thuê #${rental.id}`}</h2><button type="button" onClick={() => void refresh()} disabled={detail.isFetching} className="text-sm font-semibold text-primary underline disabled:opacity-50">Cập nhật trạng thái</button></div>
         <RentalStatusTracker status={rental.status} />
         <p className="font-semibold">{rental.vehicle.brand} {rental.vehicle.model}</p>

@@ -24,20 +24,10 @@ export interface CustomerLicenseDetail extends CustomerLicenseSummary {
   license: ReviewableLicense | null;
 }
 
-/** Fetch every backend page so client-side status filtering includes all customers. */
-export async function getCustomerLicenses(search = ""): Promise<CustomerLicenseSummary[]> {
-  const records: CustomerLicenseSummary[] = [];
-  let page = 1;
-  while (true) {
-    const result = await backendApiClient.get<PagedResult<CustomerLicenseSummary>>("customers", {
-      Search: search.trim() || undefined, Page: page, PageSize: 100,
-    });
-    const items = result.items ?? [];
-    records.push(...items);
-    if (!items.length || records.length >= result.totalCount) break;
-    page += 1;
-  }
-  return records;
+export function getCustomerLicenses(search = "", licenseStatus = "pending", page = 1, pageSize = 20) {
+  return backendApiClient.get<PagedResult<CustomerLicenseSummary>>("customers", {
+    search: search.trim() || undefined, licenseStatus: licenseStatus || undefined, page, pageSize,
+  });
 }
 
 export function getCustomerLicenseDetail(customerId: number) {

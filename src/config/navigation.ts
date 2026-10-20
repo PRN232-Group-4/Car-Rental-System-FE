@@ -17,6 +17,8 @@ import {
   Calendar,
   Compass,
   MessageSquareWarning,
+  MapPin,
+  ShieldAlert,
   Star,
 } from "lucide-react";
 import type { Role } from "@/features/auth/roles";
@@ -51,6 +53,7 @@ export const CUSTOMER_NAV_ITEMS: readonly NavItem[] = [
     roles: ["Customer"],
   },
   { href: "/booking", label: "Đặt xe", icon: Car },
+  { href: "/nearby-vehicles", label: "Xe gần đây", icon: MapPin },
   {
     href: "/driver-license",
     label: "Giấy phép lái xe (GPLX)",
@@ -110,8 +113,10 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     href: "/admin/rentals",
     label: "Vận hành đơn thuê",
     icon: ReceiptText,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+    roles: ["Admin", "Manager", "CustomerService"],
   },
+  { href: "/admin/handovers", label: "Bàn giao xe", icon: KeyRound, roles: ["Admin", "Manager", "CustomerService"] },
+  { href: "/admin/tracking", label: "Vùng địa lý và cảnh báo", icon: ShieldAlert, roles: ["Admin", "Manager"] },
   {
     href: "/admin/reports",
     label: "Báo cáo sự cố",
