@@ -123,10 +123,11 @@ export function RentalWorkspaceV4() {
   const [queueFilter, setQueueFilter] = useState<string>("all");
   const [queueSearch, setQueueSearch] = useState<string>("");
 
-  // Sync with URL query parameter
+  // Sync with URL query parameter.
   useEffect(() => {
     const q = params.get("rentalId");
     if (q && q !== lookupId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- form phải theo ?rentalId= khi điều hướng từ trang khác; tách thành state dẫn xuất sẽ mất khả năng tra cứu thủ công.
       setIdInput(q);
       setLookupId(q);
     }
@@ -220,7 +221,7 @@ export function RentalWorkspaceV4() {
       return { status: "loading", id: lookupId };
     }
     if (rentalError) {
-      const err = rentalError as any;
+      const err = rentalError as { status?: number; response?: { status?: number } } | null;
       const httpStatus = err?.status ?? err?.response?.status;
       const msg = operationalError(rentalError);
       if (httpStatus === 404 || msg.includes("không tìm thấy") || msg.toLowerCase().includes("not found")) {
@@ -287,9 +288,10 @@ export function RentalWorkspaceV4() {
   const [pendingTargetStatus, setPendingTargetStatus] = useState<string | null>(null);
   const confirmModalRef = useRef<HTMLDivElement>(null);
 
-  // Pre-fill fields when active rental loads
+  // Pre-fill fields when active rental loads.
   useEffect(() => {
     if (activeRental) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- form điều phối cần reset theo hồ sơ vừa mở; muốn bỏ hẳn phải tách thành component con có key={activeRental.id}.
       setSelectedStatus(activeRental.status);
       setAssignMessage(null);
       setStatusMessage(null);

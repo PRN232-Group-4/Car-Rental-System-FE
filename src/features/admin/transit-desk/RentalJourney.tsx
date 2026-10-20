@@ -77,10 +77,11 @@ export function RentalJourney() {
   const [idInput, setIdInput] = useState(initialRentalId);
   const [lookupId, setLookupId] = useState(initialRentalId);
 
-  // Sync with URL query parameter
+  // Sync with URL query parameter.
   useEffect(() => {
     const q = params.get("rentalId");
     if (q && q !== lookupId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- giữ đồng bộ với ?rentalId= khi điều hướng; component chưa được route nào dùng (dead code chờ quyết định).
       setIdInput(q);
       setLookupId(q);
     }
