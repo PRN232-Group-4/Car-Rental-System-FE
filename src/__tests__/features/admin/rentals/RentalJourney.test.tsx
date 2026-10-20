@@ -49,7 +49,7 @@ const mockAdminSession: SessionContextType = {
   login: vi.fn(),
   logout: vi.fn(),
   hasRole: (r: string) => r.toLowerCase() === "admin",
-  hasAnyRole: (roles: readonly any[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
+  hasAnyRole: (roles: readonly string[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
   refreshProfile: vi.fn(),
 };
 
@@ -107,7 +107,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as any);
+    const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as never);
 
     renderWithClient(<RentalOperationsPage />);
 
@@ -130,7 +130,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("hiển thị modal xác nhận khi chuyển sang trạng thái cuối (completed hoặc cancelled)", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as any);
+    const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
 
     renderWithClient(<RentalOperationsPage />);
 

@@ -144,8 +144,6 @@ export function TransitDeskRouteIndex({
   useEffect(() => {
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
-      setQuery("");
-      setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
 
       const prefersReduced =

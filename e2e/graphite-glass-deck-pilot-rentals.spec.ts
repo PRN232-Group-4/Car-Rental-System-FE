@@ -1,4 +1,10 @@
 import { test, expect } from "@playwright/test";
+import type { Page, PageScreenshotOptions } from "@playwright/test";
+
+type LiquidProbeWindow = Window & {
+  __liquidPerformanceReport?: { avgJsWorkMs: number; [key: string]: unknown };
+  __setLiquidProgress?: (progress: number, theme?: "light" | "dark") => void;
+};
 import fs from "fs";
 import path from "path";
 
@@ -14,7 +20,7 @@ for (const dir of targetDirs) {
   }
 }
 
-async function saveMultiScreenshot(page: any, filename: string, options?: any) {
+async function saveMultiScreenshot(page: Page, filename: string, options?: PageScreenshotOptions) {
   const primaryPath = path.join(targetDirs[0], filename);
   await page.screenshot({ path: primaryPath, ...options });
   for (let i = 1; i < targetDirs.length; i++) {
@@ -353,7 +359,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     expect(currentTheme).toBe("light");
 
     // Read real telemetry
-    const telemetry = await page.evaluate(() => (window as any).__liquidPerformanceReport);
+    const telemetry = await page.evaluate(() => (window as LiquidProbeWindow).__liquidPerformanceReport);
     if (telemetry) {
       expect(telemetry.avgJsWorkMs).toBeLessThan(5.0); // JS work well below frame budget
       const telePath = path.join(targetDirs[0], "pilot-liquid-telemetry.json");
@@ -367,7 +373,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     await page.waitForLoadState("networkidle");
 
     // Ensure helper is present
-    const hasProgressHelper = await page.evaluate(() => typeof (window as any).__setLiquidProgress === "function");
+    const hasProgressHelper = await page.evaluate(() => typeof (window as LiquidProbeWindow).__setLiquidProgress === "function");
     expect(hasProgressHelper).toBe(true);
 
     const checkpoints = [
@@ -382,7 +388,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
 
     for (const cp of checkpoints) {
       await page.evaluate(({ p }) => {
-        (window as any).__setLiquidProgress(p, "light");
+        (window as LiquidProbeWindow).__setLiquidProgress?.(p, "light");
       }, cp);
       await page.waitForTimeout(100);
 

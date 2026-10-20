@@ -421,12 +421,14 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
         </div>
       </main>
 
-      {/* Route Index Command Dialog */}
-      <TransitDeskRouteIndex
-        isOpen={isRouteIndexOpen}
-        onClose={() => setIsRouteIndexOpen(false)}
-        userRoles={userRoles}
-      />
+      {/* Route Index Command Dialog — mount lại mỗi lần mở để state (query, chọn) tự reset */}
+      {isRouteIndexOpen && (
+        <TransitDeskRouteIndex
+          isOpen
+          onClose={() => setIsRouteIndexOpen(false)}
+          userRoles={userRoles}
+        />
+      )}
 
       {/* Global A1.1 Organic Liquid Flood Transition */}
       <RentalLiquidTransition />

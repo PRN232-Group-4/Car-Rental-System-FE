@@ -46,7 +46,7 @@ const mockAdminSession: SessionContextType = {
   login: vi.fn(),
   logout: vi.fn(),
   hasRole: (r: string) => r.toLowerCase() === "admin",
-  hasAnyRole: (roles: readonly any[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
+  hasAnyRole: (roles: readonly string[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
   refreshProfile: vi.fn(),
 };
 
@@ -58,7 +58,7 @@ const mockStaffSession: SessionContextType = {
   login: vi.fn(),
   logout: vi.fn(),
   hasRole: (r: string) => r.toLowerCase() === "staff",
-  hasAnyRole: (roles: readonly any[]) => roles.map((x) => String(x).toLowerCase()).includes("staff"),
+  hasAnyRole: (roles: readonly string[]) => roles.map((x) => String(x).toLowerCase()).includes("staff"),
   refreshProfile: vi.fn(),
 };
 
@@ -243,7 +243,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("opens confirmation modal on terminal transition, handles Escape and confirms transition", async () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
-      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as any);
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -285,7 +285,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("opens distinct cancellation modal when cancelled status is chosen", async () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
-      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as any);
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -356,13 +356,13 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
       try {
         // Enforce production environment
-        (process.env as any).NODE_ENV = "production";
+        (process.env as Record<string, string | undefined>).NODE_ENV = "production";
         delete process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK;
 
         // Calling ID 101 when backend is unreachable MUST throw and NOT return mock object
         await expect(operationsApi.getOperationalRental(101)).rejects.toThrow();
       } finally {
-        (process.env as any).NODE_ENV = originalEnv;
+        (process.env as Record<string, string | undefined>).NODE_ENV = originalEnv;
         if (originalFlag) {
           process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK = originalFlag;
         }
@@ -373,8 +373,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
   describe("Phase 3D Acceptance: Error Boundaries, Safe Currency, and Fail-Closed RBAC", () => {
     it("P0-B: renders distinct 404 state without phantom vehicle, NaN đ, or active commands when rental does not exist", async () => {
       mockSearchParams = new URLSearchParams("rentalId=4040");
-      const err: any = new Error("Not Found");
-      err.response = { status: 404 };
+      const err = Object.assign(new Error("Not Found"), { status: 404, data: null, response: { status: 404 } });
       vi.spyOn(operationsApi, "getOperationalRental").mockRejectedValueOnce(err);
 
       renderWithClient(<RentalWorkspaceV4 />);
@@ -397,8 +396,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("P0-B: renders distinct 403 Forbidden state when user lacks permission to access rental", async () => {
       mockSearchParams = new URLSearchParams("rentalId=4030");
-      const err: any = new Error("Forbidden");
-      err.response = { status: 403 };
+      const err = Object.assign(new Error("Forbidden"), { status: 403, data: null, response: { status: 403 } });
       vi.spyOn(operationsApi, "getOperationalRental").mockRejectedValueOnce(err);
 
       renderWithClient(<RentalWorkspaceV4 />);
@@ -415,7 +413,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     it("P0-B: renders distinct invalid-data state when payload fails structural validation (e.g. empty array)", async () => {
       mockSearchParams = new URLSearchParams("rentalId=9999");
       // Return invalid data (e.g. array instead of object)
-      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValueOnce([] as any);
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValueOnce([] as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -440,9 +438,9 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
         rentalType: "daily",
         startTime: "2026-10-18T10:00:00Z",
         endTime: "2026-10-20T10:00:00Z",
-        totalPrice: undefined as any,
-        depositPrice: null as any,
-        vatPrice: NaN as any,
+        totalPrice: undefined as unknown as number,
+        depositPrice: null as unknown as number,
+        vatPrice: Number.NaN as number,
         hasDriver: false,
         contractLink: null,
         signedAt: null,
