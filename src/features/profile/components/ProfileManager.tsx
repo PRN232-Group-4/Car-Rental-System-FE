@@ -4,7 +4,6 @@ import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSel
 
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
-import Link from "@/components/navigation/NavigationLink";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import {
   AlertCircle,
@@ -19,8 +18,8 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import Footer from "@/components/layout/Footer";
-import Navbar from "@/components/layout/Navbar";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   getAccountProfile,
   getCustomerLicense,
@@ -224,51 +223,48 @@ export default function ProfileManager() {
   const hasPendingStatus = isPendingStatus(licenseStatus) || isPending;
 
   return (
-    <div className="relative min-h-[100dvh] bg-td-paper text-td-ink">
-      <div className="pointer-events-none absolute inset-0 z-0 bg-td-paper" aria-hidden="true" />
-
-      <Navbar />
-
-      <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:px-6 lg:pt-36">
-        <div className="mb-7 flex items-center gap-2 text-sm text-td-muted">
-          <Link href="/" className="transition-colors hover:text-primary">Trang chủ</Link>
-          <span aria-hidden="true">/</span>
-          <span className="font-medium text-td-ink">Hồ sơ của tôi</span>
-        </div>
-
-        <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl text-balance">Quản lý hồ sơ</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-td-muted sm:text-base text-pretty">
-              Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo.
-            </p>
-          </div>
-          <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${
-            hasPendingStatus
-              ? "border-primary/30 bg-primary-tint text-warning"
-              : licenseStatus.toLowerCase().includes("approved")
-                ? "border-primary/30 bg-primary-tint text-warning"
-                : "border-td-rule bg-td-white/80 text-td-muted"
-          }`}>
-            {hasPendingStatus ? <Clock3 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+    <div className="relative text-td-ink">
+      <main className="relative z-10 w-full">
+        <TransitFolio
+          index="09"
+          tag="KH"
+          kicker="KHÁCH HÀNG · HỒ SƠ CÁ NHÂN"
+          title={<>Quản lý <em className="italic text-td-teal">hồ sơ.</em></>}
+          description="Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo."
+        >
+          <StatusBadge
+            status={
+              licenseStatus.toLowerCase().includes("approved")
+                ? "approved"
+                : hasPendingStatus
+                  ? "pending"
+                  : "unavailable"
+            }
+          >
             {statusLabel}
-          </div>
-        </div>
+          </StatusBadge>
+        </TransitFolio>
 
         {isLoading && <p role="status" className="mb-5 rounded border border-td-rule bg-td-white px-4 py-3 text-sm text-td-muted">Đang tải hồ sơ...</p>}
         {pageError && <p role="alert" className="mb-5 rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{pageError}</p>}
 
-        <section aria-label="Tiến trình xác minh hồ sơ" className="glass-card mb-8 rounded p-5 sm:p-7">
+        <section aria-label="Tiến trình xác minh hồ sơ" className="mb-8 rounded border border-td-rule bg-td-white p-5 sm:p-7">
           <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-lg font-bold text-td-ink">Trạng thái hồ sơ tài xế</h2>
               <p className="mt-1 text-sm text-td-muted">Hoàn tất các bước dưới đây để xác minh tài khoản.</p>
             </div>
-            <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
-              hasPendingStatus ? "bg-primary-tint text-warning" : "bg-td-chalk text-td-muted"
-            }`}>
+            <StatusBadge
+              status={
+                licenseStatus.toLowerCase().includes("approved")
+                  ? "approved"
+                  : hasPendingStatus
+                    ? "pending"
+                    : "unavailable"
+              }
+            >
               {licenseStatus ? licenseStatus.toLocaleUpperCase().replaceAll("_", " ") : "CHƯA HOÀN TẤT"}
-            </span>
+            </StatusBadge>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             <ProgressStep
@@ -294,7 +290,7 @@ export default function ProfileManager() {
         </section>
 
         <div className="grid items-start gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="glass-card rounded p-5 sm:p-7">
+          <section className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
             <div className="mb-6 flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
                 <UserRound className="h-6 w-6" />
@@ -373,7 +369,7 @@ export default function ProfileManager() {
           </section>
 
           <div className="space-y-6">
-            <section className="glass-card rounded p-5 sm:p-7">
+            <section className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
               <div className="mb-6 flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
                   <BadgeCheck className="h-6 w-6" />
@@ -488,7 +484,6 @@ export default function ProfileManager() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

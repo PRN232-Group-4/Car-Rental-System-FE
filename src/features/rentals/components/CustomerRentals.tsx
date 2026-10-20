@@ -26,7 +26,7 @@ export default function CustomerRentals() {
   const detail = useQuery({ queryKey: ["customer-rental", selected], queryFn: () => getCustomerRental(selected), enabled: validSelection, retry: false, refetchInterval: (query) => query.state.data && !["completed", "cancelled"].includes(query.state.data.status) ? 15000 : false });
   const refresh = () => Promise.all([detail.refetch(), cache.invalidateQueries({ queryKey: ["customer-rentals"] })]);
   const rental = detail.data;
-  return <div className="mx-auto max-w-5xl space-y-6">
+  return <div className="space-y-6">
     <TransitFolio
       index="09"
       tag="KH"

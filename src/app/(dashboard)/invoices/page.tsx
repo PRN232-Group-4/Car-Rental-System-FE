@@ -41,7 +41,7 @@ export default function HoaDonPage() {
   );
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-8">
       <TransitFolio
         index="09"
         tag="KH"
