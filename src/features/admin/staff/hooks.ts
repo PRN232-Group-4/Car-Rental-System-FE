@@ -10,8 +10,8 @@ import {
   getDriverSchedules,
   getAssignableDrivers,
   assignDriverToRental,
-  MOCK_DEPARTMENTS,
-  MOCK_FACILITIES,
+  getDepartments,
+  getFacilities,
 } from "./api";
 import type {
   StaffFilterParams,
@@ -55,7 +55,7 @@ export function useStaff(id: number) {
 export function useDepartments() {
   return useQuery({
     queryKey: STAFF_QUERY_KEYS.departments,
-    queryFn: async () => MOCK_DEPARTMENTS,
+    queryFn: getDepartments,
     staleTime: 5 * 60_000,
   });
 }
@@ -63,7 +63,7 @@ export function useDepartments() {
 export function useFacilities() {
   return useQuery({
     queryKey: STAFF_QUERY_KEYS.facilities,
-    queryFn: async () => MOCK_FACILITIES,
+    queryFn: getFacilities,
     staleTime: 5 * 60_000,
   });
 }

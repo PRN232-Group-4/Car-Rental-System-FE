@@ -16,9 +16,13 @@ import {
 import { Button } from "@/components/ui/Button";
 import BookingModal from "@/features/rentals/components/BookingModal";
 import { formatVnd } from "@/lib/format";
+import { useFleetVehicles } from "../use-fleet-vehicles";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { SkeletonBlock, Skeleton } from "@/components/ui/Skeleton";
 import type { Vehicle, VehicleCategory } from "@/features/vehicles/types";
 
 interface FleetVehicle {
+  vehicle: Vehicle;
   id: string;
   name: string;
   brand: string;
@@ -37,158 +41,30 @@ interface FleetVehicle {
   badges: string[];
 }
 
-const FLEET_DATA: FleetVehicle[] = [
-  // 1. Ô tô điện
-  {
-    id: "vf8-plus",
-    name: "VinFast VF 8 Plus",
-    brand: "VinFast",
-    model: "VF 8",
-    category: "electric_car",
-    categoryName: "Ô tô điện",
-    isElectric: true,
-    hasDriverOption: true,
-    seats: 5,
-    transmission: "Tự động điện tử",
-    powerFuel: "Pin 87.7 kWh · 402 hp",
-    rangeOrEfficiency: "471 km (WLTP)",
-    hourlyPrice: 160000,
-    monthlyPrice: 19500000,
-    imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1000&auto=format&fit=crop",
-    badges: ["100% THUẦN ĐIỆN", "ADAS CẤP 2+", "CÓ TÀI XẾ"],
-  },
-  {
-    id: "taycan-4s",
-    name: "Porsche Taycan 4S",
-    brand: "Porsche",
-    model: "Taycan 4S",
-    category: "electric_car",
-    categoryName: "Ô tô điện",
-    isElectric: true,
-    hasDriverOption: true,
-    seats: 5,
-    transmission: "Tự động 2 cấp",
-    powerFuel: "Pin 93.4 kWh · 522 hp",
-    rangeOrEfficiency: "450 km (WLTP)",
-    hourlyPrice: 380000,
-    monthlyPrice: 42000000,
-    imageUrl: "https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=1000&auto=format&fit=crop",
-    badges: ["SIÊU XE ĐIỆN", "TREO KHÍ NÉN", "CÓ TÀI XẾ"],
-  },
-  // 2. Ô tô xăng cao cấp
-  {
-    id: "mercedes-c200",
-    name: "Mercedes-Benz C200 Avantgarde",
-    brand: "Mercedes-Benz",
-    model: "C200",
-    category: "car",
-    categoryName: "Ô tô xăng",
-    isElectric: false,
-    hasDriverOption: true,
-    seats: 5,
-    transmission: "Tự động 9G-TRONIC",
-    powerFuel: "1.5L Turbo Mild-Hybrid",
-    rangeOrEfficiency: "6.5L / 100km",
-    hourlyPrice: 180000,
-    monthlyPrice: 22000000,
-    imageUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1000&auto=format&fit=crop",
-    badges: ["SEDAN HẠNG SANG", "CHÍNH CHỦ", "CÓ TÀI XẾ"],
-  },
-  {
-    id: "cx5-premium",
-    name: "Mazda CX-5 Premium Exclusive",
-    brand: "Mazda",
-    model: "CX-5",
-    category: "car",
-    categoryName: "Ô tô xăng",
-    isElectric: false,
-    hasDriverOption: false,
-    seats: 5,
-    transmission: "Tự động 6 cấp",
-    powerFuel: "2.0L SkyActiv-G",
-    rangeOrEfficiency: "7.1L / 100km",
-    hourlyPrice: 130000,
-    monthlyPrice: 16000000,
-    imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=1000&auto=format&fit=crop",
-    badges: ["SUV GIA ĐÌNH", "LOA BOSE", "TỰ LÁI"],
-  },
-  // 3. Xe máy điện thông minh
-  {
-    id: "datbike-weaver",
-    name: "Dat Bike Weaver++ Fast-Charge",
-    brand: "Dat Bike",
-    model: "Weaver++",
-    category: "electric_motorbike",
-    categoryName: "Xe máy điện",
-    isElectric: true,
-    hasDriverOption: false,
-    seats: 2,
-    transmission: "Tự động điện",
-    powerFuel: "Động cơ điện 7000W",
-    rangeOrEfficiency: "200 km / lần sạc",
-    hourlyPrice: 35000,
-    monthlyPrice: 2800000,
-    imageUrl: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1000&auto=format&fit=crop",
-    badges: ["SẠC NHANH 20P", "PIN CHỐNG NƯỚC", "TỰ LÁI"],
-  },
-  // 4. Xe máy xăng đô thị
-  {
-    id: "sh150i-abs",
-    name: "Honda SH 150i ABS Sport",
-    brand: "Honda",
-    model: "SH 150i",
-    category: "motorbike",
-    categoryName: "Xe máy xăng",
-    isElectric: false,
-    hasDriverOption: false,
-    seats: 2,
-    transmission: "Vô cấp CVT",
-    powerFuel: "Động cơ eSP+ 157cc",
-    rangeOrEfficiency: "2.2L / 100km",
-    hourlyPrice: 40000,
-    monthlyPrice: 3200000,
-    imageUrl: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=1000&auto=format&fit=crop",
-    badges: ["PHANH ABS 2 KÊNH", "SMARTKEY", "TỰ LÁI"],
-  },
-];
-
 type CategoryFilter = "all" | "electric_car" | "car" | "electric_motorbike" | "motorbike";
 
 export default function MultiFleetCatalog() {
+  const fleet = useFleetVehicles();
+  const fleetData: FleetVehicle[] = (fleet.data ?? []).map((vehicle) => ({
+    vehicle, id: String(vehicle.id), name: vehicle.name, brand: vehicle.brand ?? "", model: vehicle.model ?? "",
+    category: vehicle.category, categoryName: vehicle.categoryLabel,
+    isElectric: vehicle.category.includes("electric"), hasDriverOption: vehicle.hasDriverOption === true,
+    seats: vehicle.seats ?? 0, transmission: vehicle.transmission || "Chưa có dữ liệu",
+    powerFuel: vehicle.batteryCapacity || vehicle.fuelType || "Chưa có dữ liệu",
+    rangeOrEfficiency: vehicle.maxRange || "Chưa có dữ liệu",
+    hourlyPrice: vehicle.hourlyPrice, monthlyPrice: vehicle.monthlyPrice, imageUrl: vehicle.imageUrl, badges: vehicle.badges,
+  }));
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("all");
   const [onlyDriverOption, setOnlyDriverOption] = useState<boolean>(false);
   const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
 
-  const filteredVehicles = FLEET_DATA.filter((v) => {
+  const filteredVehicles = fleetData.filter((v) => {
     if (selectedCategory !== "all" && v.category !== selectedCategory) return false;
     if (onlyDriverOption && !v.hasDriverOption) return false;
     return true;
   });
 
-  const handleBookVehicle = (v: FleetVehicle) => {
-    const mockVehicle: Vehicle = {
-      id: v.id,
-      name: v.name,
-      category: v.category,
-      categoryLabel: v.categoryName,
-      brand: v.brand,
-      model: v.model,
-      year: 2026,
-      seats: v.seats,
-      transmission: v.transmission,
-      fuelType: v.isElectric ? "Thuần điện 100%" : "Xăng cao cấp",
-      hourlyPrice: v.hourlyPrice,
-      monthlyPrice: v.monthlyPrice,
-      supportsSubscription: true,
-      facilityId: "fac-q1",
-      facilityName: "Smart EV Hub Quận 1",
-      imageUrl: v.imageUrl,
-      status: "available",
-      isAvailable: true,
-      badges: v.badges,
-    };
-    setSelectedVehicleForBooking(mockVehicle);
-  };
+  const handleBookVehicle = (entry: FleetVehicle) => setSelectedVehicleForBooking(entry.vehicle);
 
   return (
     <section id="doi-xe" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
@@ -297,7 +173,7 @@ export default function MultiFleetCatalog() {
                 : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
             }`}
           >
-            Tất cả ({FLEET_DATA.length})
+            Tất cả ({fleetData.length})
           </button>
           <button
             type="button"
@@ -354,6 +230,8 @@ export default function MultiFleetCatalog() {
           <input
             type="checkbox"
             checked={onlyDriverOption}
+            disabled={fleet.isPending || !fleet.data?.some((vehicle) => vehicle.hasDriverOption !== undefined)}
+            title="Bộ lọc chỉ khả dụng khi API cung cấp tùy chọn tài xế"
             onChange={(e) => setOnlyDriverOption(e.target.checked)}
             className="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
           />
@@ -362,6 +240,9 @@ export default function MultiFleetCatalog() {
         </label>
       </div>
 
+      {fleet.isPending && <SkeletonBlock label="Đang tải danh mục xe" className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((key) => <Skeleton key={key} className="h-96 w-full" />)}</SkeletonBlock>}
+      {fleet.isError && <ErrorState message={fleet.error.message} onRetry={() => { void fleet.refetch(); }} />}
+      {!fleet.isPending && !fleet.isError && !filteredVehicles.length && <p role="status" className="py-8 text-center text-sm text-ink-2">Không có phương tiện phù hợp.</p>}
       {/* Vehicles Grid */}
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredVehicles.map((vehicle) => (
@@ -398,14 +279,14 @@ export default function MultiFleetCatalog() {
                   {vehicle.name}
                 </h3>
                 <p className="text-xs text-ink-3 mb-5">
-                  {vehicle.brand} {vehicle.model} · Đời 2026
+                  {vehicle.brand} {vehicle.model}{vehicle.vehicle.year ? ` · Đời ${vehicle.vehicle.year}` : ""}
                 </p>
 
                 {/* Specs Matrix */}
                 <div className="grid grid-cols-2 gap-3 mb-6 p-3.5 rounded-2xl bg-surface-raised text-xs">
                   <div className="flex items-center gap-2 text-ink-2">
                     <Users className="w-3.5 h-3.5 text-primary" />
-                    <span>{vehicle.seats} Chỗ ngồi</span>
+                    <span>{vehicle.seats ? `${vehicle.seats} Chỗ ngồi` : "Chưa có số chỗ"}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-ink-2">
@@ -448,6 +329,7 @@ export default function MultiFleetCatalog() {
 
                 <Button
                   onClick={() => handleBookVehicle(vehicle)}
+                  disabled={!vehicle.vehicle.isAvailable}
                   variant="amber-hero"
                   size="sm"
                   className="px-4 py-2 font-bold flex items-center gap-1.5"

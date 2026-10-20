@@ -9,6 +9,7 @@ import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft, Car } from "lucide-react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import { useInlineValidation, ValidatedForm, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
 function CreateStaffContent() {
   const router = useRouter();
@@ -16,9 +17,10 @@ function CreateStaffContent() {
   const { data: departments = [] } = useDepartments();
   const { data: facilities = [] } = useFacilities();
 
-  const [userId, setUserId] = useState<string>("6");
-  const [departmentId, setDepartmentId] = useState<number>(1);
-  const [facilityId, setFacilityId] = useState<number>(1);
+  const validation = useInlineValidation();
+  const [userId, setUserId] = useState<string>("");
+  const [departmentId, setDepartmentId] = useState<number>(0);
+  const [facilityId, setFacilityId] = useState<number>(0);
   const [hiredDate, setHiredDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -33,6 +35,7 @@ function CreateStaffContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (createStaffMutation.isPending) return;
     setValidationError(null);
 
     const parsedUserId = parseInt(userId, 10);
@@ -66,8 +69,8 @@ function CreateStaffContent() {
       });
 
       router.push(`/admin/staffs/detail?id=${created.id}`);
-    } catch {
-      // Toast lỗi đã hiển thị ở hook mutation
+    } catch (error) {
+      setValidationError(validation.report(error, { licenseexpirydate: "expiryDate", licenseissuedate: "issueDate", licensenumber: "licenseNumber", licensetype: "licenseType" }));
     }
   };
 
@@ -95,14 +98,15 @@ function CreateStaffContent() {
       />
 
       <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
-        <form onSubmit={handleSubmit} className="space-y-6 pt-2 border-t border-td-rule">
+        <ValidatedForm validation={validation} validate={() => isDriver && expiryDate && issueDate && expiryDate <= issueDate ? { expiryDate: "Ngày hết hạn GPLX phải sau ngày cấp." } : {}} onSubmit={handleSubmit} className="space-y-6 pt-2 border-t border-td-rule">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               label="Mã tài khoản người dùng (User ID)"
               required
               helperText="Nhập ID tài khoản đã tạo tại phân hệ Quản lý Người dùng"
             >
-              <input
+              <InlineInput
+                name="userId" required
                 type="number"
                 min="1"
                 value={userId}
@@ -113,7 +117,8 @@ function CreateStaffContent() {
             </FormField>
 
             <FormField label="Ngày vào làm việc" required>
-              <input
+              <InlineInput
+                name="hiredDate" required
                 type="date"
                 value={hiredDate}
                 onChange={(e) => setHiredDate(e.target.value)}
@@ -122,31 +127,35 @@ function CreateStaffContent() {
             </FormField>
 
             <FormField label="Phòng ban trực thuộc" required>
-              <select
-                value={departmentId}
+              <InlineSelect
+                name="departmentId" required
+                value={departmentId || ""}
                 onChange={(e) => setDepartmentId(parseInt(e.target.value, 10))}
                 className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
+                <option value="">Chọn phòng ban</option>
                 {departments.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.name}
                   </option>
                 ))}
-              </select>
+              </InlineSelect>
             </FormField>
 
             <FormField label="Trạm / Cơ sở công tác" required>
-              <select
-                value={facilityId}
+              <InlineSelect
+                name="facilityId" required
+                value={facilityId || ""}
                 onChange={(e) => setFacilityId(parseInt(e.target.value, 10))}
                 className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
+                <option value="">Chọn cơ sở</option>
                 {facilities.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
                   </option>
                 ))}
-              </select>
+              </InlineSelect>
             </FormField>
           </div>
 
@@ -173,7 +182,8 @@ function CreateStaffContent() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField label="Số GPLX">
-                    <input
+                    <InlineInput
+                      name="licenseNumber"
                       type="text"
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
@@ -183,7 +193,8 @@ function CreateStaffContent() {
                   </FormField>
 
                   <FormField label="Hạng bằng">
-                    <select
+                    <InlineSelect
+                      name="licenseType"
                       value={licenseType}
                       onChange={(e) => setLicenseType(e.target.value)}
                       className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-bold text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
@@ -193,11 +204,12 @@ function CreateStaffContent() {
                           Hạng {t}
                         </option>
                       ))}
-                    </select>
+                    </InlineSelect>
                   </FormField>
 
                   <FormField label="Ngày cấp">
-                    <input
+                    <InlineInput
+                      name="issueDate"
                       type="date"
                       value={issueDate}
                       onChange={(e) => setIssueDate(e.target.value)}
@@ -206,7 +218,8 @@ function CreateStaffContent() {
                   </FormField>
 
                   <FormField label="Ngày hết hạn">
-                    <input
+                    <InlineInput
+                      name="expiryDate"
                       type="date"
                       value={expiryDate}
                       onChange={(e) => setExpiryDate(e.target.value)}
@@ -219,7 +232,7 @@ function CreateStaffContent() {
           </div>
 
           {validationError && (
-            <div className="rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
+            <div role="alert" className="rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
               {validationError}
             </div>
           )}
@@ -240,7 +253,7 @@ function CreateStaffContent() {
               {createStaffMutation.isPending ? "Đang tạo..." : "Xác nhận tạo hồ sơ"}
             </Button>
           </div>
-        </form>
+        </ValidatedForm>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
   let category: VehicleCategory = "car";
   let categoryLabel = "Ô tô xăng";
 
-  if (rawType.includes("electric") && (rawType.includes("motor") || rawType.includes("xe máy"))) {
+  if ((rawType.includes("electric") || rawType.includes("điện")) && (rawType.includes("motor") || rawType.includes("xe máy"))) {
     category = "electric_motorbike";
     categoryLabel = "Xe máy điện";
   } else if (rawType.includes("motor") || rawType.includes("xe máy")) {
@@ -26,9 +26,9 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
   }
 
   const detail = (r.detail ?? r.Detail ?? {}) as Record<string, unknown>;
-  const year = Number(r.yearOfManufacture ?? r.YearOfManufacture ?? r.year ?? 2024);
-  const seats = detail.seatCount ? Number(detail.seatCount) : (r.seats ? Number(r.seats) : 5);
-  const transmission = String(detail.transmission ?? r.transmission ?? "Tự động");
+  const year = Number(r.yearOfManufacture ?? r.YearOfManufacture ?? r.year ?? 0);
+  const seats = detail.seatCount ? Number(detail.seatCount) : (r.seats ? Number(r.seats) : undefined);
+  const transmission = String(detail.transmission ?? r.transmission ?? "");
   const fuelType = category.includes("electric") ? "Điện" : String(r.fuelType ?? "Xăng");
   const batteryCapacity = detail.batteryCapacity ? String(detail.batteryCapacity) : undefined;
   const maxRange = detail.maxRangeKm ? `${detail.maxRangeKm} km` : (r.maxRange ? String(r.maxRange) : undefined);
@@ -47,7 +47,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
       ""
   );
 
-  const status = String(r.status ?? r.Status ?? "available").toLowerCase();
+  const status = String(r.status ?? r.Status ?? "unavailable").toLowerCase();
   const isAvailable = status === "available";
 
   const badges: string[] = Array.isArray(r.badges) ? [...r.badges as string[]] : [];
@@ -92,6 +92,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
     facilityName,
     imageUrl,
     modelUrl,
+    hasDriverOption: typeof r.driverAvailable === "boolean" ? r.driverAvailable : undefined,
     badges,
     isAvailable,
     supportsSubscription: true,

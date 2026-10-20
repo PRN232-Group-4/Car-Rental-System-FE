@@ -152,18 +152,16 @@ export function useAdjustLoyalty() {
       customerId,
       points,
       reason,
+      idempotencyKey,
     }: {
       customerId: number;
       points: number;
       reason: string;
-    }) => adjustCustomerLoyalty({ customerId, points, reason }),
-    onSuccess: (updated, variables) => {
+      idempotencyKey: string;
+    }) => adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }),
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
-      toast.success(
-        `Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm cho ${
-          updated.fullName
-        }`
-      );
+      toast.success(`Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm. Số dư mới: ${result.balanceAfter}.`);
     },
     onError: (err: unknown) => {
       const msg =
@@ -186,13 +184,9 @@ export function useReviewLicense() {
       customerId: number;
       status: "approved" | "rejected";
     }) => reviewCustomerLicense({ customerId, status }),
-    onSuccess: (updated, variables) => {
+    onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
-      toast.success(
-        variables.status === "approved"
-          ? `Đã phê duyệt GPLX cho ${updated.fullName}`
-          : `Đã từ chối GPLX của ${updated.fullName}`
-      );
+      toast.success(variables.status === "approved" ? "Đã phê duyệt GPLX." : "Đã từ chối GPLX.");
     },
     onError: (err: unknown) => {
       const msg =

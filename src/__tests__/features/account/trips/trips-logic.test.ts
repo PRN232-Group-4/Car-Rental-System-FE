@@ -1,4 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { backendApiClient } from "@/api/backend-api-client";
+afterEach(() => vi.restoreAllMocks());
 import { getTripRemainingTime } from "@/features/account/trips/hooks";
 import { fetchCancellationPreview } from "@/features/account/trips/api";
 
@@ -29,7 +31,7 @@ describe("FE-07 My Trips — Unit Logic Tests", () => {
 
   describe("Cancellation Preview Rules", () => {
     it("hủy trước 24 giờ nhận xe được miễn phí 100%", async () => {
-      // Đơn id 101 là đơn pending cách 48 giờ
+      vi.spyOn(backendApiClient, "get").mockResolvedValue({ allowed: true, feeAmount: 0, refundAmount: 2700000, reasons: ["Hủy miễn phí"], freeUntil: "2027-01-01T00:00:00Z" });
       const preview = await fetchCancellationPreview(101);
       expect(preview.canCancel).toBe(true);
       expect(preview.cancellationFee).toBe(0);

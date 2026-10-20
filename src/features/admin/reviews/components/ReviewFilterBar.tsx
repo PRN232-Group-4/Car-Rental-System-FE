@@ -22,7 +22,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
             <input
               id="review-search"
               type="text"
-              placeholder="Tìm theo nhân viên, khách, nhận xét..."
+              placeholder="Tìm theo nhân viên hoặc nhận xét..."
               value={filters.search ?? ""}
               onChange={(e) => onChange({ ...filters, search: e.target.value || undefined })}
               className="w-full bg-transparent text-xs text-td-ink placeholder:text-td-muted focus:border-td-ink focus:outline-none"
@@ -62,6 +62,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
           </label>
           <select
             id="review-status"
+            disabled title="API chưa cung cấp trạng thái kiểm duyệt"
             value={filters.status ?? "all"}
             onChange={(e) =>
               onChange({
@@ -82,6 +83,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            disabled title="API chưa hỗ trợ phản hồi đánh giá"
             onClick={() =>
               onChange({
                 ...filters,
