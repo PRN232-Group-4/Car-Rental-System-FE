@@ -15,6 +15,7 @@ import {
 } from "@/features/admin/api";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import TransitDeskStatus from "./TransitDeskStatus";
+import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus } from "lucide-react";
 
@@ -130,44 +131,27 @@ export function FleetRegistry() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Top Folio */}
-      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
-        <div className="flex items-start gap-5">
-          <span className="font-mono text-xs font-bold text-td-oxide border-t-2 border-td-oxide pt-1 min-w-[42px]">
-            02<br />FLT
-          </span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
-              TÀI SẢN · ĐỘI XE
-            </span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Sổ <em className="italic text-td-teal">phương tiện.</em>
-            </h1>
-            <p className="mt-2 max-w-xl text-xs sm:text-sm text-td-muted leading-relaxed">
-              Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 self-start sm:self-end">
-          <div className="border-l border-td-rule pl-4 text-right">
-            <span className="block font-mono text-[10px] text-td-muted tracking-wider">
-              FLEET REGISTRY · TỔNG QUY MÔ
-            </span>
-            <strong className="block font-sans text-3xl font-bold tracking-tight text-td-ink">
-              {loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
-            </strong>
-          </div>
-          {canManage && (
-            <Link
-              href="/admin/vehicles/new"
-              className="inline-flex items-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white hover:bg-td-oxide-hover transition-colors whitespace-nowrap shrink-0"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Đăng ký xe mới</span>
-            </Link>
-          )}
-        </div>
-      </div>
+      <TransitFolio
+        index="02"
+        tag="FLT"
+        kicker="TÀI SẢN · ĐỘI XE"
+        title={<>Sổ <em className="italic text-td-teal">phương tiện.</em></>}
+        description="Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi."
+      >
+        <TransitFolioMetric
+          label="FLEET REGISTRY · TỔNG QUY MÔ"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
+        />
+        {canManage && (
+          <Link
+            href="/admin/vehicles/new"
+            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Đăng ký xe mới</span>
+          </Link>
+        )}
+      </TransitFolio>
 
       {/* Toolbar: Search + Status Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-td-ink pb-4">

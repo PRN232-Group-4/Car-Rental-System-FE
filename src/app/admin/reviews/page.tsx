@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Star, ShieldAlert, CheckCircle2, MessageSquare, ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
-import { StatCard } from "@/components/ui/StatCard";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { formatDateTime } from "@/lib/time";
 import { RatingStars } from "@/features/admin/reviews/components/RatingStars";
 import { RatingDistribution } from "@/features/admin/reviews/components/RatingDistribution";
@@ -45,12 +45,12 @@ export default function AdminReviewsPage() {
         header: "Nhân sự được đánh giá",
         cell: ({ row }) => (
           <div className="flex items-center gap-2.5 py-0.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-td-chalk text-xs font-bold text-td-oxide">
               {row.original.staff.fullName.charAt(0)}
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-ink">{row.original.staff.fullName}</span>
-              <span className="text-[11px] text-ink-3">
+              <span className="font-semibold text-td-ink">{row.original.staff.fullName}</span>
+              <span className="text-[11px] text-td-muted">
                 {row.original.staff.isDriver ? "Tài xế" : "Nhân viên"}
               </span>
             </div>
@@ -68,7 +68,7 @@ export default function AdminReviewsPage() {
         accessorKey: "commentPreview",
         header: "Nội dung nhận xét",
         cell: ({ row }) => (
-          <p className="line-clamp-2 max-w-sm text-xs text-ink-2">
+          <p className="line-clamp-2 max-w-sm text-xs text-td-muted">
             {row.original.commentPreview}
           </p>
         ),
@@ -77,7 +77,7 @@ export default function AdminReviewsPage() {
         accessorKey: "customerName",
         header: "Khách hàng",
         cell: ({ row }) => (
-          <span className="text-xs font-semibold text-ink">
+          <span className="text-xs font-semibold text-td-ink">
             {row.original.customerName}
           </span>
         ),
@@ -86,7 +86,7 @@ export default function AdminReviewsPage() {
         accessorKey: "rentalId",
         header: "Đơn thuê",
         cell: ({ row }) => (
-          <span className="inline-flex items-center rounded-lg border border-line bg-sunken px-2 py-0.5 font-mono text-xs text-ink-2">
+          <span className="inline-flex items-center rounded border border-td-rule bg-td-chalk px-2 py-0.5 font-mono text-[11px] text-td-ink">
             #{row.original.rentalId}
           </span>
         ),
@@ -96,7 +96,11 @@ export default function AdminReviewsPage() {
         header: "Trạng thái",
         cell: ({ row }) => {
           const meta = getReviewStatusMeta(row.original.status);
-          return <StatusBadge status={meta.statusType}>{meta.label}</StatusBadge>;
+          return (
+            <AdminStatusBadge domain="review" status={row.original.status}>
+              {meta.label}
+            </AdminStatusBadge>
+          );
         },
       },
       {
@@ -109,14 +113,14 @@ export default function AdminReviewsPage() {
               <span>Đã phản hồi</span>
             </span>
           ) : (
-            <span className="text-[11px] text-ink-3">Chưa phản hồi</span>
+            <span className="text-[11px] text-td-muted">Chưa phản hồi</span>
           ),
       },
       {
         accessorKey: "createdAt",
         header: "Thời gian",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-ink-3">
+          <span className="font-mono text-xs text-td-muted">
             {formatDateTime(row.original.createdAt, "dd/MM/yyyy HH:mm")}
           </span>
         ),
@@ -133,7 +137,7 @@ export default function AdminReviewsPage() {
               e.stopPropagation();
               setSelectedReviewId(row.original.id);
             }}
-            className="text-xs text-primary hover:text-primary-hover"
+            className="text-xs text-td-oxide hover:text-td-oxide-hover"
           >
             <span>Chi tiết</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -148,45 +152,42 @@ export default function AdminReviewsPage() {
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Star className="h-5 w-5 fill-primary" aria-hidden="true" />
-                </span>
-                <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                  Đánh giá nhân sự & Tài xế
-                </h1>
-              </div>
-              <p className="mt-1 text-sm text-ink-3">
-                Kiểm duyệt nhận xét và theo dõi chất lượng dịch vụ của đội ngũ nhân sự Thong Dong (FE-25).
-              </p>
-            </div>
-          </div>
+          <TransitFolio
+            index="03"
+            tag="TRI"
+            kicker="CHĂM SÓC & SỰ CỐ · CHẤT LƯỢNG DỊCH VỤ"
+            title={<>Đánh giá <em className="italic text-td-teal">nhân sự & tài xế.</em></>}
+            description="Kiểm duyệt nhận xét và theo dõi chất lượng dịch vụ của đội ngũ nhân sự Thong Dong (FE-25)."
+          >
+            <TransitFolioMetric
+              label="ĐIỂM TRUNG BÌNH HỆ THỐNG"
+              value={summary?.average !== null && summary?.average !== undefined ? summary.average.toFixed(2) : "—"}
+            />
+          </TransitFolio>
 
-          {/* Dải tổng quan StatCards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              label="Điểm trung bình toàn hệ thống"
-              value={summary?.average !== null && summary?.average !== undefined ? `${summary.average.toFixed(2)} / 5.0` : "—"}
-              icon={Star}
-            />
-            <StatCard
-              label="Tổng lượt đánh giá hợp lệ"
-              value={summary?.count ?? 0}
-              icon={MessageSquare}
-            />
-            <StatCard
-              label="Tỉ lệ hài lòng (>= 4 sao)"
-              value={stats.positivePct}
-              icon={CheckCircle2}
-            />
-            <StatCard
-              label="Đánh giá bị báo cáo"
-              value={stats.reportedCount}
-              icon={ShieldAlert}
-            />
-          </div>
+          {/* Dải tổng quan */}
+          <section aria-label="Tổng quan đánh giá" className="border-y-2 border-td-ink py-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { label: "01 · Điểm trung bình", value: summary?.average !== null && summary?.average !== undefined ? `${summary.average.toFixed(2)} / 5.0` : "—", note: "Thang điểm 5 sao toàn hệ thống" },
+                { label: "02 · Lượt đánh giá", value: summary?.count ?? 0, note: "Nhận xét hợp lệ đã ghi nhận" },
+                { label: "03 · Tỉ lệ hài lòng", value: stats.positivePct, note: "Nhận xét từ 4 sao trở lên" },
+                { label: "04 · Bị báo cáo", value: stats.reportedCount, note: "Cần kiểm duyệt lại" },
+              ].map((metric, index) => (
+                <div key={metric.label} className={`relative pl-5 ${index === 0 ? "" : "border-l border-td-rule"}`}>
+                  <span className="block font-mono text-[11px] font-semibold uppercase text-td-muted">
+                    {metric.label}
+                  </span>
+                  <strong className="mt-2 block font-sans text-4xl font-bold tracking-tight text-td-ink">
+                    {metric.value}
+                  </strong>
+                  <span className="mt-2 block font-mono text-xs text-td-muted">
+                    {metric.note}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
 
           {/* Phân bố đánh giá & Bộ lọc */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -206,9 +207,10 @@ export default function AdminReviewsPage() {
             </div>
           </div>
 
-          {/* Bảng dữ liệu DataTable */}
-          <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-e1">
+          {/* Bảng dữ liệu */}
+          <div className="border-t border-td-ink">
             <DataTable
+              className="!border-t-0"
               caption="Danh sách đánh giá nhân viên và tài xế từ khách hàng"
               columns={columns}
               data={reviewsData?.items ?? []}

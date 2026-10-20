@@ -23,6 +23,7 @@ import { ReportDrawer } from "@/features/admin/reports/components/ReportDrawer";
 import type { ReportListItem, ReportFilterParams } from "@/features/admin/reports/types";
 import { formatDateTime } from "@/lib/time";
 import TransitDeskStatus from "./TransitDeskStatus";
+import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export function IncidentTriage() {
@@ -65,35 +66,18 @@ export function IncidentTriage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Folio Top */}
-      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
-        <div className="flex items-start gap-5">
-          <span className="font-mono text-xs font-bold text-td-oxide border-t-2 border-td-oxide pt-1 min-w-[42px]">
-            03<br />TRI
-          </span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
-              TIẾP NHẬN & XỬ LÝ · SỰ CỐ
-            </span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Xử lý khiếu nại & Báo cáo sự cố
-            </h1>
-            <p className="mt-2 max-w-xl text-xs sm:text-sm text-td-muted leading-relaxed">
-              Bàn ưu tiên xử lý sự cố. Đọc thời hạn phản hồi trước, mở bằng chứng sau. Không giấu công việc khẩn cấp trong các badge nhiều màu.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 self-start sm:self-end">
-          <div className="border-l border-td-rule pl-4 text-right">
-            <span className="block font-mono text-[10px] text-td-muted tracking-wider">
-              INCIDENT QUEUE · TỔNG HỒ SƠ
-            </span>
-            <strong className="block font-sans text-3xl font-bold tracking-tight text-td-ink">
-              {isLoading ? <Skeleton className="h-8 w-16" /> : String(reports.length).padStart(2, "0")}
-            </strong>
-          </div>
-        </div>
-      </div>
+      <TransitFolio
+        index="03"
+        tag="TRI"
+        kicker="TIẾP NHẬN & XỬ LÝ · SỰ CỐ"
+        title={<>Xử lý khiếu nại & <em className="italic text-td-teal">báo cáo sự cố.</em></>}
+        description="Bàn ưu tiên xử lý sự cố. Đọc thời hạn phản hồi trước, mở bằng chứng sau. Không giấu công việc khẩn cấp trong các badge nhiều màu."
+      >
+        <TransitFolioMetric
+          label="INCIDENT QUEUE · TỔNG HỒ SƠ"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(reports.length).padStart(2, "0")}
+        />
+      </TransitFolio>
 
       {/* Toolbar: Search + Filter status */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-td-ink pb-4">
@@ -223,7 +207,7 @@ export function IncidentTriage() {
         {/* Right Column: Casefile Evidence & Actions */}
         <div className="lg:col-span-7 space-y-6">
           {activeReport ? (
-            <div className="bg-td-white border border-td-rule rounded-lg p-6 space-y-6">
+            <div className="bg-td-white border border-td-rule rounded p-6 space-y-6">
               {/* Casefile Top */}
               <div className="flex items-start justify-between border-b border-td-rule pb-4">
                 <div>
@@ -319,7 +303,7 @@ export function IncidentTriage() {
               </div>
             </div>
           ) : (
-            <div className="border border-td-rule bg-td-white rounded-lg p-16 text-center font-mono text-xs text-td-muted">
+            <div className="border border-td-rule bg-td-white rounded p-16 text-center font-mono text-xs text-td-muted">
               Chọn một sự cố trong hàng đợi bên trái để mở hồ sơ đối chiếu bằng chứng.
             </div>
           )}

@@ -11,22 +11,22 @@ interface ReportFilterBarProps {
 
 export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+    <div className="flex flex-col gap-3 rounded border border-td-rule bg-td-white p-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Tìm kiếm */}
         <div className="relative">
           <label htmlFor="report-search" className="sr-only">
             Tìm kiếm báo cáo
           </label>
-          <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2">
-            <Search className="h-4 w-4 text-ink-3" aria-hidden="true" />
+          <div className="flex items-center gap-2 rounded border border-td-rule bg-td-white px-3 py-2">
+            <Search className="h-4 w-4 text-td-muted" aria-hidden="true" />
             <input
               id="report-search"
               type="text"
               placeholder="Tìm theo mã, tên khách, nội dung..."
               value={filters.search ?? ""}
               onChange={(e) => onChange({ ...filters, search: e.target.value || undefined })}
-              className="w-full bg-transparent text-xs text-ink placeholder:text-ink-3 focus:outline-none"
+              className="w-full bg-transparent text-xs text-td-ink placeholder:text-td-muted focus:outline-none"
             />
           </div>
         </div>
@@ -40,7 +40,7 @@ export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
             id="report-type"
             value={filters.type ?? ""}
             onChange={(e) => onChange({ ...filters, type: e.target.value || undefined })}
-            className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink focus:outline-none"
+            className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink focus:outline-none"
           >
             <option value="">Tất cả phân loại</option>
             {Object.entries(REPORT_TYPE_MAP).map(([key, label]) => (
@@ -61,10 +61,10 @@ export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
                 hasRental: filters.hasRental ? undefined : true,
               })
             }
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded border px-3 py-2 text-xs font-semibold transition ${
               filters.hasRental
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-line bg-surface text-ink-2 hover:bg-canvas"
+                ? "border-td-oxide bg-td-chalk text-td-oxide"
+                : "border-td-rule bg-td-white text-td-ink hover:bg-td-paper"
             }`}
           >
             <Car className="h-3.5 w-3.5" />
@@ -79,10 +79,10 @@ export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
                 hasMaintenance: filters.hasMaintenance ? undefined : true,
               })
             }
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded border px-3 py-2 text-xs font-semibold transition ${
               filters.hasMaintenance
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-line bg-surface text-ink-2 hover:bg-canvas"
+                ? "border-td-oxide bg-td-chalk text-td-oxide"
+                : "border-td-rule bg-td-white text-td-ink hover:bg-td-paper"
             }`}
           >
             <Wrench className="h-3.5 w-3.5" />
@@ -102,7 +102,7 @@ export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
                   isOverdueSla: e.target.checked ? true : undefined,
                 })
               }
-              className="h-4 w-4 rounded border-line text-danger accent-danger focus:ring-danger"
+              className="h-4 w-4 rounded border-td-rule text-danger accent-danger focus:ring-danger"
             />
             <AlertTriangle className="h-4 w-4 text-danger" />
             <span>Chỉ xem quá hạn SLA (24h)</span>

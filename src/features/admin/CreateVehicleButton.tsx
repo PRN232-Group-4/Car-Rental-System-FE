@@ -13,7 +13,7 @@ export default function CreateVehicleButton({ onSaved }: { onSaved?: () => void 
       type="button"
       onClick={() => setOpen(true)}
       style={{ color: "var(--on-primary)" }}
-      className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold shadow-e1 transition hover:bg-primary-hover cursor-pointer"
+      className="inline-flex items-center justify-center gap-2 rounded bg-td-oxide px-4 py-3 text-sm font-semibold transition hover:bg-td-oxide-hover cursor-pointer"
     >
       <CirclePlus className="h-4 w-4" /> Thêm phương tiện
     </button>

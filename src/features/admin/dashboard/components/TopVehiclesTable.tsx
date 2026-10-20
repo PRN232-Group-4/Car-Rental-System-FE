@@ -29,8 +29,8 @@ export function TopVehiclesTable({
         header: "Phương tiện",
         cell: ({ row }) => (
           <div className="flex flex-col py-0.5">
-            <span className="font-semibold text-ink">{row.original.name}</span>
-            <span className="text-[11px] text-ink-3">{row.original.category}</span>
+            <span className="font-semibold text-td-ink">{row.original.name}</span>
+            <span className="text-[11px] text-td-muted">{row.original.category}</span>
           </div>
         ),
       },
@@ -38,7 +38,7 @@ export function TopVehiclesTable({
         accessorKey: "revenue",
         header: "Doanh thu",
         cell: ({ row }) => (
-          <span className="font-mono font-medium tabular-nums text-ink">
+          <span className="font-mono font-medium tabular-nums text-td-ink">
             {row.original.revenue.toLocaleString("vi-VN")} đ
           </span>
         ),
@@ -47,7 +47,7 @@ export function TopVehiclesTable({
         accessorKey: "rentals",
         header: "Lượt thuê",
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-ink-2">
+          <span className="font-mono tabular-nums text-td-ink">
             {row.original.rentals} lượt
           </span>
         ),
@@ -56,7 +56,7 @@ export function TopVehiclesTable({
         accessorKey: "hours",
         header: "Giờ lăn bánh",
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-ink-2">
+          <span className="font-mono tabular-nums text-td-ink">
             {row.original.hours} giờ
           </span>
         ),
@@ -66,13 +66,13 @@ export function TopVehiclesTable({
         header: "Tỉ lệ khai thác",
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="h-2 w-16 overflow-hidden rounded-full bg-sunken">
+            <div className="h-2 w-16 overflow-hidden rounded-full bg-td-chalk">
               <div
-                className="h-full bg-primary"
+                className="h-full bg-td-oxide"
                 style={{ width: `${Math.min(row.original.utilization, 100)}%` }}
               />
             </div>
-            <span className="font-mono text-xs font-semibold tabular-nums text-ink">
+            <span className="font-mono text-xs font-semibold tabular-nums text-td-ink">
               {row.original.utilization}%
             </span>
           </div>
@@ -96,7 +96,7 @@ export function TopVehiclesTable({
       description="Xếp hạng top 10 phương tiện sinh lời và có tỉ lệ khai thác dẫn đầu"
       className="col-span-1 lg:col-span-2"
     >
-      <div className="overflow-hidden rounded-xl border border-line">
+      <div className="overflow-hidden rounded border border-td-rule">
         <DataTable
           caption="Bảng xếp hạng top 10 xe theo doanh thu và tỉ lệ khai thác"
           columns={columns}

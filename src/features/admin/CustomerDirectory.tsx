@@ -8,6 +8,8 @@ import { AdminFilterBar, AdminFilterButton, AdminFilterField } from "@/component
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { InlineInput, InlineSelect, ValidatedForm, mapValidationErrors, useInlineValidation } from "@/components/forms/inline-validation";
 import type { LicenseStatus } from "@/features/licenses/types";
 import { getCustomers } from "./customer-api";
@@ -19,7 +21,7 @@ const licenseLabels: Record<string, string> = {
   none: "Chưa cập nhật",
 };
 const emptyFilter = { search: "", licenseStatus: "", isActive: "" };
-const pageButtonClass = "inline-flex h-10 w-10 items-center justify-center rounded-control border border-line bg-surface text-ink-2 hover:bg-sunken disabled:opacity-40";
+const pageButtonClass = "inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule bg-transparent text-td-ink hover:bg-td-chalk disabled:opacity-40";
 
 export default function CustomerDirectory() {
   const [filter, setFilter] = useState(emptyFilter);
@@ -67,10 +69,18 @@ export default function CustomerDirectory() {
   };
 
   return <div className="space-y-6">
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Khách hàng</h1>
-      <p className="mt-2 text-sm text-ink-3">Tra cứu toàn bộ khách hàng và theo dõi giấy phép lái xe đang chờ phê duyệt.</p>
-    </div>
+    <TransitFolio
+      index="07"
+      tag="ORG"
+      kicker="TỔ CHỨC · KHÁCH HÀNG"
+      title={<>Khách <em className="italic text-td-teal">hàng.</em></>}
+      description="Tra cứu toàn bộ khách hàng và theo dõi giấy phép lái xe đang chờ phê duyệt."
+    >
+      <TransitFolioMetric
+        label="DANH BẠ · TỔNG KHÁCH"
+        value={query.isPending ? <Skeleton className="h-8 w-16" /> : totalCount.toLocaleString("vi-VN")}
+      />
+    </TransitFolio>
     <ValidatedForm validation={filterValidation} onSubmit={() => {
       setActiveFilter({ ...filter, search: filter.search.trim() });
       setPage(1);
@@ -97,32 +107,32 @@ export default function CustomerDirectory() {
     </ValidatedForm>
     {error && <p role="alert" className="text-sm text-danger">{error} <button type="button" className="font-semibold underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
     <AdminTableCard>
-      <div className="border-b border-line px-5 py-4">
-        <h2 className="font-bold text-ink">Danh sách khách hàng</h2>
-        <p aria-live="polite" className="mt-1 text-xs text-ink-3">{query.isPending ? "Đang tải khách hàng..." : query.error ? "Chưa tải được danh sách" : `${totalCount.toLocaleString("vi-VN")} khách hàng`}</p>
+      <div className="border-b border-td-rule pb-2 pt-3">
+        <h2 className="text-sm font-bold text-td-ink">Danh sách khách hàng</h2>
+        <p aria-live="polite" className="mt-1 font-mono text-[11px] text-td-muted">{query.isPending ? "Đang tải khách hàng..." : query.error ? "Chưa tải được danh sách" : `${totalCount.toLocaleString("vi-VN")} khách hàng`}</p>
       </div>
       <AdminTable className="min-w-[860px]" aria-busy={query.isFetching}>
         <caption className="sr-only">Danh sách khách hàng</caption>
         <thead><tr>{["Khách hàng", "Số điện thoại", "Giấy phép lái xe", "Tài khoản", "Điểm tích lũy"].map((label) => <th key={label} scope="col">{label}</th>)}</tr></thead>
         <tbody>
           {query.isFetching ? <AdminTableSkeleton columns={5} label="Đang tải danh sách khách hàng" /> : !query.error && customers.map((customer) => <tr key={customer.id}>
-            <td><p className="font-semibold text-ink">{customer.fullName?.trim() || customer.email || "Chưa có tên khách hàng"}</p><p className="mt-1 text-xs text-ink-3">{customer.email}</p></td>
-            <td className="text-ink-2">{customer.phone?.trim() || "Chưa cập nhật"}</td>
+            <td><p className="font-semibold text-td-ink">{customer.fullName?.trim() || customer.email || "Chưa có tên khách hàng"}</p><p className="mt-1 font-mono text-[11px] text-td-muted">{customer.email}</p></td>
+            <td className="text-td-muted">{customer.phone?.trim() || "Chưa cập nhật"}</td>
             <td><AdminStatusBadge domain="license" status={customer.licenseStatus}>{licenseLabels[customer.licenseStatus] ?? "Chưa xác định"}</AdminStatusBadge></td>
             <td><AdminStatusBadge domain="activity" status={customer.isActive ? "active" : "inactive"}>{customer.isActive ? "Đang hoạt động" : "Đã ngừng hoạt động"}</AdminStatusBadge></td>
-            <td className="font-mono tabular-nums text-ink-2">{customer.loyaltyPoint.toLocaleString("vi-VN")}</td>
+            <td className="font-mono tabular-nums text-td-ink">{customer.loyaltyPoint.toLocaleString("vi-VN")}</td>
           </tr>)}
           {!query.isFetching && !query.error && !customers.length && <AdminTableEmptyRow colSpan={5}>Không có khách hàng phù hợp. Hãy thử thay đổi hoặc đặt lại bộ lọc.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
-      <div className="flex flex-col gap-3 border-t border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex flex-wrap items-center gap-3 text-xs text-ink-3">Số khách hàng mỗi trang
-          <select aria-label="Số khách hàng mỗi trang" className="h-10 rounded-control border border-line-strong bg-surface px-3 text-sm text-ink" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>
+      <div className="flex flex-col gap-3 border-t border-td-rule py-3 sm:flex-row sm:items-center sm:justify-between">
+        <label className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-td-muted">Số khách hàng mỗi trang
+          <select aria-label="Số khách hàng mỗi trang" className="rounded border border-td-rule bg-transparent px-2 py-1 text-xs text-td-ink outline-none focus:border-td-ink" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>
             {[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}
           </select>
         </label>
-        <nav aria-label="Phân trang khách hàng" className="flex items-center gap-3">
-          <span className="text-xs text-ink-3">Trang {page} / {pageCount}</span>
+        <nav aria-label="Phân trang khách hàng" className="flex items-center gap-3 font-mono text-[11px] text-td-muted">
+          <span>Trang {page} / {pageCount}</span>
           <button type="button" aria-label="Trang trước" disabled={page <= 1 || query.isFetching} onClick={() => setPage((current) => current - 1)} className={pageButtonClass}><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
           <button type="button" aria-label="Trang sau" disabled={page >= pageCount || query.isFetching || !!query.error} onClick={() => setPage((current) => current + 1)} className={pageButtonClass}><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
         </nav>

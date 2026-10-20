@@ -23,7 +23,7 @@ export function ReportDrawer({ reportId, onClose }: ReportDrawerProps) {
     >
       <div className="p-5">
         {isLoading && (
-          <div className="flex h-64 animate-pulse items-center justify-center rounded-2xl bg-sunken text-xs text-ink-3">
+          <div className="flex h-64 animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
             Đang tải dữ liệu chi tiết báo cáo...
           </div>
         )}

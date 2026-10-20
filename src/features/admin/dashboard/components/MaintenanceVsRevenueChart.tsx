@@ -61,7 +61,7 @@ export function MaintenanceVsRevenueChart({
   if (isLoading || !mounted) {
     return (
       <ChartCard title="Chi phí bảo dưỡng vs Doanh thu" description="So sánh phí sửa chữa và doanh thu theo phương tiện">
-        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded-xl bg-sunken text-xs text-ink-3">
+        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
           Đang tải dữ liệu so sánh chi phí...
         </div>
       </ChartCard>
@@ -88,7 +88,7 @@ export function MaintenanceVsRevenueChart({
         {highCostVehicles.length > 0 && (
           <div
             role="alert"
-            className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-bg p-3 text-xs text-danger"
+            className="flex items-start gap-3 rounded border border-danger/30 bg-danger-bg p-3 text-xs text-danger"
           >
             <AlertTriangle className="h-4 w-4 shrink-0 text-danger" />
             <div>

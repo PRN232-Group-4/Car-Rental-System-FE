@@ -27,17 +27,17 @@ export function StaffFilters({
   );
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4 shadow-e1 space-y-3">
+    <div className="border-t border-td-ink pt-3 space-y-3">
       <div className="flex flex-col md:flex-row gap-3">
         {/* Tìm kiếm */}
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-td-muted" />
           <input
             type="text"
             value={filters.search || ""}
             onChange={(e) => onChange({ search: e.target.value, page: 1 })}
             placeholder="Tìm theo tên, email hoặc số GPLX..."
-            className="h-11 w-full rounded-xl border border-line bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-ink-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-9 w-full rounded border border-td-rule bg-transparent pl-9 pr-3 text-xs text-td-ink placeholder:text-td-muted focus:border-td-ink focus:outline-none"
           />
         </div>
 
@@ -46,7 +46,7 @@ export function StaffFilters({
           <select
             value={filters.departmentId || "all"}
             onChange={(e) => onChange({ departmentId: e.target.value, page: 1 })}
-            className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Tất cả phòng ban</option>
             {departments.map((d) => (
@@ -62,7 +62,7 @@ export function StaffFilters({
           <select
             value={filters.facilityId || "all"}
             onChange={(e) => onChange({ facilityId: e.target.value, page: 1 })}
-            className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Tất cả trạm / cơ sở</option>
             {facilities.map((f) => (
@@ -74,13 +74,13 @@ export function StaffFilters({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-line/60">
+      <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-td-rule/60">
         {/* Lọc vai trò tài xế */}
         <div className="w-full sm:w-44">
           <select
             value={filters.isDriver || "all"}
             onChange={(e) => onChange({ isDriver: e.target.value, page: 1 })}
-            className="h-9 w-full rounded-lg border border-line bg-surface px-2.5 text-xs font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-9 w-full rounded border border-td-rule bg-td-white px-2.5 text-xs font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
           >
             <option value="all">Mọi nhân sự</option>
             <option value="driver">Chỉ tài xế</option>
@@ -93,7 +93,7 @@ export function StaffFilters({
           <select
             value={filters.isActive || "all"}
             onChange={(e) => onChange({ isActive: e.target.value, page: 1 })}
-            className="h-9 w-full rounded-lg border border-line bg-surface px-2.5 text-xs font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-9 w-full rounded border border-td-rule bg-td-white px-2.5 text-xs font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
           >
             <option value="all">Mọi trạng thái</option>
             <option value="active">Đang làm việc</option>
@@ -106,7 +106,7 @@ export function StaffFilters({
           <select
             value={filters.licenseStatus || "all"}
             onChange={(e) => onChange({ licenseStatus: e.target.value, page: 1 })}
-            className="h-9 w-full rounded-lg border border-line bg-surface px-2.5 text-xs font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-9 w-full rounded border border-td-rule bg-td-white px-2.5 text-xs font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
           >
             <option value="all">Mọi tình trạng GPLX</option>
             <option value="valid">Còn hạn (&gt; 30 ngày)</option>
@@ -120,7 +120,7 @@ export function StaffFilters({
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-sunken px-3 py-1.5 text-xs font-medium text-ink-2 hover:bg-canvas hover:text-ink transition-colors cursor-pointer ml-auto"
+            className="inline-flex items-center gap-1.5 rounded border border-td-rule bg-td-chalk px-3 py-1.5 text-xs font-medium text-td-ink hover:bg-td-chalk hover:text-td-ink transition-colors cursor-pointer ml-auto"
           >
             <X className="w-3.5 h-3.5" />
             <span>Đặt lại bộ lọc</span>
