@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/features/auth";
 import {
   deleteVehicle,
-  getFacilities,
-  getVehicleTypes,
   getVehicles,
-  type OrganizationUnitDto,
   type VehicleDto,
-  type VehicleTypeDto,
 } from "@/features/admin/api";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import TransitDeskStatus from "./TransitDeskStatus";
@@ -19,81 +15,49 @@ import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus } from "lucide-react";
 
+const NO_VEHICLES: VehicleDto[] = [];
+
 export function FleetRegistry() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { hasRole } = useAuth();
   const canManage = hasRole("admin") || hasRole("manager");
 
-  const [vehicles, setVehicles] = useState<VehicleDto[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
-  const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
-  const [loading, setLoading] = useState(true);
-  const [selectedVehicle, setSelectedVehicle] = useState<VehicleDto | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
+  const [isFolioClosed, setIsFolioClosed] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // Handle Escape key to close Context Folio (P1-04)
-  useEffect(() => {
-    if (!selectedVehicle) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setSelectedVehicle(null);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedVehicle]);
-
-  // Load vehicles and metadata
-  const loadPage = useCallback(
-    async (currentPage: number, currentStatus: string) => {
-      setLoading(true);
-      try {
-        const [response, types, facilityData] = await Promise.all([
-          getVehicles({
-            status: currentStatus === "all" ? undefined : currentStatus,
-            page: currentPage,
-            pageSize,
-          }),
-          getVehicleTypes(),
-          getFacilities(),
-        ]);
-        const items = response.items ?? [];
-        setVehicles(items);
-        setTotalCount(response.totalCount);
-        setVehicleTypes(types);
-        setFacilities(facilityData);
-
-        // Keep selection synced or default to first item
-        if (items.length > 0) {
-          setSelectedVehicle((prev) => {
-            if (!prev) return items[0];
-            const found = items.find((v) => v.id === prev.id);
-            return found || items[0];
-          });
-        } else {
-          setSelectedVehicle(null);
-        }
-      } catch (err) {
-        notifyApiError(err, "Không thể tải danh sách phương tiện.");
-      } finally {
-        setLoading(false);
-      }
+  // Một query cho trang hiện tại: không setState trong effect, react-query giữ cache.
+  const pageQuery = useQuery({
+    queryKey: ["fleet-registry", page, pageSize, statusFilter],
+    queryFn: async () => {
+      const response = await getVehicles({
+        status: statusFilter === "all" ? undefined : statusFilter,
+        page,
+        pageSize,
+      });
+      return {
+        items: response.items ?? NO_VEHICLES,
+        totalCount: response.totalCount,
+      };
     },
-    [pageSize]
-  );
+    retry: false,
+  });
 
-  useEffect(() => {
-    void loadPage(page, statusFilter);
-  }, [loadPage, page, statusFilter]);
+  const vehicles = pageQuery.data?.items ?? NO_VEHICLES;
+  const totalCount = pageQuery.data?.totalCount ?? 0;
+  const loading = pageQuery.isPending;
+
+  const closeFolio = () => setIsFolioClosed(true);
+  const selectVehicle = (vehicle: VehicleDto) => {
+    setSelectedVehicleId(vehicle.id);
+    setIsFolioClosed(false);
+  };
 
   // Handle client-side search filter over current page
-  const filteredVehicles = useMemo(() => {
+  const filteredVehicles = useMemo<VehicleDto[]>(() => {
     const q = search.trim().toLowerCase();
     if (!q) return vehicles;
     return vehicles.filter((v) => {
@@ -101,6 +65,24 @@ export function FleetRegistry() {
       return matchText.includes(q);
     });
   }, [vehicles, search]);
+
+  // Hồ sơ đang mở suy ra từ danh sách đang hiển thị, không cần đồng bộ state.
+  const selectedVehicle = useMemo<VehicleDto | null>(() => {
+    if (isFolioClosed || filteredVehicles.length === 0) return null;
+    return filteredVehicles.find((v) => v.id === selectedVehicleId) ?? filteredVehicles[0];
+  }, [filteredVehicles, selectedVehicleId, isFolioClosed]);
+
+  // Handle Escape key to close Context Folio (P1-04)
+  useEffect(() => {
+    if (!selectedVehicle) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFolioClosed(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedVehicle]);
 
   // Handle delete
   const handleDelete = async (vehicle: VehicleDto) => {
@@ -117,7 +99,7 @@ export function FleetRegistry() {
       if (vehicles.length === 1 && page > 1) {
         setPage((p) => p - 1);
       } else {
-        await loadPage(page, statusFilter);
+        await pageQuery.refetch();
       }
     } catch (err) {
       notifyApiError(err, "Không thể xóa phương tiện có lịch sử đơn thuê hoặc bảo dưỡng liên quan.");
@@ -236,7 +218,7 @@ export function FleetRegistry() {
                     <button
                       key={v.id}
                       type="button"
-                      onClick={() => setSelectedVehicle(v)}
+                      onClick={() => selectVehicle(v)}
                       aria-pressed={isSelected ? "true" : "false"}
                       className={`grid w-full grid-cols-12 items-center gap-4 py-3.5 px-2 text-left transition-colors cursor-pointer relative ${
                         isSelected
@@ -346,7 +328,7 @@ export function FleetRegistry() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setSelectedVehicle(null)}
+                  onClick={closeFolio}
                   aria-label="Đóng hồ sơ (Esc)"
                   className="rounded p-1 text-td-muted hover:text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
                 >
