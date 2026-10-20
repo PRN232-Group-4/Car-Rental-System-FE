@@ -2,45 +2,47 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.875rem;
-  color: var(--ink);
+  font-size: 0.8125rem;
+  color: var(--td-ink);
 }
 
 .table > thead {
-  background: var(--sunken);
-  color: var(--ink-3);
-  font-size: 0.75rem;
+  background: transparent;
+  border-bottom: 1px solid var(--td-ink);
+  color: var(--td-ink-muted);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .table > thead > tr > th {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 1rem;
   white-space: nowrap;
 }
 
 .table > tbody > tr > td {
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
   vertical-align: middle;
 }
 
 .table > thead > tr > th:first-child,
 .table > tbody > tr > td:first-child {
-  padding-left: 1.25rem;
+  padding-left: 0.5rem;
 }
 
 .table > thead > tr > th:last-child,
 .table > tbody > tr > td:last-child {
-  padding-right: 1.25rem;
+  padding-right: 0.5rem;
 }
 
 .table > tbody > tr + tr {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--td-rule);
 }
 
 .table > tbody > tr:hover {
-  background: color-mix(in srgb, var(--canvas) 60%, transparent);
+  background: color-mix(in srgb, var(--td-chalk) 55%, transparent);
 }
 
 .table > thead > tr > th[data-actions],
@@ -50,7 +52,9 @@
 }
 
 .table > tbody > tr > td.empty {
-  padding: 3.5rem 1.25rem;
-  color: var(--ink-3);
+  padding: 3.5rem 0.5rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--td-ink-muted);
   text-align: center;
 }

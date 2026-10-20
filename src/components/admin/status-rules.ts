@@ -10,6 +10,7 @@ const statusTones = {
   license: { approved: "success", pending: "warning", expiring: "warning", rejected: "danger", expired: "danger", incomplete: "neutral" },
   shift: { active: "success", scheduled: "info", completed: "neutral", cancelled: "danger" },
   report: { new: "warning", pending: "warning", in_progress: "info", investigating: "info", resolved: "success", rejected: "danger", dismissed: "danger" },
+  review: { visible: "success", published: "success", hidden: "neutral", reported: "warning" },
 } satisfies Record<string, Record<string, AdminStatusTone>>;
 
 export type AdminStatusDomain = keyof typeof statusTones;

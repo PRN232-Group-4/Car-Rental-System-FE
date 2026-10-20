@@ -155,8 +155,8 @@ export const rentalStatuses: Record<string, string> = {
   post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
 };
 export const operationsInput = "admin-input mt-2 w-full";
-export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50";
-export const operationsPanel = "space-y-4 rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6";
+export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-td-oxide-hover disabled:cursor-not-allowed disabled:opacity-50";
+export const operationsPanel = "space-y-4 rounded border border-td-rule bg-td-white p-5 sm:p-6";
 export async function listOperationalRentals(params?: { status?: string; page?: number; pageSize?: number }): Promise<PagedResult<OperationalRental>> {
   try {
     return await backendApiClient.get<PagedResult<OperationalRental>>("rentals", params);
@@ -170,6 +170,13 @@ export async function listOperationalRentals(params?: { status?: string; page?: 
     }
     throw error;
   }
+}
+
+/** Một số endpoint trả mảng trực tiếp, một số trả envelope { items } — chuẩn hoá lại. */
+export function toList<T>(data: unknown): T[] {
+  if (Array.isArray(data)) return data as T[];
+  const items = (data as { items?: unknown } | null | undefined)?.items;
+  return Array.isArray(items) ? (items as T[]) : [];
 }
 
 export function operationalError(error: unknown) {
