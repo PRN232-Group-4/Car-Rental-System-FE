@@ -13,6 +13,14 @@ export function SkeletonBlock({ label, children, className = "" }: { label: stri
   </div>;
 }
 
+export function SkeletonStat({ className = "" }: { className?: string }) {
+  return <div aria-hidden="true" className={`border-t border-td-rule pt-4 ${className}`}>
+    <Skeleton className="h-9 w-9 rounded" />
+    <Skeleton className="mt-5 h-4 w-24" />
+    <Skeleton className="mt-2 h-7 w-32" />
+  </div>;
+}
+
 export function FormSkeleton({ label = "Đang tải biểu mẫu...", fields = 6 }: { label?: string; fields?: number }) {
   return <SkeletonBlock label={label} className="space-y-5">
     <Skeleton className="h-6 w-48 max-w-full" />

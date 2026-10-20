@@ -29,7 +29,23 @@ const NavigationContext = createContext<NavigationControls>({
 function RouteCommitObserver({ onCommit }: { onCommit: () => void }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  useEffect(onCommit, [pathname, searchParams, onCommit]);
+  useEffect(() => {
+    onCommit();
+    if (typeof window !== "undefined") {
+      requestAnimationFrame(() => {
+        const target =
+          (document.getElementById("main-content") as HTMLElement | null) ||
+          (document.querySelector("main") as HTMLElement | null) ||
+          (document.querySelector("h1") as HTMLElement | null);
+        if (target && typeof target.focus === "function") {
+          if (!target.hasAttribute("tabindex")) {
+            target.setAttribute("tabindex", "-1");
+          }
+          target.focus({ preventScroll: true });
+        }
+      });
+    }
+  }, [pathname, searchParams, onCommit]);
   return null;
 }
 

@@ -25,10 +25,9 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
   const cache = useQueryClient();
   const query = useQuery({ queryKey: ["operational-rental", lookup], queryFn: () => getOperationalRental(Number(lookup)), enabled: /^[1-9]\d*$/.test(lookup), retry: false });
   const refresh = () => Promise.all([query.refetch(), cache.invalidateQueries({ queryKey: ["admin-rentals"] })]);
-  return <div className="mx-auto max-w-6xl space-y-6">
-    <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1><p className="mt-2 text-sm text-ink-3">Nhập mã yêu cầu đặt xe để tải thông tin yêu cầu và đơn thuê liên quan.</p></div>
+  return <div className="space-y-6">
     <ValidatedForm validation={validation} onSubmit={() => { if (lookup === id) void query.refetch(); else setLookup(id); }}>
-      <AdminFilterBar title="Tra cứu yêu cầu / đơn thuê" actions={<>
+      <AdminFilterBar title={title} actions={<>
         <AdminFilterButton type="submit" disabled={query.isFetching}>{query.isFetching ? "Đang tải..." : "Tra cứu đơn thuê"}</AdminFilterButton>
         <AdminFilterButton variant="secondary" disabled={!id && !lookup && Object.keys(validation.errors).length === 0} onClick={() => { setId(""); setLookup(""); validation.reset(); }}>Đặt lại</AdminFilterButton>
       </>}>
@@ -36,7 +35,7 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
           <InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} placeholder="Nhập mã yêu cầu đặt xe" />
         </AdminFilterField>
       </AdminFilterBar>
-      <div className="flex items-center gap-2 text-xs text-ink-3 pt-1">
+      <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] text-td-muted">
         <span>Mã đơn mẫu kiểm tra:</span>
         {[1, 101, 98].map((sampleId) => (
           <button
@@ -46,7 +45,7 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
               setId(String(sampleId));
               setLookup(String(sampleId));
             }}
-            className="px-2 py-0.5 rounded-md bg-surface hover:bg-sunken border border-line text-primary font-bold transition-colors cursor-pointer"
+            className="rounded border border-td-rule bg-td-chalk px-2 py-0.5 font-bold text-td-ink transition-colors hover:border-td-oxide cursor-pointer"
           >
             #{sampleId}
           </button>
@@ -60,15 +59,15 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{query.data.orderId ? `Đơn thuê chính thức #${query.data.orderId}` : `Yêu cầu thuê #${query.data.id}`}</h2><AdminStatusBadge domain="rental" status={query.data.status}>{rentalStatuses[query.data.status] ?? query.data.status}</AdminStatusBadge></div>
         <RentalStatusTracker status={query.data.status} />
         <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-          <div><dt className="text-ink-3">Khách hàng</dt><dd>#{query.data.customerId ?? "—"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-ink-3">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
-          <div><dt className="text-ink-3">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-ink-3">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
+          <div><dt className="text-td-muted">Khách hàng</dt><dd>#{query.data.customerId ?? "—"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-td-muted">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
+          <div><dt className="text-td-muted">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-td-muted">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
         </dl>
         <p className="text-sm">{query.data.rentalType === "longterm" ? "Thuê dài hạn" : "Thuê theo giờ"} · {query.data.hasDriver ? "Có tài xế" : "Tự lái"} · Tổng tiền thuê: {query.data.totalPrice.toLocaleString("vi-VN")} đ</p>
-        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-primary"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
+        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
       </section>
       {staffLinks && <RentalTrackingPanel key={`gps-${query.data.id}`} rentalId={query.data.id} />}
       <div key={query.data.id}>{children(query.data, refresh)}</div>
     </>}
-    {!lookup && <p className="text-sm text-ink-3">Chưa chọn yêu cầu / đơn thuê. Nhập mã yêu cầu đặt xe do khách hàng cung cấp để bắt đầu.</p>}
+    {!lookup && <p className="text-sm text-td-muted">Chưa chọn yêu cầu / đơn thuê. Nhập mã yêu cầu đặt xe do khách hàng cung cấp để bắt đầu.</p>}
   </div>;
 }

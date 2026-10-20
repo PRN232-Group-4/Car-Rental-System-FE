@@ -53,14 +53,15 @@ function MapCanvas({ serialized, token, title }: { serialized: string; token: st
         if (!sdk.supported()) throw new Error("Trình duyệt chưa hỗ trợ hiển thị bản đồ. Hãy bật WebGL hoặc thử trình duyệt khác.");
         map = new sdk.Map({ container: element, accessToken: token, style: "mapbox://styles/mapbox/streets-v12", center: end, zoom: 14, cooperativeGestures: true });
         map.addControl(new sdk.NavigationControl(), "top-right");
-        markers.push(new sdk.Marker().setLngLat(end).addTo(map));
-        if (origin) markers.push(new sdk.Marker({ color: "#166534" }).setLngLat(origin).addTo(map));
+        const routeColor = getComputedStyle(element).getPropertyValue("--primary").trim();
+        markers.push(new sdk.Marker({ color: routeColor }).setLngLat(end).addTo(map));
+        if (origin) markers.push(new sdk.Marker({ color: routeColor }).setLngLat(origin).addTo(map));
         map.on("error", () => fail(new Error("Không tải được bản đồ Mapbox. Vui lòng kiểm tra kết nối hoặc thử lại.")));
         map.on("load", () => {
           if (controller.signal.aborted || !map) return;
           if (directions) {
             map.addSource("driving-route", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: directions.coordinates } } });
-            map.addLayer({ id: "driving-route", type: "line", source: "driving-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#2563eb", "line-width": 5 } });
+            map.addLayer({ id: "driving-route", type: "line", source: "driving-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": routeColor, "line-width": 5 } });
             const bounds = new sdk.LngLatBounds(end, end);
             for (const point of directions.coordinates) bounds.extend(point);
             map.fitBounds(bounds, { padding: 45, maxZoom: 15, duration: 0 });

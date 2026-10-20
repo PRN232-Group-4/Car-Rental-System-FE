@@ -64,9 +64,8 @@ export default function PinnedJourney() {
           cards.forEach((card) => {
             gsap.fromTo(
               card,
-              { opacity: 0.45, y: 30 },
+              { y: 24 },
               {
-                opacity: 1,
                 y: 0,
                 duration: 0.7,
                 ease: "power2.out",
@@ -203,6 +202,7 @@ export default function PinnedJourney() {
                 <div
                   aria-hidden="true"
                   className="absolute -right-2 -bottom-6 font-mono font-black text-8xl sm:text-9xl text-ink/[0.04] pointer-events-none select-none tracking-tighter"
+                  suppressHydrationWarning
                 >
                   {phase.index}
                 </div>
@@ -210,10 +210,13 @@ export default function PinnedJourney() {
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-line">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-xs font-mono font-black uppercase text-primary bg-primary-tint border border-primary/30 px-3 py-1 rounded-xl">
+                      <span 
+                        className="text-xs font-mono font-black uppercase text-primary bg-primary-tint border border-primary/30 px-3 py-1 rounded-xl"
+                        suppressHydrationWarning
+                      >
                         PHA {phase.index}
                       </span>
-                      <span className="text-xs font-mono uppercase tracking-wider text-ink-3 px-2 py-0.5 rounded bg-sunken">
+                      <span className="text-xs font-mono uppercase tracking-wider text-ink-2 font-medium px-2 py-0.5 rounded bg-sunken">
                         {phase.tag}
                       </span>
                     </div>

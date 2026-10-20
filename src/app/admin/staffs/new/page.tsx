@@ -7,7 +7,8 @@ import { useCreateStaff, useDepartments, useFacilities } from "@/features/admin/
 import { PERMITTED_LICENSE_TYPES } from "@/features/admin/staff/license-utils";
 import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
-import { UserPlus, ArrowLeft, Car } from "lucide-react";
+import { ArrowLeft, Car } from "lucide-react";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 function CreateStaffContent() {
   const router = useRouter();
@@ -78,28 +79,23 @@ function CreateStaffContent() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/admin/staffs")}
-          className="text-ink-3 hover:text-ink cursor-pointer"
+          className="text-td-muted hover:text-td-ink cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           <span>Quay lại danh sách</span>
         </Button>
       </div>
 
-      <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-e1 space-y-6">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-            <UserPlus className="w-4 h-4" />
-            <span>Thêm Mới Hồ Sơ</span>
-          </div>
-          <h1 className="mt-1 text-2xl font-black text-ink tracking-tight">
-            Tạo Hồ Sơ Nhân Viên / Tài Xế
-          </h1>
-          <p className="mt-1 text-xs text-ink-3">
-            Liên kết tài khoản người dùng có sẵn trong hệ thống với hồ sơ công tác tại phòng ban hoặc trạm điều phối.
-          </p>
-        </div>
+      <TransitFolio
+        index="07"
+        tag="ORG"
+        kicker="TỔ CHỨC · HỒ SƠ NHÂN SỰ MỚI"
+        title={<>Tạo hồ sơ <em className="italic text-td-teal">nhân viên / tài xế.</em></>}
+        description="Liên kết tài khoản người dùng có sẵn trong hệ thống với hồ sơ công tác tại phòng ban hoặc trạm điều phối."
+      />
 
-        <form onSubmit={handleSubmit} className="space-y-6 pt-2 border-t border-line">
+      <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 pt-2 border-t border-td-rule">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               label="Mã tài khoản người dùng (User ID)"
@@ -112,7 +108,7 @@ function CreateStaffContent() {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 placeholder="Ví dụ: 6"
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-mono text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-mono text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
             </FormField>
 
@@ -121,7 +117,7 @@ function CreateStaffContent() {
                 type="date"
                 value={hiredDate}
                 onChange={(e) => setHiredDate(e.target.value)}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
             </FormField>
 
@@ -129,7 +125,7 @@ function CreateStaffContent() {
               <select
                 value={departmentId}
                 onChange={(e) => setDepartmentId(parseInt(e.target.value, 10))}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
                 {departments.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -143,7 +139,7 @@ function CreateStaffContent() {
               <select
                 value={facilityId}
                 onChange={(e) => setFacilityId(parseInt(e.target.value, 10))}
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
                 {facilities.map((f) => (
                   <option key={f.id} value={f.id}>
@@ -155,23 +151,23 @@ function CreateStaffContent() {
           </div>
 
           {/* Tùy chọn tài xế */}
-          <div className="rounded-2xl border border-line bg-canvas p-5 space-y-4">
+          <div className="rounded border border-td-rule bg-td-paper p-5 space-y-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isDriver}
                 onChange={(e) => setIsDriver(e.target.checked)}
-                className="h-4 w-4 rounded border-line text-primary focus:ring-primary/20"
+                className="h-4 w-4 rounded border-td-rule text-td-oxide focus:ring-td-oxide/20"
               />
-              <span className="text-sm font-bold text-ink flex items-center gap-2">
-                <Car className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold text-td-ink flex items-center gap-2">
+                <Car className="w-4 h-4 text-td-oxide" />
                 Đăng ký nhân sự làm Tài Xế Chuyên Nghiệp
               </span>
             </label>
 
             {isDriver && (
-              <div className="space-y-4 pt-3 border-t border-line/60">
-                <p className="text-xs text-ink-3">
+              <div className="space-y-4 pt-3 border-t border-td-rule/60">
+                <p className="text-xs text-td-muted">
                   Nhập thông tin giấy phép lái xe ban đầu phục vụ thẩm định điều phối chuyến đi:
                 </p>
 
@@ -182,7 +178,7 @@ function CreateStaffContent() {
                       value={licenseNumber}
                       onChange={(e) => setLicenseNumber(e.target.value)}
                       placeholder="Ví dụ: 790123456789"
-                      className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-mono text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-mono text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
                     />
                   </FormField>
 
@@ -190,7 +186,7 @@ function CreateStaffContent() {
                     <select
                       value={licenseType}
                       onChange={(e) => setLicenseType(e.target.value)}
-                      className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-bold text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-bold text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
                     >
                       {PERMITTED_LICENSE_TYPES.map((t) => (
                         <option key={t} value={t}>
@@ -205,7 +201,7 @@ function CreateStaffContent() {
                       type="date"
                       value={issueDate}
                       onChange={(e) => setIssueDate(e.target.value)}
-                      className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
                     />
                   </FormField>
 
@@ -214,7 +210,7 @@ function CreateStaffContent() {
                       type="date"
                       value={expiryDate}
                       onChange={(e) => setExpiryDate(e.target.value)}
-                      className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
                     />
                   </FormField>
                 </div>
@@ -223,12 +219,12 @@ function CreateStaffContent() {
           </div>
 
           {validationError && (
-            <div className="rounded-xl border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
+            <div className="rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
               {validationError}
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-td-rule">
             <Button
               type="button"
               variant="secondary"
@@ -253,7 +249,7 @@ function CreateStaffContent() {
 export default function CreateStaffPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-        <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
+        <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <CreateStaffContent />
         </Suspense>
     </AuthGate>

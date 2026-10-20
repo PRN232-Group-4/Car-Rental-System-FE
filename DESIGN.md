@@ -385,6 +385,8 @@ Bộ lọc SVG `feDisplacementMap` + `feTurbulence` làm hậu cảnh bị bẻ 
 | **Error state**           | Thông điệp thân thiện + nút "Thử lại" + mã tham chiếu (`traceId` từ ProblemDetails) cho staff; không lộ 500/stack.                                                                                                                              |
 | **Chart**                 | A9. Màu phẳng, không gradient fill; vùng (area) dùng màu đặc alpha 0.12 + đường viền.                                                                                                                                                           |
 
+> **Biến thể Admin (Transit Desk — A9):** trong `/admin/**`, các thành phần trên dùng token `td-*`: CTA cam amber `td-oxide` (cùng màu thương hiệu với khu khách), control 36px bo 4px, input `.admin-input` 6px, bảng kiểu sổ mở với rule `td-ink`/`td-rule` (không card, không shadow), trạng thái render bằng `AdminStatusBadge` (glyph + mono) thay cho chip pill. Chi tiết tại A9 và `docs/admin-ui.md`.
+
 ---
 
 ## A7. Chuyển động (Motion) — GSAP
@@ -474,26 +476,14 @@ Kỹ thuật & ngân sách:
 
 ---
 
-## A9. Khu vực Admin / Staff — "Clean Minimal Frosted Glass"
+## A9. Khu vực Admin / Staff — “Transit Desk” (Graphite Glass Deck · Palette A)
 
-**Quy chuẩn triển khai Admin:** xem `docs/admin-ui.md`. Bộ lọc dùng `AdminFilters.tsx`, bảng danh sách dùng `AdminTable.tsx`, popup dùng `FormDialog.tsx`; sửa style chung tại các component này để mọi trang giữ cùng hệ thống. Các bộ lọc dùng control cao 44px, nhãn hiển thị, viền nhẹ theo token và bố cục responsive có nút áp dụng/đặt lại rõ ràng.
+**Quy chuẩn triển khai:** xem `docs/admin-ui.md`. Admin dùng ngôn ngữ thị giác **Transit Desk**: nền giấy ấm, mực graphite, CTA cam amber, nhấn champagne; bố cục **folio + sổ mở (open ledger)** thay cho lưới card bo tròn. Component chuẩn: `TransitDeskShell` (khung + điều hướng + theme), `TransitFolio` (tiêu đề trang), `AdminFilters` (bộ lọc), `AdminTable`/`DataTable` (bảng), `AdminStatusBadge` (trạng thái), `FormDialog` (popup). Sửa style tại các component này để mọi trang cập nhật cùng nhau.
 
-**Bổ sung 2026-10-15:** Admin hỗ trợ giao diện sáng/tối qua token màu và lưu lựa chọn của người dùng. Sidebar thu gọn phải căn giữa icon, logo và avatar theo trục giữa của thanh, kể cả khi xuất hiện scrollbar. Trạng thái `active`/đang hoạt động dùng cặp token `success`/`success-bg` xanh lá; không dò chuỗi con vì `inactive` không phải trạng thái tích cực. Popup tạo/sửa giữ footer thao tác hiển thị trong khi nội dung biểu mẫu cuộn; dùng component chung và giữ validation tại trường. Ngày giờ hiển thị `dd/MM/yyyy HH:mm`, hệ 24 giờ, theo `Asia/Ho_Chi_Minh`; ngày không có giờ hiển thị `dd/MM/yyyy`.
+**Khung và điều hướng.** Masthead + dải route ngữ cảnh nằm trong một khối **dính đỉnh** (`.topBar`, `position: sticky; top: 0; z-index: 30`), nên cả hai luôn hiện khi cuộn và không bị lệch khi masthead xuống hai dòng ở `≤1280px`. `html[data-admin-theme]` đặt `scroll-padding-top: 132px` để anchor/focus không bị thanh dính che. Route điều hướng theo 8 chương (`Ca trực`, `Vận hành`, `Điều phối`, `Chăm sóc & Sự cố`, `Đội xe`, `Chính sách`, `Tổ chức`, `Cá nhân`), mỗi chương có số hiệu folio cố định (01 OPS · 02 FLT · 03 TRI · 04 OPS/INS · 05 DSP · 06 PLC · 07 ORG · 08 ME). `Ctrl/⌘ + K` mở `TransitDeskRouteIndex`.
 
-- **Popup:** bắt buộc `FormDialog` với `FormDialogFooter` nằm trong `ValidatedForm`; dùng token chung, header/footer sticky, khôi phục focus và khóa đóng/gửi khi busy. `ADMIN_POPUP_FORM` trong design lint kiểm tra cấu trúc; quy cách chi tiết tại `docs/admin-ui.md`.
-- **Ảnh phương tiện:** bảng và chi tiết liên quan đến xe hiển thị ảnh thật cạnh tên/biển số qua `VehicleImage` hoặc `VehicleName`. Ảnh thiếu/hỏng có fallback rõ ràng, kích thước ổn định; không thay bằng ảnh xe khác. Tra cứu cùng xe phải dùng chung cache.
-- **Tải dữ liệu:** dùng `SkeletonBlock`, `FormSkeleton`, `AdminTableSkeleton` theo hình dạng nội dung; thông báo tiếng Việt cho trình đọc màn hình, tắt chuyển động khi reduced motion. Bảng giữ tiêu đề cột; không hiển thị dữ liệu trống hoặc form mặc định trong lúc request chưa xong.
-- **Thao tác danh sách:** cột `data-actions` dùng `AdminRowAction`, chỉ hiện icon và giữ tên truy cập/tooltip tiếng Việt. Quy tắc duy nhất tại `row-action-rules.ts`: xem = `Eye`, sửa/cập nhật = `Pencil`, xóa = `Trash2` màu danger; vùng bấm 36px, icon 16px, có focus/disabled/loading. Không dựng cột trống khi nghiệp vụ không có thao tác. Nút tiêu đề, bộ lọc và footer biểu mẫu vẫn có nhãn chữ. Xem `docs/admin-ui.md`.
-- **Trạng thái áp dụng:** icon kích hoạt = `CirclePlay`, tạm ngưng = `PauseCircle` qua `AdminRowAction`; xác nhận trước gửi, khóa trong lúc chờ, badge đổi khi API thành công. Chính sách chỉ đổi `isActive`, điều khoản vẫn lưu theo phiên bản (FR-011/ADR-006).
-- **Bản đồ:** cơ sở/điểm nhận dùng địa chỉ thật; xe và hành trình dùng tọa độ GPS từ API. Không tạo tọa độ dự phòng. Google Maps chỉ đường gợi ý không thay thế lịch sử GPS. Key trình duyệt cho Maps Embed tách khỏi key backend; thiếu key vẫn có liên kết chỉ đường. Xem `docs/google-maps-frontend.md`.
+**Bảng màu (Palette A).** Light: `td-paper #FAF8F5`, `td-white #FFFFFF`, `td-ink #1F1B22`, `td-muted #58515E`, `td-rule rgba(31,27,34,.12)`, `td-oxide #B45309`, `td-teal #7A5B18`, `td-chalk #F0ECE6`. Dark: `td-paper #17161B`, `td-white #242126`, `td-ink #F5F1EC`, `td-muted #9E97A3`, `td-oxide #F6BA7C`, `td-teal #C8A96B`, `td-chalk #1C1A20`. `td-oxide` tham chiếu `--primary` ở cả hai theme; mọi cổng dùng chung cam amber. Chữ CTA dùng `--on-primary`: trắng ở light, `#17161B` ở dark.
 
-<<<<<<< Updated upstream
-- **Canvas phẳng** `#F2F5F3`. Sidebar là **khối đặc Garage Ink** (không có gì phía sau để làm mờ). Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
-- Density 7: hàng bảng 44px (có công tắc compact 36px), chữ thân 14px, số/ID/tiền dùng Geist Mono + `tabular-nums`. Không dùng thẻ lồng thẻ: nhóm bằng đường kẻ trên (border-top) hoặc khoảng trắng.
-- Motion tối thiểu (Motion 3): fade 160ms khi đổi tab/panel, drawer trượt 320ms, toast, skeleton pulse, count-up KPI **một lần**, đường biểu đồ vẽ vào 600ms. Không parallax, không pin, không 3D, không loop (ngoại trừ chấm live).
-- Biểu đồ (Recharts): tắt gradient fill; dùng 5 màu `--chart-*` (A2) kèm nhãn trực tiếp và/hoặc họa tiết nét để không chỉ phân biệt bằng màu; tooltip `.glass-2`; luôn có nút "Xem dạng bảng" (bảng ẩn trực quan nhưng đọc được bởi trình đọc màn hình); `isAnimationActive` tắt khi reduce-motion.
-- Bảng ánh xạ trạng thái → badge (Lucide + nhãn):
-=======
 **Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<em class="italic text-td-teal">`.
 
 **Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: số chương + tag mono, kicker viết hoa, `h1` lớn (tối đa `text-5xl`), một câu mô tả, vùng phải chứa **một** số liệu tổng (`TransitFolioMetric`) và/hoặc **một** hành động chính có nhãn chữ. Mobile: vùng phải xuống dòng dưới tiêu đề.
@@ -511,13 +501,12 @@ Các quy tắc vẫn giữ nguyên:
 - **Tải dữ liệu:** `SkeletonBlock`, `FormSkeleton`, `AdminTableSkeleton` theo hình dạng nội dung; thông báo tiếng Việt cho trình đọc màn hình; tắt chuyển động khi reduced motion; không hiện dữ liệu trống khi request chưa xong.
 - **Thao tác danh sách:** cột `data-actions` dùng `AdminRowAction`, chỉ icon + tooltip tiếng Việt, vùng bấm 36px; ánh xạ `view`/`edit`/`delete`/`activate`/`deactivate` tại `row-action-rules.ts`; không dựng cột trống khi nghiệp vụ không có thao tác.
 - **Trạng thái áp dụng:** `activate` = `CirclePlay`, `deactivate` = `PauseCircle`; xác nhận trước gửi, khóa khi chờ, badge đổi sau khi API thành công. Chính sách chỉ đổi `isActive`, điều khoản lưu theo phiên bản (FR-011/ADR-006).
-- **Bản đồ:** cơ sở/điểm nhận dùng địa chỉ thật; xe và hành trình dùng tọa độ GPS từ API, không tạo tọa độ dự phòng. Xem `docs/mapbox-frontend.md`.
+- **Bản đồ:** cơ sở/điểm nhận dùng địa chỉ thật; xe và hành trình dùng tọa độ GPS từ API, không tạo tọa độ dự phòng. Xem `docs/google-maps-frontend.md`.
 - **Ngày giờ:** `formatAdminDateTime` (`dd/MM/yyyy HH:mm`) hoặc `formatAdminDate` (`dd/MM/yyyy`) theo `Asia/Ho_Chi_Minh`.
 - Motion tối thiểu: fade 160ms khi đổi tab/panel, drawer trượt 320ms, skeleton pulse, count-up KPI một lần, đường biểu đồ 600ms. Không parallax/pin/3D trong Admin (trừ trang thuê xe có liquid transition theo reduced-motion).
 - Biểu đồ (Recharts): không gradient fill, dùng 5 màu `--chart-*` kèm nhãn trực tiếp, luôn có nút "Xem dạng bảng", tắt animation khi reduce-motion.
 
 Bảng ánh xạ trạng thái → tone (render bằng `AdminStatusBadge` glyph + mono):
->>>>>>> Stashed changes
 
 | Nhóm                | Giá trị                                            | Màu                                           | Icon                                                          |
 | ------------------- | -------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------- |
@@ -1201,7 +1190,7 @@ Chi nhánh gần nhất
 Mới nhất (năm sản xuất)
 ```
 
-`Chi nhánh gần nhất` chỉ hiển thị khi BE-36 (tìm xe gần đây bằng Mapbox) đã sẵn sàng; trước đó ẩn tùy chọn này.
+`Chi nhánh gần nhất` chỉ hiển thị khi BE-36 (tìm xe gần đây bằng Google Maps) đã sẵn sàng; trước đó ẩn tùy chọn này.
 
 Keep sorting separate from filtering.
 
@@ -1211,7 +1200,7 @@ Keep sorting separate from filtering.
 
 **Hiện tại (SRS v2.0 / DDL):** không có bản đồ GPS thời gian thực. DDL chỉ lưu `vehicles.current_location` dạng văn bản; chi nhánh (`facilities`) là đơn vị "vị trí" chính thức.
 
-**Mở rộng theo kế hoạch (BE-35, BE-36, BE-37, FE-26, FE-27, MB-01):** tìm xe gần đây bằng Mapbox (tọa độ, bán kính, khoảng cách/ETA) và theo dõi hành trình. Chỉ bật khi các module đó hoàn tất và có nơi lưu tọa độ; trước đó dùng hiển thị theo chi nhánh bên dưới.
+**Mở rộng theo kế hoạch (BE-35, BE-36, BE-37, FE-26, FE-27, MB-01):** tìm xe gần đây bằng Google Maps (tọa độ, bán kính, khoảng cách/ETA) và theo dõi hành trình. Chỉ bật khi các module đó hoàn tất và có nơi lưu tọa độ; trước đó dùng hiển thị theo chi nhánh bên dưới.
 
 Hiển thị theo chi nhánh:
 

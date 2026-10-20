@@ -28,6 +28,10 @@ export type ButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
   React.AnchorHTMLAttributes<HTMLAnchorElement>;
 
+/**
+ * Nút dùng chung mọi cổng. Hình khối và mực lấy theo Transit Desk (admin):
+ * bo 4px, phẳng, không shadow, không dịch chuyển khi hover; màu CTA theo portal.
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
     variant = "primary",
@@ -43,62 +47,44 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   },
   ref
 ) {
-  // Height and sizing per A6 & A40: control 10px radius, flexible min-height
   const sizeClasses = {
-    sm: "min-h-[38px] px-3.5 py-2 text-xs font-semibold rounded-[var(--r-control)] gap-1.5",
-    md: "min-h-[44px] px-5 py-2.5 text-sm sm:text-base font-bold rounded-[var(--r-control)] gap-2",
-    lg: "min-h-[50px] px-7 py-3.5 text-base font-bold rounded-[var(--r-control)] gap-2.5",
+    sm: "min-h-9 px-3 py-1.5 text-xs font-bold rounded gap-1.5",
+    md: "min-h-10 px-4 py-2 text-[13px] font-bold rounded gap-2",
+    lg: "min-h-11 px-5 py-2.5 text-sm font-bold rounded gap-2",
   }[size];
 
-  // Variants per A6, A40 with non-generic tactile physics, hairline specular rim
   const variantClasses = {
     primary:
-      "bg-primary hover:bg-primary-hover active:bg-primary-press text-white shadow-e1 hover:shadow-e2 active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none border border-white/20",
+      "bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "amber-hero":
-      "bg-primary hover:bg-primary-hover active:bg-primary-press text-white shadow-[0_8px_20px_-4px_rgba(180,83,9,0.35)] hover:shadow-[0_12px_24px_-6px_rgba(180,83,9,0.45)] active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:bg-sunken disabled:text-ink-3 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none border border-white/25",
+      "bg-primary text-white shadow-[0_10px_24px_-8px_rgba(180,83,9,0.45)] hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "sticky-morph":
-      "bg-stage-ink hover:bg-primary active:bg-primary-press text-white shadow-e1 hover:shadow-[0_8px_20px_-4px_rgba(180,83,9,0.35)] active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer border border-white/20",
+      "bg-stage-ink text-white hover:bg-primary transition-colors cursor-pointer",
     "filter-pill":
-      "bg-surface hover:bg-stage-ink hover:text-white text-ink border border-line-strong hover:border-stage-ink rounded-full shadow-e1 active:scale-[0.96] transition-all duration-200 cursor-pointer",
+      "rounded-full bg-td-white text-td-ink border border-td-rule hover:border-td-ink transition-colors cursor-pointer",
     secondary:
-      "bg-surface hover:bg-sunken text-ink border border-line-strong hover:border-ink-2 shadow-e1 active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none",
+      "border border-td-rule bg-transparent text-td-ink hover:bg-td-chalk transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
     "secondary-stage":
-      "glass-1 hover:bg-surface/70 text-ink shadow-e1 active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none border border-white/30",
+      "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
     ghost:
-      "bg-transparent hover:bg-sunken text-ink active:scale-[0.96] transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+      "bg-transparent text-td-ink hover:bg-td-chalk transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
     danger:
-      "bg-danger hover:bg-danger-hover text-white shadow-e1 active:scale-[0.96] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none",
+      "bg-danger text-white hover:bg-danger-hover transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
   }[variant];
 
   const isDisabled = disabled || isLoading;
   const isButton = Component === "button";
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (typeof window === "undefined" || isDisabled) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left - rect.width / 2) * 0.15;
-    const y = (e.clientY - rect.top - rect.height / 2) * 0.15;
-    e.currentTarget.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-    if (typeof window === "undefined") return;
-    e.currentTarget.style.transform = "";
-  };
 
   return (
     <Component
       ref={ref}
       disabled={isButton ? isDisabled : undefined}
       aria-disabled={isDisabled}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={`inline-flex items-center justify-center whitespace-nowrap select-none font-sans outline-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${sizeClasses} ${variantClasses} ${className}`.trim()}
+      className={`inline-flex select-none items-center justify-center whitespace-nowrap font-sans outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${sizeClasses} ${variantClasses} ${className}`.trim()}
       {...props}
     >
       {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
       ) : (
         leftIcon && <span className="shrink-0" aria-hidden="true">{leftIcon}</span>
       )}

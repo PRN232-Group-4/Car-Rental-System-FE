@@ -22,10 +22,10 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
   ) => {
     if (!inspection) {
       return (
-        <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm space-y-2">
-          <h4 className="font-bold text-ink text-sm">{title}</h4>
-          <span className="text-xs text-ink-3 block">{subtitle}</span>
-          <div className="bg-sunken rounded-xl p-4 text-center text-xs text-ink-3">
+        <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-2">
+          <h4 className="font-bold text-td-ink text-sm">{title}</h4>
+          <span className="text-xs text-td-muted block">{subtitle}</span>
+          <div className="bg-td-chalk rounded p-4 text-center text-xs text-td-muted">
             Chưa có biên bản kiểm định. Biên bản sẽ được lập khi nhân viên trực tiếp kiểm tra phương tiện.
           </div>
         </div>
@@ -35,11 +35,11 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
     const isOk = inspection.isOk ?? true;
 
     return (
-      <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm space-y-4">
+      <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h4 className="font-bold text-ink text-sm">{title}</h4>
-            <span className="text-xs text-ink-3 block">
+            <h4 className="font-bold text-td-ink text-sm">{title}</h4>
+            <span className="text-xs text-td-muted block">
               {inspection.inspectedAt ? formatDateTime(inspection.inspectedAt) : subtitle}
             </span>
           </div>
@@ -65,21 +65,21 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
         </div>
 
         {/* Chỉ số km và nhiên liệu */}
-        <div className="grid grid-cols-2 gap-3 text-xs bg-sunken rounded-xl p-3 font-mono">
+        <div className="grid grid-cols-2 gap-3 text-xs bg-td-chalk rounded p-3 font-mono">
           <div className="flex items-center gap-2">
-            <Gauge className="w-4 h-4 text-ink-3" aria-hidden="true" />
+            <Gauge className="w-4 h-4 text-td-muted" aria-hidden="true" />
             <div>
-              <span className="text-ink-3 block text-[10px] font-sans">Odometer</span>
-              <span className="font-bold text-ink">
+              <span className="text-td-muted block text-[10px] font-sans">Odometer</span>
+              <span className="font-bold text-td-ink">
                 {inspection.odometerKm ? `${inspection.odometerKm.toLocaleString()} km` : "—"}
               </span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Fuel className="w-4 h-4 text-ink-3" aria-hidden="true" />
+            <Fuel className="w-4 h-4 text-td-muted" aria-hidden="true" />
             <div>
-              <span className="text-ink-3 block text-[10px] font-sans">Mức nhiên liệu / Pin</span>
-              <span className="font-bold text-ink">
+              <span className="text-td-muted block text-[10px] font-sans">Mức nhiên liệu / Pin</span>
+              <span className="font-bold text-td-ink">
                 {typeof inspection.fuelBatteryLevel === "number"
                   ? `${inspection.fuelBatteryLevel}%`
                   : "—"}
@@ -90,8 +90,8 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
 
         {/* Ghi chú hư hại */}
         {inspection.damageNotes && (
-          <p className="text-xs text-ink-2 bg-surface border border-line rounded-lg p-3 leading-relaxed">
-            <strong className="text-ink font-semibold">Ghi chú hiện trạng: </strong>
+          <p className="text-xs text-td-ink bg-td-white border border-td-rule rounded p-3 leading-relaxed">
+            <strong className="text-td-ink font-semibold">Ghi chú hiện trạng: </strong>
             {inspection.damageNotes}
           </p>
         )}
@@ -99,7 +99,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
         {/* Thư viện ảnh chụp biên bản */}
         {inspection.imgUrls && inspection.imgUrls.length > 0 && (
           <div>
-            <span className="text-xs font-medium text-ink-3 block mb-2">
+            <span className="text-xs font-medium text-td-muted block mb-2">
               Ảnh chụp hiện trạng ({inspection.imgUrls.length} ảnh)
             </span>
             <div className="flex flex-wrap gap-2">
@@ -108,10 +108,10 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
                   key={idx}
                   type="button"
                   onClick={() => setActiveImage(url)}
-                  className="h-16 w-20 rounded-lg overflow-hidden border border-line bg-sunken hover:border-primary transition-colors relative group focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="h-16 w-20 rounded overflow-hidden border border-td-rule bg-td-chalk hover:border-primary transition-colors relative group focus:outline-none focus:ring-2 focus:ring-primary/20"
                   title="Nhấn để phóng to ảnh kiểm định"
                 >
-                  <div className="w-full h-full flex items-center justify-center text-ink-3 bg-sunken text-xs font-mono">
+                  <div className="w-full h-full flex items-center justify-center text-td-muted bg-td-chalk text-xs font-mono">
                     <ImageIcon className="w-4 h-4" />
                   </div>
                 </button>
@@ -125,7 +125,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
         Biên bản kiểm định xe (Minh bạch bàn giao)
       </h3>
 
@@ -143,19 +143,19 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
           onClick={() => setActiveImage(null)}
         >
           <div
-            className="relative max-w-3xl w-full bg-surface rounded-2xl overflow-hidden p-4"
+            className="relative max-w-3xl w-full bg-td-white rounded overflow-hidden p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setActiveImage(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-sunken text-ink hover:bg-line-strong transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full bg-td-chalk text-td-ink hover:bg-line-strong transition-colors"
               title="Đóng xem ảnh"
             >
               <X className="w-5 h-5" aria-hidden="true" />
               <span className="sr-only">Đóng</span>
             </button>
-            <div className="h-96 flex items-center justify-center text-ink-3 text-sm font-mono">
+            <div className="h-96 flex items-center justify-center text-td-muted text-sm font-mono">
               [Ảnh chụp biên bản kiểm định chi tiết: {activeImage}]
             </div>
           </div>

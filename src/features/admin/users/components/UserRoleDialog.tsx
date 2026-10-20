@@ -54,13 +54,13 @@ export function UserRoleDialog({
         size="md"
       >
         <form onSubmit={handleStartAssign} className="space-y-5">
-          <div className="rounded-xl border border-line bg-canvas p-3.5 space-y-2">
-            <span className="text-xs font-semibold text-ink-3">Vai trò hiện tại:</span>
+          <div className="rounded border border-td-rule bg-td-paper p-3.5 space-y-2">
+            <span className="text-xs font-semibold text-td-muted">Vai trò hiện tại:</span>
             <div className="flex flex-wrap gap-1.5">
               {currentRoles.map((role) => (
                 <span
                   key={role}
-                  className="rounded-md border border-line bg-surface px-2.5 py-1 font-mono text-xs font-bold text-ink"
+                  className="rounded-md border border-td-rule bg-td-white px-2.5 py-1 font-mono text-xs font-bold text-td-ink"
                 >
                   {role}
                 </span>
@@ -72,7 +72,7 @@ export function UserRoleDialog({
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value as Role)}
-              className="flex h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="flex h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               disabled={availableRoles.length === 0}
             >
               <option value="">-- Chọn vai trò cần phân bổ --</option>
@@ -85,13 +85,13 @@ export function UserRoleDialog({
           </FormField>
 
           {availableRoles.length === 0 && (
-            <p className="text-xs text-ink-3">
+            <p className="text-xs text-td-muted">
               Tài khoản này đã sở hữu toàn bộ các vai trò trong hệ thống.
             </p>
           )}
 
           {selectedRole === "Admin" && (
-            <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-bg/40 p-3 text-xs text-warning">
+            <div className="flex items-start gap-2 rounded border border-warning/30 bg-warning-bg/40 p-3 text-xs text-warning">
               <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 <strong>Cảnh báo quan trọng:</strong> Vai trò Admin cho phép toàn quyền cấu hình,
@@ -100,7 +100,7 @@ export function UserRoleDialog({
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-td-rule">
             <Button
               type="button"
               variant="secondary"

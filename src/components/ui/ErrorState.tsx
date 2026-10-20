@@ -4,7 +4,8 @@ import { cn } from "@/lib/cn";
 
 export interface ErrorStateProps {
   title?: string;
-  message: string;
+  message?: string;
+  error?: unknown;
   traceId?: string;
   onRetry?: () => void;
   action?: ReactNode;
@@ -14,37 +15,52 @@ export interface ErrorStateProps {
 export function ErrorState({
   title = "Đã xảy ra lỗi",
   message,
-  traceId,
+  error,
+  traceId: explicitTraceId,
   onRetry,
   action,
   className,
 }: ErrorStateProps) {
+  // Trích xuất message và traceId từ error object nếu có
+  const resolvedMessage =
+    message ||
+    (error instanceof Error ? error.message : null) ||
+    "Không thể tải hoặc xử lý dữ liệu yêu cầu. Vui lòng thử lại.";
+
+  const resolvedTraceId =
+    explicitTraceId ||
+    (error && typeof error === "object" && "traceId" in error
+      ? String((error as { traceId: unknown }).traceId)
+      : undefined);
+
   return (
     <div
       role="alert"
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border border-danger/20 bg-danger-bg/30 p-6 text-center sm:p-8",
+        "flex flex-col items-start gap-3 border-l-2 border-danger bg-td-white px-5 py-4",
         className,
       )}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-danger-bg text-danger shadow-e1">
-        <AlertTriangle className="h-6 w-6" aria-hidden="true" />
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden="true" />
+        <div>
+          <h3 className="text-sm font-bold text-td-ink">{title}</h3>
+          <p className="mt-1 max-w-md text-xs leading-relaxed text-td-muted">{resolvedMessage}</p>
+          {resolvedTraceId && (
+            <p className="mt-2 inline-block rounded border border-td-rule px-2 py-1 font-mono text-[11px] text-td-muted">
+              Mã tham chiếu: <span className="select-all">{resolvedTraceId}</span>
+            </p>
+          )}
+        </div>
       </div>
-      <h3 className="mt-4 text-base font-semibold text-ink">{title}</h3>
-      <p className="mt-1.5 max-w-md text-sm text-ink-2">{message}</p>
-      {traceId && (
-        <p className="mt-2 text-xs font-mono text-ink-3 bg-surface px-2.5 py-1 rounded-md border border-line">
-          Mã tham chiếu: <span className="select-all">{traceId}</span>
-        </p>
-      )}
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover active:bg-primary-press"
+            className="inline-flex items-center gap-2 rounded border border-td-rule px-3 py-1.5 text-xs font-bold text-td-ink transition-colors hover:bg-td-chalk"
           >
-            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             <span>Thử lại</span>
           </button>
         )}

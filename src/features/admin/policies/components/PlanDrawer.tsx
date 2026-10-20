@@ -87,11 +87,11 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Cảnh báo khi sửa gói đã có người mua */}
         {isEditing && (planToEdit?.subscribersCount ?? 0) > 0 && (
-          <div className="flex items-start gap-2.5 p-3.5 bg-warning-bg/40 border border-warning/20 rounded-xl text-xs text-ink-2">
+          <div className="flex items-start gap-2.5 p-3.5 bg-warning-bg/40 border border-warning/20 rounded text-xs text-td-ink">
             <AlertCircle className="w-4 h-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
             <p className="leading-relaxed">
-              <strong className="text-ink font-semibold">Lưu ý quản trị:</strong> Gói này đang có{" "}
-              <span className="font-mono font-bold text-ink">{planToEdit?.subscribersCount}</span> khách hàng sử dụng. Các thay đổi về giá hoặc hạn mức chỉ áp dụng cho người mua mới từ bây giờ; các gói đã kích hoạt trước đó giữ nguyên quyền lợi.
+              <strong className="text-td-ink font-semibold">Lưu ý quản trị:</strong> Gói này đang có{" "}
+              <span className="font-mono font-bold text-td-ink">{planToEdit?.subscribersCount}</span> khách hàng sử dụng. Các thay đổi về giá hoặc hạn mức chỉ áp dụng cho người mua mới từ bây giờ; các gói đã kích hoạt trước đó giữ nguyên quyền lợi.
             </p>
           </div>
         )}
@@ -107,7 +107,7 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
             type="text"
             {...register("name")}
             placeholder="Ví dụ: Gói Cuối Tuần Năng Động, Gói Đô Thị 30 Ngày..."
-            className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
           />
         </FormField>
 
@@ -123,7 +123,7 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
               type="number"
               step="1000"
               {...register("price", { valueAsNumber: true })}
-              className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface font-mono text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white font-mono text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
             />
           </FormField>
 
@@ -136,7 +136,7 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
             <input
               type="number"
               {...register("includedHours", { valueAsNumber: true })}
-              className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface font-mono text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white font-mono text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
             />
           </FormField>
 
@@ -149,7 +149,7 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
             <input
               type="number"
               {...register("durationDays", { valueAsNumber: true })}
-              className="w-full h-11 px-3.5 rounded-lg border border-line bg-surface font-mono text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white font-mono text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
             />
           </FormField>
         </div>
@@ -164,15 +164,15 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
             rows={3}
             {...register("description")}
             placeholder="Nêu rõ đối tượng phù hợp và quyền lợi nổi bật của gói..."
-            className="w-full p-3 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full p-3 rounded border border-td-rule bg-td-white text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
           />
         </FormField>
 
         {/* Công tắc mở bán */}
-        <div className="flex items-center justify-between p-3.5 bg-surface rounded-xl border border-line">
+        <div className="flex items-center justify-between p-3.5 bg-td-white rounded border border-td-rule">
           <div>
-            <span className="text-sm font-bold text-ink block">Mở bán gói thuê bao</span>
-            <span className="text-xs text-ink-3 block">
+            <span className="text-sm font-bold text-td-ink block">Mở bán gói thuê bao</span>
+            <span className="text-xs text-td-muted block">
               Cho phép khách hàng tìm thấy và đăng ký thanh toán gói này trên ứng dụng.
             </span>
           </div>
@@ -185,8 +185,8 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
                 role="switch"
                 aria-checked={field.value}
                 onClick={() => field.onChange(!field.value)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/20 ${
-                  field.value ? "bg-primary" : "bg-line-strong"
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-td-oxide/20 ${
+                  field.value ? "bg-td-oxide" : "bg-line-strong"
                 }`}
               >
                 <span
@@ -203,7 +203,7 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
         <PlanCardPreview plan={watchedValues} subscribersCount={planToEdit?.subscribersCount} />
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-line">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-td-rule">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
             Hủy bỏ
           </Button>

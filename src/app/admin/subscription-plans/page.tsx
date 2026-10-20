@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Plus, Edit2, Trash2, Power, Layers } from "lucide-react";
+import { Plus, Edit2, Trash2, Power } from "lucide-react";
 import { toast } from "sonner";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { Button } from "@/components/ui/Button";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { formatVnd } from "@/lib/format";
 import {
@@ -94,9 +95,9 @@ export default function SubscriptionPlansPage() {
         header: "Tên gói & Mô tả",
         cell: ({ row }) => (
           <div className="space-y-0.5">
-            <div className="font-bold text-ink">{row.original.name}</div>
+            <div className="font-bold text-td-ink">{row.original.name}</div>
             {row.original.description && (
-              <div className="text-xs text-ink-3 line-clamp-1 max-w-xs">
+              <div className="text-xs text-td-muted line-clamp-1 max-w-xs">
                 {row.original.description}
               </div>
             )}
@@ -107,7 +108,7 @@ export default function SubscriptionPlansPage() {
         id: "price",
         header: "Giá trọn gói",
         cell: ({ row }) => (
-          <span className="font-mono font-bold text-ink text-sm">
+          <span className="font-mono font-bold text-td-ink text-sm">
             {formatVnd(row.original.price)}
           </span>
         ),
@@ -116,14 +117,14 @@ export default function SubscriptionPlansPage() {
         id: "durationDays",
         header: "Thời hạn",
         cell: ({ row }) => (
-          <span className="font-mono text-ink text-sm">{row.original.durationDays} ngày</span>
+          <span className="font-mono text-td-ink text-sm">{row.original.durationDays} ngày</span>
         ),
       },
       {
         id: "includedHours",
         header: "Hạn mức giờ",
         cell: ({ row }) => (
-          <span className="font-mono font-semibold text-primary text-sm">
+          <span className="font-mono font-semibold text-td-oxide text-sm">
             {row.original.includedHours} giờ
           </span>
         ),
@@ -134,7 +135,7 @@ export default function SubscriptionPlansPage() {
         cell: ({ row }) => {
           const rate = calculateHourlyRate(row.original.price, row.original.includedHours);
           return (
-            <span className="font-mono text-xs text-ink-2">
+            <span className="font-mono text-xs text-td-muted">
               ~{formatVnd(rate)} / giờ
             </span>
           );
@@ -144,7 +145,7 @@ export default function SubscriptionPlansPage() {
         id: "subscribersCount",
         header: "Người dùng",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-ink-3">
+          <span className="font-mono text-xs text-td-muted">
             {row.original.subscribersCount ?? 0}
           </span>
         ),
@@ -153,10 +154,9 @@ export default function SubscriptionPlansPage() {
         id: "status",
         header: "Trạng thái",
         cell: ({ row }) => (
-          <StatusBadge
-            status={row.original.isActive ? "active" : "draft"}
-            label={row.original.isActive ? "Đang bán" : "Ngừng bán"}
-          />
+          <AdminStatusBadge domain="activity" status={row.original.isActive ? "active" : "inactive"}>
+            {row.original.isActive ? "Đang bán" : "Ngừng bán"}
+          </AdminStatusBadge>
         ),
       },
       {
@@ -169,7 +169,7 @@ export default function SubscriptionPlansPage() {
               <button
                 type="button"
                 onClick={() => handleToggleActive(plan)}
-                className="p-1.5 rounded-lg text-ink-3 hover:text-ink hover:bg-sunken"
+                className="p-1.5 rounded text-td-ink hover:bg-td-chalk"
                 title={plan.isActive ? "Ngừng bán gói này" : "Mở bán lại gói này"}
               >
                 <Power className="w-4 h-4" aria-hidden="true" />
@@ -180,7 +180,7 @@ export default function SubscriptionPlansPage() {
               <button
                 type="button"
                 onClick={() => handleOpenEdit(plan)}
-                className="p-1.5 rounded-lg text-ink-3 hover:text-ink hover:bg-sunken"
+                className="p-1.5 rounded text-td-ink hover:bg-td-chalk"
                 title="Chỉnh sửa thông tin gói"
               >
                 <Edit2 className="w-4 h-4" aria-hidden="true" />
@@ -189,7 +189,7 @@ export default function SubscriptionPlansPage() {
               <button
                 type="button"
                 onClick={() => setDeletingPlan(plan)}
-                className="p-1.5 rounded-lg text-ink-3 hover:text-danger hover:bg-danger-bg/40"
+                className="p-1.5 rounded text-td-ink hover:text-danger hover:bg-danger-bg/40"
                 title="Xóa gói thuê bao"
               >
                 <Trash2 className="w-4 h-4" aria-hidden="true" />
@@ -206,32 +206,28 @@ export default function SubscriptionPlansPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-                <Layers className="w-4 h-4" />
-                <span>Sản Phẩm & Dịch Vụ</span>
-              </div>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-ink mt-1">
-                Gói thuê bao di chuyển
-              </h1>
-              <p className="text-sm text-ink-3 mt-1 max-w-2xl">
-                Quản lý danh mục các gói thuê bao giờ linh hoạt, thiết lập thời hạn và đơn giá quy đổi cho khách hàng toàn hệ thống.
-              </p>
-            </div>
-            <Button
-              variant="primary"
+          <TransitFolio
+            index="06"
+            tag="PLC"
+            kicker="CHÍNH SÁCH · GÓI THUÊ BAO"
+            title={<>Gói thuê bao <em className="italic text-td-teal">di chuyển.</em></>}
+            description="Quản lý danh mục các gói thuê bao giờ linh hoạt, thiết lập thời hạn và đơn giá quy đổi cho khách hàng toàn hệ thống."
+          >
+            <TransitFolioMetric label="DANH MỤC · TỔNG SỐ GÓI" value={isLoading ? <Skeleton className="h-8 w-16" /> : String(plans.length).padStart(2, "0")} />
+            <button
+              type="button"
               onClick={handleOpenCreate}
-              className="flex items-center gap-1.5"
+              className="inline-flex items-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover"
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
               <span>Tạo gói mới</span>
-            </Button>
-          </div>
+            </button>
+          </TransitFolio>
 
           {/* Bảng danh sách gói */}
-          <div className="bg-surface rounded-2xl border border-line shadow-sm overflow-hidden">
+          <div className="border-t border-td-ink">
             <DataTable
+              className="!border-t-0"
               caption="Danh sách các gói thuê bao di chuyển trả trước"
               columns={columns}
               data={plans}

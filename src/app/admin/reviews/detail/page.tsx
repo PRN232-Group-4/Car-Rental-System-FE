@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useReview } from "@/features/admin/reviews/hooks";
 import { ReviewDetailView } from "@/features/admin/reviews/components/ReviewDetailView";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function ReviewDetailPage() {
   const searchParams = useSearchParams();
@@ -23,7 +24,7 @@ export default function ReviewDetailPage() {
           <div>
             <Link
               href="/admin/reviews"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-3 transition hover:text-ink"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-muted transition hover:text-td-ink"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Quay lại danh sách đánh giá</span>
@@ -37,8 +38,16 @@ export default function ReviewDetailPage() {
             />
           )}
 
+          <TransitFolio
+            index="03"
+            tag="TRI"
+            kicker="CHĂM SÓC & SỰ CỐ · HỒ SƠ ĐÁNH GIÁ"
+            title={<>Chi tiết <em className="italic text-td-teal">đánh giá.</em></>}
+            description="Nội dung nhận xét, bằng chứng chuyến đi và thao tác kiểm duyệt."
+          />
+
           {reviewId && isLoading && (
-            <div className="flex h-64 animate-pulse items-center justify-center rounded-2xl border border-line bg-surface text-xs text-ink-3">
+            <div className="flex h-64 animate-pulse items-center justify-center rounded border border-td-rule bg-td-white font-mono text-xs text-td-muted">
               Đang tải chi tiết đánh giá #{reviewId}...
             </div>
           )}
@@ -51,7 +60,7 @@ export default function ReviewDetailPage() {
           )}
 
           {reviewId && review && (
-            <div className="rounded-2xl border border-line bg-surface p-6 shadow-e1">
+            <div className="rounded border border-td-rule bg-td-white p-6">
               <ReviewDetailView review={review} onRefresh={() => refetch()} />
             </div>
           )}

@@ -14,7 +14,6 @@ import { getLicenseState } from "@/features/admin/staff/license-utils";
 import { Button } from "@/components/ui/Button";
 import { formatDate, nowGmt7 } from "@/lib/time";
 import {
-  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -86,48 +85,50 @@ function DriverScheduleContent() {
   return (
     <div className="space-y-6">
       {/* 1. Header trang */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-            <CalendarIcon className="w-4 h-4" />
-            <span>Lịch Trình Vận Hành</span>
+      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
+        <div className="flex items-start gap-5">
+          <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">05<br />DSP</span>
+          <div>
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · LỊCH TRÌNH VẬN HÀNH</span>
+            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
+              Bảng lịch trình <em className="italic text-td-teal">tài xế.</em>
+            </h1>
+            <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">
+              Theo dõi phân bổ chuyến đi, vùng đệm 60 phút và chỉ định / thay đổi tài xế kịp thời.
+            </p>
           </div>
-          <h1 className="mt-1 text-2xl font-black text-ink tracking-tight">
-            Bảng Lịch Trình Tài Xế Toàn Hệ Thống
-          </h1>
-          <p className="mt-1 text-xs text-ink-3">
-            Theo dõi phân bổ chuyến đi, vùng đệm 60 phút và chỉ định / thay đổi tài xế kịp thời.
-          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3 self-start sm:self-end">
           {/* Nút chuyển chế độ xem Ma trận lưới vs Danh sách (A11y) */}
-          <div className="flex items-center rounded-xl border border-line bg-surface p-1 shadow-xs">
+          <div className="flex items-center gap-2 font-mono text-xs">
             <button
               type="button"
               onClick={() => setViewMode("grid")}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+              aria-pressed={viewMode === "grid"}
+              className={`flex items-center gap-1.5 border-b-2 px-3 py-1 font-semibold transition-colors cursor-pointer ${
                 viewMode === "grid"
-                  ? "bg-primary text-white"
-                  : "text-ink-3 hover:text-ink hover:bg-canvas"
+                  ? "border-td-oxide text-td-oxide"
+                  : "border-transparent text-td-muted hover:text-td-ink"
               }`}
               title="Xem ma trận tuần"
             >
               <Grid3X3 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Lưới tuần</span>
+              <span>Lưới tuần</span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+              aria-pressed={viewMode === "list"}
+              className={`flex items-center gap-1.5 border-b-2 px-3 py-1 font-semibold transition-colors cursor-pointer ${
                 viewMode === "list"
-                  ? "bg-primary text-white"
-                  : "text-ink-3 hover:text-ink hover:bg-canvas"
+                  ? "border-td-oxide text-td-oxide"
+                  : "border-transparent text-td-muted hover:text-td-ink"
               }`}
               title="Xem danh sách (hỗ trợ trình đọc màn hình)"
             >
               <List className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Danh sách</span>
+              <span>Danh sách</span>
             </button>
           </div>
 
@@ -142,7 +143,7 @@ function DriverScheduleContent() {
       </div>
 
       {/* 2. Thanh điều khiển tuần & bộ lọc cơ sở */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-td-ink pb-4">
         {/* Điều hướng tuần */}
         <div className="flex items-center gap-2">
           <Button
@@ -172,18 +173,18 @@ function DriverScheduleContent() {
             <ChevronRight className="w-4 h-4" />
           </Button>
 
-          <span className="font-mono text-sm font-bold text-ink ml-2">
+          <span className="font-mono text-sm font-bold text-td-ink ml-2">
             {weekRangeLabel}
           </span>
         </div>
 
         {/* Lọc cơ sở */}
         <div className="flex items-center gap-3">
-          <span className="text-xs text-ink-3 whitespace-nowrap">Trạm / Cơ sở:</span>
+          <span className="text-xs text-td-muted whitespace-nowrap">Trạm / Cơ sở:</span>
           <select
             value={selectedFacilityId}
             onChange={(e) => setSelectedFacilityId(e.target.value)}
-            className="h-9 rounded-xl border border-line bg-surface px-3 text-xs font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-8 rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Tất cả chi nhánh</option>
             {facilities.map((f) => (
@@ -197,12 +198,12 @@ function DriverScheduleContent() {
 
       {/* 3. Bảng Lưới Tuần (Desktop / Grid View) */}
       {viewMode === "grid" ? (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-surface shadow-e1">
+        <div className="overflow-x-auto border-t border-td-ink">
           <table className="w-full border-collapse text-left text-xs min-w-[900px]">
             <caption className="sr-only">Lịch trình công tác của đội ngũ tài xế theo tuần</caption>
-            <thead className="border-b border-line bg-sunken">
+            <thead className="border-b border-td-ink font-mono text-[11px] uppercase tracking-wider text-td-muted">
               <tr>
-                <th className="p-3 font-bold uppercase text-ink-3 w-48 border-r border-line">
+                <th className="p-3 text-left font-bold w-48 border-r border-td-rule">
                   Tài xế ({drivers.length})
                 </th>
                 {weekDays.map((d, index) => {
@@ -212,11 +213,11 @@ function DriverScheduleContent() {
                   return (
                     <th
                       key={index}
-                      className={`p-3 text-center border-r border-line last:border-r-0 ${
-                        isToday ? "bg-primary-tint/30 text-primary font-black" : "text-ink"
+                      className={`p-3 text-center border-r border-td-rule last:border-r-0 ${
+                        isToday ? "bg-td-chalk text-td-oxide font-black" : "text-td-ink"
                       }`}
                     >
-                      <span className="block text-[11px] font-mono text-ink-3">
+                      <span className="block text-[11px] font-mono text-td-muted">
                         {dayNames[index]}
                       </span>
                       <span className="block text-sm font-bold">
@@ -228,19 +229,19 @@ function DriverScheduleContent() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-line bg-surface">
+            <tbody className="divide-y divide-td-rule">
               {drivers.map((driver) => {
                 const licenseCalc = getLicenseState(driver.license?.expiryDate);
 
                 return (
-                  <tr key={driver.id} className="hover:bg-canvas/50 transition-colors">
+                  <tr key={driver.id} className="hover:bg-td-chalk/50 transition-colors">
                     {/* Cột thông tin tài xế */}
-                    <td className="p-3 border-r border-line bg-surface">
+                    <td className="p-3 border-r border-td-rule">
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5">
                           <Link
                             href={`/admin/staffs/detail?id=${driver.id}`}
-                            className="font-bold text-xs text-ink hover:text-primary transition-colors truncate block max-w-[140px]"
+                            className="font-bold text-xs text-td-ink hover:text-td-oxide transition-colors truncate block max-w-[140px]"
                           >
                             {driver.fullName}
                           </Link>
@@ -271,7 +272,7 @@ function DriverScheduleContent() {
                       return (
                         <td
                           key={dayIndex}
-                          className="p-1.5 border-r border-line last:border-r-0 align-top h-24"
+                          className="p-1.5 border-r border-td-rule last:border-r-0 align-top h-24"
                         >
                           {daySchedules.length > 0 ? (
                             <div className="space-y-1.5">
@@ -286,21 +287,21 @@ function DriverScheduleContent() {
                                       driver.fullName
                                     )
                                   }
-                                  className="group rounded-xl border border-primary/30 bg-primary-tint/20 p-2 shadow-xs transition-all hover:border-primary hover:bg-primary-tint/40 cursor-pointer"
+                                  className="group rounded border border-td-oxide/30 bg-td-chalk p-2 transition-colors hover:border-td-oxide cursor-pointer"
                                   title={`Đơn #${sched.rentalId}: ${sched.vehicleName} (${sched.licensePlate}). Bấm để đổi tài xế.`}
                                 >
-                                  <div className="flex items-center justify-between font-mono text-[10px] font-bold text-primary">
+                                  <div className="flex items-center justify-between font-mono text-[10px] font-bold text-td-oxide">
                                     <span>#{sched.rentalId}</span>
                                     <span>{formatDate(sched.start, "HH:mm")}</span>
                                   </div>
 
-                                  <p className="mt-0.5 truncate text-[11px] font-bold text-ink">
+                                  <p className="mt-0.5 truncate text-[11px] font-bold text-td-ink">
                                     {sched.vehicleName}
                                   </p>
 
-                                  <div className="mt-1 flex items-center justify-between text-[10px] text-ink-3">
+                                  <div className="mt-1 flex items-center justify-between text-[10px] text-td-muted">
                                     <span className="font-mono">{sched.licensePlate}</span>
-                                    <span className="rounded bg-surface px-1 text-[9px] font-bold text-ink-2">
+                                    <span className="rounded bg-td-white px-1 text-[9px] font-bold text-td-ink">
                                       +{sched.bufferMinutes || 60}p
                                     </span>
                                   </div>
@@ -308,7 +309,7 @@ function DriverScheduleContent() {
                               ))}
                             </div>
                           ) : (
-                            <div className="h-full flex items-center justify-center text-[10px] text-ink-3/40">
+                            <div className="h-full flex items-center justify-center text-[10px] text-td-muted/50">
                               Trống
                             </div>
                           )}
@@ -325,38 +326,37 @@ function DriverScheduleContent() {
         /* 4. Xem Dạng Danh Sách (A11y / Mobile View) */
         <div className="space-y-4">
           {schedules.length === 0 ? (
-            <div className="rounded-2xl border border-line bg-surface p-8 text-center text-xs text-ink-3">
+            <div className="border-t border-td-ink py-12 text-center font-mono text-xs text-td-muted">
               Không có chuyến đi nào được lên lịch trong khoảng thời gian này.
             </div>
           ) : (
             schedules.map((s) => (
               <div
                 key={s.assignmentId}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 shadow-e1"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-td-rule py-4"
               >
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-ink">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-td-ink">
                       Đơn thuê #{s.rentalId}
                     </span>
-                    <span className="rounded bg-primary-tint px-2 py-0.5 text-xs font-bold text-primary">
+                    <span className="rounded bg-td-chalk px-2 py-0.5 font-mono text-[11px] font-bold text-td-oxide">
                       {s.vehicleName} ({s.licensePlate})
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-ink-2">
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-td-muted">
                     <span className="flex items-center gap-1 font-bold">
-                      <UserCheck className="w-3.5 h-3.5 text-primary" />
+                      <UserCheck className="w-3.5 h-3.5 text-td-oxide" />
                       {s.driverName}
                     </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1 font-mono text-ink-3">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span className="flex items-center gap-1 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-td-oxide" />
                       {formatDate(s.start, "HH:mm dd/MM")} - {formatDate(s.end, "HH:mm dd/MM/yyyy")}
                     </span>
                   </div>
 
-                  {s.note && <p className="text-xs text-ink-3 italic">{s.note}</p>}
+                  {s.note && <p className="text-xs text-td-muted italic">{s.note}</p>}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -405,7 +405,7 @@ function DriverScheduleContent() {
 export default function DriverSchedulePage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager", "Staff"]}>
-        <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
+        <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <DriverScheduleContent />
         </Suspense>
     </AuthGate>

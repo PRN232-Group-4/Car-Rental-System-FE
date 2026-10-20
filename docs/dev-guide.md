@@ -6,24 +6,11 @@
 
 ## 1. Các chế độ khởi chạy (Development Modes)
 
-### Chế độ 1: Mock Mode (Không cần Backend)
-Phù hợp khi phát triển giao diện, kiểm thử nhanh trạng thái UI hoặc khi Backend đang bảo trì:
-
-```bash
-# Bật cờ mock trong môi trường dev
-NEXT_PUBLIC_USE_MOCK=true npm run dev
-```
-
-Hoặc thêm vào file `.env.local`:
-```env
-NEXT_PUBLIC_USE_MOCK=true
-```
-- Khi bật cờ này, `ApiClient` sẽ tự động định tuyến toàn bộ request qua `mockFetch` (`src/api/mock/mock-fetch.ts`).
-- Dữ liệu mock được lưu trong bộ nhớ (`MockDataStore`), hỗ trợ đầy đủ các thao tác đọc/ghi mô phỏng (tạo đơn thuê, duyệt xe, gói thuê bao).
+> Không còn chế độ mock/dữ liệu mẫu: app luôn gọi backend thật. Khi backend không chạy, màn hình hiển thị trạng thái lỗi và nút thử lại.
 
 ---
 
-### Chế độ 2: Dev với Backend Local (Cùng máy)
+### Chế độ 1: Dev với Backend Local (Cùng máy)
 Khi bạn chạy Backend .NET API cục bộ tại cổng `5000` hoặc `5001`:
 
 ```bash
@@ -33,7 +20,6 @@ DEV_API_ORIGIN=http://localhost:5000 npm run dev
 Hoặc trong `.env.local`:
 ```env
 DEV_API_ORIGIN=http://localhost:5000
-NEXT_PUBLIC_USE_MOCK=false
 ```
 
 - `next.config.ts` sẽ thiết lập rewrite: mọi request bắt đầu bằng `/api/*` sẽ được proxy sang `DEV_API_ORIGIN/api/*`.

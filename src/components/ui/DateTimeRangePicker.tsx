@@ -342,6 +342,7 @@ export function DateTimeRangePicker({
                   <select
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
+                    aria-label="Giờ nhận xe (GMT+7)"
                     className="w-full rounded-xl border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
                   >
                     {timeSlots.map((slot) => (
@@ -360,6 +361,7 @@ export function DateTimeRangePicker({
                   <select
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
+                    aria-label="Giờ trả xe (GMT+7)"
                     className="w-full rounded-xl border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
                   >
                     {timeSlots.map((slot) => (

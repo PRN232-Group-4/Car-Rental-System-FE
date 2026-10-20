@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { Check, ChevronLeft, ChevronRight, Plus, ReceiptText, Tags, WalletCards } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   createRentalPolicy,
   createSubscriptionPlan,
@@ -25,6 +25,8 @@ import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/adm
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 
 type CatalogKey = "vehicle-types" | "policies" | "subscription-plans";
 type CatalogRecord = { id: number; values: Record<string, string>; active: boolean };
@@ -37,21 +39,30 @@ type Field = {
   options?: { value: string; label: string }[];
 };
 
-const catalogInfo: Record<CatalogKey, { title: string; description: string; icon: typeof Tags }> = {
+const catalogInfo: Record<CatalogKey, { title: string; description: string; index: string; tag: string; kicker: string; folio: React.ReactNode }> = {
   "vehicle-types": {
     title: "Loại phương tiện",
     description: "Quản lý loại phương tiện và nhiên liệu mặc định.",
-    icon: Tags,
+    index: "02",
+    tag: "FLT",
+    kicker: "TÀI SẢN · PHÂN LOẠI XE",
+    folio: <>Loại <em className="italic text-td-teal">phương tiện.</em></>,
   },
   policies: {
     title: "Chính sách thuê xe",
     description: "Cấu hình VAT, phí trễ giờ và đặt cọc cho từng loại phương tiện.",
-    icon: ReceiptText,
+    index: "06",
+    tag: "PLC",
+    kicker: "CHÍNH SÁCH · ĐIỀU KHOẢN THUÊ",
+    folio: <>Chính sách <em className="italic text-td-teal">thuê xe.</em></>,
   },
   "subscription-plans": {
     title: "Gói đăng ký",
     description: "Quản lý gói thuê bao, thời hạn, số giờ sử dụng và quyền lợi.",
-    icon: WalletCards,
+    index: "06",
+    tag: "PLC",
+    kicker: "CHÍNH SÁCH · GÓI THUÊ BAO",
+    folio: <>Gói <em className="italic text-td-teal">đăng ký.</em></>,
   },
 };
 
@@ -105,7 +116,6 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
   const showActions = canManage;
 
   const info = catalogInfo[catalog];
-  const Icon = info.icon;
   const [records, setRecords] = useState<CatalogRecord[]>([]);
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
   const [policyPage, setPolicyPage] = useState(1);
@@ -244,34 +254,37 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span>
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{info.title}</h2>
-          </div>
-        </div>
-        {canManage && catalog !== "policies" && (
-          <button type="button" onClick={() => openForm()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover">
-            <Plus className="h-4 w-4" /> Thêm mới
+      <TransitFolio
+        index={info.index}
+        tag={info.tag}
+        kicker={info.kicker}
+        title={info.folio}
+        description={info.description}
+      >
+        <TransitFolioMetric
+          label="DANH MỤC · TỔNG SỐ"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(catalog === "policies" ? policyTotal : records.length).padStart(2, "0")}
+        />
+        {canManage && (
+          <button
+            type="button"
+            onClick={() => openForm()}
+            disabled={catalog === "policies" && (loading || !!loadError)}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" /> {catalog === "policies" ? "Thêm chính sách" : "Thêm mới"}
           </button>
         )}
-        {canManage && catalog === "policies" && (
-          <button type="button" onClick={() => openForm()} disabled={loading || !!loadError} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover disabled:opacity-60">
-            <Plus className="h-4 w-4" /> Thêm chính sách
-          </button>
-        )}
-      </div>
-      <p className="text-sm text-ink-3">{info.description}</p>
-      {catalog === "policies" && <p className="rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-2">Mỗi chính sách là một phiên bản được giữ lại cho lịch sử thuê xe. Khi đổi điều khoản, hãy tạm ngưng chính sách đang hoạt động của loại xe trước khi tạo phiên bản mới. Các đơn thuê đã tạo giữ nguyên điều khoản và giá. Số lần thuê là tổng đơn đã gắn với từng chính sách, gồm mọi trạng thái.</p>}
-      {loadError && <div className="flex flex-wrap items-center gap-3 rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm"><p role="alert" className="text-danger">{loadError}</p><button type="button" onClick={() => void loadRecords()} className="font-semibold text-primary underline">Thử lại</button></div>}
-      {catalog === "policies" && statusError && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{statusError}</p>}
+      </TransitFolio>
+      {catalog === "policies" && <p className="max-w-3xl border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">Mỗi chính sách là một phiên bản được giữ lại cho lịch sử thuê xe. Khi đổi điều khoản, hãy tạm ngưng chính sách đang hoạt động của loại xe trước khi tạo phiên bản mới. Các đơn thuê đã tạo giữ nguyên điều khoản và giá. Số lần thuê là tổng đơn đã gắn với từng chính sách, gồm mọi trạng thái.</p>}
+      {loadError && <div className="flex flex-wrap items-center gap-3 border-l-2 border-danger pl-3 text-sm"><p role="alert" className="text-danger">{loadError}</p><button type="button" onClick={() => void loadRecords()} className="font-semibold text-td-oxide underline">Thử lại</button></div>}
+      {catalog === "policies" && statusError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{statusError}</p>}
       {catalog === "policies" && statusPendingId !== null && <p role="status" className="sr-only">Đang cập nhật trạng thái chính sách...</p>}
 
       <AdminTableCard>
-        <div className="border-b border-line px-5 py-4">
-          <h3 className="font-bold text-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
-          <p className="mt-1 text-xs text-ink-3">{loading ? "Đang tải..." : `${catalog === "policies" ? policyTotal : records.length} mục`}</p>
+        <div className="border-b border-td-rule pb-2 pt-3">
+          <h3 className="text-sm font-bold text-td-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
+          <p className="mt-1 font-mono text-[11px] text-td-muted">{loading ? "Đang tải..." : `${catalog === "policies" ? policyTotal : records.length} mục`}</p>
         </div>
         <AdminTable aria-busy={loading} className="min-w-[680px]">
           <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
@@ -286,7 +299,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
             {loading ? <AdminTableSkeleton columns={columns.length + (showActions ? 2 : 1)} /> : records.map((record) => (
               <tr key={record.id}>
                 {columns.map((column) => (
-                  <td key={column.key} className="text-ink">
+                  <td key={column.key} className="text-td-ink">
                     {column.key === "rentalCount" ? (record.values.rentalCount === "" ? "—" : Number(record.values.rentalCount).toLocaleString("vi-VN"))
                       : column.key === "price" ? `${Number(record.values.price || 0).toLocaleString("vi-VN")} ₫`
                       : ["vatRate", "overtimeFeeRate", "depositPercentage"].includes(column.key) ? `${record.values[column.key] ?? "—"}%`
@@ -313,11 +326,11 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
             {!loading && !loadError && records.length === 0 && <AdminTableEmptyRow colSpan={columns.length + (showActions ? 2 : 1)}>Không có dữ liệu.</AdminTableEmptyRow>}
           </tbody>
         </AdminTable>
-        {catalog === "policies" && <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-4 text-xs text-ink-3">
+        {catalog === "policies" && <div className="flex flex-wrap items-center justify-between gap-3 border-t border-td-rule py-3 font-mono text-[11px] text-td-muted">
           <span>Trang {policyPage} / {policyPageCount} · {policyTotal} chính sách</span>
           <nav aria-label="Phân trang chính sách" className="flex items-center gap-2">
-            <button type="button" aria-label="Trang chính sách trước" disabled={loading || policyPage <= 1} onClick={() => setPolicyPage((page) => page - 1)} className="rounded-lg border border-line bg-surface p-2 text-ink-3 disabled:opacity-40"><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
-            <button type="button" aria-label="Trang chính sách sau" disabled={loading || policyPage >= policyPageCount} onClick={() => setPolicyPage((page) => page + 1)} className="rounded-lg border border-line bg-surface p-2 text-ink-3 disabled:opacity-40"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
+            <button type="button" aria-label="Trang chính sách trước" disabled={loading || policyPage <= 1} onClick={() => setPolicyPage((page) => page - 1)} className="rounded border border-td-rule p-1.5 text-td-ink disabled:opacity-40"><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
+            <button type="button" aria-label="Trang chính sách sau" disabled={loading || policyPage >= policyPageCount} onClick={() => setPolicyPage((page) => page + 1)} className="rounded border border-td-rule p-1.5 text-td-ink disabled:opacity-40"><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>
           </nav>
         </div>}
       </AdminTableCard>
@@ -333,7 +346,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
             }} className="space-y-4">
               {fieldsByCatalog[catalog].map((field) => (
                 <label key={field.key} htmlFor={`catalog-${field.key}`} className="block">
-                  <span className="mb-2 block text-sm font-semibold text-ink">{field.label}</span>
+                  <span className="mb-2 block text-sm font-semibold text-td-ink">{field.label}</span>
                   {field.type === "textarea" ? (
                     <InlineTextarea name={field.key} id={`catalog-${field.key}`} required={field.required} value={values[field.key] ?? ""} onChange={(event) => {
                       const value = event.currentTarget.value;
@@ -357,8 +370,8 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
               ))}
               {error && <p role="alert" className="text-sm text-danger">{error}</p>}
               <FormDialogFooter>
-                <button type="button" disabled={saving} onClick={() => setFormOpen(false)} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button>
-                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
+                <button type="button" disabled={saving} onClick={() => setFormOpen(false)} className="rounded border border-td-rule px-4 py-2.5 text-sm font-semibold text-td-ink hover:bg-td-paper disabled:opacity-60">Hủy</button>
+                <button type="submit" disabled={saving} className="inline-flex items-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white hover:bg-td-oxide-hover disabled:opacity-60"><Check className="h-4 w-4" />{saving ? "Đang lưu..." : "Lưu thay đổi"}</button>
               </FormDialogFooter>
             </ValidatedForm>
         </FormDialog>

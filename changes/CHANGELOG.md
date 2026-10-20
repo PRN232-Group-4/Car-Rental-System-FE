@@ -1,9 +1,5 @@
 # Changelog
-<<<<<<< Updated upstream
-=======
-- 2026-10-20 — [Chuyển toàn bộ bản đồ sang Mapbox](2026-10-20-mapbox-migration.md)
 - 2026-10-19 — [Đồng bộ toàn bộ Admin theo Transit Desk: folio, sổ mở, CTA mulberry, sticky header](2026-10-19-admin-transit-desk-sync.md)
->>>>>>> Stashed changes
 - 2026-10-15 — [Kiểm tra loại xe, chặn trùng active và cột số lần thuê](2026-10-15-rental-policy-validation-usage.md)
 - 2026-10-15 — [Nút kích hoạt và tạm ngưng chính sách thuê xe](2026-10-15-rental-policy-status.md)
 - 2026-10-15 — [Biểu đồ tổng quan, icon thao tác và rà soát API chính sách](2026-10-15-dashboard-row-actions-policy-audit.md)

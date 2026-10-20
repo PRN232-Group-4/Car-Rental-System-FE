@@ -69,7 +69,7 @@ npm run lint && npm run typecheck && npm test && npm run build
 - Bốn lệnh trên phải pass (CI chạy đúng 4 bước này).
 - Thay đổi có ảnh hưởng nghiệp vụ/ngữ cảnh: thêm `changes/YYYY-MM-DD-<slug>.md`
   và thêm 1 dòng vào đầu `changes/CHANGELOG.md`.
-- Chạy API thật cần `.env.local` với `NEXT_PUBLIC_API_URL=/api` và `NEXT_PUBLIC_USE_MOCK=false`.
+- Chạy API thật cần `.env.local` với `NEXT_PUBLIC_API_URL=/api` (không còn chế độ mock/dữ liệu mẫu trong app).
   File này bị gitignore nên **build từ CI/git sẽ rơi vào mock mode** nếu không set 2 biến đó ở môi trường build.
 
 ## 3. Nhánh, PR, deploy

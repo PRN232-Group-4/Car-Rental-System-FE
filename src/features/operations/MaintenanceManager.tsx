@@ -15,7 +15,7 @@ import OperationFields, { nullableNumber } from "./OperationFields";
 import type { OperationField } from "./OperationFields";
 import { getMaintenance, saveMaintenance } from "./extended-api";
 import type { MaintenanceRecord } from "./extended-api";
-import { operationalError, operationsButton } from "./api";
+import { operationalError, operationsButton, toList } from "./api";
 import { getVehicles } from "@/features/admin/api";
 
 const statuses = { scheduled: "Đã lên lịch", in_progress: "Đang bảo trì", completed: "Hoàn thành", verified: "Đã kiểm tra", cancelled: "Đã hủy" };
@@ -41,8 +41,18 @@ export default function MaintenanceManager() {
     value: String(v.id),
     label: `#${v.id} - ${[v.brand, v.model].filter(Boolean).join(" ") || v.licensePlate || `Phương tiện #${v.id}`}`,
   }));
-  return <div className="mx-auto max-w-6xl space-y-6">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Quản lý bảo trì</h1><button type="button" className={operationsButton} onClick={() => setEditing(null)}>Tạo phiếu bảo trì</button></div>
+  return <div className="space-y-6">
+    <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
+      <div className="flex items-start gap-5">
+        <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">04<br />OPS</span>
+        <div>
+          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">VẬN HÀNH · KỸ THUẬT</span>
+          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Quản lý <em className="italic text-td-teal">bảo trì.</em></h1>
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Mỗi phiếu là một mốc thời gian của xe: ngày dự kiến, tình trạng an toàn và chi phí thực tế.</p>
+        </div>
+      </div>
+      <button type="button" className={`${operationsButton} self-start sm:self-end`} onClick={() => setEditing(null)}>Tạo phiếu bảo trì</button>
+    </div>
     <ValidatedForm validation={filterValidation} onSubmit={() => setActiveFilter({ ...filter })}>
       <AdminFilterBar description="Chọn phương tiện và trạng thái để tìm phiếu bảo trì." actions={<>
         <AdminFilterButton type="submit">Lọc danh sách</AdminFilterButton>
@@ -59,27 +69,32 @@ export default function MaintenanceManager() {
       </AdminFilterBar>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-danger">{operationalError(query.error)} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p>}
-    <AdminTableCard>
-      <div className="border-b border-line px-5 py-4">
-        <h2 className="font-bold text-ink">Danh sách phiếu bảo trì</h2>
-        <p className="mt-1 text-xs text-ink-3">{query.isPending ? "Đang tải..." : `${query.data?.length ?? 0} phiếu`}</p>
-      </div>
-      <AdminTable className="min-w-[900px]" aria-busy={query.isPending}>
-        <caption className="sr-only">Danh sách phiếu bảo trì</caption>
-        <thead><tr>{["Xe", "Nhân viên", "Ngày dự kiến", "Trạng thái", "Chi phí"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
-        <tbody>
-          {query.isPending ? <AdminTableSkeleton columns={6} label="Đang tải phiếu bảo trì" /> : query.data?.map((item) => <tr key={item.id}>
-            <td><VehicleName vehicleId={item.vehicleId} /></td>
-            <td className="text-ink-3"><StaffName staffId={item.assignedStaffId} /></td>
-            <td className="text-ink-3">{formatAdminDate(item.scheduledDate)}</td>
-            <td><AdminStatusBadge domain="maintenance" status={item.status}>{statuses[item.status as keyof typeof statuses] ?? item.status ?? "—"}</AdminStatusBadge></td>
-            <td className="font-medium text-ink">{item.cost == null ? "—" : item.cost.toLocaleString("vi-VN") + " ₫"}</td>
-            <td data-actions><AdminRowAction action="edit" label="Cập nhật" onClick={() => setEditing(item)} /></td>
-          </tr>)}
-          {!query.isPending && !query.error && !query.data?.length && <AdminTableEmptyRow colSpan={6}>Không có phiếu bảo trì phù hợp.</AdminTableEmptyRow>}
-        </tbody>
-      </AdminTable>
-    </AdminTableCard>
+    {(() => {
+      const maintenanceList = toList<MaintenanceRecord>(query.data);
+      return (
+        <AdminTableCard>
+          <div className="border-b border-td-rule pb-2 pt-3">
+            <h2 className="text-sm font-bold text-td-ink">Danh sách phiếu bảo trì</h2>
+            <p className="mt-1 font-mono text-[11px] text-td-muted">{query.isPending ? "Đang tải..." : `${maintenanceList.length} phiếu`}</p>
+          </div>
+          <AdminTable className="min-w-[900px]" aria-busy={query.isPending}>
+            <caption className="sr-only">Danh sách phiếu bảo trì</caption>
+            <thead><tr>{["Xe", "Nhân viên", "Ngày dự kiến", "Trạng thái", "Chi phí"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
+            <tbody>
+              {query.isPending ? <AdminTableSkeleton columns={6} label="Đang tải phiếu bảo trì" /> : maintenanceList.map((item) => <tr key={item.id}>
+                <td><VehicleName vehicleId={item.vehicleId} /></td>
+                <td className="text-td-muted"><StaffName staffId={item.assignedStaffId} /></td>
+                <td className="text-td-muted">{formatAdminDate(item.scheduledDate)}</td>
+                <td><AdminStatusBadge domain="maintenance" status={item.status}>{statuses[item.status as keyof typeof statuses] ?? item.status ?? "—"}</AdminStatusBadge></td>
+                <td className="font-medium text-td-ink">{item.cost == null ? "—" : item.cost.toLocaleString("vi-VN") + " ₫"}</td>
+                <td data-actions><AdminRowAction action="edit" label="Cập nhật" onClick={() => setEditing(item)} /></td>
+              </tr>)}
+              {!query.isPending && !query.error && !maintenanceList.length && <AdminTableEmptyRow colSpan={6}>Không có phiếu bảo trì phù hợp.</AdminTableEmptyRow>}
+            </tbody>
+          </AdminTable>
+        </AdminTableCard>
+      );
+    })()}
     {editing !== undefined && <MaintenanceForm key={editing?.id ?? "new"} record={editing} vehicleOptions={vehicleOptions} close={() => setEditing(undefined)} saved={() => query.refetch()} />}
   </div>;
 }
@@ -102,5 +117,5 @@ function MaintenanceForm({ record, vehicleOptions = [], close, saved }: { record
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
     finally { setBusy(false); }
   };
-  return <FormDialog title={record ? "Cập nhật phiếu bảo trì" : "Phiếu bảo trì mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="maintenance-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-sm text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu phiếu bảo trì"}</button><button type="button" disabled={busy} onClick={close} className="rounded-xl border border-line px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
+  return <FormDialog title={record ? "Cập nhật phiếu bảo trì" : "Phiếu bảo trì mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="maintenance-edit" fields={formFields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-sm text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu phiếu bảo trì"}</button><button type="button" disabled={busy} onClick={close} className="rounded border border-td-rule px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;
 }

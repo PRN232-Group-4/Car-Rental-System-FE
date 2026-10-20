@@ -133,7 +133,7 @@ worker/                   # Cloudflare Worker proxy cho production
 
 ### 3. Chuẩn hóa API Envelope & Type Safety
 - **Tự động Unwrap Envelope**: Backend trả về dạng `{ message, is_success, data }`. `ApiClient` tự động kiểm tra `is_success` và giải nén dữ liệu trong `data`, đồng thời bắt lỗi `ProblemDetails` theo chuẩn RFC 7807.
-- **Offline Mock Support**: Khi `NEXT_PUBLIC_USE_MOCK=true`, hệ thống sử dụng Mock Handlers giả lập toàn bộ API với dữ liệu mẫu trong bộ nhớ, cho phép phát triển FE ngay cả khi mất mạng hoặc Backend bảo trì.
+- **Không có dữ liệu mẫu trong app**: mọi màn hình đọc từ backend thật (dev proxy qua `next.config.ts`, production qua Cloudflare Worker). Lỗi mạng hiển thị trạng thái lỗi + nút thử lại, không tự thay bằng dữ liệu giả.
 
 ---
 
@@ -245,7 +245,3 @@ Dự án được cấu hình triển khai dưới dạng **Cloudflare Workers A
 - [docs/architecture.md](docs/architecture.md) — Kiến trúc tổng thể hệ thống Next.js App Router & phân tầng nghiệp vụ.
 - [docs/fe-implementation-plan.md](docs/fe-implementation-plan.md) — Kế hoạch các pha triển khai tính năng chi tiết.
 - [changes/CHANGELOG.md](changes/CHANGELOG.md) — Lịch sử và nhật ký thay đổi theo từng đợt cập nhật.
-
-## Cấu hình Mapbox
-
-Bản đồ dùng Mapbox GL JS. Thêm `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk...` vào `.env.local` hoặc môi trường build frontend, rồi restart/rebuild. Xem [hướng dẫn Mapbox](docs/mapbox-frontend.md) cho token, URL restrictions và kiểm thử. Backend dùng token riêng theo [setup](../Car-Rental-System-BE/docs/mapbox-setup.md).

@@ -42,7 +42,7 @@ describe("FE-07 My Trips — Component Tests", () => {
     it("hiển thị tiêu đề, các tab trạng thái và danh sách chuyến đi", async () => {
       renderWithClient(<MyTripsPage />);
 
-      expect(screen.getByText("Chuyến của tôi")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Chuyến của tôi.");
       expect(screen.getByRole("tab", { name: "Sắp tới" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "Đang diễn ra" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "Đã hoàn thành" })).toBeInTheDocument();
