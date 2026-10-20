@@ -35,7 +35,7 @@ import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
-import GoogleMap from "@/components/maps/GoogleMap";
+import MapboxMap from "@/components/maps/MapboxMap";
 
 type Directory = "departments" | "facilities" | "staffs" | "roles";
 type Row = {
@@ -409,7 +409,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
               </div>
               {directory === "facilities" && <div className="mt-4 space-y-3">
                 <button type="button" disabled={!mapAddress && !values.address?.trim()} onClick={() => setMapAddress((current) => current ? null : values.address?.trim() || null)} className="rounded border border-td-rule bg-transparent px-4 py-2 text-sm font-semibold text-td-ink hover:bg-td-chalk disabled:opacity-60">{mapAddress ? "Ẩn bản đồ" : "Xem địa chỉ trên bản đồ"}</button>
-                {mapAddress && <><p className="text-xs text-td-muted">Đang xem: {mapAddress}</p><GoogleMap title="Vị trí cơ sở" location={mapAddress} /></>}
+                {mapAddress && <><p className="text-xs text-td-muted">Đang xem: {mapAddress}</p><MapboxMap title="Vị trí cơ sở" location={mapAddress} /></>}
               </div>}
               {error && <p role="alert" className="mt-2.5 whitespace-pre-line text-xs font-medium text-danger bg-danger/10 p-2 rounded border border-danger/20">{error}</p>}
               <FormDialogFooter>
