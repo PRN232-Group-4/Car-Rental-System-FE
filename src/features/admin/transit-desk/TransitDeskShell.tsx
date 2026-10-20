@@ -215,7 +215,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   if (checkingAccess) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-td-paper p-6">
-        <div className="w-full max-w-md rounded-lg border border-td-rule bg-td-white p-8 shadow-md">
+        <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-8 shadow-md">
           <FormSkeleton
             label="Đang kiểm tra quyền truy cập hệ thống..."
             fields={3}
@@ -228,7 +228,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   if (accessError) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-td-paper p-6">
-        <div className="w-full max-w-md rounded-lg border border-td-rule bg-td-white p-8 shadow-md text-center space-y-4">
+        <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-8 shadow-md text-center space-y-4">
           <p className="text-sm font-semibold text-td-oxide">{accessError}</p>
           <button
             type="button"
@@ -254,7 +254,8 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
       }
       className={styles.container}
     >
-      {/* Global Masthead */}
+      {/* Masthead + Context Strip: dính đỉnh cùng nhau khi cuộn */}
+      <div className={styles.topBar}>
       <header className={styles.masthead}>
         {/* Monogram / Brand Block */}
         <Link
@@ -410,6 +411,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
         <span className={styles.contextTotal}>
           {permittedItems.length} CHỨC NĂNG KHẢ DỤNG
         </span>
+      </div>
       </div>
 
       {/* Main Work Area */}

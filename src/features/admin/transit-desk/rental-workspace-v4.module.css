@@ -96,7 +96,8 @@
   container-type: inline-size;
   container-name: workspace;
   position: relative;
-  min-height: calc(100dvh - 72px);
+  /* 72px masthead + 48px context strip: canvas phủ kín phần việc, không tạo dải trống cuối trang. */
+  min-height: calc(100dvh - 120px);
   width: 100%;
   margin: 0 auto;
   color: var(--peripheral-text);
