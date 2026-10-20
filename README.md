@@ -245,3 +245,7 @@ Dự án được cấu hình triển khai dưới dạng **Cloudflare Workers A
 - [docs/architecture.md](docs/architecture.md) — Kiến trúc tổng thể hệ thống Next.js App Router & phân tầng nghiệp vụ.
 - [docs/fe-implementation-plan.md](docs/fe-implementation-plan.md) — Kế hoạch các pha triển khai tính năng chi tiết.
 - [changes/CHANGELOG.md](changes/CHANGELOG.md) — Lịch sử và nhật ký thay đổi theo từng đợt cập nhật.
+
+## Cấu hình Mapbox
+
+Bản đồ dùng Mapbox GL JS. Thêm `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk...` vào `.env.local` hoặc môi trường build frontend, rồi restart/rebuild. Xem [hướng dẫn Mapbox](docs/mapbox-frontend.md) cho token, URL restrictions và kiểm thử. Backend dùng token riêng theo [setup](../Car-Rental-System-BE/docs/mapbox-setup.md).

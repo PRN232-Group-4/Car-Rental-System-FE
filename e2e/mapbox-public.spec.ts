@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
+import { mockMapbox } from "./mapbox-helpers";
 
-test("public facilities use live paginated data and update directions when selected", async ({ page }) => {
+test("public facilities use live paginated data and update Mapbox when selected", async ({ page }) => {
+  const addresses: string[] = [];
+  await mockMapbox(page);
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname.includes("/search/geocode/")) addresses.push(url.searchParams.get("q") || "");
+  });
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/facilities")) return route.fulfill({ json: { items: [
@@ -9,19 +16,23 @@ test("public facilities use live paginated data and update directions when selec
     ], totalCount: 2 } });
     return route.fulfill({ json: null });
   });
-  // No real Google requests are needed for UI verification, even with a dev key.
-  await page.route("https://www.google.com/maps/embed/**", (route) => route.fulfill({ contentType: "text/html", body: "<html><body>Map test response</body></html>" }));
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const facilities = page.locator("#chi-nhanh");
   await facilities.scrollIntoViewIfNeeded();
   const first = facilities.getByRole("button", { name: /Chi nhánh Quận 1/ });
   await expect(first).toHaveAttribute("aria-pressed", "true");
-  const directions = facilities.getByRole("link", { name: /Chỉ đường trên Google Maps/ });
-  expect(new URL((await directions.getAttribute("href"))!).searchParams.get("destination")).toBe("12 Nguyễn Huệ & Lê Lợi, TP.HCM");
+  await expect.poll(() => addresses.at(-1)).toBe("12 Nguyễn Huệ & Lê Lợi, TP.HCM");
   await facilities.getByRole("button", { name: /Chi nhánh Quận 7/ }).click();
   await expect(first).toHaveAttribute("aria-pressed", "false");
   await expect(facilities.getByRole("heading", { name: "Vị trí Chi nhánh Quận 7", exact: true })).toBeVisible();
-  expect(new URL((await directions.getAttribute("href"))!).searchParams.get("destination")).toBe("123 Nguyễn Thị Thập, TP.HCM");
+  await expect.poll(() => addresses.at(-1)).toBe("123 Nguyễn Thị Thập, TP.HCM");
+  await expect(facilities.getByRole("region", { name: "Bản đồ Mapbox: Vị trí Chi nhánh Quận 7" })).toBeVisible();
+  await expect(facilities.getByRole("region", { name: "Bản đồ Mapbox: Vị trí Chi nhánh Quận 7" })).toHaveAttribute("aria-busy", "false");
+  await expect(facilities.getByRole("alert")).toHaveCount(0);
+  await page.context().grantPermissions(["geolocation"]);
+  await page.context().setGeolocation({ latitude: 10.7, longitude: 106.6 });
+  await facilities.getByRole("button", { name: "Chỉ đường từ vị trí hiện tại" }).click();
+  await expect(facilities.getByRole("status")).toHaveText(/Quãng đường: 1,2 km · Thời gian dự kiến: 3 phút/);
   await expect(facilities.getByText(/xe sẵn sàng/)).toHaveCount(0);
   await facilities.screenshot({ path: "test-results/public-facilities-map.png" });
 });

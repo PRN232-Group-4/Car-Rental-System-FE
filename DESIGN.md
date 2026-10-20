@@ -487,11 +487,37 @@ Kỹ thuật & ngân sách:
 - **Trạng thái áp dụng:** icon kích hoạt = `CirclePlay`, tạm ngưng = `PauseCircle` qua `AdminRowAction`; xác nhận trước gửi, khóa trong lúc chờ, badge đổi khi API thành công. Chính sách chỉ đổi `isActive`, điều khoản vẫn lưu theo phiên bản (FR-011/ADR-006).
 - **Bản đồ:** cơ sở/điểm nhận dùng địa chỉ thật; xe và hành trình dùng tọa độ GPS từ API. Không tạo tọa độ dự phòng. Google Maps chỉ đường gợi ý không thay thế lịch sử GPS. Key trình duyệt cho Maps Embed tách khỏi key backend; thiếu key vẫn có liên kết chỉ đường. Xem `docs/google-maps-frontend.md`.
 
+<<<<<<< Updated upstream
 - **Canvas phẳng** `#F2F5F3`. Sidebar là **khối đặc Garage Ink** (không có gì phía sau để làm mờ). Header dính dùng `.glass-admin`, cao 64px. Panel nội dung dùng `.glass-admin`; **mọi vùng nhập liệu và thân bảng là Surface đặc** để giữ tương phản cao khi làm việc văn phòng.
 - Density 7: hàng bảng 44px (có công tắc compact 36px), chữ thân 14px, số/ID/tiền dùng Geist Mono + `tabular-nums`. Không dùng thẻ lồng thẻ: nhóm bằng đường kẻ trên (border-top) hoặc khoảng trắng.
 - Motion tối thiểu (Motion 3): fade 160ms khi đổi tab/panel, drawer trượt 320ms, toast, skeleton pulse, count-up KPI **một lần**, đường biểu đồ vẽ vào 600ms. Không parallax, không pin, không 3D, không loop (ngoại trừ chấm live).
 - Biểu đồ (Recharts): tắt gradient fill; dùng 5 màu `--chart-*` (A2) kèm nhãn trực tiếp và/hoặc họa tiết nét để không chỉ phân biệt bằng màu; tooltip `.glass-2`; luôn có nút "Xem dạng bảng" (bảng ẩn trực quan nhưng đọc được bởi trình đọc màn hình); `isAnimationActive` tắt khi reduce-motion.
 - Bảng ánh xạ trạng thái → badge (Lucide + nhãn):
+=======
+**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<em class="italic text-td-teal">`.
+
+**Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: số chương + tag mono, kicker viết hoa, `h1` lớn (tối đa `text-5xl`), một câu mô tả, vùng phải chứa **một** số liệu tổng (`TransitFolioMetric`) và/hoặc **một** hành động chính có nhãn chữ. Mobile: vùng phải xuống dòng dưới tiêu đề.
+
+**Sổ mở thay cho card.** Danh sách render kiểu ledger: head mono chữ hoa với rule `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`; bảng rộng cuộn trong wrapper, toàn trang không tràn ngang. Trạng thái hiển thị bằng **glyph hình học + nhãn mono** (`AdminStatusBadge`), không dùng pill màu; bảng ánh xạ duy nhất `status-rules.ts` với các domain `activity`, `vehicle`, `rental`, `maintenance`, `license`, `shift`, `report`, `review`.
+
+**Trang chi tiết/hồ sơ.** Lưới 12 cột: 4 cột hồ sơ định danh (avatar 64px bo 4px, tên, badge, danh sách `dl` dòng `divide-y`), 8 cột biểu mẫu/bảng. Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide`; không dùng banner nền tối hay khối nền màu.
+
+**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, cockpit 3 cột, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width; desktop dùng shell `100dvh` và flex chia phần chiều cao còn lại cho workspace, ba cột cuộn độc lập; ở `≤1200px` xếp dọc và cuộn trang tự nhiên) nên không lồng trong khung giấy của shell và không dùng `TransitFolio`.
+
+Các quy tắc vẫn giữ nguyên:
+
+- **Popup:** bắt buộc `FormDialog` với `FormDialogFooter` nằm trong `ValidatedForm`; header/footer sticky, khôi phục focus, khóa đóng/gửi khi busy. `ADMIN_POPUP_FORM` trong design lint kiểm tra cấu trúc.
+- **Bộ lọc:** `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton`; nhãn mono, control 36px gạch chân, nút áp dụng cam amber, tách giá trị đang nhập và giá trị đã áp dụng khi submit.
+- **Tải dữ liệu:** `SkeletonBlock`, `FormSkeleton`, `AdminTableSkeleton` theo hình dạng nội dung; thông báo tiếng Việt cho trình đọc màn hình; tắt chuyển động khi reduced motion; không hiện dữ liệu trống khi request chưa xong.
+- **Thao tác danh sách:** cột `data-actions` dùng `AdminRowAction`, chỉ icon + tooltip tiếng Việt, vùng bấm 36px; ánh xạ `view`/`edit`/`delete`/`activate`/`deactivate` tại `row-action-rules.ts`; không dựng cột trống khi nghiệp vụ không có thao tác.
+- **Trạng thái áp dụng:** `activate` = `CirclePlay`, `deactivate` = `PauseCircle`; xác nhận trước gửi, khóa khi chờ, badge đổi sau khi API thành công. Chính sách chỉ đổi `isActive`, điều khoản lưu theo phiên bản (FR-011/ADR-006).
+- **Bản đồ:** cơ sở/điểm nhận dùng địa chỉ thật; xe và hành trình dùng tọa độ GPS từ API, không tạo tọa độ dự phòng. Xem `docs/mapbox-frontend.md`.
+- **Ngày giờ:** `formatAdminDateTime` (`dd/MM/yyyy HH:mm`) hoặc `formatAdminDate` (`dd/MM/yyyy`) theo `Asia/Ho_Chi_Minh`.
+- Motion tối thiểu: fade 160ms khi đổi tab/panel, drawer trượt 320ms, skeleton pulse, count-up KPI một lần, đường biểu đồ 600ms. Không parallax/pin/3D trong Admin (trừ trang thuê xe có liquid transition theo reduced-motion).
+- Biểu đồ (Recharts): không gradient fill, dùng 5 màu `--chart-*` kèm nhãn trực tiếp, luôn có nút "Xem dạng bảng", tắt animation khi reduce-motion.
+
+Bảng ánh xạ trạng thái → tone (render bằng `AdminStatusBadge` glyph + mono):
+>>>>>>> Stashed changes
 
 | Nhóm                | Giá trị                                            | Màu                                           | Icon                                                          |
 | ------------------- | -------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------- |
@@ -1175,7 +1201,7 @@ Chi nhánh gần nhất
 Mới nhất (năm sản xuất)
 ```
 
-`Chi nhánh gần nhất` chỉ hiển thị khi BE-36 (tìm xe gần đây bằng Google Maps) đã sẵn sàng; trước đó ẩn tùy chọn này.
+`Chi nhánh gần nhất` chỉ hiển thị khi BE-36 (tìm xe gần đây bằng Mapbox) đã sẵn sàng; trước đó ẩn tùy chọn này.
 
 Keep sorting separate from filtering.
 
@@ -1185,7 +1211,7 @@ Keep sorting separate from filtering.
 
 **Hiện tại (SRS v2.0 / DDL):** không có bản đồ GPS thời gian thực. DDL chỉ lưu `vehicles.current_location` dạng văn bản; chi nhánh (`facilities`) là đơn vị "vị trí" chính thức.
 
-**Mở rộng theo kế hoạch (BE-35, BE-36, BE-37, FE-26, FE-27, MB-01):** tìm xe gần đây bằng Google Maps (tọa độ, bán kính, khoảng cách/ETA) và theo dõi hành trình. Chỉ bật khi các module đó hoàn tất và có nơi lưu tọa độ; trước đó dùng hiển thị theo chi nhánh bên dưới.
+**Mở rộng theo kế hoạch (BE-35, BE-36, BE-37, FE-26, FE-27, MB-01):** tìm xe gần đây bằng Mapbox (tọa độ, bán kính, khoảng cách/ETA) và theo dõi hành trình. Chỉ bật khi các module đó hoàn tất và có nơi lưu tọa độ; trước đó dùng hiển thị theo chi nhánh bên dưới.
 
 Hiển thị theo chi nhánh:
 

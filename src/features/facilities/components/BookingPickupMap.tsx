@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import GoogleMap from "@/components/maps/GoogleMap";
+import MapboxMap from "@/components/maps/MapboxMap";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { getFacilityById } from "../api";
 
@@ -14,8 +14,14 @@ export default function BookingPickupMap({ facilityId }: { facilityId?: string |
   const facility = query.data;
   if (!facility) return <p className="text-sm text-ink-3">Chưa có thông tin địa chỉ điểm nhận xe.</p>;
   const address = [facility.address, facility.district, facility.city].filter(Boolean).join(", ");
+<<<<<<< Updated upstream
   return <div className="space-y-3 border-t border-line pt-4">
     <div><p className="text-sm font-semibold text-ink">{facility.name}</p>{address && <p className="mt-1 text-xs text-ink-3">{address}</p>}</div>
     <GoogleMap title="Bản đồ điểm nhận xe" location={{ address, latitude: facility.latitude, longitude: facility.longitude }} />
+=======
+  return <div className="space-y-3 border-t border-td-rule pt-4">
+    <div><p className="text-sm font-semibold text-td-ink">{facility.name}</p>{address && <p className="mt-1 text-xs text-td-muted">{address}</p>}</div>
+    <MapboxMap title="Bản đồ điểm nhận xe" location={{ address, latitude: facility.latitude, longitude: facility.longitude }} />
+>>>>>>> Stashed changes
   </div>;
 }

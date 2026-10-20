@@ -7,7 +7,7 @@ import { MapPin, Clock, Phone, Car, ArrowUpRight } from "lucide-react";
 import { getFacilities, getInitialFacilities } from "../api";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
-import GoogleMap from "@/components/maps/GoogleMap";
+import MapboxMap from "@/components/maps/MapboxMap";
 
 interface FacilityExplorerProps {
   selectedFacilityId?: string;
@@ -53,7 +53,20 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
             {current.openHours && <div><dt className="mb-1 flex items-center gap-1.5 text-xs text-ink-3"><Clock aria-hidden="true" className="h-4 w-4" />Giờ mở cửa</dt><dd className="font-semibold">{current.openHours}</dd></div>}
             {current.phone && <div><dt className="mb-1 flex items-center gap-1.5 text-xs text-ink-3"><Phone aria-hidden="true" className="h-4 w-4" />Điện thoại</dt><dd className="font-mono">{current.phone}</dd></div>}
           </dl>}
+<<<<<<< Updated upstream
           <GoogleMap title={`Vị trí ${current.name}`} location={{ address, latitude: current.latitude, longitude: current.longitude }} />
+=======
+          <MapboxMap title={`Vị trí ${current.name}`} location={{ address, latitude: current.latitude, longitude: current.longitude }} />
+          <div className="pt-2">
+            <Link
+              href={`/find?facilityId=${encodeURIComponent(current.id)}`}
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 rounded bg-primary text-white font-bold text-sm hover:bg-primary-hover transition-colors"
+            >
+              <span>Xem xe khả dụng tại chi nhánh này</span>
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+>>>>>>> Stashed changes
         </div>
       </article>
     </div>}
