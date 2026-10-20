@@ -1,4 +1,5 @@
-﻿import { test, expect } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import type { Page, PageScreenshotOptions } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 
@@ -13,7 +14,7 @@ for (const dir of targetDirs) {
   }
 }
 
-async function saveMultiScreenshot(page: any, filename: string, options?: any) {
+async function saveMultiScreenshot(page: Page, filename: string, options?: PageScreenshotOptions) {
   const primaryPath = path.join(targetDirs[0], filename);
   await page.screenshot({ path: primaryPath, ...options });
   for (let i = 1; i < targetDirs.length; i++) {
@@ -48,7 +49,7 @@ function calculateContrastRatio(color1: string, color2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-async function setAdminTheme(page: any, theme: "light" | "dark") {
+async function setAdminTheme(page: Page, theme: "light" | "dark") {
   await page.evaluate((t: string) => {
     document.documentElement.dataset.adminTheme = t;
     document.documentElement.setAttribute("data-theme", t);
@@ -62,7 +63,7 @@ async function setAdminTheme(page: any, theme: "light" | "dark") {
 
 const MOCK_PROFILE = {
   email: "admin@thongdong.vn",
-  fullName: "VĂµ Thá»‹ Quáº£n Trá»‹ (Dispatcher)",
+  fullName: "VA� Thị Quản Trị (Dispatcher)",
   roles: ["Admin", "Manager"],
   staffId: 1,
   facilityId: 1,
@@ -86,7 +87,7 @@ const MOCK_VEHICLES = {
       brand: "VinFast",
       model: "VF 8 Plus",
       status: "available",
-      facility: "Tráº¡m Trung tĂ¢m Quáº­n 1",
+      facility: "Trạm Trung tA�m Quận 1",
       hourlyPrice: 120000,
       longtermPrice: 22000000,
       batteryCapacity: "87.7 kWh",
@@ -99,7 +100,7 @@ const MOCK_VEHICLES = {
       brand: "Toyota",
       model: "Corolla Cross",
       status: "renting",
-      facility: "Tráº¡m SĂ¢n bay TĂ¢n SÆ¡n Nháº¥t",
+      facility: "Trạm SA�n bay TA�n Sơn Nhất",
       hourlyPrice: 95000,
       longtermPrice: 16000000,
       fuelType: "gasoline",
@@ -110,7 +111,7 @@ const MOCK_VEHICLES = {
       brand: "Hyundai",
       model: "Santa Fe 2.5",
       status: "maintenance",
-      facility: "Tráº¡m Trung tĂ¢m Quáº­n 1",
+      facility: "Trạm Trung tA�m Quận 1",
       hourlyPrice: 140000,
       longtermPrice: 25000000,
       fuelType: "gasoline",
@@ -122,25 +123,25 @@ const MOCK_VEHICLES = {
 };
 
 const MOCK_VEHICLE_TYPES = [
-  { id: 1, name: "SUV Äiá»‡n 5 Chá»—", type: "car", fuelType: "electric" },
-  { id: 2, name: "Sedan XÄƒng 5 Chá»—", type: "car", fuelType: "gasoline" },
-  { id: 3, name: "Xe tay ga Äiá»‡n", type: "motorbike", fuelType: "electric" },
+  { id: 1, name: "SUV Điện 5 Chỗ", type: "car", fuelType: "electric" },
+  { id: 2, name: "Sedan Xăng 5 Chỗ", type: "car", fuelType: "gasoline" },
+  { id: 3, name: "Xe tay ga Điện", type: "motorbike", fuelType: "electric" },
 ];
 
 const MOCK_FACILITIES = [
-  { id: 1, name: "Tráº¡m Trung tĂ¢m Quáº­n 1", address: "12 LĂª Duáº©n, Q.1, TP.HCM" },
-  { id: 2, name: "Tráº¡m SĂ¢n bay TĂ¢n SÆ¡n Nháº¥t", address: "Ga Quá»‘c ná»™i T1, TĂ¢n BĂ¬nh, TP.HCM" },
+  { id: 1, name: "Trạm Trung tA�m Quận 1", address: "12 LA� Duẩn, Q.1, TP.HCM" },
+  { id: 2, name: "Trạm SA�n bay TA�n Sơn Nhất", address: "Ga Quốc nội T1, TA�n BA�nh, TP.HCM" },
 ];
 
 const MOCK_DEPARTMENTS = [
-  { id: 1, name: "Ban Äiá»u hĂ nh Váº­n hĂ nh", code: "OPS" },
-  { id: 2, name: "Äá»™i xe & Ká»¹ thuáº­t", code: "TECH" },
-  { id: 3, name: "ChÄƒm sĂ³c KhĂ¡ch hĂ ng", code: "CS" },
+  { id: 1, name: "Ban Điều hA�nh Vận hA�nh", code: "OPS" },
+  { id: 2, name: "Đội xe & Kỹ thuật", code: "TECH" },
+  { id: 3, name: "Chăm sA�c KhA�ch hA�ng", code: "CS" },
 ];
 
 const MOCK_STAFF = [
-  { id: 1, fullName: "VĂµ Thá»‹ Quáº£n Trá»‹", email: "admin@thongdong.vn", isDriver: false, departmentName: "Äiá»u hĂ nh" },
-  { id: 2, fullName: "Nguyá»…n VÄƒn HĂ¹ng", email: "hung.nv@thongdong.vn", isDriver: true, departmentName: "Äá»™i xe", facilityName: "Tráº¡m Trung tĂ¢m Quáº­n 1" },
+  { id: 1, fullName: "VA� Thị Quản Trị", email: "admin@thongdong.vn", isDriver: false, departmentName: "Điều hA�nh" },
+  { id: 2, fullName: "Nguyễn Văn HA�ng", email: "hung.nv@thongdong.vn", isDriver: true, departmentName: "Đội xe", facilityName: "Trạm Trung tA�m Quận 1" },
 ];
 
 const MOCK_REPORTS = {
@@ -150,16 +151,16 @@ const MOCK_REPORTS = {
       type: "breakdown",
       status: "pending",
       createdAt: new Date(Date.now() - 45 * 60000).toISOString(),
-      customer: { fullName: "LĂª Minh Tuáº¥n" },
-      descriptionPreview: "BĂ¡o cĂ¡o lá»—i Ă¡p suáº¥t lá»‘p trÆ°á»›c bĂªn pháº£i trĂªn cao tá»‘c Long ThĂ nh",
+      customer: { fullName: "LA� Minh Tuấn" },
+      descriptionPreview: "BA�o cA�o lỗi A�p suất lốp trước bA�n phải trA�n cao tốc Long ThA�nh",
     },
     {
       id: 502,
       type: "accident",
       status: "pending",
       createdAt: new Date(Date.now() - 140 * 60000).toISOString(),
-      customer: { fullName: "Tráº§n Mai Anh" },
-      descriptionPreview: "Va quáº¹t nháº¹ gÆ°Æ¡ng chiáº¿u háº­u khi Ä‘á»— xe táº¡i trung tĂ¢m thÆ°Æ¡ng máº¡i",
+      customer: { fullName: "Trần Mai Anh" },
+      descriptionPreview: "Va quẹt nhẹ gương chiếu hậu khi đỗ xe tại trung tA�m thương mại",
     },
   ],
   totalCount: 2,
@@ -194,7 +195,7 @@ const ALL_26_ROUTES = [
   "/admin/profile",
 ];
 
-test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", () => {
+test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () => {
   test.beforeEach(async ({ page }) => {
     // Intercept operational API routes
     await page.route("**/api/**", async (route) => {
@@ -235,22 +236,22 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
         return route.fulfill({ status: 200, json: MOCK_REPORTS });
       }
       if (p.endsWith("/users/1")) {
-        return route.fulfill({ status: 200, json: { id: 1, email: "admin@thongdong.vn", fullName: "VĂµ Thá»‹ Quáº£n Trá»‹", roles: ["Admin"] } });
+        return route.fulfill({ status: 200, json: { id: 1, email: "admin@thongdong.vn", fullName: "VA� Thị Quản Trị", roles: ["Admin"] } });
       }
       if (p.endsWith("/users")) {
-        return route.fulfill({ status: 200, json: { items: [{ id: 1, email: "admin@thongdong.vn", fullName: "VĂµ Thá»‹ Quáº£n Trá»‹", roles: ["Admin"], isActive: true }], totalCount: 1 } });
+        return route.fulfill({ status: 200, json: { items: [{ id: 1, email: "admin@thongdong.vn", fullName: "VA� Thị Quản Trị", roles: ["Admin"], isActive: true }], totalCount: 1 } });
       }
       if (p.endsWith("/reviews/1")) {
-        return route.fulfill({ status: 200, json: { id: 1, rating: 5, comment: "Dá»‹ch vá»¥ xuáº¥t sáº¯c, xe giao Ä‘Ăºng giá».", isHidden: false } });
+        return route.fulfill({ status: 200, json: { id: 1, rating: 5, comment: "Dịch vụ xuất sắc, xe giao đA�ng giờ.", isHidden: false } });
       }
       if (p.endsWith("/reviews")) {
-        return route.fulfill({ status: 200, json: { items: [{ id: 1, rating: 5, comment: "Dá»‹ch vá»¥ xuáº¥t sáº¯c, xe giao Ä‘Ăºng giá».", isHidden: false }], totalCount: 1 } });
+        return route.fulfill({ status: 200, json: { items: [{ id: 1, rating: 5, comment: "Dịch vụ xuất sắc, xe giao đA�ng giờ.", isHidden: false }], totalCount: 1 } });
       }
       return route.fulfill({ status: 200, json: { items: [], totalCount: 0 } });
     });
   });
 
-  test("Gate 0 & Batch 1: /admin (Ca trá»±c) Light & Dark Mode and Global Liquid Flood Transition", async ({ page }) => {
+  test("Gate 0 & Batch 1: /admin (Ca trực) Light & Dark Mode and Global Liquid Flood Transition", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin");
     await page.waitForLoadState("networkidle");
@@ -263,11 +264,11 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await expect(brandName).toBeVisible();
 
     // Verify Chapter Masthead wayfinding
-    const navChapters = page.locator("nav[aria-label*='NhĂ³m chá»©c nÄƒng']");
+    const navChapters = page.locator("nav[aria-label*='NhA�m chức năng']");
     await expect(navChapters).toBeVisible();
 
     // Verify Operating Pulse content
-    const heading = page.locator("h1").filter({ hasText: "Ca trá»±c" });
+    const heading = page.locator("h1").filter({ hasText: "Ca trực" });
     await expect(heading).toBeVisible();
 
     // Capture Light Mode Screenshot
@@ -290,7 +291,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     const headingContrast = calculateContrastRatio(headingColorDark, "rgb(23, 22, 27)");
     expect(headingContrast).toBeGreaterThanOrEqual(4.5);
 
-    const createVehicleBtn = page.locator("button").filter({ hasText: "ThĂªm phÆ°Æ¡ng tiá»‡n" }).first();
+    const createVehicleBtn = page.locator("button").filter({ hasText: "ThA�m phương tiện" }).first();
     // Wait for theme transition to settle
     await page.waitForFunction(() => {
       const btn = document.querySelector("button.bg-primary");
@@ -323,7 +324,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await saveMultiScreenshot(page, "phase4-batch1-admin-pulse-laptop-1366x768.png");
   });
 
-  test("Batch 1: /admin/dashboard (Trung tĂ¢m chá»‰ huy & Analytics) Verification â€” P1-A Contrast & High-Risk Flow", async ({ page }) => {
+  test("Batch 1: /admin/dashboard (Trung tA�m chỉ huy & Analytics) Verification — P1-A Contrast & High-Risk Flow", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin/dashboard");
     await page.waitForLoadState("networkidle");
@@ -331,7 +332,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     // Dark mode
     await setAdminTheme(page, "dark");
 
-    const title = page.locator("h1").filter({ hasText: "Trung tĂ¢m Chá»‰ huy Äiá»u hĂ nh" });
+    const title = page.locator("h1").filter({ hasText: "Trung tA�m Chỉ huy Điều hA�nh" });
     await expect(title).toBeVisible();
 
     // P1-A Fix Verification: Heading contrast in Dark Mode >= 4.5:1
@@ -373,7 +374,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await saveMultiScreenshot(page, "phase4-batch1-admin-dashboard-light-1920x1080.png");
   });
 
-  test("Batch 2: /admin/vehicles (Sá»• phÆ°Æ¡ng tiá»‡n - Open Ledger) Verification", async ({ page }) => {
+  test("Batch 2: /admin/vehicles (Sổ phương tiện - Open Ledger) Verification", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin/vehicles");
     await page.waitForLoadState("networkidle");
@@ -381,7 +382,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     // Dark mode
     await setAdminTheme(page, "dark");
 
-    const title = page.locator("h1").filter({ hasText: "Sá»• phÆ°Æ¡ng tiá»‡n" });
+    const title = page.locator("h1").filter({ hasText: "Sổ phương tiện" });
     await expect(title).toBeVisible();
 
     // Verify Open Ledger table rows
@@ -396,14 +397,14 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await saveMultiScreenshot(page, "phase4-batch2-admin-vehicles-light-1920x1080.png");
   });
 
-  test("Batch 3: /admin/vehicles/new (Commissioning Form) Verification â€” P1-B Contrast & Form Boundary", async ({ page }) => {
+  test("Batch 3: /admin/vehicles/new (Commissioning Form) Verification — P1-B Contrast & Form Boundary", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin/vehicles/new");
     await page.waitForLoadState("networkidle");
 
     await setAdminTheme(page, "dark");
 
-    const formHeading = page.locator("h2").filter({ hasText: "ThĂªm phÆ°Æ¡ng tiá»‡n má»›i" });
+    const formHeading = page.locator("h2").filter({ hasText: "ThA�m phương tiện mới" });
     await expect(formHeading).toBeVisible();
 
     // P1-B Fix Verification: Form title & return link contrast in Dark Mode >= 4.5:1
@@ -430,7 +431,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
 
     await setAdminTheme(page, "dark");
 
-    const heading = page.locator("h1, h2").filter({ hasText: /sá»± cá»‘/i }).first();
+    const heading = page.locator("h1, h2").filter({ hasText: /sự cố/i }).first();
     await expect(heading).toBeVisible();
 
     // Heading contrast check
@@ -440,14 +441,14 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await saveMultiScreenshot(page, "phase4-batch5-admin-reports-dark-1920x1080.png");
   });
 
-  test("Batch 6 & 7: Policy & Identity Registry (/admin/policies, /admin/users) â€” P1-C Contrast & User Archetype", async ({ page }) => {
+  test("Batch 6 & 7: Policy & Identity Registry (/admin/policies, /admin/users) — P1-C Contrast & User Archetype", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin/users");
     await page.waitForLoadState("networkidle");
 
     await setAdminTheme(page, "dark");
 
-    const userHeading = page.locator("h1, h2").filter({ hasText: /ngÆ°á»i dĂ¹ng/i }).first();
+    const userHeading = page.locator("h1, h2").filter({ hasText: /người dA�ng/i }).first();
     await expect(userHeading).toBeVisible();
 
     // P1-C Fix Verification: Heading contrast in Dark Mode >= 4.5:1
@@ -455,7 +456,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     expect(calculateContrastRatio(userTitleColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
 
     // High-risk archetype check: User table row and search input
-    const userRow = page.locator("td, span, div, a").filter({ hasText: "VÅ© ThĂºy An" }).first();
+    const userRow = page.locator("td, span, div, a").filter({ hasText: "Vũ ThA�y An" }).first();
     await expect(userRow).toBeVisible();
     const userRowColor = await userRow.evaluate((el) => window.getComputedStyle(el).color);
     expect(calculateContrastRatio(userRowColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
@@ -491,7 +492,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     expect(count).toBe(0);
 
     // Verify that the masthead is customer masthead, not Transit Desk
-    const transitMasthead = page.locator("nav[aria-label*='NhĂ³m chá»©c nÄƒng']");
+    const transitMasthead = page.locator("nav[aria-label*='NhA�m chức năng']");
     const mastheadCount = await transitMasthead.count();
     expect(mastheadCount).toBe(0);
   });
@@ -522,7 +523,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await page.route("**/api/account/profile", (route) => {
       route.fulfill({
         status: 200,
-        json: { email: "customer@thongdong.vn", fullName: "KhĂ¡ch HĂ ng Thong Dong", roles: ["Customer"] },
+        json: { email: "customer@thongdong.vn", fullName: "KhA�ch HA�ng Thong Dong", roles: ["Customer"] },
       });
     });
 
@@ -538,7 +539,7 @@ test.describe("Thong Dong Transit Desk â€” Phase 4 Admin Expansion Suite", 
     await page.route("**/api/account/profile", (route) => {
       route.fulfill({
         status: 200,
-        json: { email: "driver@thongdong.vn", fullName: "Nguyá»…n VÄƒn HĂ¹ng", roles: ["Driver", "Staff"] },
+        json: { email: "driver@thongdong.vn", fullName: "Nguyễn Văn HA�ng", roles: ["Driver", "Staff"] },
       });
     });
 
