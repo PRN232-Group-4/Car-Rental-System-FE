@@ -1,5 +1,4 @@
-import { defaultApiClient, isMockMode } from "@/api/default-api-client";
-import { MOCK_FACILITIES } from "@/api/mock/mock-catalog";
+import { defaultApiClient } from "@/api/default-api-client";
 import { Facility } from "./types";
 
 export function mapFacilityFromBE(value: Record<string, unknown>): Facility {
@@ -41,9 +40,8 @@ export async function getFacilities(): Promise<Facility[]> {
     }
     return facilities;
   } catch (error) {
-    if (!isMockMode) throw error;
-    console.warn("[Facilities API] Fallback to static mock:", error);
-    return MOCK_FACILITIES;
+    console.warn("[Facilities API] Không tải được danh sách chi nhánh:", error);
+    throw error;
   }
 }
 
@@ -53,5 +51,5 @@ export async function getFacilityById(id: string): Promise<Facility | undefined>
 }
 
 export function getInitialFacilities(): Facility[] {
-  return isMockMode ? MOCK_FACILITIES : [];
+  return [];
 }

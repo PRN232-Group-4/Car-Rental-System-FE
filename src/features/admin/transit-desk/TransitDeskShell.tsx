@@ -9,17 +9,14 @@ import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
 import { useAdminTheme } from "@/features/admin/use-admin-theme";
 import { getFacilities, getStaffById } from "@/features/admin/api";
-import { ADMIN_NAV_ITEMS, type NavItem } from "@/config/navigation";
+import { ADMIN_NAV_ITEMS, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
 import { hasAnyRole } from "@/features/auth/access";
 import type { Role } from "@/features/auth/roles";
-import {
-  ROUTE_CHAPTER_MAP,
-  TransitDeskRouteIndex,
-} from "./TransitDeskRouteIndex";
+import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
-import { Moon, Sun, Search, LogOut, User } from "lucide-react";
+import { Moon, Sun, LogOut, User } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 
 export interface TransitDeskShellProps {
@@ -146,6 +143,18 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     }
     return map;
   }, [permittedItems]);
+
+  // Route cho bảng tìm kiếm (Ctrl+K) — đã lọc theo quyền như masthead
+  const commandRoutes = useMemo<CommandRoute[]>(
+    () =>
+      permittedItems.map((item) => ({
+        chapter: ROUTE_CHAPTER_MAP[item.href] || "Hệ thống",
+        href: item.href,
+        label: item.label,
+        description: item.description,
+      })),
+    [permittedItems],
+  );
 
   // Determine active chapter
   const activeChapter = useMemo(() => {
@@ -304,16 +313,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
             <div className="text-[10px] text-td-muted">{jobTitle}</div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsRouteIndexOpen(true)}
-            className={styles.commandTrigger}
-            aria-label="Tìm chức năng (Ctrl+K)"
-          >
-            <Search className="h-3.5 w-3.5" />
-            <span>Tìm</span>
-            <kbd>⌘ K</kbd>
-          </button>
+          <CommandTrigger onClick={() => setIsRouteIndexOpen(true)} />
 
           <button
             type="button"
@@ -423,10 +423,13 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
 
       {/* Route Index Command Dialog — mount lại mỗi lần mở để state (query, chọn) tự reset */}
       {isRouteIndexOpen && (
-        <TransitDeskRouteIndex
+        <CommandPalette
           isOpen
           onClose={() => setIsRouteIndexOpen(false)}
-          userRoles={userRoles}
+          routes={commandRoutes}
+          storageKey="thong_dong_admin_recent_routes"
+          title="Tìm chức năng vận hành"
+          placeholder="Gõ tên nghiệp vụ, nhóm hoặc đường dẫn (ví dụ: xe, sự cố, /admin/rentals)..."
         />
       )}
 

@@ -17,8 +17,9 @@ import { Button } from "@/components/ui/Button";
 import { parseSearchParams, serializeSearchParams } from "@/lib/url";
 import { findFilterSchema, FindFilterState } from "./findFilterSchema";
 import { getVehiclesPaginated } from "@/features/vehicles/api";
+import { getFacilities } from "@/features/facilities/api";
+import { useQuery } from "@tanstack/react-query";
 import { VehiclePage } from "@/features/vehicles/types";
-import { MOCK_FACILITIES } from "@/api/mock/mock-catalog";
 import { Search, SlidersHorizontal, ArrowUpDown, Car, RotateCcw } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 
@@ -55,6 +56,14 @@ function FindCatalogContent() {
   }
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // Danh sách chi nhánh thật cho bộ lọc (không dùng dữ liệu tĩnh)
+  const facilitiesQuery = useQuery({
+    queryKey: ["public-facilities"],
+    queryFn: getFacilities,
+    staleTime: 5 * 60 * 1000,
+  });
+  const facilities = useMemo(() => facilitiesQuery.data ?? [], [facilitiesQuery.data]);
 
   // 2. Fetch danh sách xe theo bộ lọc
   const [loading, setLoading] = useState(true);
@@ -267,7 +276,7 @@ function FindCatalogContent() {
         <aside className="hidden lg:block sticky top-28 rounded-2xl border border-line bg-surface p-5 shadow-e1">
           <VehicleFilters
             filters={filters}
-            facilities={MOCK_FACILITIES}
+            facilities={facilities}
             onChange={updateFilters}
             onReset={handleClearAll}
           />
@@ -320,7 +329,7 @@ function FindCatalogContent() {
           {/* Dải Chips bộ lọc đang áp dụng */}
           <ActiveFilterChips
             filters={filters}
-            facilities={MOCK_FACILITIES}
+            facilities={facilities}
             onRemove={handleRemoveChip}
             onClearAll={handleClearAll}
           />
@@ -407,7 +416,7 @@ function FindCatalogContent() {
         <div className="p-5 overflow-y-auto max-h-[75vh]">
           <VehicleFilters
             filters={filters}
-            facilities={MOCK_FACILITIES}
+            facilities={facilities}
             onChange={updateFilters}
             onReset={handleClearAll}
             onApplyMobile={() => setMobileDrawerOpen(false)}

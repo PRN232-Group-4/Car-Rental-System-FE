@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalWorkspaceV4 from "@/features/admin/transit-desk/RentalWorkspaceV4";
 import * as operationsApi from "@/features/operations/api";
+import { RENTAL_101 } from "./rental-fixture";
 
 beforeAll(() => {
   global.ResizeObserver = class {
@@ -81,6 +82,8 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSearchParams = new URLSearchParams();
+    // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
   });
 
   describe("Gate 1: Truthful States & Provenance", () => {
@@ -350,23 +353,10 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       });
     });
 
-    it("SEC-01: proves that in production mode, getOperationalRental fails closed without returning fixtures", async () => {
-      const originalEnv = process.env.NODE_ENV;
-      const originalFlag = process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK;
-
-      try {
-        // Enforce production environment
-        (process.env as Record<string, string | undefined>).NODE_ENV = "production";
-        delete process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK;
-
-        // Calling ID 101 when backend is unreachable MUST throw and NOT return mock object
-        await expect(operationsApi.getOperationalRental(101)).rejects.toThrow();
-      } finally {
-        (process.env as Record<string, string | undefined>).NODE_ENV = originalEnv;
-        if (originalFlag) {
-          process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK = originalFlag;
-        }
-      }
+    it("SEC-01: getOperationalRental fails closed, never returns fixture data", async () => {
+      // Bỏ mock của beforeEach để gọi implementation thật: backend không có → phải ném lỗi.
+      vi.mocked(operationsApi.getOperationalRental).mockRestore();
+      await expect(operationsApi.getOperationalRental(101)).rejects.toThrow();
     });
   });
 

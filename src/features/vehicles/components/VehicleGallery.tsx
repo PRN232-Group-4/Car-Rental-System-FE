@@ -69,7 +69,7 @@ export function VehicleGallery({
             setLightboxOpen(true);
           }
         }}
-        className="group relative aspect-[16/10] w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-line bg-stage-ink shadow-e2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="group relative aspect-[16/10] w-full overflow-hidden rounded sm:rounded border border-td-rule bg-stage-ink cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
         aria-label={`Xem ảnh lớn của ${vehicleName}`}
       >
         <Image
@@ -84,18 +84,18 @@ export function VehicleGallery({
         {/* Nút phóng to Lightbox */}
         <div className="absolute bottom-3 right-3 flex items-center gap-2">
           {vehicleColor && (
-            <span className="hidden sm:inline-flex rounded-lg bg-stage-ink/80 px-2.5 py-1 text-xs font-medium text-white shadow-xs">
+            <span className="hidden sm:inline-flex rounded bg-stage-ink/80 px-2.5 py-1 text-xs font-medium text-white shadow-xs">
               Màu: {vehicleColor}
             </span>
           )}
-          <span className="flex items-center gap-1.5 rounded-lg bg-stage-ink/80 px-2.5 py-1 text-xs font-semibold text-white shadow-xs group-hover:bg-primary transition-colors">
+          <span className="flex items-center gap-1.5 rounded bg-stage-ink/80 px-2.5 py-1 text-xs font-semibold text-white shadow-xs group-hover:bg-primary transition-colors">
             <Maximize2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Phóng to</span>
           </span>
         </div>
 
         {/* Chỉ báo số lượng ảnh */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-lg bg-stage-ink/80 px-2.5 py-1 text-xs font-mono tabular-nums font-semibold text-white shadow-xs">
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded bg-stage-ink/80 px-2.5 py-1 text-xs font-mono tabular-nums font-semibold text-white shadow-xs">
           <Camera className="w-3.5 h-3.5 text-primary-tint" />
           <span>{activeIndex + 1} / {allImages.length}</span>
         </div>
@@ -111,10 +111,10 @@ export function VehicleGallery({
                 key={`thumb-${idx}`}
                 type="button"
                 onClick={() => setActiveIndex(idx)}
-                className={`relative h-16 w-24 sm:h-20 sm:w-28 shrink-0 overflow-hidden rounded-xl border transition-all cursor-pointer ${
+                className={`relative h-16 w-24 sm:h-20 sm:w-28 shrink-0 overflow-hidden rounded border transition-all cursor-pointer ${
                   isActive
                     ? "border-primary ring-2 ring-primary/30 shadow-xs"
-                    : "border-line opacity-70 hover:opacity-100 hover:border-line-strong"
+                    : "border-td-rule opacity-70 hover:opacity-100 hover:border-td-rule"
                 }`}
               >
                 <Image
@@ -159,7 +159,7 @@ export function VehicleGallery({
                     type="button"
                     onClick={handlePrev}
                     aria-label="Ảnh trước"
-                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 rounded-full bg-stage-ink/80 p-3 text-white hover:bg-primary transition-colors cursor-pointer shadow-e2"
+                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 rounded-full bg-stage-ink/80 p-3 text-white hover:bg-primary transition-colors cursor-pointer"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
@@ -167,7 +167,7 @@ export function VehicleGallery({
                     type="button"
                     onClick={handleNext}
                     aria-label="Ảnh kế tiếp"
-                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 rounded-full bg-stage-ink/80 p-3 text-white hover:bg-primary transition-colors cursor-pointer shadow-e2"
+                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 rounded-full bg-stage-ink/80 p-3 text-white hover:bg-primary transition-colors cursor-pointer"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -180,7 +180,7 @@ export function VehicleGallery({
               <button
                 type="button"
                 aria-label="Đóng xem ảnh"
-                className="absolute top-4 right-4 rounded-full bg-stage-ink/80 p-2.5 text-white hover:bg-danger transition-colors cursor-pointer shadow-e1"
+                className="absolute top-4 right-4 rounded-full bg-stage-ink/80 p-2.5 text-white hover:bg-danger transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -24,18 +24,18 @@ const NORMAL_STEPS: StepItem[] = [
 export function TripStepper({ status, cancelReason }: TripStepperProps) {
   if (status === "cancelled") {
     return (
-      <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3 mb-4">
+      <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted mb-4">
           Tiến trình đơn thuê
         </h3>
         <ol className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <li className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-line flex items-center justify-center text-ink-3">
+            <div className="w-8 h-8 rounded-full bg-line flex items-center justify-center text-td-muted">
               <Check className="w-4 h-4" aria-hidden="true" />
             </div>
             <div>
-              <span className="text-sm font-bold text-ink block">Đã tạo đơn</span>
-              <span className="text-xs text-ink-3">Hoàn tất đặt ban đầu</span>
+              <span className="text-sm font-bold text-td-ink block">Đã tạo đơn</span>
+              <span className="text-xs text-td-muted">Hoàn tất đặt ban đầu</span>
             </div>
           </li>
           <div className="hidden sm:block flex-1 h-0.5 bg-danger/30" aria-hidden="true" />
@@ -45,7 +45,7 @@ export function TripStepper({ status, cancelReason }: TripStepperProps) {
             </div>
             <div>
               <span className="text-sm font-bold text-danger block">Đã hủy chuyến</span>
-              <span className="text-xs text-ink-3">
+              <span className="text-xs text-td-muted">
                 {cancelReason || "Đơn thuê đã được chấm dứt"}
               </span>
             </div>
@@ -68,8 +68,8 @@ export function TripStepper({ status, cancelReason }: TripStepperProps) {
   const currentIndex = stepOrder[status] ?? 0;
 
   return (
-    <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3 mb-4">
+    <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted mb-4">
         Tiến trình đơn thuê
       </h3>
       <ol className="grid grid-cols-1 sm:grid-cols-5 gap-4">
@@ -90,7 +90,7 @@ export function TripStepper({ status, cancelReason }: TripStepperProps) {
                     ? "bg-primary text-white"
                     : isCurrent
                     ? "bg-primary-tint border-2 border-primary text-primary"
-                    : "bg-sunken border border-line text-ink-3"
+                    : "bg-td-chalk border border-td-rule text-td-muted"
                 }`}
               >
                 {isDone ? (
@@ -104,12 +104,12 @@ export function TripStepper({ status, cancelReason }: TripStepperProps) {
               <div>
                 <span
                   className={`text-xs font-bold block ${
-                    isCurrent ? "text-primary" : isDone ? "text-ink" : "text-ink-3"
+                    isCurrent ? "text-primary" : isDone ? "text-td-ink" : "text-td-muted"
                   }`}
                 >
                   {step.label}
                 </span>
-                <span className="text-[11px] text-ink-3 hidden sm:block mt-0.5">
+                <span className="text-[11px] text-td-muted hidden sm:block mt-0.5">
                   {step.description}
                 </span>
               </div>

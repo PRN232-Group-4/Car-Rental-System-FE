@@ -1,16 +1,6 @@
 import type { ReactNode } from "react";
-import {
-  AlertTriangle,
-  CalendarCheck,
-  Check,
-  CheckCircle2,
-  Clock,
-  Hourglass,
-  Wrench,
-  XCircle,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { StatusGlyph, type StatusTone } from "./StatusGlyph";
 
 export type StatusType =
   | "available"
@@ -27,108 +17,73 @@ export type StatusType =
 
 interface StatusConfig {
   label: string;
-  className: string;
-  icon: LucideIcon;
+  tone: StatusTone;
 }
 
 const statusDictionary: Record<string, StatusConfig> = {
   // Vehicle / Catalog statuses
-  available: {
-    label: "Sẵn sàng",
-    className: "bg-success-bg text-success",
-    icon: CheckCircle2,
-  },
-  rented: {
-    label: "Đang thuê",
-    className: "bg-info-bg text-info",
-    icon: Clock,
-  },
-  maintenance: {
-    label: "Bảo dưỡng",
-    className: "bg-warning-bg text-warning",
-    icon: Wrench,
-  },
-  unavailable: {
-    label: "Tạm ngưng",
-    className: "bg-sunken text-ink-3",
-    icon: XCircle,
-  },
+  available: { label: "Sẵn sàng", tone: "success" },
+  rented: { label: "Đang thuê", tone: "info" },
+  maintenance: { label: "Bảo dưỡng", tone: "warning" },
+  unavailable: { label: "Tạm ngưng", tone: "neutral" },
 
   // Directory / Account / Generic statuses
-  active: {
-    label: "Đang hoạt động",
-    className: "bg-success-bg text-success",
-    icon: CheckCircle2,
-  },
-  inactive: {
-    label: "Tạm ngưng",
-    className: "bg-sunken text-ink-3",
-    icon: XCircle,
-  },
-  pending: {
-    label: "Chờ duyệt",
-    className: "bg-warning-bg text-warning",
-    icon: Hourglass,
-  },
-  reserved: {
-    label: "Đã đặt",
-    className: "bg-primary-tint text-primary",
-    icon: CalendarCheck,
-  },
-  completed: {
-    label: "Hoàn thành",
-    className: "bg-success-bg text-success",
-    icon: Check,
-  },
-  cancelled: {
-    label: "Đã hủy",
-    className: "bg-danger-bg text-danger",
-    icon: AlertTriangle,
-  },
+  active: { label: "Đang hoạt động", tone: "success" },
+  inactive: { label: "Tạm ngưng", tone: "neutral" },
+  pending: { label: "Chờ duyệt", tone: "warning" },
+  reserved: { label: "Đã đặt", tone: "info" },
+  completed: { label: "Hoàn thành", tone: "success" },
+  cancelled: { label: "Đã hủy", tone: "danger" },
+  draft: { label: "Nháp", tone: "neutral" },
+  published: { label: "Công khai", tone: "success" },
+  expired: { label: "Hết hạn", tone: "danger" },
+  approved: { label: "Đã duyệt", tone: "success" },
+  rejected: { label: "Từ chối", tone: "danger" },
+};
+
+const toneClass: Record<StatusTone, string> = {
+  success: "text-td-ink font-semibold",
+  info: "text-td-ink font-semibold",
+  warning: "text-td-oxide font-bold",
+  danger: "text-td-oxide font-bold",
+  neutral: "text-td-muted",
 };
 
 export interface StatusBadgeProps {
   status: StatusType;
   label?: string;
-  icon?: LucideIcon;
+  icon?: React.ElementType;
   size?: "sm" | "md";
   className?: string;
   children?: ReactNode;
 }
 
+/**
+ * Trạng thái hiển thị kiểu Transit Desk: glyph + nhãn mono viết hoa.
+ * `icon` chỉ giữ để tương thích call site cũ, không render nữa.
+ */
 export function StatusBadge({
   status,
   label,
-  icon: CustomIcon,
   size = "sm",
   className,
   children,
 }: StatusBadgeProps) {
   const normalizedKey = status.toLowerCase();
-  const config = statusDictionary[normalizedKey] ?? {
-    label: status,
-    className: "bg-sunken text-ink-3",
-    icon: Clock,
-  };
-
-  const IconComponent = CustomIcon ?? config.icon;
+  const config = statusDictionary[normalizedKey] ?? { label: status, tone: "neutral" as StatusTone };
   const displayLabel = children ?? label ?? config.label;
-
-  const sizeClasses =
-    size === "md"
-      ? "px-3 py-1 text-xs gap-1.5"
-      : "px-2.5 py-0.5 text-xs gap-1";
 
   return (
     <span
+      data-status-tone={config.tone}
       className={cn(
-        "inline-flex items-center rounded-full font-semibold whitespace-nowrap",
-        config.className,
-        sizeClasses,
+        "inline-flex w-fit items-center gap-2 whitespace-nowrap font-mono uppercase tracking-wide",
+        size === "md" ? "text-[11px]" : "text-[10px]",
+        toneClass[config.tone],
         className,
       )}
     >
-      <IconComponent className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <StatusGlyph tone={config.tone} className={size === "md" ? "h-2 w-2" : "h-1.5 w-1.5"} />
       <span>{displayLabel}</span>
     </span>
   );

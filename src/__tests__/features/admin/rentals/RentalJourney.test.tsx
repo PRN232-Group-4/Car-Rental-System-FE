@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalOperationsPage from "@/app/admin/rentals/page";
 import * as operationsApi from "@/features/operations/api";
+import { RENTAL_101 } from "./rental-fixture";
 
 beforeAll(() => {
   global.ResizeObserver = class {
@@ -72,6 +73,8 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
   beforeEach(() => {
     vi.clearAllMocks();
     mockSearchParams = new URLSearchParams();
+    // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
   });
 
   it("hiển thị thanh tra cứu đơn và trạng thái rỗng khi chưa có ID", () => {
@@ -107,6 +110,29 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
+    vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([
+      {
+        id: 1,
+        userId: 101,
+        fullName: "Nguyễn Văn Hùng",
+        email: "driver.hung@thongdong.vn",
+        phone: "0901111222",
+        departmentId: 1,
+        departmentName: "Tài xế",
+        facilityId: 1,
+        facilityName: "Chi nhánh Quận 1",
+        hiredDate: "2024-01-01",
+        isDriver: true,
+        licenseNumber: "B2-998877",
+        licenseType: "B2",
+        licenseIssueDate: "2023-01-01",
+        licenseExpiryDate: "2033-01-01",
+        licenseImageUrl: null,
+        rating: 5,
+        isActive: true,
+        staffRole: "Tài xế",
+      },
+    ]);
     const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as never);
 
     renderWithClient(<RentalOperationsPage />);

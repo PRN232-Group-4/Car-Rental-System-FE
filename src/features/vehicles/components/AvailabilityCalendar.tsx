@@ -103,14 +103,14 @@ export function AvailabilityCalendar({
   };
 
   return (
-    <div className={`rounded-2xl border border-line bg-surface p-5 shadow-e1 ${className}`}>
+    <div className={`rounded border border-td-rule bg-td-white p-5 ${className}`}>
       {/* 1. Header & Điều hướng */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-td-rule pb-4">
         <div>
-          <h3 className="text-base font-bold text-ink">
+          <h3 className="text-base font-bold text-td-ink">
             Lịch khả dụng & trạng thái xe (31 ngày tới)
           </h3>
-          <p className="mt-0.5 text-xs text-ink-3">
+          <p className="mt-0.5 text-xs text-td-muted">
             Múi giờ chuẩn GMT+7 (Asia/Ho_Chi_Minh). Nhấp vào ô trống để chọn lịch nhận xe.
           </p>
         </div>
@@ -119,16 +119,16 @@ export function AvailabilityCalendar({
           <button
             type="button"
             onClick={handleResetToday}
-            className="rounded-lg border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-ink-2 hover:bg-sunken transition-colors cursor-pointer"
+            className="rounded border border-td-rule bg-td-white px-2.5 py-1 text-xs font-semibold text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
           >
             Hôm nay
           </button>
-          <div className="flex items-center border border-line rounded-lg overflow-hidden bg-surface">
+          <div className="flex items-center border border-td-rule rounded overflow-hidden bg-td-white">
             <button
               type="button"
               onClick={handlePrev}
               aria-label="14 ngày trước"
-              className="p-1.5 text-ink-2 hover:bg-sunken transition-colors cursor-pointer"
+              className="p-1.5 text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -136,7 +136,7 @@ export function AvailabilityCalendar({
               type="button"
               onClick={handleNext}
               aria-label="14 ngày kế tiếp"
-              className="p-1.5 text-ink-2 hover:bg-sunken border-l border-line transition-colors cursor-pointer"
+              className="p-1.5 text-td-ink hover:bg-td-chalk border-l border-td-rule transition-colors cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -145,14 +145,14 @@ export function AvailabilityCalendar({
       </div>
 
       {/* 2. Chú thích trực quan (Legend — WCAG: không phụ thuộc độc nhất màu sắc) */}
-      <div className="flex flex-wrap items-center gap-4 py-3 text-xs text-ink-2 border-b border-line">
+      <div className="flex flex-wrap items-center gap-4 py-3 text-xs text-td-ink border-b border-td-rule">
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded border border-line bg-surface inline-block" />
+          <span className="w-3.5 h-3.5 rounded border border-td-rule bg-td-white inline-block" />
           <span>Còn trống</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span
-            className="w-3.5 h-3.5 rounded border border-line bg-sunken inline-block bg-[url('data:image/svg+xml,%3Csvg%20width=%278%27%20height=%278%27%20viewBox=%270%200%208%208%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20d=%27M0%208L8%200M-1%201L1%20-1M7%209L9%207%27%20stroke=%27%2364748b%27%20stroke-width=%271.2%27%20stroke-opacity=%270.3%27/%3E%3C/svg%3E')]"
+            className="w-3.5 h-3.5 rounded border border-td-rule bg-td-chalk inline-block bg-[url('data:image/svg+xml,%3Csvg%20width=%278%27%20height=%278%27%20viewBox=%270%200%208%208%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20d=%27M0%208L8%200M-1%201L1%20-1M7%209L9%207%27%20stroke=%27%2364748b%27%20stroke-width=%271.2%27%20stroke-opacity=%270.3%27/%3E%3C/svg%3E')]"
           />
           <span>Đã có đơn thuê</span>
         </div>
@@ -163,8 +163,8 @@ export function AvailabilityCalendar({
           <span>Bảo trì kỹ thuật</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded border border-dashed border-ink-3/40 bg-surface flex items-center justify-center">
-            <Clock className="w-2.5 h-2.5 text-ink-3" />
+          <span className="w-3.5 h-3.5 rounded border border-dashed border-ink-3/40 bg-td-white flex items-center justify-center">
+            <Clock className="w-2.5 h-2.5 text-td-muted" />
           </span>
           <span>Đệm giao nhận 60p</span>
         </div>
@@ -175,7 +175,7 @@ export function AvailabilityCalendar({
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 animate-pulse">
             {Array.from({ length: 14 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-xl bg-sunken" />
+              <div key={i} className="h-20 rounded bg-td-chalk" />
             ))}
           </div>
         ) : (
@@ -184,23 +184,23 @@ export function AvailabilityCalendar({
               const formattedDay = formatDate(dayItem.date, "dd/MM");
               const isToday = isSameDay(dayItem.date, nowGmt7());
 
-              let cardStyles = "border-line bg-surface hover:border-primary cursor-pointer hover:shadow-xs";
+              let cardStyles = "border-td-rule bg-td-white hover:border-primary cursor-pointer hover:shadow-xs";
               let badgeLabel = "Sẵn sàng";
               let badgeStyles = "bg-success-bg text-success";
 
               if (dayItem.status === "booked") {
                 cardStyles =
-                  "border-line bg-sunken/80 opacity-80 cursor-not-allowed bg-[url('data:image/svg+xml,%3Csvg%20width=%278%27%20height=%278%27%20viewBox=%270%200%208%208%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20d=%27M0%208L8%200M-1%201L1%20-1M7%209L9%207%27%20stroke=%27%2364748b%27%20stroke-width=%271.2%27%20stroke-opacity=%270.3%27/%3E%3C/svg%3E')]";
+                  "border-td-rule bg-td-chalk/80 opacity-80 cursor-not-allowed bg-[url('data:image/svg+xml,%3Csvg%20width=%278%27%20height=%278%27%20viewBox=%270%200%208%208%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20d=%27M0%208L8%200M-1%201L1%20-1M7%209L9%207%27%20stroke=%27%2364748b%27%20stroke-width=%271.2%27%20stroke-opacity=%270.3%27/%3E%3C/svg%3E')]";
                 badgeLabel = "Đã đặt";
-                badgeStyles = "bg-sunken text-ink-3 border border-line";
+                badgeStyles = "bg-td-chalk text-td-muted border border-td-rule";
               } else if (dayItem.status === "maintenance") {
                 cardStyles = "border-warning/40 bg-warning-bg/40 cursor-not-allowed";
                 badgeLabel = "Bảo trì";
                 badgeStyles = "bg-warning-bg text-warning";
               } else if (dayItem.status === "buffer") {
-                cardStyles = "border-dashed border-ink-3/40 bg-sunken/40 cursor-not-allowed";
+                cardStyles = "border-dashed border-ink-3/40 bg-td-chalk/40 cursor-not-allowed";
                 badgeLabel = "Đệm 60p";
-                badgeStyles = "bg-sunken text-ink-3";
+                badgeStyles = "bg-td-chalk text-td-muted";
               }
 
               return (
@@ -214,11 +214,11 @@ export function AvailabilityCalendar({
                       handleDateClick(dayItem);
                     }
                   }}
-                  className={`flex flex-col justify-between rounded-xl border p-2.5 transition-all text-left ${cardStyles}`}
+                  className={`flex flex-col justify-between rounded border p-2.5 transition-all text-left ${cardStyles}`}
                   aria-label={`Ngày ${formattedDay}: ${badgeLabel}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-bold tabular-nums text-ink">
+                    <span className="font-mono text-sm font-bold tabular-nums text-td-ink">
                       {formattedDay}
                     </span>
                     {isToday && (

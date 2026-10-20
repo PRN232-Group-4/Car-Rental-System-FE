@@ -38,14 +38,14 @@ export default function BookingLicenseGate({ children }: { children: ReactNode }
     return <FormSkeleton label="Đang kiểm tra giấy phép lái xe trước khi đặt xe..." />;
   }
   if (license.isError) {
-    return <section className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-line bg-surface p-6">
-      <h1 className="text-2xl font-bold text-ink">Kiểm tra giấy phép lái xe</h1>
+    return <section className="mx-auto max-w-3xl space-y-4 rounded border border-td-rule bg-td-white p-6">
+      <h1 className="text-2xl font-bold text-td-ink">Kiểm tra giấy phép lái xe</h1>
       <p role="alert" className="text-sm text-danger">Không thể kiểm tra GPLX. Vui lòng kiểm tra kết nối và thử lại để tiếp tục đặt xe.</p>
-      <button type="button" onClick={() => void license.refetch()} disabled={license.isFetching} className="rounded-xl bg-primary px-4 py-3 font-semibold text-white disabled:opacity-50">{license.isFetching ? "Đang kiểm tra..." : "Thử lại"}</button>
+      <button type="button" onClick={() => void license.refetch()} disabled={license.isFetching} className="rounded bg-primary px-4 py-3 font-semibold text-white disabled:opacity-50">{license.isFetching ? "Đang kiểm tra..." : "Thử lại"}</button>
     </section>;
   }
   if (needsLicense) {
-    return <p role="status" className="p-6 text-center text-sm text-ink-3">Bạn chưa cập nhật GPLX. Đang chuyển đến trang cập nhật giấy phép...</p>;
+    return <p role="status" className="p-6 text-center text-sm text-td-muted">Bạn chưa cập nhật GPLX. Đang chuyển đến trang cập nhật giấy phép...</p>;
   }
   return children;
 }
