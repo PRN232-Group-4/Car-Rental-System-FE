@@ -86,7 +86,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     mockSearchParams = new URLSearchParams();
     // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
-    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([]);
+    vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([]);
     vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
@@ -505,7 +505,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       renderWithClient(<RentalWorkspaceV4 />, null);
       expect(operationsApi.getOperationalRental).not.toHaveBeenCalled();
       expect(operationsApi.listOperationalRentals).not.toHaveBeenCalled();
-      expect(operationsApi.getAssignableDrivers).not.toHaveBeenCalled();
+      expect(operationsApi.getOperationalDrivers).not.toHaveBeenCalled();
       expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
     });
@@ -515,7 +515,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       renderWithClient(<RentalWorkspaceV4 />, mockStaffSession);
       expect(operationsApi.getOperationalRental).not.toHaveBeenCalled();
       expect(operationsApi.listOperationalRentals).not.toHaveBeenCalled();
-      expect(operationsApi.getAssignableDrivers).not.toHaveBeenCalled();
+      expect(operationsApi.getOperationalDrivers).not.toHaveBeenCalled();
       expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
     });

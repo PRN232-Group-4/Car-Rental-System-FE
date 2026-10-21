@@ -3,6 +3,7 @@ import type { RentalContract } from "@/features/rentals/types";
 import type { StaffDto, PagedResult } from "@/features/admin/api";
 
 export type OperationalRental = RentalContract & {
+  invoiceId?: number;
   hasPassingPreInspection?: boolean;
   hasPostInspection?: boolean;
 };
@@ -42,6 +43,25 @@ export async function getOperationalDrivers(): Promise<StaffDto[]> {
 
   return drivers;
 }
+
+export interface OperationalRentalDetail {
+  rental: Omit<RentalContract, "startTime" | "endTime" | "status"> & { scheduledStart: string; scheduledEnd: string; status: string | number };
+  orderId: number | null;
+  customerName: string | null;
+  customerEmail: string | null;
+  vehicleBrand: string | null;
+  vehicleModel: string | null;
+  licensePlate: string | null;
+  driverName: string | null;
+  invoice: { id: number; number: string; status: string; amount: number } | null;
+  hasPassingPreInspection?: boolean;
+  hasPostInspection?: boolean;
+}
+
+export const getOperationalRentalDetail = (id: number | string) => backendApiClient.get<OperationalRentalDetail>(`rentals/${id}/detail`);
+export const confirmHandover = (id: number | string) => backendApiClient.post<unknown>(`handovers/${id}/confirm`);
+export interface RentalUpdate { vehicleId: number; startTime: string; endTime: string; hasDriver: boolean }
+export const updateRental = (id: number | string, body: RentalUpdate) => backendApiClient.put<unknown>(`rentals/${id}`, body);
 
 export function assignRental(id: number, driverStaffId: number | null) {
   return backendApiClient.post<unknown>(`rentals/${id}/assignments`, { driverStaffId });

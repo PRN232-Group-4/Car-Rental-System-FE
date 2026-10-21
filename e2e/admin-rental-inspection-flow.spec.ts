@@ -57,7 +57,7 @@ for (const width of [1600, 1280, 390]) {
     await page.getByRole("button", { name: "Tải lại kết quả kiểm tra", exact: true }).click();
     await expect(handover).toBeEnabled();
     await handover.click();
-    await expect(page.getByText("Đã cập nhật đơn thuê sang trạng thái: Đang thuê")).toBeVisible();
+    await expect(page.getByRole("complementary", { name: "Bảng lệnh điều phối" }).getByRole("status").filter({ hasText: "Đã cập nhật đơn thuê sang trạng thái: Đang thuê" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả", exact: true })).toBeVisible();
     expect(startRequests).toBe(1);
   });

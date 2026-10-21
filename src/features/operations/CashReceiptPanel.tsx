@@ -5,7 +5,7 @@ import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { confirmCashReceipt, getInvoiceById } from "@/features/invoices";
-import { operationsButton, operationsPanel, operationalError, type OperationalRental } from "./api";
+import { getOperationalRentalDetail, operationsButton, operationsPanel, operationalError, type OperationalRental } from "./api";
 
 export default function CashReceiptPanel({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
   const cache = useQueryClient();
@@ -16,7 +16,8 @@ export default function CashReceiptPanel({ rental, refresh }: { rental: Operatio
   const query = useQuery({
     queryKey: ["operational-invoice", rental.id, rental.invoiceId, rental.status],
     queryFn: async () => {
-      return rental.invoiceId ? getInvoiceById(rental.invoiceId) : null;
+      const invoiceId = rental.invoiceId ?? (await getOperationalRentalDetail(rental.id)).invoice?.id;
+      return invoiceId ? getInvoiceById(invoiceId) : null;
     },
     enabled: !rental.isSubscription,
     retry: false,

@@ -1,12 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { backendApiClient } from "@/api/backend-api-client";
-import { getOperationalDrivers, operationalError, rentalTransitionBlocker } from "./api";
+import { confirmHandover, getOperationalDrivers, getOperationalRentalDetail, operationalError, rentalTransitionBlocker, updateRental } from "./api";
 import type { OperationalRental } from "./api";
 
-vi.mock("@/api/backend-api-client", () => ({ backendApiClient: { get: vi.fn() } }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() } }));
 
 describe("operational rental prerequisites and drivers", () => {
   beforeEach(() => vi.resetAllMocks());
+
+  it("keeps handover confirmation and rental editing on their dedicated endpoints", async () => {
+    const input = { vehicleId: 8, startTime: "2027-01-01T02:00:00Z", endTime: "2027-01-02T02:00:00Z", hasDriver: false };
+    await confirmHandover(77);
+    expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("handovers/77/confirm");
+    await updateRental(77, input);
+    expect(backendApiClient.put).toHaveBeenCalledExactlyOnceWith("rentals/77", input);
+  });
+
+  it("loads invoice and inspection metadata without changing the flat rental contract", async () => {
+    const detail = { invoice: { id: 42 }, hasPassingPreInspection: true };
+    vi.mocked(backendApiClient.get).mockResolvedValue(detail);
+    expect(await getOperationalRentalDetail(77)).toBe(detail);
+    expect(backendApiClient.get).toHaveBeenCalledExactlyOnceWith("rentals/77/detail");
+  });
 
   it("reads every driver page using the driver-only endpoint", async () => {
     vi.mocked(backendApiClient.get)

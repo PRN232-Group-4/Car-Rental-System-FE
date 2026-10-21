@@ -204,7 +204,8 @@ export function RentalWorkspaceV4() {
   const session = useOptionalSession();
   // P1-C (Security / Authorization): Fail-closed. If session is absent, deny privileged actions.
   const canOverrideStatus = Boolean(session?.hasAnyRole(["Admin", "Manager"]));
-  const canMutate = Boolean(session?.hasAnyRole(["Admin", "Manager", "Staff", "CustomerService"]));
+  const canMutate = Boolean(session?.isAuthenticated && session.hasAnyRole(["Admin", "Manager", "CustomerService"]));
+  const assignmentLock = useRef(false);
 
   // Query rental data
   const {
@@ -215,7 +216,7 @@ export function RentalWorkspaceV4() {
   } = useQuery({
     queryKey: ["operational-rental", lookupId],
     queryFn: () => getOperationalRental(Number(lookupId)),
-    enabled: /^[1-9]\d*$/.test(lookupId),
+    enabled: canMutate && /^[1-9]\d*$/.test(lookupId),
   });
 
   // Discriminated async state machine (P0-B)
@@ -267,9 +268,10 @@ export function RentalWorkspaceV4() {
   const activeRental = detailState.status === "ready" ? detailState.rental : null;
 
   // Query driver options
-  const { data: drivers = [], error: driversError, refetch: refetchDrivers } = useQuery({
+  const { data: drivers = [], isPending: isDriversPending, error: driversError, refetch: refetchDrivers } = useQuery({
     queryKey: ["operational-drivers"],
     queryFn: getOperationalDrivers,
+    enabled: canMutate && !!activeRental,
     retry: false,
   });
 
@@ -278,6 +280,7 @@ export function RentalWorkspaceV4() {
     queryKey: ["operational-rentals-queue", queueFilter],
     queryFn: () => listOperationalRentals({ status: queueFilter === "all" ? undefined : queueFilter, page: 1, pageSize: 30 }),
     staleTime: 30000,
+    enabled: canMutate,
   });
 
   // Driver assignment form state
@@ -359,8 +362,8 @@ export function RentalWorkspaceV4() {
   // Handle driver assignment
   const handleAssignDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeRental || !canMutate || isAssigning) return;
-
+    if (!activeRental || !canMutate || assignmentLock.current || isDriversPending || driversError) return;
+    assignmentLock.current = true;
     setIsAssigning(true);
     setAssignMessage(null);
     assignValidation.reset();
@@ -379,6 +382,7 @@ export function RentalWorkspaceV4() {
       setAssignMessage(generalError);
       notifyError(generalError);
     } finally {
+      assignmentLock.current = false;
       setIsAssigning(false);
     }
   };
@@ -554,6 +558,7 @@ export function RentalWorkspaceV4() {
             )}
           </div>
 
+          <Link href={`/admin/rentals?view=list${activeRental ? `&rentalId=${activeRental.id}` : ""}`} className="mx-3 my-2 text-xs font-semibold text-[var(--v4-marine)] underline">Danh sách, sửa yêu cầu và thanh toán</Link>
           {/* Quick Search & Filter */}
           <div className={styles.queueSearch}>
             <form onSubmit={handleLookup} className="flex flex-col gap-2">
@@ -1194,10 +1199,10 @@ export function RentalWorkspaceV4() {
                       value={driverStaffId}
                       onChange={(e) => setDriverStaffId(e.target.value)}
                       className={styles.inputField}
-                      disabled={isAssigning || !canMutate}
+                      disabled={isAssigning || !canMutate || isDriversPending || !!driversError}
                     >
                       <option value="">-- Không chỉ định (Khách tự lái) --</option>
-                      {drivers.map((d) => (
+                      {drivers.filter((driver) => driver.isActive).map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.email?.trim() || "Chưa cập nhật email tài xế"}
                         </option>
@@ -1213,7 +1218,7 @@ export function RentalWorkspaceV4() {
 
                   <button
                     type="submit"
-                    disabled={isAssigning || !canMutate}
+                    disabled={isAssigning || !canMutate || isDriversPending || !!driversError}
                     className={styles.primaryActionButton}
                   >
                     {isAssigning ? "Đang lưu..." : "Lưu phân công"}

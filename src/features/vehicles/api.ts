@@ -45,11 +45,18 @@ export async function getVehiclesPaginated(params?: VehicleFilterParams): Promis
     queryParams.to = params.to;
   }
 
-  const res = await defaultApiClient.get<unknown>("vehicles/search", queryParams);
+  // The landing preview uses the status catalogue; /vehicles/search has its own server-side filters.
+  const res = params?.status
+    ? await defaultApiClient.get<unknown>("vehicles", {
+      page, pageSize, status: params.status,
+      ...(params.facilityId && params.facilityId !== "all" ? { facilityId: params.facilityId } : {}),
+      ...(params.from ? { from: params.from } : {}), ...(params.to ? { to: params.to } : {}),
+    })
+    : await defaultApiClient.get<unknown>("vehicles/search", queryParams);
   if (typeof res === "object" && res !== null && "items" in res && Array.isArray((res as { items: unknown[] }).items)) {
     const paged = res as { items: Record<string, unknown>[]; totalCount?: number; page?: number; pageSize?: number };
     return {
-      items: paged.items.map(mapVehicleSearchFromBE),
+      items: paged.items.map(params?.status ? mapVehicleFromBE : mapVehicleSearchFromBE),
       totalCount: Number(paged.totalCount ?? paged.items.length),
       page: Number(paged.page ?? page),
       pageSize: Number(paged.pageSize ?? pageSize),
