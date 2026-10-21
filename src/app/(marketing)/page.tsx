@@ -46,9 +46,7 @@ export default function Home() {
         <InteractiveStudio3D />
 
         {/* 4. Multi-Category Vehicle Catalog (4 Groups: Electric/Petrol, Cars/Bikes, Chauffeur/Self-Drive) */}
-        <div id="doi-xe" className="scroll-mt-24">
-          <MultiFleetCatalog />
-        </div>
+        <MultiFleetCatalog />
 
         <FacilityExplorer />
 
