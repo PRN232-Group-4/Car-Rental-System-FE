@@ -1,5 +1,4 @@
-import { nowGmt7, parseGmt7Input } from "@/lib/time";
-import { format } from "date-fns";
+import { fromUtcIso, nowGmt7, parseGmt7Input } from "@/lib/time";
 import type { LicenseState, IneligibleReasonCode } from "./types";
 
 /** Ngưỡng cảnh báo bằng lái sắp hết hạn theo đặc tả: 30 ngày */
@@ -30,7 +29,7 @@ export function getLicenseState(
   }
 
   try {
-    const now = referenceNow ? parseGmt7Input(format(referenceNow, "yyyy-MM-dd"), "yyyy-MM-dd") : parseGmt7Input(format(nowGmt7(), "yyyy-MM-dd"), "yyyy-MM-dd");
+    const now = referenceNow ? fromUtcIso(referenceNow.toISOString()) : nowGmt7();
     const expiry = parseGmt7Input(expiryDateStr);
 
     // Tính mốc 00:00 của cả 2 ngày theo GMT+7

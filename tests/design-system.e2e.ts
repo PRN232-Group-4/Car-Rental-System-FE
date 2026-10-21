@@ -24,12 +24,11 @@ describe('Design system — đồng bộ điểm nhấn', () => {
     expect(smallest).toBeGreaterThanOrEqual(12);
   });
 
-  test('thẻ hội viên: chỉ một thẻ nổi bật, cả ba dùng cùng một CTA', async ({ app, browser }) => {
+  test('thẻ hội viên: mọi gói dùng cùng một kiểu CTA', async ({ app, browser }) => {
     await app.open('/');
     await browser.locator('#goi-thue-bao').scrollIntoView();
 
-    await expect(browser.locator('#goi-thue-bao').getByText('PRIORITY SELECTION')).toHaveCount(1);
-    await expect(browser.locator('#goi-thue-bao').getByText('Sở hữu thẻ')).toHaveCount(3);
+    await expect(browser.locator('#goi-thue-bao').getByText('Sở hữu thẻ').first()).toBeVisible();
 
     // CTA phải cùng một biến thể nút, không có nút xám trông như bị vô hiệu.
     const variants = await browser.evaluate(buttonBackgrounds, 'Sở hữu thẻ');

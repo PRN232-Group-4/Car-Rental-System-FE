@@ -9,9 +9,9 @@ import { parseDashboardSnapshot, getDashboardFleet } from "@/features/admin/dash
 import { useReports } from "@/features/admin/reports/hooks";
 import { getReportTypeLabel, getWaitTimeText, isSlaBreached } from "@/features/admin/reports/report-status";
 import CreateVehicleButton from "@/features/admin/CreateVehicleButton";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { ArrowRight, Clock, RefreshCw } from "lucide-react";
+import { ArrowRight, RefreshCw } from "lucide-react";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 
 export function OperatingPulse() {
@@ -38,7 +38,7 @@ export function OperatingPulse() {
   const reportsQuery = useReports({ status: "new" });
 
   const data = dashboardQuery.data;
-  const isLoading = dashboardQuery.isPending || fleetQuery.isPending;
+  const isLoading = dashboardQuery.isPending;
   const isError = dashboardQuery.isError;
 
   // Format currency
@@ -101,7 +101,8 @@ export function OperatingPulse() {
       )}
 
       {/* 2. Operational Track (Lifecycle Track) */}
-      <section aria-label="Vòng đời vận hành" className="border-y-2 border-td-ink py-6">
+      <section aria-label="Vòng đời vận hành" aria-busy={isLoading} className="border-y-2 border-td-ink py-6">
+        {isLoading && <span role="status" aria-label="Đang tải hoạt động hiện tại..." className="sr-only">Đang tải hoạt động hiện tại...</span>}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Stop 1: Renting */}
           <div className="relative border-l border-td-rule pl-5 first:border-l-0">
@@ -236,7 +237,7 @@ export function OperatingPulse() {
         </div>
 
         {/* Right: Instrument Plate (Công cụ phân phối đội xe) */}
-        <aside className="lg:col-span-5 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between relative overflow-hidden shadow-sm">
+        <aside aria-busy={fleetQuery.isPending} className="lg:col-span-5 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between relative overflow-hidden shadow-sm">
           <div>
             <div className="flex items-center justify-between border-b border-td-rule pb-3">
               <span className="font-mono text-[10px] uppercase tracking-wider text-td-muted">
@@ -246,6 +247,7 @@ export function OperatingPulse() {
                 type="button"
                 onClick={() => void fleetQuery.refetch()}
                 aria-label="Cập nhật đội xe"
+                disabled={fleetQuery.isFetching}
                 className="text-td-muted hover:text-td-ink cursor-pointer"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${fleetQuery.isFetching ? "animate-spin" : ""}`} />
@@ -253,19 +255,30 @@ export function OperatingPulse() {
             </div>
 
             <div className="my-6">
-              <div className="font-sans text-5xl font-bold tracking-tight text-td-ink">
-                {isLoading ? <Skeleton className="h-14 w-32" /> : fleetCounts.available}
-                <span className="ml-3 font-mono text-sm tracking-normal text-td-muted">
-                  / {fleetCounts.total} XE SẴN SÀNG
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-td-muted leading-relaxed">
-                Số lượng phương tiện có thể bàn giao ngay theo thời gian thực từ dữ liệu cơ sở hệ thống.
-              </p>
+              {fleetQuery.isPending ? (
+                <SkeletonBlock label="Đang tải cơ cấu đội xe...">
+                  <Skeleton className="h-14 w-32" />
+                  <Skeleton className="mt-3 h-4 w-full" />
+                </SkeletonBlock>
+              ) : fleetQuery.isError ? (
+                <ErrorState message="Không thể tải cơ cấu đội xe. Vui lòng thử lại." onRetry={() => void fleetQuery.refetch()} />
+              ) : (
+                <>
+                  <div className="font-sans text-5xl font-bold tracking-tight text-td-ink">
+                    {fleetCounts.available}
+                    <span className="ml-3 font-mono text-sm tracking-normal text-td-muted">
+                      / {fleetCounts.total} XE SẴN SÀNG
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs text-td-muted leading-relaxed">
+                    Số lượng phương tiện có thể bàn giao ngay theo thời gian thực từ dữ liệu cơ sở hệ thống.
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 border-t border-td-rule pt-4 font-mono text-xs">
+          {!fleetQuery.isPending && !fleetQuery.isError && <div className="grid grid-cols-3 gap-3 border-t border-td-rule pt-4 font-mono text-xs">
             <div>
               <span className="block text-[10px] text-td-muted uppercase">ĐANG THUÊ</span>
               <strong className="text-base text-td-ink">{fleetCounts.rented}</strong>
@@ -278,7 +291,7 @@ export function OperatingPulse() {
               <span className="block text-[10px] text-td-muted uppercase">TẠM NGƯNG</span>
               <strong className="text-base text-td-muted">{fleetCounts.other}</strong>
             </div>
-          </div>
+          </div>}
         </aside>
       </div>
 

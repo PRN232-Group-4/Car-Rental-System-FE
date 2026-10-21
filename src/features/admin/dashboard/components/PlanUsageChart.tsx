@@ -27,8 +27,8 @@ export function PlanUsageChart({
     rows: data.map((d) => [
       d.name,
       `${d.usedHours} giờ`,
-      `${d.includedHours} giờ`,
-      `${d.usagePercentage}%`,
+      d.includedHours === null ? "Không giới hạn" : `${d.includedHours} giờ`,
+      d.usagePercentage === null ? "Không áp dụng" : `${d.usagePercentage}%`,
       `${d.activeSubscribers} người`,
     ]),
   };
@@ -72,7 +72,7 @@ export function PlanUsageChart({
         className="flex flex-col gap-4 pt-2"
       >
         {data.map((plan) => {
-          const pct = Math.min(plan.usagePercentage, 100);
+          const pct = plan.usagePercentage === null ? null : Math.min(plan.usagePercentage, 100);
           return (
             <div key={plan.planId} className="flex flex-col gap-1.5 rounded border border-td-rule bg-td-white p-3.5">
               <div className="flex items-center justify-between">
@@ -84,18 +84,18 @@ export function PlanUsageChart({
               </div>
 
               {/* Progress bar */}
-              <div className="relative mt-1 h-3 w-full overflow-hidden rounded-full bg-td-chalk">
+              {pct !== null && <div className="relative mt-1 h-3 w-full overflow-hidden rounded-full bg-td-chalk">
                 <div
                   className="h-full rounded-full bg-td-oxide transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
-              </div>
+              </div>}
 
               <div className="flex items-center justify-between font-mono text-[11px] text-td-muted">
                 <span>
-                  Đã dùng: <strong className="text-td-ink">{plan.usedHours}</strong> / {plan.includedHours} giờ
+                  Đã dùng: <strong className="text-td-ink">{plan.usedHours}</strong> giờ / {plan.includedHours === null ? "Không giới hạn" : `${plan.includedHours} giờ`}
                 </span>
-                <span className="font-bold text-td-ink">{plan.usagePercentage}%</span>
+                <span className="font-bold text-td-ink">{plan.usagePercentage === null ? "Không áp dụng" : `${plan.usagePercentage}%`}</span>
               </div>
             </div>
           );

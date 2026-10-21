@@ -131,7 +131,7 @@ export function DashboardFiltersBar({
         rows.push([
           "Gói thuê bao",
           p.name,
-          `${p.usedHours} / ${p.includedHours} giờ (${p.usagePercentage}%)`,
+          `${p.usedHours} / ${p.includedHours === null ? "Không giới hạn" : p.includedHours} giờ (${p.usagePercentage === null ? "Không áp dụng" : `${p.usagePercentage}%`})`,
           `${p.activeSubscribers} người dùng`,
         ]);
       });

@@ -7,6 +7,8 @@ export interface CustomerRentalSummary {
   status: string;
   rentalType: string;
   isSubscription: boolean;
+  vehicleId: number;
+  vehicleImageUrl?: string | null;
   vehicleBrand: string;
   vehicleModel: string;
   startTime: string;
@@ -20,15 +22,20 @@ export interface CustomerRentalDetail {
   status: string;
   rentalType: string;
   isSubscription: boolean;
-  vehicle: { id: number; brand: string; model: string };
+  vehicle: { id: number; brand: string; model: string; mainImageUrl?: string | null; color?: string | null };
   facility: string;
   start: string;
   end: string;
   hasDriver: boolean;
-  driver: { fullName: string } | null;
-  price: { total: number; deposit: number; vat: number; overtime: number };
+  driver: { fullName: string; avatarUrl?: string | null; rating?: number | null } | null;
+  price: { rent: number; total: number; deposit: number; vat: number; overtime: number };
   invoice: { id: number; number: string; status: string; amount: number } | null;
   timeline: { to: string; at: string; actor: string; reason: string | null }[];
+  canCancel: boolean;
+  pickup?: { method?: string; location?: string } | null;
+  inspections?: { type: string; isOk: boolean; odometerKm: number | null; fuelBatteryLevel: number | null; damageNotes: string | null; imgUrls: string | null; inspectedAt: string }[] | null;
+  settlement?: { overtimeHours: number; depositHeld: number; depositDeducted: number; shortfallInvoiceId: number | null } | null;
+  cancellation?: { allowed: boolean; feeAmount: number; refundAmount: number; reasons: string[] | null; freeUntil: string | null } | null;
   nextAction: string | null;
 }
 

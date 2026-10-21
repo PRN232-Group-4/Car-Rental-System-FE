@@ -29,10 +29,17 @@ it("loads facilities beyond the first page for all selectors", async () => {
   expect(client.get).toHaveBeenCalledTimes(2);
 });
 
-it.each([{ items: [] }, { items: null }])("stops on an empty page even if the total has become stale (%j)", async ({ items }) => {
-  client.get.mockResolvedValue({ items, page: 1, pageSize: 100, totalCount: 1 });
+it("accepts an empty page when the total is zero", async () => {
+  client.get.mockResolvedValue({ items: [], page: 1, pageSize: 100, totalCount: 0 });
 
   expect(await getFacilities()).toEqual([]);
+  expect(client.get).toHaveBeenCalledTimes(1);
+});
+
+it.each([{ items: [] }, { items: null }])("rejects an incomplete or invalid page instead of reporting an empty directory (%j)", async ({ items }) => {
+  client.get.mockResolvedValue({ items, page: 1, pageSize: 100, totalCount: 1 });
+
+  await expect(getFacilities()).rejects.toThrow(/Chưa tải đủ|không hợp lệ/);
   expect(client.get).toHaveBeenCalledTimes(1);
 });
 

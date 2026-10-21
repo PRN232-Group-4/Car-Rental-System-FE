@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import {
   CreditCard,
@@ -13,11 +13,15 @@ import {
   ExternalLink,
   Receipt,
 } from "lucide-react";
+import { useAuth } from "@/features/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, checkoutInvoice, Invoice } from "@/features/invoices";
 
 export default function HoaDonDetailClient({ id }: { id: string }) {
-  const { data: invoice, isLoading } = useQuery<Invoice | null>({
+  const { hasRole } = useAuth();
+  const canCheckout = hasRole("Customer");
+  const paymentLock = useRef(false);
+  const { data: invoice, isLoading, error: queryError, refetch } = useQuery<Invoice | null>({
     queryKey: ["invoice", id],
     queryFn: () => getInvoiceById(id),
     refetchInterval: (query) => query.state.data?.status === "paid" && query.state.data?.orderId ? false : 5000,
@@ -28,7 +32,8 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCheckout = async () => {
-    if (!invoice || invoice.canPay !== true || invoice.paymentMethod === "cash" || paying) return;
+    if (!canCheckout || paymentLock.current || queryError || !invoice || invoice.canPay !== true || invoice.paymentMethod === "cash" || paying) return;
+    paymentLock.current = true;
     setPaying(true);
     setErrorMessage(null);
     try {
@@ -42,6 +47,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       const msg = err instanceof Error ? err.message : "Có lỗi xảy ra khi tạo giao dịch thanh toán.";
       setErrorMessage(msg);
       setPaying(false);
+      paymentLock.current = false;
     }
   };
 
@@ -53,6 +59,8 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       </div>
     );
   }
+
+  if (queryError) return <p role="alert" className="text-sm text-danger">{queryError instanceof Error ? queryError.message : "Không tải được hóa đơn."} <button type="button" className="underline" onClick={() => void refetch()}>Thử lại</button></p>;
 
   if (!invoice) {
     return (
@@ -74,7 +82,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
   }
 
   const isPaid = invoice.status === "paid";
-  const canPay = !isPaid && invoice.canPay === true && invoice.paymentMethod !== "cash";
+  const canPay = canCheckout && !isPaid && invoice.canPay === true && invoice.paymentMethod !== "cash";
   const waitingCash = !isPaid && invoice.canPay === true && invoice.paymentMethod === "cash";
   const waitingConfirmation = !isPaid && invoice.paymentBlockedReason === "RENTAL_CONFIRMATION_REQUIRED";
   const beforeVat = Math.max(0, invoice.amount - invoice.vatAmount);
@@ -216,7 +224,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
               <CheckCircle2 className="w-5 h-5" />
               <span>Hoá đơn đã được thanh toán</span>
             </div>
-          ) : <span className="text-sm font-semibold text-td-muted">{waitingConfirmation ? "Chờ nhân viên duyệt yêu cầu" : waitingCash ? "Chờ xác nhận thu tiền mặt" : "Hóa đơn chưa thể thanh toán"}</span>}
+          ) : <span className="text-sm font-semibold text-ink-3">{waitingConfirmation ? "Chờ nhân viên duyệt yêu cầu" : waitingCash ? "Chờ xác nhận thu tiền mặt" : (invoice.paymentBlockedReason || (canCheckout ? "Hóa đơn chưa thể thanh toán" : "Khách hàng thực hiện thanh toán qua tài khoản của mình"))}</span>}
         </div>
       </div>
     </div>

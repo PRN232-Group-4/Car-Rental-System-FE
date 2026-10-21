@@ -449,7 +449,7 @@ export default function FindPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-20 focus:outline-none">
         <Suspense fallback={<FindPageSkeleton />}>
           <FindCatalogContent />
         </Suspense>

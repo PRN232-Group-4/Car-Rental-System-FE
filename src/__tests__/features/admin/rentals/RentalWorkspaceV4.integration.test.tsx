@@ -86,6 +86,8 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     mockSearchParams = new URLSearchParams();
     // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
+    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([]);
+    vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
   describe("Gate 1: Truthful States & Provenance", () => {
@@ -498,37 +500,24 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       expect(fallbackElements.length).toBeGreaterThanOrEqual(1);
     });
 
-    it("P1-C: fail-closed RBAC - unauthenticated user (session: undefined) cannot see manual override or mutate", async () => {
+    it("P1-C: unauthenticated session cannot load or mutate privileged rental data", () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
       renderWithClient(<RentalWorkspaceV4 />, null);
-
-      await waitFor(() => {
-        expect(screen.getByText(/THÔNG SỐ HỢP ĐỒNG THUÊ #101/i)).toBeInTheDocument();
-      });
-
-      // Manual override disclosure is NOT in DOM
+      expect(operationsApi.getOperationalRental).not.toHaveBeenCalled();
+      expect(operationsApi.listOperationalRentals).not.toHaveBeenCalled();
+      expect(operationsApi.getAssignableDrivers).not.toHaveBeenCalled();
       expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
-      // Primary guided button is disabled
-      const guidedBtn = screen.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả" });
-      expect(guidedBtn).toBeDisabled();
-      // Assign button is disabled
-      const assignBtn = screen.getByRole("button", { name: "Lưu phân công" });
-      expect(assignBtn).toBeDisabled();
+      expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
     });
 
-    it("P1-C: Staff role can perform guided workflow mutations but cannot see Admin manual override", async () => {
+    it("P1-C: Staff cannot load the rental workspace reserved for Admin/Manager/CustomerService", () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
       renderWithClient(<RentalWorkspaceV4 />, mockStaffSession);
-
-      await waitFor(() => {
-        expect(screen.getByText(/THÔNG SỐ HỢP ĐỒNG THUÊ #101/i)).toBeInTheDocument();
-      });
-
-      // Manual override disclosure is NOT in DOM for Staff
+      expect(operationsApi.getOperationalRental).not.toHaveBeenCalled();
+      expect(operationsApi.listOperationalRentals).not.toHaveBeenCalled();
+      expect(operationsApi.getAssignableDrivers).not.toHaveBeenCalled();
       expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
-      // Primary guided button IS enabled for Staff
-      const guidedBtn = screen.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả" });
-      expect(guidedBtn).not.toBeDisabled();
+      expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
     });
 
     it("P1-D: renders truthful operational copy for contracts and GPS monitoring", async () => {

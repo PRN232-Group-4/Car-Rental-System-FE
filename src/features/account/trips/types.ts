@@ -10,6 +10,7 @@ export type TripTab = "upcoming" | "ongoing" | "completed" | "cancelled";
 
 export interface TripListItem {
   id: number;
+  orderId?: number | null;
   status: TripStatus;
   rentalType: "hourly" | "longterm";
   isSubscription: boolean;

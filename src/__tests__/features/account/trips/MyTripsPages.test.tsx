@@ -75,7 +75,7 @@ describe("FE-07 My Trips — Component Tests", () => {
       renderWithClient(<TripDetailPage />);
 
       expect(await screen.findByText("VinFast VF 8 Plus")).toBeInTheDocument();
-      expect(screen.getByText("Mã đơn thuê: #101")).toBeInTheDocument();
+      expect(screen.getByText("Mã yêu cầu: #101 · Chưa phát hành đơn chính thức")).toBeInTheDocument();
       expect(screen.getByText("Tiến trình đơn thuê")).toBeInTheDocument();
       expect(screen.getByText("Thông tin hành trình & Bàn giao")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /hủy chuyến/i })).toBeInTheDocument();

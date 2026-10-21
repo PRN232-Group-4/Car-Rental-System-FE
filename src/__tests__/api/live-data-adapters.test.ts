@@ -101,10 +101,10 @@ describe("Runtime adapters never substitute mock data", () => {
     expect((await fetchRentalsByStatus(filters)).every((row) => row.count === 0)).toBe(true);
     expect(get).toHaveBeenCalledWith("rentals", expect.objectContaining({ status: "completed", from: filters.from, pageSize: 1 }));
   });
-  it("marks unsupported metrics explicitly without requesting invented endpoints", async () => {
-    const get = vi.spyOn(backendApiClient, "get");
-    await expect(fetchRevenueSeries(filters)).rejects.toMatchObject({ status: 501 });
-    expect(get).not.toHaveBeenCalled();
+  it("loads revenue from the deployed dashboard endpoint without fabricating data", async () => {
+    const get = vi.spyOn(backendApiClient, "get").mockResolvedValue({ items: [], page: 1, pageSize: 100, totalCount: 0 });
+    expect(await fetchRevenueSeries(filters)).toEqual([]);
+    expect(get).toHaveBeenCalledWith("dashboard/revenue-series", expect.objectContaining({ from: filters.from, to: filters.to, page: 1, pageSize: 100 }));
   });
   it("loads all public vehicle pages without fallback specifications", async () => {
     vi.spyOn(defaultApiClient, "get").mockResolvedValueOnce({ items: [{ id: 1, status: "available", brand: "Honda", model: "City" }], totalCount: 2 }).mockResolvedValueOnce({ items: [{ id: 2, status: "maintenance", brand: "Toyota", model: "Vios" }], totalCount: 2 });

@@ -8,6 +8,13 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## Quy tắc bắt buộc: bảo vệ nhánh main
+
+- Không commit trực tiếp hoặc push trực tiếp lên `main`.
+- Không dùng `git push --force`, `--force-with-lease`, refspec có dấu `+` hoặc cách tương đương để ghi đè lịch sử `main`.
+- Mọi thay đổi vào `main` phải thông qua Pull Request từ `dev` hoặc nhánh công việc; không merge cục bộ vào `main` rồi push để bỏ qua PR.
+- Trước khi commit hoặc push, kiểm tra nhánh hiện tại và nhánh đích. Nếu đang ở `main`, chuyển sang nhánh công việc trước khi commit.
+
 ## Quy tắc bắt buộc: lỗi biểu mẫu
 
 - Mọi form được tạo hoặc chỉnh sửa phải hiển thị lỗi ngay dưới trường input/select/textarea hoặc vùng upload tương ứng, với thông báo tiếng Việt rõ ràng và cách sửa.

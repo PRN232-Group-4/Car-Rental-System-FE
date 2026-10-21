@@ -50,6 +50,8 @@ export function smallestFontSize(selectors: string[]) {
     for (const el of [root, ...root.querySelectorAll('*')]) {
       if (el.children.length > 0) continue;
       if (el.closest('svg')) continue;
+      // Decorative blueprint/topographic chrome is aria-hidden: it is not readable content.
+      if (el.closest('[aria-hidden="true"]')) continue;
       const text = el.textContent?.trim();
       if (!text) continue;
       const r = el.getBoundingClientRect();

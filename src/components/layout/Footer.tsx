@@ -109,12 +109,12 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <a href="#chinh-sach" className="hover:text-primary-tint transition-colors">
+                <a href="#kiem-dinh" className="hover:text-primary-tint transition-colors">
                   Chính sách thuê & đặt cọc (10%)
                 </a>
               </li>
               <li>
-                <a href="#chinh-sach" className="hover:text-primary-tint transition-colors">
+                <a href="#kiem-dinh" className="hover:text-primary-tint transition-colors">
                   Chính sách huỷ & hoàn cọc PayOS
                 </a>
               </li>
@@ -124,7 +124,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#chinh-sach" className="hover:text-primary-tint transition-colors">
+                <a href="#goi-thue-bao" className="hover:text-primary-tint transition-colors">
                   Cam kết giữ xe 100% khi duyệt
                 </a>
               </li>
