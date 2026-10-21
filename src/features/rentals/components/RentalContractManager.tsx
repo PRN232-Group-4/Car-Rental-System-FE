@@ -6,7 +6,8 @@ import Link from "@/components/navigation/NavigationLink";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { getRentalById, updateRentalContract } from "../api";
-import { isSafeContractLink, localDateTime } from "../booking-rules";
+import { isSafeContractLink } from "../booking-rules";
+import { localInputToUtcIso, toLocalInputValue } from "@/lib/time";
 import type { RentalContract } from "../types";
 import VehicleName from "@/features/admin/VehicleName";
 import { FormSkeleton } from "@/components/ui/Skeleton";
@@ -43,7 +44,7 @@ export default function RentalContractManager() {
 function ContractForm({ rental }: { rental: RentalContract }) {
   const queryClient = useQueryClient();
   const [contractLink, setContractLink] = useState(rental.contractLink ?? "");
-  const [signedAt, setSignedAt] = useState(rental.signedAt ? localDateTime(new Date(rental.signedAt)) : "");
+  const [signedAt, setSignedAt] = useState(rental.signedAt ? toLocalInputValue(rental.signedAt) : "");
   const [submitting, setSubmitting] = useState(false);
   const [generalError, setGeneralError] = useState("");
   const [saved, setSaved] = useState(false);
@@ -52,7 +53,7 @@ function ContractForm({ rental }: { rental: RentalContract }) {
     if (submitting) return;
     setSubmitting(true); setGeneralError(""); setSaved(false);
     try {
-      const updated = await updateRentalContract(rental.id, contractLink.trim() || null, new Date(signedAt).toISOString());
+      const updated = await updateRentalContract(rental.id, contractLink.trim() || null, localInputToUtcIso(signedAt));
       queryClient.setQueryData(["rental-contract", String(rental.id)], updated);
       setSaved(true);
     } catch (error) {

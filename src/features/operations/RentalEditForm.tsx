@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { operationalError, operationsInput, operationsPanel, updateRental, type OperationalRental } from "./api";
+import { localInputToUtcIso, toLocalInputValue } from "@/lib/time";
 
 const localTime = (value?: string | null) => {
   if (!value || !Number.isFinite(new Date(value).getTime())) return "";
-  const date = new Date(value);
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  return toLocalInputValue(value);
 };
 async function loadVehicles() {
   const vehicles: VehicleDto[] = [];
@@ -43,7 +43,7 @@ function EditDialog({ rental, refresh, close }: { rental: OperationalRental; ref
     if (lock.current || vehicles.error || !vehicles.data) return;
     lock.current = true; setBusy(true); setError("");
     try {
-      await updateRental(rental.id, { vehicleId: Number(draft.vehicleId), startTime: new Date(draft.startTime).toISOString(), endTime: new Date(draft.endTime).toISOString(), hasDriver: draft.hasDriver === "true" });
+      await updateRental(rental.id, { vehicleId: Number(draft.vehicleId), startTime: localInputToUtcIso(draft.startTime), endTime: localInputToUtcIso(draft.endTime), hasDriver: draft.hasDriver === "true" });
       await Promise.all([refresh(), cache.invalidateQueries({ queryKey: ["invoices"] }), cache.invalidateQueries({ queryKey: ["operational-invoice"] }), cache.invalidateQueries({ queryKey: ["invoice"] }), cache.invalidateQueries({ queryKey: ["assignable-drivers", rental.id] }), cache.invalidateQueries({ queryKey: ["handover", rental.id] })]);
       close();
     } catch (failure) { setError(validation.report(failure)); }

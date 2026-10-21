@@ -103,13 +103,30 @@ export function formatDate(
 }
 
 /**
- * Định dạng chỉ giờ theo múi giờ GMT+7. Mặc định: 'HH:mm'.
+ * Định dạng giờ theo GMT+7. Mặc định: 'HH:mm'.
  */
 export function formatTime(
   isoOrDate: string | Date | number,
   patternStr: string = "HH:mm",
 ): string {
   return formatDateTime(isoOrDate, patternStr);
+}
+
+/**
+ * Đổi giá trị `datetime-local` (giờ tường GMT+7) sang UTC ISO để gửi API.
+ */
+export function localInputToUtcIso(value: string): string {
+  return toUtcIso(parseGmt7Input(value.slice(0, 16), "yyyy-MM-dd'T'HH:mm"));
+}
+
+/**
+ * Đổi một mốc thời gian sang giá trị `datetime-local` theo giờ tường GMT+7.
+ */
+export function toLocalInputValue(value: string | number | Date): string {
+  const tzDate = new TZDate(new Date(value), GMT7_TIMEZONE);
+  if (isNaN(tzDate.getTime())) return "";
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${tzDate.getFullYear()}-${pad(tzDate.getMonth() + 1)}-${pad(tzDate.getDate())}T${pad(tzDate.getHours())}:${pad(tzDate.getMinutes())}`;
 }
 
 /**

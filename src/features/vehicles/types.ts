@@ -78,8 +78,7 @@ export interface VehicleFilterParams {
   search?: string;
   status?: string;
   sort?: "price_asc" | "price_desc" | "year_desc" | "name_asc";
-  page?: number;
-  pageSize?: number;
+  page?: number;  pageSize?: number;
   from?: string;
   to?: string;
   mode?: "hourly" | "longterm";

@@ -13,6 +13,8 @@ import {
   diffHours,
   generateTimeSlots,
   isBeforeTodayGmt7,
+  localInputToUtcIso,
+  toLocalInputValue,
 } from "./time";
 
 describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
@@ -89,6 +91,23 @@ describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
 
     it("throws on completely unrecognizable input", () => {
       expect(() => parseGmt7Input("invalid input string")).toThrow("Không thể nhận diện");
+    });
+  });
+
+  describe("localInputToUtcIso & toLocalInputValue", () => {
+    it("reads a datetime-local value as GMT+7 regardless of the host time zone", () => {
+      expect(localInputToUtcIso("2026-10-23T09:00")).toBe("2026-10-23T02:00:00.000Z");
+      expect(localInputToUtcIso("2026-10-23T23:30")).toBe("2026-10-23T16:30:00.000Z");
+    });
+
+    it("renders an instant as the GMT+7 wall clock for datetime-local inputs", () => {
+      expect(toLocalInputValue("2026-10-23T02:00:00.000Z")).toBe("2026-10-23T09:00");
+      expect(toLocalInputValue(new Date("2026-10-23T16:30:00.000Z"))).toBe("2026-10-23T23:30");
+    });
+
+    it("round-trips a submitted shift without shifting the hours", () => {
+      const submitted = localInputToUtcIso("2026-10-23T09:00");
+      expect(toLocalInputValue(submitted)).toBe("2026-10-23T09:00");
     });
   });
 

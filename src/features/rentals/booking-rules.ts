@@ -1,3 +1,4 @@
+import { toLocalInputValue } from "@/lib/time";
 import type { RentalPolicy } from "./types";
 
 export function selectBookingPolicy(policies: RentalPolicy[], vehicleTypeId?: number) {
@@ -30,7 +31,7 @@ export function isSafeContractLink(value: string) {
   catch { return false; }
 }
 
+/** Wall-clock GMT+7 value for a `datetime-local` input, independent of the browser time zone. */
 export function localDateTime(date: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return toLocalInputValue(date);
 }
