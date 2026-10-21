@@ -7,6 +7,7 @@ export interface ReviewStatusMeta {
 }
 
 export const REVIEW_STATUS_MAP: Record<ReviewStatus, ReviewStatusMeta> = {
+  unavailable: { label: "Chưa có dữ liệu kiểm duyệt", statusType: "unavailable", description: "API chỉ cung cấp nội dung và điểm đánh giá." },
   visible: {
     label: "Hiển thị công khai",
     statusType: "active",

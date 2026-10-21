@@ -76,7 +76,6 @@ test("mobile menu closes after selecting a page", async ({ page }) => {
 });
 
 for (const [path, button] of [
-  ["vehicles", "Thêm phương tiện"],
   ["vehicle-types", "Thêm mới"],
   ["policies", "Thêm chính sách"],
   ["subscription-plans", "Thêm mới"],
@@ -101,70 +100,95 @@ for (const [path, button] of [
   });
 }
 
-test("long vehicle form fits a mobile viewport and scrolls to its actions", async ({ page }) => {
+test("new vehicle form fits a mobile viewport and returns to the list", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/admin/vehicles");
-  await page.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  const bounds = await dialog.boundingBox();
-  expect(bounds!.x).toBeGreaterThanOrEqual(0);
-  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
-  expect(bounds!.height).toBeLessThanOrEqual(844);
-  await expect.poll(() => page.locator("body").evaluate((body) => body.style.overflow)).toBe("hidden");
-  await page.screenshot({ path: "test-results/admin-vehicle-popup-mobile.png" });
-  await dialog.getByRole("button", { name: "Hủy", exact: true }).scrollIntoViewIfNeeded();
-  await expect(dialog.getByRole("button", { name: "Hủy", exact: true })).toBeInViewport();
-  await dialog.getByRole("button", { name: "Hủy", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
-  await expect.poll(() => page.locator("body").evaluate((body) => body.style.overflow)).toBe("");
+  await page.getByRole("link", { name: "Đăng ký xe mới", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/vehicles\/new$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Thêm");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const form = page.locator("form");
+  const bounds = (await form.boundingBox())!;
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await expect(page.getByRole("button", { name: "Xem vị trí xe" })).toHaveCount(0);
+  const cancel = form.getByRole("link", { name: "Hủy", exact: true });
+  await cancel.scrollIntoViewIfNeeded();
+  await expect(cancel).toBeInViewport();
+  await expect(form.getByRole("button", { name: "Thêm phương tiện", exact: true })).toBeInViewport();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: "test-results/admin-vehicle-new-mobile.png", fullPage: true });
+  await cancel.click();
+  await expect(page).toHaveURL(/\/admin\/vehicles$/);
+  await expect(page.getByRole("link", { name: "Đăng ký xe mới", exact: true })).toBeVisible();
 });
 
-test("vehicle popup keeps API errors, blocks dismissal while saving and refreshes after success", async ({ page }) => {
-  await page.goto("/admin/vehicles");
-  await page.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.locator('[name="vehicleTypeId"]').selectOption("1");
-  await dialog.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
-  await expect(dialog.locator('[name="brand"]')).toBeFocused();
-  await expect(dialog.locator('[name="brand"]')).toHaveAttribute("aria-invalid", "true");
-  await dialog.locator('[name="brand"]').fill("Toyota");
-  await dialog.locator('[name="model"]').fill("Vios");
-  await page.route("**/api/vehicles", (route) => route.fulfill({ status: 400, json: { errors: { Brand: ["Hãng xe không hợp lệ."] } } }));
-  await dialog.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toHaveText("Hãng xe không hợp lệ.");
-  await expect(dialog.locator('[name="model"]')).toHaveValue("Vios");
-  await dialog.locator('[name="brand"]').fill("Honda");
+test("new vehicle keeps API errors, blocks duplicate saves and returns to the list after success", async ({ page }) => {
+  await page.goto("/admin/vehicles/new");
+  const form = page.locator("form");
+  await form.locator('[name="vehicleTypeId"]').selectOption("1");
+  await form.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
+  await expect(form.locator('[name="brand"]')).toBeFocused();
+  await expect(form.locator('[name="brand"]')).toHaveAttribute("aria-invalid", "true");
+  await form.locator('[name="brand"]').fill("Toyota");
+  await form.locator('[name="model"]').fill("Vios");
+  await page.route("**/api/vehicles", (route) => route.request().method() === "POST"
+    ? route.fulfill({ status: 400, json: { errors: { Brand: ["Hãng xe không hợp lệ."] } } })
+    : route.fallback());
+  await form.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
+  await expect(form.getByRole("alert")).toHaveText("Hãng xe không hợp lệ.");
+  await expect(form.locator('[name="model"]')).toHaveValue("Vios");
+  await form.locator('[name="brand"]').fill("Honda");
   let releaseSave!: () => void;
+  let saves = 0;
   const saveGate = new Promise<void>((resolve) => { releaseSave = resolve; });
-  await page.route("**/api/vehicles", async (route) => { await saveGate; await route.fulfill({ status: 200, json: { id: 12 } }); });
-  await dialog.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
-  await expect(dialog.getByRole("button", { name: "Đóng biểu mẫu" })).toBeDisabled();
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeVisible();
+  await page.route("**/api/vehicles", async (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    saves += 1;
+    await saveGate;
+    await route.fulfill({ status: 200, json: { id: 12 } });
+  });
+  await form.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
+  await expect(form.getByRole("button", { name: "Đang lưu...", exact: true })).toBeDisabled();
+  await expect(form.locator('[name="model"]')).toHaveValue("Vios");
   const refresh = page.waitForRequest((request) => request.method() === "GET" && new URL(request.url()).pathname === "/api/vehicles");
   releaseSave();
   await refresh;
-  await expect(dialog).toHaveCount(0);
   await expect(page).toHaveURL(/\/admin\/vehicles$/);
+  expect(saves).toBe(1);
 });
 
-test("route changes show loading, same page links do not", async ({ page }) => {
+test("links, history and command navigation do not show a page loader", async ({ page }) => {
   await page.goto("/admin/vehicles");
   const loading = page.locator('[data-page-loading="true"]');
-  const navigation = page.locator("#admin-desktop-navigation");
-  await navigation.getByRole("link", { name: "Quản lý phương tiện", exact: true }).click();
-  await expect(loading).toHaveCount(0);
-  // Hold the route response so this also covers a navigation before prefetch completes.
-  await page.route("**/admin/vehicle-types?*", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await route.continue();
+  const currentLink = page.locator('a[href="/admin/vehicles"]').first();
+  await expect(currentLink).toBeVisible();
+  await page.evaluate(() => {
+    document.body.dataset.navigationLoaderSeen = "false";
+    new MutationObserver(() => {
+      if (document.querySelector('[data-page-loading="true"]')) {
+        document.body.dataset.navigationLoaderSeen = "true";
+      }
+    }).observe(document.body, { childList: true, subtree: true });
   });
-  await navigation.getByRole("link", { name: "Loại phương tiện", exact: true }).click();
-  await expect(loading).toBeVisible();
-  await expect(page).toHaveURL(/\/admin\/vehicle-types$/);
-  await expect(loading).toHaveCount(0);
+
+  await currentLink.click();
+  await expect(page).toHaveURL(/\/admin\/vehicles$/);
+  await page.getByRole("link", { name: "Thong Dong Transit Desk", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.locator("main")).toBeFocused();
   await page.goBack();
   await expect(page).toHaveURL(/\/admin\/vehicles$/);
+  await page.goForward();
+  await expect(page).toHaveURL(/\/admin$/);
+
+  await page.getByRole("button", { name: "Tìm chức năng (Ctrl+K)", exact: true }).click();
+  const search = page.getByRole("textbox", { name: "Tìm kiếm route", exact: true });
+  await search.fill("/admin/vehicle-types");
+  await search.press("Enter");
+  await expect(page).toHaveURL(/\/admin\/vehicle-types$/);
+  await expect(page.locator("main")).toBeFocused();
   await expect(loading).toHaveCount(0);
+  await expect(page.locator("body")).toHaveAttribute("data-navigation-loader-seen", "false");
 });

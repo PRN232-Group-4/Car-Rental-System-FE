@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { DataTable } from "@/components/ui/DataTable";
+import { ErrorState } from "@/components/ui/ErrorState";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
@@ -21,22 +22,21 @@ export default function AdminReviewsPage() {
   const [filters, setFilters] = useState<ReviewFilterParams>({});
   const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
 
-  const { data: reviewsData, isLoading } = useReviews(filters);
+  const { data: reviewsData, isLoading, isError, error, refetch } = useReviews(filters);
   const { data: summary } = useRatingSummary();
 
   // Thống kê % >= 4 sao và số lượng bị báo cáo
   const stats = useMemo(() => {
     if (!summary || summary.count === 0) {
-      return { positivePct: "0%", reportedCount: 0 };
+      return { positivePct: "—", reportedCount: "—" };
     }
     const positiveCount =
       (summary.distribution["5"] || 0) + (summary.distribution["4"] || 0);
     const positivePct = `${((positiveCount / summary.count) * 100).toFixed(1)}%`;
-    const reportedCount =
-      reviewsData?.items.filter((r) => r.status === "reported").length ?? 0;
+    const reportedCount = "—";
 
     return { positivePct, reportedCount };
-  }, [summary, reviewsData]);
+  }, [summary]);
 
   const columns: ColumnDef<ReviewListItem>[] = useMemo(
     () => [
@@ -113,7 +113,7 @@ export default function AdminReviewsPage() {
               <span>Đã phản hồi</span>
             </span>
           ) : (
-            <span className="text-[11px] text-td-muted">Chưa phản hồi</span>
+            <span className="text-[11px] text-td-muted">API chưa hỗ trợ</span>
           ),
       },
       {
@@ -157,7 +157,7 @@ export default function AdminReviewsPage() {
             tag="TRI"
             kicker="CHĂM SÓC & SỰ CỐ · CHẤT LƯỢNG DỊCH VỤ"
             title={<>Đánh giá <em className="italic text-td-teal">nhân sự & tài xế.</em></>}
-            description="Kiểm duyệt nhận xét và theo dõi chất lượng dịch vụ của đội ngũ nhân sự Thong Dong (FE-25)."
+            description="Đọc đánh giá thực từ API nhân viên. API hiện chưa hỗ trợ kiểm duyệt hoặc phản hồi."
           >
             <TransitFolioMetric
               label="ĐIỂM TRUNG BÌNH HỆ THỐNG"
@@ -170,9 +170,9 @@ export default function AdminReviewsPage() {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 { label: "01 · Điểm trung bình", value: summary?.average !== null && summary?.average !== undefined ? `${summary.average.toFixed(2)} / 5.0` : "—", note: "Thang điểm 5 sao toàn hệ thống" },
-                { label: "02 · Lượt đánh giá", value: summary?.count ?? 0, note: "Nhận xét hợp lệ đã ghi nhận" },
+                { label: "02 · Lượt đánh giá", value: summary?.count ?? "—", note: "Nhận xét hợp lệ đã ghi nhận" },
                 { label: "03 · Tỉ lệ hài lòng", value: stats.positivePct, note: "Nhận xét từ 4 sao trở lên" },
-                { label: "04 · Bị báo cáo", value: stats.reportedCount, note: "Cần kiểm duyệt lại" },
+                { label: "04 · Bị báo cáo", value: stats.reportedCount, note: "API chưa cung cấp" },
               ].map((metric, index) => (
                 <div key={metric.label} className={`relative pl-5 ${index === 0 ? "" : "border-l border-td-rule"}`}>
                   <span className="block font-mono text-[11px] font-semibold uppercase text-td-muted">
@@ -207,8 +207,9 @@ export default function AdminReviewsPage() {
             </div>
           </div>
 
+          {isError && <ErrorState message={error instanceof Error ? error.message : "Không tải được đánh giá. Vui lòng thử lại."} onRetry={() => { void refetch(); }} />}
           {/* Bảng dữ liệu */}
-          <div className="border-t border-td-ink">
+          {!isError && <div className="border-t border-td-ink">
             <DataTable
               className="!border-t-0"
               caption="Danh sách đánh giá nhân viên và tài xế từ khách hàng"
@@ -219,7 +220,7 @@ export default function AdminReviewsPage() {
               emptyTitle="Chưa có đánh giá nào"
               emptyDescription="Hiện không có đánh giá nào khớp với tiêu chí tìm kiếm."
             />
-          </div>
+          </div>}
 
           {/* Drawer chi tiết & kiểm duyệt */}
           <ReviewDrawer

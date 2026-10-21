@@ -1,5 +1,6 @@
 import React from "react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { backendApiClient } from "@/api/backend-api-client";
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PoliciesPage from "@/app/admin/policies/page";
@@ -37,6 +38,22 @@ function renderWithClient(ui: React.ReactElement) {
 }
 
 describe("FE-14 Admin Policies & Plans — Component Tests", () => {
+  beforeEach(() => {
+    vi.spyOn(backendApiClient, "get").mockImplementation(async (path) => {
+      if (path === "vehicle-types") return [{ id: 1, name: "Ô tô" }];
+      if (path === "rental-policies") return {
+        items: [
+          { id: 1, vehicleTypeId: 1, name: "Chính sách tiêu chuẩn Ô tô 2026-Q1", vatRate: 10, overtimeFeeRate: 20, depositPercentage: 20, isActive: true },
+          { id: 2, vehicleTypeId: 1, name: "Chính sách thay thế", vatRate: 8, overtimeFeeRate: 15, depositPercentage: 20, isActive: true },
+        ], totalCount: 2,
+      };
+      if (path === "subscription-plans") return [
+        { id: 1, name: "Gói Trải Nghiệm Khởi Đầu", price: 990000, durationDays: 30, includedHours: 12, isActive: true },
+        { id: 2, name: "Gói Đô Thị Thông Minh", price: 2490000, durationDays: 60, includedHours: 35, isActive: true },
+      ];
+      throw new Error("Unexpected test API: " + path);
+    });
+  });
   describe("PoliciesPage", () => {
     it("hiển thị tiêu đề, mô tả và nút Tạo phiên bản mới", async () => {
       renderWithClient(<PoliciesPage />);

@@ -83,7 +83,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
                 {vehicle.name}
               </h3>
               <p className="text-xs text-td-muted mt-0.5">
-                Đời {vehicle.year} {vehicle.brand ? `• ${vehicle.brand}` : ""}
+                {vehicle.year ? `Đời ${vehicle.year}` : "Chưa có năm sản xuất"} {vehicle.brand ? `• ${vehicle.brand}` : ""}
               </p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
 
             <div className="flex items-center gap-1.5 truncate">
               <Settings2 className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span className="truncate">{vehicle.transmission || "Tự động"}</span>
+              <span className="truncate">{vehicle.transmission || "Chưa có hộp số"}</span>
             </div>
 
             <div className="flex items-center gap-1.5 truncate">
@@ -108,7 +108,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
               )}
               <span className="truncate">
                 {isElectric
-                  ? (vehicle.batteryCapacity || "Pin Lithium")
+                  ? (vehicle.batteryCapacity || "Chưa có thông số pin")
                   : (vehicle.fuelType || "Xăng")}
               </span>
             </div>
@@ -116,7 +116,7 @@ export function VehicleCard({ vehicle, priority = false, className = "" }: Vehic
             <div className="flex items-center gap-1.5 truncate">
               <Gauge className="w-3.5 h-3.5 text-primary shrink-0" />
               <span className="truncate">
-                {vehicle.maxRange || vehicle.storageCapacity || (vehicle.trunkCapacity ? `${vehicle.trunkCapacity}L` : "Cốp rộng")}
+                {vehicle.maxRange || vehicle.storageCapacity || (vehicle.trunkCapacity ? `${vehicle.trunkCapacity}L` : "Chưa có thông số")}
               </span>
             </div>
           </div>

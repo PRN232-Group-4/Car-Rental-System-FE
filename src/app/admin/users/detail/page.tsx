@@ -155,6 +155,7 @@ function UserDetailContent() {
       customerId: user.customer.id,
       points,
       reason,
+      idempotencyKey: crypto.randomUUID(),
     });
   };
 
