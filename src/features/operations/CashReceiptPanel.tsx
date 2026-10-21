@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { confirmCashReceipt, getInvoiceById, getInvoices } from "@/features/invoices";
+import { confirmCashReceipt, getInvoiceById } from "@/features/invoices";
 import { operationsButton, operationsPanel, operationalError, type OperationalRental } from "./api";
 
 export default function CashReceiptPanel({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
@@ -12,10 +12,9 @@ export default function CashReceiptPanel({ rental, refresh }: { rental: Operatio
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const query = useQuery({
-    queryKey: ["operational-invoice", rental.id, rental.status],
+    queryKey: ["operational-invoice", rental.id, rental.invoiceId, rental.status],
     queryFn: async () => {
-      const invoice = (await getInvoices()).find((item) => String(item.rentalId) === String(rental.id));
-      return invoice ? getInvoiceById(invoice.id) : null;
+      return rental.invoiceId ? getInvoiceById(rental.invoiceId) : null;
     },
     enabled: !rental.isSubscription,
     retry: false,
@@ -42,7 +41,7 @@ export default function CashReceiptPanel({ rental, refresh }: { rental: Operatio
         <p className="text-sm">{invoice.invoiceNumber} · {invoice.amount.toLocaleString("vi-VN")} đ · {invoice.paymentMethod === "cash" ? "Tiền mặt" : "Online qua PayOS"}</p>
         {invoice.orderId && <p className="text-sm font-semibold text-success">Đơn thuê chính thức #{invoice.orderId} · Đã thanh toán</p>}
         {invoice.status !== "paid" && invoice.paymentMethod === "cash" && <>
-          <p className="text-sm text-td-muted">{invoice.canPay ? "Chỉ xác nhận sau khi đã thực nhận đủ tiền. Hệ thống sẽ ghi người thu và phát hành đơn thuê." : "Duyệt yêu cầu trước khi xác nhận thu tiền mặt."}</p>
+          <p className="text-sm text-td-muted">{invoice.canPay ? "Chỉ xác nhận sau khi đã thực nhận đủ tiền. Hệ thống sẽ ghi người thu và phát hành đơn thuê." : (invoice.paymentBlockedReason || "Hóa đơn hiện chưa thể thanh toán.")}</p>
           <button type="button" disabled={!invoice.canPay || busy || query.isFetching} onClick={() => void confirm()} className={operationsButton}>{busy ? "Đang ghi nhận..." : "Xác nhận đã thu tiền mặt"}</button>
         </>}
         {invoice.status !== "paid" && invoice.paymentMethod !== "cash" && <p className="text-sm text-td-muted">Khách thanh toán sau khi yêu cầu được duyệt. PayOS xác nhận đã nhận tiền thì hệ thống tự phát hành đơn thuê.</p>}

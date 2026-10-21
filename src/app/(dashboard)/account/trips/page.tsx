@@ -149,7 +149,7 @@ function TripsListContent() {
       ) : error ? (
         <ErrorState
           title="Không thể tải danh sách chuyến đi"
-          message="Đã xảy ra lỗi kết nối khi lấy dữ liệu chuyến đi của bạn. Vui lòng thử lại."
+          message={error instanceof Error ? error.message : "Không thể tải dữ liệu. Vui lòng thử lại."}
           onRetry={() => refetch()}
         />
       ) : items.length === 0 ? (

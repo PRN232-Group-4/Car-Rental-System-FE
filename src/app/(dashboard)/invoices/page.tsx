@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function HoaDonPage() {
-  const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
+  const { data: invoices = [], isLoading, error, refetch } = useQuery<Invoice[]>({
     queryKey: ["invoices"],
     queryFn: getInvoices,
   });
@@ -23,7 +23,7 @@ export default function HoaDonPage() {
       const q = searchQuery.toLowerCase().trim();
       return (
         inv.invoiceNumber.toLowerCase().includes(q) ||
-        String(inv.rentalId).includes(q)
+        String(inv.rentalId).includes(q) || (inv.orderId != null && String(inv.orderId).includes(q))
       );
     }
     return true;
@@ -110,6 +110,8 @@ export default function HoaDonPage() {
             <div key={i} className="h-28 rounded bg-td-white border border-td-rule animate-pulse" />
           ))}
         </div>
+      ) : error ? (
+        <p role="alert" className="text-sm text-danger">{error instanceof Error ? error.message : "Không tải được hóa đơn."} <button type="button" className="underline" onClick={() => void refetch()}>Thử lại</button></p>
       ) : filteredInvoices.length === 0 ? (
         <div className="border-t border-td-ink py-12 text-center">
           <FileText className="mx-auto h-8 w-8 text-td-muted" aria-hidden="true" />
@@ -139,7 +141,7 @@ export default function HoaDonPage() {
                     {inv.invoiceNumber}
                   </Link>
                   <span className="mt-0.5 block truncate text-xs text-td-muted">
-                    Chuyến #{inv.rentalId}
+                    Mã yêu cầu #{inv.rentalId}{inv.orderId ? ` · Mã đơn chính thức #${inv.orderId}` : ""}
                   </span>
                 </div>
                 <div className="col-span-3 font-mono text-[11px] text-td-muted">

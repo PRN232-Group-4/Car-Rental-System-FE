@@ -7,7 +7,7 @@ import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { currentMapPosition, getMapboxRoute, hasMapTarget, isMapboxToken, resolveMapTarget, type Coordinates, type MapboxRoute, type MapOptions } from "./mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-interface MapboxMapProps extends MapOptions { title: string; className?: string }
+interface MapboxMapProps extends MapOptions { title: string; className?: string; gpsPath?: { lat: number; lng: number }[] }
 
 function MapCanvas({ serialized, token, title }: { serialized: string; token: string; title: string }) {
   const container = useRef<HTMLDivElement>(null);
@@ -18,6 +18,7 @@ function MapCanvas({ serialized, token, title }: { serialized: string; token: st
   const [start, setStart] = useState<Coordinates | null>(null);
   const [locating, setLocating] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const hasHistory = Boolean((JSON.parse(serialized) as Pick<MapboxMapProps, "gpsPath">).gpsPath?.length);
 
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
@@ -41,14 +42,15 @@ function MapCanvas({ serialized, token, title }: { serialized: string; token: st
       started = true;
       timer = setTimeout(() => fail(new Error("Bản đồ tải quá lâu. Vui lòng kiểm tra kết nối và thử lại.")), 30000);
       try {
-        const options: MapOptions = JSON.parse(serialized);
+        const options: MapOptions & Pick<MapboxMapProps, "gpsPath"> = JSON.parse(serialized);
+        const history: Coordinates[] = (options.gpsPath ?? []).filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng) && Math.abs(point.lat) <= 90 && Math.abs(point.lng) <= 180).map((point) => [point.lng, point.lat]);
         const endTarget = hasMapTarget(options.destination) ? options.destination : options.location;
         const [sdk, end, origin] = await Promise.all([
           import("mapbox-gl").then((module) => module.default),
           resolveMapTarget(endTarget, token, controller.signal),
           start ? Promise.resolve(start) : hasMapTarget(options.origin) ? resolveMapTarget(options.origin, token, controller.signal) : Promise.resolve(null),
         ]);
-        const directions = origin ? await getMapboxRoute(origin, end, token, controller.signal) : null;
+        const directions = origin && !history.length ? await getMapboxRoute(origin, end, token, controller.signal) : null;
         if (controller.signal.aborted) return;
         if (!sdk.supported()) throw new Error("Trình duyệt chưa hỗ trợ hiển thị bản đồ. Hãy bật WebGL hoặc thử trình duyệt khác.");
         map = new sdk.Map({ container: element, accessToken: token, style: "mapbox://styles/mapbox/streets-v12", center: end, zoom: 14, cooperativeGestures: true });
@@ -64,6 +66,13 @@ function MapCanvas({ serialized, token, title }: { serialized: string; token: st
             map.addLayer({ id: "driving-route", type: "line", source: "driving-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": routeColor, "line-width": 5 } });
             const bounds = new sdk.LngLatBounds(end, end);
             for (const point of directions.coordinates) bounds.extend(point);
+            map.fitBounds(bounds, { padding: 45, maxZoom: 15, duration: 0 });
+          }
+          if (history.length > 1) {
+            map.addSource("gps-history", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: history } } });
+            map.addLayer({ id: "gps-history", type: "line", source: "gps-history", paint: { "line-color": routeColor, "line-width": 4 } });
+            const bounds = new sdk.LngLatBounds(history[0], history[0]);
+            for (const point of history) bounds.extend(point);
             map.fitBounds(bounds, { padding: 45, maxZoom: 15, duration: 0 });
           }
           clearTimeout(timer);
@@ -109,19 +118,19 @@ function MapCanvas({ serialized, token, title }: { serialized: string; token: st
     </div>
     {message && <p role="alert" className="text-sm text-danger">{message}</p>}
     <div className="flex flex-wrap gap-3">
-      <button type="button" disabled={locating || status === "loading"} onClick={() => void showDirections()} className="inline-flex min-h-11 items-center gap-2 rounded border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-primary disabled:opacity-50">
+      {!hasHistory && <button type="button" disabled={locating || status === "loading"} onClick={() => void showDirections()} className="inline-flex min-h-11 items-center gap-2 rounded border border-line-strong bg-surface px-4 py-2 text-sm font-semibold text-primary disabled:opacity-50">
         <Navigation aria-hidden="true" className="h-4 w-4" />{locating ? "Đang lấy vị trí..." : "Chỉ đường từ vị trí hiện tại"}
-      </button>
+      </button>}
       {status === "error" && <button type="button" onClick={() => { setMessage(""); setRoute(null); setStatus("loading"); setAttempt((value) => value + 1); }} className="inline-flex min-h-11 items-center gap-2 rounded border border-line-strong bg-surface px-4 text-sm font-semibold text-ink"><RefreshCw aria-hidden="true" className="h-4 w-4" />Thử lại bản đồ</button>}
     </div>
     {status === "ready" && route && <p role="status" className="text-sm text-ink-2">Quãng đường: {(route.distanceMeters / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 1 })} km · Thời gian dự kiến: {Math.max(1, Math.ceil(route.durationSeconds / 60))} phút.</p>}
-    <p className="text-xs text-ink-3">Tuyến đường gợi ý từ Mapbox không phải lịch sử GPS của xe. Thời gian di chuyển là ước tính.</p>
+    <p className="text-xs text-ink-3">{hasHistory ? "Đường nối các vị trí GPS thực tế do máy chủ ghi nhận; có thể bị gián đoạn khi mất tín hiệu." : "Tuyến đường gợi ý từ Mapbox không phải lịch sử GPS của xe. Thời gian di chuyển là ước tính."}</p>
   </>;
 }
 
-export default function MapboxMap({ title, location, origin, destination, className = "" }: MapboxMapProps) {
+export default function MapboxMap({ title, location, origin, destination, gpsPath, className = "" }: MapboxMapProps) {
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN?.trim();
-  const serialized = JSON.stringify({ location, origin, destination });
+  const serialized = JSON.stringify({ location, origin, destination, gpsPath });
   const hasLocation = hasMapTarget(destination) || hasMapTarget(location);
   return <section aria-label={title} className={`min-w-0 space-y-3 text-ink ${className}`.trim()}>
     <h3 className="flex items-center gap-2 text-sm font-semibold"><MapPin aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />{title}</h3>

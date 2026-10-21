@@ -19,7 +19,7 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
           <div className="flex items-baseline justify-between mb-1">
             <span className="text-sm font-bold text-td-ink">Số giờ gói đã sử dụng</span>
             <span className="font-mono text-xl font-black text-primary">
-              {trip.subscriptionHoursUsed !== undefined ? `${trip.subscriptionHoursUsed} giờ` : "API chưa cung cấp"}
+              {trip.subscriptionHoursUsed == null ? "Chưa có dữ liệu" : `${trip.subscriptionHoursUsed} giờ`}
             </span>
           </div>
           <p className="text-xs text-td-muted leading-relaxed">
@@ -113,7 +113,7 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
             )}
             <div className="border-t border-td-rule pt-1.5 flex justify-between font-bold text-td-ink text-sm">
               <span>Số tiền hoàn cọc thực nhận:</span>
-              <span className="text-success">{settlement.refundAmount === undefined ? "Chưa có dữ liệu" : formatVnd(settlement.refundAmount)}</span>
+              <span className="text-success">{settlement.refundAmount == null ? "Chưa có dữ liệu" : formatVnd(settlement.refundAmount)}</span>
             </div>
           </div>
 

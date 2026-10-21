@@ -31,15 +31,15 @@ export default function RentalTrackingPanel({ rentalId }: { rentalId: number | s
     {open && <>
       {route.isPending && <SkeletonBlock label="Đang tải hành trình GPS..." className="space-y-3"><Skeleton className="h-5 w-56" /><Skeleton className="h-64 w-full rounded-xl" /></SkeletonBlock>}
       {route.error && <p role="alert" className="text-sm text-danger">{trackingError(route.error)}</p>}
-      {route.data && <>
+      {route.data && !route.error && <>
         {!mapLocation ? <p role="status" className="text-sm text-ink-3">Chưa có dữ liệu GPS cho khoảng thời gian thuê này.</p> : <>
           <dl className="grid gap-3 text-sm sm:grid-cols-3">
             <div><dt className="text-ink-3">Điểm GPS hợp lệ</dt><dd className="font-mono tabular-nums">{points.length}</dd></div>
             <div><dt className="text-ink-3">Quãng đường nối các điểm GPS</dt><dd className="font-mono tabular-nums">{(route.data.totalDistanceMeters / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} km</dd></div>
             <div><dt className="text-ink-3">Thời gian giữa điểm đầu / cuối</dt><dd className="font-mono tabular-nums">{Math.round(route.data.durationSeconds / 60).toLocaleString("vi-VN")} phút</dd></div>
           </dl>
-          <p className="text-sm text-ink-3">Bản đồ hiển thị điểm GPS cuối cùng lúc {formatAdminDateTime(last?.recordedAt)}. Lịch sử bên dưới giữ các điểm ghi nhận; quãng đường có thể thiếu khi mất tín hiệu GPS.</p>
-          <MapboxMap title="Điểm GPS cuối cùng trong hành trình thuê" location={mapLocation} />
+          <p className="text-sm text-ink-3">Điểm GPS cuối cùng ghi nhận lúc {formatAdminDateTime(last?.recordedAt)}. Lịch sử bên dưới giữ các điểm ghi nhận; quãng đường có thể thiếu khi mất tín hiệu GPS.</p>
+          <MapboxMap title="Hành trình GPS của đơn thuê" location={mapLocation} gpsPath={points} />
           <AdminTableCard>
             <AdminTable aria-label="Lịch sử điểm GPS">
               <thead><tr><th scope="col">Ghi nhận lúc</th><th scope="col">Vĩ độ</th><th scope="col">Kinh độ</th><th scope="col">Tốc độ</th></tr></thead>

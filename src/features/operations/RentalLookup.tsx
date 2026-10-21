@@ -15,57 +15,54 @@ import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/component
 import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import { getOperationalRental, operationalError, operationsPanel, rentalStatuses } from "./api";
 import type { OperationalRental } from "./api";
+import { getCustomerRental } from "@/features/rentals/customer-rentals-api";
+import { useAuth } from "@/features/auth";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import RentalStatusTracker from "@/features/rentals/components/RentalStatusTracker";
 
 export default function RentalLookup({ title, children, staffLinks = true }: { title: string; staffLinks?: boolean; children: (rental: OperationalRental, refresh: () => Promise<unknown>) => ReactNode }) {
   const params = useSearchParams();
+  const { hasRole } = useAuth();
+  const allowed = staffLinks ? ["Admin", "Manager", "CustomerService"].some(hasRole) : hasRole("Customer");
   const [id, setId] = useState(params.get("rentalId") ?? "");
   const [lookup, setLookup] = useState(params.get("rentalId") ?? "");
   const validation = useInlineValidation();
   const cache = useQueryClient();
-  const query = useQuery({ queryKey: ["operational-rental", lookup], queryFn: () => getOperationalRental(Number(lookup)), enabled: /^[1-9]\d*$/.test(lookup), retry: false });
-  const refresh = () => Promise.all([query.refetch(), cache.invalidateQueries({ queryKey: ["admin-rentals"] })]);
-  return <div className="space-y-6">
-    <ValidatedForm validation={validation} onSubmit={() => { if (lookup === id) void query.refetch(); else setLookup(id); }}>
-      <AdminFilterBar title={title} actions={<>
+  const query = useQuery({ queryKey: [staffLinks ? "operational-rental" : "customer-operational-rental", lookup], queryFn: async () => {
+    if (staffLinks) return getOperationalRental(Number(lookup));
+    const item = await getCustomerRental(Number(lookup));
+    return { ...item, vehicleId: item.vehicle.id, startTime: item.start, endTime: item.end, totalPrice: item.price.total, vatPrice: item.price.vat, depositPrice: item.price.deposit, overtimePrice: item.price.overtime, contractLink: null, signedAt: null } as OperationalRental;
+  }, enabled: allowed && /^[1-9]\d*$/.test(lookup), retry: false });
+  const refresh = () => Promise.all([
+    query.refetch(),
+    ...["admin-rentals", "handovers", "handover", "operational-invoice", "invoices", "invoice", "assignable-drivers", "dispatch-schedule"].map((key) => cache.invalidateQueries({ queryKey: [key] })),
+  ]);
+  if (!allowed) return <p role="alert" className="text-sm text-danger">Bạn không có quyền tra cứu yêu cầu tại trang này.</p>;
+  return <div className="mx-auto max-w-6xl space-y-6">
+    <div><h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1><p className="mt-2 text-sm text-td-muted">Nhập mã yêu cầu đặt xe để tải thông tin yêu cầu và đơn thuê liên quan.</p></div>
+    <ValidatedForm validation={validation} onSubmit={() => { const normalized = String(Number(id)); if (lookup === normalized) void query.refetch(); else setLookup(normalized); }}>
+      <AdminFilterBar title="Tra cứu yêu cầu / đơn thuê" actions={<>
         <AdminFilterButton type="submit" disabled={query.isFetching}>{query.isFetching ? "Đang tải..." : "Tra cứu đơn thuê"}</AdminFilterButton>
         <AdminFilterButton variant="secondary" disabled={!id && !lookup && Object.keys(validation.errors).length === 0} onClick={() => { setId(""); setLookup(""); validation.reset(); }}>Đặt lại</AdminFilterButton>
       </>}>
         <AdminFilterField label="Mã yêu cầu đặt xe" htmlFor="operations-rental-id" icon={Search}>
-          <InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} placeholder="Nhập mã yêu cầu đặt xe" />
+          <InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" max="2147483647" step="1" value={id} onChange={(event) => setId(event.target.value)} placeholder="Nhập mã yêu cầu đặt xe" />
         </AdminFilterField>
       </AdminFilterBar>
-      <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] text-td-muted">
-        <span>Mã đơn mẫu kiểm tra:</span>
-        {[1, 101, 98].map((sampleId) => (
-          <button
-            key={sampleId}
-            type="button"
-            onClick={() => {
-              setId(String(sampleId));
-              setLookup(String(sampleId));
-            }}
-            className="rounded border border-td-rule bg-td-chalk px-2 py-0.5 font-bold text-td-ink transition-colors hover:border-td-oxide cursor-pointer"
-          >
-            #{sampleId}
-          </button>
-        ))}
-      </div>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-sm text-danger">{operationalError(query.error)}</p>}
     {query.isFetching && !query.data && <FormSkeleton label="Đang tải thông tin đơn thuê" fields={4} />}
-    {query.data && <>
+    {query.data && !query.error && <>
       <section className={operationsPanel}>
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{query.data.orderId ? `Đơn thuê chính thức #${query.data.orderId}` : `Yêu cầu thuê #${query.data.id}`}</h2><AdminStatusBadge domain="rental" status={query.data.status}>{rentalStatuses[query.data.status] ?? query.data.status}</AdminStatusBadge></div>
         <RentalStatusTracker status={query.data.status} />
         <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-          <div><dt className="text-td-muted">Khách hàng</dt><dd>#{query.data.customerId ?? "—"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-td-muted">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
+          <div><dt className="text-td-muted">Khách hàng</dt><dd>{query.data.customerName || query.data.customerEmail || "Chưa có thông tin"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-td-muted">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
           <div><dt className="text-td-muted">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-td-muted">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
         </dl>
         <p className="text-sm">{query.data.rentalType === "longterm" ? "Thuê dài hạn" : "Thuê theo giờ"} · {query.data.hasDriver ? "Có tài xế" : "Tự lái"} · Tổng tiền thuê: {query.data.totalPrice.toLocaleString("vi-VN")} đ</p>
         {staffLinks && <VehiclePhotos vehicleId={query.data.vehicleId} />}
-        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
+        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?view=list&rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
       </section>
       {staffLinks && <RentalTrackingPanel key={`gps-${query.data.id}`} rentalId={query.data.id} />}
       <div key={query.data.id}>{children(query.data, refresh)}</div>

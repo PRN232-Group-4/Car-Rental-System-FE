@@ -63,8 +63,8 @@ function TripDetailContent() {
         <h2 className="font-display text-xl font-bold text-td-ink">
           Không tìm thấy chuyến đi
         </h2>
-        <p className="text-sm text-td-muted">
-          Chuyến đi bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập vào thông tin này.
+        <p className="text-sm text-ink-3">
+          {error instanceof Error ? error.message : "Không tải được thông tin chuyến đi. Vui lòng thử lại."}
         </p>
         <Link href="/account/trips">
           <Button variant="primary" className="mt-2">
@@ -102,8 +102,8 @@ function TripDetailContent() {
             )}
             <TripStatusBadge status={trip.status} />
           </div>
-          <span className="text-xs text-td-muted font-mono mt-1 block">
-            Mã đơn thuê: #{trip.id}
+          <span className="text-xs text-ink-3 font-mono mt-1 block">
+            Mã yêu cầu: #{trip.id}{trip.orderId ? ` · Mã đơn chính thức: #${trip.orderId}` : " · Chưa phát hành đơn chính thức"}
           </span>
         </div>
 
@@ -248,10 +248,10 @@ function TripDetailContent() {
                 Hóa đơn VAT điện tử được xuất tự động sau khi thanh toán hoàn tất.
               </p>
               <Link
-                href="/invoices"
-                className="inline-flex items-center justify-center w-full h-9 rounded border border-td-rule bg-td-white hover:bg-td-chalk text-xs font-semibold text-td-ink transition-colors"
+                href={`/invoices/${trip.invoice.id}`}
+                className="inline-flex items-center justify-center w-full h-9 rounded-lg border border-line bg-surface hover:bg-sunken text-xs font-semibold text-ink transition-colors"
               >
-                <span>Xem danh sách hóa đơn</span>
+                <span>Xem chi tiết hóa đơn</span>
               </Link>
             </div>
           )}

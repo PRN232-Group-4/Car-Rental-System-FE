@@ -25,7 +25,7 @@ export function TripTimeline({ timeline }: TripTimelineProps) {
       case "pending":
         return "Tạo đơn đặt xe thành công";
       case "pre_inspection":
-        return "Hoàn tất kiểm định & giao chìa khóa";
+        return "Duyệt yêu cầu và kiểm tra trước thuê";
       case "renting":
         return "Bắt đầu chuyến đi";
       case "post_inspection":
