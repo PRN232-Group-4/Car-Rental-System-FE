@@ -8,6 +8,7 @@ export interface RentalBookingRequest {
   customerEmail?: string;
   driverLicenseNumber?: string;
   hasDriver?: boolean;
+  paymentMethod?: "payos" | "cash";
   startTime: string;
   endTime: string;
   totalHours?: number;
@@ -20,6 +21,7 @@ export interface RentalBookingRequest {
 
 export interface Rental {
   id: number | string;
+  orderId?: number | string | null;
   customerId?: number | string;
   vehicleId: number | string;
   vehicleName?: string;

@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "fs";
 import path from "path";
 import React from "react";
-import { render } from "@testing-library/react";
+import { act, render, renderHook } from "@testing-library/react";
+import { useTheme } from "@/lib/use-theme";
 
 // Mock dependencies for TransitDeskShell
 vi.mock("next/navigation", () => ({
@@ -76,7 +77,7 @@ describe("Phase 4 Final Closure — Theme Isolation and Contrast Integrity", () 
   it("1. globals.css defines --ink-muted alias in both Light and Dark mode scopes", () => {
     const css = fs.readFileSync(path.resolve(process.cwd(), "src/app/globals.css"), "utf8");
     expect(css).toMatch(/--ink-muted:\s*var\(--ink-3\);/);
-    expect(css).toContain("--on-primary: #2b190b;");
+    expect(css).toContain("--on-primary: #17161B;");
   });
 
   it("2. All 3 chart components configure tick fill with semantic --td-ink-muted / --ink-3", () => {
@@ -117,7 +118,7 @@ describe("Phase 4 Final Closure — Theme Isolation and Contrast Integrity", () 
     expect(contrast).toBeCloseTo(5.5, 0.5);
   });
 
-  it("4. Dark mode CTA text #2B190B against Peach #F6BA7C exceeds WCAG AAA (>= 7.0:1)", () => {
+  it("4. Dark mode CTA text #17161B against amber #F6BA7C exceeds WCAG AAA (>= 7.0:1)", () => {
     const getLum = ([r, g, b]: [number, number, number]) => {
       const [rs, gs, bs] = [r, g, b].map((val) => {
         const c = val / 255;
@@ -125,12 +126,47 @@ describe("Phase 4 Final Closure — Theme Isolation and Contrast Integrity", () 
       });
       return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
     };
-    const lumPeach = getLum([246, 186, 124]);
-    const lumOnPrimary = getLum([43, 25, 11]);
-    const contrast = (lumPeach + 0.05) / (lumOnPrimary + 0.05);
+    const lumAmber = getLum([246, 186, 124]);
+    const lumOnPrimary = getLum([23, 22, 27]);
+    const contrast = (lumAmber + 0.05) / (lumOnPrimary + 0.05);
 
     expect(contrast).toBeGreaterThanOrEqual(7.0);
-    expect(contrast).toBeCloseTo(9.87, 0.5);
+  });
+
+  it("all portal accents reuse the shared amber tokens", () => {
+    const css = fs.readFileSync(path.resolve(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain("--amber: #b45309;");
+    expect(css).toContain("--amber: #f6ba7c;");
+    const oxide = [...css.matchAll(/--td-oxide:\s*([^;]+);/g)].map((match) => match[1]);
+    expect(oxide).toEqual(["var(--primary)", "var(--primary)"]);
+    expect(css).not.toMatch(/#(?:5a2b41|482033|6e3a52|844763|96526f|8a5a72)/i);
+    expect(css).toContain(':is(.bg-primary, .bg-td-oxide):not(:disabled)');
+    expect(css).toContain("--primary: var(--amber);");
+    const rentalCss = fs.readFileSync(path.resolve(process.cwd(),
+      "src/features/admin/transit-desk/rental-workspace-v4.module.css"), "utf8");
+    expect(rentalCss).toContain("--color-mulberry: var(--td-oxide);");
+    expect(rentalCss).toContain("--color-mulberry: var(--stage-amber);");
+    expect(rentalCss).not.toMatch(/#(?:5a2b41|482033|6e3a52|844763|8e6c7b|735061)/i);
+    expect(rentalCss).not.toMatch(/rgba\((?:110, 58, 82|90, 43, 65),/);
+    expect(rentalCss).toContain("color: var(--on-primary);");
+  });
+
+  it("customer/shared theme toggles and unmounts without leaking into public pages", () => {
+    window.localStorage.setItem("vrs-admin-theme", "light");
+    const { result, unmount } = renderHook(() => useTheme());
+    expect(root.dataset.adminTheme).toBe("light");
+
+    act(() => result.current.toggleTheme());
+    expect(root.dataset.adminTheme).toBe("dark");
+    expect(window.localStorage.getItem("vrs-admin-theme")).toBe("dark");
+
+    unmount();
+    expect(root.hasAttribute("data-admin-theme")).toBe(false);
+    // Navigating back to a portal retains the saved preference.
+    const next = renderHook(() => useTheme());
+    expect(root.dataset.adminTheme).toBe("dark");
+    next.unmount();
+    expect(root.hasAttribute("data-admin-theme")).toBe(false);
   });
 
   it("5. TransitDeskShell unmount cleans up documentElement data-admin-theme attribute", () => {

@@ -239,7 +239,7 @@ describe("Adversarial Stress Test: Pagination", () => {
     );
 
     // Check count text content
-    const summarySpan = container.querySelector(".text-ink-3 > span");
+    const summarySpan = container.querySelector(".text-td-muted > span");
     expect(summarySpan?.textContent?.replace(/\s+/g, " ")).toContain("Hiển thị 0–0 trong 0 xe");
     const prevBtn = screen.getByLabelText("Trang trước");
     const nextBtn = screen.getByLabelText("Trang tiếp theo");
@@ -259,7 +259,7 @@ describe("Adversarial Stress Test: Pagination", () => {
     );
 
     // Negative page is clamped to 1: firstResult = 1, lastResult = 10
-    const summarySpan = container.querySelector(".text-ink-3 > span");
+    const summarySpan = container.querySelector(".text-td-muted > span");
     expect(summarySpan?.textContent?.replace(/\s+/g, " ")).toContain("Hiển thị 1–10 trong 50 mục");
     expect(screen.getByLabelText("Trang trước")).toBeDisabled();
 
@@ -273,7 +273,7 @@ describe("Adversarial Stress Test: Pagination", () => {
       />,
     );
     expect(screen.getByLabelText("Trang tiếp theo")).toBeDisabled();
-    const summaryClamped = container.querySelector(".text-ink-3 > span");
+    const summaryClamped = container.querySelector(".text-td-muted > span");
     expect(summaryClamped?.textContent?.replace(/\s+/g, " ")).toContain("Hiển thị 41–50 trong 50 mục");
   });
 

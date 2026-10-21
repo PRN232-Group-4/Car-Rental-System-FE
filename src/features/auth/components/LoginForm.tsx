@@ -20,34 +20,6 @@ import { useAuth } from "../context/AuthContext";
 import { getAccountProfile } from "@/features/profile/api";
 import { getLoginPortalPath } from "../portal-routing";
 
-interface DemoAccount {
-  label: string;
-  roleDescription: string;
-  email: string;
-  pass: string;
-}
-
-const DEMO_ACCOUNTS: DemoAccount[] = [
-  {
-    label: "Khách hàng",
-    roleDescription: "Đặt xe",
-    email: "customer@example.com",
-    pass: "a-secure-password",
-  },
-  {
-    label: "Quản trị viên",
-    roleDescription: "Toàn quyền",
-    email: "admin@thongdong.vn",
-    pass: "a-secure-password",
-  },
-  {
-    label: "Điều phối",
-    roleDescription: "Gán xe",
-    email: "staff@thongdong.vn",
-    pass: "a-secure-password",
-  },
-];
-
 async function resolveDestination(
   roles: string[],
   redirectUrl: string | null,
@@ -107,13 +79,6 @@ export default function LoginForm() {
     registeredEmail ? "Đăng ký thành công! Vui lòng nhập mật khẩu để đăng nhập." : null,
   );
 
-  const handleSelectDemo = (account: DemoAccount) => {
-    validation.reset();
-    setEmail(account.email);
-    setPassword(account.pass);
-    setErrorMessage(null);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -152,32 +117,6 @@ export default function LoginForm() {
 
   return (
     <div className="w-full">
-      {/* Demo Pill Picker — gọn, 1 dòng */}
-      <div className="mb-3 px-3 py-2 rounded-xl bg-surface-raised border border-line flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold text-ink-3 shrink-0">
-          Tài khoản mẫu thử nghiệm:
-        </span>
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          {DEMO_ACCOUNTS.map((account) => {
-            const isSelected = email === account.email;
-            return (
-              <button
-                key={account.label}
-                type="button"
-                onClick={() => handleSelectDemo(account)}
-                className={`px-2 py-1 rounded-lg text-xs transition-colors cursor-pointer whitespace-nowrap ${
-                  isSelected
-                    ? "bg-primary text-white font-bold"
-                    : "bg-surface hover:bg-sunken text-ink border border-line font-medium"
-                }`}
-              >
-                {account.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Main Solid Form Card */}
       <div className="bg-surface rounded-2xl p-6 sm:p-7 shadow-e2 border border-line text-ink">
         <div className="mb-4">

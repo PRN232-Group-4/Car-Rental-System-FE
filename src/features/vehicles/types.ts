@@ -26,6 +26,7 @@ export interface Vehicle {
   facilityName: string;
   imageUrl: string;
   modelUrl?: string;
+  hasDriverOption?: boolean;
   badges: string[];
   isAvailable: boolean;
   supportsSubscription: boolean;
@@ -77,8 +78,7 @@ export interface VehicleFilterParams {
   search?: string;
   status?: string;
   sort?: "price_asc" | "price_desc" | "year_desc" | "name_asc";
-  page?: number;
-  pageSize?: number;
+  page?: number;  pageSize?: number;
   from?: string;
   to?: string;
   mode?: "hourly" | "longterm";

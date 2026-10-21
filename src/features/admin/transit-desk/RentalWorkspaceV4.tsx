@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import {
   getOperationalRental,
-  getOperationalDrivers,
+  getAssignableDrivers,
   listOperationalRentals,
   assignRental,
   changeRentalStatus,
@@ -36,6 +36,7 @@ import {
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import VehicleName from "@/features/admin/VehicleName";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
@@ -79,7 +80,7 @@ const OPERATIONAL_STEPS = [
     num: "01",
     shortLabel: "Nhận đơn",
     label: "Tiếp nhận & Xác nhận",
-    sub: "Xác nhận đặt cọc & gán tài xế",
+    sub: "Duyệt yêu cầu trước thanh toán",
   },
   {
     key: "pre_inspection",
@@ -125,10 +126,11 @@ export function RentalWorkspaceV4() {
   const [queueFilter, setQueueFilter] = useState<string>("all");
   const [queueSearch, setQueueSearch] = useState<string>("");
 
-  // Sync with URL query parameter
+  // Sync with URL query parameter.
   useEffect(() => {
     const q = params.get("rentalId");
     if (q && q !== lookupId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- form phải theo ?rentalId= khi điều hướng từ trang khác; tách thành state dẫn xuất sẽ mất khả năng tra cứu thủ công.
       setIdInput(q);
       setLookupId(q);
     }
@@ -218,10 +220,12 @@ export function RentalWorkspaceV4() {
   };
 
   const validation = useInlineValidation();
+  const assignmentValidation = useInlineValidation();
+  const assignmentLock = useRef(false);
   const session = useOptionalSession();
   // P1-C (Security / Authorization): Fail-closed. If session is absent, deny privileged actions.
   const canOverrideStatus = Boolean(session?.hasAnyRole(["Admin", "Manager"]));
-  const canMutate = Boolean(session?.hasAnyRole(["Admin", "Manager", "Staff", "CustomerService"]));
+  const canMutate = Boolean(session?.hasAnyRole(["Admin", "Manager", "CustomerService"]));
 
   // Query rental data
   const {
@@ -232,7 +236,7 @@ export function RentalWorkspaceV4() {
   } = useQuery({
     queryKey: ["operational-rental", lookupId],
     queryFn: () => getOperationalRental(Number(lookupId)),
-    enabled: /^[1-9]\d*$/.test(lookupId),
+    enabled: canMutate && /^[1-9]\d*$/.test(lookupId),
   });
 
   // Discriminated async state machine (P0-B)
@@ -244,7 +248,7 @@ export function RentalWorkspaceV4() {
       return { status: "loading", id: lookupId };
     }
     if (rentalError) {
-      const err = rentalError as any;
+      const err = rentalError as { status?: number; response?: { status?: number } } | null;
       const httpStatus = err?.status ?? err?.response?.status;
       const msg = operationalError(rentalError);
       if (httpStatus === 404 || msg.includes("không tìm thấy") || msg.toLowerCase().includes("not found")) {
@@ -284,9 +288,11 @@ export function RentalWorkspaceV4() {
   const activeRental = detailState.status === "ready" ? detailState.rental : null;
 
   // Query driver options
-  const { data: drivers = [] } = useQuery({
-    queryKey: ["operational-drivers"],
-    queryFn: getOperationalDrivers,
+  const { data: drivers = [], isFetching: isDriversFetching, error: driversError, refetch: refetchDrivers } = useQuery({
+    queryKey: ["assignable-drivers", activeRental?.id],
+    queryFn: () => getAssignableDrivers(activeRental!.id),
+    enabled: canMutate && !!activeRental,
+    retry: false,
   });
 
   // Query real operational queue
@@ -294,6 +300,7 @@ export function RentalWorkspaceV4() {
     queryKey: ["operational-rentals-queue", queueFilter],
     queryFn: () => listOperationalRentals({ status: queueFilter === "all" ? undefined : queueFilter, page: 1, pageSize: 30 }),
     staleTime: 30000,
+    enabled: canMutate,
   });
 
   // Driver assignment form state
@@ -311,9 +318,10 @@ export function RentalWorkspaceV4() {
   const [pendingTargetStatus, setPendingTargetStatus] = useState<string | null>(null);
   const confirmModalRef = useRef<HTMLDivElement>(null);
 
-  // Pre-fill fields when active rental loads
+  // Pre-fill fields when active rental loads.
   useEffect(() => {
     if (activeRental) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- form điều phối cần reset theo hồ sơ vừa mở; muốn bỏ hẳn phải tách thành component con có key={activeRental.id}.
       setSelectedStatus(activeRental.status);
       setAssignMessage(null);
       setStatusMessage(null);
@@ -369,11 +377,11 @@ export function RentalWorkspaceV4() {
   // Handle driver assignment
   const handleAssignDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeRental || !canMutate) return;
-
+    if (!activeRental || !canMutate || assignmentLock.current || isDriversFetching || driversError) return;
+    assignmentLock.current = true;
     setIsAssigning(true);
     setAssignMessage(null);
-    validation.reset();
+    assignmentValidation.reset();
 
     try {
       const staffIdVal = driverStaffId === "" ? null : Number(driverStaffId);
@@ -382,8 +390,9 @@ export function RentalWorkspaceV4() {
       await refetchRental();
       queryClient.invalidateQueries({ queryKey: ["operational-rentals-queue"] });
     } catch (err: unknown) {
-      setAssignMessage(operationalError(err));
+      setAssignMessage(assignmentValidation.report(err));
     } finally {
+      assignmentLock.current = false;
       setIsAssigning(false);
     }
   };
@@ -482,23 +491,17 @@ export function RentalWorkspaceV4() {
   }, [queueData, queueSearch]);
 
   // Audit 5: GSAP Flip animation on queue item reordering/filtering
-  useEffect(() => {
-    if (!queueListRef.current) return;
-    const prefersReduced =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if (prefersReduced) return;
-
-    if (flipStateRef.current) {
+  React.useLayoutEffect(() => {
+    if (flipStateRef.current && queueListRef.current) {
       Flip.from(flipStateRef.current, {
-        targets: queueListRef.current.querySelectorAll(`.${styles.queueItem}`),
         duration: 0.28,
         ease: "power2.out",
         stagger: 0.02,
-        simple: true,
-        overwrite: "auto",
+        absolute: false,
+        onComplete: () => {
+          flipStateRef.current = null;
+        },
       });
-      flipStateRef.current = null;
     }
   }, [queueItems]);
 
@@ -510,7 +513,7 @@ export function RentalWorkspaceV4() {
         return {
           targetStatus: "pre_inspection",
           label: "Xác nhận & Chuyển sang kiểm tra trước",
-          description: "Xác nhận đặt cọc và chuẩn bị bàn giao xe",
+          description: "Duyệt yêu cầu để mở thanh toán; máy chủ kiểm tra điều kiện",
           consequential: false,
         };
       case "pre_inspection":
@@ -567,6 +570,7 @@ export function RentalWorkspaceV4() {
             )}
           </div>
 
+          <Link href={`/admin/rentals?view=list${activeRental ? `&rentalId=${activeRental.id}` : ""}`} className="mx-3 my-2 text-xs font-semibold text-[var(--v4-marine)] underline">Danh sách, sửa yêu cầu và thanh toán</Link>
           {/* Quick Search & Filter */}
           <div className={styles.queueSearch}>
             <form onSubmit={handleLookup} className="flex flex-col gap-2">
@@ -671,7 +675,7 @@ export function RentalWorkspaceV4() {
                       {item.vehicleName || "Phương tiện #" + item.vehicleId}
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-[var(--v4-mineral)]">
-                      <span>{item.rentalType === "hourly" ? "Thuê giờ" : "Dài hạn"}</span>
+                      <span>{item.rentalType === "hourly" ? "Thuê giờ" : item.rentalType === "longterm" ? "Dài hạn" : "Chưa có hình thức thuê"}</span>
                       {item.endTime && (
                         <span>Hạn: {formatAdminDateTime(item.endTime).slice(0, 10)}</span>
                       )}
@@ -749,7 +753,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "not-found" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-not-found-state"
             >
@@ -787,7 +791,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "forbidden" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-forbidden-state"
             >
@@ -801,7 +805,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "error" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-error-state"
             >
@@ -824,7 +828,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "invalid-data" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded-lg text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
               role="alert"
               data-testid="rental-invalid-data-state"
             >
@@ -846,7 +850,7 @@ export function RentalWorkspaceV4() {
               </div>
             </div>
           ) : !activeRental ? (
-            <div className="p-12 text-center space-y-4 border border-dashed border-[var(--v4-rule)] rounded-lg" data-testid="rental-idle-state">
+            <div className="p-12 text-center space-y-4 border border-dashed border-[var(--v4-rule)] rounded" data-testid="rental-idle-state">
               <Car className="h-10 w-10 text-[var(--v4-mineral)] mx-auto opacity-60" />
               <div className="space-y-1">
                 <h2 className="text-sm font-bold text-[var(--v4-ink)]">
@@ -916,10 +920,6 @@ export function RentalWorkspaceV4() {
                           <div
                             className={`${styles.stepperLine} ${
                               currentStepIndex > idx ? styles.stepperLinePassed : ""
-                            } ${
-                              idx === currentStepIndex - 1
-                                ? styles.stepperLineActiveLead
-                                : ""
                             }`}
                           />
                         )}
@@ -961,7 +961,7 @@ export function RentalWorkspaceV4() {
                 {/* VEHICLE & JOURNEY IDENTITY ROW */}
                 <div className={styles.vehicleIdentityCard}>
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-lg bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
+                    <div className="p-2.5 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
                       <Car className="h-6 w-6" />
                     </div>
                     <div>
@@ -989,6 +989,8 @@ export function RentalWorkspaceV4() {
                     </div>
                   </div>
                 </div>
+
+                <VehiclePhotos vehicleId={activeRental.vehicleId} />
 
                 {/* FINANCIAL & SCHEDULE GRID */}
                 <div className={styles.financialGrid}>
@@ -1022,7 +1024,7 @@ export function RentalWorkspaceV4() {
               </div>
 
               {/* OPERATIONAL ACTIVITY & VERIFICATION LOG (TRUTHFUL DATA) */}
-              <div className="p-3.5 border border-[var(--v4-rule)] rounded-lg bg-[var(--v4-surface-card)] space-y-2.5">
+              <div className="p-3.5 border border-[var(--v4-rule)] rounded bg-[var(--v4-surface-card)] space-y-2.5">
                 <div className="flex items-center justify-between pb-1.5 border-b border-[var(--v4-rule)]">
                   <span className="text-xs font-bold text-[var(--v4-ink)] flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-[var(--v4-marine)]" />
@@ -1113,7 +1115,7 @@ export function RentalWorkspaceV4() {
 
           {/* COMMAND SHELVES OR EMPTY PROMPT */}
           {!activeRental ? (
-            <div className="p-8 text-center space-y-2 border border-dashed border-[var(--v4-rule)] rounded-lg" data-testid="command-inactive-state">
+            <div className="p-8 text-center space-y-2 border border-dashed border-[var(--v4-rule)] rounded" data-testid="command-inactive-state">
               <UserCheck className="h-8 w-8 text-[var(--v4-mineral)] mx-auto opacity-60" />
               <h2 className="text-xs font-bold text-[var(--v4-ink)]">
                 {detailState.status === "loading"
@@ -1143,7 +1145,7 @@ export function RentalWorkspaceV4() {
 
                 {/* Contextual Primary Action Button */}
                 {nextRecommendedAction ? (
-                  <div className="p-3 rounded-lg bg-[var(--v4-surface-muted)] space-y-2">
+                  <div className="p-3 rounded bg-[var(--v4-surface-muted)] space-y-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--v4-mineral)] block">
                       Hành động tiếp theo hợp lệ
                     </span>
@@ -1152,21 +1154,11 @@ export function RentalWorkspaceV4() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => {
-                        playTactileClick();
-                        handleInitiateStatusChange(nextRecommendedAction.targetStatus);
-                      }}
+                      onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
                       disabled={isUpdatingStatus || !canMutate}
                       className={nextRecommendedAction.consequential ? styles.consequentialActionButton : styles.primaryActionButton}
                     >
-                      {isUpdatingStatus ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin shrink-0" aria-hidden="true" />
-                          <span>Đang xử lý...</span>
-                        </>
-                      ) : (
-                        nextRecommendedAction.label
-                      )}
+                      {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.label}
                     </button>
                   </div>
                 ) : (
@@ -1191,7 +1183,7 @@ export function RentalWorkspaceV4() {
                   </span>
                 </div>
 
-                <form onSubmit={handleAssignDriver} className="space-y-3">
+                <ValidatedForm validation={assignmentValidation} onSubmit={handleAssignDriver} className="space-y-3">
                   <div>
                     <label
                       htmlFor="driver-select"
@@ -1199,32 +1191,33 @@ export function RentalWorkspaceV4() {
                     >
                       Tài xế nhận lệnh
                     </label>
-                    <select
+                    <InlineSelect
+                      name="driverStaffId"
                       id="driver-select"
                       aria-label="Tài xế nhận lệnh"
                       value={driverStaffId}
                       onChange={(e) => setDriverStaffId(e.target.value)}
                       className={styles.inputField}
-                      disabled={isAssigning || !canMutate}
+                      disabled={isAssigning || !canMutate || isDriversFetching || !!driversError}
                     >
                       <option value="">-- Không chỉ định (Khách tự lái) --</option>
-                      {drivers.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.fullName} ({d.facilityName})
+                      {drivers.filter((driver) => driver.eligible).map((d) => (
+                        <option key={d.staffId} value={d.staffId}>
+                          {d.fullName || "Chưa có tên tài xế"}
                         </option>
                       ))}
-                    </select>
+                    </InlineSelect>
                   </div>
 
                   <button
                     type="submit"
-                    onClick={handleAssignDriver}
-                    disabled={isAssigning || !canMutate}
+                    disabled={isAssigning || !canMutate || isDriversFetching || !!driversError}
                     className={styles.primaryActionButton}
                   >
                     {isAssigning ? "Đang lưu..." : "Lưu phân công"}
                   </button>
 
+                  {driversError && <p role="alert" className="text-xs text-danger">{operationalError(driversError)} <button type="button" className="underline" onClick={() => void refetchDrivers()}>Tải lại tài xế</button></p>}
                   {!canMutate && (
                     <div className="text-[11px] p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-mineral)] font-medium">
                       Tài khoản chỉ có quyền tra cứu, không thể phân công tài xế.
@@ -1236,7 +1229,7 @@ export function RentalWorkspaceV4() {
                       {assignMessage}
                     </div>
                   )}
-                </form>
+                </ValidatedForm>
               </div>
 
               {/* SHELF 3: COLLAPSED MANUAL OVERRIDE (BOTTOM SHELF) */}
@@ -1351,10 +1344,7 @@ export function RentalWorkspaceV4() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  playTactileClick();
-                  if (pendingTargetStatus) executeStatusChange(pendingTargetStatus);
-                }}
+                onClick={() => pendingTargetStatus && executeStatusChange(pendingTargetStatus)}
                 className={
                   pendingTargetStatus === "completed"
                     ? styles.modalConfirmCompletedBtn

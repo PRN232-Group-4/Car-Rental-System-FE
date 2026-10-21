@@ -13,7 +13,7 @@ import {
   ArrowRight,
   ShieldAlert,
 } from "lucide-react";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { formatDateTime } from "@/lib/time";
@@ -26,6 +26,7 @@ import {
 import { useUpdateReportStatus } from "../hooks";
 import { CreateMaintenanceModal } from "./CreateMaintenanceModal";
 import type { ReportDetail } from "../types";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 interface ReportDetailViewProps {
   report: ReportDetail;
@@ -51,10 +52,9 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
   };
 
   const handleResolve = async () => {
-    await statusMutation.mutateAsync({
-      id: report.id,
-      status: "resolved",
-    });
+    if (statusMutation.isPending || !window.confirm("Xác nhận sự cố đã được giải quyết?")) return;
+    try { await statusMutation.mutateAsync({ id: report.id, status: "resolved" }); }
+    catch { /* The mutation error is displayed below; retain the current report. */ }
   };
 
   const handleConfirmReject = async (e: React.FormEvent) => {
@@ -74,11 +74,13 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
 
   return (
     <div className="space-y-6">
+      {statusMutation.error && <p role="alert" className="text-sm text-danger">{statusMutation.error.message}</p>}
+      <p role="status" className="text-xs text-td-muted">API chỉ hỗ trợ tạo bảo dưỡng và giải quyết sự cố; chưa có thao tác tiếp nhận/từ chối hoặc thời gian để tính SLA.</p>
       {/* Banner cảnh báo SLA nếu quá hạn 24h */}
       {isOverdue && (
         <div
           role="alert"
-          className="flex items-center gap-3 rounded-2xl border border-danger/30 bg-danger-bg p-4 text-xs font-semibold text-danger"
+          className="flex items-center gap-3 rounded border border-danger/30 bg-danger-bg p-4 text-xs font-semibold text-danger"
         >
           <AlertTriangle className="h-5 w-5 shrink-0 text-danger" />
           <span>
@@ -88,12 +90,12 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
       )}
 
       {/* Header tóm tắt */}
-      <div className="flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-td-rule pb-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-base font-bold text-ink">Báo cáo #{report.id}</span>
-            <StatusBadge status={statusMeta.statusType}>{statusMeta.label}</StatusBadge>
-            <span className="rounded-xl border border-line bg-surface px-2.5 py-0.5 text-xs font-medium text-ink-2">
+            <span className="font-mono text-base font-bold text-td-ink">Báo cáo #{report.id}</span>
+            <AdminStatusBadge domain="report" status={report.status}>{statusMeta.label}</AdminStatusBadge>
+            <span className="rounded border border-td-rule bg-td-white px-2.5 py-0.5 text-xs font-medium text-td-ink">
               {getReportTypeLabel(report.type)}
             </span>
             {isOverdue && (
@@ -102,8 +104,8 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs text-ink-3">
-            Gửi lúc {formatDateTime(report.createdAt, "dd/MM/yyyy HH:mm")} · Thời gian chờ: {waitTimeStr}
+          <p className="mt-1 text-xs text-td-muted">
+            Gửi lúc {report.createdAt ? formatDateTime(report.createdAt, "dd/MM/yyyy HH:mm") : "API chưa cung cấp"} · Thời gian chờ: {waitTimeStr}
           </p>
         </div>
 
@@ -115,12 +117,13 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               size="sm"
               isLoading={statusMutation.isPending}
               onClick={handleAccept}
+              disabled title="API chưa hỗ trợ tiếp nhận xử lý"
             >
               Tiếp nhận xử lý
             </Button>
           )}
 
-          {report.status === "in_progress" && (
+          {(report.status === "new" || report.status === "in_progress") && (
             <Button
               type="button"
               size="sm"
@@ -140,6 +143,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               size="sm"
               variant="ghost"
               className="text-danger hover:bg-danger-bg hover:text-danger"
+              disabled title="API chưa hỗ trợ từ chối báo cáo"
               onClick={() => {
                 setRejectReason("");
                 setRejectError("");
@@ -159,7 +163,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               variant="secondary"
               onClick={() => setMaintModalOpen(true)}
             >
-              <Wrench className="h-4 w-4 text-primary" />
+              <Wrench className="h-4 w-4 text-td-oxide" />
               <span>Tạo phiếu bảo dưỡng</span>
             </Button>
           )}
@@ -167,15 +171,15 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
       </div>
 
       {/* Nội dung chi tiết - CHỐNG XSS: Render văn bản thuần */}
-      <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">Nội dung phản ánh</h3>
-        <div className="mt-3 whitespace-pre-wrap rounded-xl border border-line bg-sunken p-4 text-sm leading-relaxed text-ink">
+      <section className="rounded border border-td-rule bg-td-white p-5">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">Nội dung phản ánh</h3>
+        <div className="mt-3 whitespace-pre-wrap rounded border border-td-rule bg-td-chalk p-4 text-sm leading-relaxed text-td-ink">
           {report.description}
         </div>
 
         {report.imageUrls && report.imageUrls.length > 0 && (
           <div className="mt-4">
-            <h4 className="text-xs font-semibold text-ink-3">Hình ảnh đính kèm từ khách ({report.imageUrls.length}):</h4>
+            <h4 className="text-xs font-semibold text-td-muted">Hình ảnh đính kèm từ khách ({report.imageUrls.length}):</h4>
             <div className="mt-2 flex flex-wrap gap-2">
               {report.imageUrls.map((url, i) => (
                 <a
@@ -183,7 +187,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="group relative block h-20 w-24 overflow-hidden rounded-xl border border-line bg-sunken"
+                  className="group relative block h-20 w-24 overflow-hidden rounded border border-td-rule bg-td-chalk"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`Ảnh minh chứng #${i + 1}`} className="h-full w-full object-cover transition group-hover:scale-105" />
@@ -197,26 +201,26 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
       {/* Thông tin Khách hàng & Ngữ cảnh liên kết */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Khối khách hàng */}
-        <section className="flex flex-col justify-between rounded-2xl border border-line bg-surface p-5 shadow-e1">
+        <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-3">
-              <User className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+              <User className="h-4 w-4 text-td-oxide" />
               <span>Khách hàng phản ánh</span>
             </div>
             <div className="mt-3 space-y-1.5 text-sm">
-              <p className="font-semibold text-ink">{report.customer.fullName}</p>
+              <p className="font-semibold text-td-ink">{report.customer.fullName}</p>
               {report.customer.phone && (
-                <p className="font-mono text-xs text-ink-2">Điện thoại: {report.customer.phone}</p>
+                <p className="font-mono text-xs text-td-ink">Điện thoại: {report.customer.phone}</p>
               )}
               {report.customer.email && (
-                <p className="font-mono text-xs text-ink-2">Email: {report.customer.email}</p>
+                <p className="font-mono text-xs text-td-ink">Email: {report.customer.email}</p>
               )}
             </div>
           </div>
-          <div className="mt-4 border-t border-line pt-3">
+          <div className="mt-4 border-t border-td-rule pt-3">
             <Link
-              href={`/admin/users/detail?id=${report.customer.id}`}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+              href={report.customer.id ? `/admin/customers/detail?id=${report.customer.id}` : "/admin/customers"}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-oxide hover:underline"
             >
               <span>Xem hồ sơ người dùng</span>
               <ArrowRight className="h-3 w-3" />
@@ -225,57 +229,60 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
         </section>
 
         {/* Khối liên kết: Đơn thuê hoặc Phiếu bảo dưỡng */}
-        <section className="flex flex-col justify-between rounded-2xl border border-line bg-surface p-5 shadow-e1">
+        <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-3">
-              <Car className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+              <Car className="h-4 w-4 text-td-oxide" />
               <span>Ngữ cảnh liên kết</span>
             </div>
 
             {report.rental ? (
               <div className="mt-3 space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-ink">Đơn thuê #{report.rental.id}</span>
-                  <StatusBadge status={report.rental.status || "rented"} />
+                  <span className="font-semibold text-td-ink">Đơn thuê #{report.rental.id}</span>
+                  <AdminStatusBadge domain="rental" status={report.rental.status || "rented"}>
+                    {report.rental.status || "Đang thuê"}
+                  </AdminStatusBadge>
                 </div>
-                <p className="font-semibold text-primary">{report.rental.vehicleName}</p>
+                <p className="font-semibold text-td-oxide">{report.rental.vehicleName}</p>
+                <RentalVehiclePhotos rentalId={report.rental.id} />
                 {report.rental.licensePlate && (
-                  <p className="font-mono text-ink-3">Biển số: {report.rental.licensePlate}</p>
+                  <p className="font-mono text-td-muted">Biển số: {report.rental.licensePlate}</p>
                 )}
-                <p className="text-ink-3">
+                <p className="text-td-muted">
                   Thời gian: {formatDateTime(report.rental.start, "dd/MM HH:mm")} → {formatDateTime(report.rental.end, "dd/MM HH:mm")}
                 </p>
                 {report.rental.driverName && (
-                  <p className="text-ink-3">Tài xế phục vụ: {report.rental.driverName}</p>
+                  <p className="text-td-muted">Tài xế phục vụ: {report.rental.driverName}</p>
                 )}
               </div>
             ) : report.maintenance ? (
               <div className="mt-3 space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-ink">Phiếu bảo dưỡng #{report.maintenance.id}</span>
-                  <StatusBadge status={report.maintenance.status || "maintenance"}>
+                  <span className="font-semibold text-td-ink">Phiếu bảo dưỡng #{report.maintenance.id}</span>
+                  <AdminStatusBadge domain="maintenance" status={report.maintenance.status || "in_progress"}>
                     {report.maintenance.status ?? "Đang thực hiện"}
-                  </StatusBadge>
+                  </AdminStatusBadge>
                 </div>
-                <p className="font-semibold text-primary">{report.maintenance.type}</p>
+                <p className="font-semibold text-td-oxide">{report.maintenance.type}</p>
                 {report.maintenance.cost && (
-                  <p className="font-mono text-ink">
+                  <p className="font-mono text-td-ink">
                     Chi phí: {report.maintenance.cost.toLocaleString("vi-VN")} đ
                   </p>
                 )}
               </div>
             ) : (
-              <div className="mt-4 rounded-xl border border-line bg-sunken p-4 text-center text-xs text-ink-3">
+              <div className="mt-4 rounded border border-td-rule bg-td-chalk p-4 text-center text-xs text-td-muted">
                 Báo cáo chung, không gắn với đơn thuê hay phiếu bảo dưỡng nào.
               </div>
             )}
           </div>
 
           {report.rental && (
-            <div className="mt-4 border-t border-line pt-3">
+            <div className="mt-4 border-t border-td-rule pt-3">
               <Link
                 href={`/admin/rentals?id=${report.rental.id}`}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-oxide hover:underline"
               >
                 <span>Xem chi tiết đơn vận hành</span>
                 <ArrowRight className="h-3 w-3" />
@@ -287,22 +294,22 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
 
       {/* Nhật ký lịch sử thay đổi trạng thái (nếu có) */}
       {report.history && report.history.length > 0 && (
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-3">
-            <Clock className="h-4 w-4 text-primary" />
+        <section className="rounded border border-td-rule bg-td-white p-5">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+            <Clock className="h-4 w-4 text-td-oxide" />
             <span>Nhật ký xử lý báo cáo</span>
           </div>
-          <ol className="mt-4 space-y-3 border-l-2 border-line pl-4 text-xs">
+          <ol className="mt-4 space-y-3 border-l-2 border-td-rule pl-4 text-xs">
             {report.history.map((h, idx) => (
               <li key={idx} className="relative">
-                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border border-line bg-primary" />
+                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border border-td-rule bg-td-oxide" />
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-ink">{h.by || "Hệ thống"}</span>
-                  <span className="font-mono text-ink-3">{formatDateTime(h.at, "dd/MM/yyyy HH:mm")}</span>
+                  <span className="font-semibold text-td-ink">{h.by || "Hệ thống"}</span>
+                  <span className="font-mono text-td-muted">{formatDateTime(h.at, "dd/MM/yyyy HH:mm")}</span>
                 </div>
-                <p className="mt-0.5 text-ink-2">
-                  Trạng thái: <strong className="text-ink">{getReportStatusMeta(h.to).label}</strong>
-                  {h.reason && <span className="text-ink-3"> — {h.reason}</span>}
+                <p className="mt-0.5 text-td-ink">
+                  Trạng thái: <strong className="text-td-ink">{getReportStatusMeta(h.to).label}</strong>
+                  {h.reason && <span className="text-td-muted"> — {h.reason}</span>}
                 </p>
               </li>
             ))}
@@ -325,13 +332,13 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
       >
         <form onSubmit={handleConfirmReject} className="space-y-4 pt-2">
           {rejectError && (
-            <div className="rounded-xl border border-danger/30 bg-danger-bg p-3 text-xs text-danger">
+            <div className="rounded border border-danger/30 bg-danger-bg p-3 text-xs text-danger">
               {rejectError}
             </div>
           )}
 
           <div>
-            <label htmlFor="reject-reason" className="block text-xs font-semibold text-ink">
+            <label htmlFor="reject-reason" className="block text-xs font-semibold text-td-ink">
               Lý do từ chối <span className="text-danger">*</span>
             </label>
             <textarea
@@ -340,11 +347,11 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               placeholder="Ví dụ: Sự cố do lỗi thao tác của người dùng, không thuộc phạm vi hỗ trợ kỹ thuật..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs text-ink placeholder:text-ink-3 focus:outline-none focus:ring-1 focus:ring-danger"
+              className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink placeholder:text-td-muted focus:outline-none focus:ring-1 focus:ring-danger"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2 border-t border-line pt-4">
+          <div className="flex items-center justify-end gap-2 border-t border-td-rule pt-4">
             <Button
               type="button"
               variant="secondary"

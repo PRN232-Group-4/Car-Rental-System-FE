@@ -24,6 +24,11 @@ import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { FormField as Field } from "@/components/ui/FormField";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { VehicleIdentity } from "@/features/admin/VehicleName";
+import { VehiclePhotoGrid } from "@/features/admin/VehiclePhotos";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -258,7 +263,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
       if (onSaved) onSaved();
       else router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(validation.report(saveError));
+      setError(saveError instanceof TypeError ? messageOf(saveError, "Không thể lưu phương tiện.") : validation.report(saveError));
     } finally {
       setSaving(false);
     }
@@ -267,9 +272,9 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
   if (!canManage) {
     return (
       <div className="mx-auto max-w-xl text-center py-16 space-y-4">
-        <h2 className="text-xl font-bold text-ink">Quyền truy cập bị giới hạn</h2>
-        <p className="text-sm text-ink-3">Chỉ Quản trị viên và Quản lý mới có quyền thêm hoặc chỉnh sửa phương tiện.</p>
-        <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-hover">
+        <h2 className="text-xl font-bold text-td-ink">Quyền truy cập bị giới hạn</h2>
+        <p className="text-sm text-td-muted">Chỉ Quản trị viên và Quản lý mới có quyền thêm hoặc chỉnh sửa phương tiện.</p>
+        <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-sm font-semibold text-td-oxide hover:text-td-oxide-hover">
           <ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện
         </Link>
       </div>
@@ -277,13 +282,18 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
   }
 
   const content = (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {!onClose && <div>
-        <Link href="/admin/vehicles" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-3 transition hover:text-primary"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
-        <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}</h2>
-        <p className="mt-2 text-sm text-ink-3">Thông tin được lưu trực tiếp vào hệ thống quản lý.</p>
-      </div>}
-      {error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
+    <div className="min-w-0 space-y-8">
+      {!onClose && <>
+        <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-xs font-semibold text-td-muted transition hover:text-td-oxide"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
+        <TransitFolio
+          index="02"
+          tag="FLT"
+          kicker="TÀI SẢN · HỒ SƠ PHƯƠNG TIỆN"
+          title={loading ? <>Hồ sơ <em className="italic text-td-teal">phương tiện.</em></> : isEditing ? <>Chỉnh sửa <em className="italic text-td-teal">phương tiện.</em></> : <>Thêm <em className="italic text-td-teal">phương tiện mới.</em></>}
+          description="Cập nhật hồ sơ, giá thuê và thông số kỹ thuật theo từng loại xe."
+        />
+      </>}
+      {error && <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-danger">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
       {loading ? <FormSkeleton label="Đang tải thông tin phương tiện..." fields={10} /> : <ValidatedForm validation={validation} validate={() => {
@@ -293,8 +303,36 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
         }
         return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
       }} onSubmit={submit} className="space-y-6">
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
-          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông tin phương tiện</h3>
+        <div className={onClose ? "space-y-6" : "grid min-w-0 items-start gap-8 lg:grid-cols-12"}>
+          {!onClose && (
+            <aside aria-labelledby="vehicle-profile-title" className="min-w-0 space-y-5 rounded border border-td-rule bg-td-white p-6 lg:col-span-4">
+              <h2 id="vehicle-profile-title" className="text-sm font-bold text-td-ink">Hồ sơ phương tiện</h2>
+              <VehicleIdentity vehicle={draft} />
+              <VehiclePhotoGrid vehicle={{ ...draft, detail: { galleryImages: draft.galleryImages } }} />
+              <AdminStatusBadge domain="vehicle" status={draft.status}>
+                {statuses.find((item) => item.value === draft.status)?.label ?? draft.status}
+              </AdminStatusBadge>
+              <dl className="divide-y divide-td-rule text-sm">
+                <div className="flex flex-wrap justify-between gap-2 py-3">
+                  <dt className="font-mono text-[11px] uppercase text-td-muted">Loại xe</dt>
+                  <dd className="min-w-0 break-words text-right font-semibold text-td-ink">{selectedVehicleType?.name || "Chưa chọn"}</dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-2 py-3">
+                  <dt className="font-mono text-[11px] uppercase text-td-muted">Biển số</dt>
+                  <dd className="min-w-0 break-words font-mono text-td-ink">{draft.licensePlate || "Chưa cập nhật"}</dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-2 py-3">
+                  <dt className="font-mono text-[11px] uppercase text-td-muted">Chi nhánh</dt>
+                  <dd className="min-w-0 break-words text-right font-semibold text-td-ink">{facilities.find((item) => String(item.id) === draft.facilityId)?.name || "Chưa phân công"}</dd>
+                </div>
+              </dl>
+              <p className="border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">Thông số hiển thị theo nhóm xe và nhiên liệu của loại phương tiện đã chọn.</p>
+            </aside>
+          )}
+          <div className={onClose ? "min-w-0 space-y-6" : "min-w-0 space-y-8 lg:col-span-8"}>
+        <section aria-labelledby="vehicle-general-title" className="min-w-0 border-t border-td-ink pt-5">
+          <h2 id="vehicle-general-title" className="text-sm font-bold text-td-ink">Thông tin phương tiện</h2>
+
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
             <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>
@@ -311,8 +349,8 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           <div className="mt-5"><Field label="Mô tả" htmlFor="description"><InlineTextarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
         </section>
 
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
-          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Thông số kỹ thuật</h3>
+        <section aria-labelledby="vehicle-specifications-title" className="min-w-0 border-t border-td-ink pt-5">
+          <h2 id="vehicle-specifications-title" className="text-sm font-bold text-td-ink">Thông số kỹ thuật</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             {vehicleKind.isCar && (
               <>
@@ -336,23 +374,23 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
                 <Field label="Quãng đường tối đa (km)" htmlFor="maxRangeKm"><InlineInput id="maxRangeKm" name="maxRangeKm" type="number" min="0" value={draft.maxRangeKm} onChange={updateDraft} className="admin-input" /></Field>
               </>
             )}
-            {!draft.vehicleTypeId && <p className="text-sm text-ink-3 sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
+            {!draft.vehicleTypeId && <p className="text-sm text-td-muted sm:col-span-2">Chọn loại phương tiện để hiển thị thông số phù hợp.</p>}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-7">
-          <h3 className="border-b border-line pb-4 text-base font-bold text-ink">Hình ảnh</h3>
-          <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_220px]">
+        <section aria-labelledby="vehicle-images-title" className="min-w-0 border-t border-td-ink pt-5">
+          <h2 id="vehicle-images-title" className="text-sm font-bold text-td-ink">Hình ảnh</h2>
+          <div className="mt-5 grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_220px]">
             <div className="space-y-4">
-              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} className="block w-full rounded-xl border border-line text-sm file:mr-4 file:border-0 file:bg-primary/10 file:px-4 file:py-3 file:font-semibold file:text-primary" /><InlineError name="vehicleImage" /></Field>
-              {uploading && <p role="status" className="text-sm text-ink-3">Đang tải ảnh lên...</p>}
+              <Field label="Tải ảnh lên (có thể chọn nhiều ảnh)" htmlFor="vehicleImage"><input ref={fileRef} id="vehicleImage" name="vehicleImage" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={uploadImage} disabled={uploading} aria-invalid={!!validation.errors.vehicleImage} aria-describedby={validation.errors.vehicleImage ? "vehicleImage-error" : undefined} className={`block w-full min-w-0 rounded border text-sm file:mr-3 file:border-0 file:bg-td-chalk file:px-3 file:py-3 file:font-semibold file:text-td-oxide ${validation.errors.vehicleImage ? "border-danger ring-1 ring-danger" : "border-td-rule"}`} /><InlineError name="vehicleImage" inputId="vehicleImage" /></Field>
+              {uploading && <p role="status" className="text-sm text-td-muted">Đang tải ảnh lên...</p>}
             </div>
             <div
               onDragOver={handleImageDragOver}
               onDragLeave={handleImageDragLeave}
               onDrop={handleImageDrop}
-              className={`grid min-h-32 grid-cols-2 gap-3 rounded-xl transition ${
-                imageDragActive ? "bg-primary/10 ring-2 ring-primary ring-offset-2" : ""
+              className={`grid min-h-32 grid-cols-2 gap-3 rounded transition ${
+                imageDragActive ? "bg-td-chalk ring-2 ring-td-oxide ring-offset-2" : ""
               }`}
             >
               {draft.mainImageUrl ? (
@@ -375,10 +413,10 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
                       fileRef.current?.click();
                     }
                   }}
-                  className={`flex min-h-32 cursor-pointer items-center justify-center rounded-xl border border-dashed text-center transition ${
+                  className={`flex min-h-32 cursor-pointer items-center justify-center rounded border border-dashed text-center transition only:col-span-2 ${
                     imageDragActive
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-line bg-canvas text-ink-3 hover:border-primary/50 hover:text-primary"
+                      ? "border-td-oxide bg-td-chalk text-td-oxide"
+                      : "border-td-rule bg-td-paper text-td-muted hover:border-td-oxide/50 hover:text-td-oxide"
                   }`}
                 >
                   <div>
@@ -402,13 +440,15 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
               ))}
             </div>
           </div>
-          <p className="mt-4 flex items-start gap-2 text-xs text-ink-3"><Info className="mt-0.5 h-4 w-4 shrink-0" />Ảnh được tải lên qua endpoint `/api/media/vehicle`.</p>
+          <p className="mt-4 flex items-start gap-2 text-xs text-td-muted"><Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />Hỗ trợ JPG, PNG hoặc WEBP. Ảnh đầu tiên được dùng làm ảnh chính.</p>
         </section>
 
         {isEditing && vehicleId != null && <VehicleTrackingPanel vehicleId={vehicleId} />}
+          </div>
+        </div>
         <FormDialogFooter>
-          {onClose ? <button type="button" disabled={saving || uploading} onClick={onClose} className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-60">Hủy</button> : <Link href="/admin/vehicles" className="rounded-xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-ink hover:bg-canvas">Hủy</Link>}
-          <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
+          {onClose ? <button type="button" disabled={saving || uploading} onClick={onClose} className="rounded border border-td-rule bg-td-white px-5 py-3 text-center text-sm font-semibold text-td-ink hover:bg-td-paper disabled:opacity-60">Hủy</button> : <Link href="/admin/vehicles" className="rounded border border-td-rule bg-td-white px-5 py-3 text-center text-sm font-semibold text-td-ink hover:bg-td-paper">Hủy</Link>}
+          <button type="submit" disabled={loading || saving || uploading || !vehicleKind.isValid} className="inline-flex items-center justify-center gap-2 rounded bg-td-oxide px-5 py-3 text-sm font-semibold text-white hover:bg-td-oxide-hover disabled:cursor-wait disabled:opacity-60"><Save className="h-4 w-4" />{loading ? "Đang tải..." : saving ? "Đang lưu..." : isEditing ? "Lưu thay đổi" : "Thêm phương tiện"}</button>
         </FormDialogFooter>
       </ValidatedForm>}
     </div>
@@ -487,6 +527,7 @@ function extractImageUrl(value: unknown): string | undefined {
 }
 
 function messageOf(error: unknown, fallback: string): string {
+  if (error instanceof TypeError) return `${fallback} Vui lòng kiểm tra kết nối mạng và thử lại.`;
   return error instanceof Error ? error.message : fallback;
 }
 
@@ -494,13 +535,13 @@ function messageOf(error: unknown, fallback: string): string {
 function ImagePreview({ src, label, onRemove }: { src: string; label: string; onRemove: () => void }) {
   return (
     <div
-      role="img"
+      role="group"
       aria-label={label}
-      className="relative min-h-32 overflow-hidden rounded-xl border border-line bg-sunken"
+      className="relative min-h-32 overflow-hidden rounded border border-td-rule bg-td-chalk only:col-span-2"
     >
       <span className="absolute inset-0"><VehicleImage src={src} alt={label} loading="eager" className="h-full w-full" /></span>
-      <span className="absolute bottom-2 left-2 rounded bg-surface/90 px-2 py-1 text-xs font-semibold text-ink-2">{label}</span>
-      <button type="button" onClick={onRemove} aria-label={`Xóa ${label.toLocaleLowerCase()}`} className="absolute right-2 top-2 rounded-lg bg-surface/90 p-2 text-ink-3 shadow hover:text-danger"><X className="h-4 w-4" /></button>
+      <span className="absolute bottom-2 left-2 rounded bg-td-white/90 px-2 py-1 text-xs font-semibold text-td-ink">{label}</span>
+      <button type="button" onClick={onRemove} aria-label={`Xóa ${label.toLocaleLowerCase()}`} className="absolute right-2 top-2 rounded bg-td-white/90 p-2 text-td-muted hover:text-danger"><X className="h-4 w-4" /></button>
     </div>
   );
 }

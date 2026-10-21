@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { BookingModal } from "@/features/rentals";
 import type { Vehicle } from "@/features/vehicles/types";
 
+import { useFleetVehicles } from "../use-fleet-vehicles";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { SkeletonBlock, Skeleton } from "@/components/ui/Skeleton";
+
 interface EVModel {
+  vehicle: Vehicle;
   id: string;
   name: string;
   tagline: string;
@@ -16,123 +21,45 @@ interface EVModel {
   hourlyPrice: number;
   monthlyPrice: number;
   imageUrl: string;
-  rangeKm: number;
+  rangeKm: string;
   acceleration: string;
-  powerKw: number;
-  batteryKwh: number;
+  powerKw: string;
+  batteryKwh: string;
   healthSoh: string;
   highlights: string[];
 }
-
-const FLEET_MODELS: EVModel[] = [
-  {
-    id: "vf8-plus",
-    name: "VinFast VF 8 Plus",
-    tagline: "SUV Điện Thông Minh — Cân Bằng Hoàn Hảo Sức Mạnh & Tiện Nghi",
-    category: "SUV Điện Cỡ D",
-    classTag: "ALL-ELECTRIC SUV",
-    hourlyPrice: 160000,
-    monthlyPrice: 19500000,
-    imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop",
-    rangeKm: 471,
-    acceleration: "5.5s",
-    powerKw: 300,
-    batteryKwh: 87.7,
-    healthSoh: "98.8%",
-    highlights: ["Hệ thống ADAS Cấp 2+", "Trợ lý ảo tiếng Việt", "Sạc nhanh 10-70% trong 24 phút"],
-  },
-  {
-    id: "taycan-4s",
-    name: "Porsche Taycan 4S EV",
-    tagline: "Gran Turismo Thuần Điện — Trải Nghiệm Lái Thể Thao Đỉnh Cao",
-    category: "Sedan Thể Thao",
-    classTag: "PERFORMANCE EV",
-    hourlyPrice: 380000,
-    monthlyPrice: 42000000,
-    imageUrl: "https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=1200&auto=format&fit=crop",
-    rangeKm: 450,
-    acceleration: "4.0s",
-    powerKw: 390,
-    batteryKwh: 93.4,
-    healthSoh: "99.2%",
-    highlights: ["Kiến trúc điện 800-Volt", "Hệ thống treo khí nén 3 buồng", "Âm thanh thể thao điện tử"],
-  },
-  {
-    id: "vf9-flagship",
-    name: "VinFast VF 9 Flagship",
-    tagline: "SUV 7 Chỗ Hạng Sang — Đẳng Cấp Hành Trình Doanh Nhân",
-    category: "SUV 7 Chỗ",
-    classTag: "EXECUTIVE 7-SEAT",
-    hourlyPrice: 240000,
-    monthlyPrice: 28500000,
-    imageUrl: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=1200&auto=format&fit=crop",
-    rangeKm: 594,
-    acceleration: "6.5s",
-    powerKw: 300,
-    batteryKwh: 123.0,
-    healthSoh: "99.0%",
-    highlights: ["Ghế cơ trưởng massage", "Cửa sổ trời toàn cảnh", "Dung tích hành lý 1.800L"],
-  },
-  {
-    id: "vfe34-city",
-    name: "VinFast VF e34",
-    tagline: "Crossover Đô Thị — Di Chuyển Xanh Linh Hoạt & Tiết Kiệm",
-    category: "Crossover Đô Thị",
-    classTag: "URBAN SMART EV",
-    hourlyPrice: 90000,
-    monthlyPrice: 12500000,
-    imageUrl: "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1200&auto=format&fit=crop",
-    rangeKm: 318,
-    acceleration: "8.5s",
-    powerKw: 110,
-    batteryKwh: 42.0,
-    healthSoh: "97.9%",
-    highlights: ["Kích thước nhỏ gọn dễ đỗ", "Bán kính quay vòng 5.2m", "Pin LFP bền bỉ an toàn"],
-  },
-];
 
 export default function SpatialFleetShowcase({
   initialFacilityFilter,
 }: {
   initialFacilityFilter?: string;
 } = {}) {
-  const [activeModelId, setActiveModelId] = useState<string>("vf8-plus");
+  const fleet = useFleetVehicles();
+  const fleetModels: EVModel[] = (fleet.data ?? []).filter((vehicle) =>
+    vehicle.category === "electric_car" && (!initialFacilityFilter || initialFacilityFilter === "all" || String(vehicle.facilityId) === initialFacilityFilter)
+  ).map((vehicle) => ({
+    vehicle, id: String(vehicle.id), name: vehicle.name, tagline: vehicle.description ?? "",
+    category: vehicle.categoryLabel, classTag: vehicle.categoryLabel,
+    hourlyPrice: vehicle.hourlyPrice, monthlyPrice: vehicle.monthlyPrice, imageUrl: vehicle.imageUrl,
+    rangeKm: vehicle.maxRange ?? "—", acceleration: "Chưa có dữ liệu", powerKw: "—",
+    batteryKwh: vehicle.batteryCapacity ?? "—", healthSoh: "Chưa có dữ liệu", highlights: vehicle.features ?? [],
+  }));
+  const [activeModelId, setActiveModelId] = useState<string>("");
   const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
 
-  const activeModel = FLEET_MODELS.find((m) => m.id === activeModelId) || FLEET_MODELS[0];
-  const activeFacilityId = initialFacilityFilter || "fac-q1";
+  const activeModel = fleetModels.find((m) => m.id === activeModelId) || fleetModels[0];
 
   const formatVND = (val: number) => {
     return new Intl.NumberFormat("vi-VN").format(val) + "đ";
   };
 
   const handleBookCurrentModel = () => {
-    // Map to Vehicle interface for BookingModal compatibility
-    const mockVehicle: Vehicle = {
-      id: activeModel.id,
-      name: activeModel.name,
-      category: "electric_car",
-      categoryLabel: activeModel.category,
-      brand: activeModel.name.split(" ")[0],
-      model: activeModel.name,
-      year: 2026,
-      seats: activeModel.id === "vf9-flagship" ? 7 : 5,
-      transmission: "Tự động điện tử",
-      fuelType: "Thuần điện 100%",
-      batteryCapacity: `${activeModel.batteryKwh} kWh`,
-      maxRange: `${activeModel.rangeKm} km`,
-      hourlyPrice: activeModel.hourlyPrice,
-      monthlyPrice: activeModel.monthlyPrice,
-      supportsSubscription: true,
-      facilityId: activeFacilityId,
-      facilityName: activeFacilityId === "fac-q1" ? "Smart EV Hub Quận 1" : "Smart EV Hub",
-      imageUrl: activeModel.imageUrl,
-      status: "available",
-      isAvailable: true,
-      badges: ["100% THUẦN ĐIỆN", "CHÍNH CHỦ", activeModel.classTag],
-    };
-    setSelectedVehicleForBooking(mockVehicle);
+    if (activeModel?.vehicle.isAvailable) setSelectedVehicleForBooking(activeModel.vehicle);
   };
+
+  if (fleet.isPending) return <SkeletonBlock label="Đang tải đội xe điện" className="mx-auto max-w-7xl px-6 py-24"><Skeleton className="h-96 w-full" /></SkeletonBlock>;
+  if (fleet.isError) return <ErrorState message={fleet.error.message} onRetry={() => { void fleet.refetch(); }} />;
+  if (!activeModel) return <p role="status" className="py-24 text-center">Chưa có xe điện phù hợp tại cơ sở này.</p>;
 
   return (
     <section id="trien-lam-xe" className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28">
@@ -150,7 +77,7 @@ export default function SpatialFleetShowcase({
 
       {/* Segmented Model Switcher Tabs */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-10 pb-4 border-b border-white/10 overflow-x-auto no-scrollbar">
-        {FLEET_MODELS.map((model) => (
+        {fleetModels.map((model) => (
           <button
             key={model.id}
             type="button"
@@ -196,7 +123,7 @@ export default function SpatialFleetShowcase({
               </span>
               <span className="inline-flex items-center gap-1 bg-primary/20 text-primary-tint text-xs font-mono font-bold px-3 py-1 rounded-full border border-primary/40">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>SẴN SÀNG</span>
+                <span>{activeModel.vehicle.isAvailable ? "SẴN SÀNG" : "CHƯA SẴN SÀNG"}</span>
               </span>
             </div>
 
@@ -205,7 +132,7 @@ export default function SpatialFleetShowcase({
               <div>
                 <span className="text-xs text-white/60 font-mono block">PHẠM VI DI CHUYỂN</span>
                 <span className="text-xl sm:text-2xl font-black font-mono text-primary-tint">
-                  WLTP {activeModel.rangeKm} km
+                  {activeModel.rangeKm}
                 </span>
               </div>
               <div className="text-right">
@@ -248,7 +175,7 @@ export default function SpatialFleetShowcase({
                   <Zap className="w-4 h-4 text-primary" />
                   <span>Công suất cực đại</span>
                 </div>
-                <span className="font-mono text-lg font-black text-ink">{activeModel.powerKw} kW</span>
+                <span className="font-mono text-lg font-black text-ink">{activeModel.powerKw}</span>
               </div>
 
               <div className="p-3.5 bg-canvas rounded-2xl border border-line shadow-e1">
@@ -256,7 +183,7 @@ export default function SpatialFleetShowcase({
                   <BatteryCharging className="w-4 h-4 text-primary" />
                   <span>Dung lượng pin</span>
                 </div>
-                <span className="font-mono text-lg font-black text-primary">{activeModel.batteryKwh} kWh</span>
+                <span className="font-mono text-lg font-black text-primary">{activeModel.batteryKwh}</span>
               </div>
 
               <div className="p-3.5 bg-canvas rounded-2xl border border-line shadow-e1">
@@ -264,7 +191,7 @@ export default function SpatialFleetShowcase({
                   <ShieldCheck className="w-4 h-4 text-primary" />
                   <span>Kiểm định 2 chiều</span>
                 </div>
-                <span className="font-mono text-lg font-black text-primary">ĐẠT CHUẨN</span>
+                <span className="font-mono text-lg font-black text-primary">Chưa có dữ liệu</span>
               </div>
             </div>
 
@@ -296,6 +223,7 @@ export default function SpatialFleetShowcase({
             <Button
               type="button"
               onClick={handleBookCurrentModel}
+              disabled={!activeModel.vehicle.isAvailable}
               variant="primary"
               size="lg"
               className="group shadow-e2 px-7"

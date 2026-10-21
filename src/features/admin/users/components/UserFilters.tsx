@@ -41,17 +41,17 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
   );
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+    <div className="flex flex-col gap-3 border-t border-td-ink pt-3">
       <div className="flex flex-col md:flex-row gap-3">
         {/* 1. Ô tìm kiếm đa trường */}
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-td-muted" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Tìm theo họ tên, email hoặc số điện thoại..."
-            className="h-11 w-full rounded-xl border border-line bg-surface pl-10 pr-4 text-sm text-ink placeholder:text-ink-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-9 w-full rounded border border-td-rule bg-transparent pl-9 pr-3 text-xs text-td-ink placeholder:text-td-muted focus:border-td-ink focus:outline-none"
           />
         </div>
 
@@ -60,7 +60,7 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
           <select
             value={filters.role || "all"}
             onChange={(e) => onChange({ role: e.target.value, page: 1 })}
-            className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Tất cả vai trò</option>
             {ROLES.map((r) => (
@@ -76,7 +76,7 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
           <select
             value={filters.isActive || "all"}
             onChange={(e) => onChange({ isActive: e.target.value, page: 1 })}
-            className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Đang hoạt động</option>
@@ -89,7 +89,7 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
           <select
             value={filters.profile || "all"}
             onChange={(e) => onChange({ profile: e.target.value, page: 1 })}
-            className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-medium text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
           >
             <option value="all">Mọi loại hồ sơ</option>
             <option value="customer">Hồ sơ khách hàng</option>
@@ -104,7 +104,7 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
             variant="ghost"
             size="md"
             onClick={onReset}
-            className="text-ink-3 hover:text-ink shrink-0"
+            className="text-td-muted hover:text-td-ink shrink-0"
           >
             <RotateCcw className="w-4 h-4 mr-1.5" />
             <span>Xóa lọc</span>

@@ -14,7 +14,7 @@ export interface ProvidersProps {
 /**
  * Root Client Providers theo FE-FOUNDATION mục 5:
  * - QueryClientProvider + ReactQueryDevtools
- * - NavigationProvider (loading router state)
+ * - NavigationProvider (focus sau khi chuyển trang)
  * - AuthProvider (phiên đăng nhập và RBAC)
  * - Toaster (thông báo Toast từ sonner chuẩn token v3.1)
  * - OfflineBanner (cảnh báo trạng thái mạng trực quan)

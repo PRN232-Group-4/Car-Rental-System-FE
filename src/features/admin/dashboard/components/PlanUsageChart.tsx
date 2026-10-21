@@ -27,8 +27,8 @@ export function PlanUsageChart({
     rows: data.map((d) => [
       d.name,
       `${d.usedHours} giờ`,
-      `${d.includedHours} giờ`,
-      `${d.usagePercentage}%`,
+      d.includedHours === null ? "Không giới hạn" : `${d.includedHours} giờ`,
+      d.usagePercentage === null ? "Không áp dụng" : `${d.usagePercentage}%`,
       `${d.activeSubscribers} người`,
     ]),
   };
@@ -44,7 +44,7 @@ export function PlanUsageChart({
   if (isLoading || !mounted) {
     return (
       <ChartCard title="Hiệu quả gói thuê bao" description="Tỉ lệ khai thác giờ sử dụng theo từng gói">
-        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded-xl bg-sunken text-xs text-ink-3">
+        <div className="flex h-64 w-full animate-pulse items-center justify-center rounded bg-td-chalk text-xs text-td-muted">
           Đang tải dữ liệu gói thuê bao...
         </div>
       </ChartCard>
@@ -72,30 +72,30 @@ export function PlanUsageChart({
         className="flex flex-col gap-4 pt-2"
       >
         {data.map((plan) => {
-          const pct = Math.min(plan.usagePercentage, 100);
+          const pct = plan.usagePercentage === null ? null : Math.min(plan.usagePercentage, 100);
           return (
-            <div key={plan.planId} className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-3.5">
+            <div key={plan.planId} className="flex flex-col gap-1.5 rounded border border-td-rule bg-td-white p-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-ink">{plan.name}</span>
-                <span className="flex items-center gap-1 font-mono text-xs font-semibold text-primary">
-                  <Users className="h-3 w-3 text-ink-3" />
+                <span className="text-xs font-bold text-td-ink">{plan.name}</span>
+                <span className="flex items-center gap-1 font-mono text-xs font-semibold text-td-oxide">
+                  <Users className="h-3 w-3 text-td-muted" />
                   {plan.activeSubscribers} hội viên
                 </span>
               </div>
 
               {/* Progress bar */}
-              <div className="relative mt-1 h-3 w-full overflow-hidden rounded-full bg-sunken">
+              {pct !== null && <div className="relative mt-1 h-3 w-full overflow-hidden rounded-full bg-td-chalk">
                 <div
-                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  className="h-full rounded-full bg-td-oxide transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
-              </div>
+              </div>}
 
-              <div className="flex items-center justify-between font-mono text-[11px] text-ink-3">
+              <div className="flex items-center justify-between font-mono text-[11px] text-td-muted">
                 <span>
-                  Đã dùng: <strong className="text-ink">{plan.usedHours}</strong> / {plan.includedHours} giờ
+                  Đã dùng: <strong className="text-td-ink">{plan.usedHours}</strong> giờ / {plan.includedHours === null ? "Không giới hạn" : `${plan.includedHours} giờ`}
                 </span>
-                <span className="font-bold text-ink">{plan.usagePercentage}%</span>
+                <span className="font-bold text-td-ink">{plan.usagePercentage === null ? "Không áp dụng" : `${plan.usagePercentage}%`}</span>
               </div>
             </div>
           );

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef } from "react";
 import { Upload, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
-import { uploadLicenseImageMock } from "../api";
+import { uploadLicenseImage } from "../api";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +27,7 @@ export function LicenseUploader({
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
 
   const handleProcessFile = async (file: File) => {
+    if (disabled || isUploading) return;
     setErrorMessage(null);
 
     // Kiểm tra định dạng MIME
@@ -45,7 +46,7 @@ export function LicenseUploader({
 
     setIsUploading(true);
     try {
-      const res = await uploadLicenseImageMock(file);
+      const res = await uploadLicenseImage(file);
       onUploadSuccess(res.url);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Tải ảnh thất bại.");
@@ -86,6 +87,9 @@ export function LicenseUploader({
       <input
         ref={fileInputRef}
         type="file"
+        aria-label="Tải ảnh giấy phép lái xe"
+        aria-invalid={Boolean(errorMessage)}
+        aria-describedby={errorMessage ? "license-upload-error" : undefined}
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
         className="hidden"
@@ -93,11 +97,11 @@ export function LicenseUploader({
       />
 
       {currentUrl ? (
-        <div className="relative overflow-hidden rounded-2xl border border-line bg-canvas p-3">
+        <div className="relative overflow-hidden rounded border border-td-rule bg-td-paper p-3">
           <div className="flex items-center gap-4">
             <div
               onClick={() => setPreviewOpen(true)}
-              className="relative h-20 w-32 shrink-0 overflow-hidden rounded-xl border border-line bg-surface cursor-pointer group"
+              className="relative h-20 w-32 shrink-0 overflow-hidden rounded border border-td-rule bg-td-white cursor-pointer group"
             >
               {/* Ảnh GPLX preview */}
               <img
@@ -115,14 +119,14 @@ export function LicenseUploader({
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>Đã tải lên ảnh mặt trước GPLX</span>
               </div>
-              <p className="text-xs text-ink-3">
+              <p className="text-xs text-td-muted">
                 Hình ảnh lưu trữ bảo mật, được xác thực để kiểm tra trước khi bàn giao xe.
               </p>
               <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setPreviewOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-td-oxide hover:underline cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Xem chi tiết</span>
@@ -132,7 +136,7 @@ export function LicenseUploader({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-xs font-bold text-ink-2 hover:text-ink cursor-pointer"
+                    className="text-xs font-bold text-td-ink hover:text-td-ink cursor-pointer"
                   >
                     Thay ảnh khác
                   </button>
@@ -157,30 +161,30 @@ export function LicenseUploader({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !disabled && !isUploading && fileInputRef.current?.click()}
-          className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-colors cursor-pointer ${
+          className={`flex flex-col items-center justify-center rounded border-2 border-dashed p-6 text-center transition-colors cursor-pointer ${
             isDragging
-              ? "border-primary bg-primary/5"
-              : "border-line bg-surface hover:border-primary/50 hover:bg-canvas"
+              ? "border-td-oxide bg-td-oxide/5"
+              : "border-td-rule bg-td-white hover:border-td-oxide/50 hover:bg-td-paper"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sunken text-ink-3 mb-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded bg-td-chalk text-td-muted mb-3">
             {isUploading ? (
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-td-oxide border-t-transparent" />
             ) : (
-              <Upload className="w-6 h-6 text-primary" />
+              <Upload className="w-6 h-6 text-td-oxide" />
             )}
           </div>
-          <p className="text-sm font-bold text-ink">
+          <p className="text-sm font-bold text-td-ink">
             {isUploading ? "Đang xử lý tải ảnh lên..." : "Kéo thả ảnh hoặc nhấn để chọn tệp"}
           </p>
-          <p className="mt-1 text-xs text-ink-3">
+          <p className="mt-1 text-xs text-td-muted">
             Chấp nhận JPG, PNG, WebP (Tối đa 5 MB, cạnh dài tối thiểu 800px)
           </p>
         </div>
       )}
 
       {errorMessage && (
-        <div className="flex items-center gap-2 rounded-xl border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
+        <div id="license-upload-error" role="alert" className="flex items-center gap-2 rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -193,12 +197,12 @@ export function LicenseUploader({
         title="Ảnh Giấy Phép Lái Xe"
         description="Bản chụp gốc giấy phép lái xe phục vụ kiểm tra hồ sơ pháp lý."
       >
-        <div className="overflow-hidden rounded-2xl border border-line bg-canvas p-2">
+        <div className="overflow-hidden rounded border border-td-rule bg-td-paper p-2">
           {currentUrl && (
             <img
               src={currentUrl}
               alt="Bản xem trước GPLX"
-              className="max-h-[70vh] w-full rounded-xl object-contain"
+              className="max-h-[70vh] w-full rounded object-contain"
             />
           )}
         </div>

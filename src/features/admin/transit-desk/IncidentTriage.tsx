@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -23,26 +23,32 @@ import { ReportDrawer } from "@/features/admin/reports/components/ReportDrawer";
 import type { ReportListItem, ReportFilterParams } from "@/features/admin/reports/types";
 import { formatDateTime } from "@/lib/time";
 import TransitDeskStatus from "./TransitDeskStatus";
+import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 import styles from "./transit-desk.module.css";
+
+const subscribeNoChange = () => () => {};
+const getReportIdFromUrl = () => {
+  const id = new URLSearchParams(window.location.search).get("id");
+  const parsed = id ? Number(id) : Number.NaN;
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
 
 export function IncidentTriage() {
   const [filters, setFilters] = useState<ReportFilterParams>({});
   const [search, setSearch] = useState("");
-  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [manualReportId, setManualReportId] = useState<number | null>(null);
   const [drawerReportId, setDrawerReportId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const idStr = params.get("id");
-      if (idStr) setSelectedReportId(Number(idStr));
-    }
-  }, []);
+  // Đọc ?id= từ URL một lần ở client (null khi SSR) để không phải setState trong effect.
+  const urlReportId = useSyncExternalStore(subscribeNoChange, getReportIdFromUrl, () => null);
+  const selectedReportId = manualReportId ?? urlReportId;
 
-  const { data, isLoading, refetch } = useReports(filters);
+  const { data, isLoading, isError, error, refetch } = useReports(filters);
 
-  const reports = data?.items ?? [];
+  const reports = useMemo(() => data?.items ?? [], [data]);
 
   // Filter by search query
   const filteredReports = useMemo(() => {
@@ -66,35 +72,18 @@ export function IncidentTriage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Folio Top */}
-      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
-        <div className="flex items-start gap-5">
-          <span className="font-mono text-xs font-bold text-td-oxide border-t-2 border-td-oxide pt-1 min-w-[42px]">
-            03<br />TRI
-          </span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
-              TIẾP NHẬN & XỬ LÝ · SỰ CỐ
-            </span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Xử lý khiếu nại & Báo cáo sự cố
-            </h1>
-            <p className="mt-2 max-w-xl text-xs sm:text-sm text-td-muted leading-relaxed">
-              Bàn ưu tiên xử lý sự cố. Đọc thời hạn phản hồi trước, mở bằng chứng sau. Không giấu công việc khẩn cấp trong các badge nhiều màu.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 self-start sm:self-end">
-          <div className="border-l border-td-rule pl-4 text-right">
-            <span className="block font-mono text-[10px] text-td-muted tracking-wider">
-              INCIDENT QUEUE · TỔNG HỒ SƠ
-            </span>
-            <strong className="block font-sans text-3xl font-bold tracking-tight text-td-ink">
-              {isLoading ? <Skeleton className="h-8 w-16" /> : String(reports.length).padStart(2, "0")}
-            </strong>
-          </div>
-        </div>
-      </div>
+      <TransitFolio
+        index="03"
+        tag="TRI"
+        kicker="TIẾP NHẬN & XỬ LÝ · SỰ CỐ"
+        title={<>Xử lý khiếu nại & <em className="italic text-td-teal">báo cáo sự cố.</em></>}
+        description="Bàn ưu tiên xử lý sự cố. Đọc thời hạn phản hồi trước, mở bằng chứng sau. Không giấu công việc khẩn cấp trong các badge nhiều màu."
+      >
+        <TransitFolioMetric
+          label="INCIDENT QUEUE · TỔNG HỒ SƠ"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(reports.length).padStart(2, "0")}
+        />
+      </TransitFolio>
 
       {/* Toolbar: Search + Filter status */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-td-ink pb-4">
@@ -116,17 +105,16 @@ export function IncidentTriage() {
           <div className="flex items-center gap-2 font-mono text-xs">
             {[
               { id: undefined, label: "Tất cả" },
-              { id: "pending", label: "Mới tiếp nhận" },
-              { id: "investigating", label: "Đang xử lý" },
+              { id: "new", label: "Mới tiếp nhận" },
+              { id: "in_progress", label: "Đang xử lý" },
               { id: "resolved", label: "Đã giải quyết" },
-              { id: "dismissed", label: "Đã từ chối" },
             ].map((btn) => {
               const isSelected = filters.status === btn.id;
               return (
                 <button
                   key={btn.label}
                   type="button"
-                  onClick={() => setFilters((prev) => ({ ...prev, status: btn.id as any }))}
+                  onClick={() => setFilters((prev) => ({ ...prev, status: btn.id }))}
                   className={`border-b-2 px-3 py-1 font-semibold transition-colors cursor-pointer ${
                     isSelected
                       ? "border-td-oxide text-td-oxide"
@@ -145,6 +133,8 @@ export function IncidentTriage() {
         </span>
       </div>
 
+      {isError && <ErrorState message={error instanceof Error ? error.message : "Không thể tải báo cáo."} onRetry={() => { void refetch(); }} />}
+      <p role="status" className="text-xs text-td-muted">API chưa cung cấp mốc thời gian để tính SLA hoặc thông tin khách hàng của báo cáo.</p>
       {/* Triage Grid: SLA-sorted list (Left) + Active Casefile (Right) */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 border-t border-td-ink pt-6">
         {/* Left Column: Triage List */}
@@ -177,7 +167,7 @@ export function IncidentTriage() {
                   <button
                     key={report.id}
                     type="button"
-                    onClick={() => setSelectedReportId(report.id)}
+                    onClick={() => setManualReportId(report.id)}
                     className={`grid w-full grid-cols-12 items-start gap-3 py-3.5 px-2 text-left transition-colors cursor-pointer relative ${
                       isSelected ? "bg-td-chalk/70" : "hover:bg-td-chalk/30"
                     } ${isUrgent ? styles.incidentOverduePulse : ""}`}
@@ -219,7 +209,7 @@ export function IncidentTriage() {
                         {waitStr}
                       </div>
                       <span className="font-mono text-[9px] text-td-muted uppercase block">
-                        {isClosed ? "Đã giải quyết" : (isOverdue ? "Quá hạn" : "Trong hạn")}
+                        {isClosed ? "Đã giải quyết" : !report.createdAt ? "Chưa có mốc thời gian" : (isOverdue ? "Quá hạn" : "Trong hạn")}
                       </span>
                     </div>
                   </button>
@@ -232,7 +222,7 @@ export function IncidentTriage() {
         {/* Right Column: Casefile Evidence & Actions */}
         <div className="lg:col-span-7 space-y-6">
           {activeReport ? (
-            <div className="bg-td-white border border-td-rule rounded-lg p-6 space-y-6">
+            <div className="bg-td-white border border-td-rule rounded p-6 space-y-6">
               {/* Casefile Top */}
               <div className="flex items-start justify-between border-b border-td-rule pb-4">
                 <div>
@@ -249,7 +239,7 @@ export function IncidentTriage() {
                     {getReportStatusMeta(activeReport.status).label}
                   </TransitDeskStatus>
                   <span className="font-mono text-[10px] text-td-muted block mt-1">
-                    {formatDateTime(activeReport.createdAt, "dd/MM/yyyy HH:mm")}
+                    {activeReport.createdAt ? formatDateTime(activeReport.createdAt, "dd/MM/yyyy HH:mm") : "Chưa có mốc thời gian"}
                   </span>
                 </div>
               </div>
@@ -266,12 +256,12 @@ export function IncidentTriage() {
 
                 <div>
                   <span className="text-td-muted uppercase text-[10px] block">Đơn thuê liên quan</span>
-                  {activeReport.rental ? (
+                  {activeReport.rentalId ? (
                     <Link
-                      href={`/admin/rentals?rentalId=${activeReport.rental.id}`}
+                      href={`/admin/rentals?rentalId=${activeReport.rentalId}`}
                       className="font-bold text-td-ink hover:text-td-oxide inline-flex items-center gap-1 mt-0.5"
                     >
-                      <span>Đơn #{activeReport.rental.id}</span>
+                      <span>Đơn #{activeReport.rentalId}</span>
                       <ExternalLink className="h-3 w-3" />
                     </Link>
                   ) : (
@@ -297,6 +287,8 @@ export function IncidentTriage() {
                   )}
                 </div>
               </div>
+
+              {activeReport.rentalId && <RentalVehiclePhotos rentalId={activeReport.rentalId} />}
 
               {/* Description & Narrative */}
               <div>
@@ -328,7 +320,7 @@ export function IncidentTriage() {
               </div>
             </div>
           ) : (
-            <div className="border border-td-rule bg-td-white rounded-lg p-16 text-center font-mono text-xs text-td-muted">
+            <div className="border border-td-rule bg-td-white rounded p-16 text-center font-mono text-xs text-td-muted">
               Chọn một sự cố trong hàng đợi bên trái để mở hồ sơ đối chiếu bằng chứng.
             </div>
           )}

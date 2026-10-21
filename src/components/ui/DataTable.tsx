@@ -65,14 +65,14 @@ export function DataTable<TData, TValue = unknown>({
   return (
     <div
       className={cn(
-        "w-full overflow-hidden rounded-2xl border border-line bg-surface shadow-e1",
+        "w-full border-t border-td-ink",
         className,
       )}
     >
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left text-sm text-ink">
+        <table className="w-full border-collapse text-left text-[13px] text-td-ink">
           <caption className="sr-only">{caption}</caption>
-          <thead className="border-b border-line bg-sunken text-xs font-bold uppercase tracking-wider text-ink-3">
+          <thead className="border-b border-td-ink font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -94,7 +94,7 @@ export function DataTable<TData, TValue = unknown>({
                       scope="col"
                       aria-sort={ariaSort}
                       className={cn(
-                        "px-4 py-3.5 whitespace-nowrap first:pl-6 last:pr-6",
+                        "px-4 py-2.5 whitespace-nowrap first:pl-2 last:pr-2",
                         canSort && "select-none",
                       )}
                     >
@@ -102,7 +102,7 @@ export function DataTable<TData, TValue = unknown>({
                         <button
                           type="button"
                           onClick={header.column.getToggleSortingHandler()}
-                          className="group inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-3 transition hover:text-ink focus:outline-none"
+                          className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted transition hover:text-td-ink focus:outline-none"
                         >
                           <span>
                             {flexRender(
@@ -110,11 +110,11 @@ export function DataTable<TData, TValue = unknown>({
                               header.getContext(),
                             )}
                           </span>
-                          <span className="text-ink-3/70 transition group-hover:text-ink">
+                          <span className="text-td-muted transition group-hover:text-td-ink">
                             {isSorted === "asc" ? (
-                              <ArrowUp className="h-3.5 w-3.5 text-primary" />
+                              <ArrowUp className="h-3.5 w-3.5 text-td-oxide" />
                             ) : isSorted === "desc" ? (
-                              <ArrowDown className="h-3.5 w-3.5 text-primary" />
+                              <ArrowDown className="h-3.5 w-3.5 text-td-oxide" />
                             ) : (
                               <ArrowUpDown className="h-3.5 w-3.5 opacity-60" />
                             )}
@@ -133,14 +133,14 @@ export function DataTable<TData, TValue = unknown>({
             ))}
           </thead>
 
-          <tbody className="divide-y divide-line bg-surface">
+          <tbody className="divide-y divide-td-rule">
             {loading ? (
               Array.from({ length: 5 }).map((_, rowIndex) => (
-                <tr key={`loading-row-${rowIndex}`} className="bg-surface">
+                <tr key={`loading-row-${rowIndex}`}>
                   {columns.map((_, colIndex) => (
                     <td
                       key={`loading-cell-${colIndex}`}
-                      className="px-4 py-4 first:pl-6 last:pr-6"
+                      className="px-4 py-3 first:pl-2 last:pr-2"
                     >
                       <Skeleton
                         className={cn(
@@ -158,14 +158,14 @@ export function DataTable<TData, TValue = unknown>({
                   key={row.id}
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                   className={cn(
-                    "bg-surface transition-colors hover:bg-surface-raised",
+                    "transition-colors hover:bg-td-chalk/50",
                     onRowClick && "cursor-pointer",
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className="px-4 py-3.5 align-middle first:pl-6 last:pr-6"
+                      className="px-4 py-3 align-middle first:pl-2 last:pr-2"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -177,7 +177,7 @@ export function DataTable<TData, TValue = unknown>({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-8">
+                <td colSpan={columns.length} className="px-2 py-8">
                   <EmptyState
                     title={emptyTitle}
                     description={emptyDescription}

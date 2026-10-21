@@ -99,11 +99,11 @@
   --td-ink: #1F1B22;
   --td-ink-muted: #58515E;
   --td-rule: rgba(31, 27, 34, 0.12);
-  --td-oxide: #5A2B41;
-  --td-oxide-hover: #482033;
+  --td-oxide: var(--primary);
+  --td-oxide-hover: var(--primary-hover);
   --td-teal: #7A5B18;
   --td-teal-hover: #63470D;
-  --td-cobalt: #6E3A52;
+  --td-cobalt: var(--primary-graphic);
   --td-chalk: #F0ECE6;
 }
 
@@ -122,9 +122,20 @@ html[data-admin-theme="light"] [data-portal="admin"],
   --line: rgba(31, 27, 34, 0.12);
   --line-strong: rgba(31, 27, 34, 0.22);
   --ink-muted: var(--ink-3);
+  /* Cùng màu cam thương hiệu cho mọi cổng. */
+  --primary: var(--amber);
+  --primary-hover: var(--amber-hover);
+  --primary-press: var(--amber-press);
+  --primary-tint: var(--amber-tint);
+  --primary-graphic: #d97706;
+  --on-primary: #FFFFFF;
 }
 
 /* Admin owns this attribute only while its shell is mounted, including portals. */
+html[data-admin-theme] {
+  /* Masthead + context strip dính đỉnh: chừa chỗ để anchor/focus không bị che. */
+  scroll-padding-top: 132px;
+}
 html[data-admin-theme="dark"],
 html[data-admin-theme="dark"] [data-portal="admin"],
 [data-portal="admin"][data-admin-theme="dark"],
@@ -143,12 +154,12 @@ html[data-admin-theme="dark"] [data-portal="admin"],
   --amber-hover: #efad68;
   --amber-press: #e8a25a;
   --amber-tint: #3c2a18;
-  --primary: #f6ba7c;
-  --primary-hover: #efad68;
-  --primary-press: #e8a25a;
-  --primary-tint: #3c2a18;
-  --primary-graphic: #f6ba7c;
-  --on-primary: #2b190b;
+  --primary: var(--amber);
+  --primary-hover: var(--amber-hover);
+  --primary-press: var(--amber-press);
+  --primary-tint: var(--amber-tint);
+  --primary-graphic: #fcd68b;
+  --on-primary: #17161B;
   --success: #86efac;
   --success-bg: #123322;
   --warning: #fcd68b;
@@ -183,25 +194,19 @@ html[data-admin-theme="dark"] [data-portal="admin"],
   --td-ink: #F5F1EC;
   --td-ink-muted: #9E97A3;
   --td-rule: rgba(245, 241, 236, 0.14);
-  --td-oxide: #6E3A52;
-  --td-oxide-hover: #844763;
+  --td-oxide: var(--primary);
+  --td-oxide-hover: var(--primary-hover);
   --td-teal: #C8A96B;
   --td-teal-hover: #D9BE84;
-  --td-cobalt: #8A5A72;
+  --td-cobalt: var(--primary-graphic);
   --td-chalk: #1C1A20;
   --ink-muted: var(--ink-3);
 }
 
-/* Keep solid Admin actions readable with the lighter dark-mode accent. */
-html[data-admin-theme="dark"] .bg-primary:not(:disabled),
-html[data-admin-theme="dark"] button.bg-primary:not(:disabled),
-html[data-admin-theme="dark"] a.bg-primary:not(:disabled),
-[data-admin-theme="dark"] .bg-primary:not(:disabled),
-[data-admin-theme="dark"] .bg-primary:not(:disabled).text-white,
-[data-admin-theme="dark"] button.bg-primary:not(:disabled).text-white,
-[data-admin-theme="dark"] a.bg-primary:not(:disabled).text-white,
-[data-admin-theme="dark"] .bg-primary:not(:disabled) .text-white {
-  color: #2b190b !important;
+/* Legacy CTA markup uses text-white; dark amber needs dark text. */
+[data-admin-theme="dark"] :is(.bg-primary, .bg-td-oxide):not(:disabled),
+[data-admin-theme="dark"] :is(.bg-primary, .bg-td-oxide):not(:disabled) .text-white {
+  color: var(--on-primary);
 }
 
 html[data-admin-theme="dark"] .bg-danger:not(:disabled),
@@ -312,14 +317,14 @@ main {
 }
 .admin-input {
   width: 100%;
-  border: 1px solid var(--line-strong);
-  border-radius: 0.75rem;
-  background-color: var(--surface);
-  padding: 0.75rem 1rem;
-  color: var(--ink-2);
-  font-size: 0.875rem;
+  border: 1px solid var(--td-rule);
+  border-radius: 6px;
+  background-color: var(--td-white);
+  padding: 0.5rem 0.75rem;
+  color: var(--td-ink);
+  font-size: 0.8125rem;
   outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 150ms ease;
 }
 
 .admin-search-input {
@@ -327,12 +332,12 @@ main {
 }
 
 .admin-input::placeholder {
-  color: var(--ink-3);
+  color: var(--td-ink-muted);
 }
 
 .admin-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.1);
+  border-color: var(--td-oxide);
+  box-shadow: 0 0 0 1px var(--td-oxide);
 }
 
 /* Authentic Glassmorphism Primitives per glassmorphism skill */

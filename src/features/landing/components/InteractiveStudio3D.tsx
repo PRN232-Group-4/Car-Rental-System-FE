@@ -5,8 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Button } from "@/components/ui/Button";
-import { BookingModal } from "@/features/rentals";
-import type { Vehicle } from "@/features/vehicles/types";
+import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
 import { 
   Rotate3d, 
   Gauge, 
@@ -26,7 +25,6 @@ interface ModelInfo {
   engine: string;
   power: string;
   topSpeed: string;
-  hourlyPrice: number;
   modelPath: string;
   scale: number;
   initialY: number;
@@ -42,7 +40,6 @@ const MODELS: ModelInfo[] = [
     engine: "3.0L Twin-Turbo Boxer",
     power: "443 Mã Lực (331 kW)",
     topSpeed: "306 km/h",
-    hourlyPrice: 450000,
     modelPath: "/models/porsche_911_carrera_4s.glb",
     scale: 1.0,
     initialY: 0,
@@ -56,7 +53,6 @@ const MODELS: ModelInfo[] = [
     engine: "3.0L Air-Cooled Turbo",
     power: "260 Mã Lực (191 kW)",
     topSpeed: "250 km/h",
-    hourlyPrice: 550000,
     modelPath: "/models/1975_porsche_911_930_turbo.glb",
     scale: 0.95,
     initialY: 0,
@@ -65,12 +61,12 @@ const MODELS: ModelInfo[] = [
 ];
 
 export default function InteractiveStudio3D() {
+  const router = useNavigationRouter();
   const [selectedModelId, setSelectedModelId] = useState<string>("porsche-carrera-4s");
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -330,33 +326,6 @@ export default function InteractiveStudio3D() {
     }
   };
 
-  const formatVND = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount) + " ₫";
-  };
-
-  const handleBookModel = () => {
-    setSelectedVehicleForBooking({
-      id: activeModel.id,
-      name: activeModel.name,
-      category: "car",
-      categoryLabel: "Xe Thể Thao Đương Đại",
-      brand: "Porsche",
-      model: activeModel.name,
-      year: activeModel.year,
-      seats: 4,
-      transmission: "Tự động PDK 8 cấp",
-      fuelType: "Xăng cao cấp",
-      hourlyPrice: activeModel.hourlyPrice,
-      monthlyPrice: activeModel.hourlyPrice * 160,
-      supportsSubscription: true,
-      facilityId: "fac-q1",
-      facilityName: "Chi nhánh Quận 1 — Trung tâm",
-      imageUrl: "/assets/hero-ev.jpg",
-      status: "available",
-      isAvailable: true,
-      badges: [activeModel.tag, "KIỂM ĐỊNH 100%", "CHÍNH CHỦ"],
-    });
-  };
 
   return (
     <section id="showroom-3d" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
@@ -537,37 +506,22 @@ export default function InteractiveStudio3D() {
 
           {/* Pricing & Booking Action */}
           <div className="pt-6">
-            <div className="mb-4 p-4 rounded-2xl bg-surface-raised border border-line">
-              <span className="block text-xs font-semibold text-ink-3 uppercase tracking-wider mb-1">
-                Giá thuê niêm yết
-              </span>
-              <div className="flex flex-wrap items-baseline gap-x-1.5">
-                <span className="font-mono text-xl font-black text-ink tabular-nums">
-                  {formatVND(activeModel.hourlyPrice)}
-                </span>
-                <span className="text-xs font-semibold text-ink-3">/giờ</span>
-              </div>
-            </div>
+            <p className="mb-4 text-sm text-ink-2">Mô hình trưng bày minh họa, không đại diện cho xe đang có sẵn. Xem giá và tình trạng thực tế trong danh mục xe.</p>
 
             <Button
               type="button"
-              onClick={handleBookModel}
+              onClick={() => router.push("/find")}
               variant="amber-hero"
               className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider cursor-pointer"
             >
-              <span>Đặt thuê xe này</span>
+              <span>Xem xe thực tế</span>
               <ArrowUpRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </div>
 
-      {selectedVehicleForBooking && (
-        <BookingModal
-          vehicle={selectedVehicleForBooking}
-          onClose={() => setSelectedVehicleForBooking(null)}
-        />
-      )}
+
     </section>
   );
 }

@@ -7,9 +7,23 @@ import RentalLookup from "./RentalLookup";
 import OperationFields from "./OperationFields";
 import { getReports, sendReport, uploadReportImage } from "./extended-api";
 import { operationalError, operationsButton, operationsPanel } from "./api";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function IncidentReporter() {
-  return <RentalLookup title="Báo cáo sự cố" staffLinks={false}>{(rental) => <ReportForm rentalId={Number(rental.id)} />}</RentalLookup>;
+  return (
+    <div className="space-y-6">
+      <TransitFolio
+        index="09"
+        tag="KH"
+        kicker="KHÁCH HÀNG · HỖ TRỢ SỰ CỐ"
+        title={<>Báo cáo <em className="italic text-td-teal">sự cố.</em></>}
+        description="Gửi mô tả và ảnh hiện trạng để trạm tiếp nhận và xử lý theo SLA."
+      />
+      <RentalLookup title="Tra cứu đơn thuê" staffLinks={false}>
+        {(rental) => <ReportForm rentalId={Number(rental.id)} />}
+      </RentalLookup>
+    </div>
+  );
 }
 function ReportForm({ rentalId }: { rentalId: number }) {
   const [values, setValues] = useState({ type: "", description: "" });
@@ -35,11 +49,11 @@ function ReportForm({ rentalId }: { rentalId: number }) {
   return <div className="space-y-6"><ValidatedForm validation={validation} validate={() => ({ imageUrls: uploadError || undefined })} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Gửi sự cố cho đơn #{rentalId}</h2>
     <fieldset disabled={busy || uploading} className="space-y-4"><OperationFields prefix="incident" fields={[{ name: "type", label: "Loại sự cố" }, { name: "description", label: "Mô tả sự cố", type: "textarea" }]} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} />
-      <div><button type="button" data-validation-field="imageUrls" aria-describedby={validation.errors.imageUrls ? "incident-images-error" : undefined} onClick={() => document.getElementById("incident-images")?.click()} className={`rounded-xl border px-4 py-3 text-sm ${validation.errors.imageUrls ? "border-danger" : "border-line"}`}>Thêm ảnh sự cố</button><InlineInput type="file" id="incident-images" name="imageUrls" accept="image/*" multiple showError={false} onChange={upload} className="hidden" /><InlineError name="imageUrls" inputId="incident-images" /></div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{images.map((url, index) => <div key={`${url}-${index}`}><Image src={url} alt={`Ảnh sự cố ${index + 1}`} width={240} height={160} unoptimized className="h-28 w-full rounded-lg object-cover" /><button type="button" className="mt-2 text-sm text-danger underline" onClick={() => setImages((current) => current.filter((_, i) => i !== index))}>Bỏ ảnh</button></div>)}</div>
+      <div><button type="button" data-validation-field="imageUrls" aria-describedby={validation.errors.imageUrls ? "incident-images-error" : undefined} onClick={() => document.getElementById("incident-images")?.click()} className={`rounded border px-4 py-3 text-sm ${validation.errors.imageUrls ? "border-danger" : "border-td-rule"}`}>Thêm ảnh sự cố</button><InlineInput type="file" id="incident-images" name="imageUrls" accept="image/*" multiple showError={false} onChange={upload} className="hidden" /><InlineError name="imageUrls" inputId="incident-images" /></div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{images.map((url, index) => <div key={`${url}-${index}`}><Image src={url} alt={`Ảnh sự cố ${index + 1}`} width={240} height={160} unoptimized className="h-28 w-full rounded object-cover" /><button type="button" className="mt-2 text-sm text-danger underline" onClick={() => setImages((current) => current.filter((_, i) => i !== index))}>Bỏ ảnh</button></div>)}</div>
     </fieldset>
     {uploading && <p role="status">Đang tải ảnh...</p>}{error && <p role="alert" className="text-sm text-danger">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}<button type="submit" disabled={busy || uploading} className={operationsButton}>{busy ? "Đang gửi..." : "Gửi báo cáo sự cố"}</button>
   </ValidatedForm>
-    <section className={operationsPanel}><h2 className="text-lg font-bold">Báo cáo của đơn thuê</h2>{reports.isPending && <p role="status">Đang tải báo cáo...</p>}{reports.error && <p role="alert" className="text-sm text-danger">{operationalError(reports.error)}</p>}{reports.data?.map((item) => <article key={item.id} className="space-y-2 border-t border-line pt-4"><p className="text-sm font-semibold">#{item.id} — {item.type ?? "Sự cố"} — {item.status ?? "Chưa cập nhật trạng thái"}</p><p className="whitespace-pre-wrap text-sm">{item.description}</p></article>)}{reports.data?.length === 0 && <p className="text-sm text-ink-3">Chưa có báo cáo cho đơn này.</p>}</section>
+    <section className={operationsPanel}><h2 className="text-lg font-bold">Báo cáo của đơn thuê</h2>{reports.isPending && <p role="status">Đang tải báo cáo...</p>}{reports.error && <p role="alert" className="text-sm text-danger">{operationalError(reports.error)}</p>}{reports.data?.map((item) => <article key={item.id} className="space-y-2 border-t border-td-rule pt-4"><p className="text-sm font-semibold">#{item.id} — {item.type ?? "Sự cố"} — {item.status ?? "Chưa cập nhật trạng thái"}</p><p className="whitespace-pre-wrap text-sm">{item.description}</p></article>)}{reports.data?.length === 0 && <p className="text-sm text-td-muted">Chưa có báo cáo cho đơn này.</p>}</section>
   </div>;
 }

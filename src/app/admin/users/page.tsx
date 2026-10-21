@@ -11,12 +11,13 @@ import { UserLockDialog } from "@/features/admin/users/components/UserLockDialog
 import { AdminUserListItem, UserFilterParams } from "@/features/admin/users/types";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Pagination } from "@/components/ui/Pagination";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { formatDate } from "@/lib/time";
 import {
-  Users,
   Eye,
   Lock,
   Unlock,
@@ -110,17 +111,17 @@ function AdminUsersContent() {
 
           return (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface font-mono text-xs font-black text-primary shadow-xs">
-                {initials || <User className="w-4 h-4 text-ink-3" />}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-chalk font-mono text-xs font-bold text-td-oxide">
+                {initials || <User className="w-4 h-4 text-td-muted" />}
               </div>
               <div className="min-w-0">
                 <Link
                   href={`/admin/users/detail?id=${u.id}`}
-                  className="font-bold text-sm text-ink hover:text-primary transition-colors block truncate"
+                  className="font-bold text-sm text-td-ink hover:text-td-oxide transition-colors block truncate"
                 >
                   {u.fullName}
                 </Link>
-                <span className="font-mono text-xs text-ink-3 block truncate">{u.email}</span>
+                <span className="font-mono text-[11px] text-td-muted block truncate">{u.email}</span>
               </div>
             </div>
           );
@@ -130,7 +131,7 @@ function AdminUsersContent() {
         id: "phone",
         header: "Điện thoại",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-ink-2">
+          <span className="font-mono text-xs text-td-muted">
             {row.original.phone || "—"}
           </span>
         ),
@@ -150,10 +151,10 @@ function AdminUsersContent() {
                 return (
                   <span
                     key={r}
-                    className={`rounded-md px-2 py-0.5 font-mono text-[11px] font-bold ${
+                    className={`rounded px-2 py-0.5 font-mono text-[11px] font-bold border ${
                       isAdmin
-                        ? "bg-primary-tint text-primary border border-primary/20"
-                        : "bg-sunken text-ink-2 border border-line"
+                        ? "bg-td-chalk text-td-oxide border-td-oxide/30"
+                        : "bg-td-chalk/60 text-td-ink border-td-rule"
                     }`}
                   >
                     {r}
@@ -161,7 +162,7 @@ function AdminUsersContent() {
                 );
               })}
               {remainder > 0 && (
-                <span className="rounded-md bg-sunken px-1.5 py-0.5 font-mono text-[10px] font-semibold text-ink-3">
+                <span className="rounded bg-td-chalk px-1.5 py-0.5 font-mono text-[10px] font-semibold text-td-muted">
                   +{remainder}
                 </span>
               )}
@@ -175,11 +176,11 @@ function AdminUsersContent() {
         cell: ({ row }) => {
           const u = row.original;
           return (
-            <div className="flex items-center gap-1.5 text-xs text-ink-3">
+            <div className="flex items-center gap-1.5 text-xs text-td-muted">
               {u.hasCustomerProfile && (
                 <span
                   title="Có hồ sơ khách hàng"
-                  className="flex items-center gap-1 rounded bg-surface px-1.5 py-0.5 border border-line text-[11px] text-ink"
+                  className="flex items-center gap-1 rounded border border-td-rule bg-td-chalk px-1.5 py-0.5 text-[11px] text-td-ink"
                 >
                   <UserCheck className="w-3.5 h-3.5 text-success" />
                   <span>Khách</span>
@@ -188,14 +189,14 @@ function AdminUsersContent() {
               {u.hasStaffProfile && (
                 <span
                   title="Có hồ sơ nhân viên"
-                  className="flex items-center gap-1 rounded bg-surface px-1.5 py-0.5 border border-line text-[11px] text-ink"
+                  className="flex items-center gap-1 rounded border border-td-rule bg-td-chalk px-1.5 py-0.5 text-[11px] text-td-ink"
                 >
-                  <Briefcase className="w-3.5 h-3.5 text-primary" />
+                  <Briefcase className="w-3.5 h-3.5 text-td-oxide" />
                   <span>NV</span>
                 </span>
               )}
               {!u.hasCustomerProfile && !u.hasStaffProfile && (
-                <span className="text-ink-3 text-[11px]">—</span>
+                <span className="text-td-muted text-[11px]">—</span>
               )}
             </div>
           );
@@ -207,10 +208,9 @@ function AdminUsersContent() {
         cell: ({ row }) => {
           const active = row.original.isActive;
           return (
-            <StatusBadge
-              status={active ? "approved" : "rejected"}
-              label={active ? "Hoạt động" : "Đã khóa"}
-            />
+            <AdminStatusBadge domain="activity" status={active ? "active" : "inactive"}>
+              {active ? "Hoạt động" : "Đã khóa"}
+            </AdminStatusBadge>
           );
         },
       },
@@ -218,7 +218,7 @@ function AdminUsersContent() {
         id: "createdAt",
         header: "Ngày tạo",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-ink-3">
+          <span className="font-mono text-xs text-td-muted">
             {formatDate(row.original.createdAt, "dd/MM/yyyy")}
           </span>
         ),
@@ -232,7 +232,7 @@ function AdminUsersContent() {
             <div className="flex items-center justify-end gap-1.5">
               <Link
                 href={`/admin/users/detail?id=${u.id}`}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-surface text-ink-2 hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule text-td-ink hover:border-td-oxide hover:text-td-oxide transition-colors cursor-pointer"
                 title="Xem chi tiết"
               >
                 <Eye className="w-4 h-4" />
@@ -244,10 +244,10 @@ function AdminUsersContent() {
                   <button
                     type="button"
                     onClick={() => setLockTarget(u)}
-                    className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors cursor-pointer ${
+                    className={`inline-flex h-8 w-8 items-center justify-center rounded border transition-colors cursor-pointer ${
                       u.isActive
-                        ? "border-line bg-surface text-ink-2 hover:border-danger hover:text-danger"
-                        : "border-success/30 bg-success-bg/30 text-success hover:border-success"
+                        ? "border-td-rule text-td-ink hover:border-danger hover:text-danger"
+                        : "border-success/40 bg-success-bg/30 text-success hover:border-success"
                     }`}
                     title={u.isActive ? "Khóa tài khoản" : "Mở khóa"}
                   >
@@ -257,7 +257,7 @@ function AdminUsersContent() {
                   <button
                     type="button"
                     onClick={() => handleRevokeSessions(u)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-surface text-ink-2 hover:border-warning hover:text-warning transition-colors cursor-pointer"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule text-td-ink hover:border-warning hover:text-warning transition-colors cursor-pointer"
                     title="Thu hồi phiên đăng nhập"
                   >
                     <LogOut className="w-4 h-4" />
@@ -274,27 +274,24 @@ function AdminUsersContent() {
   return (
     <div className="space-y-6">
       {/* Header trang */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
-            <Users className="w-4 h-4" />
-            <span>Phân Hệ Quản Trị</span>
-          </div>
-          <h1 className="mt-1 text-2xl font-black text-ink tracking-tight">
-            Quản Lý Người Dùng & Phân Quyền
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-ink-3">
-            Tra cứu tài khoản người dùng, phân quyền vai trò và kiểm soát an toàn bảo mật hệ thống.
-          </p>
-        </div>
-
+      <TransitFolio
+        index="07"
+        tag="ORG"
+        kicker="TỔ CHỨC · TÀI KHOẢN & PHÂN QUYỀN"
+        title={<>Người dùng & <em className="italic text-td-teal">phân quyền.</em></>}
+        description="Tra cứu tài khoản người dùng, phân quyền vai trò và kiểm soát an toàn bảo mật hệ thống."
+      >
+        <TransitFolioMetric
+          label="HỆ THỐNG · TỔNG TÀI KHOẢN"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(data?.totalCount ?? 0).padStart(2, "0")}
+        />
         {isManagerOnly && (
-          <div className="inline-flex items-center gap-2 rounded-xl border border-line bg-canvas px-3.5 py-2 text-xs text-ink-2 font-medium">
-            <ShieldCheck className="w-4 h-4 text-ink-3" />
-            <span>Chế độ xem: <strong>Chỉ đọc (Manager)</strong></span>
+          <div className="inline-flex items-center gap-2 border-l border-td-rule pl-4 text-[11px] text-td-muted">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Chế độ xem: <strong className="font-bold text-td-ink">Chỉ đọc (Manager)</strong></span>
           </div>
         )}
-      </div>
+      </TransitFolio>
 
       {/* Bộ lọc */}
       <UserFilters
@@ -322,7 +319,7 @@ function AdminUsersContent() {
           />
 
           {data && data.totalCount > 0 && (
-            <div className="border-t border-line pt-4">
+            <div className="border-t border-td-rule pt-3">
               <Pagination
                 page={data.page}
                 pageSize={data.pageSize}
@@ -355,7 +352,7 @@ function AdminUsersContent() {
 export default function AdminUsersPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
-        <Suspense fallback={<div className="h-40 rounded-2xl bg-surface animate-pulse" />}>
+        <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <AdminUsersContent />
         </Suspense>
     </AuthGate>

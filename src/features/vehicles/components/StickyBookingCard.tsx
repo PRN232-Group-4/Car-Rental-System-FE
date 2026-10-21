@@ -122,29 +122,29 @@ export function StickyBookingCard({
   return (
     <aside
       data-testid="sticky-booking-card"
-      className={`rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-e2 space-y-5 ${className}`}
+      className={`rounded border border-td-rule bg-td-white p-5 sm:p-6 space-y-5 ${className}`}
     >
       {/* 1. Header giá & toggle hình thức */}
-      <div className="flex items-center justify-between border-b border-line pb-4">
+      <div className="flex items-center justify-between border-b border-td-rule pb-4">
         <div>
-          <span className="text-xs font-semibold text-ink-3">Đơn giá niêm yết:</span>
+          <span className="text-xs font-semibold text-td-muted">Đơn giá niêm yết:</span>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span className="font-mono text-2xl font-black tabular-nums text-primary">
               {new Intl.NumberFormat("vi-VN").format(vehicle.hourlyPrice)}₫
             </span>
-            <span className="text-xs font-semibold text-ink-3">/giờ</span>
+            <span className="text-xs font-semibold text-td-muted">/giờ</span>
           </div>
         </div>
 
         {/* Toggle Hourly / Longterm */}
-        <div className="flex rounded-xl bg-sunken p-1 border border-line">
+        <div className="flex rounded bg-td-chalk p-1 border border-td-rule">
           <button
             type="button"
             onClick={() => setRentalType("hourly")}
-            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+            className={`rounded px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
               rentalType === "hourly"
-                ? "bg-surface text-ink shadow-xs"
-                : "text-ink-3 hover:text-ink"
+                ? "bg-td-white text-td-ink shadow-xs"
+                : "text-td-muted hover:text-td-ink"
             }`}
           >
             Theo giờ
@@ -152,10 +152,10 @@ export function StickyBookingCard({
           <button
             type="button"
             onClick={() => setRentalType("longterm")}
-            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
+            className={`rounded px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
               rentalType === "longterm"
-                ? "bg-surface text-ink shadow-xs"
-                : "text-ink-3 hover:text-ink"
+                ? "bg-td-white text-td-ink shadow-xs"
+                : "text-td-muted hover:text-td-ink"
             }`}
           >
             Dài hạn
@@ -165,9 +165,9 @@ export function StickyBookingCard({
 
       {/* 2. Bộ chọn lịch trình GMT+7 */}
       <div className="space-y-1.5">
-        <label className="flex items-center justify-between text-xs font-bold text-ink">
+        <label className="flex items-center justify-between text-xs font-bold text-td-ink">
           <span>Lịch trình thuê xe (GMT+7)</span>
-          <span className="font-mono text-[11px] text-ink-3">
+          <span className="font-mono text-[11px] text-td-muted">
             {duration.days > 0 ? `${duration.days} ngày (${duration.hours}h)` : `${duration.hours}h`}
           </span>
         </label>
@@ -181,12 +181,12 @@ export function StickyBookingCard({
 
       {/* 3. Lựa chọn Có tài xế / Tự lái (Nếu là ô tô) */}
       {!vehicle.category.includes("motorbike") && (
-        <div className="flex items-center justify-between rounded-xl border border-line bg-canvas p-3">
+        <div className="flex items-center justify-between rounded border border-td-rule bg-td-paper p-3">
           <div className="flex items-center gap-2.5">
             <UserCheck className="w-4 h-4 text-primary" />
             <div>
-              <span className="text-xs font-bold text-ink">Kèm tài xế Thong Dong</span>
-              <p className="text-[10px] text-ink-3">+500.000đ/ngày • Lái xe kinh nghiệm</p>
+              <span className="text-xs font-bold text-td-ink">Kèm tài xế Thong Dong</span>
+              <p className="text-[10px] text-td-muted">+500.000đ/ngày • Lái xe kinh nghiệm</p>
             </div>
           </div>
 
@@ -197,14 +197,14 @@ export function StickyBookingCard({
               onChange={(e) => setHasDriver(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-10 h-6 bg-sunken peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+            <div className="w-10 h-6 bg-td-chalk peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-td-rule after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
           </label>
         </div>
       )}
 
       {/* 4. Cảnh báo tình trạng xe khả dụng */}
       {availabilityError && (
-        <div className="flex items-start gap-2 rounded-xl bg-warning-bg/60 p-3 text-xs font-medium text-warning border border-warning/20">
+        <div className="flex items-start gap-2 rounded bg-warning-bg/60 p-3 text-xs font-medium text-warning border border-warning/20">
           <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{availabilityError}</span>
         </div>
@@ -226,13 +226,13 @@ export function StickyBookingCard({
         type="button"
         onClick={handleProceedBooking}
         disabled={Boolean(availabilityError) || isCheckingAvailability || !dateRange.from}
-        className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 px-6 font-bold text-sm text-white shadow-e1 hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 rounded bg-primary py-3.5 px-6 font-bold text-sm text-white hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
       >
         <span>Tiến hành đặt xe</span>
         <ArrowRight className="w-4 h-4" />
       </button>
 
-      <p className="text-center text-[11px] text-ink-3">
+      <p className="text-center text-[11px] text-td-muted">
         Không mất phí hủy trước 24 giờ • Hỗ trợ xuất hóa đơn VAT điện tử
       </p>
     </aside>

@@ -19,9 +19,6 @@ export function nowGmt7(): TZDate {
  * Chuyển đổi bất kỳ đầu vào thời gian nào (Date, chuỗi ISO, timestamp) về chuỗi UTC ISO-8601 chuẩn.
  */
 export function toUtcIso(dateInput: Date | string | number): string {
-  if (dateInput instanceof Date) {
-    return dateInput.toISOString();
-  }
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) {
     throw new Error(`Giá trị ngày giờ không hợp lệ: ${dateInput}`);
@@ -43,7 +40,7 @@ export function fromUtcIso(isoString: string): TZDate {
 export function parseGmt7Input(input: string, patternStr?: string): TZDate {
   const trimmed = input.trim();
   if (patternStr) {
-    const parsed = parse(trimmed, patternStr, new Date());
+    const parsed = parse(trimmed, patternStr, nowGmt7());
     return new TZDate(parsed, GMT7_TIMEZONE);
   }
 
@@ -60,7 +57,7 @@ export function parseGmt7Input(input: string, patternStr?: string): TZDate {
 
   for (const fmt of candidateFormats) {
     try {
-      const parsed = parse(trimmed, fmt, new Date());
+      const parsed = parse(trimmed, fmt, nowGmt7());
       if (!isNaN(parsed.getTime())) {
         return new TZDate(parsed, GMT7_TIMEZONE);
       }
@@ -106,13 +103,30 @@ export function formatDate(
 }
 
 /**
- * Định dạng chỉ giờ theo múi giờ GMT+7. Mặc định: 'HH:mm'.
+ * Định dạng giờ theo GMT+7. Mặc định: 'HH:mm'.
  */
 export function formatTime(
   isoOrDate: string | Date | number,
   patternStr: string = "HH:mm",
 ): string {
   return formatDateTime(isoOrDate, patternStr);
+}
+
+/**
+ * Đổi giá trị `datetime-local` (giờ tường GMT+7) sang UTC ISO để gửi API.
+ */
+export function localInputToUtcIso(value: string): string {
+  return toUtcIso(parseGmt7Input(value.slice(0, 16), "yyyy-MM-dd'T'HH:mm"));
+}
+
+/**
+ * Đổi một mốc thời gian sang giá trị `datetime-local` theo giờ tường GMT+7.
+ */
+export function toLocalInputValue(value: string | number | Date): string {
+  const tzDate = new TZDate(new Date(value), GMT7_TIMEZONE);
+  if (isNaN(tzDate.getTime())) return "";
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${tzDate.getFullYear()}-${pad(tzDate.getMonth() + 1)}-${pad(tzDate.getDate())}T${pad(tzDate.getHours())}:${pad(tzDate.getMinutes())}`;
 }
 
 /**

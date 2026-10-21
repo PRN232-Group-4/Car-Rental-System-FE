@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalWorkspaceV4 from "@/features/admin/transit-desk/RentalWorkspaceV4";
 import * as operationsApi from "@/features/operations/api";
+import { RENTAL_101 } from "./rental-fixture";
 
 beforeAll(() => {
   global.ResizeObserver = class {
@@ -46,7 +47,7 @@ const mockAdminSession: SessionContextType = {
   login: vi.fn(),
   logout: vi.fn(),
   hasRole: (r: string) => r.toLowerCase() === "admin",
-  hasAnyRole: (roles: readonly any[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
+  hasAnyRole: (roles: readonly string[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
   refreshProfile: vi.fn(),
 };
 
@@ -58,7 +59,7 @@ const mockStaffSession: SessionContextType = {
   login: vi.fn(),
   logout: vi.fn(),
   hasRole: (r: string) => r.toLowerCase() === "staff",
-  hasAnyRole: (roles: readonly any[]) => roles.map((x) => String(x).toLowerCase()).includes("staff"),
+  hasAnyRole: (roles: readonly string[]) => roles.map((x) => String(x).toLowerCase()).includes("staff"),
   refreshProfile: vi.fn(),
 };
 
@@ -81,6 +82,10 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSearchParams = new URLSearchParams();
+    // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
+    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([]);
+    vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
   describe("Gate 1: Truthful States & Provenance", () => {
@@ -243,7 +248,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("opens confirmation modal on terminal transition, handles Escape and confirms transition", async () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
-      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as any);
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -285,7 +290,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("opens distinct cancellation modal when cancelled status is chosen", async () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
-      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as any);
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -350,31 +355,17 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       });
     });
 
-    it("SEC-01: proves that in production mode, getOperationalRental fails closed without returning fixtures", async () => {
-      const originalEnv = process.env.NODE_ENV;
-      const originalFlag = process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK;
-
-      try {
-        // Enforce production environment
-        (process.env as any).NODE_ENV = "production";
-        delete process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK;
-
-        // Calling ID 101 when backend is unreachable MUST throw and NOT return mock object
-        await expect(operationsApi.getOperationalRental(101)).rejects.toThrow();
-      } finally {
-        (process.env as any).NODE_ENV = originalEnv;
-        if (originalFlag) {
-          process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK = originalFlag;
-        }
-      }
+    it("SEC-01: getOperationalRental fails closed, never returns fixture data", async () => {
+      // Bỏ mock của beforeEach để gọi implementation thật: backend không có → phải ném lỗi.
+      vi.mocked(operationsApi.getOperationalRental).mockRestore();
+      await expect(operationsApi.getOperationalRental(101)).rejects.toThrow();
     });
   });
 
   describe("Phase 3D Acceptance: Error Boundaries, Safe Currency, and Fail-Closed RBAC", () => {
     it("P0-B: renders distinct 404 state without phantom vehicle, NaN đ, or active commands when rental does not exist", async () => {
       mockSearchParams = new URLSearchParams("rentalId=4040");
-      const err: any = new Error("Not Found");
-      err.response = { status: 404 };
+      const err = Object.assign(new Error("Not Found"), { status: 404, data: null, response: { status: 404 } });
       vi.spyOn(operationsApi, "getOperationalRental").mockRejectedValueOnce(err);
 
       renderWithClient(<RentalWorkspaceV4 />);
@@ -397,8 +388,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("P0-B: renders distinct 403 Forbidden state when user lacks permission to access rental", async () => {
       mockSearchParams = new URLSearchParams("rentalId=4030");
-      const err: any = new Error("Forbidden");
-      err.response = { status: 403 };
+      const err = Object.assign(new Error("Forbidden"), { status: 403, data: null, response: { status: 403 } });
       vi.spyOn(operationsApi, "getOperationalRental").mockRejectedValueOnce(err);
 
       renderWithClient(<RentalWorkspaceV4 />);
@@ -415,7 +405,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     it("P0-B: renders distinct invalid-data state when payload fails structural validation (e.g. empty array)", async () => {
       mockSearchParams = new URLSearchParams("rentalId=9999");
       // Return invalid data (e.g. array instead of object)
-      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValueOnce([] as any);
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValueOnce([] as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -440,9 +430,9 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
         rentalType: "daily",
         startTime: "2026-10-18T10:00:00Z",
         endTime: "2026-10-20T10:00:00Z",
-        totalPrice: undefined as any,
-        depositPrice: null as any,
-        vatPrice: NaN as any,
+        totalPrice: undefined as unknown as number,
+        depositPrice: null as unknown as number,
+        vatPrice: Number.NaN as number,
         hasDriver: false,
         contractLink: null,
         signedAt: null,
@@ -463,37 +453,24 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       expect(fallbackElements.length).toBeGreaterThanOrEqual(1);
     });
 
-    it("P1-C: fail-closed RBAC - unauthenticated user (session: undefined) cannot see manual override or mutate", async () => {
+    it("P1-C: unauthenticated session cannot load or mutate privileged rental data", () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
       renderWithClient(<RentalWorkspaceV4 />, null);
-
-      await waitFor(() => {
-        expect(screen.getByText(/THÔNG SỐ HỢP ĐỒNG THUÊ #101/i)).toBeInTheDocument();
-      });
-
-      // Manual override disclosure is NOT in DOM
+      expect(operationsApi.getOperationalRental).not.toHaveBeenCalled();
+      expect(operationsApi.listOperationalRentals).not.toHaveBeenCalled();
+      expect(operationsApi.getAssignableDrivers).not.toHaveBeenCalled();
       expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
-      // Primary guided button is disabled
-      const guidedBtn = screen.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả" });
-      expect(guidedBtn).toBeDisabled();
-      // Assign button is disabled
-      const assignBtn = screen.getByRole("button", { name: "Lưu phân công" });
-      expect(assignBtn).toBeDisabled();
+      expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
     });
 
-    it("P1-C: Staff role can perform guided workflow mutations but cannot see Admin manual override", async () => {
+    it("P1-C: Staff cannot load the rental workspace reserved for Admin/Manager/CustomerService", () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
       renderWithClient(<RentalWorkspaceV4 />, mockStaffSession);
-
-      await waitFor(() => {
-        expect(screen.getByText(/THÔNG SỐ HỢP ĐỒNG THUÊ #101/i)).toBeInTheDocument();
-      });
-
-      // Manual override disclosure is NOT in DOM for Staff
+      expect(operationsApi.getOperationalRental).not.toHaveBeenCalled();
+      expect(operationsApi.listOperationalRentals).not.toHaveBeenCalled();
+      expect(operationsApi.getAssignableDrivers).not.toHaveBeenCalled();
       expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
-      // Primary guided button IS enabled for Staff
-      const guidedBtn = screen.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả" });
-      expect(guidedBtn).not.toBeDisabled();
+      expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
     });
 
     it("P1-D: renders truthful operational copy for contracts and GPS monitoring", async () => {

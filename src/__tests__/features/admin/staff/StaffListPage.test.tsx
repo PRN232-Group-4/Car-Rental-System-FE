@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import StaffsPage from "@/app/admin/staffs/page";
+import { backendApiClient } from "@/api/backend-api-client";
 
 // Mock next/navigation
 const pushMock = vi.fn();
@@ -98,12 +99,23 @@ function renderStaffsPage() {
 describe("FE-24 Admin Staff — List Page Component", () => {
   beforeEach(() => {
     pushMock.mockClear();
+    vi.spyOn(backendApiClient, "get").mockImplementation(async (path) => {
+      if (path === "departments") return [{ id: 1, name: "Ban Giám Đốc" }];
+      if (path === "facilities") return [{ id: 1, name: "Quận 1", address: "TP.HCM" }];
+      if (path === "staff") return {
+        items: [
+          { id: 1, userId: 1, fullName: "Nguyễn Văn Quản Trị", email: "admin@example.com", isActive: true, isDriver: false, departmentId: 1, departmentName: "Ban Giám Đốc" },
+          { id: 4, userId: 4, fullName: "Phạm Hùng Cường (Tài xế VIP)", email: "driver@example.com", isActive: true, isDriver: true, staffRole: "Driver", licenseExpiryDate: "2035-01-01" },
+        ], page: 1, pageSize: 100, totalCount: 2,
+      };
+      throw new Error("Unexpected test API: " + path);
+    });
   });
 
   it("hiển thị tiêu đề trang và danh sách nhân sự", async () => {
     renderStaffsPage();
 
-    expect(screen.getByText("Quản Lý Nhân Viên & Tài Xế")).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Nhân viên & tài xế.");
 
     await waitFor(() => {
       expect(screen.getByText("Nguyễn Văn Quản Trị")).toBeDefined();

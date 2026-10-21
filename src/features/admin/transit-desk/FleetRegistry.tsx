@@ -1,99 +1,65 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/features/auth";
 import {
   deleteVehicle,
-  getFacilities,
-  getVehicleTypes,
   getVehicles,
-  type OrganizationUnitDto,
   type VehicleDto,
-  type VehicleTypeDto,
 } from "@/features/admin/api";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import TransitDeskStatus from "./TransitDeskStatus";
+import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus, BatteryCharging, Gauge } from "lucide-react";
 import { playTactileClick } from "@/lib/audio/haptic-audio";
 
+const NO_VEHICLES: VehicleDto[] = [];
+
 export function FleetRegistry() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { hasRole } = useAuth();
   const canManage = hasRole("admin") || hasRole("manager");
 
-  const [vehicles, setVehicles] = useState<VehicleDto[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
-  const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
-  const [loading, setLoading] = useState(true);
-  const [selectedVehicle, setSelectedVehicle] = useState<VehicleDto | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
+  const [isFolioClosed, setIsFolioClosed] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // Handle Escape key to close Context Folio (P1-04)
-  useEffect(() => {
-    if (!selectedVehicle) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setSelectedVehicle(null);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedVehicle]);
-
-  // Load vehicles and metadata
-  const loadPage = useCallback(
-    async (currentPage: number, currentStatus: string) => {
-      setLoading(true);
-      try {
-        const [response, types, facilityData] = await Promise.all([
-          getVehicles({
-            status: currentStatus === "all" ? undefined : currentStatus,
-            page: currentPage,
-            pageSize,
-          }),
-          getVehicleTypes(),
-          getFacilities(),
-        ]);
-        const items = response.items ?? [];
-        setVehicles(items);
-        setTotalCount(response.totalCount);
-        setVehicleTypes(types);
-        setFacilities(facilityData);
-
-        // Keep selection synced or default to first item
-        if (items.length > 0) {
-          setSelectedVehicle((prev) => {
-            if (!prev) return items[0];
-            const found = items.find((v) => v.id === prev.id);
-            return found || items[0];
-          });
-        } else {
-          setSelectedVehicle(null);
-        }
-      } catch (err) {
-        notifyApiError(err, "Không thể tải danh sách phương tiện.");
-      } finally {
-        setLoading(false);
-      }
+  // Một query cho trang hiện tại: không setState trong effect, react-query giữ cache.
+  const pageQuery = useQuery({
+    queryKey: ["fleet-registry", page, pageSize, statusFilter],
+    queryFn: async () => {
+      const response = await getVehicles({
+        status: statusFilter === "all" ? undefined : statusFilter,
+        page,
+        pageSize,
+      });
+      return {
+        items: response.items ?? NO_VEHICLES,
+        totalCount: response.totalCount,
+      };
     },
-    [pageSize]
-  );
+    retry: false,
+  });
 
-  useEffect(() => {
-    void loadPage(page, statusFilter);
-  }, [loadPage, page, statusFilter]);
+  const vehicles = pageQuery.data?.items ?? NO_VEHICLES;
+  const totalCount = pageQuery.data?.totalCount ?? 0;
+  const loading = pageQuery.isPending;
+
+  const closeFolio = () => setIsFolioClosed(true);
+  const selectVehicle = (vehicle: VehicleDto) => {
+    setSelectedVehicleId(vehicle.id);
+    setIsFolioClosed(false);
+  };
 
   // Handle client-side search filter over current page
-  const filteredVehicles = useMemo(() => {
+  const filteredVehicles = useMemo<VehicleDto[]>(() => {
     const q = search.trim().toLowerCase();
     if (!q) return vehicles;
     return vehicles.filter((v) => {
@@ -102,10 +68,28 @@ export function FleetRegistry() {
     });
   }, [vehicles, search]);
 
+  // Hồ sơ đang mở suy ra từ danh sách đang hiển thị, không cần đồng bộ state.
+  const selectedVehicle = useMemo<VehicleDto | null>(() => {
+    if (isFolioClosed || filteredVehicles.length === 0) return null;
+    return filteredVehicles.find((v) => v.id === selectedVehicleId) ?? filteredVehicles[0];
+  }, [filteredVehicles, selectedVehicleId, isFolioClosed]);
+
+  // Handle Escape key to close Context Folio (P1-04)
+  useEffect(() => {
+    if (!selectedVehicle) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFolioClosed(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedVehicle]);
+
   // Handle delete
   const handleDelete = async (vehicle: VehicleDto) => {
     if (!canManage || deletingId !== null) return;
-    const confirmName = `${vehicle.brand ?? ""} ${vehicle.model ?? ""} (${vehicle.licensePlate ?? `#${vehicle.id}`})`;
+    const confirmName = `${vehicle.brand ?? ""} ${vehicle.model ?? ""} (${vehicle.licensePlate?.trim() || "Chưa có biển số"})`;
     if (!window.confirm(`Xác nhận xóa phương tiện ${confirmName}? Thao tác này không thể hoàn tác.`)) {
       return;
     }
@@ -117,7 +101,7 @@ export function FleetRegistry() {
       if (vehicles.length === 1 && page > 1) {
         setPage((p) => p - 1);
       } else {
-        await loadPage(page, statusFilter);
+        await pageQuery.refetch();
       }
     } catch (err) {
       notifyApiError(err, "Không thể xóa phương tiện có lịch sử đơn thuê hoặc bảo dưỡng liên quan.");
@@ -131,44 +115,27 @@ export function FleetRegistry() {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Top Folio */}
-      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
-        <div className="flex items-start gap-5">
-          <span className="font-mono text-xs font-bold text-td-oxide border-t-2 border-td-oxide pt-1 min-w-[42px]">
-            02<br />FLT
-          </span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
-              TÀI SẢN · ĐỘI XE
-            </span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Sổ <em className="italic text-td-teal">phương tiện.</em>
-            </h1>
-            <p className="mt-2 max-w-xl text-xs sm:text-sm text-td-muted leading-relaxed">
-              Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 self-start sm:self-end">
-          <div className="border-l border-td-rule pl-4 text-right">
-            <span className="block font-mono text-[10px] text-td-muted tracking-wider">
-              FLEET REGISTRY · TỔNG QUY MÔ
-            </span>
-            <strong className="block font-sans text-3xl font-bold tracking-tight text-td-ink">
-              {loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
-            </strong>
-          </div>
-          {canManage && (
-            <Link
-              href="/admin/vehicles/new"
-              className="inline-flex items-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white hover:bg-td-oxide-hover transition-colors whitespace-nowrap shrink-0"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Đăng ký xe mới</span>
-            </Link>
-          )}
-        </div>
-      </div>
+      <TransitFolio
+        index="02"
+        tag="FLT"
+        kicker="TÀI SẢN · ĐỘI XE"
+        title={<>Sổ <em className="italic text-td-teal">phương tiện.</em></>}
+        description="Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi."
+      >
+        <TransitFolioMetric
+          label="FLEET REGISTRY · TỔNG QUY MÔ"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
+        />
+        {canManage && (
+          <Link
+            href="/admin/vehicles/new"
+            className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-td-oxide-hover"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Đăng ký xe mới</span>
+          </Link>
+        )}
+      </TransitFolio>
 
       {/* Toolbar: Search + Status Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-td-ink pb-4">
@@ -228,7 +195,7 @@ export function FleetRegistry() {
           <div className="min-w-[620px]">
             {/* Ledger Head */}
             <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
-              <span className="col-span-3">BIỂN SỐ / ID</span>
+              <span className="col-span-3">BIỂN SỐ</span>
               <span className="col-span-3">PHƯƠNG TIỆN</span>
               <span className="col-span-3">CƠ SỞ TRẠM</span>
               <span className="col-span-3 text-right">TRẠNG THÁI</span>
@@ -255,7 +222,7 @@ export function FleetRegistry() {
                       type="button"
                       onClick={() => {
                         playTactileClick();
-                        setSelectedVehicle(v);
+                        selectVehicle(v);
                       }}
                       aria-pressed={isSelected ? "true" : "false"}
                       className={`group grid w-full grid-cols-12 items-center gap-y-2 gap-x-4 py-3.5 px-3 text-left transition-all duration-200 cursor-pointer relative rounded-sm border border-transparent ${
@@ -272,13 +239,10 @@ export function FleetRegistry() {
                         />
                       )}
 
-                      {/* Plate / ID */}
+                      {/* License plate */}
                       <div className="col-span-3 pl-2">
                         <span className="font-mono text-xs font-bold text-td-ink block tracking-tight">
-                          {v.licensePlate || `ID #${v.id}`}
-                        </span>
-                        <span className="font-mono text-[10px] text-td-muted block">
-                          ID: #{v.id}
+                          {v.licensePlate?.trim() || "Chưa có biển số"}
                         </span>
                       </div>
 
@@ -322,25 +286,14 @@ export function FleetRegistry() {
                             <BatteryCharging className="h-3 w-3 text-td-oxide" />
                             <span>Trạng thái trạm: <strong className="text-td-ink font-semibold">{v.facility ? "Đã định vị" : "Chờ trạm"}</strong></span>
                           </span>
-
-                          {(v.color || v.yearOfManufacture) && (
-                            <span className="hidden sm:inline-flex items-center gap-1">
-                              <Gauge className="h-3 w-3 text-td-muted" />
-                              <span>Đặc tả: <strong className="text-td-ink font-semibold">{[v.color, v.yearOfManufacture].filter(Boolean).join(" · ")}</strong></span>
-                            </span>
-                          )}
-
-                          {v.hourlyPrice != null && v.hourlyPrice > 0 && (
-                            <span className="hidden md:inline-flex items-center gap-1">
-                              <span>Giá niêm yết:</span>
-                              <strong className="text-td-oxide font-bold">{new Intl.NumberFormat("vi-VN").format(v.hourlyPrice)} ₫/h</strong>
-                            </span>
-                          )}
+                          <span className="inline-flex items-center gap-1.5 text-td-ink">
+                            <Gauge className="h-3 w-3 text-td-oxide" />
+                            <span>Đặc tả: <strong className="text-td-ink font-semibold">{v.yearOfManufacture ? `${v.yearOfManufacture} · ` : ""}{v.color || "Tiêu chuẩn"}</strong></span>
+                          </span>
                         </div>
-
-                        <span className="text-[10px] uppercase tracking-wider text-td-muted">
-                          {isSelected ? "Đang chọn hồ sơ" : "Chi tiết kỹ thuật →"}
-                        </span>
+                        <div>
+                          <span>Giá niêm yết: <strong className="text-td-ink font-semibold">{v.hourlyPrice ? `${v.hourlyPrice.toLocaleString("vi-VN")} ₫/h` : "Theo ca"}</strong></span>
+                        </div>
                       </div>
                     </button>
                   );
@@ -389,12 +342,12 @@ export function FleetRegistry() {
                     HỒ SƠ PHƯƠNG TIỆN
                   </span>
                   <div className="font-mono text-2xl font-bold tracking-tight text-td-ink mt-1">
-                    {selectedVehicle.licensePlate || `XE #${selectedVehicle.id}`}
+                    {selectedVehicle.licensePlate?.trim() || "Chưa có biển số"}
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setSelectedVehicle(null)}
+                  onClick={closeFolio}
                   aria-label="Đóng hồ sơ (Esc)"
                   className="rounded p-1 text-td-muted hover:text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
                 >
@@ -412,6 +365,8 @@ export function FleetRegistry() {
                   </p>
                 )}
               </div>
+
+              <VehiclePhotos vehicleId={selectedVehicle.id} />
 
               {/* Data specifications - High fidelity (P1-05: no repetitive placeholder dash spam) */}
               <div className="divide-y divide-td-rule border-y border-td-rule text-xs font-mono">

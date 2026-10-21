@@ -1,5 +1,9 @@
 # Changelog
-- 2026-10-17 — [Bỏ shell lồng nhau và sửa bảng ẩn gây tràn ngang ở Admin](2026-10-17-admin-shell-duplication-fix.md)
+- 2026-10-21 — [Sửa TypeScript hàng đợi vận hành sau merge](2026-10-21-fix-rental-queue-ci.md)
+- 2026-10-20 — [Ghép main vào Tri, giữ giao diện và API mới](2026-10-20-merge-main-tri.md)
+- 2026-10-19 — [Đồng bộ API đơn thuê, bàn giao và định vị](2026-10-19-rental-lifecycle-tracking-api.md)
+- 2026-10-15 — [Duyệt GPLX khách hàng trên Admin](2026-10-15-customer-license-review.md)
+- 2026-10-19 — [Đồng bộ toàn bộ Admin theo Transit Desk: folio, sổ mở, CTA mulberry, sticky header](2026-10-19-admin-transit-desk-sync.md)
 - 2026-10-15 — [Kiểm tra loại xe, chặn trùng active và cột số lần thuê](2026-10-15-rental-policy-validation-usage.md)
 - 2026-10-15 — [Nút kích hoạt và tạm ngưng chính sách thuê xe](2026-10-15-rental-policy-status.md)
 - 2026-10-15 — [Biểu đồ tổng quan, icon thao tác và rà soát API chính sách](2026-10-15-dashboard-row-actions-policy-audit.md)

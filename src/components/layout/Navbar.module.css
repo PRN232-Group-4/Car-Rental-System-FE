@@ -1,0 +1,37 @@
+.navbar {
+  position: relative;
+}
+
+.navbar:has(.accountMenu, .mobileMenu) {
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.accountMenu:global(.glass-1) {
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  z-index: 50;
+  width: min(18rem, calc(100vw - 88px));
+  max-height: calc(100dvh - 112px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 8px;
+  border-color: var(--line);
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+  box-shadow: none;
+  background: var(--surface);
+}
+
+.mobileMenu {
+  max-height: calc(100dvh - 128px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .accountMenu:global(.glass-1) {
+    right: 76px;
+  }
+}

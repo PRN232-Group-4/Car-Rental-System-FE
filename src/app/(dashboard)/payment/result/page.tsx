@@ -20,7 +20,7 @@ import { cancelCheckout } from "@/features/payments";
 
 export default function PaymentResultPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-sm text-ink-3">Đang kiểm tra kết quả thanh toán...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-sm text-td-muted">Đang kiểm tra kết quả thanh toán...</div>}>
       <PaymentResultContent />
     </Suspense>
   );
@@ -45,7 +45,7 @@ function PaymentResultContent() {
     queryFn: () => getInvoiceById(orderCode),
     enabled: !isPlanPurchase && hasOrderCode,
     refetchInterval: (query) =>
-      query.state.data?.status === "paid" ||
+      (query.state.data?.status === "paid" && !!query.state.data?.orderId) ||
       query.state.data?.status === "cancelled" ||
       urlCancelled ||
       pollCount >= 15
@@ -71,6 +71,7 @@ function PaymentResultContent() {
   const serverStatus = isPlanPurchase ? planPurchase?.status : invoice?.status;
   const isCancelled = urlCancelled || serverStatus === "cancelled";
   const isPaid = serverStatus === "paid";
+  const waitingOrder = isPaid && !isPlanPurchase && !invoice?.orderId;
   const refetch = isPlanPurchase ? planQuery.refetch : invoiceQuery.refetch;
   const isFetching = isPlanPurchase ? planQuery.isFetching : invoiceQuery.isFetching;
 
@@ -89,19 +90,19 @@ function PaymentResultContent() {
   }, [urlCancelled, hasOrderCode, orderCode, isPlanPurchase, refetchInvoice, refetchPlan]);
 
   useEffect(() => {
-    if (!isCancelled && !isPaid && pollCount < 15) {
+    if (!isCancelled && (!isPaid || waitingOrder) && pollCount < 15) {
       const timer = setTimeout(() => {
         setPollCount((prev) => prev + 1);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [pollCount, isPaid, isCancelled]);
+  }, [pollCount, isPaid, isCancelled, waitingOrder]);
 
-  const isSuccess = isPaid || urlStatus === "PAID";
+  const isSuccess = isPaid && (isPlanPurchase || !!invoice?.orderId);
 
   return (
     <div className="max-w-2xl mx-auto py-8 sm:py-12">
-      <div className="p-8 sm:p-10 rounded-3xl bg-surface border border-line shadow-sm text-center space-y-6">
+      <div className="p-8 sm:p-10 rounded bg-td-white border border-td-rule shadow-sm text-center space-y-6">
         {isSuccess ? (
           <>
             <div className="w-16 h-16 rounded-full bg-primary-tint text-primary flex items-center justify-center mx-auto shadow-lg shadow-primary/20 animate-in zoom-in-95">
@@ -109,10 +110,10 @@ function PaymentResultContent() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-td-ink tracking-tight">
                 {isPlanPurchase ? "Thanh toán gói thành công!" : "Thanh toán thành công!"}
               </h1>
-              <p className="text-xs sm:text-sm text-ink-3">
+              <p className="text-xs sm:text-sm text-td-muted">
                 {isPlanPurchase
                   ? "Giao dịch mua gói thuê bao đã được xác nhận qua cổng PayOS và số giờ đã được cộng vào tài khoản."
                   : "Giao dịch của bạn đã được xác nhận qua cổng PayOS và ghi nhận vào hệ thống Thong Dong."}
@@ -120,16 +121,16 @@ function PaymentResultContent() {
             </div>
 
             {!isPlanPurchase && invoice && (
-              <div className="p-5 rounded-2xl bg-sunken border border-line text-left text-xs space-y-2.5 max-w-md mx-auto">
-                <div className="flex justify-between text-ink-3">
+              <div className="p-5 rounded bg-td-chalk border border-td-rule text-left text-xs space-y-2.5 max-w-md mx-auto">
+                <div className="flex justify-between text-td-muted">
                   <span>Số hoá đơn:</span>
-                  <span className="font-bold text-ink">{invoice.invoiceNumber}</span>
+                  <span className="font-bold text-td-ink">{invoice.invoiceNumber}</span>
                 </div>
-                <div className="flex justify-between text-ink-3">
-                  <span>Mã đơn thuê:</span>
-                  <span className="font-bold text-ink">#{invoice.rentalId}</span>
+                <div className="flex justify-between text-td-muted">
+                  <span>Mã đơn thuê chính thức:</span>
+                  <span className="font-bold text-td-ink">#{invoice.orderId}</span>
                 </div>
-                <div className="flex justify-between text-ink-3">
+                <div className="flex justify-between text-td-muted">
                   <span>Số tiền đã thanh toán:</span>
                   <span className="font-bold text-primary text-sm">
                     {invoice.amount.toLocaleString("vi-VN")} đ
@@ -138,12 +139,12 @@ function PaymentResultContent() {
               </div>
             )}
 
-            <div className="p-4 rounded-2xl bg-primary-tint border border-primary/30 text-warning text-xs font-semibold flex items-center justify-center gap-2">
+            <div className="p-4 rounded bg-primary-tint border border-primary/30 text-warning text-xs font-semibold flex items-center justify-center gap-2">
               <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
               <span>
                 {isPlanPurchase
                   ? "Gói thuê bao đã được kích hoạt. Bạn có thể dùng ngay khi đặt xe."
-                  : "Xe đã sẵn sàng bàn giao theo lịch hẹn. Nhân viên chi nhánh sẽ liên hệ hỗ trợ bạn."}
+                  : "Đơn thuê đã được phát hành. Nhân viên sẽ chuẩn bị, kiểm định và bàn giao xe theo lịch hẹn."}
               </span>
             </div>
 
@@ -151,7 +152,7 @@ function PaymentResultContent() {
               {isPlanPurchase ? (
                 <Link
                   href="/my-subscriptions"
-                  className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
+                  className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
                 >
                   <Package className="w-4 h-4" />
                   <span>Xem gói thuê của tôi</span>
@@ -160,14 +161,14 @@ function PaymentResultContent() {
                 <>
                   <Link
                     href={hasOrderCode ? `/invoices/${orderCode}` : "/invoices"}
-                    className="px-6 py-3 rounded-xl bg-stage-ink hover:bg-stage-ink text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
+                    className="px-6 py-3 rounded bg-stage-ink hover:bg-stage-ink text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
                     <span>Xem chi tiết hoá đơn</span>
                   </Link>
                   <Link
                     href="/booking"
-                    className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
+                    className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
                   >
                     <Car className="w-4 h-4" />
                     <span>Đặt thêm xe</span>
@@ -183,10 +184,10 @@ function PaymentResultContent() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-td-ink tracking-tight">
                 Giao dịch đã bị huỷ
               </h1>
-              <p className="text-xs sm:text-sm text-ink-3">
+              <p className="text-xs sm:text-sm text-td-muted">
                 Bạn đã huỷ giao dịch hoặc hết thời gian thanh toán trên cổng PayOS.
               </p>
             </div>
@@ -200,13 +201,13 @@ function PaymentResultContent() {
                       ? `/invoices/${orderCode}`
                       : "/invoices"
                 }
-                className="px-6 py-3 rounded-xl bg-primary text-white font-bold text-xs sm:text-sm shadow-md"
+                className="px-6 py-3 rounded bg-primary text-white font-bold text-xs sm:text-sm shadow-md"
               >
                 Thử thanh toán lại
               </Link>
               <Link
                 href={isPlanPurchase ? "/subscriptions" : "/invoices"}
-                className="px-6 py-3 rounded-xl border border-line-strong text-ink-2 font-semibold text-xs sm:text-sm"
+                className="px-6 py-3 rounded border border-td-rule text-td-ink font-semibold text-xs sm:text-sm"
               >
                 {isPlanPurchase ? "Về trang gói cước" : "Về danh sách hoá đơn"}
               </Link>
@@ -219,10 +220,10 @@ function PaymentResultContent() {
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-                Đang đối soát giao dịch...
+              <h1 className="text-2xl sm:text-3xl font-bold text-td-ink tracking-tight">
+                {waitingOrder ? "Đã nhận thanh toán, đang hoàn tất đơn thuê..." : "Đang đối soát giao dịch..."}
               </h1>
-              <p className="text-xs sm:text-sm text-ink-3">
+              <p className="text-xs sm:text-sm text-td-muted">
                 Hệ thống đang chờ tín hiệu xác nhận từ cổng ngân hàng / PayOS (lần thử {pollCount}/15).
               </p>
             </div>
@@ -231,7 +232,7 @@ function PaymentResultContent() {
               <button
                 onClick={() => refetch()}
                 disabled={isFetching}
-                className="px-5 py-2.5 rounded-xl border border-line-strong hover:bg-sunken text-ink-2 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded border border-td-rule hover:bg-td-chalk text-td-ink text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
                 <span>Kiểm tra lại ngay</span>
@@ -239,7 +240,7 @@ function PaymentResultContent() {
 
               <Link
                 href={isPlanPurchase ? "/subscriptions" : "/invoices"}
-                className="px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold"
+                className="px-5 py-2.5 rounded bg-primary text-white text-xs font-bold"
               >
                 {isPlanPurchase ? "Về trang gói cước" : "Về trang hoá đơn"}
               </Link>

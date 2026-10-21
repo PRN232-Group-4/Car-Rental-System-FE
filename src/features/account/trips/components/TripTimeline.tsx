@@ -25,7 +25,7 @@ export function TripTimeline({ timeline }: TripTimelineProps) {
       case "pending":
         return "Tạo đơn đặt xe thành công";
       case "pre_inspection":
-        return "Hoàn tất kiểm định & giao chìa khóa";
+        return "Duyệt yêu cầu và kiểm tra trước thuê";
       case "renting":
         return "Bắt đầu chuyến đi";
       case "post_inspection":
@@ -40,37 +40,37 @@ export function TripTimeline({ timeline }: TripTimelineProps) {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-line p-5 shadow-sm space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3">
+    <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
         Lịch sử hành trình (Timeline)
       </h3>
 
-      <ol className="relative border-l border-line ml-3 space-y-6">
+      <ol className="relative border-l border-td-rule ml-3 space-y-6">
         {timeline.map((item, idx) => {
           const { label: actorLabel, icon: ActorIcon } = getActorLabel(item.actor);
 
           return (
             <li key={idx} className="ml-6 group">
-              <span className="absolute -left-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-surface border-2 border-primary text-primary">
+              <span className="absolute -left-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-td-white border-2 border-primary text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               </span>
 
               <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                <span className="text-sm font-bold text-ink">
+                <span className="text-sm font-bold text-td-ink">
                   {getStatusText(item.to)}
                 </span>
-                <span className="text-xs text-ink-3 font-mono">
+                <span className="text-xs text-td-muted font-mono">
                   {formatDateTime(item.at)}
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-ink-3 mt-1">
+              <div className="flex items-center gap-1.5 text-xs text-td-muted mt-1">
                 <ActorIcon className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Thực hiện bởi: {actorLabel}</span>
               </div>
 
               {item.reason && (
-                <p className="text-xs text-ink-2 bg-sunken rounded-lg p-2.5 mt-2 leading-relaxed">
+                <p className="text-xs text-td-ink bg-td-chalk rounded p-2.5 mt-2 leading-relaxed">
                   {item.reason}
                 </p>
               )}

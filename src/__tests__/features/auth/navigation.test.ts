@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { canAccessRoute } from "@/features/auth/access";
 import {
   getNavigation,
   PUBLIC_NAV_ITEMS,
@@ -18,6 +19,17 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
   });
 
   describe("admin navigation", () => {
+    it("keeps customer license review below maintenance with its review roles", () => {
+      for (const role of ["Admin", "Manager", "CustomerService"]) {
+        const hrefs = getNavigation([role], "admin").map((item) => item.href);
+        expect(hrefs.indexOf("/admin/vehicle-license")).toBe(hrefs.indexOf("/admin/maintenance") + 1);
+        expect(canAccessRoute("/admin/vehicle-license", [role])).toBe(true);
+      }
+      for (const role of ["Staff", "Maintenance", "Driver", "Customer"]) {
+        expect(getNavigation([role], "admin").map((item) => item.href)).not.toContain("/admin/vehicle-license");
+        expect(canAccessRoute("/admin/vehicle-license", [role])).toBe(false);
+      }
+    });
     it("returns full admin menu for Admin role including system administration items", () => {
       const adminNav = getNavigation(["Admin"], "admin");
       const hrefs = adminNav.map((item) => item.href);

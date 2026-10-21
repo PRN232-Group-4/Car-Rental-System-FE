@@ -16,15 +16,15 @@
   --bg-stage-solid: #242126;
   --stage-rim: rgba(200, 169, 107, 0.22);
   --stage-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-  --stage-floor-glow: 0 0 120px rgba(110, 58, 82, 0.16);
+  --stage-floor-glow: 0 0 120px color-mix(in srgb, var(--td-oxide) 16%, transparent);
 
   --color-graphite: #17161B;
   --color-carbon: #242126;
   --color-charcoal: #1F1B22;
-  --color-mulberry: #6E3A52;
-  --color-mulberry-hover: #844763;
-  --color-mulberry-subtle: rgba(110, 58, 82, 0.25);
-  --color-plum: #8E6C7B;
+  --color-mulberry: var(--td-oxide);
+  --color-mulberry-hover: var(--td-oxide-hover);
+  --color-mulberry-subtle: color-mix(in srgb, var(--td-oxide) 25%, transparent);
+  --color-plum: var(--primary-graphic);
   --color-champagne: #C8A96B;
   --color-champagne-text: #E5CA92;
   --color-blush: #D8B1A7;
@@ -42,7 +42,7 @@
   --dossier-hairline: rgba(31, 27, 34, 0.12);
   --dossier-hairline-strong: rgba(31, 27, 34, 0.22);
   --dossier-tag-bg: #EAE3DA;
-  --dossier-active-bg: rgba(110, 58, 82, 0.08);
+  --dossier-active-bg: color-mix(in srgb, var(--td-oxide) 8%, transparent);
 
   /* Peripheral (Queue & Command) Tokens (Dark Mode) */
   --peripheral-bg: rgba(25, 23, 29, 0.65);
@@ -62,7 +62,7 @@
 
   /* BACKWARDS COMPATIBILITY ALIASES (A1.1 PALETTE A MAPPINGS) */
   --v4-ink: var(--color-porcelain);
-  --v4-marine: var(--color-champagne);
+  --v4-marine: var(--td-oxide);
   --v4-mineral: var(--peripheral-muted);
   --v4-orchid: var(--color-plum);
   --v4-celadon: var(--color-champagne-text);
@@ -96,7 +96,7 @@
   container-type: inline-size;
   container-name: workspace;
   position: relative;
-  min-height: calc(100dvh - 72px);
+  min-height: 0;
   width: 100%;
   margin: 0 auto;
   color: var(--peripheral-text);
@@ -112,7 +112,7 @@
   background-image:
     radial-gradient(
       ellipse 70% 50% at 88% -5%,
-      rgba(110, 58, 82, 0.16) 0%,
+      color-mix(in srgb, var(--td-oxide) 16%, transparent) 0%,
       transparent 65%
     ),
     radial-gradient(
@@ -131,17 +131,17 @@
   --bg-canvas: #E7E3DD;
   --bg-stage: rgba(250, 248, 245, 0.88);
   --bg-stage-solid: #FAF8F5;
-  --stage-rim: rgba(110, 58, 82, 0.24);
+  --stage-rim: color-mix(in srgb, var(--td-oxide) 24%, transparent);
   --stage-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
   --stage-floor-glow: 0 0 80px rgba(200, 169, 107, 0.14);
 
   --color-graphite: #E7E3DD;
   --color-carbon: #FAF8F5;
   --color-charcoal: #1F1B22;
-  --color-mulberry: #5A2B41;
-  --color-mulberry-hover: #482033;
-  --color-mulberry-subtle: rgba(90, 43, 65, 0.14);
-  --color-plum: #735061;
+  --color-mulberry: var(--td-oxide);
+  --color-mulberry-hover: var(--td-oxide-hover);
+  --color-mulberry-subtle: color-mix(in srgb, var(--td-oxide) 14%, transparent);
+  --color-plum: var(--primary-graphic);
   --color-champagne: #7A5B18;
   --color-champagne-text: #63470D;
   --color-blush: #753428;
@@ -159,7 +159,7 @@
   --dossier-hairline: rgba(31, 27, 34, 0.10);
   --dossier-hairline-strong: rgba(31, 27, 34, 0.20);
   --dossier-tag-bg: #F0ECE6;
-  --dossier-active-bg: rgba(90, 43, 65, 0.06);
+  --dossier-active-bg: color-mix(in srgb, var(--td-oxide) 6%, transparent);
 
   /* Peripheral Tokens (Light Mode) */
   --peripheral-bg: rgba(245, 241, 236, 0.82);
@@ -213,7 +213,7 @@
   background-image:
     radial-gradient(
       ellipse 70% 50% at 88% -5%,
-      rgba(90, 43, 65, 0.08) 0%,
+      color-mix(in srgb, var(--td-oxide) 8%, transparent) 0%,
       transparent 65%
     ),
     radial-gradient(
@@ -224,10 +224,10 @@
 }
 
 /* ========================================================================= */
-/* BOUNDED GLASS STAGE ENCLOSURE (MAX-WIDTH 1480PX)                          */
+/* GLASS STAGE ENCLOSURE — FILL THE AVAILABLE WORKSPACE                     */
 /* ========================================================================= */
 .stageWrapper {
-  max-width: 1480px;
+  width: 100%;
   margin: 0 auto;
   background: var(--bg-stage);
   backdrop-filter: blur(20px) saturate(180%);
@@ -250,7 +250,6 @@
 
 @media (max-width: 1366px) {
   .stageWrapper {
-    max-width: 1334px;
     padding: 1rem;
   }
   .cockpitGrid {
@@ -301,6 +300,7 @@
 }
 
 .queueHeader {
+  flex-shrink: 0;
   padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--peripheral-border);
   display: flex;
@@ -309,6 +309,7 @@
 }
 
 .queueSearch {
+  flex-shrink: 0;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--peripheral-border);
   background: var(--v4-surface-muted);
@@ -328,11 +329,14 @@
 .queueList {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 240px);
+  min-height: 0;
+  max-height: 240px;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 .queueItem {
+  flex-shrink: 0;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--peripheral-border);
   cursor: pointer;
@@ -345,6 +349,14 @@
   text-align: left;
   background: transparent;
   width: 100%;
+}
+
+.queueSearch input.inputField {
+  padding-left: 2rem;
+}
+
+.queueSearch button[type="submit"] {
+  color: var(--on-primary);
 }
 
 .queueItem:hover {
@@ -375,6 +387,8 @@
 /* CENTER COLUMN — RENTAL DOSSIER (OPAQUE WARM PORCELAIN EDITORIAL LEDGER)   */
 /* ========================================================================= */
 .dossierPanel {
+  /* This plane stays light in both themes. */
+  --color-mulberry: var(--stage-amber);
   /* Scoped High-Contrast Editorial Tokens for Opaque Warm Porcelain Plane */
   --ink: #1F1B22;
   --ink-2: #3F3744;
@@ -469,8 +483,6 @@
 }
 
 .stepperLine {
-  position: relative;
-  overflow: hidden;
   flex: 1 1 8px;
   min-width: 6px;
   height: 2px;
@@ -484,51 +496,42 @@
 }
 
 .stepperLineActiveLead {
-  background-color: var(--color-mulberry);
   position: relative;
+  overflow: hidden;
+  background-color: var(--color-mulberry) !important;
 }
 
 .stepperLineActiveLead::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background: linear-gradient(90deg, transparent, var(--color-champagne), transparent);
+  inset: 0;
+  background-color: var(--color-champagne);
   animation: lineFlow 1.8s ease-in-out infinite;
-}
-
-:global([data-admin-theme="light"]) .stepperLineActiveLead::after {
-  background: linear-gradient(90deg, transparent, #FFFFFF, transparent);
-}
-
-@keyframes lineFlow {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
 }
 
 @keyframes stepperRipple {
   0% {
-    box-shadow: 0 0 0 0 rgba(200, 169, 107, 0.45);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--td-oxide) 45%, transparent);
   }
-  65% {
-    box-shadow: 0 0 0 7px rgba(200, 169, 107, 0);
+  70% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--td-oxide) 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(200, 169, 107, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--td-oxide) 0%, transparent);
   }
 }
 
-@keyframes stepperRippleLight {
+@keyframes lineFlow {
   0% {
-    box-shadow: 0 0 0 0 rgba(110, 58, 82, 0.4);
+    transform: translateX(-100%);
+    opacity: 0.2;
   }
-  65% {
-    box-shadow: 0 0 0 7px rgba(110, 58, 82, 0);
+  50% {
+    opacity: 0.8;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(110, 58, 82, 0);
+    transform: translateX(100%);
+    opacity: 0.2;
   }
 }
 
@@ -563,7 +566,8 @@
   border-color: var(--color-champagne);
   background-color: var(--color-champagne);
   color: #1F1B22; /* WCAG AAA high contrast */
-  animation: stepperRipple 2.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  box-shadow: 0 0 0 3px rgba(200, 169, 107, 0.28);
+  animation: stepperRipple 2.2s infinite;
 }
 
 :global([data-admin-theme="light"]) .stepperGlyphActive,
@@ -571,7 +575,7 @@
   border-color: var(--color-mulberry);
   background-color: var(--color-mulberry);
   color: #ffffff;
-  animation: stepperRippleLight 2.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--td-oxide) 22%, transparent);
 }
 
 .stepperLabel {
@@ -690,7 +694,7 @@
   --color-ink-3: #CBD5E1;
   --line: rgba(200, 169, 107, 0.22);
   --line-strong: rgba(200, 169, 107, 0.40);
-  --primary: #E5CA92;
+  --primary: var(--td-oxide);
 }
 
 .gpsTrackingPanel :global(section) {
@@ -710,7 +714,7 @@
 }
 
 .gpsTrackingPanel :global(button) {
-  color: #E5CA92 !important;
+  color: var(--td-oxide) !important;
   border-color: rgba(200, 169, 107, 0.40) !important;
   background-color: rgba(200, 169, 107, 0.08);
   transition: background-color 150ms ease, border-color 150ms ease;
@@ -718,7 +722,7 @@
 
 .gpsTrackingPanel :global(button:hover) {
   background-color: rgba(200, 169, 107, 0.16);
-  border-color: #E5CA92 !important;
+  border-color: var(--td-oxide) !important;
 }
 
 .gpsTrackingPanel :global(dt) {
@@ -742,7 +746,7 @@
   --color-ink-3: #58515E;
   --line: rgba(31, 27, 34, 0.12);
   --line-strong: rgba(31, 27, 34, 0.24);
-  --primary: #5A2B41;
+  --primary: var(--td-oxide);
 }
 
 :global([data-admin-theme="light"]) .gpsTrackingPanel :global(section),
@@ -764,15 +768,15 @@
 
 :global([data-admin-theme="light"]) .gpsTrackingPanel :global(button),
 :global([data-theme="light"]) .gpsTrackingPanel :global(button) {
-  color: #5A2B41 !important;
-  border-color: rgba(90, 43, 65, 0.28) !important;
-  background-color: rgba(90, 43, 65, 0.05);
+  color: var(--td-oxide) !important;
+  border-color: color-mix(in srgb, var(--td-oxide) 28%, transparent) !important;
+  background-color: color-mix(in srgb, var(--td-oxide) 5%, transparent);
 }
 
 :global([data-admin-theme="light"]) .gpsTrackingPanel :global(button:hover),
 :global([data-theme="light"]) .gpsTrackingPanel :global(button:hover) {
-  background-color: rgba(90, 43, 65, 0.10);
-  border-color: #5A2B41 !important;
+  background-color: color-mix(in srgb, var(--td-oxide) 10%, transparent);
+  border-color: var(--td-oxide) !important;
 }
 
 :global([data-admin-theme="light"]) .gpsTrackingPanel :global(dt),
@@ -818,10 +822,10 @@
   padding-bottom: 0;
 }
 
-/* SHELF 1: PRIMARY GUIDED LEGAL ACTION BUTTON (MULBERRY + WHITE TEXT) */
+/* SHELF 1: PRIMARY GUIDED LEGAL ACTION BUTTON (BRAND AMBER) */
 .primaryActionButton {
   background-color: var(--color-mulberry);
-  color: #ffffff;
+  color: var(--on-primary);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-weight: 600;
@@ -929,6 +933,7 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
   width: 100%;
+  min-width: 0;
   outline: none;
   transition: border-color 150ms ease;
 }
@@ -1021,6 +1026,7 @@
 }
 
 .modalDialog {
+  --color-mulberry: var(--stage-amber);
   width: 100%;
   max-width: 28rem;
   background: var(--dossier-bg);
@@ -1038,7 +1044,7 @@
 .modalIconCompleted {
   padding: 0.5rem;
   border-radius: 9999px;
-  background-color: rgba(110, 58, 82, 0.15);
+  background-color: color-mix(in srgb, var(--td-oxide) 15%, transparent);
   color: var(--color-mulberry);
 }
 
@@ -1112,8 +1118,50 @@
   clip-path: url(#liquidFloodClip);
   -webkit-clip-path: url(#liquidFloodClip);
   background-color: var(--bg-canvas);
-  background-image: radial-gradient(circle at 50% 10%, rgba(110, 58, 82, 0.18) 0%, transparent 60%);
+  background-image: radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--td-oxide) 18%, transparent) 0%, transparent 60%);
   background-repeat: no-repeat;
+}
+
+/* Desktop panes share the height left by the actual shell header. */
+@media (min-width: 1201px) {
+  .workspaceRoot {
+    height: 100%;
+    padding: 1rem;
+  }
+
+  .stageWrapper,
+  .cockpitGrid {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .cockpitGrid {
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .queuePanel,
+  .dossierPanel,
+  .commandPanel {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .queueList {
+    flex: 1;
+    max-height: none;
+  }
+
+  .dossierPanel,
+  .commandPanel {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  .dossierPanel > *,
+  .commandShelf {
+    flex-shrink: 0;
+  }
 }
 
 /* REDUCED TRANSPARENCY ACCESSIBILITY */

@@ -3,7 +3,7 @@
 import React from "react";
 import { X, RotateCcw } from "lucide-react";
 import { formatVnd } from "@/lib/format";
-import { FacilityCatalogItem } from "@/api/mock/mock-catalog";
+import type { Facility } from "@/features/facilities/types";
 
 export interface ActiveFiltersState {
   search?: string;
@@ -23,7 +23,7 @@ export interface ActiveFiltersState {
 
 export interface ActiveFilterChipsProps {
   filters: ActiveFiltersState;
-  facilities?: FacilityCatalogItem[];
+  facilities?: Facility[];
   onRemove: (key: keyof ActiveFiltersState) => void;
   onClearAll: () => void;
   className?: string;
@@ -123,19 +123,19 @@ export function ActiveFilterChips({
 
   return (
     <div className={`flex flex-wrap items-center gap-2 pt-2 ${className}`}>
-      <span className="text-xs font-semibold text-ink-3">Đang lọc theo:</span>
+      <span className="text-xs font-semibold text-td-muted">Đang lọc theo:</span>
 
       {chips.map((chip) => (
         <span
           key={chip.key}
-          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink shadow-xs"
+          className="inline-flex items-center gap-1.5 rounded-full border border-td-rule bg-td-white px-3 py-1 text-xs font-medium text-td-ink shadow-xs"
         >
           <span>{chip.label}</span>
           <button
             type="button"
             onClick={() => onRemove(chip.key)}
             aria-label={`Xóa bộ lọc ${chip.label}`}
-            className="rounded-full p-0.5 text-ink-3 hover:bg-sunken hover:text-ink transition-colors cursor-pointer"
+            className="rounded-full p-0.5 text-td-muted hover:bg-td-chalk hover:text-td-ink transition-colors cursor-pointer"
           >
             <X className="w-3 h-3" />
           </button>

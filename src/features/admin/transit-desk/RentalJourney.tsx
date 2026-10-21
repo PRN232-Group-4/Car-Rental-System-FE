@@ -28,6 +28,7 @@ import {
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import VehicleName from "@/features/admin/VehicleName";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
@@ -77,10 +78,11 @@ export function RentalJourney() {
   const [idInput, setIdInput] = useState(initialRentalId);
   const [lookupId, setLookupId] = useState(initialRentalId);
 
-  // Sync with URL query parameter
+  // Sync with URL query parameter.
   useEffect(() => {
     const q = params.get("rentalId");
     if (q && q !== lookupId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- giữ đồng bộ với ?rentalId= khi điều hướng; component chưa được route nào dùng (dead code chờ quyết định).
       setIdInput(q);
       setLookupId(q);
     }
@@ -324,18 +326,18 @@ export function RentalJourney() {
       {/* Loading Skeleton */}
       {isFetching && !rental && (
         <div className="space-y-4">
-          <div className="border border-td-rule bg-td-white p-4 rounded-lg space-y-3">
+          <div className="border border-td-rule bg-td-white p-4 rounded space-y-3">
             <Skeleton className="h-5 w-40" />
             <Skeleton className="h-12 w-full" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-7 space-y-4">
-              <Skeleton className="h-40 w-full rounded-lg" />
-              <Skeleton className="h-56 w-full rounded-lg" />
+              <Skeleton className="h-40 w-full rounded" />
+              <Skeleton className="h-56 w-full rounded" />
             </div>
             <div className="lg:col-span-5 space-y-4">
-              <Skeleton className="h-36 w-full rounded-lg" />
-              <Skeleton className="h-36 w-full rounded-lg" />
+              <Skeleton className="h-36 w-full rounded" />
+              <Skeleton className="h-36 w-full rounded" />
             </div>
           </div>
         </div>
@@ -343,7 +345,7 @@ export function RentalJourney() {
 
       {/* Empty State */}
       {!lookupId && !isFetching && (
-        <div className="border border-td-rule bg-td-white rounded-lg p-12 text-center">
+        <div className="border border-td-rule bg-td-white rounded p-12 text-center">
           <span className="font-mono text-xs font-bold text-td-oxide uppercase tracking-wider block">
             CHƯA CHỌN ĐƠN THUÊ
           </span>
@@ -357,7 +359,7 @@ export function RentalJourney() {
       {rental && (
         <div className="space-y-5">
           {/* Surface Pattern: Time Track / State Rail - Compact Horizontal Lifecycle Track */}
-          <section className="border border-td-rule bg-td-white rounded-lg p-3.5 space-y-2.5" aria-label="Tiến trình vòng đời đơn thuê">
+          <section className="border border-td-rule bg-td-white rounded p-3.5 space-y-2.5" aria-label="Tiến trình vòng đời đơn thuê">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-td-rule pb-2">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
@@ -451,7 +453,7 @@ export function RentalJourney() {
             {/* Left Column: Dossier & Map Telemetry */}
             <div className="lg:col-span-7 space-y-6">
               {/* Surface Pattern: Instrument Plate / Order Dossier */}
-              <div className="border border-td-rule bg-td-white rounded-lg p-6 space-y-6">
+              <div className="border border-td-rule bg-td-white rounded p-6 space-y-6">
                 <div className="flex items-start justify-between border-b border-td-rule pb-4">
                   <div>
                     <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
@@ -505,6 +507,8 @@ export function RentalJourney() {
                   </div>
                 </dl>
 
+                <VehiclePhotos vehicleId={rental.vehicleId} />
+
                 {/* Fast Deep Links */}
                 <div className="flex flex-wrap items-center gap-5 pt-1 font-mono text-xs">
                   <Link
@@ -538,7 +542,7 @@ export function RentalJourney() {
             {/* Right Column: Guarded Action Shelves */}
             <div className="lg:col-span-5 space-y-6">
               {/* Action Shelf 1: Phân xe và tài xế */}
-              <section className="border border-td-rule bg-td-white rounded-lg p-6 space-y-4" aria-label="Bàn phân công tài xế">
+              <section className="border border-td-rule bg-td-white rounded p-6 space-y-4" aria-label="Bàn phân công tài xế">
                 <div className="border-b border-td-rule pb-3">
                   <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
                     ACTION SHELF · PHÂN CÔNG
@@ -606,7 +610,7 @@ export function RentalJourney() {
               </section>
 
               {/* Action Shelf 2: Bàn giao và chuyển trạng thái */}
-              <section className="border border-td-rule bg-td-white rounded-lg p-6 space-y-4" aria-label="Bàn giao và chuyển trạng thái">
+              <section className="border border-td-rule bg-td-white rounded p-6 space-y-4" aria-label="Bàn giao và chuyển trạng thái">
                 <div className="border-b border-td-rule pb-3">
                   <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
                     ACTION SHELF · CHUYỂN TRẠNG THÁI
@@ -671,7 +675,7 @@ export function RentalJourney() {
       {/* Confirmation Modal for Destructive / Terminal Status Transitions */}
       {confirmStatusModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded-lg border border-td-rule bg-td-white p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-6 shadow-xl space-y-4">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs font-bold text-td-oxide border border-td-oxide p-1">
                 LƯU Ý

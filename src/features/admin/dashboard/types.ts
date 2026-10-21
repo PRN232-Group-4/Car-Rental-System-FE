@@ -63,7 +63,7 @@ export interface PlanUsageRow {
   planId: number;
   name: string;
   usedHours: number;
-  includedHours: number;
+  includedHours: number | null;
   activeSubscribers: number;
-  usagePercentage: number;
+  usagePercentage: number | null;
 }

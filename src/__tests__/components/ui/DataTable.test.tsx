@@ -67,7 +67,7 @@ describe("DataTable component", () => {
       />,
     );
 
-    const skeletons = container.querySelectorAll(".animate-pulse");
+    const skeletons = container.querySelectorAll("[data-skeleton]");
     expect(skeletons.length).toBeGreaterThan(0);
     // Data rows should not be rendered while loading
     expect(screen.queryByText("Nguyễn Văn A")).not.toBeInTheDocument();

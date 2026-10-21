@@ -1,11 +1,15 @@
 import { test, expect } from "@playwright/test";
+import type { Page, PageScreenshotOptions } from "@playwright/test";
+
+type LiquidProbeWindow = Window & {
+  __liquidPerformanceReport?: { avgJsWorkMs: number; [key: string]: unknown };
+  __setLiquidProgress?: (progress: number, theme?: "light" | "dark") => void;
+};
 import fs from "fs";
 import path from "path";
 
 const targetDirs = [
-  path.resolve(process.cwd(), "GRAPHITE-GLASS-DECK-A1.1-SCREENSHOTS"),
-  path.resolve(process.cwd(), "..", "GRAPHITE-GLASS-DECK-A1.1-SCREENSHOTS"),
-  path.resolve("C:\\Users\\Huy\\.gemini\\antigravity\\brain\\20c95a8f-ab5a-40e4-8ca7-4ef62d971f61\\GRAPHITE-GLASS-DECK-A1.1-SCREENSHOTS"),
+  path.resolve(process.cwd(), "test-results", "graphite-glass-deck"),
 ];
 
 for (const dir of targetDirs) {
@@ -14,7 +18,7 @@ for (const dir of targetDirs) {
   }
 }
 
-async function saveMultiScreenshot(page: any, filename: string, options?: any) {
+async function saveMultiScreenshot(page: Page, filename: string, options?: PageScreenshotOptions) {
   const primaryPath = path.join(targetDirs[0], filename);
   await page.screenshot({ path: primaryPath, ...options });
   for (let i = 1; i < targetDirs.length; i++) {
@@ -31,6 +35,35 @@ const MOCK_PROFILE = {
   email: "admin@thongdong.vn",
   fullName: "Võ Thị Quản Trị (Dispatcher)",
   roles: ["Admin", "Manager"],
+};
+
+const MOCK_RENTAL_101_DETAIL = {
+  rental: {
+    id: 101,
+    customerId: 1,
+    vehicleId: 1,
+    vehicleName: "VinFast VF 8 Plus - 51K-899.21",
+    scheduledStart: new Date(Date.now() - 2 * 3600000).toISOString(),
+    scheduledEnd: new Date(Date.now() + 6 * 3600000).toISOString(),
+    status: "renting",
+    rentalType: "hourly",
+    hasDriver: false,
+    isSubscription: false,
+    vatPrice: 45000,
+    depositPrice: 2000000,
+    overtimePrice: 0,
+    totalPrice: 450000,
+    contractLink: null,
+    signedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+  },
+  orderId: 101,
+  customerName: "Nguyễn Văn Khách",
+  customerEmail: "khach@example.com",
+  vehicleBrand: "VinFast",
+  vehicleModel: "VF 8 Plus",
+  licensePlate: "51K-899.21",
+  driverName: null,
+  invoice: { id: 1, number: "INV-101", status: "paid", amount: 450000 },
 };
 
 const MOCK_RENTAL_101 = {
@@ -99,6 +132,24 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
 
       if (p.endsWith("/account/profile")) {
         return route.fulfill({ status: 200, json: MOCK_PROFILE });
+      }
+      if (p.endsWith("/rentals/101/detail")) {
+        return route.fulfill({ status: 200, json: MOCK_RENTAL_101_DETAIL });
+      }
+      if (p.includes("/rentals/101/assignable-drivers") || p.endsWith("/assignable-drivers")) {
+        return route.fulfill({
+          status: 200,
+          json: [
+            { staffId: 1, fullName: "Nguyễn Văn Hùng", eligible: true, reasons: null, rating: 4.9 },
+            { staffId: 2, fullName: "Trần Quốc Toàn", eligible: true, reasons: null, rating: 4.8 },
+          ],
+        });
+      }
+      if (p.endsWith("/rentals/9999/detail")) {
+        return route.fulfill({
+          status: 404,
+          json: { title: "Not Found", status: 404, detail: "Không tìm thấy hồ sơ đơn thuê #9999 trong cơ sở dữ liệu." },
+        });
       }
       if (p.endsWith("/rentals/101")) {
         return route.fulfill({ status: 200, json: MOCK_RENTAL_101 });
@@ -353,7 +404,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     expect(currentTheme).toBe("light");
 
     // Read real telemetry
-    const telemetry = await page.evaluate(() => (window as any).__liquidPerformanceReport);
+    const telemetry = await page.evaluate(() => (window as LiquidProbeWindow).__liquidPerformanceReport);
     if (telemetry) {
       expect(telemetry.avgJsWorkMs).toBeLessThan(5.0); // JS work well below frame budget
       const telePath = path.join(targetDirs[0], "pilot-liquid-telemetry.json");
@@ -367,7 +418,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     await page.waitForLoadState("networkidle");
 
     // Ensure helper is present
-    const hasProgressHelper = await page.evaluate(() => typeof (window as any).__setLiquidProgress === "function");
+    const hasProgressHelper = await page.evaluate(() => typeof (window as LiquidProbeWindow).__setLiquidProgress === "function");
     expect(hasProgressHelper).toBe(true);
 
     const checkpoints = [
@@ -382,7 +433,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
 
     for (const cp of checkpoints) {
       await page.evaluate(({ p }) => {
-        (window as any).__setLiquidProgress(p, "light");
+        (window as LiquidProbeWindow).__setLiquidProgress?.(p, "light");
       }, cp);
       await page.waitForTimeout(100);
 

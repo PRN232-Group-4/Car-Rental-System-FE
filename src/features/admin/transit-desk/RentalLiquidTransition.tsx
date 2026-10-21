@@ -23,6 +23,10 @@ declare global {
   }
 }
 
+type DocumentWithViewTransition = Document & {
+  startViewTransition: (callback: () => Promise<void> | void) => { ready: Promise<void> };
+};
+
 // Snappy Luxury Pacing: 580ms gives optimal fluid organic wave feel without sluggishness
 const DURATION = 580;
 const N_POINTS = 192; // High-resolution contour for buttery smooth, chordless curves
@@ -385,7 +389,7 @@ export function RentalLiquidTransition() {
         if (hasViewTransition) {
           document.documentElement.dataset.themeTransitioning = "true";
 
-          const transition = (document as any).startViewTransition(async () => {
+          const transition = (document as DocumentWithViewTransition).startViewTransition(async () => {
             document.documentElement.dataset.adminTheme = targetTheme;
             try {
               window.localStorage.setItem("vrs-admin-theme", targetTheme);

@@ -77,6 +77,7 @@ export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = [
   { pattern: "/admin/facilities", roles: ["Admin"] },
 
   // Cấp Quản lý & Vận hành
+  { pattern: "/admin/vehicle-license", roles: ["Admin", "Manager", "CustomerService"] },
   { pattern: "/admin/staffs", roles: ["Admin", "Manager"] },
   { pattern: "/admin/policies", roles: ["Admin", "Manager"] },
   { pattern: "/admin/reviews", roles: ["Admin", "Manager"] },
@@ -84,8 +85,11 @@ export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = [
   { pattern: "/admin/dispatch", roles: ["Admin", "Manager", "Staff", "CustomerService"] },
   { pattern: "/admin/drivers", roles: ["Admin", "Manager", "Staff"] },
 
+  { pattern: "/admin/handovers", roles: ["Admin", "Manager", "CustomerService"] },
+  { pattern: "/admin/tracking", roles: ["Admin", "Manager"] },
+
   // Vận hành chung đội xe
-  { pattern: "/admin/rentals", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
+  { pattern: "/admin/rentals", roles: ["Admin", "Manager", "CustomerService"] },
   { pattern: "/admin/inspections", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
   { pattern: "/admin/maintenance", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
   { pattern: "/admin/vehicles", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
@@ -100,6 +104,9 @@ export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = [
 
   // Cổng Khách hàng (Dashboard cá nhân)
   { pattern: "/driver-license", roles: ["Customer"] },
+  { pattern: "/account/trips", roles: ["Customer"] },
+  { pattern: "/my-rentals", roles: ["Customer"] },
+  { pattern: "/nearby-vehicles", authenticated: true },
   { pattern: "/my-subscriptions", roles: ["Customer"] },
   { pattern: "/rental-contract", roles: ["Customer"] },
   { pattern: "/booking", authenticated: true },

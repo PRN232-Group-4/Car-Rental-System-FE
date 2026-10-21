@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalOperationsPage from "@/app/admin/rentals/page";
 import * as operationsApi from "@/features/operations/api";
+import { RENTAL_101 } from "./rental-fixture";
 
 beforeAll(() => {
   global.ResizeObserver = class {
@@ -49,7 +50,7 @@ const mockAdminSession: SessionContextType = {
   login: vi.fn(),
   logout: vi.fn(),
   hasRole: (r: string) => r.toLowerCase() === "admin",
-  hasAnyRole: (roles: readonly any[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
+  hasAnyRole: (roles: readonly string[]) => roles.map((x) => String(x).toLowerCase()).includes("admin"),
   refreshProfile: vi.fn(),
 };
 
@@ -72,6 +73,10 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
   beforeEach(() => {
     vi.clearAllMocks();
     mockSearchParams = new URLSearchParams();
+    // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
+    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([]);
+    vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
   it("hiển thị thanh tra cứu đơn và trạng thái rỗng khi chưa có ID", () => {
@@ -107,7 +112,10 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as any);
+    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([
+      { staffId: 1, fullName: "Nguyễn Văn Hùng", eligible: true, reasons: [], rating: 5 },
+    ]);
+    const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as never);
 
     renderWithClient(<RentalOperationsPage />);
 
@@ -115,6 +123,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
       expect(screen.getByLabelText("Tài xế nhận lệnh")).toBeInTheDocument();
     });
 
+    await screen.findByRole("option", { name: "Nguyễn Văn Hùng" });
     // Chọn tài xế và submit
     const driverSelect = screen.getByLabelText("Tài xế nhận lệnh");
     fireEvent.change(driverSelect, { target: { value: "1" } });
@@ -130,7 +139,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("hiển thị modal xác nhận khi chuyển sang trạng thái cuối (completed hoặc cancelled)", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as any);
+    const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
 
     renderWithClient(<RentalOperationsPage />);
 

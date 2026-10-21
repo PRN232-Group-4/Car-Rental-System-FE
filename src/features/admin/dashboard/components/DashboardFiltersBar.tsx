@@ -131,7 +131,7 @@ export function DashboardFiltersBar({
         rows.push([
           "Gói thuê bao",
           p.name,
-          `${p.usedHours} / ${p.includedHours} giờ (${p.usagePercentage}%)`,
+          `${p.usedHours} / ${p.includedHours === null ? "Không giới hạn" : p.includedHours} giờ (${p.usagePercentage === null ? "Không áp dụng" : `${p.usagePercentage}%`})`,
           `${p.activeSubscribers} người dùng`,
         ]);
       });
@@ -144,7 +144,7 @@ export function DashboardFiltersBar({
   const toDateFormatted = formatDate(new Date(filters.to), "yyyy-MM-dd");
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-4 shadow-e1 lg:p-5">
+    <div className="flex flex-col gap-4 border-t border-td-ink pt-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Nhóm nút preset */}
         <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Khoảng thời gian báo cáo">
@@ -155,10 +155,10 @@ export function DashboardFiltersBar({
                 key={p.id}
                 type="button"
                 onClick={() => handleSelectPreset(p.id)}
-                className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                className={`rounded px-2.5 py-1 text-[11px] font-bold transition ${
                   isSelected
-                    ? "bg-primary text-white shadow-sm"
-                    : "border border-line bg-surface text-ink-2 hover:bg-canvas active:bg-sunken"
+                    ? "bg-td-oxide text-white"
+                    : "border border-td-rule text-td-ink hover:bg-td-chalk"
                 }`}
                 aria-pressed={isSelected}
               >
@@ -170,7 +170,7 @@ export function DashboardFiltersBar({
 
         {/* Nút tác vụ Refresh & CSV */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-ink-3">
+          <span className="text-xs text-td-muted">
             Dữ liệu tính đến {formatDateTime(lastUpdated, "HH:mm")} (GMT+7)
           </span>
 
@@ -178,57 +178,57 @@ export function DashboardFiltersBar({
             type="button"
             onClick={onRefresh}
             disabled={isRefreshing || isPending}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-canvas active:bg-sunken disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded border border-td-rule px-2.5 py-1 text-xs font-semibold text-td-ink transition hover:bg-td-chalk active:bg-td-chalk disabled:opacity-50"
             aria-label="Làm mới dữ liệu dashboard"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-primary" : "text-ink-3"}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-td-oxide" : "text-td-muted"}`} />
             <span>Làm mới</span>
           </button>
 
           <button
             type="button"
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-canvas active:bg-sunken"
+            className="inline-flex items-center gap-1.5 rounded border border-td-rule px-2.5 py-1 text-xs font-semibold text-td-ink transition hover:bg-td-chalk active:bg-td-chalk"
             aria-label="Xuất dữ liệu bảng ra file CSV"
           >
-            <Download className="h-3.5 w-3.5 text-ink-3" />
+            <Download className="h-3.5 w-3.5 text-td-muted" />
             <span>Xuất CSV</span>
           </button>
         </div>
       </div>
 
       {/* Dòng bộ lọc chi tiết: Tùy chỉnh ngày, Chi nhánh, Loại xe */}
-      <div className="grid grid-cols-1 gap-3 border-t border-line pt-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 border-t border-td-rule pt-3 sm:grid-cols-2 lg:grid-cols-4">
         {filters.preset === "custom" && (
           <>
             <div>
-              <label htmlFor="filter-from-date" className="block text-xs font-medium text-ink-3">
+              <label htmlFor="filter-from-date" className="block text-xs font-medium text-td-muted">
                 Từ ngày (GMT+7)
               </label>
-              <div className="mt-1 flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-1.5">
-                <Calendar className="h-4 w-4 text-ink-3" />
+              <div className="mt-1 flex items-center gap-2 rounded border border-td-rule px-2.5 py-1">
+                <Calendar className="h-4 w-4 text-td-muted" />
                 <input
                   id="filter-from-date"
                   type="date"
                   value={fromDateFormatted}
                   onChange={(e) => handleCustomDateChange("from", e.target.value)}
-                  className="w-full bg-transparent text-xs text-ink focus:outline-none"
+                  className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="filter-to-date" className="block text-xs font-medium text-ink-3">
+              <label htmlFor="filter-to-date" className="block text-xs font-medium text-td-muted">
                 Đến ngày (GMT+7)
               </label>
-              <div className="mt-1 flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-1.5">
-                <Calendar className="h-4 w-4 text-ink-3" />
+              <div className="mt-1 flex items-center gap-2 rounded border border-td-rule px-2.5 py-1">
+                <Calendar className="h-4 w-4 text-td-muted" />
                 <input
                   id="filter-to-date"
                   type="date"
                   value={toDateFormatted}
                   onChange={(e) => handleCustomDateChange("to", e.target.value)}
-                  className="w-full bg-transparent text-xs text-ink focus:outline-none"
+                  className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
                 />
               </div>
             </div>
@@ -236,11 +236,11 @@ export function DashboardFiltersBar({
         )}
 
         <div>
-          <label htmlFor="filter-facility" className="block text-xs font-medium text-ink-3">
+          <label htmlFor="filter-facility" className="block text-xs font-medium text-td-muted">
             Chi nhánh hoạt động
           </label>
-          <div className="mt-1 flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-1.5">
-            <Building2 className="h-4 w-4 text-ink-3" />
+          <div className="mt-1 flex items-center gap-2 rounded border border-td-rule px-2.5 py-1">
+            <Building2 className="h-4 w-4 text-td-muted" />
             <select
               id="filter-facility"
               value={filters.facilityId ?? ""}
@@ -250,7 +250,7 @@ export function DashboardFiltersBar({
                   facilityId: e.target.value ? Number(e.target.value) : undefined,
                 })
               }
-              className="w-full bg-transparent text-xs text-ink focus:outline-none"
+              className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
             >
               <option value="">Tất cả chi nhánh</option>
               <option value="1">Chi nhánh Quận 1 (Trụ sở chính)</option>
@@ -261,11 +261,11 @@ export function DashboardFiltersBar({
         </div>
 
         <div>
-          <label htmlFor="filter-vehicle-type" className="block text-xs font-medium text-ink-3">
+          <label htmlFor="filter-vehicle-type" className="block text-xs font-medium text-td-muted">
             Loại phương tiện
           </label>
-          <div className="mt-1 flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-1.5">
-            <Car className="h-4 w-4 text-ink-3" />
+          <div className="mt-1 flex items-center gap-2 rounded border border-td-rule px-2.5 py-1">
+            <Car className="h-4 w-4 text-td-muted" />
             <select
               id="filter-vehicle-type"
               value={filters.vehicleTypeId ?? ""}
@@ -275,7 +275,7 @@ export function DashboardFiltersBar({
                   vehicleTypeId: e.target.value ? Number(e.target.value) : undefined,
                 })
               }
-              className="w-full bg-transparent text-xs text-ink focus:outline-none"
+              className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
             >
               <option value="">Tất cả loại xe</option>
               <option value="1">Ô tô điện cao cấp</option>

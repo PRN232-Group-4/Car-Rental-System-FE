@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
-import { BarChart3 } from "lucide-react";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { getPresetDateRange } from "@/features/admin/dashboard/api";
 import {
@@ -110,25 +110,18 @@ export default function AdminDashboardPage() {
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <BarChart3 className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-                  Trung tâm Chỉ huy Điều hành & Doanh thu
-                </h1>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-ink-3">
-                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" aria-hidden="true" />
-                  Thời gian thực (FR-030)
-                </span>
-              </div>
-              <p className="mt-1.5 text-xs text-ink-3 sm:text-sm">
-                Giám sát dòng tiền thực thu, hiệu suất khai thác đội xe, tỷ lệ đơn hàng và rủi ro chi phí theo múi giờ GMT+7.
-              </p>
-            </div>
-          </div>
+          <TransitFolio
+            index="01"
+            tag="OPS"
+            kicker="TRẠM VẬN HÀNH · DASHBOARD BIỂU ĐỒ"
+            title={<>Chỉ huy điều hành & <em className="italic text-td-teal">doanh thu.</em></>}
+            description="Giám sát dòng tiền thực thu, hiệu suất khai thác đội xe, tỷ lệ đơn hàng và rủi ro chi phí theo múi giờ GMT+7."
+          >
+            <span className="inline-flex items-center gap-1.5 border-l border-td-rule pl-4 text-[11px] font-semibold text-td-muted">
+              <span className="h-2 w-2 rounded-full bg-success animate-pulse" aria-hidden="true" />
+              Thời gian thực (FR-030)
+            </span>
+          </TransitFolio>
 
           {/* Thanh bộ lọc và xuất CSV */}
           <DashboardFiltersBar
@@ -150,14 +143,14 @@ export default function AdminDashboardPage() {
 
           {/* Phân khu 1: Dòng tiền & Cân đối Đội xe */}
           <section aria-labelledby="cashflow-heading" className="space-y-4">
-            <div className="flex items-center justify-between border-b border-line pb-2">
+            <div className="flex items-center justify-between border-b border-td-ink pb-2">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-                <h2 id="cashflow-heading" className="text-xs font-bold uppercase tracking-wider text-ink sm:text-sm">
+                <span className="h-2 w-2 bg-td-oxide" aria-hidden="true" />
+                <h2 id="cashflow-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
                   Phân khu 1: Dòng tiền & Cân đối Đội xe
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-ink-3">OPS.TELEMETRY // CASHFLOW</span>
+              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // CASHFLOW</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <RevenueChart
@@ -177,14 +170,14 @@ export default function AdminDashboardPage() {
 
           {/* Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê */}
           <section aria-labelledby="productivity-heading" className="space-y-4">
-            <div className="flex items-center justify-between border-b border-line pb-2">
+            <div className="flex items-center justify-between border-b border-td-ink pb-2">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-                <h2 id="productivity-heading" className="text-xs font-bold uppercase tracking-wider text-ink sm:text-sm">
+                <span className="h-2 w-2 bg-td-oxide" aria-hidden="true" />
+                <h2 id="productivity-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
                   Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-ink-3">OPS.TELEMETRY // ASSET_YIELD</span>
+              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // ASSET_YIELD</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <TopVehiclesTable
@@ -204,14 +197,14 @@ export default function AdminDashboardPage() {
 
           {/* Phân khu 3: Rủi ro Bảo dưỡng & Hội viên Thuê bao */}
           <section aria-labelledby="risk-heading" className="space-y-4">
-            <div className="flex items-center justify-between border-b border-line pb-2">
+            <div className="flex items-center justify-between border-b border-td-ink pb-2">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-warning" aria-hidden="true" />
-                <h2 id="risk-heading" className="text-xs font-bold uppercase tracking-wider text-ink sm:text-sm">
+                <span className="h-2 w-2 bg-warning" aria-hidden="true" />
+                <h2 id="risk-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
                   Phân khu 3: Kiểm soát Chi phí Bảo dưỡng & Hội viên Thuê bao
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-ink-3">OPS.TELEMETRY // RISK_ANALYSIS</span>
+              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // RISK_ANALYSIS</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <MaintenanceVsRevenueChart

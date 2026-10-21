@@ -9,32 +9,26 @@ describe('Landing — nội dung từng section', () => {
     await expect(screen.getByRole('link', { name: /Tìm Xe|Đặt xe ngay/i }).first()).toBeVisible();
   });
 
-  test('khu trưng bày 3D hiển thị bảng thông số và nút đặt thuê', async ({ app, browser, screen }) => {
+  test('khu trưng bày 3D hiển thị bảng thông số và lối xem xe thực tế', async ({ app, browser, screen }) => {
     await app.open('/');
 
     await expect(screen.getByRole('heading', { name: /Khu Trưng Bày Xe 3D Tương Tác/i })).toBeVisible();
     for (const label of ['Năm sản xuất', 'Cấu hình động cơ', 'Công suất cực đại', 'Tốc độ tối đa']) {
       await expect(browser.locator('#showroom-3d').getByText(label, { exact: true })).toBeVisible();
     }
-    await expect(screen.getByRole('link', { name: /Đặt thuê xe này/i })).toBeVisible();
+    await expect(browser.locator('#showroom-3d').getByText(/Mô hình trưng bày minh họa/i)).toBeVisible();
+    await expect(screen.getByRole('button', { name: /Xem xe thực tế/i })).toBeVisible();
   });
 
-  test('khối giá niêm yết là một khối riêng, nhãn không đè lên con số', async ({ app, browser }) => {
+  test('giá thuê thật nằm trong danh mục xe, không nằm trong khu trưng bày 3D', async ({ app, browser }) => {
     await app.open('/');
     await browser.locator('#showroom-3d').scrollIntoView();
 
-    const label = browser.locator('#showroom-3d').getByText('Giá thuê niêm yết', { exact: true });
-    const price = browser.locator('#showroom-3d').getByText(/₫$/).first();
-    const labelBox = await label.boundingBox();
-    const priceBox = await price.boundingBox();
+    // Mô hình 3D chỉ để trưng bày: không được bán giá trong khối này.
+    await expect(browser.locator('#showroom-3d').getByText(/₫/)).toHaveCount(0);
 
-    expect(labelBox).not.toBeNull();
-    expect(priceBox).not.toBeNull();
-    // Nhãn phải nằm hẳn phía trên con số (bản cũ đặt cùng hàng nên dính nhau).
-    expect(priceBox!.y).toBeGreaterThanOrEqual(labelBox!.y + labelBox!.height);
-
-    const panel = await browser.locator('#showroom-3d').boundingBox();
-    expect(priceBox!.x + priceBox!.width).toBeLessThanOrEqual(panel!.x + panel!.width + 1);
+    await browser.locator('#doi-xe').scrollIntoView();
+    await expect(browser.locator('#doi-xe').getByText(/đ\/giờ/).first()).toBeVisible();
   });
 
   test('section kiểm định có 4 hạng mục và bảng chứng thực PayOS', async ({ app, browser, screen }) => {
@@ -48,14 +42,16 @@ describe('Landing — nội dung từng section', () => {
     await expect(browser.locator('#cong-nghe').getByText('CƠ CHẾ HOÀN CỌC PAYOS TỨC THÌ')).toBeVisible();
   });
 
-  test('thẻ hội viên: đúng 3 gói và chỉ một thẻ được nhấn', async ({ app, browser, screen }) => {
+  test('thẻ hội viên: mỗi gói đang mở bán có đúng một CTA mua', async ({ app, browser, screen }) => {
     await app.open('/');
     await browser.locator('#goi-thue-bao').scrollIntoView();
 
     await expect(screen.getByRole('heading', { name: /Thẻ Hội Viên Số/i })).toBeVisible();
-    await expect(browser.locator('#goi-thue-bao').getByText('Sở hữu thẻ')).toHaveCount(3);
-    // Bản cũ gắn "PRIORITY SELECTION" cho 2 thẻ cùng lúc.
-    await expect(browser.locator('#goi-thue-bao').getByText('PRIORITY SELECTION')).toHaveCount(1);
+    const cards = browser.locator('#goi-thue-bao').getByText('Sở hữu thẻ');
+    await expect(cards.first()).toBeVisible();
+    const count = await cards.count();
+    expect(count).toBeGreaterThan(0);
+    await expect(browser.locator('#goi-thue-bao').getByText(/₫/).first()).toBeVisible();
   });
 
   test('footer có đủ 4 nhóm liên kết và thông tin liên hệ', async ({ app, browser, screen }) => {

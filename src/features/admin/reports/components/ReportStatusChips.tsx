@@ -19,7 +19,7 @@ export function ReportStatusChips({
   const chips = [
     { id: undefined, label: "Tất cả", count: counts.total },
     { id: "new", label: "Mới tiếp nhận", count: counts.new, color: "text-warning" },
-    { id: "in_progress", label: "Đang xử lý", count: counts.inProgress, color: "text-primary" },
+    { id: "in_progress", label: "Đang xử lý", count: counts.inProgress, color: "text-td-oxide" },
     { id: "resolved", label: "Đã giải quyết", count: counts.resolved, color: "text-success" },
   ];
 
@@ -37,10 +37,10 @@ export function ReportStatusChips({
             type="button"
             onClick={() => onSelectStatus(chip.id)}
             aria-pressed={isSelected}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-semibold transition ${
               isSelected
-                ? "bg-primary text-white shadow-sm"
-                : "border border-line bg-surface text-ink-2 hover:bg-canvas active:bg-sunken"
+                ? "bg-td-oxide text-white shadow-sm"
+                : "border border-td-rule bg-td-white text-td-ink hover:bg-td-paper active:bg-td-chalk"
             }`}
           >
             <span>{chip.label}</span>
@@ -48,7 +48,7 @@ export function ReportStatusChips({
               className={`rounded-full px-1.5 py-0.2 font-mono text-[11px] ${
                 isSelected
                   ? "bg-white/20 text-white"
-                  : "bg-sunken text-ink-3"
+                  : "bg-td-chalk text-td-muted"
               }`}
             >
               {chip.count}
