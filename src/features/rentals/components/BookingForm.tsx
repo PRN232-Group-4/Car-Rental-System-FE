@@ -10,6 +10,7 @@ import { getMySubscriptions } from "@/features/subscriptions";
 import { getInvoices } from "@/features/invoices/api";
 import { createRentalBooking, getBookingPolicies, getBookingVehicles } from "../api";
 import { calculateHourlyEstimate, localDateTime, selectBookingPolicy, validateBookingTimes } from "../booking-rules";
+import { localInputToUtcIso } from "@/lib/time";
 import type { RentalBookingResponse } from "../types";
 import VehicleImage from "@/components/ui/VehicleImage";
 import VehicleName from "@/features/admin/VehicleName";
@@ -20,7 +21,7 @@ import { getFacilities } from "@/features/facilities";
 
 const inputClass = "mt-2 w-full rounded border border-td-rule bg-td-white px-3 py-3 text-sm text-td-ink";
 const money = (value: number) => `${value.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} đ`;
-const iso = (value: string) => Number.isFinite(new Date(value).getTime()) ? new Date(value).toISOString() : undefined;
+const iso = (value: string) => Number.isFinite(new Date(value).getTime()) ? localInputToUtcIso(value) : undefined;
 const errorText = (error: unknown) => error instanceof Error && !(error instanceof TypeError) ? error.message : "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại.";
 
 export default function BookingForm() {

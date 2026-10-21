@@ -13,6 +13,8 @@ import {
   diffHours,
   generateTimeSlots,
   isBeforeTodayGmt7,
+  localInputToUtcIso,
+  toLocalInputValue,
 } from "./time";
 
 describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
@@ -69,6 +71,7 @@ describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
     it("parses user input strings in GMT+7", () => {
       const date = parseGmt7Input("2026-10-15 08:30");
       expect(formatDateTime(date)).toBe("08:30 15/10/2026");
+      expect(toUtcIso(date)).toBe("2026-10-15T01:30:00.000Z");
     });
 
     it("parses slash date format dd/MM/yyyy HH:mm", () => {
@@ -76,8 +79,35 @@ describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
       expect(formatDateTime(date)).toBe("14:00 15/10/2026");
     });
 
+    it("parses an explicit pattern as GMT+7 rather than the host timezone", () => {
+      expect(toUtcIso(parseGmt7Input("15/10/2026 00:01", "dd/MM/yyyy HH:mm")))
+        .toBe("2026-10-14T17:01:00.000Z");
+    });
+
+    it("preserves the instant of input with an explicit UTC offset", () => {
+      expect(toUtcIso(parseGmt7Input("2026-10-15T01:30:00.000Z")))
+        .toBe("2026-10-15T01:30:00.000Z");
+    });
+
     it("throws on completely unrecognizable input", () => {
       expect(() => parseGmt7Input("invalid input string")).toThrow("Không thể nhận diện");
+    });
+  });
+
+  describe("localInputToUtcIso & toLocalInputValue", () => {
+    it("reads a datetime-local value as GMT+7 regardless of the host time zone", () => {
+      expect(localInputToUtcIso("2026-10-23T09:00")).toBe("2026-10-23T02:00:00.000Z");
+      expect(localInputToUtcIso("2026-10-23T23:30")).toBe("2026-10-23T16:30:00.000Z");
+    });
+
+    it("renders an instant as the GMT+7 wall clock for datetime-local inputs", () => {
+      expect(toLocalInputValue("2026-10-23T02:00:00.000Z")).toBe("2026-10-23T09:00");
+      expect(toLocalInputValue(new Date("2026-10-23T16:30:00.000Z"))).toBe("2026-10-23T23:30");
+    });
+
+    it("round-trips a submitted shift without shifting the hours", () => {
+      const submitted = localInputToUtcIso("2026-10-23T09:00");
+      expect(toLocalInputValue(submitted)).toBe("2026-10-23T09:00");
     });
   });
 

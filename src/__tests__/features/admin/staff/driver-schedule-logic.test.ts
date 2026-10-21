@@ -1,83 +1,30 @@
-import { describe, it, expect } from "vitest";
-import {
-  getAssignableDrivers,
-  assignDriverToRental,
-  getStaffList,
-  createStaff,
-} from "@/features/admin/staff/api";
+import { beforeEach, describe, it, expect, vi } from "vitest";
+import { backendApiClient } from "@/api/backend-api-client";
+import { getAssignableDrivers, assignDriverToRental, getDriverSchedules, createStaff } from "@/features/admin/staff/api";
 
-describe("FE-24 Admin Staff & Drivers — Scheduling & Assignment Safety Logic", () => {
-  it("trả về danh sách tài xế phân loại eligible và gắn lý do loại trừ chính xác", async () => {
-    // Đơn thuê rentalId: 101 diễn ra từ 10:00 - 16:00 ngày 2026-10-18
-    const assignableDrivers = await getAssignableDrivers(101);
+beforeEach(() => vi.restoreAllMocks());
 
-    expect(assignableDrivers.length).toBeGreaterThan(0);
-
-    // Kiểm tra tài xế bị khóa (Nguyễn Hải Đăng)
-    const inactiveDriver = assignableDrivers.find((d) => d.staffId === 7);
-    expect(inactiveDriver).toBeDefined();
-    expect(inactiveDriver?.eligible).toBe(false);
-    expect(inactiveDriver?.reasons).toContain("INACTIVE");
-
-    // Kiểm tra tài xế bằng đã hết hạn (Đỗ Minh Quân)
-    const expiredLicenseDriver = assignableDrivers.find((d) => d.staffId === 6);
-    expect(expiredLicenseDriver).toBeDefined();
-    expect(expiredLicenseDriver?.eligible).toBe(false);
-    expect(expiredLicenseDriver?.reasons).toContain("LICENSE_EXPIRED");
-
-    // Kiểm tra tài xế bị trùng lịch kèm 60 phút đệm (Phạm Hùng Cường hoặc Võ Thành Nam)
-    const busyDriver = assignableDrivers.find((d) => d.staffId === 4 || d.staffId === 5);
-    expect(busyDriver).toBeDefined();
-    expect(busyDriver?.reasons).toContain("BUSY");
-
-    // Thứ tự: các tài xế eligible=true luôn đứng trước tài xế eligible=false
-    const firstIneligibleIndex = assignableDrivers.findIndex((d) => !d.eligible);
-    if (firstIneligibleIndex !== -1) {
-      for (let i = 0; i < firstIneligibleIndex; i++) {
-        expect(assignableDrivers[i].eligible).toBe(true);
-      }
-      for (let i = firstIneligibleIndex; i < assignableDrivers.length; i++) {
-        expect(assignableDrivers[i].eligible).toBe(false);
-      }
-    }
+describe("Staff and dispatch use server decisions", () => {
+  it("preserves backend eligibility and exclusion reasons", async () => {
+    const drivers = [{ staffId: 8, fullName: "An", eligible: false, reasons: ["BUSY"] }];
+    const get = vi.spyOn(backendApiClient, "get").mockResolvedValue(drivers);
+    expect(await getAssignableDrivers(77)).toEqual(drivers);
+    expect(get).toHaveBeenCalledWith("rentals/77/assignable-drivers", { eligibleOnly: false });
   });
-
-  it("gán tài xế thành công và cập nhật lịch trình", async () => {
-    const result = await assignDriverToRental({
-      rentalId: 888,
-      driverStaffId: 4,
-      reason: "customer_request",
-      notes: "Khách hàng VIP yêu cầu chỉ định tài xế quen",
-    });
-
-    expect(result.success).toBe(true);
-    expect(result.assignment.rentalId).toBe(888);
-    expect(result.assignment.driverStaffId).toBe(4);
-    expect(result.assignment.bufferMinutes).toBe(60);
-    expect(result.assignment.note).toContain("customer_request");
+  it("sends only the assignment contract and propagates failure", async () => {
+    const error = new Error("Mất kết nối");
+    const post = vi.spyOn(backendApiClient, "post").mockRejectedValue(error);
+    await expect(assignDriverToRental({ rentalId: 88, driverStaffId: 9, reason: "customer_request", notes: "Khách yêu cầu", currentActorEmail: "untrusted@example.com" })).rejects.toBe(error);
+    expect(post).toHaveBeenCalledWith("rentals/88/assignments/driver", { driverStaffId: 9, reason: "customer_request", note: "Khách yêu cầu" });
   });
-
-  it("từ chối tạo hồ sơ nhân viên nếu user đã có hồ sơ staff (staffs.user_id duy nhất)", async () => {
-    // User ID 1 đã là Admin trong mock DB
-    await expect(
-      createStaff({
-        userId: 1,
-        departmentId: 1,
-        facilityId: 1,
-        hiredDate: "2026-10-17",
-        isDriver: false,
-      })
-    ).rejects.toThrow("đã được liên kết với hồ sơ nhân viên");
+  it("maps the real driver schedule instead of hardcoded dates", async () => {
+    vi.spyOn(backendApiClient, "get").mockResolvedValue([{ assignmentId: 9, rentalId: 77, driverStaffId: 8, vehicleId: 44, startTime: "2027-01-01T08:00:00Z", endTime: "2027-01-01T12:00:00Z" }]);
+    expect(await getDriverSchedules({ from: "2027-01-01", to: "2027-01-02" })).toEqual([expect.objectContaining({ assignmentId: 9, start: "2027-01-01T08:00:00Z", end: "2027-01-01T12:00:00Z" })]);
   });
-
-  it("hỗ trợ lọc nhân sự theo phòng ban, cơ sở và tình trạng GPLX", async () => {
-    // 1. Chỉ lọc tài xế
-    const driversResult = await getStaffList({ isDriver: "driver" });
-    expect(driversResult.items.every((s) => s.isDriver)).toBe(true);
-
-    // 2. Lọc bằng sắp hết hạn
-    const expiringResult = await getStaffList({ licenseStatus: "expiring" });
-    expect(expiringResult.items.length).toBeGreaterThan(0);
-    expect(expiringResult.items[0].license?.expiryDate).toBeDefined();
+  it("does not create a local staff record when the server rejects creation", async () => {
+    const error = new Error("Email đã được sử dụng");
+    const put = vi.spyOn(backendApiClient, "put").mockRejectedValue(error);
+    await expect(createStaff({ userId: 99, departmentId: 5, facilityId: 8, hiredDate: "2027-01-01", isDriver: false })).rejects.toBe(error);
+    expect(put).toHaveBeenCalledWith("departments/5/members/99", {});
   });
 });

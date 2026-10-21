@@ -37,6 +37,7 @@ export function TripCard({ trip }: TripCardProps) {
             {vehicle.licensePlate ? `${vehicle.licensePlate} · ` : ""}
             {vehicle.category ?? "Chưa phân loại"}
           </span>
+          <span className="mt-0.5 block font-mono text-[11px] text-td-muted">Mã yêu cầu: #{trip.id}{trip.orderId ? ` · Mã đơn: #${trip.orderId}` : " · Chưa phát hành đơn"}</span>
         </div>
 
         {/* Thời gian nhận / trả */}
@@ -58,7 +59,7 @@ export function TripCard({ trip }: TripCardProps) {
           </span>
           {isSubscription ? (
             <span className="block font-mono text-xs font-bold text-primary">
-              Trừ {subscriptionHoursUsed ?? 0} giờ gói
+              {subscriptionHoursUsed == null ? "Thanh toán theo gói" : `Trừ ${subscriptionHoursUsed} giờ gói`}
             </span>
           ) : (
             <span className="block font-mono text-xs font-bold text-td-ink">{formatVnd(totalPrice)}</span>

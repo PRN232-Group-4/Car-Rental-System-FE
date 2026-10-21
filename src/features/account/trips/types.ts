@@ -10,6 +10,7 @@ export type TripTab = "upcoming" | "ongoing" | "completed" | "cancelled";
 
 export interface TripListItem {
   id: number;
+  orderId?: number | null;
   status: TripStatus;
   rentalType: "hourly" | "longterm";
   isSubscription: boolean;
@@ -28,7 +29,7 @@ export interface TripListItem {
   nextAction?: "pay_deposit" | "view" | "report_issue" | "rebook";
   canCancel: boolean;
   facility?: {
-    id: number;
+    id?: number;
     name: string;
     phone?: string;
   };
@@ -92,7 +93,7 @@ export interface TripDetail extends TripListItem {
     overtimeHours: number;
     depositHeld: number;
     depositDeducted: number;
-    refundAmount: number;
+    refundAmount?: number;
     refundStatus?: "requested" | "paid" | "rejected";
     shortfallInvoiceId?: number;
   } | null;

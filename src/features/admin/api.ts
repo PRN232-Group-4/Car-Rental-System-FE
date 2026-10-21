@@ -184,8 +184,20 @@ export function deleteDepartment(id: number) {
   return backendApiClient.delete<void>(`departments/${id}`);
 }
 
-export function getFacilities() {
-  return backendApiClient.get<OrganizationUnitDto[]>("facilities");
+export async function getFacilities(): Promise<OrganizationUnitDto[]> {
+  const items: OrganizationUnitDto[] = [];
+  let page = 1;
+  while (true) {
+    const result = await backendApiClient.get<PagedResult<OrganizationUnitDto> | OrganizationUnitDto[]>("facilities", { page, pageSize: 100 });
+    if (Array.isArray(result)) return items.concat(result);
+    if (!result || !Array.isArray(result.items) || result.page !== page || !Number.isSafeInteger(result.totalCount) || result.totalCount < 0) {
+      throw new Error("Dữ liệu chi nhánh không hợp lệ. Vui lòng thử lại.");
+    }
+    items.push(...result.items);
+    if (items.length >= result.totalCount) return items;
+    if (!result.items.length) throw new Error("Chưa tải đủ danh sách chi nhánh. Vui lòng thử lại.");
+    page++;
+  }
 }
 
 export function createFacility(body: { name: string; address: string }) {

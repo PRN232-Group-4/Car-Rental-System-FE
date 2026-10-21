@@ -13,6 +13,7 @@ import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus } from "lucide-react";
 
 const NO_VEHICLES: VehicleDto[] = [];
@@ -87,7 +88,7 @@ export function FleetRegistry() {
   // Handle delete
   const handleDelete = async (vehicle: VehicleDto) => {
     if (!canManage || deletingId !== null) return;
-    const confirmName = `${vehicle.brand ?? ""} ${vehicle.model ?? ""} (${vehicle.licensePlate ?? `#${vehicle.id}`})`;
+    const confirmName = `${vehicle.brand ?? ""} ${vehicle.model ?? ""} (${vehicle.licensePlate?.trim() || "Chưa có biển số"})`;
     if (!window.confirm(`Xác nhận xóa phương tiện ${confirmName}? Thao tác này không thể hoàn tác.`)) {
       return;
     }
@@ -193,7 +194,7 @@ export function FleetRegistry() {
           <div className="min-w-[620px]">
             {/* Ledger Head */}
             <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
-              <span className="col-span-3">BIỂN SỐ / ID</span>
+              <span className="col-span-3">BIỂN SỐ</span>
               <span className="col-span-3">PHƯƠNG TIỆN</span>
               <span className="col-span-3">CƠ SỞ TRẠM</span>
               <span className="col-span-3 text-right">TRẠNG THÁI</span>
@@ -234,13 +235,10 @@ export function FleetRegistry() {
                         />
                       )}
 
-                      {/* Plate / ID */}
+                      {/* License plate */}
                       <div className="col-span-3 pl-2">
                         <span className="font-mono text-xs font-bold text-td-ink block tracking-tight">
-                          {v.licensePlate || `ID #${v.id}`}
-                        </span>
-                        <span className="font-mono text-[10px] text-td-muted block">
-                          ID: #{v.id}
+                          {v.licensePlate?.trim() || "Chưa có biển số"}
                         </span>
                       </div>
 
@@ -323,7 +321,7 @@ export function FleetRegistry() {
                     HỒ SƠ PHƯƠNG TIỆN
                   </span>
                   <div className="font-mono text-2xl font-bold tracking-tight text-td-ink mt-1">
-                    {selectedVehicle.licensePlate || `XE #${selectedVehicle.id}`}
+                    {selectedVehicle.licensePlate?.trim() || "Chưa có biển số"}
                   </div>
                 </div>
                 <button
@@ -346,6 +344,8 @@ export function FleetRegistry() {
                   </p>
                 )}
               </div>
+
+              <VehiclePhotos vehicleId={selectedVehicle.id} />
 
               {/* Data specifications - High fidelity (P1-05: no repetitive placeholder dash spam) */}
               <div className="divide-y divide-td-rule border-y border-td-rule text-xs font-mono">

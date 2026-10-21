@@ -25,9 +25,9 @@ export default function VehicleTrackingPanel({ vehicleId }: { vehicleId: number 
       {position.error && <p role="alert" className="text-sm text-danger">{trackingError(position.error)}</p>}
       {position.data === null && <p role="status" className="text-sm text-td-muted">Xe chưa có vị trí GPS được ghi nhận.</p>}
       {position.data && <div className="space-y-3">
-        <p className="text-sm text-td-muted">Vị trí ghi nhận lúc <strong className="font-mono tabular-nums">{formatAdminDateTime(position.data.recordedAt)}</strong>. Dữ liệu được cập nhật khi thiết bị GPS gửi vị trí.</p>
-        {position.data.address && <p className="text-sm text-td-muted">{position.data.address}</p>}
-        {position.data.accuracyM != null && <p className="text-xs text-td-muted">Độ chính xác GPS: khoảng {Math.round(position.data.accuracyM)} m.</p>}
+        <p className="text-sm text-ink-2">Vị trí ghi nhận lúc <strong className="font-mono tabular-nums">{formatAdminDateTime(position.data.recordedAt)}</strong>. Dữ liệu được cập nhật khi thiết bị GPS gửi vị trí.</p>
+        {position.data.address && <p className="text-sm text-ink-2">{position.data.address}</p>}
+        {position.data.accuracyM != null && <p className="text-xs text-ink-3">Độ chính xác GPS: khoảng {Math.round(position.data.accuracyM)} m.</p>}
         <MapboxMap title="Vị trí GPS gần nhất của xe" location={{ latitude: position.data.lat, longitude: position.data.lng }} />
       </div>}
       {!position.isPending && <button type="button" disabled={position.isFetching} onClick={() => void position.refetch()} className="inline-flex min-h-11 items-center gap-2 rounded border border-td-rule bg-td-white px-4 py-2 text-sm font-semibold text-td-ink hover:bg-td-chalk disabled:opacity-50"><RefreshCw aria-hidden="true" className="h-4 w-4" />{position.isFetching ? "Đang cập nhật..." : "Cập nhật vị trí"}</button>}

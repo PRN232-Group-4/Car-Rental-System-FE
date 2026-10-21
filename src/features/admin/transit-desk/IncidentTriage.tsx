@@ -25,6 +25,8 @@ import { formatDateTime } from "@/lib/time";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 const subscribeNoChange = () => () => {};
 const getReportIdFromUrl = () => {
@@ -43,9 +45,9 @@ export function IncidentTriage() {
   const urlReportId = useSyncExternalStore(subscribeNoChange, getReportIdFromUrl, () => null);
   const selectedReportId = manualReportId ?? urlReportId;
 
-  const { data, isLoading, refetch } = useReports(filters);
+  const { data, isLoading, isError, error, refetch } = useReports(filters);
 
-  const reports = data?.items ?? [];
+  const reports = useMemo(() => data?.items ?? [], [data]);
 
   // Filter by search query
   const filteredReports = useMemo(() => {
@@ -102,10 +104,9 @@ export function IncidentTriage() {
           <div className="flex items-center gap-2 font-mono text-xs">
             {[
               { id: undefined, label: "Tất cả" },
-              { id: "pending", label: "Mới tiếp nhận" },
-              { id: "investigating", label: "Đang xử lý" },
+              { id: "new", label: "Mới tiếp nhận" },
+              { id: "in_progress", label: "Đang xử lý" },
               { id: "resolved", label: "Đã giải quyết" },
-              { id: "dismissed", label: "Đã từ chối" },
             ].map((btn) => {
               const isSelected = filters.status === btn.id;
               return (
@@ -131,6 +132,8 @@ export function IncidentTriage() {
         </span>
       </div>
 
+      {isError && <ErrorState message={error instanceof Error ? error.message : "Không thể tải báo cáo."} onRetry={() => { void refetch(); }} />}
+      <p role="status" className="text-xs text-td-muted">API chưa cung cấp mốc thời gian để tính SLA hoặc thông tin khách hàng của báo cáo.</p>
       {/* Triage Grid: SLA-sorted list (Left) + Active Casefile (Right) */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 border-t border-td-ink pt-6">
         {/* Left Column: Triage List */}
@@ -197,7 +200,7 @@ export function IncidentTriage() {
                         {waitStr}
                       </div>
                       <span className="font-mono text-[9px] text-td-muted uppercase block">
-                        {isClosed ? "Đã giải quyết" : (isOverdue ? "Quá hạn" : "Trong hạn")}
+                        {isClosed ? "Đã giải quyết" : !report.createdAt ? "Chưa có mốc thời gian" : (isOverdue ? "Quá hạn" : "Trong hạn")}
                       </span>
                     </div>
                   </button>
@@ -227,7 +230,7 @@ export function IncidentTriage() {
                     {getReportStatusMeta(activeReport.status).label}
                   </TransitDeskStatus>
                   <span className="font-mono text-[10px] text-td-muted block mt-1">
-                    {formatDateTime(activeReport.createdAt, "dd/MM/yyyy HH:mm")}
+                    {activeReport.createdAt ? formatDateTime(activeReport.createdAt, "dd/MM/yyyy HH:mm") : "Chưa có mốc thời gian"}
                   </span>
                 </div>
               </div>
@@ -244,12 +247,12 @@ export function IncidentTriage() {
 
                 <div>
                   <span className="text-td-muted uppercase text-[10px] block">Đơn thuê liên quan</span>
-                  {activeReport.rental ? (
+                  {activeReport.rentalId ? (
                     <Link
-                      href={`/admin/rentals?rentalId=${activeReport.rental.id}`}
+                      href={`/admin/rentals?rentalId=${activeReport.rentalId}`}
                       className="font-bold text-td-ink hover:text-td-oxide inline-flex items-center gap-1 mt-0.5"
                     >
-                      <span>Đơn #{activeReport.rental.id}</span>
+                      <span>Đơn #{activeReport.rentalId}</span>
                       <ExternalLink className="h-3 w-3" />
                     </Link>
                   ) : (
@@ -275,6 +278,8 @@ export function IncidentTriage() {
                   )}
                 </div>
               </div>
+
+              {activeReport.rentalId && <RentalVehiclePhotos rentalId={activeReport.rentalId} />}
 
               {/* Description & Narrative */}
               <div>

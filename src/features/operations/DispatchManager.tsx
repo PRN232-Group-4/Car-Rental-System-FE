@@ -11,7 +11,8 @@ import VehicleName from "@/features/admin/VehicleName";
 import StaffName from "@/features/admin/StaffName";
 import { useQuery } from "@tanstack/react-query";
 import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
-import { localDateTime, validateBookingTimes } from "@/features/rentals/booking-rules";
+import { validateBookingTimes } from "@/features/rentals/booking-rules";
+import { localInputToUtcIso, toLocalInputValue } from "@/lib/time";
 import OperationFields from "./OperationFields";
 import type { OperationField } from "./OperationFields";
 import { getDriverShifts, getDispatchSchedule, saveDriverShift } from "./extended-api";
@@ -23,9 +24,9 @@ type ScheduleEntry = DriverScheduleEntry & { driverName?: string | null };
 import RentalLookup from "./RentalLookup";
 import { AssignmentForm } from "./RentalOperations";
 
-const asIso = (value: string) => new Date(value).toISOString();
+const asIso = localInputToUtcIso;
 const dateLabel = formatAdminDateTime;
-const defaultDispatchFilter = () => ({ driverStaffId: "", startTime: localDateTime(new Date()), endTime: localDateTime(new Date(Date.now() + 7 * 86400000)) });
+const defaultDispatchFilter = () => ({ driverStaffId: "", startTime: toLocalInputValue(new Date()), endTime: toLocalInputValue(new Date(Date.now() + 7 * 86400000)) });
 export default function DispatchManager() {
   const [filter, setFilter] = useState(defaultDispatchFilter);
   const [activeFilter, setActiveFilter] = useState(filter);
@@ -120,7 +121,7 @@ export default function DispatchManager() {
 }
 
 function ShiftForm({ record, drivers, close, saved }: { record: DriverShift | null; drivers: { value: string; label: string }[]; close: () => void; saved: () => Promise<unknown> }) {
-  const [values, setValues] = useState(() => ({ driverStaffId: record ? String(record.driverStaffId) : "", startTime: record ? localDateTime(new Date(record.startTime)) : "", endTime: record ? localDateTime(new Date(record.endTime)) : "", cancelled: record?.status?.toLowerCase() === "cancelled" ? "true" : "false" }));
+  const [values, setValues] = useState(() => ({ driverStaffId: record ? String(record.driverStaffId) : "", startTime: record ? toLocalInputValue(record.startTime) : "", endTime: record ? toLocalInputValue(record.endTime) : "", cancelled: record?.status?.toLowerCase() === "cancelled" ? "true" : "false" }));
   const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const validation = useInlineValidation();
   const fields: OperationField[] = [{ name: "driverStaffId", label: "Tài xế", required: true, options: [{ value: "", label: "Chọn tài xế" }, ...drivers] }, { name: "startTime", label: "Bắt đầu ca", type: "datetime-local", required: true }, { name: "endTime", label: "Kết thúc ca", type: "datetime-local", required: true }, { name: "cancelled", label: "Trạng thái ca", options: [{ value: "false", label: "Hoạt động" }, { value: "true", label: "Hủy ca" }] }];
   const submit = async () => {

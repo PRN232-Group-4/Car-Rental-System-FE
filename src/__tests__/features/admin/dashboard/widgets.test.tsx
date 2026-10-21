@@ -119,6 +119,17 @@ describe("Dashboard Widgets Components", () => {
   });
 
   describe("PlanUsageChart", () => {
+    it("shows unlimited plans without a fabricated 0% progress bar in either view", () => {
+      const { container } = render(<PlanUsageChart data={[{ planId: 2, name: "Gói không giới hạn", usedHours: 25, includedHours: null, activeSubscribers: 3, usagePercentage: null }]} isLoading={false} isError={false} onRetry={vi.fn()} />);
+      expect(screen.getByText(/Không giới hạn/)).toBeInTheDocument();
+      expect(screen.getByText("Không áp dụng")).toBeInTheDocument();
+      expect(container.querySelector('[style*="width"]')).toBeNull();
+      fireEvent.click(screen.getByRole("button", { name: "Chuyển sang xem dạng bảng" }));
+      expect(screen.getByRole("cell", { name: "Không giới hạn" })).toBeInTheDocument();
+      expect(screen.getByRole("cell", { name: "Không áp dụng" })).toBeInTheDocument();
+      expect(screen.queryByText("null%")).not.toBeInTheDocument();
+    });
+
     it("hiển thị danh sách tiến độ sử dụng giờ của các gói hội viên", () => {
       const mockPlans = [
         { planId: 1, name: "Gói Đô Thị", usedHours: 250, includedHours: 300, activeSubscribers: 42, usagePercentage: 83.3 },

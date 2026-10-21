@@ -3,11 +3,10 @@
 import { useRef } from "react";
 import { KeyRound, BatteryCharging, RefreshCw, ChevronRight, CheckCircle2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { gsap } from "@/lib/motion/register";
 
 export default function PinnedJourney() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
   const phases = [
@@ -42,21 +41,13 @@ export default function PinnedJourney() {
 
   useGSAP(
     () => {
-      if (typeof window === "undefined" || !containerRef.current || !leftColRef.current) return;
+      if (typeof window === "undefined" || !containerRef.current) return;
 
       const mm = gsap.matchMedia();
 
-      // Desktop Only Pinning (>= 1024px)
+      // Desktop card reveals; CSS sticky keeps the narrative within the live layout.
       mm.add("(min-width: 1024px)", () => {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-        ScrollTrigger.create({
-          trigger: containerRef.current,
-          start: "top 120px",
-          end: "bottom bottom",
-          pin: leftColRef.current,
-          pinSpacing: false,
-        });
 
         // Scrubbed card reveals
         if (cardsRef.current) {
@@ -90,7 +81,7 @@ export default function PinnedJourney() {
     <section
       id="hanh-trinh"
       ref={containerRef}
-      className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative overflow-hidden"
+      className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative overflow-clip"
     >
       {/* Background Topographic Elevation & GPS Waypoints Route Blueprint */}
       <div 
@@ -155,7 +146,7 @@ export default function PinnedJourney() {
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
-        <div ref={leftColRef} className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-6 lg:motion-safe:sticky lg:top-[120px]">
 
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08]">
             Hành Trình 3 Pha Thuê Xe Tối Giản
