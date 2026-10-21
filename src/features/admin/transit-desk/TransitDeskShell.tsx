@@ -17,7 +17,7 @@ import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import { operatorContext } from "./operator-context";
 import AccountAvatar from "@/components/ui/AccountAvatar";
-import { House, Moon, Sun, LogOut, User } from "lucide-react";
+import { House, Moon, Sun, LogOut, User, KeyRound } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 import { useNavigationCounts } from "@/features/admin/use-navigation-counts";
 import { navigationCount } from "@/features/admin/navigation-counts";
@@ -304,6 +304,11 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
                 >
                   <User className="h-3.5 w-3.5" />
                   <span>Hồ sơ cá nhân</span>
+                </Link>
+                <Link href="/admin/profile#change-password" onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer">
+                  <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Đổi mật khẩu</span>
                 </Link>
                 <button
                   type="button"

@@ -3,6 +3,7 @@
 import React from "react";
 import { X, RotateCcw } from "lucide-react";
 import { formatVnd } from "@/lib/format";
+import { formatRange } from "@/lib/time";
 import type { Facility } from "@/features/facilities/types";
 
 export interface ActiveFiltersState {
@@ -81,7 +82,7 @@ export function ActiveFilterChips({
   }
 
   if (filters.seats && Number(filters.seats) > 0) {
-    chips.push({ key: "seats", label: `${filters.seats} chỗ ngồi` });
+    chips.push({ key: "seats", label: `Từ ${filters.seats} chỗ ngồi` });
   }
 
   if (filters.transmission && filters.transmission !== "all") {
@@ -117,6 +118,10 @@ export function ActiveFilterChips({
       key: "mode",
       label: "Thuê dài hạn",
     });
+  }
+
+  if (filters.startDate && filters.endDate) {
+    chips.push({ key: "startDate", label: `Lịch thuê: ${formatRange(filters.startDate, filters.endDate)}` });
   }
 
   if (chips.length === 0) return null;

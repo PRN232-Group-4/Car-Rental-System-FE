@@ -1,6 +1,6 @@
 import { defaultApiClient } from "@/api/default-api-client";
 import { Vehicle, VehicleFilterParams, VehiclePage, BusySlot, AvailabilityResult, RentalPolicy } from "./types";
-import { mapVehicleFromBE } from "./mappers";
+import { mapVehicleFromBE, mapVehicleSearchFromBE } from "./mappers";
 
 export async function getVehicles(params?: VehicleFilterParams): Promise<Vehicle[]> {
   const queryParams: Record<string, string | number> = {};
@@ -32,26 +32,31 @@ export async function getVehiclesPaginated(params?: VehicleFilterParams): Promis
   if (params?.category && params.category !== "all") queryParams.category = params.category;
   if (params?.facilityId && params.facilityId !== "all") queryParams.facilityId = params.facilityId;
   if (params?.brand && params.brand !== "all") queryParams.brand = params.brand;
-  if (params?.seats && Number(params.seats) > 0) queryParams.seats = params.seats;
+  if (params?.seats && Number(params.seats) > 0) queryParams.seatCount = params.seats;
   if (params?.transmission && params.transmission !== "all") queryParams.transmission = params.transmission;
   if (params?.fuelType && params.fuelType !== "all") queryParams.fuelType = params.fuelType;
-  if (params?.priceMin && Number(params.priceMin) > 0) queryParams.priceMin = params.priceMin;
-  if (params?.priceMax && Number(params.priceMax) > 0) queryParams.priceMax = params.priceMax;
-  if (params?.search && params.search.trim()) queryParams.search = params.search.trim();
-  if (params?.sort) queryParams.sort = params.sort;
+  if (params?.priceMin && Number(params.priceMin) > 0) queryParams.minPrice = params.priceMin;
+  if (params?.priceMax && Number(params.priceMax) > 0) queryParams.maxPrice = params.priceMax;
+  if (params?.search && params.search.trim()) queryParams.q = params.search.trim();
+  if (params?.sort) queryParams.sort = params.sort === "year_desc" ? "newest" : params.sort;
+  queryParams.rentalType = params?.mode ?? "hourly";
+  if (params?.from && params?.to) {
+    queryParams.from = params.from;
+    queryParams.to = params.to;
+  }
 
-  const res = await defaultApiClient.get<unknown>("vehicles", queryParams);
+  const res = await defaultApiClient.get<unknown>("vehicles/search", queryParams);
   if (typeof res === "object" && res !== null && "items" in res && Array.isArray((res as { items: unknown[] }).items)) {
     const paged = res as { items: Record<string, unknown>[]; totalCount?: number; page?: number; pageSize?: number };
     return {
-      items: paged.items.map((v) => mapVehicleFromBE(v)),
+      items: paged.items.map(mapVehicleSearchFromBE),
       totalCount: Number(paged.totalCount ?? paged.items.length),
       page: Number(paged.page ?? page),
       pageSize: Number(paged.pageSize ?? pageSize),
     };
   }
 
-  return { items: [], totalCount: 0, page, pageSize };
+  throw new Error("Dữ liệu tìm kiếm xe không hợp lệ. Vui lòng thử lại.");
 }
 
 export async function getVehicleById(id: number | string): Promise<Vehicle | undefined> {

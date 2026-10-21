@@ -24,14 +24,13 @@ import {
   getAccountProfile,
   getCustomerLicense,
   updateAccountProfile,
-  updateCustomerLicense,
-  uploadLicenseImage,
 } from "../api";
+import { saveCustomerLicense } from "@/features/licenses/api";
 import { ApiClientError } from "@/api/api-client";
 import { useAuth } from "@/features/auth";
 import ChangePasswordForm from "./ChangePasswordForm";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 type ProfileDetails = {
@@ -135,9 +134,9 @@ export default function ProfileManager() {
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size === 0 || file.size > MAX_FILE_SIZE) {
       setSelectedFile(null);
-      validation.setField("imageUrl", "Tệp vượt quá 10 MB. Vui lòng chọn tệp nhỏ hơn.");
+      validation.setField("imageUrl", "Vui lòng chọn tệp ảnh có nội dung và không vượt quá 5 MB.");
       return;
     }
 
@@ -159,32 +158,28 @@ export default function ProfileManager() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedFile && !licenseImageUrl) {
-      setFileError("Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt.");
+    if (isSubmittingLicense || isLoading || isPendingStatus(licenseStatus)) return;
+    if (!selectedFile) {
+      validation.setField("imageUrl", "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ.");
       return;
     }
     setIsSubmittingLicense(true);
     setFileError("");
     try {
-      let imageUrl = licenseImageUrl;
-      if (selectedFile) {
-        imageUrl = extractImageUrl(await uploadLicenseImage(selectedFile));
-        if (!imageUrl) throw new Error("API tải ảnh không trả về URL.");
-      }
-      const license = await updateCustomerLicense({
+      const license = await saveCustomerLicense({
         number: licenseNumber.trim(),
         type: licenseType.trim(),
-        issueDate: issueDate || null,
+        issueDate,
         expiryDate,
-        imageUrl,
+        file: selectedFile,
       });
-      setLicenseImageUrl(license.imageUrl ?? imageUrl);
+      setLicenseImageUrl(license.imageUrl ?? "");
       const status = license.status ?? "pending";
       setLicenseStatus(status);
       setSelectedFile(null);
       setIsPending(isPendingStatus(status));
     } catch (submitError) {
-      setFileError(validation.report(submitError, { number: "licenseNumber", type: "licenseType" }));
+      setFileError(validation.report(submitError, { number: "licenseNumber", type: "licenseType", file: "imageUrl" }));
     } finally {
       setIsSubmittingLicense(false);
     }
@@ -381,15 +376,32 @@ export default function ProfileManager() {
                 </div>
               </div>
 
-              <ValidatedForm validation={validation} validate={() => !selectedFile && !licenseImageUrl ? { imageUrl: "Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt." } : {}} onSubmit={handleSubmit}>
+              <ValidatedForm validation={validation} validate={() => ({
+                issueDate: issueDate && expiryDate && issueDate > expiryDate ? "Ngày cấp không được sau ngày hết hạn. Vui lòng kiểm tra lại." : undefined,
+                imageUrl: !selectedFile ? "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ." : undefined,
+                expiryDate: expiryDate && new Date(`${expiryDate}T23:59:59`) < new Date() ? "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." : undefined,
+              })} onSubmit={handleSubmit}>
+                <p className="mb-4 text-sm text-td-muted">Tất cả thông tin và ảnh GPLX đều bắt buộc khi gửi duyệt.</p>
                 <div className="mb-5 grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm font-semibold text-td-ink">Số giấy phép lái xe<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-td-ink">Hạng giấy phép<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-td-ink">Ngày cấp<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-td-ink">Ngày hết hạn<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Số giấy phép lái xe *<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Hạng giấy phép *<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Ngày cấp *<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Ngày hết hạn *<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
                 </div>
+                <p id="license-file-label" className="mb-2 text-sm font-semibold text-td-ink">Ảnh giấy phép lái xe *</p>
                 <label
                   htmlFor="license-file"
+                  data-validation-field="imageUrl"
+                  tabIndex={0}
+                  role="button"
+                  aria-labelledby="license-file-label"
+                  aria-describedby={validation.errors.imageUrl ? "license-file-error" : undefined}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
                   onDragOver={(event) => {
                     event.preventDefault();
                     setIsDragging(true);
@@ -397,7 +409,9 @@ export default function ProfileManager() {
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={handleDrop}
                   className={`flex min-h-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed px-5 py-7 text-center transition ${
-                    isDragging
+                    validation.errors.imageUrl
+                      ? "border-danger"
+                      : isDragging
                       ? "border-primary bg-primary/10"
                       : "border-td-rule bg-td-white/50 hover:border-primary/50 hover:bg-primary/5"
                   }`}
@@ -406,6 +420,8 @@ export default function ProfileManager() {
                     ref={fileInputRef}
                     id="license-file"
                     type="file"
+                    aria-required="true"
+                    aria-labelledby="license-file-label"
                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                     onChange={handleFileChange}
                     className="sr-only"
@@ -416,7 +432,7 @@ export default function ProfileManager() {
                   <span className="text-sm font-bold text-td-ink">
                     {selectedFile ? "Chọn tệp khác" : "Nhấn để tải lên hoặc kéo thả tệp"}
                   </span>
-                  <span className="mt-2 text-xs text-td-muted">JPG, PNG hoặc WEBP · Tối đa 10 MB</span>
+                  <span className="mt-2 text-xs text-td-muted">JPG, PNG hoặc WEBP · Tối đa 5 MB</span>
                 </label>
 
                 <InlineError name="imageUrl" inputId="license-file" />
@@ -461,7 +477,7 @@ export default function ProfileManager() {
 
                 <button
                   type="submit"
-                  disabled={(!selectedFile && !licenseImageUrl) || isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
+                  disabled={isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded bg-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-td-chalk disabled:shadow-none"
                 >
                   {isSubmittingLicense ? <Clock3 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
@@ -500,16 +516,6 @@ function formatLicenseStatus(status: string): string {
   if (/approved|verified/i.test(status)) return "Đã phê duyệt";
   if (/reject/i.test(status)) return "Chưa được phê duyệt";
   return status.replaceAll("_", " ");
-}
-
-function extractImageUrl(value: unknown): string {
-  if (typeof value === "string") return value;
-  if (typeof value !== "object" || value === null) return "";
-  const data = value as Record<string, unknown>;
-  for (const key of ["url", "imageUrl", "fileUrl", "mainImageUrl"]) {
-    if (typeof data[key] === "string") return data[key];
-  }
-  return "";
 }
 
 function messageOf(error: unknown, fallback: string): string {

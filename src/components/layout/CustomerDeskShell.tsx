@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useAuth } from "@/features/auth";
 import { initialsFor } from "@/features/profile/api";
-import { LogOut, Moon, Sun, User } from "lucide-react";
+import { LogOut, Moon, Sun, User, KeyRound } from "lucide-react";
 import { useTheme } from "@/lib/use-theme";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "@/features/admin/transit-desk/transit-desk.module.css";
@@ -222,6 +222,11 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
                   >
                     <User className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Hồ sơ cá nhân</span>
+                  </Link>
+                  <Link href="/profile#change-password" role="menuitem" onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk">
+                    <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Đổi mật khẩu</span>
                   </Link>
                   <button
                     type="button"

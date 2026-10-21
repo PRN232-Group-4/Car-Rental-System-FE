@@ -35155,7 +35155,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Public available-vehicle search. facilityId restricts vehicles to one branch; with hasDriver=true, an active qualified driver at that same branch must be free for the requested window including assignment buffer. Drivers are assigned later, not reserved by search. Pagination defaults to page=1/pageSize=20; page>=1 and pageSize 1..100, invalid values return 400. totalCount is after filtering and remains correct on empty pages. */
+        /** @description Public available-vehicle search. category=car|electric_car|motorbike|electric_motorbike uses vehicle type and fuel; q searches combined brand/model, year and branch; seatCount is a minimum. transmission=automatic includes CVT; manual/cvt and legacy display values are supported. fuelType accepts petrol/gasoline/electric and Vietnamese display values. sort=recommended|price_asc|price_desc|newest|name_asc has a stable id tie-breaker. Prices use rentalType=hourly|longterm. facilityId restricts vehicles to one branch; with hasDriver=true, an active qualified driver at that same branch must be free for the requested window including assignment buffer. Drivers are assigned later, not reserved by search. Pagination defaults to page=1/pageSize=20; page>=1 and pageSize 1..100, invalid values return 400. totalCount is after filtering and remains correct on empty pages. */
         get: {
             parameters: {
                 query?: {
@@ -35178,6 +35178,7 @@ export interface paths {
                     Sort?: string;
                     Page?: number;
                     PageSize?: number;
+                    Category?: string;
                 };
                 header?: never;
                 path?: never;
@@ -38169,6 +38170,7 @@ export interface components {
             id?: number;
             name?: string | null;
             fuelType?: string | null;
+            type?: string | null;
         };
         VehicleTypeRequest: {
             name?: string | null;

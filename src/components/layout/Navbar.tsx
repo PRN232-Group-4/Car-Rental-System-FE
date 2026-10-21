@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, FileCheck } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, Car, FileCheck, KeyRound } from "lucide-react";
 import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
 import { getNavigation } from "@/config/navigation";
 import { useMounted } from "@/hooks/use-mounted";
@@ -17,6 +17,11 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const mounted = useMounted();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
+  const passwordProfile = hasRole("admin") || hasRole("manager")
+    ? "/admin/profile"
+    : hasRole("driver") ? "/staff/profile"
+    : hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) ? "/admin/profile" : "/profile";
+  const passwordHref = `${passwordProfile}#change-password`;
 
   const navRef = useRef<HTMLElement>(null);
 
@@ -237,6 +242,11 @@ export default function Navbar() {
                         <FileCheck className="size-3.5 opacity-0" />
                         <span>Hồ sơ cá nhân</span>
                       </Link>
+                      <Link href={passwordHref} onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors">
+                        <KeyRound className="size-3.5" aria-hidden="true" />
+                        <span>Đổi mật khẩu</span>
+                      </Link>
                     </div>
 
                     <button
@@ -387,6 +397,10 @@ export default function Navbar() {
                       className="block px-3 py-1.5 text-xs font-semibold text-ink hover:text-primary hover:bg-canvas rounded-lg transition-colors"
                     >
                       Hồ sơ cá nhân
+                    </Link>
+                    <Link href={passwordHref} onClick={() => setMobileMenuOpen(false)}
+                      className="block px-3 py-1.5 text-xs font-semibold text-ink hover:text-primary hover:bg-canvas rounded-lg transition-colors">
+                      Đổi mật khẩu
                     </Link>
                   </div>
                   <button

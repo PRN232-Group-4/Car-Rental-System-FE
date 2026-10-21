@@ -3,6 +3,30 @@ import { components } from "@/api/generated/schema";
 
 type BEVehicle = components["schemas"]["Vehicle"];
 
+/** Public search returns nested type/facility/summary references. */
+export function mapVehicleSearchFromBE(raw: Record<string, unknown>): Vehicle {
+  const type = (raw.vehicleType ?? {}) as Record<string, unknown>;
+  const facility = raw.facility as Record<string, unknown> | null;
+  const summary = (raw.summary ?? {}) as Record<string, unknown>;
+  const badges = (raw.badges ?? {}) as Record<string, unknown>;
+  const typeName = String(type.type ?? type.name ?? "car");
+  const electric = badges.electric === true || /electric|điện/i.test(String(type.fuelType ?? typeName));
+  return mapVehicleFromBE({
+    ...raw,
+    vehicleType: `${electric ? "electric " : ""}${typeName}`,
+    vehicleTypeId: type.id,
+    facilityId: facility?.id,
+    facility: facility?.name,
+    detail: summary,
+    hourlyPrice: raw.priceHourly,
+    longtermPrice: raw.priceLongterm,
+    fuelType: type.fuelType,
+    driverAvailable: badges.driverAvailable,
+    badges: [],
+    status: "available",
+  });
+}
+
 export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehicle {
   const r = raw as Record<string, unknown>;
   const id = (r.id ?? r.Id) as number | string;

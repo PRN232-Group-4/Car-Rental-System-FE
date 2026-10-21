@@ -107,11 +107,11 @@ function LicenseEditForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/") || file.size === 0 || file.size > 5 * 1024 * 1024) {
       setSelectedFile(null);
       setImagePreview(license?.imageUrl ?? null);
       e.target.value = "";
-      validation.setField("file", "Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).");
+      validation.setField("file", "Vui lòng chọn tệp ảnh có nội dung và không vượt quá 5 MB.");
       return;
     }
 
@@ -155,6 +155,7 @@ function LicenseEditForm({
 
   return (
     <ValidatedForm validation={validation} validate={() => ({
+      issueDate: issueDate && expiryDate && issueDate > expiryDate ? "Ngày cấp không được sau ngày hết hạn. Vui lòng kiểm tra lại." : undefined,
       expiryDate: expiryDate && new Date(`${expiryDate}T23:59:59`) < new Date() ? "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." : undefined,
       file: !selectedFile ? "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ." : undefined,
     })}
@@ -221,10 +222,11 @@ function LicenseEditForm({
 
         <div>
           <label htmlFor="license-issue-date" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
-            Ngày cấp
+            Ngày cấp *
           </label>
           <InlineInput id="license-issue-date" name="issueDate"
             type="date"
+            required
             value={issueDate}
             onChange={(e) => setIssueDate(e.target.value)}
             className="w-full px-4 py-3 rounded border border-td-rule focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm font-semibold"
@@ -247,7 +249,7 @@ function LicenseEditForm({
 
       {/* License Photo Upload & Preview */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
+        <label htmlFor="customer-license-image" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
           Ảnh chụp mặt trước giấy phép lái xe *
         </label>
         <div className="mt-2 flex flex-col sm:flex-row items-center gap-6 p-6 rounded border-2 border-dashed border-td-rule bg-td-chalk/50 hover:bg-td-chalk transition-colors">
@@ -276,12 +278,13 @@ function LicenseEditForm({
             </button>
               <InlineInput showError={false} name="file" id="customer-license-image"
                 type="file"
+                aria-required="true"
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
               />
             <p className="text-xs text-td-muted">
-              Định dạng JPG, PNG. Ảnh chụp rõ mặt trước, không bị loá sáng hay che khuất thông tin.
+              Định dạng JPG, PNG · Tối đa 5 MB. Ảnh chụp rõ mặt trước, không bị loá sáng hay che khuất thông tin.
             </p>
           </div>
         </div>

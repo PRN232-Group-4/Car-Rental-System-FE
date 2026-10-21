@@ -23,6 +23,14 @@ export default function ChangePasswordForm() {
   const [error, setError] = useState("");
   const pending = useRef(false);
   const otpInput = useRef<HTMLInputElement>(null);
+  const section = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    // Profile data can finish loading after Next.js attempts to scroll to the hash.
+    if (window.location.hash === "#change-password") {
+      section.current?.scrollIntoView({ block: "start" });
+    }
+  }, []);
 
   useEffect(() => {
     if (!cooldown) return;
@@ -80,7 +88,7 @@ export default function ChangePasswordForm() {
   }
 
   return (
-    <section aria-label="Đổi mật khẩu" className="mt-6 rounded border border-td-rule bg-td-white p-5 sm:p-7">
+    <section ref={section} id="change-password" aria-label="Đổi mật khẩu" className="mt-6 scroll-mt-36 rounded border border-td-rule bg-td-white p-5 sm:p-7">
       <h2 className="text-sm font-bold text-td-ink">Đổi mật khẩu</h2>
       <p className="mt-2 text-sm text-td-muted">Xác nhận bằng mã OTP gửi tới {user?.email || "email tài khoản"}. Sau khi đổi, bạn cần đăng nhập lại trên các thiết bị.</p>
       <ValidatedForm className="mt-5 space-y-5" validation={validation} aria-busy={busy}
