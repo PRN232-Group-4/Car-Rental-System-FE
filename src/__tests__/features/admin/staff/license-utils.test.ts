@@ -67,6 +67,11 @@ describe("FE-24 Admin Staff — License Utils & GMT+7 Boundary Rules", () => {
     expect(resEarly.daysRemaining).toBe(-1);
   });
 
+  it("uses the Vietnam calendar day for a native Date reference across midnight", () => {
+    expect(getLicenseState("2026-10-17", new Date("2026-10-17T16:59:00Z")).daysRemaining).toBe(0);
+    expect(getLicenseState("2026-10-17", new Date("2026-10-17T17:01:00Z")).daysRemaining).toBe(-1);
+  });
+
   it("ánh xạ chính xác các lý do không đủ điều kiện sang tiếng Việt", () => {
     expect(mapIneligibleReason("BUSY")).toContain("Đã có lịch trùng hoặc vi phạm thời gian đệm 60 phút");
     expect(mapIneligibleReason("LICENSE_EXPIRING")).toContain("GPLX sắp hết hạn");

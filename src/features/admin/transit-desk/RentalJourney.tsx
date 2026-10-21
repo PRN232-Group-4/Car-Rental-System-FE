@@ -28,6 +28,7 @@ import {
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import VehicleName from "@/features/admin/VehicleName";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
@@ -505,6 +506,8 @@ export function RentalJourney() {
                     </dd>
                   </div>
                 </dl>
+
+                <VehiclePhotos vehicleId={rental.vehicleId} />
 
                 {/* Fast Deep Links */}
                 <div className="flex flex-wrap items-center gap-5 pt-1 font-mono text-xs">

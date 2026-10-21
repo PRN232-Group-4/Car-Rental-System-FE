@@ -1,4 +1,4 @@
-export type ReviewStatus = "visible" | "hidden" | "reported";
+export type ReviewStatus = "visible" | "hidden" | "reported" | "unavailable";
 
 export interface ReviewStaffSummary {
   id: number;
@@ -10,7 +10,7 @@ export interface ReviewStaffSummary {
 
 export interface ReviewListItem {
   id: number;
-  rating: 1 | 2 | 3 | 4 | 5;
+  rating: number;
   commentPreview: string;
   status: ReviewStatus;
   createdAt: string;

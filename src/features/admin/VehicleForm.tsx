@@ -25,8 +25,10 @@ import { FormField as Field } from "@/components/ui/FormField";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { VehicleIdentity } from "@/features/admin/VehicleName";
+import { VehiclePhotoGrid } from "@/features/admin/VehiclePhotos";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -306,6 +308,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
             <aside aria-labelledby="vehicle-profile-title" className="min-w-0 space-y-5 rounded border border-td-rule bg-td-white p-6 lg:col-span-4">
               <h2 id="vehicle-profile-title" className="text-sm font-bold text-td-ink">Hồ sơ phương tiện</h2>
               <VehicleIdentity vehicle={draft} />
+              <VehiclePhotoGrid vehicle={{ ...draft, detail: { galleryImages: draft.galleryImages } }} />
               <AdminStatusBadge domain="vehicle" status={draft.status}>
                 {statuses.find((item) => item.value === draft.status)?.label ?? draft.status}
               </AdminStatusBadge>
@@ -329,6 +332,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           <div className={onClose ? "min-w-0 space-y-6" : "min-w-0 space-y-8 lg:col-span-8"}>
         <section aria-labelledby="vehicle-general-title" className="min-w-0 border-t border-td-ink pt-5">
           <h2 id="vehicle-general-title" className="text-sm font-bold text-td-ink">Thông tin phương tiện</h2>
+
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
             <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>

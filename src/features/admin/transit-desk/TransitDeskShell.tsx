@@ -16,6 +16,7 @@ import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/
 import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import AccountAvatar from "@/components/ui/AccountAvatar";
 import { House, Moon, Sun, LogOut, User } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 
@@ -242,6 +243,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   }
 
   const displayName = account?.fullName || user?.fullName || "Quản trị viên";
+  const avatarUrl = account?.avatarUrl || user?.avatarUrl;
   const jobTitle = staffRole || "Nhân sự vận hành";
 
   return (
@@ -332,7 +334,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
               aria-label="Tài khoản cá nhân"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-td-rule bg-td-white text-xs font-bold text-td-ink hover:border-td-ink cursor-pointer"
             >
-              {displayName.charAt(0).toUpperCase()}
+              <AccountAvatar src={avatarUrl} name={displayName} size={36} className="h-9 w-9 rounded-full" />
             </button>
 
             {isUserMenuOpen && (

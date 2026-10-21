@@ -21,10 +21,10 @@ import { RatingStars } from "./RatingStars";
 import {
   getReviewStatusMeta,
   STANDARD_HIDE_REASONS,
-  calculateReviewImpact,
 } from "../review-status";
 import { useHideReview, useUnhideReview, useReplyReview } from "../hooks";
 import type { ReviewDetail } from "../types";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 interface ReviewDetailViewProps {
   review: ReviewDetail;
@@ -48,7 +48,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
   const statusMeta = getReviewStatusMeta(review.status);
 
   // Tính toán tác động điểm số
-  const impact = review.impact ?? calculateReviewImpact(4.65, 42, review.rating);
+  const impact = review.impact;
 
   const handleConfirmHide = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +90,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
 
   return (
     <div className="space-y-6">
+      <p role="status" className="text-xs text-td-muted">API chưa cung cấp kiểm duyệt, phản hồi hoặc tác động điểm số. Các thao tác này tạm khóa, không dùng dữ liệu giả.</p>
       {/* Cảnh báo nếu đánh giá bị người dùng báo cáo */}
       {review.status === "reported" && (
         <div
@@ -252,6 +253,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
                   </AdminStatusBadge>
                 </div>
                 <p className="font-semibold text-td-oxide">{review.rental.vehicleName}</p>
+                <RentalVehiclePhotos rentalId={review.rentalId} />
                 {review.rental.licensePlate && (
                   <p className="font-mono text-td-muted">Biển số: {review.rental.licensePlate}</p>
                 )}
@@ -311,6 +313,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
               placeholder="Nhập phản hồi từ đại diện Thong Dong gửi khách hàng (5 - 1000 ký tự)..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
+              disabled title="API chưa hỗ trợ phản hồi đánh giá"
               className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink placeholder:text-td-muted focus:outline-none focus:ring-1 focus:ring-td-oxide"
             />
             <div className="flex items-center justify-end gap-2">
@@ -324,7 +327,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
                   Hủy
                 </Button>
               )}
-              <Button type="submit" size="sm" isLoading={replyMutation.isPending}>
+              <Button type="submit" size="sm" disabled title="API chưa hỗ trợ phản hồi đánh giá" isLoading={replyMutation.isPending}>
                 Lưu phản hồi
               </Button>
             </div>

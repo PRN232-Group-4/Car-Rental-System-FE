@@ -26,6 +26,7 @@ import {
 import { useUpdateReportStatus } from "../hooks";
 import { CreateMaintenanceModal } from "./CreateMaintenanceModal";
 import type { ReportDetail } from "../types";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 interface ReportDetailViewProps {
   report: ReportDetail;
@@ -51,10 +52,9 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
   };
 
   const handleResolve = async () => {
-    await statusMutation.mutateAsync({
-      id: report.id,
-      status: "resolved",
-    });
+    if (statusMutation.isPending || !window.confirm("Xác nhận sự cố đã được giải quyết?")) return;
+    try { await statusMutation.mutateAsync({ id: report.id, status: "resolved" }); }
+    catch { /* The mutation error is displayed below; retain the current report. */ }
   };
 
   const handleConfirmReject = async (e: React.FormEvent) => {
@@ -74,6 +74,8 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
 
   return (
     <div className="space-y-6">
+      {statusMutation.error && <p role="alert" className="text-sm text-danger">{statusMutation.error.message}</p>}
+      <p role="status" className="text-xs text-td-muted">API chỉ hỗ trợ tạo bảo dưỡng và giải quyết sự cố; chưa có thao tác tiếp nhận/từ chối hoặc thời gian để tính SLA.</p>
       {/* Banner cảnh báo SLA nếu quá hạn 24h */}
       {isOverdue && (
         <div
@@ -103,7 +105,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
             )}
           </div>
           <p className="mt-1 text-xs text-td-muted">
-            Gửi lúc {formatDateTime(report.createdAt, "dd/MM/yyyy HH:mm")} · Thời gian chờ: {waitTimeStr}
+            Gửi lúc {report.createdAt ? formatDateTime(report.createdAt, "dd/MM/yyyy HH:mm") : "API chưa cung cấp"} · Thời gian chờ: {waitTimeStr}
           </p>
         </div>
 
@@ -115,12 +117,13 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               size="sm"
               isLoading={statusMutation.isPending}
               onClick={handleAccept}
+              disabled title="API chưa hỗ trợ tiếp nhận xử lý"
             >
               Tiếp nhận xử lý
             </Button>
           )}
 
-          {report.status === "in_progress" && (
+          {(report.status === "new" || report.status === "in_progress") && (
             <Button
               type="button"
               size="sm"
@@ -140,6 +143,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               size="sm"
               variant="ghost"
               className="text-danger hover:bg-danger-bg hover:text-danger"
+              disabled title="API chưa hỗ trợ từ chối báo cáo"
               onClick={() => {
                 setRejectReason("");
                 setRejectError("");
@@ -215,7 +219,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
           </div>
           <div className="mt-4 border-t border-td-rule pt-3">
             <Link
-              href={`/admin/users/detail?id=${report.customer.id}`}
+              href={report.customer.id ? `/admin/customers/detail?id=${report.customer.id}` : "/admin/customers"}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-oxide hover:underline"
             >
               <span>Xem hồ sơ người dùng</span>
@@ -241,6 +245,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
                   </AdminStatusBadge>
                 </div>
                 <p className="font-semibold text-td-oxide">{report.rental.vehicleName}</p>
+                <RentalVehiclePhotos rentalId={report.rental.id} />
                 {report.rental.licensePlate && (
                   <p className="font-mono text-td-muted">Biển số: {report.rental.licensePlate}</p>
                 )}

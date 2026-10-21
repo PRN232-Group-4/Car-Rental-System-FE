@@ -26,6 +26,7 @@ export interface Vehicle {
   facilityName: string;
   imageUrl: string;
   modelUrl?: string;
+  hasDriverOption?: boolean;
   badges: string[];
   isAvailable: boolean;
   supportsSubscription: boolean;

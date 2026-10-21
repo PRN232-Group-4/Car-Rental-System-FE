@@ -9,9 +9,7 @@ import fs from "fs";
 import path from "path";
 
 const targetDirs = [
-  path.resolve(process.cwd(), "GRAPHITE-GLASS-DECK-A1.1-SCREENSHOTS"),
-  path.resolve(process.cwd(), "..", "GRAPHITE-GLASS-DECK-A1.1-SCREENSHOTS"),
-  path.resolve("C:\\Users\\Huy\\.gemini\\antigravity\\brain\\20c95a8f-ab5a-40e4-8ca7-4ef62d971f61\\GRAPHITE-GLASS-DECK-A1.1-SCREENSHOTS"),
+  path.resolve(process.cwd(), "test-results", "graphite-glass-deck"),
 ];
 
 for (const dir of targetDirs) {
