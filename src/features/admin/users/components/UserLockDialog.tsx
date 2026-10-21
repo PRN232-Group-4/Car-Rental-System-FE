@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
+import { useState } from "react";
+import type { FormEvent } from "react";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
+import { ValidatedForm, InlineTextarea, useInlineValidation } from "@/components/forms/inline-validation";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
-import { Lock, Unlock, AlertTriangle } from "lucide-react";
 
 export interface UserLockDialogProps {
   open: boolean;
@@ -16,106 +17,40 @@ export interface UserLockDialogProps {
   isLoading?: boolean;
 }
 
-export function UserLockDialog({
-  open,
-  onOpenChange,
-  userName,
-  isCurrentlyActive,
-  onConfirm,
-  isLoading = false,
-}: UserLockDialogProps) {
+export function UserLockDialog(props: UserLockDialogProps) {
+  if (!props.open) return null;
+  return <UserLockForm key={`${props.userId}-${props.isCurrentlyActive}`} {...props} />;
+}
+
+function UserLockForm({ onOpenChange, userName, isCurrentlyActive, onConfirm, isLoading = false }: UserLockDialogProps) {
   const [reason, setReason] = useState("");
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isCurrentlyActive) {
-      if (!reason.trim() || reason.trim().length < 5) {
-        setValidationError("Vui lòng nhập lý do khóa tài khoản cụ thể (tối thiểu 5 ký tự).");
-        return;
-      }
-    }
-
-    setValidationError(null);
-    await onConfirm(isCurrentlyActive ? reason.trim() : undefined);
-    setReason("");
-    onOpenChange(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const validation = useInlineValidation();
+  const busy = isLoading || submitting;
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setError("");
+    setSubmitting(true);
+    try {
+      await onConfirm(isCurrentlyActive ? reason.trim() : undefined);
+      onOpenChange(false);
+    } catch (failure) {
+      setError(validation.report(failure));
+    } finally { setSubmitting(false); }
   };
-
-  return (
-    <Modal
-      open={open}
-      onOpenChange={onOpenChange}
-      title={isCurrentlyActive ? "Khóa tài khoản người dùng" : "Mở khóa tài khoản"}
-      description={
-        isCurrentlyActive
-          ? `Tài khoản ${userName} sẽ bị vô hiệu hóa quyền đăng nhập vào toàn bộ hệ thống.`
-          : `Khôi phục quyền truy cập bình thường cho tài khoản ${userName}.`
-      }
-      size="md"
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {isCurrentlyActive ? (
-          <>
-            <div className="flex items-start gap-2.5 rounded border border-danger/20 bg-danger-bg/40 p-3 text-xs text-danger">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>
-                Người dùng này sẽ bị hủy các phiên đăng nhập hiện tại và không thể thao tác trên ứng dụng di động cũng như cổng web.
-              </span>
-            </div>
-
-            <FormField
-              label="Lý do khóa tài khoản"
-              required
-              error={validationError || undefined}
-              helperText="Lý do này sẽ được ghi nhận vào nhật ký bảo mật của hệ thống."
-            >
-              <textarea
-                value={reason}
-                onChange={(e) => {
-                  setReason(e.target.value);
-                  if (validationError) setValidationError(null);
-                }}
-                rows={3}
-                placeholder="Ví dụ: Vi phạm quy định thuê xe, nghi vấn gian lận thông tin giấy tờ..."
-                className="w-full rounded border border-td-rule bg-td-white p-3 text-sm text-td-ink focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/20"
-              />
-            </FormField>
-          </>
-        ) : (
-          <p className="text-sm text-td-ink py-2">
-            Sau khi mở khóa, người dùng có thể đăng nhập và tiếp tục sử dụng dịch vụ của Thong Dong.
-          </p>
-        )}
-
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-td-rule">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => onOpenChange(false)}
-            disabled={isLoading}
-          >
-            Hủy
-          </Button>
-          <Button
-            type="submit"
-            variant={isCurrentlyActive ? "danger" : "primary"}
-            isLoading={isLoading}
-          >
-            {isCurrentlyActive ? (
-              <>
-                <Lock className="w-4 h-4 mr-1.5" />
-                <span>Xác nhận khóa</span>
-              </>
-            ) : (
-              <>
-                <Unlock className="w-4 h-4 mr-1.5" />
-                <span>Xác nhận mở khóa</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
-    </Modal>
-  );
+  return <FormDialog title={isCurrentlyActive ? "Khóa tài khoản người dùng" : "Mở khóa tài khoản"} onClose={() => onOpenChange(false)} busy={busy}>
+    <ValidatedForm validation={validation} onSubmit={submit} className="space-y-4">
+      <p className="text-sm text-td-muted">{isCurrentlyActive ? `Khóa quyền đăng nhập của tài khoản ${userName} và thu hồi các phiên hiện tại.` : `Khôi phục quyền đăng nhập của tài khoản ${userName}.`}</p>
+      {error && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{error}</p>}
+      {isCurrentlyActive && <FormField label="Lý do khóa tài khoản" htmlFor="reason" required helperText="Nhập lý do từ 1 đến 1000 ký tự để lưu vào nhật ký bảo mật.">
+        <InlineTextarea id="reason" name="reason" required maxLength={1000} value={reason} onChange={(event) => setReason(event.target.value)} rows={3} className="admin-input" disabled={busy} />
+      </FormField>}
+      <FormDialogFooter>
+        <Button type="button" variant="secondary" disabled={busy} onClick={() => onOpenChange(false)}>Hủy</Button>
+        <Button type="submit" isLoading={busy} disabled={busy}>{isCurrentlyActive ? "Xác nhận khóa" : "Xác nhận mở khóa"}</Button>
+      </FormDialogFooter>
+    </ValidatedForm>
+  </FormDialog>;
 }

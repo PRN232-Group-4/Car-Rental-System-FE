@@ -245,7 +245,9 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       notifySuccess(isEditing ? "Đã cập nhật thông tin." : "Đã thêm mới thành công.");
       await load();
     } catch (submitError) {
-      setError(validation.report(submitError));
+      const message = validation.report(submitError);
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }

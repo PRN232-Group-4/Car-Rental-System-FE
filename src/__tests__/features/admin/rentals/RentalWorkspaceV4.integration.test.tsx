@@ -31,6 +31,8 @@ vi.mock("@/features/maps/RentalTrackingPanel", () => ({
   ),
 }));
 
+vi.mock("@/features/operations/TechnicianAssignmentForm", () => ({ default: () => null }));
+
 vi.mock("@/features/admin/VehicleName", () => ({
   default: ({ vehicleId }: { vehicleId: number | string }) => (
     <span data-testid="vehicle-name">Toyota Corolla Cross 1.8V - 51K-992.11 (#{vehicleId})</span>
@@ -235,6 +237,51 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
   });
 
   describe("Gate 3: Contextual Guided Transition vs Manual Override", () => {
+    it.each([false, undefined])("blocks handover when passing inspection is %s and links to the selected rental", async (hasPassingPreInspection) => {
+      mockSearchParams = new URLSearchParams("rentalId=101");
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection });
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus");
+      renderWithClient(<RentalWorkspaceV4 />);
+
+      const start = await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" });
+      expect(start).toBeDisabled();
+      expect(screen.getByRole("link", { name: "Mở phiếu kiểm tra đơn #101" })).toHaveAttribute("href", "/admin/inspections?rentalId=101");
+      fireEvent.click(start);
+      fireEvent.change(screen.getByLabelText("Thao tác chuyển bước"), { target: { value: "renting" } });
+      fireEvent.click(screen.getByRole("button", { name: "Xác nhận cập nhật trạng thái" }));
+      expect(statusSpy).not.toHaveBeenCalled();
+      expect(screen.getAllByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.").length).toBeGreaterThan(0);
+    });
+
+    it("reloads the saved inspection, starts the trip, and refreshes its displayed status", async () => {
+      mockSearchParams = new URLSearchParams("rentalId=101");
+      const pending = { ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: false };
+      const passed = { ...pending, hasPassingPreInspection: true };
+      const renting = { ...passed, status: "renting" };
+      const rentalSpy = vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(pending);
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValue(renting);
+      renderWithClient(<RentalWorkspaceV4 />);
+      await screen.findByRole("button", { name: "Tải lại kết quả kiểm tra" });
+      rentalSpy.mockResolvedValue(passed);
+      fireEvent.click(screen.getByRole("button", { name: "Tải lại kết quả kiểm tra" }));
+      await waitFor(() => expect(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" })).toBeEnabled());
+      rentalSpy.mockResolvedValue(renting);
+      fireEvent.click(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" }));
+      await screen.findByRole("button", { name: "Thu hồi xe & Kiểm tra trả" });
+      expect(statusSpy).toHaveBeenCalledExactlyOnceWith(101, "renting");
+      expect(await screen.findByText("Đã cập nhật đơn thuê sang trạng thái: Đang thuê")).toBeInTheDocument();
+    });
+
+    it("preserves the pre-inspection stage when starting fails and shows a Vietnamese explanation", async () => {
+      mockSearchParams = new URLSearchParams("rentalId=101");
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: true });
+      vi.spyOn(operationsApi, "changeRentalStatus").mockRejectedValue(new Error("A successful pre-rental inspection is required to start."));
+      renderWithClient(<RentalWorkspaceV4 />);
+      fireEvent.click(await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" }));
+      expect(await screen.findByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Thu hồi xe & Kiểm tra trả" })).not.toBeInTheDocument();
+    });
+
     it("provides prominent primary guided action corresponding to next operational state", async () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
       // Rental #101 is in "renting" status in default mock

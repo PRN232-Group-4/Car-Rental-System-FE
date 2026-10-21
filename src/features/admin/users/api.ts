@@ -1,101 +1,141 @@
+import { Role, ROLES } from "@/features/auth/roles";
 import { backendApiClient } from "@/api/backend-api-client";
-import { unsupportedApi } from "@/api/unsupported";
-import { normalizeRole, type Role } from "@/features/auth/roles";
-import type { PagedResult } from "../api";
-import type { AdminUserDetail, AdminUserListItem, UserFilterParams, UserPageResult } from "./types";
+import { ApiProblemError } from "@/api/api-client";
+import type { PagedResult, StaffDto } from "@/features/admin/api";
+import type { AdminUserDetail, UserFilterParams, UserPageResult } from "./types";
 
 const SENSITIVE_PATTERNS = [/password/i, /token/i, /secret/i, /otp/i, /salt/i, /ticket/i];
 
 export function sanitizeUserRecord<T extends object>(record: T): T {
-  const sanitized = { ...record } as Record<string, unknown>;
-  for (const key of Object.keys(sanitized)) {
-    if (SENSITIVE_PATTERNS.some((pattern) => pattern.test(key))) delete sanitized[key];
-  }
-  return sanitized as T;
+  return Object.fromEntries(Object.entries(record).filter(([key]) => !SENSITIVE_PATTERNS.some((pattern) => pattern.test(key)))) as T;
 }
 
-type UserListDto = {
-  id: number; email: string | null; fullName: string | null; phone?: string | null; avatarUrl?: string | null;
-  roles: string[] | null; isActive: boolean; createdAt: string; customerId?: number | null; staffId?: number | null;
-};
+export interface AdministrativeUser {
+  id: number;
+  email: string;
+  fullName: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  gender: string | null;
+  isActive: boolean;
+  createdAt: string;
+  roles: string[];
+  customerId: number | null;
+  staffId: number | null;
+}
 
-function mapUserListItem(record: UserListDto): AdminUserListItem {
-  if (!record || !Number.isSafeInteger(record.id) || record.id <= 0 || typeof record.isActive !== "boolean" || typeof record.createdAt !== "string" || (record.roles !== null && !Array.isArray(record.roles))) {
-    throw new Error("Dữ liệu tài khoản không hợp lệ. Vui lòng thử lại.");
-  }
+interface CustomerDetail {
+  id: number;
+  userId: number;
+  license: { number: string | null; type: string | null; expiryDate: string | null; imageUrl: string | null; status: "pending" | "approved" | "rejected" };
+  loyalty: { points: number };
+}
+
+// Explicit allowlist: backend fields outside the user-directory contract never reach the UI.
+export function mapAdministrativeUser(user: AdministrativeUser): AdminUserDetail {
   return {
-    id: record.id, email: record.email ?? "", fullName: record.fullName ?? "Chưa cập nhật tên",
-    phone: record.phone ?? undefined, avatarUrl: record.avatarUrl ?? undefined,
-    roles: (record.roles ?? []).map(normalizeRole).filter((role): role is Role => role !== null),
-    isActive: record.isActive, createdAt: record.createdAt,
-    hasCustomerProfile: record.customerId != null && record.customerId > 0,
-    hasStaffProfile: record.staffId != null && record.staffId > 0,
+    id: user.id, email: user.email, fullName: user.fullName || user.email,
+    phone: user.phone ?? undefined, avatarUrl: user.avatarUrl ?? undefined, gender: user.gender ?? undefined,
+    roles: (user.roles ?? []).filter((role): role is Role => ROLES.includes(role as Role)),
+    isActive: user.isActive, createdAt: user.createdAt,
+    hasStaffProfile: user.staffId != null, hasCustomerProfile: user.customerId != null,
+    staff: user.staffId == null ? null : { id: user.staffId, isDriver: user.roles.includes("Driver") },
+    customer: user.customerId == null ? null : { id: user.customerId },
   };
+}
+
+function problem(status: number, detail: string): ApiProblemError {
+  return new ApiProblemError(status, "Yêu cầu không hợp lệ", { detail });
 }
 
 export async function getAdminUsers(params: UserFilterParams = {}): Promise<UserPageResult> {
   const page = params.page ?? 1;
   const pageSize = params.pageSize ?? 10;
-  if (!Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 100) {
-    throw new Error("Trang phải từ 1 và số tài khoản mỗi trang phải từ 1 đến 100. Vui lòng chọn lại.");
+  if (!Number.isInteger(page) || page < 1 || !Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+    throw problem(400, "Trang phải từ 1 và số bản ghi mỗi trang phải từ 1 đến 100.");
   }
-  const readPage = async (current: number, size: number) => {
-    const result = await backendApiClient.get<PagedResult<UserListDto>>("users", {
-      search: params.search?.trim() || undefined,
-      role: params.role && params.role !== "all" ? normalizeRole(params.role) ?? params.role : undefined,
-      isActive: params.isActive === "active" ? true : params.isActive === "locked" ? false : undefined,
-      page: current, pageSize: size,
+  const role = params.role && params.role !== "all" ? params.role : undefined;
+  if (role && !ROLES.includes(role as Role)) throw problem(400, "Vai trò không tồn tại trong danh mục hệ thống.");
+  const records: AdminUserDetail[] = [];
+  // Profile filter and sort are UI features; collect real server pages before applying them.
+  for (let apiPage = 1; ; apiPage += 1) {
+    const result = await backendApiClient.get<PagedResult<AdministrativeUser>>("users", {
+      search: params.search?.trim() || undefined, role,
+      isActive: params.isActive && params.isActive !== "all" ? params.isActive === "active" : undefined,
+      page: apiPage, pageSize: 100,
     });
-    if (!result || !Array.isArray(result.items) || result.page !== current || !Number.isSafeInteger(result.totalCount) || result.totalCount < 0) {
-      throw new Error("Dữ liệu danh sách tài khoản không hợp lệ. Vui lòng thử lại.");
-    }
-    return { ...result, items: result.items.map(mapUserListItem) };
-  };
-  const filterProfile = params.profile && params.profile !== "all";
-  if (!filterProfile && !params.sortBy) return readPage(page, pageSize);
-
-  // Profile filtering and sorting are not supported by the API; apply them before local pagination.
-  const first = await readPage(1, 100);
-  let items = first.items;
-  let current = 1;
-  while (items.length < first.totalCount) {
-    if (!items.length) throw new Error("Chưa tải đủ danh sách tài khoản. Vui lòng thử lại.");
-    const next = await readPage(++current, 100);
-    if (!next.items.length) throw new Error("Chưa tải đủ danh sách tài khoản. Vui lòng thử lại.");
-    items.push(...next.items);
+    const items = result.items ?? [];
+    records.push(...items.map(mapAdministrativeUser));
+    if (!items.length || records.length >= result.totalCount) break;
   }
-  if (params.profile === "customer") items = items.filter((user) => user.hasCustomerProfile);
-  else if (params.profile === "staff") items = items.filter((user) => user.hasStaffProfile);
-  else if (params.profile === "none") items = items.filter((user) => !user.hasCustomerProfile && !user.hasStaffProfile);
-  const sortBy = params.sortBy;
-  if (sortBy) items.sort((a, b) => (params.sortOrder === "asc" ? 1 : -1) * (sortBy === "createdAt" ? Date.parse(a.createdAt) - Date.parse(b.createdAt) : a[sortBy].localeCompare(b[sortBy], "vi")));
-  return { items: items.slice((page - 1) * pageSize, page * pageSize), totalCount: items.length, page, pageSize };
-}
-export async function getAdminUserById(id: number): Promise<AdminUserDetail> {
-  void id;
-  return unsupportedApi("chi tiết tài khoản theo User ID (cần GET /api/users/{id})");
-}
-export async function setUserActiveStatus(input: { userId: number; isActive: boolean; reason?: string; currentActorId?: number; currentActorEmail?: string }): Promise<AdminUserDetail> {
-  void input;
-  return unsupportedApi("khóa/mở khóa tài khoản (cần PATCH /api/users/{id}/status)");
-}
-export async function assignUserRole(input: { userId: number; role: Role }): Promise<AdminUserDetail> {
-  void input;
-  return unsupportedApi("gán vai trò tài khoản (cần POST /api/users/{id}/roles)");
-}
-export async function removeUserRole(input: { userId: number; role: Role; currentActorId?: number; currentActorEmail?: string }): Promise<AdminUserDetail> {
-  void input;
-  return unsupportedApi("gỡ vai trò tài khoản (cần DELETE /api/users/{id}/roles)");
-}
-export async function revokeUserSessions(userId: number): Promise<{ success: boolean }> {
-  void userId;
-  return unsupportedApi("thu hồi phiên của tài khoản khác (cần POST /api/users/{id}/sessions/revoke)");
-}
-export async function reviewCustomerLicense(input: { customerId: number; status: "approved" | "rejected" }): Promise<void> {
-  await backendApiClient.put(`customers/${input.customerId}/license-status`, { status: input.status });
-}
-export async function adjustCustomerLoyalty(input: { customerId: number; points: number; reason: string; idempotencyKey: string }): Promise<{ balanceAfter: number }> {
-  return backendApiClient.post(`customers/${input.customerId}/loyalty/adjustments`, {
-    points: input.points, reason: input.reason, idempotencyKey: input.idempotencyKey,
+  const filtered = records.filter((user) => params.profile === "customer" ? user.hasCustomerProfile
+    : params.profile === "staff" ? user.hasStaffProfile
+    : params.profile === "none" ? !user.hasCustomerProfile && !user.hasStaffProfile : true);
+  filtered.sort((a, b) => {
+    const order = params.sortBy === "email" ? a.email.localeCompare(b.email)
+      : params.sortBy === "fullName" ? a.fullName.localeCompare(b.fullName, "vi")
+      : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    return (params.sortOrder === "asc" ? order : -order) || b.id - a.id;
   });
+  return { items: filtered.slice((page - 1) * pageSize, page * pageSize), page, pageSize, totalCount: filtered.length };
+}
+
+export async function getAdminUserById(id: number): Promise<AdminUserDetail | null> {
+  let record: AdministrativeUser;
+  try { record = await backendApiClient.get<AdministrativeUser>(`users/${id}`); }
+  catch (error) {
+    if (error instanceof ApiProblemError && error.status === 404) return null;
+    throw error;
+  }
+  const user = mapAdministrativeUser(record);
+  // Optional profile requests cannot hide the account's status and security actions.
+  await Promise.allSettled([
+    record.staffId == null ? Promise.resolve() : backendApiClient.get<StaffDto>(`staff/${record.staffId}`).then((staff) => {
+      user.staff = { id: staff.id, department: staff.departmentName ?? undefined, facility: staff.facilityName ?? undefined,
+        isDriver: user.roles.includes("Driver"), licenseExpiry: staff.licenseExpiryDate ?? undefined, rating: staff.rating ?? undefined };
+    }),
+    record.customerId == null ? Promise.resolve() : backendApiClient.get<CustomerDetail>(`customers/${record.customerId}`).then((customer) => {
+      user.customer = { id: customer.id, licenseStatus: customer.license.status,
+        licenseNumber: customer.license.number ?? undefined, licenseType: customer.license.type ?? undefined,
+        licenseExpiry: customer.license.expiryDate ?? undefined, licenseImgUrl: customer.license.imageUrl ?? undefined,
+        loyaltyPoint: customer.loyalty.points };
+    }),
+  ]);
+  return user;
+}
+
+export async function setUserActiveStatus(input: {
+  userId: number; isActive: boolean; reason?: string; currentActorId?: number; currentActorEmail?: string;
+}): Promise<AdminUserDetail> {
+  if (!input.isActive && input.currentActorId === input.userId) throw problem(409, "Bạn không thể tự khóa tài khoản quản trị của chính mình.");
+  const reason = input.reason?.trim() || (input.isActive ? "Mở khóa tài khoản theo xác nhận của quản trị viên." : "");
+  if (!reason || reason.length > 1000) throw problem(400, "Vui lòng nhập lý do khóa tài khoản từ 1 đến 1000 ký tự.");
+  return mapAdministrativeUser(await backendApiClient.patch<AdministrativeUser>(`users/${input.userId}/status`, { isActive: input.isActive, reason }));
+}
+
+export async function assignUserRole({ userId, role }: { userId: number; role: Role }): Promise<AdminUserDetail> {
+  if (!ROLES.includes(role)) throw problem(400, `Vai trò '${role}' không tồn tại trong danh mục hệ thống.`);
+  return mapAdministrativeUser(await backendApiClient.post<AdministrativeUser>(`users/${userId}/roles`, { role }));
+}
+
+export async function removeUserRole(input: { userId: number; role: Role; currentActorId?: number; currentActorEmail?: string }): Promise<AdminUserDetail> {
+  if (!ROLES.includes(input.role)) throw problem(400, `Vai trò '${input.role}' không tồn tại trong danh mục hệ thống.`);
+  if (input.role === "Admin" && input.userId === input.currentActorId) throw problem(409, "Bạn không thể tự gỡ vai trò Quản trị viên (Admin) của chính mình.");
+  return mapAdministrativeUser(await backendApiClient.delete<AdministrativeUser>(`users/${input.userId}/roles`, { body: JSON.stringify({ role: input.role }) }));
+}
+
+export async function revokeUserSessions(userId: number): Promise<{ success: boolean }> {
+  await backendApiClient.post(`users/${userId}/sessions/revoke`);
+  return { success: true };
+}
+
+export async function reviewCustomerLicense({ customerId, status }: { customerId: number; status: "approved" | "rejected" }): Promise<{ fullName: string }> {
+  await backendApiClient.put(`customers/${customerId}/license-status`, { status });
+  return { fullName: "khách hàng" };
+}
+
+export async function adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }: { customerId: number; points: number; reason: string; idempotencyKey: string }): Promise<{ fullName: string }> {
+  if (!Number.isInteger(points) || points === 0) throw problem(400, "Số điểm điều chỉnh phải là số nguyên khác 0.");
+  await backendApiClient.post(`customers/${customerId}/loyalty/adjustments`, { points, reason: reason.trim(), idempotencyKey });
+  return { fullName: "khách hàng" };
 }

@@ -19,16 +19,17 @@ import {
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
-import { notifySuccess } from "@/components/ui/Toaster";
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { FormField as Field } from "@/components/ui/FormField";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import VehicleMaintenanceTechnicians from "./VehicleMaintenanceTechnicians";
 
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { VehicleIdentity } from "@/features/admin/VehicleName";
-import { VehiclePhotoGrid } from "@/features/admin/VehiclePhotos";
+import { VehiclePhotoGrid } from "./VehiclePhotos";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -102,6 +103,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
   const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
   const [vehicleId, setVehicleId] = useState<number | null>(editingVehicleId ?? null);
+  const [persistedVehicle, setPersistedVehicle] = useState<VehicleDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -122,12 +124,13 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           const [types, facilityList] = await Promise.all([getVehicleTypes(), getFacilities()]);
           setVehicleTypes(types);
           setFacilities(facilityList);
-          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
+          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : (new URLSearchParams(window.location.search).get("id") ?? new URLSearchParams(window.location.search).get("vehicleId"));
           if (idString) {
             const id = Number(idString);
             if (!Number.isInteger(id) || id < 1) throw new Error("ID phương tiện không hợp lệ.");
             const vehicle = await queryClient.fetchQuery(vehicleQueryOptions(id));
             setVehicleId(id);
+            setPersistedVehicle(vehicle);
             setDraft(fromVehicle(vehicle));
           }
         } catch (loadError) {
@@ -263,7 +266,9 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
       if (onSaved) onSaved();
       else router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(saveError instanceof TypeError ? messageOf(saveError, "Không thể lưu phương tiện.") : validation.report(saveError));
+      const message = saveError instanceof TypeError ? messageOf(saveError, "Không thể lưu phương tiện.") : validation.report(saveError);
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }
@@ -332,6 +337,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           <div className={onClose ? "min-w-0 space-y-6" : "min-w-0 space-y-8 lg:col-span-8"}>
         <section aria-labelledby="vehicle-general-title" className="min-w-0 border-t border-td-ink pt-5">
           <h2 id="vehicle-general-title" className="text-sm font-bold text-td-ink">Thông tin phương tiện</h2>
+          {persistedVehicle && <div className="mt-4"><VehicleMaintenanceTechnicians vehicle={persistedVehicle} /></div>}
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>

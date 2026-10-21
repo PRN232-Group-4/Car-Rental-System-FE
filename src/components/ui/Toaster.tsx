@@ -35,7 +35,7 @@ export function notifySuccess(message: string) {
 }
 
 export function notifyError(message: string) {
-  toast.error(message, { duration: 8000 });
+  if (message.trim()) toast.error(message, { duration: 8000 });
 }
 
 export function notifyApiError(error: unknown, fallback: string) {

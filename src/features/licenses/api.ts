@@ -17,7 +17,7 @@ export async function saveCustomerLicense(payload: SaveLicensePayload): Promise<
   const form = new FormData();
   form.append("Number", payload.number);
   form.append("Type", payload.type);
-  if (payload.issueDate) form.append("IssueDate", payload.issueDate);
+  form.append("IssueDate", payload.issueDate);
   form.append("ExpiryDate", payload.expiryDate);
   form.append("File", payload.file);
   // ApiClient leaves Content-Type to the browser, including the multipart boundary.

@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import StaffsPage from "@/app/admin/staffs/page";
-import { backendApiClient } from "@/api/backend-api-client";
+import { driverStaff, pageOf } from "./staff-backend-fixture";
+const client = vi.hoisted(() => ({ get: vi.fn() }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
 
 // Mock next/navigation
 const pushMock = vi.fn();
@@ -99,16 +101,14 @@ function renderStaffsPage() {
 describe("FE-24 Admin Staff — List Page Component", () => {
   beforeEach(() => {
     pushMock.mockClear();
-    vi.spyOn(backendApiClient, "get").mockImplementation(async (path) => {
-      if (path === "departments") return [{ id: 1, name: "Ban Giám Đốc" }];
-      if (path === "facilities") return [{ id: 1, name: "Quận 1", address: "TP.HCM" }];
-      if (path === "staff") return {
-        items: [
-          { id: 1, userId: 1, fullName: "Nguyễn Văn Quản Trị", email: "admin@example.com", isActive: true, isDriver: false, departmentId: 1, departmentName: "Ban Giám Đốc" },
-          { id: 4, userId: 4, fullName: "Phạm Hùng Cường (Tài xế VIP)", email: "driver@example.com", isActive: true, isDriver: true, staffRole: "Driver", licenseExpiryDate: "2035-01-01" },
-        ], page: 1, pageSize: 100, totalCount: 2,
-      };
-      throw new Error("Unexpected test API: " + path);
+    client.get.mockImplementation(async (path: string) => {
+      if (path === "departments") return [{ id: 9, name: "Ban Giám Đốc" }];
+      if (path === "facilities") return pageOf([{ id: 31, name: "Trạm thực tế" }]);
+      if (path === "staff") return pageOf([
+        { ...driverStaff, id: 1, fullName: "Nguyễn Văn Quản Trị", roles: ["Admin"], departmentName: "Ban Giám Đốc" },
+        { ...driverStaff, id: 4, fullName: "Phạm Hùng Cường (Tài xế VIP)" },
+      ]);
+      throw new Error(`Unexpected request ${path}`);
     });
   });
 
@@ -123,6 +123,7 @@ describe("FE-24 Admin Staff — List Page Component", () => {
 
     expect(screen.getByText("Phạm Hùng Cường (Tài xế VIP)")).toBeDefined();
     expect(screen.getAllByText("Ban Giám Đốc").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Trạm thực tế").length).toBeGreaterThan(0);
   });
 
   it("hiển thị các huy hiệu phân loại tài xế và trạng thái GPLX", async () => {

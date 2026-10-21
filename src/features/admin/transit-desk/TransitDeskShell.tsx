@@ -8,17 +8,20 @@ import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
 import { useAdminTheme } from "@/features/admin/use-admin-theme";
-import { getFacilities, getStaffById } from "@/features/admin/api";
 import { ADMIN_NAV_ITEMS, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
 import { hasAnyRole } from "@/features/auth/access";
 import type { Role } from "@/features/auth/roles";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
-import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { FormSkeleton } from "@/components/ui/Skeleton";
+import { operatorContext } from "./operator-context";
 import AccountAvatar from "@/components/ui/AccountAvatar";
-import { House, Moon, Sun, LogOut, User } from "lucide-react";
+import { House, Moon, Sun, LogOut, User, KeyRound } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
+import { useNavigationCounts } from "@/features/admin/use-navigation-counts";
+import { navigationCount } from "@/features/admin/navigation-counts";
+import { NavigationCount, NavigationDot } from "./NavigationIndicator";
 
 export interface TransitDeskShellProps {
   children: ReactNode;
@@ -32,75 +35,15 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   const { account, checkingAccess, accessError } = usePortalAccess(
     isAdminOrStaffAccount,
   );
+  const navigationCounts = useNavigationCounts(account);
+  const counts = navigationCounts.isError ? undefined : navigationCounts.data;
 
-  const [staffRole, setStaffRole] = useState<string | null>(null);
-  const [facilityName, setFacilityName] = useState<string | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
   const [isRouteIndexOpen, setIsRouteIndexOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const userRoles = useMemo<Role[]>(() => {
     return (account?.roles ?? user?.roles ?? []) as Role[];
   }, [account?.roles, user?.roles]);
-
-  // Load operator assignment details safely
-  useEffect(() => {
-    if (!account) return;
-    let active = true;
-
-    const loadAssignment = async () => {
-      try {
-        let nextStaffRole: string | null = null;
-        let nextFacilityName: string | null = null;
-        const isAdmin = userRoles.some((r) => r.toLowerCase() === "admin");
-
-        if (account.staffId) {
-          try {
-            const staff = await getStaffById(account.staffId);
-            if (active && staff) {
-              nextStaffRole = staff.isDriver ? "Tài xế trạm" : "Điều phối viên";
-              if (staff.departmentName) {
-                nextStaffRole = `${nextStaffRole} · ${staff.departmentName}`;
-              }
-              if (staff.facilityName) {
-                nextFacilityName = staff.facilityName;
-              }
-            }
-          } catch {
-            // Staff details may not exist for pure admins
-          }
-        }
-
-        if (!nextFacilityName && account.facilityId && isAdmin) {
-          try {
-            const facilities = await getFacilities();
-            const facility = facilities.find(
-              (f) => f.id === account.facilityId,
-            );
-            if (active && facility) {
-              nextFacilityName = facility.name;
-            }
-          } catch {
-            // Ignore if forbidden
-          }
-        }
-
-        if (active) {
-          setStaffRole(nextStaffRole);
-          setFacilityName(nextFacilityName);
-        }
-      } finally {
-        if (active) {
-          setProfileLoading(false);
-        }
-      }
-    };
-
-    void loadAssignment();
-    return () => {
-      active = false;
-    };
-  }, [account, userRoles]);
 
   // Global hotkey for Ctrl+K / Cmd+K
   useEffect(() => {
@@ -140,7 +83,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     () =>
       permittedItems.map((item) => ({
         chapter: ROUTE_CHAPTER_MAP[item.href] || "Hệ thống",
-        href: item.href,
+        href: item.href + (item.defaultQuery ?? ""),
         label: item.label,
         description: item.description,
       })),
@@ -244,7 +187,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
 
   const displayName = account?.fullName || user?.fullName || "Quản trị viên";
   const avatarUrl = account?.avatarUrl || user?.avatarUrl;
-  const jobTitle = staffRole || "Nhân sự vận hành";
+  const { jobTitle, facility } = operatorContext(account);
 
   return (
     <div
@@ -278,7 +221,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
           <div ref={gliderRef} className={styles.chapterGlider} aria-hidden="true" />
           {Array.from(chaptersWithRoutes.entries()).map(([chapter, routes]) => {
             const isActive = chapter === activeChapter;
-            const primaryHref = routes[0]?.href || "/admin";
+            const primaryHref = routes[0] ? routes[0].href + (routes[0].defaultQuery ?? "") : "/admin";
             return (
               <Link
                 key={chapter}
@@ -287,6 +230,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
                 aria-current={isActive ? "true" : undefined}
               >
                 {chapter}
+                <NavigationDot hasWork={routes.some((route) => navigationCount(counts, route.href) > 0)} />
               </Link>
             );
           })}
@@ -296,11 +240,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
         <div className={styles.utilities}>
           <div className={styles.utilityMeta}>
             <div className="font-bold text-td-ink">
-              {profileLoading ? (
-                <Skeleton className="h-3 w-20" />
-              ) : (
-                facilityName || "Trạm Trung Tâm"
-              )}
+              {displayName}
             </div>
             <div className="text-[10px] text-td-muted">{jobTitle}</div>
           </div>
@@ -347,6 +287,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
                   <div className="text-[11px] text-td-muted">
                     {account?.email || user?.email}
                   </div>
+                  <div className="mt-1 break-words text-[11px] text-td-muted">Cơ sở công tác: {facility}</div>
                 </div>
                 <Link
                   href="/"
@@ -363,6 +304,11 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
                 >
                   <User className="h-3.5 w-3.5" />
                   <span>Hồ sơ cá nhân</span>
+                </Link>
+                <Link href="/admin/profile#change-password" onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer">
+                  <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Đổi mật khẩu</span>
                 </Link>
                 <button
                   type="button"
@@ -399,11 +345,12 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
             return (
               <Link
                 key={route.href}
-                href={route.href}
+                href={route.href + (route.defaultQuery ?? "")}
                 className={styles.contextLink}
                 aria-current={isCurrent ? "page" : undefined}
               >
                 {route.label}
+                <NavigationCount count={navigationCount(counts, route.href)} />
               </Link>
             );
           })}
@@ -411,6 +358,10 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
         <span className={styles.contextTotal}>
           {permittedItems.length} CHỨC NĂNG KHẢ DỤNG
         </span>
+      </div>
+      <div className={styles.operatorContext} role="status" aria-label="Cơ sở công tác hiện tại">
+        <span>Cơ sở công tác: <strong>{facility}</strong></span>
+        <span>{account?.email || user?.email}</span>
       </div>
       </div>
 

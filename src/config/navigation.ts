@@ -32,6 +32,7 @@ export interface NavItem {
   badge?: string;
   description?: string;
   external?: boolean;
+  defaultQuery?: string;
 }
 
 export type NavigationArea = "public" | "customer" | "admin" | "driver";
@@ -64,6 +65,7 @@ export const ROUTE_CHAPTER_MAP: Record<string, string> = {
   "/admin/reports/detail": "Chăm sóc & Sự cố",
   "/admin/reviews": "Chăm sóc & Sự cố",
   "/admin/reviews/detail": "Chăm sóc & Sự cố",
+  "/admin/customers": "Chăm sóc & Sự cố",
   "/admin/policies": "Chính sách",
   "/admin/subscription-plans": "Chính sách",
   "/admin/users": "Tổ chức",
@@ -161,6 +163,13 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     label: "Đánh giá nhân sự",
     icon: Star,
     roles: ["Admin", "Manager"],
+  },
+  {
+    href: "/admin/customers",
+    label: "Duyệt GPLX",
+    icon: FileCheck,
+    roles: ["Admin", "Manager"],
+    defaultQuery: "?licenseStatus=pending",
   },
   {
     href: "/admin/inspections",
