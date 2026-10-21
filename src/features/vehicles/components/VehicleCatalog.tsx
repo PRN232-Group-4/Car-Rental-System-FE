@@ -75,7 +75,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
     const matchesFacility =
       filterFacilityId === "all" ||
       filterFacilityId === "delivery" ||
-      vehicle.facilityId === filterFacilityId;
+      String(vehicle.facilityId) === filterFacilityId;
     return matchesCategory && matchesFacility;
   });
 
@@ -88,9 +88,9 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <SectionHeading
-          kicker="ALL-ELECTRIC FLEET"
+          kicker="ĐỘI XE HỆ THỐNG"
           title="Khám phá phương tiện cho mọi cung đường"
-          subtitle="100% xe thuần điện chính chủ hệ thống, kiểm định pin và thân vỏ 2 chiều chi tiết trước khi lăn bánh."
+          subtitle="Danh mục phương tiện, giá thuê và tình trạng được cập nhật từ hệ thống."
         />
       </div>
 
@@ -221,11 +221,11 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span className="text-xs font-bold text-primary uppercase tracking-wide">
-                      {vehicle.categoryLabel} · Đời {vehicle.year}
+                      {vehicle.categoryLabel}{vehicle.year ? ` · Đời ${vehicle.year}` : ""}
                     </span>
                     <span className="text-xs text-primary font-bold flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Sẵn sàng</span>
+                      <span>{vehicle.isAvailable ? "Sẵn sàng" : "Chưa sẵn sàng"}</span>
                     </span>
                   </div>
 
@@ -299,6 +299,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                   <Button
                     type="button"
                     onClick={() => setSelectedVehicleForBooking(vehicle)}
+                    disabled={!vehicle.isAvailable}
                     variant="primary"
                     className="w-full justify-center group"
                   >

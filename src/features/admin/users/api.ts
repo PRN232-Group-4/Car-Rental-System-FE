@@ -134,8 +134,8 @@ export async function reviewCustomerLicense({ customerId, status }: { customerId
   return { fullName: "khách hàng" };
 }
 
-export async function adjustCustomerLoyalty({ customerId, points, reason }: { customerId: number; points: number; reason: string }): Promise<{ fullName: string }> {
+export async function adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }: { customerId: number; points: number; reason: string; idempotencyKey: string }): Promise<{ fullName: string }> {
   if (!Number.isInteger(points) || points === 0) throw problem(400, "Số điểm điều chỉnh phải là số nguyên khác 0.");
-  await backendApiClient.post(`customers/${customerId}/loyalty/adjustments`, { points, reason: reason.trim() });
+  await backendApiClient.post(`customers/${customerId}/loyalty/adjustments`, { points, reason: reason.trim(), idempotencyKey });
   return { fullName: "khách hàng" };
 }

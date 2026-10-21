@@ -15,7 +15,7 @@ export type ReportType =
   | string;
 
 export interface ReportCustomer {
-  id: number;
+  id?: number;
   fullName: string;
   phone?: string;
   email?: string;
@@ -58,6 +58,7 @@ export interface ReportHistoryItem {
 
 export interface ReportListItem {
   id: number;
+  vehicleId?: number;
   type: ReportType;
   status: ReportStatus;
   descriptionPreview: string;
@@ -94,10 +95,7 @@ export interface ReportFilterParams {
 
 export interface CreateMaintenancePayload {
   reportId: number;
-  vehicleId: number;
-  facilityId: number;
-  type: string;
-  description: string;
+  facilityId: number | null;
   scheduledDate: string;
-  assignedStaffId?: number;
+  assignedStaffId: number;
 }

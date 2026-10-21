@@ -164,11 +164,13 @@ export function useAdjustLoyalty() {
       customerId,
       points,
       reason,
+      idempotencyKey,
     }: {
       customerId: number;
       points: number;
       reason: string;
-    }) => adjustCustomerLoyalty({ customerId, points, reason }),
+      idempotencyKey: string;
+    }) => adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }),
     onSuccess: async (updated, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),

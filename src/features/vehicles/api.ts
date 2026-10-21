@@ -8,14 +8,20 @@ export async function getVehicles(params?: VehicleFilterParams): Promise<Vehicle
   if (params?.facilityId && params.facilityId !== "all") queryParams.facilityId = params.facilityId;
   if (params?.search && params.search.trim()) queryParams.search = params.search.trim();
 
-  const res = await defaultApiClient.get<unknown>("vehicles", queryParams);
-  if (Array.isArray(res)) {
-    return res.map((v) => mapVehicleFromBE(v as Record<string, unknown>));
+  const vehicles: Vehicle[] = [];
+  let page = 1;
+  while (true) {
+    const res = await defaultApiClient.get<{ items: Record<string, unknown>[]; totalCount: number }>("vehicles", { ...queryParams, page, pageSize: 100 });
+    if (!res || !Array.isArray(res.items)) throw new Error("Dữ liệu danh mục xe không hợp lệ. Vui lòng thử lại.");
+    vehicles.push(...res.items.map(mapVehicleFromBE));
+    if (vehicles.length >= res.totalCount) break;
+    if (!res.items.length) throw new Error("Chưa tải đủ danh mục xe. Vui lòng thử lại.");
+    page++;
   }
-  if (typeof res === "object" && res !== null && "items" in res && Array.isArray((res as { items: unknown[] }).items)) {
-    return (res as { items: unknown[] }).items.map((v) => mapVehicleFromBE(v as Record<string, unknown>));
-  }
-  return [];
+  return vehicles.filter((vehicle) =>
+    (!params?.category || params.category === "all" || vehicle.category === params.category) &&
+    (!params?.search || vehicle.name.toLowerCase().includes(params.search.trim().toLowerCase()))
+  );
 }
 
 export async function getVehiclesPaginated(params?: VehicleFilterParams): Promise<VehiclePage> {
@@ -103,6 +109,7 @@ export async function getActiveRentalPolicy(vehicleTypeId: number): Promise<Rent
   return res && res.id ? res : null;
 }
 
-export function getInitialVehicles(_params?: VehicleFilterParams): Vehicle[] {
+export function getInitialVehicles(params?: VehicleFilterParams): Vehicle[] {
+  void params;
   return [];
 }

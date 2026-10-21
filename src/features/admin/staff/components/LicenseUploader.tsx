@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef } from "react";
 import { Upload, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
-import { uploadStaffLicenseImage } from "../api";
+import { uploadLicenseImage } from "../api";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +27,7 @@ export function LicenseUploader({
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
 
   const handleProcessFile = async (file: File) => {
+    if (disabled || isUploading) return;
     setErrorMessage(null);
 
     // Kiểm tra định dạng MIME
@@ -45,7 +46,7 @@ export function LicenseUploader({
 
     setIsUploading(true);
     try {
-      const res = await uploadStaffLicenseImage(file);
+      const res = await uploadLicenseImage(file);
       onUploadSuccess(res.url);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Tải ảnh thất bại.");
@@ -86,6 +87,9 @@ export function LicenseUploader({
       <input
         ref={fileInputRef}
         type="file"
+        aria-label="Tải ảnh giấy phép lái xe"
+        aria-invalid={Boolean(errorMessage)}
+        aria-describedby={errorMessage ? "license-upload-error" : undefined}
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
         className="hidden"
@@ -180,7 +184,7 @@ export function LicenseUploader({
       )}
 
       {errorMessage && (
-        <div className="flex items-center gap-2 rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
+        <div id="license-upload-error" role="alert" className="flex items-center gap-2 rounded border border-danger/30 bg-danger-bg/40 p-3 text-xs font-medium text-danger">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>

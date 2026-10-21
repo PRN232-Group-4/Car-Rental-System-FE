@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllStaff, getFacilities } from "@/features/admin/staff/api";
+import { FormSkeleton } from "@/components/ui/Skeleton";
+import { useInlineValidation, ValidatedForm, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 import { Button } from "@/components/ui/Button";
-import { Wrench } from "lucide-react";
 import { formatDate } from "@/lib/time";
 import { useCreateMaintenanceFromReport } from "../hooks";
 import type { ReportDetail } from "../types";
@@ -19,45 +22,42 @@ export function CreateMaintenanceModal({
   onClose,
   report,
 }: CreateMaintenanceModalProps) {
-  const [maintenanceType, setMaintenanceType] = useState("Sửa chữa sự cố khẩn cấp");
-  const [description, setDescription] = useState(
-    `[Tạo từ Báo cáo #${report.id}] ${report.description}`
-  );
+  const maintenanceType = "Sửa chữa sự cố khẩn cấp";
+  const description = report.description;
   const [scheduledDate, setScheduledDate] = useState(() => {
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
     return formatDate(tomorrow, "yyyy-MM-dd");
   });
-  const [facilityId, setFacilityId] = useState(1);
+  const [facilityId, setFacilityId] = useState("");
+  const [assignedStaffId, setAssignedStaffId] = useState("");
+  const [error, setError] = useState("");
+  const validation = useInlineValidation();
+  const staff = useQuery({ queryKey: ["report-technicians"], queryFn: fetchAllStaff, enabled: open });
+  const facilities = useQuery({ queryKey: ["facilities"], queryFn: getFacilities, enabled: open });
+  const technicians = staff.data?.filter((person) => person.roles?.includes("Maintenance")) ?? [];
 
   const createMutation = useCreateMaintenanceFromReport();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createMutation.mutateAsync({
-      reportId: report.id,
-      vehicleId: report.rental?.id ? 1 : 1, // Vehicle ID từ context
-      facilityId,
-      type: maintenanceType,
-      description,
-      scheduledDate: new Date(scheduledDate).toISOString(),
-    });
-    onClose();
+    if (createMutation.isPending) return;
+    setError("");
+    try {
+      await createMutation.mutateAsync({
+        reportId: report.id, assignedStaffId: Number(assignedStaffId),
+        facilityId: facilityId ? Number(facilityId) : null, scheduledDate,
+      });
+      onClose();
+    } catch (cause) { setError(validation.report(cause)); }
   };
 
+  if (!open) return null;
   return (
-    <Modal
-      open={open}
-      onOpenChange={(isOpen) => !isOpen && onClose()}
-      title={
-        <div className="flex items-center gap-2">
-          <Wrench className="h-5 w-5 text-td-oxide" />
-          <span>Tạo phiếu bảo dưỡng từ Báo cáo #{report.id}</span>
-        </div>
-      }
-      description="Chuyển thông tin sự cố kỹ thuật sang quy trình bảo dưỡng kỹ thuật của xưởng (BE-24)."
-      size="md"
-    >
-      <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+    <FormDialog title={`Tạo phiếu bảo dưỡng từ Báo cáo #${report.id}`} onClose={onClose} busy={createMutation.isPending}>
+      <ValidatedForm validation={validation} onSubmit={handleSubmit} className="space-y-4 pt-2">
+        {error && <p role="alert" className="text-xs text-danger">{error}</p>}
+        {(staff.isError || facilities.isError) && <p role="alert" className="text-xs text-danger">Không tải được danh mục. <button type="button" onClick={() => { void staff.refetch(); void facilities.refetch(); }}>Thử lại</button></p>}
+        {(staff.isPending || facilities.isPending) && <FormSkeleton />}
         {report.rental && (
           <div className="rounded border border-td-rule bg-td-chalk p-3 text-xs">
             <span className="font-semibold text-td-ink">Phương tiện liên quan:</span>{" "}
@@ -75,7 +75,7 @@ export function CreateMaintenanceModal({
           <select
             id="maint-type"
             value={maintenanceType}
-            onChange={(e) => setMaintenanceType(e.target.value)}
+            disabled title="API lấy hạng mục từ báo cáo, chưa hỗ trợ chọn hạng mục riêng"
             className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink focus:outline-none focus:ring-1 focus:ring-td-oxide"
           >
             <option value="Sửa chữa sự cố khẩn cấp">Sửa chữa sự cố khẩn cấp</option>
@@ -90,24 +90,29 @@ export function CreateMaintenanceModal({
           <label htmlFor="maint-facility" className="block text-xs font-semibold text-td-ink">
             Cơ sở / Xưởng kỹ thuật
           </label>
-          <select
-            id="maint-facility"
+          <InlineSelect
+            id="maint-facility" name="facilityId" disabled={createMutation.isPending}
             value={facilityId}
-            onChange={(e) => setFacilityId(Number(e.target.value))}
+            onChange={(e) => setFacilityId(e.target.value)}
             className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink focus:outline-none focus:ring-1 focus:ring-td-oxide"
           >
-            <option value={1}>Xưởng kỹ thuật Chi nhánh Quận 1 (Trụ sở chính)</option>
-            <option value={2}>Xưởng Chi nhánh Sân bay Tân Sơn Nhất</option>
-            <option value={3}>Xưởng Chi nhánh TP. Thủ Đức</option>
-          </select>
+            <option value="">Theo cơ sở của xe</option>
+            {facilities.data?.map((facility) => <option key={facility.id} value={facility.id}>{facility.name}</option>)}
+          </InlineSelect>
         </div>
 
+        <div>
+          <label htmlFor="maint-staff" className="block text-xs font-semibold text-td-ink">Kỹ thuật viên phụ trách</label>
+          <InlineSelect id="maint-staff" name="assignedStaffId" required disabled={createMutation.isPending} value={assignedStaffId} onChange={(event) => setAssignedStaffId(event.target.value)} className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink">
+            <option value="">Chọn kỹ thuật viên</option>{technicians.map((person) => <option key={person.id} value={person.id}>{person.fullName}</option>)}
+          </InlineSelect>
+        </div>
         <div>
           <label htmlFor="maint-date" className="block text-xs font-semibold text-td-ink">
             Ngày dự kiến bắt đầu (GMT+7)
           </label>
-          <input
-            id="maint-date"
+          <InlineInput
+            id="maint-date" name="scheduledDate" disabled={createMutation.isPending}
             type="date"
             value={scheduledDate}
             onChange={(e) => setScheduledDate(e.target.value)}
@@ -124,21 +129,21 @@ export function CreateMaintenanceModal({
             id="maint-desc"
             rows={3}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            readOnly title="API dùng nội dung từ báo cáo, chưa hỗ trợ mô tả riêng"
             className="mt-1 w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink focus:outline-none focus:ring-1 focus:ring-td-oxide"
             required
           />
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-td-rule pt-4">
-          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+        <FormDialogFooter>
+          <Button type="button" variant="secondary" size="sm" disabled={createMutation.isPending} onClick={onClose}>
             Hủy bỏ
           </Button>
-          <Button type="submit" size="sm" isLoading={createMutation.isPending}>
+          <Button type="submit" size="sm" disabled={staff.isPending || facilities.isPending || staff.isError || facilities.isError} isLoading={createMutation.isPending}>
             Xác nhận tạo phiếu bảo dưỡng
           </Button>
-        </div>
-      </form>
-    </Modal>
+        </FormDialogFooter>
+      </ValidatedForm>
+    </FormDialog>
   );
 }

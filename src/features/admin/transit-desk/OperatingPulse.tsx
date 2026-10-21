@@ -35,7 +35,7 @@ export function OperatingPulse() {
   });
 
   // 3. Real pending incident reports query
-  const reportsQuery = useReports({ status: "pending" });
+  const reportsQuery = useReports({ status: "new" });
 
   const data = dashboardQuery.data;
   const isLoading = dashboardQuery.isPending || fleetQuery.isPending;
@@ -215,7 +215,7 @@ export function OperatingPulse() {
                         {waitStr}
                       </div>
                       <span className="font-mono text-[10px] text-td-muted uppercase">
-                        {isOverdue ? "QUÁ HẠN SLA" : "CHỜ PHẢN HỒI"}
+                        {!report.createdAt ? "CHƯA CÓ MỐC THỜI GIAN" : isOverdue ? "QUÁ HẠN SLA" : "CHỜ PHẢN HỒI"}
                       </span>
                     </div>
                   </Link>
