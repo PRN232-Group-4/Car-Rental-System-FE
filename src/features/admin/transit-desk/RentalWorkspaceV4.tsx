@@ -22,6 +22,7 @@ import {
   Navigation,
   XCircle,
   Eye,
+  Loader2,
 } from "lucide-react";
 import {
   getOperationalRental,
@@ -41,7 +42,8 @@ import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@
 import TransitDeskStatus from "./TransitDeskStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useOptionalSession } from "@/features/auth/AuthContext";
-import { gsap } from "@/lib/motion/register";
+import { gsap, Flip } from "@/lib/motion/register";
+import { playSuccessChime, playTactileClick } from "@/lib/audio/haptic-audio";
 import styles from "./rental-workspace-v4.module.css";
 
 export type RentalDetailState =
@@ -195,6 +197,28 @@ export function RentalWorkspaceV4() {
     }
   };
 
+  // Audit 5: Work Queue List Item Morph via GSAP Flip
+  const queueListRef = useRef<HTMLDivElement>(null);
+  const flipStateRef = useRef<Flip.FlipState | null>(null);
+
+  const handleQueueFilterChange = (val: string) => {
+    if (queueListRef.current) {
+      flipStateRef.current = Flip.getState(
+        queueListRef.current.querySelectorAll(`.${styles.queueItem}`)
+      );
+    }
+    setQueueFilter(val);
+  };
+
+  const handleQueueSearchChange = (val: string) => {
+    if (queueListRef.current) {
+      flipStateRef.current = Flip.getState(
+        queueListRef.current.querySelectorAll(`.${styles.queueItem}`)
+      );
+    }
+    setQueueSearch(val);
+  };
+
   const validation = useInlineValidation();
   const assignmentValidation = useInlineValidation();
   const assignmentLock = useRef(false);
@@ -340,6 +364,7 @@ export function RentalWorkspaceV4() {
 
   // Select rental from queue
   const selectRentalFromQueue = (id: number) => {
+    playTactileClick();
     setIdInput(String(id));
     setLookupId(String(id));
     if (typeof window !== "undefined") {
@@ -443,6 +468,15 @@ export function RentalWorkspaceV4() {
     return OPERATIONAL_STEPS.findIndex((s) => s.key === activeRental.status);
   }, [activeRental]);
 
+  // Trigger haptic success chime on step advancement
+  const prevStepRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevStepRef.current !== null && currentStepIndex > prevStepRef.current) {
+      playSuccessChime();
+    }
+    prevStepRef.current = currentStepIndex;
+  }, [currentStepIndex]);
+
   // Filtered queue items
   const queueItems = useMemo(() => {
     const items = queueData?.items ?? [];
@@ -455,6 +489,21 @@ export function RentalWorkspaceV4() {
         (item.status && (rentalStatuses[item.status] || item.status).toLowerCase().includes(lower))
     );
   }, [queueData, queueSearch]);
+
+  // Audit 5: GSAP Flip animation on queue item reordering/filtering
+  React.useLayoutEffect(() => {
+    if (flipStateRef.current && queueListRef.current) {
+      Flip.from(flipStateRef.current, {
+        duration: 0.28,
+        ease: "power2.out",
+        stagger: 0.02,
+        absolute: false,
+        onComplete: () => {
+          flipStateRef.current = null;
+        },
+      });
+    }
+  }, [queueItems]);
 
   // Next recommended contextual action
   const nextRecommendedAction = useMemo(() => {
@@ -533,7 +582,7 @@ export function RentalWorkspaceV4() {
                   value={idInput}
                   onChange={(e) => {
                     setIdInput(e.target.value);
-                    setQueueSearch(e.target.value);
+                    handleQueueSearchChange(e.target.value);
                   }}
                   className={`${styles.inputField} pl-8 text-xs font-mono`}
                   aria-label="Nhập mã đơn thuê"
@@ -542,7 +591,7 @@ export function RentalWorkspaceV4() {
               <div className="flex items-center gap-2">
                 <select
                   value={queueFilter}
-                  onChange={(e) => setQueueFilter(e.target.value)}
+                  onChange={(e) => handleQueueFilterChange(e.target.value)}
                   className={`${styles.inputField} text-xs py-1`}
                   aria-label="Lọc trạng thái hàng đợi"
                 >
@@ -569,7 +618,7 @@ export function RentalWorkspaceV4() {
           </div>
 
           {/* Queue List / Ledger Items */}
-          <div className={styles.queueList}>
+          <div ref={queueListRef} className={styles.queueList}>
             {/* Pinned Card when active lookup is not in current queue page */}
             {activeRental && !queueItems.some((item) => String(item.id) === String(activeRental.id)) && (
               <div className={styles.pinnedCard} data-testid="pinned-lookup-card">
