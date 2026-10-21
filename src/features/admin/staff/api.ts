@@ -1,4 +1,8 @@
 import { ApiProblemError } from "@/api/api-client";
+import { backendApiClient } from "@/api/backend-api-client";
+import type { StaffDto, PagedResult, OrganizationUnitDto } from "@/features/admin/api";
+import { getFacilities as getRealFacilities } from "@/features/admin/api";
+import { hasDriverRole } from "./account-options";
 import { getLicenseState } from "./license-utils";
 import type {
   StaffDetail,
@@ -275,9 +279,14 @@ export function resetMockStaffDb(): void {
 export async function getStaffList(
   params: StaffFilterParams = {}
 ): Promise<StaffPageResult> {
-  await new Promise((r) => setTimeout(r, 80));
-
-  let filtered = [...MOCK_STAFFS_DB];
+  const records: StaffDetail[] = [];
+  for (let page = 1; ; page += 1) {
+    const result = await backendApiClient.get<PagedResult<BackendStaff>>("staff", { page, pageSize: 100 });
+    const items = result.items ?? [];
+    records.push(...items.map(mapStaff));
+    if (!items.length || records.length >= result.totalCount) break;
+  }
+  let filtered = records;
 
   // 1. Tìm kiếm
   if (params.search && params.search.trim()) {
@@ -360,104 +369,76 @@ export async function getStaffList(
 /**
  * Lấy chi tiết hồ sơ nhân viên
  */
-export async function getStaffById(id: number): Promise<StaffDetail | null> {
-  await new Promise((r) => setTimeout(r, 60));
-  const staff = MOCK_STAFFS_DB.find((s) => s.id === id);
-  return staff ? { ...staff } : null;
-}
+type BackendStaff = StaffDto & { roles?: string[]; avatarUrl?: string | null; gender?: string | null; address?: string | null; totalTrips?: number; activeTripId?: number | null };
 
-/**
- * Tạo hồ sơ nhân viên mới
- */
-export async function createStaff(input: CreateStaffInput): Promise<StaffDetail> {
-  await new Promise((r) => setTimeout(r, 120));
-
-  // Kiểm tra user đã có hồ sơ staff chưa
-  const existing = MOCK_STAFFS_DB.find((s) => s.userId === input.userId);
-  if (existing) {
-    throw createProblem(
-      409,
-      "Hồ sơ nhân viên đã tồn tại",
-      `Tài khoản mã #${input.userId} đã được liên kết với hồ sơ nhân viên #${existing.id}.`,
-      "STAFF_ALREADY_EXISTS"
-    );
-  }
-
-  const department = MOCK_DEPARTMENTS.find((d) => d.id === input.departmentId) || null;
-  const facility = MOCK_FACILITIES.find((f) => f.id === input.facilityId) || null;
-
-  const newStaff: StaffDetail = {
-    id: Math.max(...MOCK_STAFFS_DB.map((s) => s.id), 0) + 1,
-    userId: input.userId,
-    fullName: `Nhân viên Mới #${input.userId}`,
-    email: `staff.user${input.userId}@thongdong.vn`,
-    phone: "0912345678",
-    avatarUrl: "",
-    department,
-    facility,
-    isDriver: input.isDriver,
-    isActive: true,
-    rating: input.isDriver ? 5.0 : null,
-    roles: input.isDriver ? ["Driver", "Staff"] : ["Staff"],
-    hiredDate: input.hiredDate,
-    gender: "Nam",
-    address: facility?.address || "TP.HCM",
-    license: input.license || null,
-    totalTrips: 0,
+export function mapStaff(staff: BackendStaff): StaffDetail {
+  const roles = staff.roles ?? (staff.staffRole ? [staff.staffRole] : []);
+  return {
+    id: staff.id, userId: staff.userId, email: staff.email ?? "", fullName: staff.fullName ?? "", phone: staff.phone,
+    avatarUrl: staff.avatarUrl, roles, isDriver: staff.roles ? hasDriverRole(staff.roles) : hasDriverRole(roles) || staff.isDriver, isActive: staff.isActive,
+    department: staff.departmentId == null ? null : { id: staff.departmentId, name: staff.departmentName ?? "Chưa phân bổ" },
+    facility: staff.facilityId == null ? null : { id: staff.facilityId, name: staff.facilityName ?? "Chưa phân bổ" },
+    hiredDate: staff.hiredDate ?? undefined, gender: staff.gender, address: staff.address, rating: staff.rating,
+    totalTrips: staff.totalTrips, activeTripId: staff.activeTripId,
+    license: !staff.licenseNumber && !staff.licenseType && !staff.licenseImageUrl ? null : {
+      number: staff.licenseNumber ?? undefined, type: staff.licenseType ?? undefined,
+      issueDate: staff.licenseIssueDate ?? undefined, expiryDate: staff.licenseExpiryDate ?? undefined,
+      imgUrl: staff.licenseImageUrl ?? undefined,
+    },
   };
-
-  MOCK_STAFFS_DB.unshift(newStaff);
-  return { ...newStaff };
 }
 
-/**
- * Cập nhật thông tin phòng ban, cơ sở và vai trò tài xế
- */
-export async function updateStaff(input: UpdateStaffInput): Promise<StaffDetail> {
-  await new Promise((r) => setTimeout(r, 100));
-
-  const target = MOCK_STAFFS_DB.find((s) => s.id === input.staffId);
-  if (!target) {
-    throw createProblem(404, "Không tìm thấy nhân viên", `Hồ sơ nhân viên #${input.staffId} không tồn tại.`);
+export async function getStaffDepartments(): Promise<StaffDepartment[]> {
+  const all: OrganizationUnitDto[] = [];
+  for (let page = 1; ; page += 1) {
+    const result = await backendApiClient.get<PagedResult<OrganizationUnitDto> | OrganizationUnitDto[]>("departments", { page, pageSize: 100 });
+    if (Array.isArray(result)) return result.map((d) => ({ id: d.id, name: d.name ?? "" }));
+    const items = result.items ?? [];
+    all.push(...items);
+    if (!items.length || all.length >= result.totalCount) return all.map((d) => ({ id: d.id, name: d.name ?? "" }));
   }
-
-  if (input.departmentId !== undefined) {
-    target.department = MOCK_DEPARTMENTS.find((d) => d.id === input.departmentId) || null;
-  }
-
-  if (input.facilityId !== undefined) {
-    target.facility = MOCK_FACILITIES.find((f) => f.id === input.facilityId) || null;
-  }
-
-  if (input.isDriver !== undefined) {
-    target.isDriver = input.isDriver;
-  }
-
-  return { ...target };
 }
 
-/**
- * Cập nhật giấy phép lái xe
- */
-export async function updateStaffLicense(input: UpdateLicenseInput): Promise<StaffDetail> {
-  await new Promise((r) => setTimeout(r, 100));
+export async function getStaffFacilities(): Promise<StaffFacility[]> {
+  return (await getRealFacilities()).map((f) => ({ id: f.id, name: f.name ?? "", address: f.address ?? undefined }));
+}
 
-  const target = MOCK_STAFFS_DB.find((s) => s.id === input.staffId);
-  if (!target) {
-    throw createProblem(404, "Không tìm thấy nhân viên", `Hồ sơ nhân viên #${input.staffId} không tồn tại.`);
-  }
+export async function getStaffById(id: number): Promise<StaffDetail> {
+  return mapStaff(await backendApiClient.get<BackendStaff>(`staff/${id}`));
+}
 
-  // Validate ngày hết hạn > ngày cấp
-  if (input.license.issueDate && input.license.expiryDate) {
-    const issue = new Date(input.license.issueDate);
-    const expiry = new Date(input.license.expiryDate);
-    if (expiry <= issue) {
-      throw createProblem(400, "Ngày hết hạn không hợp lệ", "Ngày hết hạn GPLX phải sau ngày cấp.");
-    }
-  }
+export async function createStaff(input: CreateStaffInput): Promise<StaffDetail> {
+  return mapStaff(await backendApiClient.post<BackendStaff>("staff/from-user", {
+    userId: input.userId, departmentId: input.departmentId, facilityId: input.facilityId, hiredDate: input.hiredDate,
+    licenseNumber: input.license?.number ?? null, licenseType: input.license?.type ?? null,
+    licenseIssueDate: input.license?.issueDate || null, licenseExpiryDate: input.license?.expiryDate || null,
+    licenseImageUrl: input.license?.imgUrl || null,
+  }));
+}
 
-  target.license = { ...input.license };
-  return { ...target };
+async function saveStaff(input: UpdateStaffInput, license?: UpdateLicenseInput["license"]): Promise<StaffDetail> {
+  const current = await backendApiClient.get<BackendStaff>(`staff/${input.staffId}`);
+  const isDriver = current.roles ? hasDriverRole(current.roles) : current.staffRole?.toLowerCase() === "driver" || current.isDriver;
+  const staffRole = isDriver ? "Driver" : ["Maintenance", "CustomerService"].includes(current.staffRole ?? "") ? current.staffRole : null;
+  return mapStaff(await backendApiClient.put<BackendStaff>(`staff/${input.staffId}`, {
+    fullName: current.fullName, phone: current.phone,
+    departmentId: input.departmentId ?? current.departmentId, facilityId: input.facilityId ?? current.facilityId,
+    hiredDate: current.hiredDate, isDriver,
+    licenseNumber: license ? license.number || null : current.licenseNumber,
+    licenseType: license ? license.type || null : current.licenseType,
+    licenseIssueDate: license ? license.issueDate || null : current.licenseIssueDate,
+    licenseExpiryDate: license ? license.expiryDate || null : current.licenseExpiryDate,
+    licenseImageUrl: license ? license.imgUrl || null : current.licenseImageUrl,
+    staffRole, avatarUrl: current.avatarUrl, gender: current.gender, address: current.address,
+  }));
+}
+
+export function updateStaff(input: UpdateStaffInput): Promise<StaffDetail> {
+  return saveStaff(input);
+}
+
+export function updateStaffLicense(input: UpdateLicenseInput): Promise<StaffDetail> {
+  return saveStaff({ staffId: input.staffId }, input.license);
 }
 
 /**
@@ -615,12 +596,10 @@ export async function assignDriverToRental(
 }
 
 /**
- * Tải ảnh GPLX (Client mock upload tuân thủ mục 5)
+ * Tải ảnh GPLX lên kho lưu trữ của backend
  * Giới hạn: JPG/PNG/WebP <= 5MB
  */
-export async function uploadLicenseImageMock(file: File): Promise<{ url: string }> {
-  await new Promise((r) => setTimeout(r, 300));
-
+export async function uploadStaffLicenseImage(file: File): Promise<{ url: string }> {
   const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
   if (file.size > MAX_SIZE) {
     throw createProblem(400, "Tệp quá lớn", "Kích thước ảnh GPLX không được vượt quá 5 MB.");
@@ -635,7 +614,10 @@ export async function uploadLicenseImageMock(file: File): Promise<{ url: string 
     );
   }
 
-  // URL mock an toàn không đưa dữ liệu thực tế vào log
-  const mockUrl = URL.createObjectURL(file);
-  return { url: mockUrl };
+  const body = new FormData();
+  body.append("file", file);
+  const result = await backendApiClient.post<{ url?: string; secureUrl?: string }>("media/staff-license", body);
+  const url = result.url ?? result.secureUrl;
+  if (!url) throw new Error("Máy chủ chưa trả về đường dẫn ảnh GPLX. Vui lòng thử lại.");
+  return { url };
 }

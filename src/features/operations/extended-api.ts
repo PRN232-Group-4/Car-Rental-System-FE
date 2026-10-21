@@ -6,7 +6,7 @@ export interface MaintenanceInput {
   status: string | null; maintenanceType: string | null; scheduledDate: string | null;
   isSafe: boolean | null; description: string | null; cost: number | null;
 }
-export interface MaintenanceRecord extends MaintenanceInput { id: number }
+export interface MaintenanceRecord extends MaintenanceInput { id: number; assignedStaffEmail?: string | null; facilityName?: string | null }
 export interface ReportInput { type: string | null; description: string | null; imageUrls: string | null }
 export interface IncidentReport extends ReportInput { id: number; rentalId: number; vehicleId: number; status: string | null; maintenanceId: number | null }
 export interface ShiftInput { driverStaffId: number; startTime: string; endTime: string; cancelled: boolean }

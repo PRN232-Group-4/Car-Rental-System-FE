@@ -19,18 +19,13 @@ import {
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
-import { notifySuccess } from "@/components/ui/Toaster";
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { FormField as Field } from "@/components/ui/FormField";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
-<<<<<<< Updated upstream
-=======
-import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
-import { VehicleIdentity } from "@/features/admin/VehicleName";
-import { VehiclePhotoGrid } from "@/features/admin/VehiclePhotos";
->>>>>>> Stashed changes
+import VehicleMaintenanceTechnicians from "./VehicleMaintenanceTechnicians";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -104,6 +99,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
   const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
   const [vehicleId, setVehicleId] = useState<number | null>(editingVehicleId ?? null);
+  const [persistedVehicle, setPersistedVehicle] = useState<VehicleDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -124,12 +120,14 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           const [types, facilityList] = await Promise.all([getVehicleTypes(), getFacilities()]);
           setVehicleTypes(types);
           setFacilities(facilityList);
-          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
+          const params = new URLSearchParams(window.location.search);
+          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : params.get("id") ?? params.get("vehicleId");
           if (idString) {
             const id = Number(idString);
             if (!Number.isInteger(id) || id < 1) throw new Error("ID phương tiện không hợp lệ.");
             const vehicle = await queryClient.fetchQuery(vehicleQueryOptions(id));
             setVehicleId(id);
+            setPersistedVehicle(vehicle);
             setDraft(fromVehicle(vehicle));
           }
         } catch (loadError) {
@@ -265,7 +263,9 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
       if (onSaved) onSaved();
       else router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(validation.report(saveError));
+      const message = validation.report(saveError);
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }
@@ -305,40 +305,9 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
         }
         return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
       }} onSubmit={submit} className="space-y-6">
-<<<<<<< Updated upstream
         <section className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
           <h3 className="border-b border-td-rule pb-4 text-base font-bold text-td-ink">Thông tin phương tiện</h3>
-=======
-        <div className={onClose ? "space-y-6" : "grid min-w-0 items-start gap-8 lg:grid-cols-12"}>
-          {!onClose && (
-            <aside aria-labelledby="vehicle-profile-title" className="min-w-0 space-y-5 rounded border border-td-rule bg-td-white p-6 lg:col-span-4">
-              <h2 id="vehicle-profile-title" className="text-sm font-bold text-td-ink">Hồ sơ phương tiện</h2>
-              <VehicleIdentity vehicle={draft} />
-              <VehiclePhotoGrid vehicle={{ ...draft, detail: { galleryImages: draft.galleryImages } }} />
-              <AdminStatusBadge domain="vehicle" status={draft.status}>
-                {statuses.find((item) => item.value === draft.status)?.label ?? draft.status}
-              </AdminStatusBadge>
-              <dl className="divide-y divide-td-rule text-sm">
-                <div className="flex flex-wrap justify-between gap-2 py-3">
-                  <dt className="font-mono text-[11px] uppercase text-td-muted">Loại xe</dt>
-                  <dd className="min-w-0 break-words text-right font-semibold text-td-ink">{selectedVehicleType?.name || "Chưa chọn"}</dd>
-                </div>
-                <div className="flex flex-wrap justify-between gap-2 py-3">
-                  <dt className="font-mono text-[11px] uppercase text-td-muted">Biển số</dt>
-                  <dd className="min-w-0 break-words font-mono text-td-ink">{draft.licensePlate || "Chưa cập nhật"}</dd>
-                </div>
-                <div className="flex flex-wrap justify-between gap-2 py-3">
-                  <dt className="font-mono text-[11px] uppercase text-td-muted">Chi nhánh</dt>
-                  <dd className="min-w-0 break-words text-right font-semibold text-td-ink">{facilities.find((item) => String(item.id) === draft.facilityId)?.name || "Chưa phân công"}</dd>
-                </div>
-              </dl>
-              <p className="border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">Thông số hiển thị theo nhóm xe và nhiên liệu của loại phương tiện đã chọn.</p>
-            </aside>
-          )}
-          <div className={onClose ? "min-w-0 space-y-6" : "min-w-0 space-y-8 lg:col-span-8"}>
-        <section aria-labelledby="vehicle-general-title" className="min-w-0 border-t border-td-ink pt-5">
-          <h2 id="vehicle-general-title" className="text-sm font-bold text-td-ink">Thông tin phương tiện</h2>
->>>>>>> Stashed changes
+          {persistedVehicle && <div className="mt-4"><VehicleMaintenanceTechnicians vehicle={persistedVehicle} /></div>}
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
             <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>

@@ -250,6 +250,23 @@
   white-space: nowrap;
 }
 
+.operatorContext {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 7px 20px;
+  border-bottom: 1px solid var(--color-td-rule);
+  background-color: var(--color-td-chalk);
+  color: var(--color-td-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.operatorContext strong {
+  color: var(--color-td-ink);
+}
+
 .contextLabel {
   font-family: var(--font-mono);
   font-size: 10px;

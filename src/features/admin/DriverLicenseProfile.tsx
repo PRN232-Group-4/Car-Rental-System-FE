@@ -1,4 +1,6 @@
 "use client";
+
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { formatAdminDate } from "@/lib/date-time";
 
 import { InlineError, ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
@@ -112,8 +114,11 @@ export default function DriverLicenseProfile({
       onUpdated(updated);
       setFile(null);
       setSaved(true);
+      notifySuccess("Đã cập nhật giấy phép lái xe.");
     } catch (submitError) {
-      setError(validation.report(submitError, { licenseimageurl: "imageUrl" }));
+      const message = validation.report(submitError, { licenseimageurl: "imageUrl" });
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }

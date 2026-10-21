@@ -1,4 +1,8 @@
 # Changelog
+- 2026-10-21 — [Toast cho thao tác tạo, cập nhật và xóa Admin](2026-10-21-admin-mutation-toasts.md)
+- 2026-10-21 — [Danh sách kiểm tra, email bảo trì và trạng thái người dùng](2026-10-21-admin-operational-directory.md)
+- 2026-10-21 — [Email nhân sự, cơ sở tài khoản và bỏ cảnh báo chính sách](2026-10-21-admin-email-facility-policy.md)
+- 2026-10-21 — [Sửa hồ sơ admin, phân công kỹ thuật viên và điều kiện bàn giao](2026-10-21-admin-profile-inspection-handover.md)
 - 2026-10-19 — [Đồng bộ toàn bộ Admin theo Transit Desk: folio, sổ mở, CTA mulberry, sticky header](2026-10-19-admin-transit-desk-sync.md)
 - 2026-10-15 — [Kiểm tra loại xe, chặn trùng active và cột số lần thuê](2026-10-15-rental-policy-validation-usage.md)
 - 2026-10-15 — [Nút kích hoạt và tạm ngưng chính sách thuê xe](2026-10-15-rental-policy-status.md)

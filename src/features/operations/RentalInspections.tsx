@@ -1,35 +1,42 @@
 "use client";
 
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
+
 import { useState } from "react";
 import Image from "next/image";
 import { InlineError, InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import RentalLookup from "./RentalLookup";
 import { saveInspection, uploadInspectionImage, operationalError, operationsButton, operationsInput, operationsPanel } from "./api";
 import type { OperationalRental } from "./api";
+import TechnicianAssignmentForm from "./TechnicianAssignmentForm";
+import { useOptionalSession } from "@/features/auth/AuthContext";
+import { useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import InspectionDirectory, { InspectionWorkQueue } from "./InspectionDirectory";
 
 const checkItems = ["Ngoại thất và hư hỏng", "Lốp, phanh và vận hành", "Đèn, còi và phụ kiện", "Nhiên liệu / pin"];
 
 export default function RentalInspections() {
+  const params = useSearchParams();
   return (
     <div className="space-y-6">
-      <div className="border-b border-td-rule pb-6">
-        <div className="flex items-start gap-5">
-          <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">04<br />INS</span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">VẬN HÀNH · BIÊN BẢN TRẠM</span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Kiểm tra xe <em className="italic text-td-teal">trước / sau thuê.</em></h1>
-            <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Ghi nhận hiện trạng xe bằng checklist và ảnh, để tranh chấp về sau có bằng chứng tại trạm.</p>
-          </div>
-        </div>
-      </div>
-      <RentalLookup title="Tra cứu đơn thuê">{(rental, refresh) => <InspectionForm rental={rental} refresh={refresh} />}</RentalLookup>
+      <TransitFolio index="04" tag="INS" kicker="VẬN HÀNH · BIÊN BẢN TRẠM"
+        title={<>Kiểm tra xe <em className="italic text-td-teal">trước / sau thuê.</em></>}
+        description="Xem toàn bộ biên bản đã lập, các đơn cần kiểm tra và mở đơn để phân công kỹ thuật viên." />
+      <InspectionDirectory />
+      <InspectionWorkQueue />
+      <section id="inspection-editor" className="scroll-mt-60" aria-label="Lập biên bản theo đơn thuê">
+        <RentalLookup key={params.get("rentalId") ?? "lookup"} title="Mở đơn để lập biên bản">{(rental, refresh) => <div className="space-y-6"><TechnicianAssignmentForm rental={rental} refresh={refresh} /><InspectionForm rental={rental} refresh={refresh} /></div>}</RentalLookup>
+      </section>
     </div>
   );
 }
 
 function InspectionForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
-  const [type, setType] = useState<"pre" | "post">("pre");
-  const [staffId, setStaffId] = useState("");
+  const [type, setType] = useState<"pre" | "post">(rental.status === "post_inspection" ? "post" : "pre");
+  const cache = useQueryClient();
+  const session = useOptionalSession();
   const [isOk, setIsOk] = useState("");
   const [odometerKm, setOdometerKm] = useState("");
   const [fuelBatteryLevel, setFuelBatteryLevel] = useState("");
@@ -65,27 +72,34 @@ function InspectionForm({ rental, refresh }: { rental: OperationalRental; refres
     const notes = [checklist, damageNotes.trim()].filter(Boolean).join("\n\n");
     try {
       await saveInspection(Number(rental.id), type, {
-        staffId: staffId ? Number(staffId) : null,
+        staffId: null,
         isOk: isOk === "true",
         odometerKm: odometerKm ? Number(odometerKm) : null,
         fuelBatteryLevel: fuelBatteryLevel ? Number(fuelBatteryLevel) : null,
         damageNotes: notes || null,
         imageUrls: images.length ? JSON.stringify(images.map((image) => image.url)) : null,
       });
-      setSuccess(`Đã lưu biên bản ${type === "pre" ? "trước" : "sau"} thuê cho đơn #${rental.id}.`);
+      const message = `Đã lưu biên bản ${type === "pre" ? "trước" : "sau"} thuê cho đơn #${rental.id}.`;
+      setSuccess(message);
+      notifySuccess(message);
       await refresh();
+      await Promise.all([
+        cache.invalidateQueries({ queryKey: ["inspection-directory"] }),
+        cache.invalidateQueries({ queryKey: ["inspection-work-queue"] }),
+        cache.invalidateQueries({ queryKey: ["operational-rentals-queue"] }),
+      ]);
     } catch (failure) {
       const message = validation.report(failure, { file: "imageUrls", imageurl: "imageUrls" });
-      setError(failure instanceof TypeError ? operationalError(failure) : message);
+      const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError);
     } finally { setBusy(false); }
   };
   return <ValidatedForm validation={validation} validate={() => ({ imageUrls: uploadError || undefined })} onSubmit={submit} className={operationsPanel}>
-    <h2 className="text-lg font-bold">Biên bản kiểm tra phương tiện #{rental.vehicleId}</h2>
+    <h2 className="text-lg font-bold">Lập biên bản kiểm tra · Đơn #{rental.id}</h2>
     <fieldset disabled={busy || uploading} className="space-y-5">
       <legend className="sr-only">Thông tin kiểm tra xe</legend>
       <div className="grid gap-4 sm:grid-cols-2">
         <div><label htmlFor="inspection-type" className="text-sm font-semibold">Loại kiểm tra</label><InlineSelect id="inspection-type" name="inspectionType" className={operationsInput} value={type} onChange={(event) => { setType(event.target.value as "pre" | "post"); setSuccess(""); }}><option value="pre">Trước khi giao xe</option><option value="post">Sau khi nhận xe</option></InlineSelect></div>
-        <div><label htmlFor="inspection-staff" className="text-sm font-semibold">Mã nhân viên kiểm tra (tùy chọn)</label><InlineInput id="inspection-staff" name="staffId" type="number" step="1" className={operationsInput} value={staffId} onChange={(event) => setStaffId(event.target.value)} /></div>
+        <div><label htmlFor="inspection-staff" className="text-sm font-semibold">Email nhân viên lập biên bản</label><InlineInput id="inspection-staff" name="inspectorEmail" readOnly className={operationsInput} value={session?.user?.email ?? ""} /><p className="mt-1 text-xs text-td-muted">Biên bản ghi nhận tài khoản đang đăng nhập. Phân công kỹ thuật viên tại mục phía trên.</p></div>
         <div><label htmlFor="inspection-odometer" className="text-sm font-semibold">Số km trên đồng hồ</label><InlineInput id="inspection-odometer" name="odometerKm" type="number" step="any" className={operationsInput} value={odometerKm} onChange={(event) => setOdometerKm(event.target.value)} /></div>
         <div><label htmlFor="inspection-fuel" className="text-sm font-semibold">Mức nhiên liệu / pin</label><InlineInput id="inspection-fuel" name="fuelBatteryLevel" type="number" step="any" className={operationsInput} value={fuelBatteryLevel} onChange={(event) => setFuelBatteryLevel(event.target.value)} /></div>
       </div>

@@ -61,8 +61,12 @@ export function useSetUserActive() {
         currentActorId,
         currentActorEmail,
       }),
-    onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(
         updated.isActive
           ? `Đã mở khóa tài khoản ${updated.fullName}`
@@ -85,8 +89,12 @@ export function useAssignRole() {
   return useMutation({
     mutationFn: ({ userId, role }: { userId: number; role: Role }) =>
       assignUserRole({ userId, role }),
-    onSuccess: (updated, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(`Đã thêm vai trò ${variables.role} cho ${updated.fullName}`);
     },
     onError: (err: unknown) => {
@@ -114,8 +122,12 @@ export function useRemoveRole() {
       currentActorId?: number;
       currentActorEmail?: string;
     }) => removeUserRole({ userId, role, currentActorId, currentActorEmail }),
-    onSuccess: (updated, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(`Đã gỡ vai trò ${variables.role} khỏi ${updated.fullName}`);
     },
     onError: (err: unknown) => {
@@ -157,8 +169,12 @@ export function useAdjustLoyalty() {
       points: number;
       reason: string;
     }) => adjustCustomerLoyalty({ customerId, points, reason }),
-    onSuccess: (updated, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(
         `Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm cho ${
           updated.fullName
@@ -186,8 +202,12 @@ export function useReviewLicense() {
       customerId: number;
       status: "approved" | "rejected";
     }) => reviewCustomerLicense({ customerId, status }),
-    onSuccess: (updated, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(
         variables.status === "approved"
           ? `Đã phê duyệt GPLX cho ${updated.fullName}`

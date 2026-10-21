@@ -59,12 +59,12 @@ describe("FE-14 Admin Policies & Plans — Component Tests", () => {
       expect(screen.queryByRole("button", { name: /xóa/i })).not.toBeInTheDocument();
     });
 
-    it("hiển thị cảnh báo khi phát hiện loại xe có nhiều chính sách active cùng lúc", async () => {
+    it("không hiển thị các banner cảnh báo chính sách đã bỏ", async () => {
       renderWithClient(<PoliciesPage />);
 
-      // Mock data có id 1 và id 4 cùng active cho Ô tô
-      const alert = await screen.findByText(/Cảnh báo: Có 2 chính sách cùng đang áp dụng/i);
-      expect(alert).toBeInTheDocument();
+      await screen.findByText("Chính sách tiêu chuẩn Ô tô 2026-Q1");
+      expect(screen.queryByText(/Cảnh báo: Có/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Chặn nghiệp vụ:/i)).not.toBeInTheDocument();
     });
   });
 

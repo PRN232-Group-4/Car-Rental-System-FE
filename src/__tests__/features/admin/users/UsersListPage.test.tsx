@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AdminUsersPage from "@/app/admin/users/page";
-import { resetMockUsersDb } from "@/features/admin/users/api";
+import { adminUser, managerUser, usersPage } from "./users-backend-fixture";
+const client = vi.hoisted(() => ({ get: vi.fn() }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
 import type { SessionContextType } from "@/features/auth/AuthContext";
 
 // Mock next/navigation
@@ -115,7 +117,7 @@ function renderUsersPage(overrides: Partial<SessionContextType> = {}) {
 
 describe("FE-23 Admin Users — List Page Component", () => {
   beforeEach(() => {
-    resetMockUsersDb();
+    client.get.mockResolvedValue(usersPage([adminUser, managerUser]));
     pushMock.mockClear();
     mockSessionOverrides = {};
   });

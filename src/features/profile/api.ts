@@ -1,7 +1,9 @@
 import { backendApiClient } from "@/api/backend-api-client";
 import type { components } from "@/api/generated/schema";
 
-export type AccountProfile = components["schemas"]["AccountResponse"];
+export type AccountProfile = components["schemas"]["AccountResponse"] & {
+  facilityName?: string | null;
+};
 
 export interface CustomerLicense {
   number: string | null;

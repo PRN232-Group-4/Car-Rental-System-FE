@@ -18,6 +18,8 @@ import { PERMITTED_LICENSE_TYPES, getLicenseState } from "@/features/admin/staff
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { FormField } from "@/components/ui/FormField";
+import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
+import { hasDriverRole } from "@/features/admin/staff/account-options";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { formatDate } from "@/lib/time";
@@ -64,9 +66,12 @@ function StaffDetailView({
   const { data: staffReviews } = useReviews({ staffId: staff.id });
 
   // Form states cho tab Hồ sơ
-  const [departmentId, setDepartmentId] = useState<number>(staff.department?.id || 1);
-  const [facilityId, setFacilityId] = useState<number>(staff.facility?.id || 1);
-  const [isDriver, setIsDriver] = useState<boolean>(staff.isDriver);
+  const [departmentId, setDepartmentId] = useState<number>(staff.department?.id || 0);
+  const [facilityId, setFacilityId] = useState<number>(staff.facility?.id || 0);
+  const isDriver = hasDriverRole(staff.roles) || staff.isDriver;
+  const profileValidation = useInlineValidation();
+  const licenseValidation = useInlineValidation();
+  const [profileError, setProfileError] = useState("");
   const [profileDirty, setProfileDirty] = useState(false);
 
   // Form states cho tab Giấy phép
@@ -76,7 +81,7 @@ function StaffDetailView({
   const [expiryDate, setExpiryDate] = useState(staff.license?.expiryDate || "");
   const [licenseImgUrl, setLicenseImgUrl] = useState(staff.license?.imgUrl || "");
   const [licenseDirty, setLicenseDirty] = useState(false);
-  const [licenseError, setLicenseError] = useState<string | null>(null);
+  const [licenseError, setLicenseError] = useState("");
 
   // Cảnh báo rời trang khi có thay đổi chưa lưu
   const isDirty = profileDirty || licenseDirty;
@@ -93,39 +98,30 @@ function StaffDetailView({
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateStaffMutation.mutateAsync({
-      staffId: staff.id,
-      departmentId,
-      facilityId,
-      isDriver,
-    });
-    setProfileDirty(false);
+    if (updateStaffMutation.isPending) return;
+    setProfileError("");
+    try {
+      await updateStaffMutation.mutateAsync({ staffId: staff.id, departmentId, facilityId });
+      setProfileDirty(false);
+    } catch (failure) {
+      setProfileError(profileValidation.report(failure));
+    }
   };
 
   const handleSaveLicense = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLicenseError(null);
-
-    if (issueDate && expiryDate) {
-      const issue = new Date(issueDate);
-      const expiry = new Date(expiryDate);
-      if (expiry <= issue) {
-        setLicenseError("Ngày hết hạn GPLX phải sau ngày cấp.");
-        return;
-      }
+    if (updateLicenseMutation.isPending) return;
+    setLicenseError("");
+    try {
+      await updateLicenseMutation.mutateAsync({
+        staffId: staff.id,
+        license: { number: licenseNumber.trim(), type: licenseType, issueDate: issueDate || undefined,
+          expiryDate: expiryDate || undefined, imgUrl: licenseImgUrl || undefined },
+      });
+      setLicenseDirty(false);
+    } catch (failure) {
+      setLicenseError(licenseValidation.report(failure, { license: "licenseNumber", licensenumber: "licenseNumber", licensetype: "licenseType", licenseissuedate: "issueDate", licenseexpirydate: "expiryDate", licenseimageurl: "licenseImgUrl" }));
     }
-
-    await updateLicenseMutation.mutateAsync({
-      staffId: staff.id,
-      license: {
-        number: licenseNumber.trim(),
-        type: licenseType,
-        issueDate: issueDate || undefined,
-        expiryDate: expiryDate || undefined,
-        imgUrl: licenseImgUrl || undefined,
-      },
-    });
-    setLicenseDirty(false);
   };
 
   const licenseCalc = getLicenseState(expiryDate);
@@ -179,7 +175,7 @@ function StaffDetailView({
                 <AdminStatusBadge domain="activity" status={staff.isActive ? "active" : "inactive"}>
                   {staff.isActive ? "Đang làm việc" : "Tạm ngừng"}
                 </AdminStatusBadge>
-                {staff.isDriver && (
+                {isDriver && (
                   <span className="rounded-full bg-td-chalk border border-td-oxide/30 px-2.5 py-0.5 text-xs font-bold text-td-oxide flex items-center gap-1">
                     <Car className="w-3.5 h-3.5" />
                     Tài xế chuyên nghiệp
@@ -196,7 +192,7 @@ function StaffDetailView({
                   href={`/admin/users/detail?id=${staff.userId}`}
                   className="text-td-oxide hover:underline inline-flex items-center gap-1"
                 >
-                  <span>Tài khoản hệ thống #{staff.userId}</span>
+                  <span>Tài khoản {staff.email}</span>
                   <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
@@ -236,6 +232,7 @@ function StaffDetailView({
           Thông Tin Hồ Sơ
         </button>
 
+        {isDriver && (
         <button
           type="button"
           onClick={() => setActiveTab("license")}
@@ -248,8 +245,9 @@ function StaffDetailView({
           <span>Giấy Phép Lái Xe</span>
           <LicenseBadge expiryDate={staff.license?.expiryDate} showIcon={false} />
         </button>
+        )}
 
-        {staff.isDriver && (
+        {isDriver && (
           <button
             type="button"
             onClick={() => setActiveTab("schedules")}
@@ -300,40 +298,43 @@ function StaffDetailView({
       {/* 4. Nội dung từng tab */}
       {/* Tab 1: Hồ sơ */}
       {activeTab === "profile" && (
-        <form onSubmit={handleSaveProfile} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
+        <ValidatedForm validation={profileValidation} onSubmit={handleSaveProfile} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
+          {profileError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{profileError}</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Phòng ban làm việc" required>
-              <select
-                value={departmentId}
+              <InlineSelect name="departmentId" required
+                value={departmentId || ""}
                 onChange={(e) => {
                   setDepartmentId(parseInt(e.target.value, 10));
                   setProfileDirty(true);
                 }}
                 className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
+                <option value="">Chọn phòng ban</option>
                 {departments.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.name}
                   </option>
                 ))}
-              </select>
+              </InlineSelect>
             </FormField>
 
             <FormField label="Cơ sở / Trạm trực" required>
-              <select
-                value={facilityId}
+              <InlineSelect name="facilityId" required
+                value={facilityId || ""}
                 onChange={(e) => {
                   setFacilityId(parseInt(e.target.value, 10));
                   setProfileDirty(true);
                 }}
                 className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               >
+                <option value="">Chọn cơ sở</option>
                 {facilities.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
                   </option>
                 ))}
-              </select>
+              </InlineSelect>
             </FormField>
 
             <FormField label="Ngày vào làm">
@@ -345,22 +346,9 @@ function StaffDetailView({
               />
             </FormField>
 
-            <div className="flex flex-col justify-center space-y-2 pt-2">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isDriver}
-                  onChange={(e) => {
-                    setIsDriver(e.target.checked);
-                    setProfileDirty(true);
-                  }}
-                  className="h-4 w-4 rounded border-td-rule text-td-oxide focus:ring-td-oxide/20"
-                />
-                <span className="text-sm font-bold text-td-ink">Đăng ký làm Tài xế chuyên nghiệp</span>
-              </label>
-              <p className="text-xs text-td-muted">
-                Bật cờ này cho phép nhân viên được phân công vào các chuyến thuê xe có tài xế.
-              </p>
+            <div className="space-y-2 pt-2">
+              <p className="text-sm font-bold text-td-ink">Vai trò tài khoản: {staff.roles?.join(", ") || "Nhân viên"}</p>
+              <p className="text-xs text-td-muted">Tài khoản có vai trò Driver sử dụng hồ sơ tài xế. Quản lý vai trò tại tài khoản người dùng.</p>
             </div>
           </div>
 
@@ -382,12 +370,13 @@ function StaffDetailView({
               {updateStaffMutation.isPending ? "Đang lưu..." : "Lưu thay đổi hồ sơ"}
             </Button>
           </div>
-        </form>
+        </ValidatedForm>
       )}
 
       {/* Tab 2: Giấy phép lái xe */}
-      {activeTab === "license" && (
-        <form onSubmit={handleSaveLicense} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
+      {activeTab === "license" && isDriver && (
+        <ValidatedForm validation={licenseValidation} onSubmit={handleSaveLicense} validate={() => ({ expiryDate: issueDate && expiryDate && expiryDate < issueDate ? "Ngày hết hạn GPLX phải từ ngày cấp trở đi." : undefined })} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
+          {licenseError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{licenseError}</p>}
           {/* Cảnh báo tình trạng hạn bằng */}
           {licenseCalc.state === "expired" && (
             <div className="flex items-start gap-3 rounded border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger">
@@ -415,7 +404,7 @@ function StaffDetailView({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Số giấy phép lái xe" required>
-              <input
+              <InlineInput name="licenseNumber" required
                 type="text"
                 value={licenseNumber}
                 onChange={(e) => {
@@ -428,7 +417,7 @@ function StaffDetailView({
             </FormField>
 
             <FormField label="Hạng giấy phép" required>
-              <select
+              <InlineSelect name="licenseType" required
                 value={licenseType}
                 onChange={(e) => {
                   setLicenseType(e.target.value);
@@ -441,11 +430,11 @@ function StaffDetailView({
                     Hạng {t}
                   </option>
                 ))}
-              </select>
+              </InlineSelect>
             </FormField>
 
             <FormField label="Ngày cấp">
-              <input
+              <InlineInput name="issueDate"
                 type="date"
                 value={issueDate}
                 onChange={(e) => {
@@ -456,14 +445,14 @@ function StaffDetailView({
               />
             </FormField>
 
-            <FormField label="Ngày hết hạn" required error={licenseError || undefined}>
-              <input
+            <FormField label="Ngày hết hạn" required>
+              <InlineInput name="expiryDate" required
                 type="date"
                 value={expiryDate}
                 onChange={(e) => {
                   setExpiryDate(e.target.value);
                   setLicenseDirty(true);
-                  if (licenseError) setLicenseError(null);
+
                 }}
                 className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
               />
@@ -491,11 +480,11 @@ function StaffDetailView({
               {updateLicenseMutation.isPending ? "Đang lưu..." : "Lưu thông tin giấy phép"}
             </Button>
           </div>
-        </form>
+        </ValidatedForm>
       )}
 
       {/* Tab 3: Lịch trình & Chuyến đi */}
-      {activeTab === "schedules" && staff.isDriver && (
+      {activeTab === "schedules" && isDriver && (
         <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
           <div className="flex items-center justify-between">
             <div>

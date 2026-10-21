@@ -1,4 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ApiProblemError } from "@/api/api-client";
+import { driverStaff, pageOf } from "./staff-backend-fixture";
+const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
 import {
   getAssignableDrivers,
   assignDriverToRental,
@@ -7,6 +11,10 @@ import {
 } from "@/features/admin/staff/api";
 
 describe("FE-24 Admin Staff & Drivers — Scheduling & Assignment Safety Logic", () => {
+  beforeEach(() => {
+    client.get.mockResolvedValue(pageOf([{ ...driverStaff, licenseExpiryDate: new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10) }]));
+    client.post.mockRejectedValue(new ApiProblemError(409, "Conflict", { detail: "Tài khoản đã được liên kết với hồ sơ nhân viên." }));
+  });
   it("trả về danh sách tài xế phân loại eligible và gắn lý do loại trừ chính xác", async () => {
     // Đơn thuê rentalId: 101 diễn ra từ 10:00 - 16:00 ngày 2026-10-18
     const assignableDrivers = await getAssignableDrivers(101);
@@ -58,7 +66,7 @@ describe("FE-24 Admin Staff & Drivers — Scheduling & Assignment Safety Logic",
   });
 
   it("từ chối tạo hồ sơ nhân viên nếu user đã có hồ sơ staff (staffs.user_id duy nhất)", async () => {
-    // User ID 1 đã là Admin trong mock DB
+    // Backend từ chối liên kết trùng tài khoản theo ràng buộc duy nhất.
     await expect(
       createStaff({
         userId: 1,

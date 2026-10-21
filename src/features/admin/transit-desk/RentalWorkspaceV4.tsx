@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
+
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -31,9 +33,11 @@ import {
   changeRentalStatus,
   operationalError,
   rentalStatuses,
+  rentalTransitionBlocker,
   type OperationalRental,
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
+import TechnicianAssignmentForm from "@/features/operations/TechnicianAssignmentForm";
 import VehicleName from "@/features/admin/VehicleName";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
@@ -262,9 +266,10 @@ export function RentalWorkspaceV4() {
   const activeRental = detailState.status === "ready" ? detailState.rental : null;
 
   // Query driver options
-  const { data: drivers = [] } = useQuery({
+  const { data: drivers = [], error: driversError, refetch: refetchDrivers } = useQuery({
     queryKey: ["operational-drivers"],
     queryFn: getOperationalDrivers,
+    retry: false,
   });
 
   // Query real operational queue
@@ -278,11 +283,13 @@ export function RentalWorkspaceV4() {
   const [driverStaffId, setDriverStaffId] = useState<string>("");
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignMessage, setAssignMessage] = useState<string | null>(null);
+  const assignValidation = useInlineValidation();
 
   // Status transition state
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const statusValidation = useInlineValidation();
 
   // Terminal confirmation modal
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -294,8 +301,6 @@ export function RentalWorkspaceV4() {
     if (activeRental) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- form điều phối cần reset theo hồ sơ vừa mở; muốn bỏ hẳn phải tách thành component con có key={activeRental.id}.
       setSelectedStatus(activeRental.status);
-      setAssignMessage(null);
-      setStatusMessage(null);
       validation.clear("lookupId");
 
       // Save to recent rentals in localStorage safely
@@ -309,6 +314,12 @@ export function RentalWorkspaceV4() {
       }
     }
   }, [activeRental]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- phản hồi thuộc hồ sơ đang mở, chỉ xóa khi đổi đơn.
+    setAssignMessage(null);
+    setStatusMessage(null);
+  }, [lookupId]);
 
   // Handle direct lookup submission
   const handleLookup = (e?: React.FormEvent) => {
@@ -347,20 +358,24 @@ export function RentalWorkspaceV4() {
   // Handle driver assignment
   const handleAssignDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeRental || !canMutate) return;
+    if (!activeRental || !canMutate || isAssigning) return;
 
     setIsAssigning(true);
     setAssignMessage(null);
-    validation.reset();
+    assignValidation.reset();
 
     try {
       const staffIdVal = driverStaffId === "" ? null : Number(driverStaffId);
       await assignRental(Number(activeRental.id), staffIdVal);
       setAssignMessage("Đã lưu phân công phương tiện và tài xế.");
+      notifySuccess("Đã lưu phân công phương tiện và tài xế.");
       await refetchRental();
       queryClient.invalidateQueries({ queryKey: ["operational-rentals-queue"] });
     } catch (err: unknown) {
-      setAssignMessage(operationalError(err));
+      const message = assignValidation.report(err);
+      const generalError = err instanceof TypeError ? operationalError(err) : message ? operationalError(new Error(message)) : "";
+      setAssignMessage(generalError);
+      notifyError(generalError);
     } finally {
       setIsAssigning(false);
     }
@@ -368,10 +383,16 @@ export function RentalWorkspaceV4() {
 
   // Status transition trigger
   const handleInitiateStatusChange = (targetStatus?: string) => {
-    if (!activeRental || !canMutate) return;
+    if (!activeRental || !canMutate || isUpdatingStatus) return;
     const nextStatus = targetStatus || selectedStatus;
     if (!nextStatus || nextStatus === activeRental.status) {
       setStatusMessage("Vui lòng chọn trạng thái mới khác trạng thái hiện tại.");
+      return;
+    }
+    const blocker = rentalTransitionBlocker(activeRental, nextStatus);
+    if (blocker) {
+      if (!targetStatus) statusValidation.setField("status", blocker);
+      setStatusMessage(blocker);
       return;
     }
 
@@ -386,16 +407,29 @@ export function RentalWorkspaceV4() {
 
   // Execute status change
   const executeStatusChange = async (targetStatus: string) => {
-    if (!activeRental || !canMutate) return;
+    if (!activeRental || !canMutate || isUpdatingStatus) return;
+    const blocker = rentalTransitionBlocker(activeRental, targetStatus);
+    if (blocker) {
+      setStatusMessage(blocker);
+      return;
+    }
     setIsUpdatingStatus(true);
     setStatusMessage(null);
     try {
-      await changeRentalStatus(Number(activeRental.id), targetStatus);
-      setStatusMessage(`Đã cập nhật đơn thuê sang trạng thái: ${rentalStatuses[targetStatus] || targetStatus}`);
+      const updated = await changeRentalStatus(Number(activeRental.id), targetStatus);
+      if (isValidRental(updated)) {
+        queryClient.setQueryData(["operational-rental", lookupId], updated);
+      }
       await refetchRental();
-      queryClient.invalidateQueries({ queryKey: ["operational-rentals-queue"] });
+      await queryClient.invalidateQueries({ queryKey: ["operational-rentals-queue"] });
+      const message = `Đã cập nhật đơn thuê sang trạng thái: ${rentalStatuses[targetStatus] || targetStatus}`;
+      setStatusMessage(message);
+      notifySuccess(message);
     } catch (err: unknown) {
-      setStatusMessage(operationalError(err));
+      const message = statusValidation.report(err);
+      const generalError = err instanceof TypeError ? operationalError(err) : message ? operationalError(new Error(message)) : "";
+      setStatusMessage(generalError);
+      notifyError(generalError);
     } finally {
       setIsUpdatingStatus(false);
       setIsConfirmOpen(false);
@@ -465,7 +499,9 @@ export function RentalWorkspaceV4() {
         return {
           targetStatus: "renting",
           label: "Bàn giao xe & Bắt đầu chuyến",
-          description: "Khách đã ký nhận biên bản bàn giao",
+          description: activeRental.hasPassingPreInspection === true
+            ? "Kiểm tra trước thuê đã đạt. Xác nhận khách nhận xe để bắt đầu chuyến."
+            : "Cần hoàn tất kiểm tra trước thuê với kết quả đạt để bàn giao xe.",
           consequential: false,
         };
       case "renting":
@@ -1099,11 +1135,22 @@ export function RentalWorkspaceV4() {
                     <button
                       type="button"
                       onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
-                      disabled={isUpdatingStatus || !canMutate}
+                      disabled={isUpdatingStatus || !canMutate || Boolean(rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus))}
                       className={nextRecommendedAction.consequential ? styles.consequentialActionButton : styles.primaryActionButton}
                     >
                       {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.label}
                     </button>
+                    {rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus) && (
+                      <div className="space-y-2 text-xs text-[var(--v4-mineral)]">
+                        <p>{rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus)}</p>
+                        <Link href={`/admin/inspections?rentalId=${activeRental.id}`} className="block font-bold underline">
+                          Mở phiếu kiểm tra đơn #{activeRental.id}
+                        </Link>
+                        <button type="button" onClick={() => void refetchRental()} className={styles.secondaryActionButton}>
+                          Tải lại kết quả kiểm tra
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-xs p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-mineral)]">
@@ -1112,11 +1159,13 @@ export function RentalWorkspaceV4() {
                 )}
 
                 {statusMessage && (
-                  <div className="text-xs p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
+                  <div role="status" aria-live="polite" className="text-xs p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
                     {statusMessage}
                   </div>
                 )}
               </div>
+
+              <TechnicianAssignmentForm key={activeRental.id} rental={activeRental} refresh={refetchRental} />
 
               {/* SHELF 2: VEHICLE & DRIVER ASSIGNMENT (MIDDLE SHELF) */}
               <div className={styles.commandShelf}>
@@ -1127,7 +1176,7 @@ export function RentalWorkspaceV4() {
                   </span>
                 </div>
 
-                <form onSubmit={handleAssignDriver} className="space-y-3">
+                <ValidatedForm validation={assignValidation} onSubmit={handleAssignDriver} className="space-y-3">
                   <div>
                     <label
                       htmlFor="driver-select"
@@ -1135,8 +1184,9 @@ export function RentalWorkspaceV4() {
                     >
                       Tài xế nhận lệnh
                     </label>
-                    <select
+                    <InlineSelect
                       id="driver-select"
+                      name="driverStaffId"
                       aria-label="Tài xế nhận lệnh"
                       value={driverStaffId}
                       onChange={(e) => setDriverStaffId(e.target.value)}
@@ -1146,15 +1196,20 @@ export function RentalWorkspaceV4() {
                       <option value="">-- Không chỉ định (Khách tự lái) --</option>
                       {drivers.map((d) => (
                         <option key={d.id} value={d.id}>
-                          {d.fullName} ({d.facilityName})
+                          {d.email?.trim() || "Chưa cập nhật email tài xế"}
                         </option>
                       ))}
-                    </select>
+                    </InlineSelect>
                   </div>
+                  {driversError && (
+                    <p role="alert" className="text-xs text-danger">
+                      {operationalError(driversError)}{" "}
+                      <button type="button" className="underline" onClick={() => void refetchDrivers()}>Tải lại tài xế</button>
+                    </p>
+                  )}
 
                   <button
                     type="submit"
-                    onClick={handleAssignDriver}
                     disabled={isAssigning || !canMutate}
                     className={styles.primaryActionButton}
                   >
@@ -1172,7 +1227,7 @@ export function RentalWorkspaceV4() {
                       {assignMessage}
                     </div>
                   )}
-                </form>
+                </ValidatedForm>
               </div>
 
               {/* SHELF 3: COLLAPSED MANUAL OVERRIDE (BOTTOM SHELF) */}
@@ -1186,15 +1241,16 @@ export function RentalWorkspaceV4() {
                       </span>
                     </summary>
 
-                    <div className="space-y-2 pt-2 mt-1">
+                    <ValidatedForm validation={statusValidation} onSubmit={() => handleInitiateStatusChange()} className="space-y-2 pt-2 mt-1">
                       <label
                         htmlFor="rental-next-status"
                         className="block text-[11px] font-medium text-[var(--v4-mineral)]"
                       >
                         Thao tác chuyển bước
                       </label>
-                      <select
+                      <InlineSelect
                         id="rental-next-status"
+                        name="status"
                         aria-label="Thao tác chuyển bước"
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
@@ -1207,18 +1263,17 @@ export function RentalWorkspaceV4() {
                         <option value="post_inspection">Nhận xe & Kiểm tra trả (post_inspection)</option>
                         <option value="completed">Hoàn tất & Quyết toán (completed)</option>
                         <option value="cancelled">Hủy hợp đồng thuê (cancelled)</option>
-                      </select>
+                      </InlineSelect>
 
                       <button
-                        type="button"
+                        type="submit"
                         aria-label="Xác nhận cập nhật trạng thái"
-                        onClick={() => handleInitiateStatusChange()}
                         disabled={isUpdatingStatus || !canMutate || !selectedStatus || selectedStatus === activeRental.status}
                         className={styles.secondaryActionButton}
                       >
                         {isUpdatingStatus ? "Đang cập nhật..." : "Xác nhận cập nhật trạng thái"}
                       </button>
-                    </div>
+                    </ValidatedForm>
                   </details>
                 </div>
               )}

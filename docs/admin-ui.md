@@ -55,6 +55,7 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 - Biểu mẫu: `ValidatedForm` + `FormField`/`InlineInput` với `.admin-input`; tiêu đề mục là `text-sm font-bold text-td-ink` + mô tả mono; hàng lưu có `border-t border-td-rule`, nút cam amber 4px.
 - Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide pl-3 text-xs text-td-muted`, không dùng khối nền màu.
 - Lỗi luôn hiển thị ngay dưới trường (theo `AGENTS.md`), lỗi chung đặt ở vùng lỗi phía trên nội dung.
+- Thao tác tạo/cập nhật/xóa hiển thị toast thành công sau API thành công; lỗi chung thêm toast lỗi và giữ nội dung form. Dùng Toaster chung tại root Providers; gọi ở trang hoặc hook xử lý mutation, không gọi ở cả hai tầng. Lỗi đã ánh xạ vào trường không tạo toast rỗng, không thay lỗi inline bằng toast.
 
 ## 6. Popup biểu mẫu
 
@@ -75,6 +76,8 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 - Ảnh phương tiện, tên xe, tên nhân sự dùng component chung `VehicleImage`/`VehicleName`/`StaffName`; không tự ghép chuỗi tên hoặc dựng ảnh riêng trong trang.
 - Ảnh thiếu/hỏng có fallback rõ ràng, kích thước cố định, `object-cover`; không thay bằng ảnh xe khác.
 - Khi chỉ có ID, dùng query dùng chung có cache và cùng query key; giữ ID cho request, không hiển thị làm tên dự phòng.
+- Ô chọn tài khoản/nhân sự hiển thị email; kỹ thuật viên chỉ gồm tài khoản Maintenance đang hoạt động. Cơ sở dùng tên, phương tiện dùng tên và biển số; ID chỉ dùng trong request.
+- Khung Admin luôn hiển thị cơ sở và email của tài khoản hiện tại từ hồ sơ tài khoản. Chưa phân công phải hiển thị đúng trạng thái, không đặt cơ sở mặc định giả.
 
 ## 9. Lint và kiểm thử
 

@@ -1,118 +1,65 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import {
-  setUserActiveStatus,
-  assignUserRole,
-  removeUserRole,
-  resetMockUsersDb,
-} from "@/features/admin/users/api";
-import { Role } from "@/features/auth/roles";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { setUserActiveStatus, assignUserRole, removeUserRole, revokeUserSessions } from "@/features/admin/users/api";
 import { ApiProblemError } from "@/api/api-client";
+import type { Role } from "@/features/auth/roles";
+import { managerUser } from "./users-backend-fixture";
 
-describe("FE-23 Admin Users — Safety Guard Rules", () => {
-  beforeEach(() => {
-    resetMockUsersDb();
+const client = vi.hoisted(() => ({ patch: vi.fn(), post: vi.fn(), delete: vi.fn() }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  client.patch.mockResolvedValue(managerUser);
+  client.post.mockResolvedValue(managerUser);
+  client.delete.mockResolvedValue(managerUser);
+});
+
+describe("Admin Users: bảo vệ API thật", () => {
+  it("chặn tự khóa và tự gỡ Admin khi có actor ID", async () => {
+    await expect(setUserActiveStatus({ userId: 1, currentActorId: 1, isActive: false, reason: "Thử khóa" })).rejects.toThrow("không thể tự khóa");
+    await expect(removeUserRole({ userId: 1, currentActorId: 1, role: "Admin" })).rejects.toThrow("không thể tự gỡ");
+    expect(client.patch).not.toHaveBeenCalled();
+    expect(client.delete).not.toHaveBeenCalled();
   });
 
-  describe("Quy tắc bảo vệ tự thân (Self-Protection)", () => {
-    it("chặn không cho Admin tự khóa tài khoản của chính mình", async () => {
-      await expect(
-        setUserActiveStatus({
-          userId: 1,
-          isActive: false,
-          reason: "Tự thử khóa tài khoản",
-          currentActorId: 1,
-        })
-      ).rejects.toThrow("Bạn không thể tự khóa tài khoản quản trị của chính mình.");
-    });
-
-    it("chặn không cho Admin tự gỡ vai trò Admin của chính mình", async () => {
-      await expect(
-        removeUserRole({
-          userId: 1,
-          role: "Admin",
-          currentActorId: 1,
-        })
-      ).rejects.toThrow("Bạn không thể tự gỡ vai trò Quản trị viên (Admin) của chính mình.");
-    });
+  it("giữ nguyên lỗi last Admin do backend kiểm tra trong transaction", async () => {
+    const failure = new ApiProblemError(409, "Conflict", { detail: "The last active administrator cannot be removed or deactivated." });
+    client.patch.mockRejectedValue(failure);
+    client.delete.mockRejectedValue(failure);
+    await expect(setUserActiveStatus({ userId: 1, currentActorId: 99, isActive: false, reason: "Khóa" })).rejects.toBe(failure);
+    await expect(removeUserRole({ userId: 1, currentActorId: 99, role: "Admin" })).rejects.toBe(failure);
+    expect(client.delete).toHaveBeenCalledWith("users/1/roles", { body: JSON.stringify({ role: "Admin" }) });
   });
 
-  describe("Quy tắc bảo vệ Admin cuối cùng (LAST_ADMIN)", () => {
-    it("chặn gỡ vai trò Admin khi chỉ còn 1 Admin duy nhất trong hệ thống", async () => {
-      // Trong resetMockUsersDb, chỉ có user #1 là Admin
-      try {
-        await removeUserRole({
-          userId: 1,
-          role: "Admin",
-          currentActorId: 99, // Actor khác
-        });
-        expect.unreachable("Hành động phải bị từ chối 409 LAST_ADMIN");
-      } catch (err) {
-        expect(err).toBeInstanceOf(ApiProblemError);
-        const pErr = err as ApiProblemError;
-        expect(pErr.status).toBe(409);
-        expect(pErr.code).toBe("LAST_ADMIN");
-      }
-    });
-
-    it("chặn khóa tài khoản Admin khi chỉ còn 1 Admin duy nhất đang hoạt động", async () => {
-      try {
-        await setUserActiveStatus({
-          userId: 1,
-          isActive: false,
-          reason: "Khóa quản trị viên duy nhất",
-          currentActorId: 99,
-        })
-        expect.unreachable("Hành động phải bị từ chối 409 LAST_ADMIN");
-      } catch (err) {
-        expect(err).toBeInstanceOf(ApiProblemError);
-        const pErr = err as ApiProblemError;
-        expect(pErr.status).toBe(409);
-        expect(pErr.code).toBe("LAST_ADMIN");
-      }
-    });
+  it("yêu cầu lý do khi khóa và gửi lý do đúng lên backend", async () => {
+    await expect(setUserActiveStatus({ userId: 2, isActive: false, reason: " " })).rejects.toThrow("Vui lòng nhập lý do");
+    await setUserActiveStatus({ userId: 2, isActive: false, reason: "  Vi phạm quy chế  " });
+    expect(client.patch).toHaveBeenCalledWith("users/2/status", { isActive: false, reason: "Vi phạm quy chế" });
   });
 
-  describe("Bắt buộc lý do khi khóa tài khoản", () => {
-    it("báo lỗi nếu khóa tài khoản mà không cung cấp lý do", async () => {
-      await expect(
-        setUserActiveStatus({
-          userId: 2,
-          isActive: false,
-          reason: "",
-          currentActorId: 1,
-        })
-      ).rejects.toThrow("Vui lòng nhập lý do khóa tài khoản cụ thể");
-    });
-
-    it("thành công khi khóa tài khoản với lý do hợp lệ", async () => {
-      const updated = await setUserActiveStatus({
-        userId: 2,
-        isActive: false,
-        reason: "Vi phạm quy chế nội bộ",
-        currentActorId: 1,
-      });
-
-      expect(updated.isActive).toBe(false);
-      expect(updated.lockInfo?.reason).toBe("Vi phạm quy chế nội bộ");
-    });
+  it("mở khóa gửi boolean true và lý do audit thay vì chỉ đổi bộ nhớ", async () => {
+    client.patch.mockResolvedValue({ ...managerUser, isActive: true });
+    expect((await setUserActiveStatus({ userId: 2, isActive: true })).isActive).toBe(true);
+    expect(client.patch).toHaveBeenCalledWith("users/2/status", { isActive: true, reason: "Mở khóa tài khoản theo xác nhận của quản trị viên." });
   });
 
-  describe("Gán vai trò và Phê duyệt hồ sơ", () => {
-    it("gán vai trò hợp lệ cho người dùng", async () => {
-      const updated = await assignUserRole({
-        userId: 2,
-        role: "Maintenance",
-      });
-      expect(updated.roles).toContain("Maintenance");
-    });
+  it("gán vai trò chỉ qua API, không gửi actor giả hoặc chấp nhận vai trò lạ", async () => {
+    await assignUserRole({ userId: 2, role: "Maintenance" });
+    expect(client.post).toHaveBeenCalledWith("users/2/roles", { role: "Maintenance" });
+    await expect(assignUserRole({ userId: 2, role: "SuperHackerRole" as Role })).rejects.toThrow("không tồn tại trong danh mục hệ thống");
+    expect(client.post).toHaveBeenCalledTimes(1);
+  });
 
-    it("từ chối gán vai trò không tồn tại trong hệ thống", async () => {
-      await expect(
-        assignUserRole({
-          userId: 2,
-          role: "SuperHackerRole" as unknown as Role,
-        })
-      ).rejects.toThrow("không tồn tại trong danh mục hệ thống");
-    });
+  it("không tự cập nhật quyền khi server từ chối thiếu hồ sơ hoặc GPLX", async () => {
+    const failure = new ApiProblemError(409, "Conflict", { detail: "The Driver role requires a driver profile with a valid license." });
+    client.post.mockRejectedValue(failure);
+    await expect(assignUserRole({ userId: 2, role: "Driver" })).rejects.toBe(failure);
+  });
+
+  it("thu hồi phiên đăng nhập thông qua endpoint backend", async () => {
+    await expect(revokeUserSessions(2)).resolves.toEqual({ success: true });
+    expect(client.post).toHaveBeenCalledWith("users/2/sessions/revoke");
+    client.post.mockRejectedValue(new ApiProblemError(403, "Forbidden"));
+    await expect(revokeUserSessions(2)).rejects.toMatchObject({ status: 403 });
   });
 });

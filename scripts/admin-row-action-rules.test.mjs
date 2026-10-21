@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { adminRowActionViolations } from './admin-row-action-rules.mjs';
+import { rowActionRules } from '../src/components/admin/row-action-rules.ts';
+import { LogOut } from 'lucide-react';
 
 const check = (jsx) => adminRowActionViolations(jsx, 'src/features/admin/Example.tsx');
 
 describe('Admin table action rules', () => {
+  it('uses the shared session revocation icon', () => {
+    expect(rowActionRules.revokeSessions.icon).toBe(LogOut);
+    expect(rowActionRules.revokeSessions.tone).toBe('default');
+  });
   it('accepts shared semantic controls, wrappers, conditions and empty labels', () => {
     expect(check('const cell = <td data-actions><div>{canEdit && <AdminRowAction action="edit" label="Sửa xe" onClick={edit} />}{url ? <AdminRowAction action="view" label="Xem đơn" href={url} /> : "—"}</div></td>')).toEqual([]);
   });

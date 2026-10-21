@@ -3,6 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import StaffsPage from "@/app/admin/staffs/page";
+import { driverStaff, pageOf } from "./staff-backend-fixture";
+const client = vi.hoisted(() => ({ get: vi.fn() }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
 
 // Mock next/navigation
 const pushMock = vi.fn();
@@ -98,6 +101,15 @@ function renderStaffsPage() {
 describe("FE-24 Admin Staff — List Page Component", () => {
   beforeEach(() => {
     pushMock.mockClear();
+    client.get.mockImplementation(async (path: string) => {
+      if (path === "departments") return [{ id: 9, name: "Ban Giám Đốc" }];
+      if (path === "facilities") return pageOf([{ id: 31, name: "Trạm thực tế" }]);
+      if (path === "staff") return pageOf([
+        { ...driverStaff, id: 1, fullName: "Nguyễn Văn Quản Trị", roles: ["Admin"], departmentName: "Ban Giám Đốc" },
+        { ...driverStaff, id: 4, fullName: "Phạm Hùng Cường (Tài xế VIP)" },
+      ]);
+      throw new Error(`Unexpected request ${path}`);
+    });
   });
 
   it("hiển thị tiêu đề trang và danh sách nhân sự", async () => {
@@ -111,6 +123,7 @@ describe("FE-24 Admin Staff — List Page Component", () => {
 
     expect(screen.getByText("Phạm Hùng Cường (Tài xế VIP)")).toBeDefined();
     expect(screen.getAllByText("Ban Giám Đốc").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Trạm thực tế").length).toBeGreaterThan(0);
   });
 
   it("hiển thị các huy hiệu phân loại tài xế và trạng thái GPLX", async () => {

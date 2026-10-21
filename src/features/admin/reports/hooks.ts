@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import {
   fetchReports,
   fetchReportDetail,
@@ -78,13 +79,17 @@ export function useUpdateReportStatus() {
       return { previousDetail, id };
     },
 
-    onError: (_err, _vars, context) => {
+    onSuccess: () => {
+      notifySuccess("Đã cập nhật trạng thái báo cáo sự cố.");
+    },
+    onError: (error, _vars, context) => {
       if (context?.previousDetail) {
         queryClient.setQueryData(
           REPORT_QUERY_KEYS.detail(context.id),
           context.previousDetail
         );
       }
+      notifyApiError(error, "Không thể cập nhật trạng thái báo cáo sự cố.");
     },
 
     onSettled: (_data, _err, vars) => {
@@ -100,8 +105,12 @@ export function useCreateMaintenanceFromReport() {
   return useMutation({
     mutationFn: (payload: CreateMaintenancePayload) => createMaintenanceFromReport(payload),
     onSuccess: (_data, vars) => {
+      notifySuccess("Đã tạo phiếu bảo trì từ báo cáo sự cố.");
       queryClient.invalidateQueries({ queryKey: REPORT_QUERY_KEYS.detail(vars.reportId) });
       queryClient.invalidateQueries({ queryKey: REPORT_QUERY_KEYS.all });
+    },
+    onError: (error) => {
+      notifyApiError(error, "Không thể tạo phiếu bảo trì từ báo cáo sự cố.");
     },
   });
 }

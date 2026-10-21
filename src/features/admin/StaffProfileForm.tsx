@@ -1,4 +1,6 @@
 "use client";
+
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import { ValidatedForm, useInlineValidation, InlineInput } from "@/components/forms/inline-validation";
 
@@ -25,6 +27,7 @@ export default function StaffProfileForm() {
   const validation = useInlineValidation();
   const [error, setError] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [gender, setGender] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -37,9 +40,7 @@ export default function StaffProfileForm() {
             (r) => r.toLowerCase() === "admin",
           );
           setIsAdmin(adminCheck);
-
-          const facilities = await getFacilities().catch(() => []);
-          const facility = facilities.find((f) => f.id === account.facilityId);
+          setGender(account.gender ?? "");
 
           let staffData: StaffDto | null = null;
           // Mọi vai trò đều cần hồ sơ nhân sự của chính mình (hồ sơ, GPLX, ca trực).
@@ -70,7 +71,7 @@ export default function StaffProfileForm() {
               departmentId: account.departmentId ?? null,
               departmentName: account.departmentName ?? null,
               facilityId: account.facilityId ?? null,
-              facilityName: facility?.name ?? null,
+              facilityName: account.facilityName ?? null,
               hiredDate: null,
               isDriver:
                 roleList.includes("driver") ||
@@ -86,9 +87,29 @@ export default function StaffProfileForm() {
             };
           }
 
+          if ("facilityName" in account) {
+            staffData = { ...staffData, facilityId: account.facilityId ?? null, facilityName: account.facilityName ?? null };
+          }
+
           if (active) {
             setStaff(staffData);
             setError("");
+          }
+
+          // Tên cơ sở chỉ bổ sung cho hồ sơ; lỗi/chậm tải danh mục không được
+          // chặn việc xem và cập nhật tài khoản (kể cả admin không có staff).
+          const facilityId = staffData.facilityId;
+          if (facilityId != null && !staffData.facilityName && adminCheck && !("facilityName" in account)) {
+            void getFacilities()
+              .then((facilities) => {
+                const facility = facilities.find((item) => item.id === facilityId);
+                if (active && facility) {
+                  setStaff((current) => current?.facilityId === facilityId
+                    ? { ...current, facilityName: facility.name }
+                    : current);
+                }
+              })
+              .catch(() => { /* Danh mục phụ không ảnh hưởng hồ sơ tài khoản. */ });
           }
         } catch (loadError) {
           if (active) {
@@ -121,7 +142,7 @@ export default function StaffProfileForm() {
       await updateAccountProfile({
         fullName: newFullName,
         phone: newPhone,
-        gender: "other",
+        gender,
       });
 
       // 2. Nếu là Admin và có staffId, cập nhật thêm bản ghi staff
@@ -149,8 +170,11 @@ export default function StaffProfileForm() {
       setStaff((prev) => (prev ? { ...prev, fullName: newFullName, phone: newPhone } : null));
       await refreshProfile();
       setSaved(true);
+      notifySuccess("Đã cập nhật hồ sơ cá nhân.");
     } catch (saveError) {
-      setError(validation.report(saveError));
+      const message = validation.report(saveError);
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }
@@ -212,7 +236,7 @@ export default function StaffProfileForm() {
                   />
                   <div className="min-w-0 space-y-1">
                     <span className="block font-mono text-[10px] uppercase tracking-wider text-td-muted">
-                      {staff.id > 0 ? `SỔ NHÂN SỰ · #${staff.id}` : "TÀI KHOẢN CÁ NHÂN"}
+                      {staff.email || "TÀI KHOẢN CÁ NHÂN"}
                     </span>
                     <p className="truncate font-sans text-lg font-bold tracking-tight text-td-ink">
                       {staff.fullName ?? staff.email}

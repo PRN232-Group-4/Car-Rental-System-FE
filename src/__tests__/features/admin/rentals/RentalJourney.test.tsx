@@ -33,6 +33,8 @@ vi.mock("@/features/maps/RentalTrackingPanel", () => ({
   ),
 }));
 
+vi.mock("@/features/operations/TechnicianAssignmentForm", () => ({ default: () => null }));
+
 // Mock VehicleName
 vi.mock("@/features/admin/VehicleName", () => ({
   default: ({ vehicleId }: { vehicleId: number | string }) => (

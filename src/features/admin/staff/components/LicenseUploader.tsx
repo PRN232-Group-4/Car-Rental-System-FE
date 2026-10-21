@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef } from "react";
 import { Upload, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
-import { uploadLicenseImageMock } from "../api";
+import { uploadStaffLicenseImage } from "../api";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
@@ -45,7 +45,7 @@ export function LicenseUploader({
 
     setIsUploading(true);
     try {
-      const res = await uploadLicenseImageMock(file);
+      const res = await uploadStaffLicenseImage(file);
       onUploadSuccess(res.url);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Tải ảnh thất bại.");

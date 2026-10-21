@@ -2,7 +2,20 @@ import { backendApiClient } from "@/api/backend-api-client";
 import type { RentalContract } from "@/features/rentals/types";
 import type { StaffDto, PagedResult } from "@/features/admin/api";
 
-export type OperationalRental = RentalContract;
+export type OperationalRental = RentalContract & {
+  hasPassingPreInspection?: boolean;
+  hasPostInspection?: boolean;
+};
+
+export function rentalTransitionBlocker(rental: OperationalRental, status: string): string | null {
+  if (status === "renting" && rental.hasPassingPreInspection !== true) {
+    return "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.";
+  }
+  if (status === "completed" && rental.hasPostInspection !== true) {
+    return "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.";
+  }
+  return null;
+}
 export interface InspectionRequest {
   staffId: number | null;
   isOk: boolean;
@@ -19,27 +32,12 @@ export function getOperationalRental(id: number): Promise<OperationalRental> {
 
 export async function getOperationalDrivers(): Promise<StaffDto[]> {
   const drivers: StaffDto[] = [];
-  try {
-    let page = 1;
-    while (true) {
-      const result = await backendApiClient.get<PagedResult<StaffDto>>("staff/drivers", { page, pageSize: 100 });
-      drivers.push(...(result.items ?? []));
-      if (!result.items?.length || drivers.length >= result.totalCount) break;
-      page += 1;
-    }
-  } catch {
-    // ignore
-  }
-
-  if (!drivers.length) {
-    try {
-      const result = await backendApiClient.get<PagedResult<StaffDto>>("staffs", { page: 1, pageSize: 50 });
-      if (result.items?.length) {
-        return result.items;
-      }
-    } catch {
-      // ignore
-    }
+  let page = 1;
+  while (true) {
+    const result = await backendApiClient.get<PagedResult<StaffDto>>("staff/drivers", { page, pageSize: 100 });
+    drivers.push(...(result.items ?? []));
+    if (!result.items?.length || drivers.length >= result.totalCount) break;
+    page += 1;
   }
 
   return drivers;
@@ -86,5 +84,14 @@ export function toList<T>(data: unknown): T[] {
 }
 
 export function operationalError(error: unknown) {
+  if (error instanceof Error) {
+    const messages: Record<string, string> = {
+      "A successful pre-rental inspection is required to start.": "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.",
+      "A post-rental inspection is required to complete.": "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.",
+      "Post-rental inspection must be recorded before completing rental.": "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.",
+      "An unexpected server error occurred.": "Máy chủ gặp lỗi khi xử lý yêu cầu. Vui lòng thử lại.",
+    };
+    if (messages[error.message]) return messages[error.message];
+  }
   return error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : error instanceof Error ? error.message : "Không thể lưu thông tin. Vui lòng thử lại.";
 }

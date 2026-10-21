@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
+
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { confirmCashReceipt, getInvoiceById, getInvoices } from "@/features/invoices";
@@ -28,9 +30,11 @@ export default function CashReceiptPanel({ rental, refresh }: { rental: Operatio
     lock.current = true; setBusy(true); setError(""); setSuccess("");
     try {
       const receipt = await confirmCashReceipt(invoice.id);
-      setSuccess(receipt.orderId ? `Đã thu tiền mặt và phát hành đơn thuê chính thức #${receipt.orderId}.` : "Đã ghi nhận thu tiền mặt.");
+      const message = receipt.orderId ? `Đã thu tiền mặt và phát hành đơn thuê chính thức #${receipt.orderId}.` : "Đã ghi nhận thu tiền mặt.";
+      setSuccess(message);
+      notifySuccess(message);
       await Promise.all([query.refetch(), refresh(), cache.invalidateQueries({ queryKey: ["invoices"] }), cache.invalidateQueries({ queryKey: ["invoice", String(invoice.id)] })]);
-    } catch (failure) { setError(operationalError(failure)); }
+    } catch (failure) { const message = operationalError(failure); setError(message); notifyError(message); }
     finally { lock.current = false; setBusy(false); }
   };
   return <section className={operationsPanel} aria-busy={query.isFetching || busy}>

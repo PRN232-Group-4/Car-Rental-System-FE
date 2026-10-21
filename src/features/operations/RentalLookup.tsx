@@ -36,22 +36,6 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
           <InlineInput id="operations-rental-id" name="rentalId" required type="number" min="1" step="1" value={id} onChange={(event) => setId(event.target.value)} placeholder="Nhập mã yêu cầu đặt xe" />
         </AdminFilterField>
       </AdminFilterBar>
-      <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px] text-td-muted">
-        <span>Mã đơn mẫu kiểm tra:</span>
-        {[1, 101, 98].map((sampleId) => (
-          <button
-            key={sampleId}
-            type="button"
-            onClick={() => {
-              setId(String(sampleId));
-              setLookup(String(sampleId));
-            }}
-            className="rounded border border-td-rule bg-td-chalk px-2 py-0.5 font-bold text-td-ink transition-colors hover:border-td-oxide cursor-pointer"
-          >
-            #{sampleId}
-          </button>
-        ))}
-      </div>
     </ValidatedForm>
     {query.error && <p role="alert" className="text-sm text-danger">{operationalError(query.error)}</p>}
     {query.isFetching && !query.data && <FormSkeleton label="Đang tải thông tin đơn thuê" fields={4} />}
@@ -64,12 +48,8 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
           <div><dt className="text-td-muted">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-td-muted">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
         </dl>
         <p className="text-sm">{query.data.rentalType === "longterm" ? "Thuê dài hạn" : "Thuê theo giờ"} · {query.data.hasDriver ? "Có tài xế" : "Tự lái"} · Tổng tiền thuê: {query.data.totalPrice.toLocaleString("vi-VN")} đ</p>
-<<<<<<< Updated upstream
-        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
-=======
         {staffLinks && <VehiclePhotos vehicleId={query.data.vehicleId} />}
-        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?view=list&rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
->>>>>>> Stashed changes
+        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
       </section>
       {staffLinks && <RentalTrackingPanel key={`gps-${query.data.id}`} rentalId={query.data.id} />}
       <div key={query.data.id}>{children(query.data, refresh)}</div>
