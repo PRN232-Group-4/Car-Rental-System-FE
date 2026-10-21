@@ -92,9 +92,10 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         {/* 3. H1 Display: Be Vietnam Pro Ultra-Bold with clean typographic flow */}
         <h1
           ref={headingRef}
-          className="text-4xl sm:text-6xl lg:text-7xl font-black text-ink text-center tracking-tight leading-[1.08] mb-5 max-w-5xl text-balance"
+          className="text-4xl sm:text-6xl lg:text-7xl font-black text-ink text-center tracking-tight leading-[1.04] mb-5 max-w-5xl"
         >
-          Giải Pháp Thuê Xe Toàn Diện — Tự Do Khởi Hành Sang Trọng
+          <span className="block">Hành Trình Tự Do,</span>
+          <span className="block text-ink-2 dark:text-ink/90">Trải Nghiệm Tối Thượng</span>
         </h1>
 
         {/* 4. Subtitle: Single concise, high-contrast narrative statement */}

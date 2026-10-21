@@ -136,6 +136,7 @@ html[data-admin-theme] {
   /* Masthead + context strip dính đỉnh: chừa chỗ để anchor/focus không bị che. */
   scroll-padding-top: 132px;
 }
+html[data-theme="dark"],
 html[data-admin-theme="dark"],
 html[data-admin-theme="dark"] [data-portal="admin"],
 [data-portal="admin"][data-admin-theme="dark"],
@@ -554,7 +555,5 @@ html[data-theme-transitioning="true"]::view-transition-old(root) {
 html[data-theme-transitioning="true"]::view-transition-new(root) {
   animation: none !important;
   z-index: 999998 !important;
-  clip-path: url(#liquidFloodClip) !important;
-  -webkit-clip-path: url(#liquidFloodClip) !important;
   mix-blend-mode: normal !important;
 }
