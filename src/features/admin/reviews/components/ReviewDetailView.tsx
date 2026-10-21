@@ -25,6 +25,7 @@ import {
 } from "../review-status";
 import { useHideReview, useUnhideReview, useReplyReview } from "../hooks";
 import type { ReviewDetail } from "../types";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 interface ReviewDetailViewProps {
   review: ReviewDetail;
@@ -252,6 +253,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
                   </AdminStatusBadge>
                 </div>
                 <p className="font-semibold text-td-oxide">{review.rental.vehicleName}</p>
+                <RentalVehiclePhotos rentalId={review.rentalId} />
                 {review.rental.licensePlate && (
                   <p className="font-mono text-td-muted">Biển số: {review.rental.licensePlate}</p>
                 )}

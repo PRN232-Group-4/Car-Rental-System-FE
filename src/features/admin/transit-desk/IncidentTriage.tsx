@@ -25,6 +25,7 @@ import { formatDateTime } from "@/lib/time";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 const subscribeNoChange = () => () => {};
 const getReportIdFromUrl = () => {
@@ -275,6 +276,8 @@ export function IncidentTriage() {
                   )}
                 </div>
               </div>
+
+              {activeReport.rentalId && <RentalVehiclePhotos rentalId={activeReport.rentalId} />}
 
               {/* Description & Narrative */}
               <div>

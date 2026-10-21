@@ -2,6 +2,7 @@
 import { formatAdminDateTime } from "@/lib/date-time";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import VehicleName from "@/features/admin/VehicleName";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 
 import { useState } from "react";
@@ -63,7 +64,12 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
           <div><dt className="text-td-muted">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-td-muted">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
         </dl>
         <p className="text-sm">{query.data.rentalType === "longterm" ? "Thuê dài hạn" : "Thuê theo giờ"} · {query.data.hasDriver ? "Có tài xế" : "Tự lái"} · Tổng tiền thuê: {query.data.totalPrice.toLocaleString("vi-VN")} đ</p>
+<<<<<<< Updated upstream
         {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
+=======
+        {staffLinks && <VehiclePhotos vehicleId={query.data.vehicleId} />}
+        {staffLinks && <div className="flex flex-wrap gap-4 text-sm text-td-oxide"><Link href={`/admin/rentals?view=list&rentalId=${query.data.id}`}>Vận hành đơn thuê</Link><Link href={`/admin/inspections?rentalId=${query.data.id}`}>Kiểm tra trước / sau thuê</Link><Link href={`/report-incident?rentalId=${query.data.id}`}>Báo cáo sự cố</Link></div>}
+>>>>>>> Stashed changes
       </section>
       {staffLinks && <RentalTrackingPanel key={`gps-${query.data.id}`} rentalId={query.data.id} />}
       <div key={query.data.id}>{children(query.data, refresh)}</div>

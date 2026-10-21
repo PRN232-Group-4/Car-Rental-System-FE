@@ -184,8 +184,19 @@ export function deleteDepartment(id: number) {
   return backendApiClient.delete<void>(`departments/${id}`);
 }
 
-export function getFacilities() {
-  return backendApiClient.get<OrganizationUnitDto[]>("facilities");
+export async function getFacilities(): Promise<OrganizationUnitDto[]> {
+  // Directory pages and selectors need a flat list, including later API pages.
+  const facilities: OrganizationUnitDto[] = [];
+  let page = 1;
+  while (true) {
+    const result = await backendApiClient.get<PagedResult<OrganizationUnitDto> | OrganizationUnitDto[]>("facilities", { page, pageSize: 100 });
+    if (Array.isArray(result)) return [...facilities, ...result];
+
+    const items = result.items ?? [];
+    facilities.push(...items);
+    if (!items.length || facilities.length >= result.totalCount) return facilities;
+    page += 1;
+  }
 }
 
 export function createFacility(body: { name: string; address: string }) {

@@ -35,6 +35,7 @@ import {
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import VehicleName from "@/features/admin/VehicleName";
+import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
@@ -932,6 +933,8 @@ export function RentalWorkspaceV4() {
                     </div>
                   </div>
                 </div>
+
+                <VehiclePhotos vehicleId={activeRental.vehicleId} />
 
                 {/* FINANCIAL & SCHEDULE GRID */}
                 <div className={styles.financialGrid}>

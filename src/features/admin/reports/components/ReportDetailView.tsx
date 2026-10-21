@@ -26,6 +26,7 @@ import {
 import { useUpdateReportStatus } from "../hooks";
 import { CreateMaintenanceModal } from "./CreateMaintenanceModal";
 import type { ReportDetail } from "../types";
+import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 interface ReportDetailViewProps {
   report: ReportDetail;
@@ -241,6 +242,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
                   </AdminStatusBadge>
                 </div>
                 <p className="font-semibold text-td-oxide">{report.rental.vehicleName}</p>
+                <RentalVehiclePhotos rentalId={report.rental.id} />
                 {report.rental.licensePlate && (
                   <p className="font-mono text-td-muted">Biển số: {report.rental.licensePlate}</p>
                 )}
