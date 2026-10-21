@@ -19,8 +19,13 @@ import {
 import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
-import { Moon, Sun, Search, LogOut, User } from "lucide-react";
+import { Moon, Sun, Search, LogOut, User, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
+import {
+  isHapticAudioEnabled,
+  setHapticAudioEnabled,
+  playTactileClick,
+} from "@/lib/audio/haptic-audio";
 
 export interface TransitDeskShellProps {
   children: ReactNode;
@@ -40,6 +45,24 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   const [profileLoading, setProfileLoading] = useState(true);
   const [isRouteIndexOpen, setIsRouteIndexOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsAudioEnabled(isHapticAudioEnabled());
+    const handleAudioChange = () => setIsAudioEnabled(isHapticAudioEnabled());
+    window.addEventListener("thong_dong_haptic_audio_change", handleAudioChange);
+    return () =>
+      window.removeEventListener("thong_dong_haptic_audio_change", handleAudioChange);
+  }, []);
+
+  const handleToggleAudio = () => {
+    const next = !isAudioEnabled;
+    setHapticAudioEnabled(next);
+    setIsAudioEnabled(next);
+    if (next) {
+      playTactileClick();
+    }
+  };
 
   const userRoles = useMemo<Role[]>(() => {
     return (account?.roles ?? user?.roles ?? []) as Role[];
@@ -281,6 +304,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
               <Link
                 key={chapter}
                 href={primaryHref}
+                onClick={() => playTactileClick()}
                 className={styles.chapterBtn}
                 aria-current={isActive ? "true" : undefined}
               >
@@ -318,7 +342,10 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
             type="button"
             id="admin-theme-toggle"
             data-testid="admin-theme-toggle"
-            onClick={toggleTheme}
+            onClick={() => {
+              playTactileClick();
+              toggleTheme();
+            }}
             className={styles.themeToggle}
             aria-label={
               theme === "dark"
@@ -330,6 +357,27 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
               <Sun className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
+            )}
+          </button>
+
+          {/* Audio Haptic Toggle */}
+          <button
+            type="button"
+            id="admin-audio-toggle"
+            data-testid="admin-audio-toggle"
+            onClick={handleToggleAudio}
+            className={styles.themeToggle}
+            aria-label={
+              isAudioEnabled
+                ? "Tắt âm thanh haptic (Đang bật)"
+                : "Bật âm thanh haptic (Đang tắt)"
+            }
+            title={isAudioEnabled ? "Âm thanh haptic: Đang bật" : "Âm thanh haptic: Đang tắt"}
+          >
+            {isAudioEnabled ? (
+              <Volume2 className="h-4 w-4 text-td-oxide" />
+            ) : (
+              <VolumeX className="h-4 w-4 text-td-muted" />
             )}
           </button>
 

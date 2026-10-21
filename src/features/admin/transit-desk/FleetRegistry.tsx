@@ -16,7 +16,8 @@ import {
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus, BatteryCharging, Gauge } from "lucide-react";
+import { playTactileClick } from "@/lib/audio/haptic-audio";
 
 export function FleetRegistry() {
   const router = useRouter();
@@ -252,12 +253,15 @@ export function FleetRegistry() {
                     <button
                       key={v.id}
                       type="button"
-                      onClick={() => setSelectedVehicle(v)}
+                      onClick={() => {
+                        playTactileClick();
+                        setSelectedVehicle(v);
+                      }}
                       aria-pressed={isSelected ? "true" : "false"}
-                      className={`grid w-full grid-cols-12 items-center gap-4 py-3.5 px-2 text-left transition-colors cursor-pointer relative ${
+                      className={`group grid w-full grid-cols-12 items-center gap-y-2 gap-x-4 py-3.5 px-3 text-left transition-all duration-200 cursor-pointer relative rounded-sm border border-transparent ${
                         isSelected
-                          ? "bg-td-chalk/70"
-                          : "hover:bg-td-chalk/30"
+                          ? "bg-td-chalk/70 border-td-rule shadow-xs"
+                          : "hover:bg-td-chalk/40 hover:border-td-rule/60 hover:shadow-xs hover:-translate-y-[1px]"
                       }`}
                     >
                       {/* Left marker line on selected row */}
@@ -309,6 +313,34 @@ export function FleetRegistry() {
                                 ? "Bảo dưỡng"
                                 : v.status || "Chưa rõ"}
                         </TransitDeskStatus>
+                      </div>
+
+                      {/* Audit 8: In-row Telemetry Ribbon (revealed on hover or when selected) */}
+                      <div className="col-span-12 max-h-0 overflow-hidden opacity-0 group-hover:max-h-12 group-hover:opacity-100 group-focus-within:max-h-12 group-focus-within:opacity-100 transition-all duration-200 ease-out border-t border-td-rule/50 pt-2 flex items-center justify-between text-[11px] font-mono text-td-muted">
+                        <div className="flex items-center gap-4">
+                          <span className="inline-flex items-center gap-1.5 text-td-ink">
+                            <BatteryCharging className="h-3 w-3 text-td-oxide" />
+                            <span>Trạng thái trạm: <strong className="text-td-ink font-semibold">{v.facility ? "Đã định vị" : "Chờ trạm"}</strong></span>
+                          </span>
+
+                          {(v.color || v.yearOfManufacture) && (
+                            <span className="hidden sm:inline-flex items-center gap-1">
+                              <Gauge className="h-3 w-3 text-td-muted" />
+                              <span>Đặc tả: <strong className="text-td-ink font-semibold">{[v.color, v.yearOfManufacture].filter(Boolean).join(" · ")}</strong></span>
+                            </span>
+                          )}
+
+                          {v.hourlyPrice != null && v.hourlyPrice > 0 && (
+                            <span className="hidden md:inline-flex items-center gap-1">
+                              <span>Giá niêm yết:</span>
+                              <strong className="text-td-oxide font-bold">{new Intl.NumberFormat("vi-VN").format(v.hourlyPrice)} ₫/h</strong>
+                            </span>
+                          )}
+                        </div>
+
+                        <span className="text-[10px] uppercase tracking-wider text-td-muted">
+                          {isSelected ? "Đang chọn hồ sơ" : "Chi tiết kỹ thuật →"}
+                        </span>
                       </div>
                     </button>
                   );
