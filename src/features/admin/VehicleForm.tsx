@@ -28,6 +28,7 @@ import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { VehicleIdentity } from "@/features/admin/VehicleName";
+import { VehiclePhotoGrid } from "@/features/admin/VehiclePhotos";
 
 type VehicleDraft = {
   licensePlate: string;
@@ -302,8 +303,6 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
         }
         return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
       }} onSubmit={submit} className="space-y-6">
-        <section className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
-          <h3 className="border-b border-td-rule pb-4 text-base font-bold text-td-ink">Thông tin phương tiện</h3>
         <div className={onClose ? "space-y-6" : "grid min-w-0 items-start gap-8 lg:grid-cols-12"}>
           {!onClose && (
             <aside aria-labelledby="vehicle-profile-title" className="min-w-0 space-y-5 rounded border border-td-rule bg-td-white p-6 lg:col-span-4">

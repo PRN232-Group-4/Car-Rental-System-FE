@@ -10,11 +10,7 @@ import type { OperationalRental } from "./api";
 import CashReceiptPanel from "./CashReceiptPanel";
 
 export default function RentalOperations() {
-<<<<<<< Updated upstream
   return <RentalLookup title="Vận hành yêu cầu và đơn thuê">{(rental, refresh) => <div className="grid gap-6 lg:grid-cols-2"><AssignmentForm rental={rental} refresh={refresh} /><StatusForm rental={rental} refresh={refresh} /><CashReceiptPanel rental={rental} refresh={refresh} /></div>}</RentalLookup>;
-=======
-  return <RentalLookup title="Vận hành yêu cầu và đơn thuê">{(rental, refresh) => <div className="grid gap-6 lg:grid-cols-2"><AssignmentForm rental={rental} refresh={refresh} /><StatusForm rental={rental} refresh={refresh} /><CashReceiptPanel rental={rental} refresh={refresh} /><RentalEditForm rental={rental} refresh={refresh} /><HandoverPanel rentalId={rental.id} refresh={refresh} showVehiclePhotos={false} /></div>}</RentalLookup>;
->>>>>>> Stashed changes
 }
 
 export function AssignmentForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {

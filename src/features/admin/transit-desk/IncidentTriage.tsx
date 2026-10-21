@@ -25,6 +25,7 @@ import { formatDateTime } from "@/lib/time";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
 
 const subscribeNoChange = () => () => {};
