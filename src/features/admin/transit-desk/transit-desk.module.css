@@ -237,6 +237,15 @@
   font-weight: 600;
 }
 
+.contextDelimiter {
+  color: var(--color-td-rule);
+  opacity: 0.85;
+  flex-shrink: 0;
+  margin: 0 4px;
+  display: inline-flex;
+  align-self: center;
+}
+
 .contextLinks {
   display: flex;
   align-self: stretch;
@@ -272,6 +281,19 @@
   bottom: 0;
   height: 2px;
   background-color: var(--color-td-ink);
+  transform-origin: left;
+  animation: contextUnderlineTrace 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes contextUnderlineTrace {
+  0% {
+    transform: scaleX(0);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 .contextTotal {
@@ -433,6 +455,48 @@
   box-shadow: inset 0 0 0 1px var(--color-td-rule);
 }
 
+/* ========================================================================= */
+/* AUDIT 7: INCIDENT TRIAGE RADAR AMBIENT PULSE                              */
+/* ========================================================================= */
+.incidentOverduePulse {
+  position: relative;
+  animation: incidentRadarPulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border-radius: 4px;
+}
+
+@keyframes incidentRadarPulse {
+  0% {
+    box-shadow: inset 0 0 0 1px var(--color-td-oxide), 0 0 0 0 color-mix(in srgb, var(--color-td-oxide) 45%, transparent);
+  }
+  65% {
+    box-shadow: inset 0 0 0 1px var(--color-td-oxide), 0 0 0 6px color-mix(in srgb, var(--color-td-oxide) 0%, transparent);
+  }
+  100% {
+    box-shadow: inset 0 0 0 1px var(--color-td-oxide), 0 0 0 0 color-mix(in srgb, var(--color-td-oxide) 0%, transparent);
+  }
+}
+
+.incidentRadarDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: var(--color-td-oxide);
+  flex-shrink: 0;
+  animation: incidentDotBlink 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes incidentDotBlink {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .routeIndexDialog {
     will-change: auto;
@@ -445,5 +509,18 @@
   }
   .routeIndexSpotlight {
     display: none;
+  }
+  .contextLink[aria-current="page"]::after {
+    animation: none;
+    transform: none;
+  }
+  .incidentOverduePulse {
+    animation: none;
+    box-shadow: inset 0 0 0 1px var(--color-td-oxide);
+  }
+  .incidentRadarDot {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

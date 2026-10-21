@@ -848,6 +848,15 @@
   cursor: not-allowed;
 }
 
+.primaryActionButton:active:not(:disabled),
+.consequentialActionButton:active:not(:disabled),
+.secondaryActionButton:active:not(:disabled),
+.modalConfirmCompletedBtn:active:not(:disabled),
+.modalConfirmCancelledBtn:active:not(:disabled) {
+  transform: scale(0.975);
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .primaryActionButton:focus-visible,
 .consequentialActionButton:focus-visible,
 .secondaryActionButton:focus-visible {
@@ -1147,5 +1156,12 @@
   .stepperLineActiveLead::after {
     transition: none !important;
     animation: none !important;
+  }
+  .primaryActionButton:active:not(:disabled),
+  .consequentialActionButton:active:not(:disabled),
+  .secondaryActionButton:active:not(:disabled),
+  .modalConfirmCompletedBtn:active:not(:disabled),
+  .modalConfirmCancelledBtn:active:not(:disabled) {
+    transform: none !important;
   }
 }

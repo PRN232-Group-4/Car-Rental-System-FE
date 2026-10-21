@@ -22,6 +22,7 @@ import {
   Navigation,
   XCircle,
   Eye,
+  Loader2,
 } from "lucide-react";
 import {
   getOperationalRental,
@@ -1151,11 +1152,21 @@ export function RentalWorkspaceV4() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
+                      onClick={() => {
+                        playTactileClick();
+                        handleInitiateStatusChange(nextRecommendedAction.targetStatus);
+                      }}
                       disabled={isUpdatingStatus || !canMutate}
                       className={nextRecommendedAction.consequential ? styles.consequentialActionButton : styles.primaryActionButton}
                     >
-                      {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.label}
+                      {isUpdatingStatus ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin shrink-0" aria-hidden="true" />
+                          <span>Đang xử lý...</span>
+                        </>
+                      ) : (
+                        nextRecommendedAction.label
+                      )}
                     </button>
                   </div>
                 ) : (
@@ -1340,7 +1351,10 @@ export function RentalWorkspaceV4() {
               </button>
               <button
                 type="button"
-                onClick={() => pendingTargetStatus && executeStatusChange(pendingTargetStatus)}
+                onClick={() => {
+                  playTactileClick();
+                  if (pendingTargetStatus) executeStatusChange(pendingTargetStatus);
+                }}
                 className={
                   pendingTargetStatus === "completed"
                     ? styles.modalConfirmCompletedBtn
