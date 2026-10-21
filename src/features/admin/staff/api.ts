@@ -1,5 +1,5 @@
 import { backendApiClient } from "@/api/backend-api-client";
-import { getDepartments as fetchDepartments, getFacilities as fetchFacilities, getStaff, getStaffById as getStaffRecord, type StaffDto } from "@/features/admin/api";
+import { getDepartments as fetchDepartments, getFacilities as fetchFacilities, getStaff, getStaffById as getStaffRecord, type PagedResult, type StaffDto } from "@/features/admin/api";
 import { getLicenseState } from "./license-utils";
 import type { AssignableDriver, AssignDriverInput, CreateStaffInput, DriverScheduleItem, StaffDetail, StaffFilterParams, StaffPageResult, UpdateLicenseInput, UpdateStaffInput } from "./types";
 
@@ -112,11 +112,26 @@ export async function updateStaffLicense(input: UpdateLicenseInput): Promise<Sta
 }
 
 export async function getDriverSchedules(params: { from?: string; to?: string; driverStaffId?: number; facilityId?: number } = {}): Promise<DriverScheduleItem[]> {
-  const result = await backendApiClient.get<{ assignmentId: number; rentalId: number; vehicleId: number; driverStaffId: number; driverName?: string; startTime: string; endTime: string }[]>("drivers/schedule", {
-    from: params.from, to: params.to, driverStaffId: params.driverStaffId,
-  });
-  if (!Array.isArray(result)) throw new Error("Dữ liệu lịch trình không hợp lệ. Vui lòng thử lại.");
-  let items: DriverScheduleItem[] = result.map((entry) => ({ ...entry, start: entry.startTime, end: entry.endTime, status: "assigned" }));
+  type ScheduleEntry = { assignmentId: number; rentalId: number; vehicleId: number; driverStaffId: number; driverName?: string; startTime: string; endTime: string };
+  const entries: ScheduleEntry[] = [];
+  let page = 1;
+  while (true) {
+    const result = await backendApiClient.get<PagedResult<ScheduleEntry> | ScheduleEntry[]>("drivers/schedule", {
+      from: params.from, to: params.to, driverStaffId: params.driverStaffId, page, pageSize: 100,
+    });
+    if (Array.isArray(result)) {
+      entries.push(...result);
+      break;
+    }
+    if (!result || !Array.isArray(result.items) || result.page !== page || !Number.isSafeInteger(result.totalCount) || result.totalCount < 0) {
+      throw new Error("Dữ liệu lịch trình không hợp lệ. Vui lòng thử lại.");
+    }
+    entries.push(...result.items);
+    if (entries.length >= result.totalCount) break;
+    if (!result.items.length) throw new Error("Chưa tải đủ lịch trình tài xế. Vui lòng thử lại.");
+    page++;
+  }
+  let items: DriverScheduleItem[] = entries.map((entry) => ({ ...entry, start: entry.startTime, end: entry.endTime, status: "assigned" }));
   if (params.facilityId) {
     const staff = await fetchAllStaff();
     const ids = new Set(staff.filter((s) => s.facility?.id === params.facilityId).map((s) => s.id));

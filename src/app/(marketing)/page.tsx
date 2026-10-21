@@ -23,7 +23,7 @@ export default function Home() {
   };
 
   return (
-    <main id="main-content" tabIndex={-1} className="overflow-x-hidden w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-primary/20 selection:text-warning bg-canvas focus:outline-none">
+    <main id="main-content" tabIndex={-1} className="overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-primary/20 selection:text-warning bg-canvas focus:outline-none">
       {/* Background Architectural Canvas & Subtle Depth */}
       <div className="absolute inset-0 pointer-events-none z-0 bg-canvas" />
 
@@ -57,7 +57,7 @@ export default function Home() {
           <InspectionSection />
         </div>
 
-        {/* 6. Cinematic GSAP Pinned Journey Narrative */}
+        {/* 6. Sticky Journey Narrative with GSAP Card Reveals */}
         <div id="quy-trinh" className="scroll-mt-24">
           <PinnedJourney />
         </div>

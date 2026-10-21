@@ -11,7 +11,6 @@ import {
   Gauge, 
   ArrowUpRight, 
   ShieldCheck, 
-  UserCheck 
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import BookingModal from "@/features/rentals/components/BookingModal";
@@ -55,14 +54,9 @@ export default function MultiFleetCatalog() {
     hourlyPrice: vehicle.hourlyPrice, monthlyPrice: vehicle.monthlyPrice, imageUrl: vehicle.imageUrl, badges: vehicle.badges,
   }));
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("all");
-  const [onlyDriverOption, setOnlyDriverOption] = useState<boolean>(false);
   const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
 
-  const filteredVehicles = fleetData.filter((v) => {
-    if (selectedCategory !== "all" && v.category !== selectedCategory) return false;
-    if (onlyDriverOption && !v.hasDriverOption) return false;
-    return true;
-  });
+  const filteredVehicles = fleetData.filter((v) => selectedCategory === "all" || v.category === selectedCategory);
 
   const handleBookVehicle = (entry: FleetVehicle) => setSelectedVehicleForBooking(entry.vehicle);
 
@@ -160,7 +154,7 @@ export default function MultiFleetCatalog() {
         </p>
       </div>
 
-      {/* Filter Tabs & Chauffeur Switcher */}
+      {/* Category Tabs & Browse Link */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-4 border-b border-line">
         {/* Category Tabs */}
         <div className="flex flex-wrap items-center gap-2">
@@ -225,24 +219,15 @@ export default function MultiFleetCatalog() {
           </button>
         </div>
 
-        {/* Chauffeur Toggle */}
-        <label className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-surface border border-line-strong cursor-pointer select-none text-xs sm:text-sm font-bold text-ink">
-          <input
-            type="checkbox"
-            checked={onlyDriverOption}
-            disabled={fleet.isPending || !fleet.data?.some((vehicle) => vehicle.hasDriverOption !== undefined)}
-            title="Bộ lọc chỉ khả dụng khi API cung cấp tùy chọn tài xế"
-            onChange={(e) => setOnlyDriverOption(e.target.checked)}
-            className="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
-          />
-          <UserCheck className="w-4 h-4 text-primary" />
-          <span>Chỉ xe có tài xế riêng</span>
-        </label>
+        <Button as="a" href="/find" variant="secondary" size="sm" className="min-h-11 shrink-0 self-start sm:self-auto">
+          <span>Xem thêm</span>
+          <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+        </Button>
       </div>
 
       {fleet.isPending && <SkeletonBlock label="Đang tải danh mục xe" className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((key) => <Skeleton key={key} className="h-96 w-full" />)}</SkeletonBlock>}
       {fleet.isError && <ErrorState message={fleet.error.message} onRetry={() => { void fleet.refetch(); }} />}
-      {!fleet.isPending && !fleet.isError && !filteredVehicles.length && <p role="status" className="py-8 text-center text-sm text-ink-2">Không có phương tiện phù hợp.</p>}
+      {!fleet.isPending && !fleet.isError && !filteredVehicles.length && <p role="status" className="py-8 text-center text-sm text-ink-2">Không có phương tiện phù hợp trong danh sách gợi ý.</p>}
       {/* Vehicles Grid */}
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredVehicles.map((vehicle) => (

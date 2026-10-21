@@ -29,6 +29,7 @@ export async function getVehiclesPaginated(params?: VehicleFilterParams): Promis
   const pageSize = Math.max(1, Number(params?.pageSize) || 9);
 
   const queryParams: Record<string, string | number> = { page, pageSize };
+  if (params?.status) queryParams.status = params.status;
   if (params?.category && params.category !== "all") queryParams.category = params.category;
   if (params?.facilityId && params.facilityId !== "all") queryParams.facilityId = params.facilityId;
   if (params?.brand && params.brand !== "all") queryParams.brand = params.brand;

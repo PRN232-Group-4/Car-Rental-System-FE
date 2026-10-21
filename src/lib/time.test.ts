@@ -69,11 +69,22 @@ describe("time utilities (GMT+7 Asia/Ho_Chi_Minh)", () => {
     it("parses user input strings in GMT+7", () => {
       const date = parseGmt7Input("2026-10-15 08:30");
       expect(formatDateTime(date)).toBe("08:30 15/10/2026");
+      expect(toUtcIso(date)).toBe("2026-10-15T01:30:00.000Z");
     });
 
     it("parses slash date format dd/MM/yyyy HH:mm", () => {
       const date = parseGmt7Input("15/10/2026 14:00");
       expect(formatDateTime(date)).toBe("14:00 15/10/2026");
+    });
+
+    it("parses an explicit pattern as GMT+7 rather than the host timezone", () => {
+      expect(toUtcIso(parseGmt7Input("15/10/2026 00:01", "dd/MM/yyyy HH:mm")))
+        .toBe("2026-10-14T17:01:00.000Z");
+    });
+
+    it("preserves the instant of input with an explicit UTC offset", () => {
+      expect(toUtcIso(parseGmt7Input("2026-10-15T01:30:00.000Z")))
+        .toBe("2026-10-15T01:30:00.000Z");
     });
 
     it("throws on completely unrecognizable input", () => {

@@ -1,7 +1,8 @@
 import { backendApiClient } from "@/api/backend-api-client";
 import { unsupportedApi } from "@/api/unsupported";
-import { nowGmt7, toUtcIso } from "@/lib/time";
+import { formatDate, nowGmt7, toUtcIso } from "@/lib/time";
 import { parseDashboardSnapshot } from "../dashboard-data";
+import type { PagedResult } from "../api";
 import type { DashboardDatePreset, DashboardFilters, DashboardKpis, FleetStatus, RevenuePoint, RentalStatusCount, TopVehicleRow, MaintenanceVsRevenueRow, PlanUsageRow } from "./types";
 
 export function getPresetDateRange(preset: DashboardDatePreset): { from: string; to: string } {
@@ -95,8 +96,31 @@ export async function fetchDashboardKpis(filters: DashboardFilters): Promise<Das
   };
 }
 
+async function fetchDashboardRows<T>(endpoint: string, filters: DashboardFilters): Promise<T[]> {
+  const items: T[] = [];
+  let page = 1;
+  while (true) {
+    const result = await backendApiClient.get<PagedResult<T>>(`dashboard/${endpoint}`, {
+      from: filters.from, to: filters.to, facilityId: filters.facilityId, vehicleTypeId: filters.vehicleTypeId, page, pageSize: 100,
+    });
+    if (!result || !Array.isArray(result.items) || result.page !== page || !Number.isSafeInteger(result.totalCount) || result.totalCount < 0) {
+      throw new Error("Dữ liệu biểu đồ không hợp lệ. Vui lòng tải lại.");
+    }
+    items.push(...result.items);
+    if (items.length >= result.totalCount) return items;
+    if (!result.items.length) throw new Error("Chưa tải đủ dữ liệu biểu đồ. Vui lòng tải lại.");
+    page++;
+  }
+}
+
 export async function fetchRevenueSeries(filters: DashboardFilters): Promise<RevenuePoint[]> {
-  void filters; return unsupportedApi("chuỗi doanh thu theo ngày (cần GET /api/dashboard/revenue-series)"); }
+  const rows = await fetchDashboardRows<RevenuePoint>("revenue-series", filters);
+  return rows.map((row) => {
+    const bucket = formatDate(row.dateIso, "dd/MM");
+    if (!bucket) throw new Error("Ngày doanh thu không hợp lệ. Vui lòng tải lại.");
+    return { ...row, bucket, byGroup: row.byGroup ?? undefined };
+  });
+}
 export async function fetchRentalsByStatus(filters: DashboardFilters): Promise<RentalStatusCount[]> {
   if (filters.facilityId || filters.vehicleTypeId) return unsupportedApi("lọc thống kê đơn theo cơ sở hoặc loại xe");
   const statuses = [
@@ -110,8 +134,14 @@ export async function fetchRentalsByStatus(filters: DashboardFilters): Promise<R
   }));
 }
 export async function fetchTopVehicles(filters: DashboardFilters): Promise<TopVehicleRow[]> {
-  void filters; return unsupportedApi("xếp hạng doanh thu phương tiện (cần GET /api/dashboard/top-vehicles)"); }
+  const rows = await fetchDashboardRows<TopVehicleRow>("top-vehicles", filters);
+  return rows.map((row) => ({ ...row, name: row.name ?? "Chưa cập nhật tên xe", category: row.category ?? "Chưa phân loại" }));
+}
 export async function fetchMaintenanceVsRevenue(filters: DashboardFilters): Promise<MaintenanceVsRevenueRow[]> {
-  void filters; return unsupportedApi("đối chiếu doanh thu và chi phí bảo dưỡng (cần GET /api/dashboard/maintenance-vs-revenue)"); }
+  const rows = await fetchDashboardRows<Omit<MaintenanceVsRevenueRow, "isHighCost">>("maintenance-vs-revenue", filters);
+  return rows.map((row) => ({ ...row, name: row.name ?? "Chưa cập nhật tên xe", isHighCost: row.maintenanceCost > row.revenue }));
+}
 export async function fetchPlanUsage(filters: DashboardFilters): Promise<PlanUsageRow[]> {
-  void filters; return unsupportedApi("thống kê sử dụng gói thuê toàn hệ thống (cần GET /api/dashboard/plan-usage)"); }
+  const rows = await fetchDashboardRows<PlanUsageRow>("plan-usage", filters);
+  return rows.map((row) => ({ ...row, name: row.name ?? "Chưa cập nhật tên gói" }));
+}

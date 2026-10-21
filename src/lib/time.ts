@@ -19,9 +19,6 @@ export function nowGmt7(): TZDate {
  * Chuyển đổi bất kỳ đầu vào thời gian nào (Date, chuỗi ISO, timestamp) về chuỗi UTC ISO-8601 chuẩn.
  */
 export function toUtcIso(dateInput: Date | string | number): string {
-  if (dateInput instanceof Date) {
-    return dateInput.toISOString();
-  }
   const date = new Date(dateInput);
   if (isNaN(date.getTime())) {
     throw new Error(`Giá trị ngày giờ không hợp lệ: ${dateInput}`);
@@ -43,7 +40,7 @@ export function fromUtcIso(isoString: string): TZDate {
 export function parseGmt7Input(input: string, patternStr?: string): TZDate {
   const trimmed = input.trim();
   if (patternStr) {
-    const parsed = parse(trimmed, patternStr, new Date());
+    const parsed = parse(trimmed, patternStr, nowGmt7());
     return new TZDate(parsed, GMT7_TIMEZONE);
   }
 
@@ -60,7 +57,7 @@ export function parseGmt7Input(input: string, patternStr?: string): TZDate {
 
   for (const fmt of candidateFormats) {
     try {
-      const parsed = parse(trimmed, fmt, new Date());
+      const parsed = parse(trimmed, fmt, nowGmt7());
       if (!isNaN(parsed.getTime())) {
         return new TZDate(parsed, GMT7_TIMEZONE);
       }
