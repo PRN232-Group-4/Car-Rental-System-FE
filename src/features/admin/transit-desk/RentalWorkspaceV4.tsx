@@ -5,6 +5,7 @@ import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 import Link from "next/link";
 import {
   Search,
@@ -367,6 +368,7 @@ export function RentalWorkspaceV4() {
     try {
       const staffIdVal = driverStaffId === "" ? null : Number(driverStaffId);
       await assignRental(Number(activeRental.id), staffIdVal);
+      void queryClient.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY });
       setAssignMessage("Đã lưu phân công phương tiện và tài xế.");
       notifySuccess("Đã lưu phân công phương tiện và tài xế.");
       await refetchRental();
@@ -417,6 +419,7 @@ export function RentalWorkspaceV4() {
     setStatusMessage(null);
     try {
       const updated = await changeRentalStatus(Number(activeRental.id), targetStatus);
+      void queryClient.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY });
       if (isValidRental(updated)) {
         queryClient.setQueryData(["operational-rental", lookupId], updated);
       }

@@ -17,6 +17,7 @@ import { FormField as Field } from "@/components/ui/FormField";
 import { useAuth } from "@/features/auth";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { formatAdminDate } from "@/lib/date-time";
+import ChangePasswordForm from "@/features/profile/components/ChangePasswordForm";
 
 export default function StaffProfileForm() {
   const { user, refreshProfile } = useAuth();
@@ -336,6 +337,7 @@ export default function StaffProfileForm() {
           </div>
 
           {staff.isDriver && <DriverLicenseProfile staff={staff} onUpdated={setStaff} />}
+          <ChangePasswordForm />
         </>
       )}
     </div>

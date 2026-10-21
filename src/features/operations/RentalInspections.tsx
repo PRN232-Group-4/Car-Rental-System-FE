@@ -14,6 +14,7 @@ import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import InspectionDirectory, { InspectionWorkQueue } from "./InspectionDirectory";
+import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 
 const checkItems = ["Ngoại thất và hư hỏng", "Lốp, phanh và vận hành", "Đèn, còi và phụ kiện", "Nhiên liệu / pin"];
 
@@ -79,6 +80,7 @@ function InspectionForm({ rental, refresh }: { rental: OperationalRental; refres
         damageNotes: notes || null,
         imageUrls: images.length ? JSON.stringify(images.map((image) => image.url)) : null,
       });
+      void cache.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY });
       const message = `Đã lưu biên bản ${type === "pre" ? "trước" : "sau"} thuê cho đơn #${rental.id}.`;
       setSuccess(message);
       notifySuccess(message);

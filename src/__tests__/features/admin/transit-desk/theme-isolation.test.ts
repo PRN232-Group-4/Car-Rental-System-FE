@@ -45,6 +45,11 @@ vi.mock("@/features/admin/api", () => ({
   getStaffById: vi.fn().mockResolvedValue(null),
 }));
 
+// Queue fetching is tested separately; theme cleanup has no network/provider dependency.
+vi.mock("@/features/admin/use-navigation-counts", () => ({
+  useNavigationCounts: () => ({ data: undefined, isError: false }),
+}));
+
 vi.mock("@/features/admin/transit-desk/RentalLiquidTransition", () => ({
   default: () => null,
 }));

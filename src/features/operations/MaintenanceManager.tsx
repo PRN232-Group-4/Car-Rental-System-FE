@@ -13,7 +13,8 @@ import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 import { InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import OperationFields, { nullableNumber } from "./OperationFields";
 import type { OperationField } from "./OperationFields";
@@ -37,6 +38,7 @@ const fields: OperationField[] = [
   { name: "description", label: "Mô tả công việc", type: "textarea" },
 ];
 export default function MaintenanceManager() {
+  const cache = useQueryClient();
   const [filter, setFilter] = useState({ vehicleId: "", status: "" });
   const [activeFilter, setActiveFilter] = useState(filter);
   const [editing, setEditing] = useState<MaintenanceRecord | null | undefined>();
@@ -111,7 +113,7 @@ export default function MaintenanceManager() {
         </AdminTableCard>
       );
     })()}
-    {editing !== undefined && <MaintenanceForm key={editing?.id ?? "new"} record={editing} vehicleOptions={vehicleOptions} close={() => setEditing(undefined)} saved={() => query.refetch()} />}
+    {editing !== undefined && <MaintenanceForm key={editing?.id ?? "new"} record={editing} vehicleOptions={vehicleOptions} close={() => setEditing(undefined)} saved={() => Promise.all([query.refetch(), cache.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY })])} />}
   </div>;
 }
 function MaintenanceForm({ record, vehicleOptions = [], close, saved }: { record: MaintenanceRecord | null; vehicleOptions?: { value: string; label: string }[]; close: () => void; saved: () => Promise<unknown> }) {

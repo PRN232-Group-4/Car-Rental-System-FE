@@ -19,6 +19,9 @@ import { operatorContext } from "./operator-context";
 import AccountAvatar from "@/components/ui/AccountAvatar";
 import { House, Moon, Sun, LogOut, User } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
+import { useNavigationCounts } from "@/features/admin/use-navigation-counts";
+import { navigationCount } from "@/features/admin/navigation-counts";
+import { NavigationCount, NavigationDot } from "./NavigationIndicator";
 
 export interface TransitDeskShellProps {
   children: ReactNode;
@@ -32,6 +35,8 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   const { account, checkingAccess, accessError } = usePortalAccess(
     isAdminOrStaffAccount,
   );
+  const navigationCounts = useNavigationCounts(account);
+  const counts = navigationCounts.isError ? undefined : navigationCounts.data;
 
   const [isRouteIndexOpen, setIsRouteIndexOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -78,7 +83,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     () =>
       permittedItems.map((item) => ({
         chapter: ROUTE_CHAPTER_MAP[item.href] || "Hệ thống",
-        href: item.href,
+        href: item.href + (item.defaultQuery ?? ""),
         label: item.label,
         description: item.description,
       })),
@@ -216,7 +221,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
           <div ref={gliderRef} className={styles.chapterGlider} aria-hidden="true" />
           {Array.from(chaptersWithRoutes.entries()).map(([chapter, routes]) => {
             const isActive = chapter === activeChapter;
-            const primaryHref = routes[0]?.href || "/admin";
+            const primaryHref = routes[0] ? routes[0].href + (routes[0].defaultQuery ?? "") : "/admin";
             return (
               <Link
                 key={chapter}
@@ -225,6 +230,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
                 aria-current={isActive ? "true" : undefined}
               >
                 {chapter}
+                <NavigationDot hasWork={routes.some((route) => navigationCount(counts, route.href) > 0)} />
               </Link>
             );
           })}
@@ -334,11 +340,12 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
             return (
               <Link
                 key={route.href}
-                href={route.href}
+                href={route.href + (route.defaultQuery ?? "")}
                 className={styles.contextLink}
                 aria-current={isCurrent ? "page" : undefined}
               >
                 {route.label}
+                <NavigationCount count={navigationCount(counts, route.href)} />
               </Link>
             );
           })}

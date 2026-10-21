@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import { fetchReports, fetchReportDetail, updateReportStatus, createMaintenanceFromReport } from "./api";
 import type { ReportFilterParams, ReportStatus, CreateMaintenancePayload } from "./types";
+import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 
 export const REPORT_QUERY_KEYS = {
   all: ["admin-reports"] as const,
@@ -19,7 +20,7 @@ export function useUpdateReportStatus() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: ReportStatus; reason?: string }) => updateReportStatus(id, status),
-    onSuccess: () => { notifySuccess("Đã cập nhật trạng thái báo cáo sự cố."); void client.invalidateQueries({ queryKey: REPORT_QUERY_KEYS.all }); },
+    onSuccess: () => { notifySuccess("Đã cập nhật trạng thái báo cáo sự cố."); void client.invalidateQueries({ queryKey: REPORT_QUERY_KEYS.all }); void client.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY }); },
     onError: (error) => notifyApiError(error, "Không thể cập nhật trạng thái báo cáo sự cố."),
   });
 }
@@ -27,7 +28,7 @@ export function useCreateMaintenanceFromReport() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateMaintenancePayload) => createMaintenanceFromReport(payload),
-    onSuccess: () => { notifySuccess("Đã tạo phiếu bảo trì từ báo cáo sự cố."); void client.invalidateQueries({ queryKey: REPORT_QUERY_KEYS.all }); },
+    onSuccess: () => { notifySuccess("Đã tạo phiếu bảo trì từ báo cáo sự cố."); void client.invalidateQueries({ queryKey: REPORT_QUERY_KEYS.all }); void client.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY }); },
     onError: (error) => notifyApiError(error, "Không thể tạo phiếu bảo trì từ báo cáo sự cố."),
   });
 }

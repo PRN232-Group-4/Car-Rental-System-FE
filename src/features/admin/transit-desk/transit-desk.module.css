@@ -122,6 +122,35 @@
   color: var(--color-td-ink);
 }
 
+.navigationDot {
+  position: absolute;
+  top: 8px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-td-oxide);
+}
+
+.navigationCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 20px;
+  min-height: 20px;
+  margin-left: 7px;
+  padding: 1px 5px;
+  border: 1px solid var(--color-td-oxide);
+  border-radius: 4px;
+  color: var(--color-td-oxide);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
 .chapterGlider {
   position: absolute;
   bottom: 0;

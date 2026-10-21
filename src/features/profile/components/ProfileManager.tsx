@@ -29,6 +29,7 @@ import {
 } from "../api";
 import { ApiClientError } from "@/api/api-client";
 import { useAuth } from "@/features/auth";
+import ChangePasswordForm from "./ChangePasswordForm";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -482,6 +483,7 @@ export default function ProfileManager() {
             </aside>
           </div>
         </div>
+        {!isLoading && isAuthenticated && <ChangePasswordForm />}
       </main>
 
     </div>

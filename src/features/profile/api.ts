@@ -30,6 +30,14 @@ export function getAccountProfile() {
   return backendApiClient.get<AccountProfile>("account/profile");
 }
 
+export function sendPasswordChangeOtp(currentPassword: string) {
+  return backendApiClient.post("account/password/otp", { currentPassword });
+}
+
+export function changePassword(data: components["schemas"]["ChangePasswordRequest"]) {
+  return backendApiClient.post("account/password", data);
+}
+
 export function initialsFor(name: string | null | undefined): string {
   return (name ?? "?")
     .trim()

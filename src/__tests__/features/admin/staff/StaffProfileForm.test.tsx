@@ -5,6 +5,7 @@ import { ApiProblemError } from "@/api/api-client";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }));
 const refreshProfile = vi.hoisted(() => vi.fn());
+vi.mock("@/components/navigation/NavigationProvider", () => ({ useNavigationRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
 vi.mock("@/features/auth", () => ({
   useAuth: () => ({ user: null, refreshProfile, hasRole: () => true }),

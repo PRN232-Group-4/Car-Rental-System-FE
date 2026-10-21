@@ -1,5 +1,13 @@
 # Kế hoạch triển khai FE — Car Rental System FE
 
+## Cập nhật 2026-10-21 — Dot và số việc chờ xử lý trên menu
+
+Transit Desk lấy tổng từ `GET /api/admin/navigation-counts`, hiện dot chương và số chính xác ở mục con, cập nhật mỗi 30 giây và sau xử lý thành công. Thêm Duyệt GPLX với bộ lọc pending, giữ quyền hiện hữu; đồng bộ snapshot Swagger/schema có API counts và giới hạn auth mới. 636/636 unit test, 8/8 E2E Edge desktop/mobile sáng/tối, typecheck/design lint và production static build đạt; ESLint 0 lỗi/25 cảnh báo có sẵn. Xem [change](../changes/2026-10-21-admin-navigation-work-counts.md), [spec](specs/FE-26-admin-navigation-work-counts.md). Chưa deploy.
+
+## Cập nhật 2026-10-21 — Đổi mật khẩu OTP
+
+Hoàn tất form đổi mật khẩu dùng chung trên hồ sơ customer/admin/staff, bắt buộc OTP email và đăng nhập lại sau đổi. 630 unit test, 2 E2E desktop/mobile, typecheck/design lint/ESLint và static build đạt; chưa kiểm thử email thật/chưa deploy. Xem [spec](specs/FE-03-password-change-otp.md) và [change](../changes/2026-10-21-password-change-otp.md).
+
 > **Trạng thái: đã chốt phương án auth same-origin bằng Cloudflare Worker proxy `/api/*` → BE.**
 > Bản này thay thế plan trước (bản cũ còn để mở 3 lựa chọn ở mục auth).
 > Ngày: 2026-10-03 · Base: `main`

@@ -13,6 +13,7 @@ import {
 import { UserFilterParams } from "./types";
 import { Role } from "@/features/auth/roles";
 import { ApiProblemError } from "@/api/api-client";
+import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 
 export const USER_QUERY_KEYS = {
   all: ["admin", "users"] as const,
@@ -206,6 +207,8 @@ export function useReviewLicense() {
     }) => reviewCustomerLicense({ customerId, status }),
     onSuccess: async (updated, variables) => {
       await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY }),
+        queryClient.invalidateQueries({ queryKey: ["admin-customers"] }),
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
         queryClient.invalidateQueries({ queryKey: ["staffs"] }),
