@@ -8,8 +8,7 @@ import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
 import { useAdminTheme } from "@/features/admin/use-admin-theme";
-import { ADMIN_NAV_ITEMS, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
-import { hasAnyRole } from "@/features/auth/access";
+import { getNavigation, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
 import type { Role } from "@/features/auth/roles";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "./transit-desk.module.css";
@@ -57,13 +56,8 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Filter allowed navigation items by user roles
-  const permittedItems = useMemo(() => {
-    return ADMIN_NAV_ITEMS.filter((item: NavItem) => {
-      if (!item.roles || item.roles.length === 0) return true;
-      return hasAnyRole(userRoles, item.roles);
-    });
-  }, [userRoles]);
+  // Masthead và command palette dùng chung luật lọc với getNavigation (role hiển thị + quyền route)
+  const permittedItems = useMemo(() => getNavigation(userRoles, "admin"), [userRoles]);
 
   // Group permitted items into chapters
   const chaptersWithRoutes = useMemo(() => {

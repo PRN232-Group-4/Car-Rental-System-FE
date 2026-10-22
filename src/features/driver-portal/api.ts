@@ -20,16 +20,19 @@ export interface DriverRentalDto {
   endTime: string | null;
 }
 
-export function getDriverSchedule(
+export async function getDriverSchedule(
   driverStaffId: number,
   from: string,
   to: string,
 ) {
-  return backendApiClient.get<DriverScheduleEntry[]>("drivers/schedule", {
+  const result = await backendApiClient.get<
+    DriverScheduleEntry[] | { items?: DriverScheduleEntry[] }
+  >("drivers/schedule", {
     driverStaffId,
     from,
     to,
   });
+  return Array.isArray(result) ? result : (result.items ?? []);
 }
 
 export function getDriverRental(rentalId: number) {

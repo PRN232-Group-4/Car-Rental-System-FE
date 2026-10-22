@@ -27,7 +27,7 @@ const customerLabel = (customer: CustomerLicenseSummary) => customer.fullName ||
 
 export default function CustomerLicenseManager() {
   const { hasRole, isLoading } = useAuth();
-  const allowed = ["admin", "manager", "customerservice"].some(hasRole);
+  const allowed = ["customerservice", "staff", "manager"].some(hasRole);
   const [draft, setDraft] = useState({ search: "", status: "pending" });
   const [filter, setFilter] = useState(draft);
   const [page, setPage] = useState(1);

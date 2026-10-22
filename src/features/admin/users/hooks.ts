@@ -88,8 +88,15 @@ export function useAssignRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, role }: { userId: number; role: Role }) =>
-      assignUserRole({ userId, role }),
+    mutationFn: ({
+      userId,
+      role,
+      currentActorId,
+    }: {
+      userId: number;
+      role: Role;
+      currentActorId?: number;
+    }) => assignUserRole({ userId, role, currentActorId }),
     onSuccess: async (updated, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),

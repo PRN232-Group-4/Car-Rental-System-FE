@@ -21,6 +21,7 @@ Cập nhật: 2026-10-20. Nguồn đối chiếu: `src/api/generated/swagger.jso
 | 13 | Lọc KPI/thống kê theo cơ sở & loại xe | `facilityId`, `vehicleTypeId` cho các endpoint dashboard | `GET /api/dashboard` chỉ nhận `from`, `to`. |
 | 14 | Duyệt GPLX ngay trong hồ sơ tài khoản | Đã dùng `PUT /api/customers/{id}/license-status`; cần `GET /api/customers/{id}` trả `userId` để mở từ trang User | `CustomerListItem`/`CustomerDetail` có `userId`, nhưng trang User không có danh sách user để dẫn tới. |
 | 15 | Điều chỉnh điểm thưởng trong hồ sơ tài khoản | Đã dùng `POST /api/customers/{id}/loyalty/adjustments` (có `Idempotency-Key`); cần `userId` trên `CustomerDetail` | Như trên: thiếu nguồn userId → customerId ở màn `/admin/users`. |
+| 16 | `/admin/audit-logs` nhật ký kiểm toán hệ thống | `GET /api/audit-logs?search&action&from&to&page&pageSize` | Backend chỉ ghi nhận audit nội bộ trong DB khi đổi role/khóa tài khoản, chưa có endpoint GET để truy vấn lịch sử kiểm toán ra màn hình. |
 
 ## 2. Cần bổ sung field trong endpoint đã có
 

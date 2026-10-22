@@ -13,7 +13,7 @@ import { confirmHandover, operationalError, operationsButton, operationsPanel } 
 
 export default function HandoverPanel({ rentalId, refresh }: { rentalId: number | string; refresh?: () => Promise<unknown> }) {
   const { hasAnyRole } = useAuth();
-  const allowed = hasAnyRole(["Admin", "Manager", "CustomerService"]);
+  const allowed = hasAnyRole(["Staff", "Manager"]);
   const query = useQuery({ queryKey: ["handover", rentalId], queryFn: () => getHandover(rentalId), enabled: allowed, retry: false });
   const cache = useQueryClient();
   const [busy, setBusy] = useState(false);

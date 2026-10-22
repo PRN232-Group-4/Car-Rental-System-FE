@@ -113,9 +113,30 @@ export async function setUserActiveStatus(input: {
   return mapAdministrativeUser(await backendApiClient.patch<AdministrativeUser>(`users/${input.userId}/status`, { isActive: input.isActive, reason }));
 }
 
-export async function assignUserRole({ userId, role }: { userId: number; role: Role }): Promise<AdminUserDetail> {
+export async function assignUserRole({
+  userId,
+  role,
+  currentActorId,
+}: {
+  userId: number;
+  role: Role;
+  currentActorId?: number;
+}): Promise<AdminUserDetail> {
   if (!ROLES.includes(role)) throw problem(400, `Vai trò '${role}' không tồn tại trong danh mục hệ thống.`);
-  return mapAdministrativeUser(await backendApiClient.post<AdministrativeUser>(`users/${userId}/roles`, { role }));
+  if (currentActorId != null && userId === currentActorId) {
+    throw problem(409, "Bạn không thể tự gán thêm vai trò cho chính mình. Thao tác này yêu cầu kiểm soát chéo từ quản trị viên khác.");
+  }
+  try {
+    return mapAdministrativeUser(await backendApiClient.post<AdministrativeUser>(`users/${userId}/roles`, { role }));
+  } catch (error) {
+    if (error instanceof ApiProblemError && error.detail && /employee profile is required/i.test(error.detail)) {
+      throw new ApiProblemError(error.status, "Yêu cầu hồ sơ nhân viên", {
+        detail: `Vai trò '${role}' yêu cầu tài khoản phải có hồ sơ nhân viên nội bộ (phòng ban và cơ sở công tác). Vui lòng tạo hồ sơ nhân viên trước khi gán vai trò này.`,
+        errors: error.data && typeof error.data === "object" && "errors" in error.data ? (error.data as { errors?: Record<string, string[]> }).errors : undefined,
+      });
+    }
+    throw error;
+  }
 }
 
 export async function removeUserRole(input: { userId: number; role: Role; currentActorId?: number; currentActorEmail?: string }): Promise<AdminUserDetail> {

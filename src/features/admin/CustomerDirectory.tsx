@@ -27,7 +27,7 @@ const pageButtonClass = "inline-flex h-8 w-8 items-center justify-center rounded
 
 export default function CustomerDirectory({ initialLicenseStatus = "" }: { initialLicenseStatus?: string }) {
   const session = useOptionalSession();
-  const canOpenProfile = Boolean(session?.hasRole("Admin"));
+  const canOpenProfile = Boolean(session?.hasAnyRole(["Admin", "Staff", "CustomerService", "Manager"]));
   const initialFilter = { ...emptyFilter, licenseStatus: initialLicenseStatus === "pending" ? "pending" : "" };
   const [filter, setFilter] = useState(initialFilter);
   const [activeFilter, setActiveFilter] = useState(initialFilter);

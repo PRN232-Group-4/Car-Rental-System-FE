@@ -123,6 +123,7 @@ function UserDetailContent() {
     await assignRoleMutation.mutateAsync({
       userId: user.id,
       role: newRole,
+      currentActorId: isSelf ? user.id : undefined,
     });
   };
 
@@ -653,8 +654,19 @@ function UserDetailContent() {
               </div>
             </div>
           ) : (
-            <div className="rounded border border-td-rule bg-td-white p-6 text-center py-8 text-xs text-td-muted">
-              Người dùng này không thuộc đội ngũ nhân viên Thong Dong.
+            <div className="rounded border border-td-rule bg-td-white p-6 text-center py-8 text-xs text-td-muted space-y-3">
+              <p>Người dùng này không thuộc đội ngũ nhân viên Thong Dong.</p>
+              {!isManagerOnly && (
+                <div>
+                  <Link
+                    href={`/admin/staffs/new?userId=${user.id}`}
+                    className="inline-flex items-center gap-1.5 rounded bg-td-ink px-3 py-1.5 font-bold text-td-white hover:bg-td-teal transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Tạo hồ sơ nhân viên cho người dùng này</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -720,6 +732,8 @@ function UserDetailContent() {
         userId={user.id}
         userName={user.fullName}
         currentRoles={user.roles}
+        hasStaffProfile={user.hasStaffProfile || Boolean(user.staff)}
+        isSelf={isSelf}
         isLoading={assignRoleMutation.isPending}
         onAssignRole={handleAssignRole}
       />

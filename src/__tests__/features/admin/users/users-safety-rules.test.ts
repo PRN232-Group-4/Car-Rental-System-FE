@@ -50,6 +50,11 @@ describe("Admin Users: bảo vệ API thật", () => {
     expect(client.post).toHaveBeenCalledTimes(1);
   });
 
+  it("cấm tự cấp thêm vai trò cho chính mình nhằm tuân thủ nguyên tắc kiểm soát chéo", async () => {
+    await expect(assignUserRole({ userId: 2, role: "Manager", currentActorId: 2 }))
+      .rejects.toThrow("Bạn không thể tự gán thêm vai trò cho chính mình");
+  });
+
   it("không tự cập nhật quyền khi server từ chối thiếu hồ sơ hoặc GPLX", async () => {
     const failure = new ApiProblemError(409, "Conflict", { detail: "The Driver role requires a driver profile with a valid license." });
     client.post.mockRejectedValue(failure);

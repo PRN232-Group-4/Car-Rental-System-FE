@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import type { FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useCreateStaff, useDepartments, useFacilities } from "@/features/admin/staff/hooks";
@@ -19,12 +19,14 @@ import { nowGmt7 } from "@/lib/time";
 
 function CreateStaffContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialUserId = searchParams.get("userId") ?? "";
   const mutation = useCreateStaff();
   const users = useQuery({ queryKey: ["admin", "staff-account-options"], queryFn: getStaffAccountOptions });
   const departments = useDepartments();
   const facilities = useFacilities();
   const validation = useInlineValidation();
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState(initialUserId);
   const [departmentId, setDepartmentId] = useState("");
   const [facilityId, setFacilityId] = useState("");
   const [hiredDate, setHiredDate] = useState(() => format(nowGmt7(), "yyyy-MM-dd"));
@@ -75,6 +77,12 @@ function CreateStaffContent() {
           expiryDate: isDriver && issueDate && expiryDate && expiryDate < issueDate ? "Ngày hết hạn GPLX phải từ ngày cấp trở đi." : undefined,
         })} className="space-y-6 rounded border border-td-rule bg-td-white p-6 sm:p-8">
           {error && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{error}</p>}
+          {selected && initialUserId === String(selected.id) && (
+            <div className="rounded border border-td-rule bg-td-paper p-3 text-xs text-td-ink flex items-center justify-between">
+              <span>Đang tạo hồ sơ nhân viên cho: <strong>{selected.fullName || selected.email}</strong> ({selected.email}).</span>
+              <span className="font-mono text-[10px] text-td-muted">User ID: #{selected.id}</span>
+            </div>
+          )}
           <div className="grid gap-6 md:grid-cols-2">
             <FormField label="Email tài khoản" htmlFor="userId" required helperText="Vai trò của tài khoản quyết định hồ sơ tài xế và giấy phép lái xe.">
               <InlineSelect id="userId" name="userId" required value={userId} onChange={(event) => setUserId(event.target.value)} className="admin-input">

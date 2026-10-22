@@ -57,7 +57,7 @@ describe("Biểu mẫu quản trị tài khoản", () => {
   it("gán vai trò có xác nhận và giữ biểu mẫu khi backend từ chối Driver thiếu GPLX", async () => {
     const assign = vi.fn().mockRejectedValue(new ApiProblemError(409, "Conflict", { detail: "Vai trò Driver yêu cầu hồ sơ với giấy phép còn hạn." }));
     const close = vi.fn();
-    render(<UserRoleDialog open onOpenChange={close} userId={7} userName="Người dùng" currentRoles={["Staff"]} onAssignRole={assign} />);
+    render(<UserRoleDialog open onOpenChange={close} userId={7} userName="Người dùng" currentRoles={["Staff"]} hasStaffProfile onAssignRole={assign} />);
     fireEvent.change(screen.getByLabelText(/Chọn vai trò mới/), { target: { value: "Driver" } });
     fireEvent.click(screen.getByRole("button", { name: "Tiếp tục gán quyền" }));
     expect(assign).not.toHaveBeenCalled();
@@ -66,5 +66,72 @@ describe("Biểu mẫu quản trị tài khoản", () => {
     expect(assign).toHaveBeenCalledWith("Driver");
     expect(close).not.toHaveBeenCalled();
     expect(screen.getByLabelText(/Chọn vai trò mới/)).toHaveValue("Driver");
+  });
+
+  it("cảnh báo và chặn gán vai trò nhân sự khi tài khoản chưa có hồ sơ nhân viên", () => {
+    const assign = vi.fn();
+    const close = vi.fn();
+    render(<UserRoleDialog open onOpenChange={close} userId={7} userName="Khách hàng A" currentRoles={["Customer"]} hasStaffProfile={false} onAssignRole={assign} />);
+
+    // Chọn vai trò Staff yêu cầu hồ sơ
+    fireEvent.change(screen.getByLabelText(/Chọn vai trò mới/), { target: { value: "Staff" } });
+    expect(screen.getByRole("status")).toHaveTextContent("Cần tạo hồ sơ nhân viên trước");
+    expect(screen.getByRole("button", { name: "Cần tạo hồ sơ nhân viên trước" })).toBeDisabled();
+
+    const link = screen.getByRole("link", { name: /Tạo hồ sơ nhân viên cho Khách hàng A/ });
+    expect(link).toHaveAttribute("href", "/admin/staffs/new?userId=7");
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("cho phép gán vai trò nhân sự khi tài khoản đã có hồ sơ nhân viên", async () => {
+    const assign = vi.fn().mockResolvedValue(undefined);
+    const close = vi.fn();
+    render(<UserRoleDialog open onOpenChange={close} userId={7} userName="Nhân viên B" currentRoles={["Staff"]} hasStaffProfile={true} onAssignRole={assign} />);
+
+    fireEvent.change(screen.getByLabelText(/Chọn vai trò mới/), { target: { value: "Manager" } });
+    expect(screen.queryByText(/Cần tạo hồ sơ nhân viên trước/)).not.toBeInTheDocument();
+
+    const submitBtn = screen.getByRole("button", { name: "Tiếp tục gán quyền" });
+    expect(submitBtn).toBeEnabled();
+    fireEvent.click(submitBtn);
+
+    expect(screen.getByRole("button", { name: "Xác nhận cấp vai trò" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Xác nhận cấp vai trò" }));
+    await waitFor(() => expect(assign).toHaveBeenCalledWith("Manager"));
+    await waitFor(() => expect(close).toHaveBeenCalledWith(false));
+  });
+
+  it("hiển thị hướng dẫn tạo hồ sơ khi backend báo lỗi thiếu employee profile", async () => {
+    const assign = vi.fn().mockRejectedValue(new ApiProblemError(400, "Bad Request", { detail: "An employee profile is required for this role." }));
+    const close = vi.fn();
+    render(<UserRoleDialog open onOpenChange={close} userId={7} userName="Khách hàng C" currentRoles={["Customer"]} hasStaffProfile onAssignRole={assign} />);
+
+    fireEvent.change(screen.getByLabelText(/Chọn vai trò mới/), { target: { value: "Admin" } });
+    fireEvent.click(screen.getByRole("button", { name: "Tiếp tục gán quyền" }));
+    fireEvent.click(screen.getByRole("button", { name: "Xác nhận cấp vai trò" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("An employee profile is required for this role.");
+    expect(screen.getByRole("link", { name: "Đi tới trang Tạo hồ sơ nhân viên" })).toHaveAttribute("href", "/admin/staffs/new?userId=7");
+  });
+
+  it("khóa tính năng và cảnh báo khi admin xem tài khoản của chính mình", () => {
+    const assign = vi.fn();
+    const close = vi.fn();
+    render(
+      <UserRoleDialog
+        open
+        onOpenChange={close}
+        userId={7}
+        userName="Quản trị viên"
+        currentRoles={["Admin"]}
+        hasStaffProfile
+        isSelf
+        onAssignRole={assign}
+      />
+    );
+
+    expect(screen.getByText(/Bạn đang xem tài khoản của chính mình/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Không thể tự cấp vai trò" })).toBeDisabled();
+    expect(assign).not.toHaveBeenCalled();
   });
 });

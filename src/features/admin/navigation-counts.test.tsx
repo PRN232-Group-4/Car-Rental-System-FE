@@ -46,12 +46,12 @@ describe("navigation work queues", () => {
   });
 
   it("keeps the license queue under care and preserves its existing read roles", () => {
-    const license = getNavigation(["Admin"], "admin").find((item) => item.href === "/admin/customers");
-    expect(license).toMatchObject({ label: "Duyệt GPLX", defaultQuery: "?licenseStatus=pending" });
+    const license = getNavigation(["CustomerService"], "admin").find((item) => item.href === "/admin/customers");
+    expect(license).toMatchObject({ label: "Khách hàng & GPLX", defaultQuery: "?licenseStatus=pending" });
     expect(ROUTE_CHAPTER_MAP[license!.href]).toBe("Chăm sóc & Sự cố");
-    expect(getNavigation(["Manager"], "admin")).toContainEqual(license);
+    expect(getNavigation(["Staff"], "admin")).toContainEqual(license);
     expect(getNavigation(["Maintenance"], "admin")).not.toContainEqual(license);
-    expect(getNavigation(["Staff"], "admin")).not.toContainEqual(license);
+    expect(getNavigation(["Admin"], "admin")).not.toContainEqual(license);
   });
 
   it("does not fetch until portal access is confirmed, and isolates account scope", async () => {

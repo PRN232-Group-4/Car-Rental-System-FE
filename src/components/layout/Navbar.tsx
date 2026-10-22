@@ -89,7 +89,7 @@ export default function Navbar() {
         ref={navRef}
         className={`${styles.navbar} glass-1 w-full max-w-6xl rounded-2xl px-5 py-3 pointer-events-auto transition-shadow`}
       >
-        <div className="flex items-center justify-between gap-4">
+        <div className="relative flex items-center justify-between gap-4">
           {/* Brand Name & Logo */}
           <Link
             href="/"
@@ -101,8 +101,8 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 lg:gap-2 whitespace-nowrap">
+          {/* Desktop Navigation Links — Căn giữa tuyệt đối & Xếp chuẩn theo thứ tự scroll landing page */}
+          <div className="hidden lg:flex items-center justify-center gap-1 lg:gap-2 whitespace-nowrap absolute left-1/2 -translate-x-1/2">
             <Link
               id="nav-tim-xe"
               href="/find"
@@ -118,10 +118,10 @@ export default function Navbar() {
               Chi nhánh
             </Link>
             <Link
-              href="/#goi-thue-bao"
+              href="/#kiem-dinh"
               className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
-              Gói thuê bao
+              Kiểm định
             </Link>
             <Link
               href="/#quy-trinh"
@@ -130,10 +130,10 @@ export default function Navbar() {
               Hướng dẫn
             </Link>
             <Link
-              href="/#kiem-dinh"
+              href="/#goi-thue-bao"
               className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
-              Kiểm định
+              Gói thuê bao
             </Link>
           </div>
 
@@ -314,11 +314,11 @@ export default function Navbar() {
               Chi nhánh
             </Link>
             <Link
-              href="/#goi-thue-bao"
+              href="/#kiem-dinh"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
             >
-              Gói thuê bao
+              Kiểm định
             </Link>
             <Link
               href="/#quy-trinh"
@@ -328,11 +328,11 @@ export default function Navbar() {
               Hướng dẫn
             </Link>
             <Link
-              href="/#kiem-dinh"
+              href="/#goi-thue-bao"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
             >
-              Phiếu kiểm định xe
+              Gói thuê bao
             </Link>
             <div className="pt-3 border-t border-line flex flex-col gap-2">
               {mounted && isAuthenticated && user ? (
