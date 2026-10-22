@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalWorkspaceV4 from "@/features/admin/transit-desk/RentalWorkspaceV4";
 import * as operationsApi from "@/features/operations/api";
+import * as invoiceApi from "@/features/invoices";
 import { RENTAL_101 } from "./rental-fixture";
 
 beforeAll(() => {
@@ -88,6 +89,8 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     mockSearchParams = new URLSearchParams();
     // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
+    vi.spyOn(operationsApi, "getOperationalRentalDetail").mockResolvedValue({ invoice: { id: 55 } } as never);
+    vi.spyOn(invoiceApi, "getInvoiceById").mockResolvedValue({ id: 55, status: "paid", amount: 100000, paymentMethod: "cash", kind: "rental" } as never);
     vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([]);
     vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
@@ -292,7 +295,9 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: true });
       vi.spyOn(operationsApi, "changeRentalStatus").mockRejectedValue(new Error("A successful pre-rental inspection is required to start."));
       renderWithClient(<RentalWorkspaceV4 />);
-      fireEvent.click(await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" }));
+      const start = await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" });
+      await waitFor(() => expect(start).toBeEnabled());
+      fireEvent.click(start);
       expect(await screen.findByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.")).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Xác nhận đã nhận lại xe" })).not.toBeInTheDocument();
     });
@@ -303,7 +308,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       renderWithClient(<RentalWorkspaceV4 />);
 
       await waitFor(() => {
-        expect(screen.getByText("Hành động tiếp theo hợp lệ")).toBeInTheDocument();
+        expect(screen.getByText("Thao tác đơn thuê")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Xác nhận đã nhận lại xe" })).toBeInTheDocument();
       });
     });

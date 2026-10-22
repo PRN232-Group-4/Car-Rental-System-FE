@@ -1,5 +1,37 @@
 # Kế hoạch triển khai FE — Car Rental System FE
 
+## Cập nhật 2026-10-22 — Mã yêu cầu và mã đơn chính thức
+
+Hiện tách hai mã tại workspace, danh sách, tra cứu, thanh toán và bàn giao. Đọc orderId từ server, không giả mã khi null/thiếu trường, giữ nguyên phân quyền. 35 unit/integration, 14 navigation tests và 2 Edge E2E đạt; TypeScript/design lint/ESLint đạt. Xem [thay đổi](../changes/2026-10-22-visible-official-order.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Runtime local inspect sau trả
+
+FE trỏ localhost:6789 nhưng tiến trình backend Debug cũ chưa có inspectionType. Đã chạy Release mới/kiểm tra migration trên cấu hình hiện hữu và thay backend local ở cùng cổng; không deploy Railway, không tự thao tác đơn. FE giải thích lỗi 409 legacy ở cả phân công/checked. 28 unit tests đạt, Swagger runtime có GET/PUT/POST post_rental. Xem [thay đổi](../changes/2026-10-22-local-post-inspection-runtime.md).
+
+## Cập nhật 2026-10-22 — Kiểm tra sau trả xe
+
+Sau nhận xe có phân công kỹ thuật hoặc Admin Đã inspect tương tự trước thuê, dùng phân công/kết quả riêng theo post_rental; không mặc định đạt cho đơn có tài xế và không tự hoàn tất. 70 unit/integration FE, 21 Edge E2E và 54 backend tests liên quan đạt, TypeScript/design lint/ESLint đạt. Cần backend mới/migration 0029; chưa deploy. Xem [thay đổi](../changes/2026-10-22-post-inspection-dispatch.md).
+
+## Cập nhật 2026-10-22 — Cuộn tự nhiên trong workspace đơn thuê
+
+Bỏ khóa shell 100dvh/overflow hidden và cuộn panel lồng; hồ sơ/bảng lệnh theo cuộn trang, hàng đợi vẫn cuộn riêng và truyền cuộn khi tới biên. Giữ bố cục trái/phải, bỏ primary sticky dưới header. 18 Edge E2E về con lăn/anchor/popup đạt, TypeScript/design lint đạt. Thay thế quy cách cuộn desktop cố định bên dưới. Xem [thay đổi](../changes/2026-10-22-rental-document-scroll.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Thanh toán và thứ tự xác nhận/inspect
+
+Workspace có thu tiền mặt và cập nhật thanh toán online; chặn bàn giao direct rental chưa paid, subscription không yêu cầu invoice. Chỉ inspect sau duyệt đơn; tự lái không tải/hiện/gửi phân công tài xế. 76 unit/integration, 27 Edge E2E liên quan đạt, TypeScript/design lint đạt. Yêu cầu mới thay thế việc gộp inspect và duyệt bên dưới. Xem [thay đổi](../changes/2026-10-22-rental-payment-and-action-order.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Hàng đợi trái, chi tiết phải
+
+Container 640–1200px giữ danh sách đơn bên trái và hồ sơ/bảng lệnh bên phải, thay vì xếp toàn bộ dọc. Màn hình lớn giữ ba cột; điện thoại xếp dọc. 9 Edge E2E bố cục/chọn đơn/cuộn đạt, TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-rental-queue-side-layout.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Bảng lệnh gọn và nhận trả xe
+
+Thao tác chính theo giai đoạn có nhãn ngắn, dính đầu cột desktop; link nhận trả đưa tới nút Đã trả xe. Kiểm tra chỉ một submit theo chế độ chọn; lịch sử/phân công/ghi đè thu gọn, không lặp nút duyệt. 45 unit/integration và 36 Edge E2E đạt; TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-compact-rental-actions.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Kiểm tra và bước duyệt yêu cầu
+
+Admin xác nhận checked pending kèm duyệt bằng approveRequest=true, refetch trạng thái thật và invalidation hàng đợi/count. Pending đã pass có nút duyệt riêng, không tự start/paid/default approval. Banner phân biệt kết quả kiểm tra với chờ duyệt. 43 unit/integration, 18 Edge E2E và 58 backend tests liên quan đạt; TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-inspection-approval-progress.md). Chưa deploy.
+
 ## Cập nhật 2026-10-22 — Quá hạn và thu phí sau trả xe
 
 Đã có nhãn/bộ lọc Quá hạn ở Admin, dấu trả trễ trong hồ sơ và panel thu phí phần thiếu bằng cash/PayOS theo cờ backend; chỉ hiển thị paid từ dữ liệu máy chủ. 60 unit/integration FE, 15 Edge E2E và 109 backend tests liên quan đạt; TypeScript/design lint đạt. Cần backend source mới, chưa deploy/chưa thử PayOS tiền thật. Xem [spec](specs/FE-overdue-collection.md), [thay đổi](../changes/2026-10-22-overdue-collection.md).

@@ -86,6 +86,6 @@ test("unlock persists after reloading the page from the backend", async ({ page 
 test("missing deployed assignment route displays the specific version problem", async ({ page }) => {
   await page.goto("/admin/rentals?rentalId=101");
   await expect(page.getByText("Backend đang kết nối chưa có API phân công kiểm tra. Cần cập nhật backend cùng phiên bản frontend rồi tải lại.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Lưu phân công kiểm tra" })).toBeDisabled();
+  await expect(page.getByRole("region", {name:"Phân công kiểm tra trước thuê"}).getByRole("button", { name: "Xác nhận", exact:true })).toBeDisabled();
   await expect(page.getByText("Chưa phân công kỹ thuật viên kiểm tra.", { exact: true })).toHaveCount(0);
 });

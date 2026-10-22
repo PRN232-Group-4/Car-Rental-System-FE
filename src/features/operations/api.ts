@@ -131,6 +131,7 @@ export function operationalError(error: unknown) {
   if (error instanceof Error) {
     const messages: Record<string, string> = {
       "A successful pre-rental inspection is required to start.": "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.",
+      "Direct rental must be paid before handover.": "Cần thanh toán đủ hóa đơn trước khi bàn giao xe. Vui lòng kiểm tra mục Thanh toán đơn thuê.",
       "A post-rental inspection is required to complete.": "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.",
       "Post-rental inspection must be recorded before completing rental.": "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.",
       "An unexpected server error occurred.": "Máy chủ gặp lỗi khi xử lý yêu cầu. Vui lòng thử lại.",

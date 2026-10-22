@@ -384,21 +384,8 @@
   min-height: 0;
 }
 
-@media (min-width: 1201px) {
-  .container[data-subportal="rental-v4"] {
-    height: 100dvh;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .container[data-subportal="rental-v4"] .topBar {
-    flex-shrink: 0;
-  }
-
-  .container[data-subportal="rental-v4"] .chapterPageTransition {
-    height: 100%;
-    animation: none;
-  }
+.container[data-subportal="rental-v4"] .chapterPageTransition {
+  animation: none;
 }
 @media (max-width: 1450px) {
   .utilityMeta {

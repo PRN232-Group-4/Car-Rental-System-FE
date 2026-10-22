@@ -1,4 +1,13 @@
 # Changelog
+- 2026-10-22 — [Hiển thị mã đơn chính thức trong Admin](2026-10-22-visible-official-order.md)
+- 2026-10-22 — [Khởi động backend local mới cho inspect sau trả](2026-10-22-local-post-inspection-runtime.md)
+- 2026-10-22 — [Phân công và Đã inspect sau trả xe](2026-10-22-post-inspection-dispatch.md)
+- 2026-10-22 — [Sửa cuộn lên/xuống trong workspace đơn thuê](2026-10-22-rental-document-scroll.md)
+- 2026-10-22 — [Thanh toán và thứ tự xác nhận đơn/inspect](2026-10-22-rental-payment-and-action-order.md)
+- 2026-10-22 — [Khôi phục hàng đợi trái và chi tiết phải](2026-10-22-rental-queue-side-layout.md)
+- 2026-10-22 — [Thu gọn bảng lệnh và nút Đã trả xe](2026-10-22-compact-rental-actions.md)
+- 2026-10-22 — [Đồng bộ kiểm tra và tiến trình duyệt yêu cầu](2026-10-22-inspection-approval-progress.md)
+- 2026-10-22 — [Log server API trong development](2026-10-22-api-server-log.md)
 - 2026-10-22 — [Quá hạn và thu phụ phí tiền mặt/online](2026-10-22-overdue-collection.md)
 - 2026-10-22 — [Tài xế chưa có ca vẫn hiện trong điều phối](2026-10-22-dispatch-driver-directory.md)
 - 2026-10-22 — [Hiển thị lý do hủy đơn](2026-10-22-show-cancellation-reason.md)

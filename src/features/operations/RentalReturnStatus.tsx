@@ -10,7 +10,7 @@ import { rentalTimestamp } from "./rental-overdue";
 
 const money = (value: number) => `${value.toLocaleString("vi-VN")} đ`;
 
-export default function RentalReturnStatus({ rental }: { rental: OperationalRental }) {
+export default function RentalReturnStatus({ rental, returnActionHref }: { rental: OperationalRental; returnActionHref?: string }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 60000);
@@ -32,7 +32,7 @@ export default function RentalReturnStatus({ rental }: { rental: OperationalRent
       <p className="font-semibold">{returnedAt ? `Đã nhận lại xe: ${formatAdminDateTime(new Date(rentalTimestamp(returnedAt)))}` : rental.status === "renting" ? "Chưa xác nhận nhận lại xe" : "Chưa có thời điểm trả xe được ghi nhận"}</p>
       {overdue && <p role="status" className="text-danger">Đã quá hạn trả xe, chưa ghi nhận xe được trả. Phí quá giờ được tính đến thời điểm nhận lại xe và chốt theo chính sách khi quyết toán.</p>}
       {returnedLate && <p className="text-danger">Đã trả xe trễ so với hạn hợp đồng. Giờ trả thực tế và kết quả quyết toán được lưu trong hồ sơ đơn.</p>}
-      {rental.status === "renting" && <p className="text-td-muted">Khi xe thực tế được trả, bấm “Xác nhận đã nhận lại xe” trong bảng lệnh. Máy chủ ghi thời điểm nhận và chuyển sang kiểm tra sau thuê.</p>}
+      {rental.status === "renting" && <p className="text-td-muted">Khi xe thực tế được trả, bấm “{returnActionHref ? "Đã trả xe" : "Xác nhận đã nhận lại xe"}” trong bảng lệnh để ghi giờ nhận và chuyển sang kiểm tra sau thuê. {returnActionHref && <Link href={returnActionHref} className="font-semibold text-td-oxide underline">Đến nút Đã trả xe</Link>}</p>}
       {rental.status === "post_inspection" && <p className="text-td-muted">Hoàn tất kiểm tra sau thuê, sau đó quyết toán để hệ thống tính phí quá giờ theo chính sách.</p>}
       {settlement && <dl className="grid gap-2 sm:grid-cols-2">
         <div><dt className="text-td-muted">Giờ quá hạn tính phí</dt><dd>{settlement.overtimeHours}</dd></div>
