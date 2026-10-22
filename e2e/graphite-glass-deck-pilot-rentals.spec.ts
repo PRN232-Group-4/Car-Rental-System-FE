@@ -37,6 +37,35 @@ const MOCK_PROFILE = {
   roles: ["Admin", "Manager"],
 };
 
+const MOCK_RENTAL_101_DETAIL = {
+  rental: {
+    id: 101,
+    customerId: 1,
+    vehicleId: 1,
+    vehicleName: "VinFast VF 8 Plus - 51K-899.21",
+    scheduledStart: new Date(Date.now() - 2 * 3600000).toISOString(),
+    scheduledEnd: new Date(Date.now() + 6 * 3600000).toISOString(),
+    status: "renting",
+    rentalType: "hourly",
+    hasDriver: false,
+    isSubscription: false,
+    vatPrice: 45000,
+    depositPrice: 2000000,
+    overtimePrice: 0,
+    totalPrice: 450000,
+    contractLink: null,
+    signedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+  },
+  orderId: 101,
+  customerName: "Nguyễn Văn Khách",
+  customerEmail: "khach@example.com",
+  vehicleBrand: "VinFast",
+  vehicleModel: "VF 8 Plus",
+  licensePlate: "51K-899.21",
+  driverName: null,
+  invoice: { id: 1, number: "INV-101", status: "paid", amount: 450000 },
+};
+
 const MOCK_RENTAL_101 = {
   id: 101,
   customerId: 1,
@@ -103,6 +132,24 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
 
       if (p.endsWith("/account/profile")) {
         return route.fulfill({ status: 200, json: MOCK_PROFILE });
+      }
+      if (p.endsWith("/rentals/101/detail")) {
+        return route.fulfill({ status: 200, json: MOCK_RENTAL_101_DETAIL });
+      }
+      if (p.includes("/rentals/101/assignable-drivers") || p.endsWith("/assignable-drivers")) {
+        return route.fulfill({
+          status: 200,
+          json: [
+            { staffId: 1, fullName: "Nguyễn Văn Hùng", eligible: true, reasons: null, rating: 4.9 },
+            { staffId: 2, fullName: "Trần Quốc Toàn", eligible: true, reasons: null, rating: 4.8 },
+          ],
+        });
+      }
+      if (p.endsWith("/rentals/9999/detail")) {
+        return route.fulfill({
+          status: 404,
+          json: { title: "Not Found", status: 404, detail: "Không tìm thấy hồ sơ đơn thuê #9999 trong cơ sở dữ liệu." },
+        });
       }
       if (p.endsWith("/rentals/101")) {
         return route.fulfill({ status: 200, json: MOCK_RENTAL_101 });

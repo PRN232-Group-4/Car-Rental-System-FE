@@ -53,12 +53,15 @@ export async function getActivePolicyForVehicleType(vehicleTypeId: number): Prom
 }
 
 export async function getBookingPolicies() {
-  try {
-    const result = await defaultApiClient.get<RentalPolicy[] | { items: RentalPolicy[] | null; totalCount: number }>("rental-policies", { page: 1, pageSize: 100 });
+  const policies: RentalPolicy[] = [];
+  let page = 1;
+  while (true) {
+    const result = await defaultApiClient.get<RentalPolicy[] | { items: RentalPolicy[] | null; totalCount: number }>("rental-policies", { page, pageSize: 100 });
     if (Array.isArray(result)) return result;
-    return result.items ?? [];
-  } catch {
-    return [];
+    const items = result.items ?? [];
+    policies.push(...items);
+    if (!items.length || policies.length >= result.totalCount) return policies;
+    page++;
   }
 }
 

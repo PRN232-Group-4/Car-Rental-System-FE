@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type ReactNode } from "react";
+import React, { type ReactNode, useEffect, useRef, useState } from "react";
 import { getAdminStatusTone, type AdminStatusDomain, type AdminStatusTone } from "@/components/admin/status-rules";
 
 export interface TransitDeskStatusProps {
@@ -19,6 +19,18 @@ export function TransitDeskStatus({
   className = "",
 }: TransitDeskStatusProps) {
   const tone: AdminStatusTone = getAdminStatusTone(domain, status);
+  const prevStatusRef = useRef(status);
+  const [isFlashing, setIsFlashing] = useState(false);
+
+  useEffect(() => {
+    if (prevStatusRef.current !== undefined && prevStatusRef.current !== status) {
+      setIsFlashing(true);
+      const timer = setTimeout(() => setIsFlashing(false), 450);
+      prevStatusRef.current = status;
+      return () => clearTimeout(timer);
+    }
+    prevStatusRef.current = status;
+  }, [status]);
 
   // Semantic glyph per tone
   const renderGlyph = () => {
@@ -69,7 +81,10 @@ export function TransitDeskStatus({
   return (
     <span
       data-status-tone={tone}
-      className={`inline-flex items-center gap-2 font-mono text-xs tracking-wide uppercase ${getToneClass()} ${className}`}
+      data-status-flashing={isFlashing ? "true" : undefined}
+      className={`inline-flex items-center gap-2 font-mono text-xs tracking-wide uppercase transition-all duration-300 ${
+        isFlashing ? "scale-105 rounded px-1 -mx-1" : ""
+      } ${getToneClass()} ${className}`}
     >
       {renderGlyph()}
       <span>{children}</span>
