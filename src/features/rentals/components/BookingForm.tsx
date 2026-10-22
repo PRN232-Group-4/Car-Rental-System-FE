@@ -54,8 +54,8 @@ export default function BookingForm() {
   const licenseQuery = useQuery({ queryKey: ["customer-license"], queryFn: getCustomerLicense, enabled: !hasDriver, retry: false });
   const canSelfDrive = licenseQuery.data?.status === "approved" && (!licenseQuery.data.expiryDate || licenseQuery.data.expiryDate.slice(0, 10) >= new Date(sessionStartedAt).toISOString().slice(0, 10));
   const vehiclesQuery = useQuery({
-    queryKey: ["booking-vehicles", from, to, facilityId, hasDriver, rentalType],
-    queryFn: ({ signal }) => getBookingVehicles(from, to, facilityId, hasDriver, rentalType, signal),
+    queryKey: ["booking-vehicles", from, to, facilityId, true, rentalType],
+    queryFn: ({ signal }) => getBookingVehicles(from, to, facilityId, true, rentalType, signal),
     enabled: canChooseVehicle && !!from && !!to && new Date(to) > new Date(from),
     retry: false,
   });
