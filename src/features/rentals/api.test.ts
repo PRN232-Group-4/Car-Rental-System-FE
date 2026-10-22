@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
 vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client, isMockMode: false }));
-import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, updateRentalContract } from "./api";
+import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, toRentalRequest, updateRentalContract } from "./api";
 
 beforeEach(() => vi.resetAllMocks());
 it("reads every policy page after the list contract changes to pagination", async () => {
@@ -18,9 +18,12 @@ it("retains compatibility with the previous array policy response", async () => 
 it("posts the exact RentalRequest and reads a real backend rental id", async () => {
   client.post.mockResolvedValue({ id: 321, rentalType: "hourly", totalPrice: 324000, depositPrice: 64800 });
   const result = await createRentalBooking({ rentalType: "hourly", vehicleId: "8", policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, customerName: "Do not send this", estimatedCost: 999 });
-  expect(client.post).toHaveBeenCalledWith("rentals/hourly", { vehicleId: 8, policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: true, subscriptionId: null, paymentMethod: "payos" });
+  expect(client.post).toHaveBeenCalledWith("rentals/hourly", { vehicleId: 8, policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, subscriptionId: null, paymentMethod: "payos" });
   expect(result.bookingId).toBe(321);
   expect(result.invoiceId).toBeUndefined();
+});
+it("defaults to a chauffeur booking when the mode is not provided", () => {
+  expect(toRentalRequest({ rentalType: "hourly", vehicleId: 8, startTime: "a", endTime: "b" })).toMatchObject({ hasDriver: true });
 });
 it("uses the longterm endpoint and retains failures without fabricating confirmations", async () => {
   const failure = new Error("Xe đã có lịch thuê.");

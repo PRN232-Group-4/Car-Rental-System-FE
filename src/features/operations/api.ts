@@ -75,7 +75,8 @@ export interface RentalUpdate { vehicleId: number; startTime: string; endTime: s
 export const updateRental = (id: number | string, body: RentalUpdate) => backendApiClient.put<unknown>(`rentals/${id}`, body);
 
 export function assignRental(id: number, driverStaffId: number | null) {
-  return backendApiClient.post<unknown>(`rentals/${id}/assignments`, { driverStaffId });
+  // CustomerService policy: Admin/Manager/CustomerService; the legacy `/assignments` alias is Manager-only.
+  return backendApiClient.post<unknown>(`rentals/${id}/assignments/driver`, { driverStaffId, reason: "initial" });
 }
 
 export const cancelOperationalRental = (id: number | string, reason: string, initiator: "customer" | null = null) =>

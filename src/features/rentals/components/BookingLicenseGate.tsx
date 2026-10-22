@@ -19,7 +19,7 @@ export default function BookingLicenseGate({ children, requireLicense = false }:
     if (!isAuthenticated) {
       router.replace(`/login?next=${encodeURIComponent(bookingPath)}`);
     }
-  }, [authLoading, isAuthenticated, bookingPath, router]);
+  }, [requireLicense, authLoading, isAuthenticated, bookingPath, router]);
 
   if (authLoading || !isAuthenticated) {
     return <FormSkeleton label="Đang kiểm tra tài khoản trước khi đặt xe..." />;

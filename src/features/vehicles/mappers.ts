@@ -23,7 +23,8 @@ export function mapVehicleSearchFromBE(raw: Record<string, unknown>): Vehicle {
     fuelType: type.fuelType,
     driverAvailable: badges.driverAvailable,
     badges: [],
-    status: "available",
+    // Search only returns unrented vehicles, so an absent status means available.
+    status: typeof raw.status === "string" && raw.status.trim() ? raw.status.trim().toLowerCase() : "available",
   });
 }
 

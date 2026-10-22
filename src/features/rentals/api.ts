@@ -11,7 +11,7 @@ export function toRentalRequest(input: RentalBookingRequest) {
     startTime: input.startTime,
     endTime: input.endTime,
     subscriptionId: input.subscriptionId ? Number(input.subscriptionId) : null,
-    hasDriver: true,
+    hasDriver: input.hasDriver !== false,
     paymentMethod: input.paymentMethod ?? "payos",
   };
 }
