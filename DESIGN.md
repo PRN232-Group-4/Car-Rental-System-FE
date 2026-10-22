@@ -492,7 +492,7 @@ Kỹ thuật & ngân sách:
 
 **Trang chi tiết/hồ sơ.** Lưới 12 cột: 4 cột hồ sơ định danh (avatar 64px bo 4px, tên, badge, danh sách `dl` dòng `divide-y`), 8 cột biểu mẫu/bảng. Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide`; không dùng banner nền tối hay khối nền màu.
 
-**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, cockpit 3 cột, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width; desktop dùng shell `100dvh` và flex chia phần chiều cao còn lại cho workspace, ba cột cuộn độc lập; ở `≤1200px` xếp dọc và cuộn trang tự nhiên) nên không lồng trong khung giấy của shell và không dùng `TransitFolio`.
+**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width) và cuộn trang tự nhiên ở mọi kích thước, không khóa shell bằng chiều cao viewport hoặc overflow hidden. Container rộng `>1200px` giữ cockpit ba cột; container `640–1200px` giữ danh sách đơn bên trái, hồ sơ và bảng lệnh nối tiếp bên phải. Chỉ container `<640px` xếp danh sách trên chi tiết. Hồ sơ/bảng lệnh không có vùng cuộn lồng; hàng đợi cuộn riêng nhưng truyền cuộn ra trang khi tới biên. Thao tác chính nằm trong luồng trang, không dính dưới header. Không lồng trong khung giấy của shell và không dùng `TransitFolio`.
 
 Các quy tắc vẫn giữ nguyên:
 

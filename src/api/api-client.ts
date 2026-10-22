@@ -1,4 +1,5 @@
 import { refreshSessionToken, handleAuthFailure } from "./token-refresh";
+import { logApiServer } from "./api-debug";
 
 export interface ApiClientConfig {
   baseUrl?: string;
@@ -205,6 +206,7 @@ export class ApiClient {
       ...restOptions
     } = options;
     const url = this.buildUrl(path, params);
+    logApiServer(url);
     const cleanPath = toCleanPath(path);
     const isGet = method.toUpperCase() === "GET";
 

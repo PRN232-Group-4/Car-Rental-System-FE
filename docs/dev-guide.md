@@ -6,6 +6,12 @@
 
 ## 1. Các chế độ khởi chạy (Development Modes)
 
+### Xem FE đang gọi backend nào
+
+Khi chạy `npm run dev`, terminal ghi `[API proxy] /api/* -> https://...` và nguồn cấu hình: `DEV_API_ORIGIN`, `BACKEND_ORIGIN` hoặc Railway mặc định. Trong trình duyệt, mở **F12 → Console**, lọc **`[API server]`** để xem `requestOrigin` (đích trình duyệt gọi), `backendOrigin` (backend phía sau dev proxy) và `via`. Log xuất hiện ở lần gọi API đầu tiên cho mỗi đích, tránh lặp trên mọi request. Nếu `NEXT_PUBLIC_API_URL` trỏ thẳng tới backend khác, log hiển thị đích trực tiếp đó.
+
+Log chỉ bật ở development và chỉ ghi origin; không ghi query, body, cookie, token hoặc header. Đổi biến môi trường cần khởi động lại `npm run dev`. Bản production qua Worker sử dụng `API_ORIGIN` ở runtime, không suy đoán nó từ cấu hình dev.
+
 > Không còn chế độ mock/dữ liệu mẫu: app luôn gọi backend thật. Khi backend không chạy, màn hình hiển thị trạng thái lỗi và nút thử lại.
 
 ---

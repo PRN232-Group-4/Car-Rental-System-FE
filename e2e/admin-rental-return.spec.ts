@@ -48,6 +48,7 @@ test(`admin return and policy settlement ${fails ? "keeps state on failure" : "s
   const complete = page.getByRole("button", { name: "Quyết toán & Hoàn tất hợp đồng", exact: true });
   await expect(complete).toBeDisabled();
   postInspection = true;
+  await page.getByText("Hướng dẫn kiểm tra", {exact:true}).click();
   await page.getByRole("button", { name: "Tải lại kết quả kiểm tra", exact: true }).click();
   await expect(complete).toBeEnabled();
   await complete.click();

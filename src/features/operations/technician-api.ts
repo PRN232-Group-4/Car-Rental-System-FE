@@ -12,8 +12,9 @@ export interface InspectionAssignment {
   assignedBy: string;
 }
 
-export function getInspectionAssignment(rentalId: number) {
-  return backendApiClient.get<InspectionAssignment | null>(`rentals/${rentalId}/inspection-assignment`);
+const assignmentPath = (rentalId: number, post = false, checked = false) => `rentals/${rentalId}/inspection-assignment${checked ? "/checked" : ""}${post ? "?inspectionType=post_rental" : ""}`;
+export function getInspectionAssignment(rentalId: number, post = false) {
+  return backendApiClient.get<InspectionAssignment | null>(assignmentPath(rentalId, post));
 }
 
 export function inspectionAssignmentError(error: unknown): string {
@@ -29,19 +30,22 @@ export function inspectionAssignmentError(error: unknown): string {
     : "Không thể tải phân công kiểm tra. Vui lòng thử lại.";
 }
 
-export function assignInspectionTechnician(rentalId: number, technicianStaffId: number) {
-  return backendApiClient.put<InspectionAssignment>(`rentals/${rentalId}/inspection-assignment`, { technicianStaffId });
+export function assignInspectionTechnician(rentalId: number, technicianStaffId: number, post = false) {
+  return backendApiClient.put<InspectionAssignment>(assignmentPath(rentalId, post), { technicianStaffId });
 }
 
-export function confirmInspectionChecked(rentalId: number, technicianStaffId: number) {
-  return backendApiClient.post<InspectionAssignment>(`rentals/${rentalId}/inspection-assignment/checked`, { technicianStaffId });
+export function confirmInspectionChecked(rentalId: number, technicianStaffId: number, approveRequest = false, post = false) {
+  return backendApiClient.post<InspectionAssignment>(assignmentPath(rentalId, post, true), { technicianStaffId, ...(approveRequest ? { approveRequest: true } : {}) });
 }
 
-export function inspectionConfirmationError(error: unknown): string | null {
+export function inspectionConfirmationError(error: unknown, post = false): string | null {
+  if (post && error instanceof ApiClientError && error.status === 409 && error.code === "INSPECTION_ASSIGNMENT_NOT_ALLOWED" && error.detail === "Chỉ phân công kiểm tra trước khi bắt đầu chuyến.") {
+    return "Backend đang chạy phiên bản cũ chỉ hỗ trợ kiểm tra trước thuê. Hãy khởi động lại backend để dùng kiểm tra sau trả xe.";
+  }
   if (error instanceof ApiClientError && error.status === 404) {
     return error.code === "RENTAL_NOT_FOUND"
       ? "Không tìm thấy đơn thuê. Vui lòng tải lại hồ sơ đơn."
-      : "Backend đang kết nối chưa có API xác nhận kiểm tra đạt. Cần cập nhật backend mới cùng migration 0028 rồi thử lại.";
+      : post ? "Backend đang kết nối chưa hỗ trợ kiểm tra sau trả xe. Cần cập nhật backend cùng migration 0029 rồi thử lại." : "Backend đang kết nối chưa có API xác nhận kiểm tra đạt. Cần cập nhật backend mới cùng migration 0028 rồi thử lại.";
   }
   return null;
 }

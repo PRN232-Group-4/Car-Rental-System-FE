@@ -18,6 +18,7 @@ import type { OperationalRental } from "./api";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import RentalStatusTracker from "@/features/rentals/components/RentalStatusTracker";
 import RentalCancellationReason from "./RentalCancellationReason";
+import RentalIdentifiers from "./RentalIdentifiers";
 
 export default function RentalLookup({ title, children, staffLinks = true }: { title: string; staffLinks?: boolean; children: (rental: OperationalRental, refresh: () => Promise<unknown>) => ReactNode }) {
   const params = useSearchParams();
@@ -43,6 +44,7 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
     {query.data && <>
       <section className={operationsPanel}>
         <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{query.data.orderId ? `Đơn thuê chính thức #${query.data.orderId}` : `Yêu cầu thuê #${query.data.id}`}</h2><RentalOperationalBadge rental={query.data} /></div>
+        <RentalIdentifiers rentalId={query.data.id} orderId={query.data.orderId} />
         <RentalStatusTracker status={query.data.status} />
         {staffLinks && <RentalCancellationReason key={`cancel-reason-${query.data.id}`} rental={query.data} />}
         <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">

@@ -26,17 +26,17 @@ export function AssignmentForm({ rental, refresh }: { rental: OperationalRental;
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const validation = useInlineValidation();
-  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, enabled: canAssignRental(rental.status), retry: false });
+  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, enabled: rental.hasDriver === true && canAssignRental(rental.status), retry: false });
   const lock = useRef(false);
   const submit = async () => {
-    if (!canAssignRental(rental.status) || lock.current || drivers.isPending || drivers.error) return;
+    if (rental.hasDriver !== true || !canAssignRental(rental.status) || lock.current || drivers.isPending || drivers.error) return;
     lock.current = true;
     setBusy(true); setError(""); setSuccess("");
     try { await assignRental(Number(rental.id), driverId ? Number(driverId) : null); setSuccess("Đã lưu phân công xe / tài xế."); notifySuccess("Đã lưu phân công xe / tài xế."); await refresh(); }
     catch (failure) { const message = validation.report(failure); const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError); }
     finally { lock.current = false; setBusy(false); }
   };
-  if (!canAssignRental(rental.status)) return null;
+  if (rental.hasDriver !== true || !canAssignRental(rental.status)) return null;
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Phân xe và tài xế</h2>
     <div className="text-sm"><p className="mb-2 text-td-muted">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>

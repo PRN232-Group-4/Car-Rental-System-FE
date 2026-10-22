@@ -109,12 +109,14 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
     // Kiểm tra tracking panel và các nút hành động
     expect(screen.getByTestId("rental-tracking-panel")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Lưu phân công" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
+    expect(operationsApi.getOperationalDrivers).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Xác nhận cập nhật trạng thái" })).toBeInTheDocument();
   });
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, hasDriver: true });
     vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([
       { ...driverStaff, id: 1, email: "hung@example.test" },
     ]);

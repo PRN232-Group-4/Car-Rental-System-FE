@@ -41,6 +41,9 @@ import {
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import TechnicianAssignmentForm from "@/features/operations/TechnicianAssignmentForm";
+import CashReceiptPanel from "@/features/operations/CashReceiptPanel";
+import RentalIdentifiers from "@/features/operations/RentalIdentifiers";
+import { useRentalInvoice } from "@/features/operations/rental-invoice";
 import RentalReturnStatus from "@/features/operations/RentalReturnStatus";
 import RentalOperationalBadge from "@/features/operations/RentalOperationalBadge";
 import RentalCancellationReason from "@/features/operations/RentalCancellationReason";
@@ -217,6 +220,7 @@ export function RentalWorkspaceV4() {
   const canOverrideStatus = Boolean(session?.hasAnyRole(["Admin", "Manager"]));
   const canMutate = Boolean(session?.isAuthenticated && session.hasAnyRole(["Admin", "Manager", "CustomerService"]));
   const assignmentLock = useRef(false);
+  const assignmentDetailsRef = useRef<HTMLDetailsElement>(null);
 
   // Query rental data
   const {
@@ -277,12 +281,18 @@ export function RentalWorkspaceV4() {
   }, [lookupId, isFetching, rentalError, rental]);
 
   const activeRental = detailState.status === "ready" ? detailState.rental : null;
+  const rentalInvoice = useRentalInvoice(activeRental, canMutate);
+  const paymentBlocker = activeRental?.status === "pre_inspection" && !activeRental.isSubscription && rentalInvoice.data?.status !== "paid"
+    ? rentalInvoice.isPending ? "Đang kiểm tra thanh toán trước khi bàn giao xe."
+      : rentalInvoice.isError ? "Chưa kiểm tra được thanh toán. Vui lòng tải lại hóa đơn ở mục Thanh toán đơn thuê."
+        : "Cần thanh toán đủ hóa đơn trước khi bàn giao xe. Xem mục Thanh toán đơn thuê bên dưới."
+    : null;
 
   // Query driver options
   const { data: drivers = [], isPending: isDriversPending, error: driversError, refetch: refetchDrivers } = useQuery({
     queryKey: ["operational-drivers"],
     queryFn: getOperationalDrivers,
-    enabled: canMutate && !!activeRental && canAssignRental(activeRental.status),
+    enabled: canMutate && !!activeRental && activeRental.hasDriver === true && canAssignRental(activeRental.status),
     retry: false,
   });
 
@@ -374,7 +384,7 @@ export function RentalWorkspaceV4() {
   // Handle driver assignment
   const handleAssignDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeRental || !canMutate || !canAssignRental(activeRental.status) || assignmentLock.current || isDriversPending || driversError) return;
+    if (!activeRental || !canMutate || activeRental.hasDriver !== true || !canAssignRental(activeRental.status) || assignmentLock.current || isDriversPending || driversError) return;
     assignmentLock.current = true;
     setIsAssigning(true);
     setAssignMessage(null);
@@ -388,6 +398,7 @@ export function RentalWorkspaceV4() {
       notifySuccess("Đã lưu phân công phương tiện và tài xế.");
       await refetchRental();
       queryClient.invalidateQueries({ queryKey: ["operational-rentals-queue"] });
+      if (assignmentDetailsRef.current) assignmentDetailsRef.current.open = false;
     } catch (err: unknown) {
       const message = assignValidation.report(err);
       const generalError = err instanceof TypeError ? operationalError(err) : message ? operationalError(new Error(message)) : "";
@@ -414,6 +425,8 @@ export function RentalWorkspaceV4() {
       return;
     }
 
+    if (nextStatus === "renting" && paymentBlocker) { setStatusMessage(paymentBlocker); return; }
+
     if (nextStatus === "completed" || nextStatus === "cancelled") {
       setPendingTargetStatus(nextStatus);
       setIsConfirmOpen(true);
@@ -431,6 +444,7 @@ export function RentalWorkspaceV4() {
       setStatusMessage(blocker);
       return;
     }
+    if (targetStatus === "renting" && paymentBlocker) { setStatusMessage(paymentBlocker); return; }
     setIsUpdatingStatus(true);
     setStatusMessage(null);
     try {
@@ -511,16 +525,18 @@ export function RentalWorkspaceV4() {
       case "pending":
         return {
           targetStatus: "pre_inspection",
-          label: "Xác nhận & Chuyển sang kiểm tra trước",
-          description: "Xác nhận đặt cọc và chuẩn bị bàn giao xe",
+          label: activeRental.hasPassingPreInspection ? "Duyệt yêu cầu đã kiểm tra" : "Xác nhận & Chuyển sang kiểm tra trước",
+          buttonLabel: "Xác nhận đơn thuê",
+          description: activeRental.hasPassingPreInspection ? "Kiểm tra đã đạt; cần duyệt yêu cầu trước khi thanh toán và bàn giao." : "Duyệt yêu cầu và chuẩn bị kiểm tra trước thuê",
           consequential: false,
         };
       case "pre_inspection":
         return {
           targetStatus: "renting",
           label: "Bàn giao xe & Bắt đầu chuyến",
+          buttonLabel: "Bàn giao xe",
           description: activeRental.hasPassingPreInspection === true
-            ? "Kiểm tra trước thuê đã đạt. Xác nhận khách nhận xe để bắt đầu chuyến."
+            ? activeRental.isSubscription ? "Kiểm tra trước thuê đã đạt. Xác nhận khách nhận xe để bắt đầu chuyến." : "Kiểm tra trước thuê đã đạt. Hoàn tất thanh toán rồi xác nhận khách nhận xe."
             : "Cần hoàn tất kiểm tra trước thuê với kết quả đạt để bàn giao xe.",
           consequential: false,
         };
@@ -528,6 +544,7 @@ export function RentalWorkspaceV4() {
         return {
           targetStatus: "post_inspection",
           label: "Xác nhận đã nhận lại xe",
+          buttonLabel: "Đã trả xe",
           description: "Tiếp nhận xe trả tại trạm và kiểm tra hiện trạng",
           consequential: false,
         };
@@ -535,6 +552,7 @@ export function RentalWorkspaceV4() {
         return {
           targetStatus: "completed",
           label: "Quyết toán & Hoàn tất hợp đồng",
+          buttonLabel: "Hoàn tất",
           description: "Đối soát phụ phí, hoàn cọc và đóng hồ sơ",
           consequential: true,
         };
@@ -699,6 +717,7 @@ export function RentalWorkspaceV4() {
         {/* ========================================================================= */}
         {/* CENTER COLUMN: RENTAL DOSSIER (FLUID)                                     */}
         {/* ========================================================================= */}
+        <div className={styles.detailWorkspace}>
         <main
           ref={dossierRef}
           className={styles.dossierPanel}
@@ -720,6 +739,7 @@ export function RentalWorkspaceV4() {
               <p className="text-xs text-[var(--v4-mineral)]">
                 Bảng điều phối hồ sơ, tình trạng kỹ thuật và vòng đời phương tiện
               </p>
+              {activeRental && <RentalIdentifiers rentalId={activeRental.id} orderId={activeRental.orderId} />}
             </div>
 
             {activeRental && (
@@ -933,7 +953,11 @@ export function RentalWorkspaceV4() {
                         {OPERATIONAL_STEPS[currentStepIndex].label}:
                       </span>
                       <span className="text-[var(--v4-ink)]">
-                        {OPERATIONAL_STEPS[currentStepIndex].sub}
+                        {activeRental.status === "pending" && activeRental.hasPassingPreInspection
+                          ? "Kiểm tra trước thuê đã đạt. Yêu cầu đang chờ duyệt, chưa bàn giao xe."
+                          : activeRental.status === "pre_inspection" && activeRental.hasPassingPreInspection
+                          ? "Kiểm tra trước thuê đã đạt. Hoàn tất thanh toán, phân xe/tài xế và xác nhận bàn giao để bắt đầu thuê."
+                          : OPERATIONAL_STEPS[currentStepIndex].sub}
                       </span>
                     </div>
                     {OPERATIONAL_STEPS[currentStepIndex].actionLink && (
@@ -1074,7 +1098,7 @@ export function RentalWorkspaceV4() {
                 </div>
               </div>
 
-              <RentalReturnStatus key={activeRental.id} rental={activeRental} />
+              <RentalReturnStatus key={activeRental.id} rental={activeRental} returnActionHref="#rental-primary-action" />
 
               {/* LIVE GPS MONITORING PANEL */}
               <div className="space-y-1">
@@ -1134,40 +1158,41 @@ export function RentalWorkspaceV4() {
           ) : (
             <>
               {/* SHELF 1: PRIMARY GUIDED LEGAL ACTION (TOPMOST IN DOM & ERGONOMICS) */}
-              <div className={styles.commandShelf}>
+              <div className={`${styles.commandShelf} ${styles.primaryCommand}`}>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[var(--color-champagne)]" />
                   <span className="text-xs font-bold text-[var(--v4-ink)]">
-                    Lệnh khuyến nghị hợp lệ
+                    Thao tác đơn thuê
                   </span>
                 </div>
 
                 {/* Contextual Primary Action Button */}
                 {nextRecommendedAction ? (
                   <div className="p-3 rounded bg-[var(--v4-surface-muted)] space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--v4-mineral)] block">
-                      Hành động tiếp theo hợp lệ
-                    </span>
                     <p className="text-xs font-medium text-[var(--v4-ink)]">
                       {nextRecommendedAction.description}
                     </p>
                     <button
+                      id="rental-primary-action"
+                      aria-label={nextRecommendedAction.label}
                       type="button"
                       onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
-                      disabled={isUpdatingStatus || !canMutate || Boolean(rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus))}
+                      disabled={isUpdatingStatus || !canMutate || Boolean(rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus)) || (nextRecommendedAction.targetStatus === "renting" && Boolean(paymentBlocker))}
                       className={nextRecommendedAction.consequential ? styles.consequentialActionButton : styles.primaryActionButton}
                     >
-                      {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.label}
+                      {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.buttonLabel}
                     </button>
+                    {nextRecommendedAction.targetStatus === "renting" && paymentBlocker && <p className="text-xs text-td-muted">{paymentBlocker}</p>}
                     {rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus) && (
                       <div className="space-y-2 text-xs text-[var(--v4-mineral)]">
                         <p>{rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus)}</p>
-                        <Link href={`/admin/inspections?rentalId=${activeRental.id}`} className="block font-bold underline">
+                        <details><summary className="cursor-pointer font-semibold">Hướng dẫn kiểm tra</summary><Link href={`/admin/inspections?rentalId=${activeRental.id}`} className="block font-bold underline">
                           Mở phiếu kiểm tra đơn #{activeRental.id}
                         </Link>
                         <button type="button" onClick={() => void refetchRental()} className={styles.secondaryActionButton}>
                           Tải lại kết quả kiểm tra
                         </button>
+                        </details>
                       </div>
                     )}
                   </div>
@@ -1176,6 +1201,7 @@ export function RentalWorkspaceV4() {
                     Hồ sơ hợp đồng đã ở trạng thái kết thúc ({activeRental.status}).
                   </div>
                 )}
+                {["pending", "pre_inspection"].includes(activeRental.status) && <p className="text-xs text-td-muted">Xe chưa bắt đầu thuê. Nút “Đã trả xe” sẽ xuất hiện sau khi xác nhận bàn giao.</p>}
 
                 {["pending", "pre_inspection"].includes(activeRental.status) && <button
                   type="button"
@@ -1191,16 +1217,12 @@ export function RentalWorkspaceV4() {
                 )}
               </div>
 
-              <TechnicianAssignmentForm key={activeRental.id} rental={activeRental} refresh={refetchRental} />
+              <TechnicianAssignmentForm key={`${activeRental.id}-${activeRental.status === "post_inspection" || activeRental.status === "completed" ? "post" : "pre"}`} rental={activeRental} refresh={refetchRental} compact showApprovalAction={false} />
+              <CashReceiptPanel key={`payment-${activeRental.id}`} rental={activeRental} refresh={refetchRental} compact />
 
               {/* SHELF 2: VEHICLE & DRIVER ASSIGNMENT (MIDDLE SHELF) */}
-              {canAssignRental(activeRental.status) && <div className={styles.commandShelf}>
-                <div className="flex items-center gap-2">
-                  <UserCheck className="h-4 w-4 text-[var(--color-champagne)]" />
-                  <span className="text-xs font-bold text-[var(--v4-ink)]">
-                    Phân xe và tài xế
-                  </span>
-                </div>
+              {activeRental.hasDriver === true && canAssignRental(activeRental.status) && <details ref={assignmentDetailsRef} key={`assignment-${activeRental.id}-${activeRental.status}`} className={styles.commandShelf} open={activeRental.status === "pre_inspection"}>
+                <summary className="cursor-pointer text-xs font-bold text-td-ink">Phân xe và tài xế</summary>
 
                 <ValidatedForm validation={assignValidation} onSubmit={handleAssignDriver} className="space-y-3">
                   <div>
@@ -1219,7 +1241,7 @@ export function RentalWorkspaceV4() {
                       className={styles.inputField}
                       disabled={isAssigning || !canMutate || isDriversPending || !!driversError}
                     >
-                      <option value="">-- Không chỉ định (Khách tự lái) --</option>
+                      <option value="">-- Chưa phân công tài xế --</option>
                       {drivers.filter((driver) => driver.isActive).map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.email?.trim() || "Chưa cập nhật email tài xế"}
@@ -1254,14 +1276,14 @@ export function RentalWorkspaceV4() {
                     </div>
                   )}
                 </ValidatedForm>
-              </div>}
+              </details>}
 
               {/* SHELF 3: COLLAPSED MANUAL OVERRIDE (BOTTOM SHELF) */}
               {canOverrideStatus && !isClosedRental(activeRental.status) && (
                 <div className={styles.commandShelf}>
                   <details className={styles.overrideDisclosure}>
-                    <summary className={styles.overrideSummary}>
-                      <span>Ghi đè trạng thái thủ công</span>
+                    <summary className={styles.overrideSummary} aria-label="Ghi đè trạng thái thủ công">
+                      <span>Thao tác khác</span>
                       <span className={styles.overrideBadge}>
                         Quản trị
                       </span>
@@ -1306,6 +1328,7 @@ export function RentalWorkspaceV4() {
             </>
           )}
         </aside>
+        </div>
       </div>
       </div>
 
