@@ -84,6 +84,7 @@ export interface VehicleDto {
   location: string | null;
   licensePlate?: string | null;
   detail: VehicleDetailDto | null;
+  maintenanceTechnicianEmails?: string[];
 }
 
 export interface VehicleRequest {
@@ -131,6 +132,7 @@ export interface StaffDto {
   rating: number | null;
   isActive: boolean;
   staffRole: string | null;
+  roles?: string[];
 }
 
 export interface CreateStaffRequest {

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalOperationsPage from "@/app/admin/rentals/page";
 import * as operationsApi from "@/features/operations/api";
 import { RENTAL_101 } from "./rental-fixture";
+import { driverStaff } from "../staff/staff-backend-fixture";
 
 beforeAll(() => {
   global.ResizeObserver = class {
@@ -32,6 +33,8 @@ vi.mock("@/features/maps/RentalTrackingPanel", () => ({
     <div data-testid="rental-tracking-panel">Hành trình GPS cho #{rentalId}</div>
   ),
 }));
+
+vi.mock("@/features/operations/TechnicianAssignmentForm", () => ({ default: () => null }));
 
 // Mock VehicleName
 vi.mock("@/features/admin/VehicleName", () => ({
@@ -75,7 +78,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
     mockSearchParams = new URLSearchParams();
     // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
-    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([]);
+    vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([]);
     vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
@@ -112,8 +115,8 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    vi.spyOn(operationsApi, "getAssignableDrivers").mockResolvedValue([
-      { staffId: 1, fullName: "Nguyễn Văn Hùng", eligible: true, reasons: [], rating: 5 },
+    vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([
+      { ...driverStaff, id: 1, email: "hung@example.test" },
     ]);
     const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as never);
 
@@ -123,7 +126,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
       expect(screen.getByLabelText("Tài xế nhận lệnh")).toBeInTheDocument();
     });
 
-    await screen.findByRole("option", { name: "Nguyễn Văn Hùng" });
+    await screen.findByRole("option", { name: "hung@example.test" });
     // Chọn tài xế và submit
     const driverSelect = screen.getByLabelText("Tài xế nhận lệnh");
     fireEvent.change(driverSelect, { target: { value: "1" } });

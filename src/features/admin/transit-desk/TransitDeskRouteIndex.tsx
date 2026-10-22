@@ -144,9 +144,12 @@ export function TransitDeskRouteIndex({
   useEffect(() => {
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
-      setQuery("");
-      setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      // Reset in the same deferred tick as focus so state clears after paint (no sync setState in an effect).
+      setTimeout(() => {
+        setQuery("");
+        setSelectedIndex(0);
+        inputRef.current?.focus();
+      }, 50);
 
       const prefersReduced =
         typeof window !== "undefined" &&

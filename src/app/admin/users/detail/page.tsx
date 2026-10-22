@@ -77,6 +77,7 @@ function UserDetailContent() {
   const [lockDialogOpen, setLockDialogOpen] = useState(false);
   const [loyaltyDialogOpen, setLoyaltyDialogOpen] = useState(false);
   const [removingRole, setRemovingRole] = useState<Role | null>(null);
+  const [actionError, setActionError] = useState("");
 
   if (isLoading) {
     return (
@@ -122,31 +123,34 @@ function UserDetailContent() {
     await assignRoleMutation.mutateAsync({
       userId: user.id,
       role: newRole,
+      currentActorId: isSelf ? user.id : undefined,
     });
   };
 
   const handleConfirmRemoveRole = async () => {
     if (!removingRole) return;
-    await removeRoleMutation.mutateAsync({
-      userId: user.id,
-      role: removingRole,
-      currentActorEmail: currentUser?.email,
-    });
-    setRemovingRole(null);
+    setActionError("");
+    try {
+      await removeRoleMutation.mutateAsync({ userId: user.id, role: removingRole, currentActorEmail: currentUser?.email });
+      setRemovingRole(null);
+    } catch (failure) {
+      setActionError(failure instanceof Error ? failure.message : "Không thể gỡ vai trò. Vui lòng thử lại.");
+    }
   };
 
   const handleRevokeSessions = async () => {
     if (window.confirm(`Thu hồi mọi phiên đăng nhập của người dùng ${user.fullName}?`)) {
-      await revokeSessionsMutation.mutateAsync(user.id);
+      setActionError("");
+      try { await revokeSessionsMutation.mutateAsync(user.id); }
+      catch (failure) { setActionError(failure instanceof Error ? failure.message : "Không thể thu hồi phiên. Vui lòng thử lại."); }
     }
   };
 
   const handleLicenseAction = async (status: "approved" | "rejected") => {
     if (!user.customer) return;
-    await reviewLicenseMutation.mutateAsync({
-      customerId: user.customer.id,
-      status,
-    });
+    setActionError("");
+    try { await reviewLicenseMutation.mutateAsync({ customerId: user.customer.id, status }); }
+    catch (failure) { setActionError(failure instanceof Error ? failure.message : "Không thể cập nhật GPLX. Vui lòng thử lại."); }
   };
 
   const handleLoyaltyAdjust = async (points: number, reason: string) => {
@@ -336,6 +340,7 @@ function UserDetailContent() {
         </button>
       </div>
 
+      {actionError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{actionError}</p>}
       {/* 4. Nội dung từng Tab */}
 
       {/* TAB 1: TỔNG QUAN */}
@@ -346,10 +351,6 @@ function UserDetailContent() {
               Thông tin tài khoản gốc
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between py-1 border-b border-td-rule/60">
-                <span className="text-td-muted">Mã tài khoản (User ID)</span>
-                <span className="font-mono font-bold text-td-ink">#{user.id}</span>
-              </div>
               <div className="flex justify-between py-1 border-b border-td-rule/60">
                 <span className="text-td-muted">Họ và tên</span>
                 <span className="font-bold text-td-ink">{user.fullName}</span>
@@ -362,7 +363,7 @@ function UserDetailContent() {
                 <span className="text-td-muted">Trạng thái xác minh Email</span>
                 <span className="font-semibold text-success flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Đã xác minh</span>
+                  <span>{user.emailVerified == null ? "Chưa có dữ liệu" : user.emailVerified ? "Đã xác minh" : "Chưa xác minh"}</span>
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-td-rule/60">
@@ -647,14 +648,25 @@ function UserDetailContent() {
                 <div className="rounded border border-td-rule bg-td-paper p-3">
                   <span className="text-xs text-td-muted block">Đội tài xế:</span>
                   <span className="font-bold text-td-ink">
-                    {user.staff.isDriver ? `Có (Đánh giá: ${user.staff.rating || 5.0}/5.0)` : "Không"}
+                    {user.staff.isDriver ? `Có${user.staff.rating == null ? "" : ` (Đánh giá: ${user.staff.rating}/5.0)`}` : "Không"}
                   </span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="rounded border border-td-rule bg-td-white p-6 text-center py-8 text-xs text-td-muted">
-              Người dùng này không thuộc đội ngũ nhân viên Thong Dong.
+            <div className="rounded border border-td-rule bg-td-white p-6 text-center py-8 text-xs text-td-muted space-y-3">
+              <p>Người dùng này không thuộc đội ngũ nhân viên Thong Dong.</p>
+              {!isManagerOnly && (
+                <div>
+                  <Link
+                    href={`/admin/staffs/new?userId=${user.id}`}
+                    className="inline-flex items-center gap-1.5 rounded bg-td-ink px-3 py-1.5 font-bold text-td-white hover:bg-td-teal transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Tạo hồ sơ nhân viên cho người dùng này</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -720,6 +732,8 @@ function UserDetailContent() {
         userId={user.id}
         userName={user.fullName}
         currentRoles={user.roles}
+        hasStaffProfile={user.hasStaffProfile || Boolean(user.staff)}
+        isSelf={isSelf}
         isLoading={assignRoleMutation.isPending}
         onAssignRole={handleAssignRole}
       />
@@ -766,7 +780,7 @@ function UserDetailContent() {
 
 export default function AdminUserDetailPage() {
   return (
-    <AuthGate allowedRoles={["Admin", "Manager"]}>
+    <AuthGate allowedRoles={["Admin"]}>
         <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <UserDetailContent />
         </Suspense>

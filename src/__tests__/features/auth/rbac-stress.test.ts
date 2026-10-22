@@ -150,9 +150,9 @@ describe("RBAC Stress-Testing & Vulnerability Suite", () => {
       expect(canAccessRoute("/admin/departments", null)).toBe(false);
     });
 
-    it("/admin/facilities strictly requires Admin only", () => {
+    it("/admin/facilities requires Admin or Manager", () => {
       expect(canAccessRoute("/admin/facilities", ["Admin"])).toBe(true);
-      expect(canAccessRoute("/admin/facilities", ["Manager"])).toBe(false);
+      expect(canAccessRoute("/admin/facilities", ["Manager"])).toBe(true);
       expect(canAccessRoute("/admin/facilities", ["Staff"])).toBe(false);
       expect(canAccessRoute("/admin/facilities", null)).toBe(false);
     });

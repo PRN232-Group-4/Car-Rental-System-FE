@@ -1,4 +1,10 @@
 # Changelog
+- 2026-10-21 — [Dot và số việc chờ xử lý trên menu Admin](2026-10-21-admin-navigation-work-counts.md)
+- 2026-10-21 — [Đổi mật khẩu bắt buộc OTP email](2026-10-21-password-change-otp.md)
+- 2026-10-21 — [Toast cho thao tác tạo, cập nhật và xóa Admin](2026-10-21-admin-mutation-toasts.md)
+- 2026-10-21 — [Danh sách kiểm tra, email bảo trì và trạng thái người dùng](2026-10-21-admin-operational-directory.md)
+- 2026-10-21 — [Email nhân sự, cơ sở tài khoản và bỏ cảnh báo chính sách](2026-10-21-admin-email-facility-policy.md)
+- 2026-10-21 — [Sửa hồ sơ admin, phân công kỹ thuật viên và điều kiện bàn giao](2026-10-21-admin-profile-inspection-handover.md)
 - 2026-10-21 — [Sửa TypeScript hàng đợi vận hành sau merge](2026-10-21-fix-rental-queue-ci.md)
 - 2026-10-20 — [Ghép main vào Tri, giữ giao diện và API mới](2026-10-20-merge-main-tri.md)
 - 2026-10-19 — [Đồng bộ API đơn thuê, bàn giao và định vị](2026-10-19-rental-lifecycle-tracking-api.md)

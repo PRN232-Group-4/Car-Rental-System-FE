@@ -41,11 +41,18 @@ for (const width of [1600, 1280, 390, 320]) {
       await expect(page.getByLabel("Số chỗ ngồi", { exact: true })).toHaveValue("5");
       const profile = page.getByRole("complementary", { name: "Hồ sơ phương tiện" });
       const information = page.getByRole("region", { name: "Thông tin phương tiện", exact: true });
+      await expect(information).toBeVisible();
       await expect(profile).toContainText("Toyota Vios");
       await expect(profile).toContainText("51A-123.45");
       await expect(profile).toContainText("Chi nhánh trung tâm");
-      const profileBox = (await profile.boundingBox())!;
-      const informationBox = (await information.boundingBox())!;
+      await page.evaluate(() => document.fonts.ready);
+      const [profileBox, informationBox] = await profile.evaluate((element) => {
+        const information = document.querySelector('section[aria-labelledby="vehicle-general-title"]')!;
+        return [element, information].map((section) => {
+          const { x, y, width, height } = section.getBoundingClientRect();
+          return { x, y, width, height };
+        });
+      });
       if (width >= 1024) {
         expect(informationBox.x).toBeGreaterThanOrEqual(profileBox.x + profileBox.width);
         expect(Math.abs(informationBox.y - profileBox.y)).toBeLessThanOrEqual(1);

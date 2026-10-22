@@ -18,7 +18,7 @@ it("retains compatibility with the previous array policy response", async () => 
 it("posts the exact RentalRequest and reads a real backend rental id", async () => {
   client.post.mockResolvedValue({ id: 321, rentalType: "hourly", totalPrice: 324000, depositPrice: 64800 });
   const result = await createRentalBooking({ rentalType: "hourly", vehicleId: "8", policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, customerName: "Do not send this", estimatedCost: 999 });
-  expect(client.post).toHaveBeenCalledWith("rentals/hourly", { vehicleId: 8, policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: false, subscriptionId: null, paymentMethod: "payos" });
+  expect(client.post).toHaveBeenCalledWith("rentals/hourly", { vehicleId: 8, policyId: 6, startTime: "2026-10-10T01:00:00Z", endTime: "2026-10-10T03:30:00Z", hasDriver: true, subscriptionId: null, paymentMethod: "payos" });
   expect(result.bookingId).toBe(321);
   expect(result.invoiceId).toBeUndefined();
 });

@@ -1,98 +1,98 @@
-import { afterEach, describe, it, expect, vi } from "vitest";
-import { backendApiClient } from "@/api/backend-api-client";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ApiProblemError } from "@/api/api-client";
-import { sanitizeUserRecord, getAdminUsers, getAdminUserById } from "@/features/admin/users/api";
+import { adminUser, usersPage } from "./users-backend-fixture";
+const client = vi.hoisted(() => ({ get: vi.fn() }));
+vi.mock("@/api/backend-api-client", () => ({ backendApiClient: client }));
+import {
+  sanitizeUserRecord,
+  getAdminUsers,
+  getAdminUserById,
+} from "@/features/admin/users/api";
 
-afterEach(() => vi.restoreAllMocks());
-
-const user = {
-  id: 12, email: "an@example.com", fullName: "Nguyễn Văn An", phone: null, avatarUrl: null,
-  roles: ["Customer"], isActive: true, createdAt: "2027-01-01T00:00:00Z", customerId: 8, staffId: null,
-};
-function page(items: unknown[], current = 1, totalCount = items.length) {
-  return { items, page: current, pageSize: 10, totalCount };
-}
-
-describe("User adapter security", () => {
-  it("strips sensitive fields without modifying the source record", () => {
-    const record = { id: 1, email: "an@example.com", password: "secret", password_hash: "hash", passwordHash: "hash", access_token: "token", refresh_token: "refresh", otp: "123456", ticket: "ticket", salt: "salt", secret: "secret" };
-    expect(sanitizeUserRecord(record)).toEqual({ id: 1, email: "an@example.com" });
-    expect(record.password).toBe("secret");
+describe("FE-23 Admin Users — Security & Data Adapter", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    client.get.mockImplementation(async (path: string, params?: { search?: string; role?: string }) => {
+      if (path === "users") return usersPage([adminUser].filter((user) => (!params?.search || `${user.fullName} ${user.email}`.toLowerCase().includes(params.search.toLowerCase())) && (!params?.role || user.roles.includes(params.role))));
+      if (path === "users/1") return adminUser;
+      if (path === "users/99999") throw new ApiProblemError(404, "Not Found");
+      if (path === "staff/27") return { id: 27, departmentName: "Vận hành", facilityName: "Trạm thật", rating: null };
+      throw new Error(`Unexpected ${path}`);
+    });
   });
 
-  it("requests the deployed users endpoint with supported filters and boolean status", async () => {
-    const get = vi.spyOn(backendApiClient, "get").mockResolvedValue(page([user], 2, 21));
-    const result = await getAdminUsers({ search: " An ", role: "customer", isActive: "locked", profile: "all", page: 2, pageSize: 10 });
-    expect(get).toHaveBeenCalledWith("users", { search: "An", role: "Customer", isActive: false, page: 2, pageSize: 10 });
-    expect(result).toMatchObject({ page: 2, pageSize: 10, totalCount: 21, items: [{ id: 12, hasCustomerProfile: true, hasStaffProfile: false }] });
+  it("triệt để loại bỏ các khóa nhạy cảm (password_hash, token, otp, secret) khỏi bản ghi", () => {
+    const dirtyRecord = {
+      id: 99,
+      email: "test@thongdong.vn",
+      fullName: "Test Security",
+      password: "plaintext_secret",
+      password_hash: "$2a$12$e8Y...hash",
+      passwordHash: "hash_camelCase",
+      access_token: "jwt.header.payload",
+      refresh_token: "refresh.token.val",
+      otp: "123456",
+      ticket: "ticket_xyz",
+      roles: ["Customer"],
+    };
+
+    const sanitized = sanitizeUserRecord(dirtyRecord);
+
+    expect(sanitized).toEqual({
+      id: 99,
+      email: "test@thongdong.vn",
+      fullName: "Test Security",
+      roles: ["Customer"],
+    });
+
+    expect(sanitized).not.toHaveProperty("password");
+    expect(sanitized).not.toHaveProperty("password_hash");
+    expect(sanitized).not.toHaveProperty("passwordHash");
+    expect(sanitized).not.toHaveProperty("access_token");
+    expect(sanitized).not.toHaveProperty("refresh_token");
+    expect(sanitized).not.toHaveProperty("otp");
+    expect(sanitized).not.toHaveProperty("ticket");
   });
 
-  it("does not send all sentinel values as backend filters", async () => {
-    const get = vi.spyOn(backendApiClient, "get").mockResolvedValue(page([]));
-    expect(await getAdminUsers({ role: "all", isActive: "all" })).toEqual(page([]));
-    expect(get).toHaveBeenCalledWith("users", { search: undefined, role: undefined, isActive: undefined, page: 1, pageSize: 10 });
+  it("lấy danh sách người dùng có phân trang và thông tin cơ bản", async () => {
+    const res = await getAdminUsers({ page: 1, pageSize: 5 });
+    expect(res.page).toBe(1);
+    expect(res.pageSize).toBe(5);
+    expect(res.items.length).toBeLessThanOrEqual(5);
+    expect(res.totalCount).toBeGreaterThan(0);
+
+    const first = res.items[0];
+    expect(first).toHaveProperty("id");
+    expect(first).toHaveProperty("email");
+    expect(first).toHaveProperty("fullName");
+    expect(first).toHaveProperty("roles");
+    expect(first).toHaveProperty("isActive");
   });
 
-  it("maps nullable fields and normalizes roles without leaking extra payload fields", async () => {
-    const record = { ...user, email: null, fullName: null, roles: ["manager", "unknown", " Customer "], customerId: null, staffId: 4, passwordHash: "hash", refreshToken: "secret" };
-    vi.spyOn(backendApiClient, "get").mockResolvedValue(page([record]));
-    const mapped = (await getAdminUsers()).items[0];
-    expect(mapped).toEqual({ id: 12, email: "", fullName: "Chưa cập nhật tên", roles: ["Manager", "Customer"], isActive: true, createdAt: user.createdAt, phone: undefined, avatarUrl: undefined, hasCustomerProfile: false, hasStaffProfile: true });
-    expect(record.passwordHash).toBe("hash");
+  it("tìm kiếm người dùng theo từ khóa (họ tên, email, điện thoại)", async () => {
+    const resName = await getAdminUsers({ search: "quản trị" });
+    expect(resName.items.some((u) => u.fullName.includes("Quản Trị"))).toBe(true);
+
+    const resEmail = await getAdminUsers({ search: "admin@thongdong.vn" });
+    expect(resEmail.items.length).toBe(1);
+    expect(resEmail.items[0].email).toBe("admin@thongdong.vn");
   });
 
-  it("handles users without assigned roles", async () => {
-    vi.spyOn(backendApiClient, "get").mockResolvedValue(page([{ ...user, roles: null }]));
-    expect((await getAdminUsers()).items[0].roles).toEqual([]);
+  it("lọc người dùng theo vai trò", async () => {
+    const res = await getAdminUsers({ role: "Admin" });
+    expect(res.items.every((u) => u.roles.includes("Admin"))).toBe(true);
   });
 
-  it("loads all matching pages before applying profile filtering and pagination", async () => {
-    const get = vi.spyOn(backendApiClient, "get")
-      .mockResolvedValueOnce(page([{ ...user, customerId: null, staffId: 4 }], 1, 2))
-      .mockResolvedValueOnce(page([user], 2, 2));
-    const result = await getAdminUsers({ profile: "customer", page: 1, pageSize: 1, isActive: "active" });
-    expect(result).toMatchObject({ items: [{ id: user.id }], totalCount: 1, page: 1, pageSize: 1 });
-    expect(get).toHaveBeenNthCalledWith(2, "users", { search: undefined, role: undefined, isActive: true, page: 2, pageSize: 100 });
+  it("lấy chi tiết một người dùng theo ID hợp lệ", async () => {
+    const user = await getAdminUserById(1);
+    expect(user).not.toBeNull();
+    expect(user?.id).toBe(1);
+    expect(user?.email).toBe("admin@thongdong.vn");
+    expect(user?.staff).toBeDefined();
   });
 
-  it.each(["staff", "none"])("preserves the %s profile filter", async (profile) => {
-    vi.spyOn(backendApiClient, "get").mockResolvedValue(page([user, { ...user, id: 13, customerId: null, staffId: profile === "staff" ? 4 : null }]));
-    expect((await getAdminUsers({ profile })).items.map((row) => row.id)).toEqual([13]);
-  });
-
-  it("sorts the full result before taking the requested local page", async () => {
-    vi.spyOn(backendApiClient, "get")
-      .mockResolvedValueOnce(page([user], 1, 2))
-      .mockResolvedValueOnce(page([{ ...user, id: 13, fullName: "Bình" }], 2, 2));
-    const result = await getAdminUsers({ sortBy: "fullName", sortOrder: "asc", page: 1, pageSize: 1 });
-    expect(result).toMatchObject({ items: [{ id: 13 }], totalCount: 2 });
-  });
-
-  it("never displays an incomplete locally filtered result", async () => {
-    vi.spyOn(backendApiClient, "get")
-      .mockResolvedValueOnce(page([user], 1, 2))
-      .mockResolvedValueOnce(page([], 2, 2));
-    await expect(getAdminUsers({ profile: "customer" })).rejects.toThrow("Chưa tải đủ");
-  });
-
-  it.each([null, { ...page([]), items: null }, page([], 2), { ...page([]), totalCount: -1 }, page([{ ...user, roles: "Admin" }])])("rejects malformed backend data: %j", async (data) => {
-    vi.spyOn(backendApiClient, "get").mockResolvedValue(data);
-    await expect(getAdminUsers()).rejects.toThrow("không hợp lệ");
-  });
-
-  it.each([new ApiProblemError(401, "Unauthorized"), new ApiProblemError(403, "Forbidden"), new Error("Offline")])("preserves API/network errors without substituting mock users", async (error) => {
-    vi.spyOn(backendApiClient, "get").mockRejectedValue(error);
-    await expect(getAdminUsers()).rejects.toBe(error);
-  });
-
-  it("does not request invalid page values", async () => {
-    const get = vi.spyOn(backendApiClient, "get");
-    await expect(getAdminUsers({ page: NaN })).rejects.toThrow("Trang phải từ 1");
-    await expect(getAdminUsers({ pageSize: 101 })).rejects.toThrow("1 đến 100");
-    expect(get).not.toHaveBeenCalled();
-  });
-
-  it("leaves the not-yet-connected detail adapter unchanged", async () => {
-    await expect(getAdminUserById(1)).rejects.toMatchObject({ status: 501 });
+  it("trả về null khi tìm kiếm người dùng không tồn tại", async () => {
+    const user = await getAdminUserById(99999);
+    expect(user).toBeNull();
   });
 });

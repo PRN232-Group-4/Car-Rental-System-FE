@@ -15,10 +15,9 @@ export function usePortalAccess<A extends AccountProfile = AccountProfile>(
   isAllowed: (account: AccountProfile) => boolean,
 ) {
   const router = useRouter();
-  const { isLoading: authLoading, isAuthenticated } = useAuth();
-  const [account, setAccount] = useState<A | null>(null);
-  const [checkingAccess, setCheckingAccess] = useState(true);
-  const [accessError, setAccessError] = useState("");
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+  const identity = user?.email.toLowerCase() ?? "";
+  const [result, setResult] = useState<{ identity: string; account: A | null; error: string } | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -32,28 +31,29 @@ export function usePortalAccess<A extends AccountProfile = AccountProfile>(
       .then((profile) => {
         if (!active) return;
         if (!isAllowed(profile)) {
+          setResult({ identity, account: null, error: "" });
           router.replace("/");
           return;
         }
-        setAccount(profile as A);
+        setResult({ identity, account: profile as A, error: "" });
       })
       .catch((error: unknown) => {
         if (active) {
-          setAccessError(
-            error instanceof Error
+          setResult({ identity, account: null, error: error instanceof Error
               ? error.message
-              : "Không thể xác thực quyền truy cập.",
-          );
+              : "Không thể xác thực quyền truy cập." });
         }
-      })
-      .finally(() => {
-        if (active) setCheckingAccess(false);
       });
 
     return () => {
       active = false;
     };
-  }, [authLoading, isAuthenticated, router, isAllowed]);
+  }, [authLoading, isAuthenticated, router, isAllowed, identity, user]);
 
-  return { account, checkingAccess, accessError };
+  const current = result?.identity === identity && isAuthenticated ? result : null;
+  return {
+    account: current?.account ?? null,
+    checkingAccess: authLoading || !isAuthenticated || current == null || (!current.account && !current.error),
+    accessError: current?.error ?? "",
+  };
 }

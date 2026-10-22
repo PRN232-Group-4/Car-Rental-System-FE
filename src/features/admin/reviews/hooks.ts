@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
 import {
   fetchReviews,
   fetchReviewDetail,
@@ -51,6 +52,7 @@ export function useHideReview() {
   return useMutation({
     mutationFn: (payload: { id: number; reason: string }) => hideReview(payload),
     onSuccess: (data) => {
+      notifySuccess("Đã ẩn đánh giá.");
       queryClient.invalidateQueries({ queryKey: reviewKeys.lists() });
       queryClient.invalidateQueries({ queryKey: reviewKeys.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: ["rating-summary"] });
@@ -58,6 +60,7 @@ export function useHideReview() {
         queryClient.invalidateQueries({ queryKey: ["staff", data.staff.id] });
       }
     },
+    onError: (error) => notifyApiError(error, "Không thể ẩn đánh giá."),
   });
 }
 
@@ -67,6 +70,7 @@ export function useUnhideReview() {
   return useMutation({
     mutationFn: (id: number) => unhideReview(id),
     onSuccess: (data) => {
+      notifySuccess("Đã hiển thị lại đánh giá.");
       queryClient.invalidateQueries({ queryKey: reviewKeys.lists() });
       queryClient.invalidateQueries({ queryKey: reviewKeys.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: ["rating-summary"] });
@@ -74,6 +78,7 @@ export function useUnhideReview() {
         queryClient.invalidateQueries({ queryKey: ["staff", data.staff.id] });
       }
     },
+    onError: (error) => notifyApiError(error, "Không thể hiển thị lại đánh giá."),
   });
 }
 
@@ -83,8 +88,10 @@ export function useReplyReview() {
   return useMutation({
     mutationFn: (payload: { id: number; replyText: string }) => replyReview(payload),
     onSuccess: (data) => {
+      notifySuccess("Đã lưu phản hồi đánh giá.");
       queryClient.invalidateQueries({ queryKey: reviewKeys.lists() });
       queryClient.invalidateQueries({ queryKey: reviewKeys.detail(data.id) });
     },
+    onError: (error) => notifyApiError(error, "Không thể lưu phản hồi đánh giá."),
   });
 }

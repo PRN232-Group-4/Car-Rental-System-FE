@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, ShieldAlert, AlertTriangle, HelpCircle } from "lucide-react";
+import { Plus, HelpCircle } from "lucide-react";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
@@ -12,9 +12,6 @@ import {
   usePolicies,
   useVehicleTypes,
 } from "@/features/admin/policies/hooks";
-import {
-  auditPoliciesByVehicleType,
-} from "@/features/admin/policies/pricing-calculator";
 import { PolicyDrawer } from "@/features/admin/policies/components/PolicyDrawer";
 import type { RentalPolicy } from "@/features/admin/policies/types";
 
@@ -25,14 +22,6 @@ export default function PoliciesPage() {
 
   const { data: policies = [], isLoading: policiesLoading } = usePolicies();
   const { data: vehicleTypes = [], isLoading: typesLoading } = useVehicleTypes();
-
-  // Kiểm tra xung đột hoặc thiếu chính sách theo từng loại xe
-  const audits = useMemo(() => {
-    return auditPoliciesByVehicleType(policies, vehicleTypes);
-  }, [policies, vehicleTypes]);
-
-  const conflicts = audits.filter((a) => a.hasConflict);
-  const missings = audits.filter((a) => a.isMissing);
 
   // Lọc dữ liệu hiển thị
   const filteredPolicies = useMemo(() => {
@@ -156,43 +145,6 @@ export default function PoliciesPage() {
               <span>Tạo phiên bản mới</span>
             </button>
           </TransitFolio>
-
-          {/* Banner cảnh báo xung đột (nhiều policy active) */}
-          {conflicts.map((c) => (
-            <div
-              key={c.vehicleTypeId}
-              className="flex items-start gap-3 border-l-2 border-warning bg-warning-bg/40 px-4 py-3 text-sm text-td-ink"
-            >
-              <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" aria-hidden="true" />
-              <div className="space-y-1">
-                <p className="font-semibold text-td-ink">
-                  Cảnh báo: Có {c.activeCount} chính sách cùng đang áp dụng cho loại xe &quot;{c.vehicleTypeName}&quot;
-                </p>
-                <p className="text-xs text-td-ink">
-                  Hệ thống theo quy tắc sẽ tự động áp dụng phiên bản mới nhất (&quot;
-                  {c.latestActivePolicy?.name}&quot; #{c.latestActivePolicy?.id}) cho các đơn thuê mới.
-                </p>
-              </div>
-            </div>
-          ))}
-
-          {/* Banner lỗi chặn (không có policy active) */}
-          {missings.map((m) => (
-            <div
-              key={m.vehicleTypeId}
-              className="flex items-start gap-3 border-l-2 border-danger bg-danger-bg/40 px-4 py-3 text-sm text-td-ink"
-            >
-              <ShieldAlert className="w-5 h-5 text-danger shrink-0 mt-0.5" aria-hidden="true" />
-              <div className="space-y-1">
-                <p className="font-semibold text-danger">
-                  Chặn nghiệp vụ: Loại xe &quot;{m.vehicleTypeName}&quot; chưa có chính sách đang áp dụng
-                </p>
-                <p className="text-xs text-td-ink">
-                  Khách hàng sẽ không thể đặt xe thuộc loại này cho đến khi có ít nhất một chính sách được kích hoạt.
-                </p>
-              </div>
-            </div>
-          ))}
 
           {/* Bộ lọc loại xe và trạng thái */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-y border-td-rule py-3">

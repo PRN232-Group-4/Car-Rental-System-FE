@@ -13,6 +13,7 @@ import {
 import { UserFilterParams } from "./types";
 import { Role } from "@/features/auth/roles";
 import { ApiProblemError } from "@/api/api-client";
+import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 
 export const USER_QUERY_KEYS = {
   all: ["admin", "users"] as const,
@@ -61,8 +62,12 @@ export function useSetUserActive() {
         currentActorId,
         currentActorEmail,
       }),
-    onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(
         updated.isActive
           ? `Đã mở khóa tài khoản ${updated.fullName}`
@@ -83,10 +88,21 @@ export function useAssignRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, role }: { userId: number; role: Role }) =>
-      assignUserRole({ userId, role }),
-    onSuccess: (updated, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    mutationFn: ({
+      userId,
+      role,
+      currentActorId,
+    }: {
+      userId: number;
+      role: Role;
+      currentActorId?: number;
+    }) => assignUserRole({ userId, role, currentActorId }),
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(`Đã thêm vai trò ${variables.role} cho ${updated.fullName}`);
     },
     onError: (err: unknown) => {
@@ -114,8 +130,12 @@ export function useRemoveRole() {
       currentActorId?: number;
       currentActorEmail?: string;
     }) => removeUserRole({ userId, role, currentActorId, currentActorEmail }),
-    onSuccess: (updated, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
       toast.success(`Đã gỡ vai trò ${variables.role} khỏi ${updated.fullName}`);
     },
     onError: (err: unknown) => {
@@ -159,9 +179,17 @@ export function useAdjustLoyalty() {
       reason: string;
       idempotencyKey: string;
     }) => adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }),
-    onSuccess: (result, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
-      toast.success(`Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm. Số dư mới: ${result.balanceAfter}.`);
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
+      toast.success(
+        `Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm cho ${
+          updated.fullName
+        }`
+      );
     },
     onError: (err: unknown) => {
       const msg =
@@ -184,9 +212,19 @@ export function useReviewLicense() {
       customerId: number;
       status: "approved" | "rejected";
     }) => reviewCustomerLicense({ customerId, status }),
-    onSuccess: (_result, variables) => {
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all });
-      toast.success(variables.status === "approved" ? "Đã phê duyệt GPLX." : "Đã từ chối GPLX.");
+    onSuccess: async (updated, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY }),
+        queryClient.invalidateQueries({ queryKey: ["admin-customers"] }),
+        queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
+        queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
+        queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+      ]);
+      toast.success(
+        variables.status === "approved"
+          ? `Đã phê duyệt GPLX cho ${updated.fullName}`
+          : `Đã từ chối GPLX của ${updated.fullName}`
+      );
     },
     onError: (err: unknown) => {
       const msg =

@@ -12,16 +12,13 @@ import { AdminUserListItem, UserFilterParams } from "@/features/admin/users/type
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { Pagination } from "@/components/ui/Pagination";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { formatDate } from "@/lib/time";
 import {
-  Eye,
-  Lock,
-  Unlock,
-  LogOut,
   UserCheck,
   Briefcase,
   User,
@@ -55,6 +52,7 @@ function AdminUsersContent() {
 
   // Dialog khóa tài khoản
   const [lockTarget, setLockTarget] = useState<AdminUserListItem | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const updateFilters = (patch: Partial<UserFilterParams>) => {
     const next = { ...filters, ...patch };
@@ -88,7 +86,9 @@ function AdminUsersContent() {
   const handleRevokeSessions = useCallback(
     async (targetUser: AdminUserListItem) => {
       if (window.confirm(`Thu hồi mọi phiên đăng nhập của người dùng ${targetUser.fullName}?`)) {
-        await revokeSessionsMutation.mutateAsync(targetUser.id);
+        setActionError("");
+        try { await revokeSessionsMutation.mutateAsync(targetUser.id); }
+        catch (failure) { setActionError(failure instanceof Error ? failure.message : "Không thể thu hồi phiên. Vui lòng thử lại."); }
       }
     },
     [revokeSessionsMutation]
@@ -230,46 +230,19 @@ function AdminUsersContent() {
           const u = row.original;
           return (
             <div className="flex items-center justify-end gap-1.5">
-              <Link
-                href={`/admin/users/detail?id=${u.id}`}
-                className="inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule text-td-ink hover:border-td-oxide hover:text-td-oxide transition-colors cursor-pointer"
-                title="Xem chi tiết"
-              >
-                <Eye className="w-4 h-4" />
-              </Link>
-
-              {/* Chỉ Admin mới có quyền thao tác ghi */}
-              {!isManagerOnly && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setLockTarget(u)}
-                    className={`inline-flex h-8 w-8 items-center justify-center rounded border transition-colors cursor-pointer ${
-                      u.isActive
-                        ? "border-td-rule text-td-ink hover:border-danger hover:text-danger"
-                        : "border-success/40 bg-success-bg/30 text-success hover:border-success"
-                    }`}
-                    title={u.isActive ? "Khóa tài khoản" : "Mở khóa"}
-                  >
-                    {u.isActive ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRevokeSessions(u)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule text-td-ink hover:border-warning hover:text-warning transition-colors cursor-pointer"
-                    title="Thu hồi phiên đăng nhập"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </>
-              )}
+              <AdminRowAction action="view" href={`/admin/users/detail?id=${u.id}`} label={`Xem chi tiết ${u.email}`} />
+              {!isManagerOnly && <>
+                <AdminRowAction action={u.isActive ? "deactivate" : "activate"} label={`${u.isActive ? "Khóa tài khoản" : "Mở khóa"} ${u.email}`}
+                  onClick={() => setLockTarget(u)} disabled={setUserActiveMutation.isPending || (u.isActive && u.email.toLowerCase() === currentUser?.email?.toLowerCase())} />
+                <AdminRowAction action="revokeSessions" label={`Thu hồi phiên đăng nhập ${u.email}`} onClick={() => handleRevokeSessions(u)}
+                  disabled={revokeSessionsMutation.isPending} isLoading={revokeSessionsMutation.isPending} />
+              </>}
             </div>
           );
         },
       },
     ];
-  }, [isManagerOnly, handleRevokeSessions]);
+  }, [isManagerOnly, handleRevokeSessions, setUserActiveMutation.isPending, revokeSessionsMutation.isPending, currentUser?.email]);
 
   return (
     <div className="space-y-6">
@@ -293,6 +266,7 @@ function AdminUsersContent() {
         )}
       </TransitFolio>
 
+      {actionError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{actionError}</p>}
       {/* Bộ lọc */}
       <UserFilters
         filters={filters}
@@ -351,7 +325,7 @@ function AdminUsersContent() {
 
 export default function AdminUsersPage() {
   return (
-    <AuthGate allowedRoles={["Admin", "Manager"]}>
+    <AuthGate allowedRoles={["Admin"]}>
         <Suspense fallback={<div className="h-40 rounded bg-td-white animate-pulse" />}>
           <AdminUsersContent />
         </Suspense>

@@ -153,14 +153,12 @@ describe("Challenger M2-Fix: Adversarial Boundary & Stress Harness", () => {
       }
     });
 
-    it("strictly prevents bypass on other Admin-only routes (/admin/roles, /departments, /facilities)", () => {
+    it("strictly prevents bypass on Admin-only routes (/admin/roles, /departments)", () => {
       const adminOnlyRoutes = [
         "/admin/roles",
         "/admin//roles",
         "/admin/departments",
         "/admin/./departments",
-        "/admin/facilities",
-        "/admin///facilities///",
       ];
 
       for (const route of adminOnlyRoutes) {

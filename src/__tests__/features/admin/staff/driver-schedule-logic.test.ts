@@ -1,6 +1,7 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
+import { driverStaff, pageOf } from "./staff-backend-fixture";
 import { backendApiClient } from "@/api/backend-api-client";
-import { getAssignableDrivers, assignDriverToRental, getDriverSchedules, createStaff } from "@/features/admin/staff/api";
+import { getAssignableDrivers, assignDriverToRental, getDriverSchedules, createStaff, getStaffList } from "@/features/admin/staff/api";
 
 beforeEach(() => vi.restoreAllMocks());
 
@@ -23,8 +24,19 @@ describe("Staff and dispatch use server decisions", () => {
   });
   it("does not create a local staff record when the server rejects creation", async () => {
     const error = new Error("Email đã được sử dụng");
-    const put = vi.spyOn(backendApiClient, "put").mockRejectedValue(error);
+    const post = vi.spyOn(backendApiClient, "post").mockRejectedValue(error);
     await expect(createStaff({ userId: 99, departmentId: 5, facilityId: 8, hiredDate: "2027-01-01", isDriver: false })).rejects.toBe(error);
-    expect(put).toHaveBeenCalledWith("departments/5/members/99", {});
+    expect(post).toHaveBeenCalledWith("staff/from-user", expect.objectContaining({ userId: 99, departmentId: 5, facilityId: 8 }));
+  });
+  it("hỗ trợ lọc nhân sự theo phòng ban, cơ sở và tình trạng GPLX", async () => {
+    vi.spyOn(backendApiClient, "get").mockResolvedValue(pageOf([{ ...driverStaff, licenseExpiryDate: new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10) }]));
+    // 1. Chỉ lọc tài xế
+    const driversResult = await getStaffList({ isDriver: "driver" });
+    expect(driversResult.items.every((s) => s.isDriver)).toBe(true);
+
+    // 2. Lọc bằng sắp hết hạn
+    const expiringResult = await getStaffList({ licenseStatus: "expiring" });
+    expect(expiringResult.items.length).toBeGreaterThan(0);
+    expect(expiringResult.items[0].license?.expiryDate).toBeDefined();
   });
 });

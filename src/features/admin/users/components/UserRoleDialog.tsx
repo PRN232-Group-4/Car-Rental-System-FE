@@ -1,12 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
+import { useState } from "react";
+import type { FormEvent } from "react";
+import Link from "next/link";
+import { AlertTriangle, ExternalLink } from "lucide-react";
+import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
+import { ValidatedForm, InlineSelect, useInlineValidation } from "@/components/forms/inline-validation";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Role, ROLES } from "@/features/auth/roles";
-import { ShieldAlert, Plus } from "lucide-react";
+
+export const ROLES_REQUIRING_STAFF_PROFILE: readonly Role[] = [
+  "Staff",
+  "Manager",
+  "CustomerService",
+  "Maintenance",
+  "Driver",
+];
 
 export interface UserRoleDialogProps {
   open: boolean;
@@ -14,125 +24,193 @@ export interface UserRoleDialogProps {
   userId: number;
   userName: string;
   currentRoles: Role[];
+  hasStaffProfile?: boolean;
+  isSelf?: boolean;
   onAssignRole: (role: Role) => Promise<void>;
   isLoading?: boolean;
 }
 
-export function UserRoleDialog({
-  open,
+export function UserRoleDialog(props: UserRoleDialogProps) {
+  if (!props.open) return null;
+  return <UserRoleForm key={props.userId} {...props} />;
+}
+
+function UserRoleForm({
   onOpenChange,
+  userId,
   userName,
   currentRoles,
+  hasStaffProfile = false,
+  isSelf = false,
   onAssignRole,
   isLoading = false,
 }: UserRoleDialogProps) {
-  const availableRoles = ROLES.filter((r) => !currentRoles.includes(r));
-  const [selectedRole, setSelectedRole] = useState<Role | "">("");
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const availableRoles = ROLES.filter((role) => !currentRoles.includes(role));
+  const [role, setRole] = useState<Role | "">("");
+  const [confirming, setConfirming] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const validation = useInlineValidation();
+  const busy = isLoading || submitting;
 
-  const handleStartAssign = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRole) return;
-    setConfirmOpen(true);
+  const isRoleRequiringStaff = Boolean(role && ROLES_REQUIRING_STAFF_PROFILE.includes(role));
+  const isBlockedByMissingStaff = isRoleRequiringStaff && !hasStaffProfile;
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!role || busy) return;
+    if (isSelf) {
+      setError("Bạn không thể tự gán thêm vai trò cho chính mình. Thao tác này cần được thực hiện bởi quản trị viên khác.");
+      return;
+    }
+    if (isBlockedByMissingStaff) {
+      setError(`Vai trò '${role}' yêu cầu tài khoản phải có hồ sơ nhân viên trước khi được cấp quyền.`);
+      return;
+    }
+    if (!confirming) {
+      setConfirming(true);
+      return;
+    }
+    setError("");
+    setSubmitting(true);
+    try {
+      await onAssignRole(role);
+      onOpenChange(false);
+    } catch (failure) {
+      setError(validation.report(failure));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleConfirmAssign = async () => {
-    if (!selectedRole) return;
-    await onAssignRole(selectedRole as Role);
-    setConfirmOpen(false);
-    setSelectedRole("");
-    onOpenChange(false);
-  };
+  const isEmployeeProfileError = Boolean(
+    error && /hồ sơ nhân sự|hồ sơ nhân viên|employee profile/i.test(error),
+  );
 
   return (
-    <>
-      <Modal
-        open={open}
-        onOpenChange={onOpenChange}
-        title="Gán vai trò bổ sung"
-        description={`Phân quyền hạn truy cập cho người dùng ${userName}`}
-        size="md"
-      >
-        <form onSubmit={handleStartAssign} className="space-y-5">
-          <div className="rounded border border-td-rule bg-td-paper p-3.5 space-y-2">
-            <span className="text-xs font-semibold text-td-muted">Vai trò hiện tại:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {currentRoles.map((role) => (
-                <span
-                  key={role}
-                  className="rounded-md border border-td-rule bg-td-white px-2.5 py-1 font-mono text-xs font-bold text-td-ink"
+    <FormDialog
+      title={confirming ? "Xác nhận cấp quyền truy cập" : "Gán vai trò bổ sung"}
+      onClose={() => onOpenChange(false)}
+      busy={busy}
+    >
+      <ValidatedForm validation={validation} onSubmit={submit} className="space-y-5">
+        <p className="text-sm text-td-muted">
+          Phân quyền cho {userName}. Vai trò hiện tại: {currentRoles.join(", ") || "Chưa có"}.
+        </p>
+
+        {isSelf && (
+          <div role="alert" className="border-l-2 border-warning pl-3 text-xs text-warning">
+            Bạn đang xem tài khoản của chính mình. Quản trị viên không thể tự gán thêm vai trò cho chính mình để đảm bảo nguyên tắc kiểm soát chéo.
+          </div>
+        )}
+
+        {error && (
+          <div role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger space-y-1.5">
+            <p>{error}</p>
+            {isEmployeeProfileError && (
+              <div className="pt-1">
+                <Link
+                  href={`/admin/staffs/new?userId=${userId}`}
+                  onClick={() => onOpenChange(false)}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-td-oxide hover:underline"
                 >
-                  {role}
-                </span>
-              ))}
-            </div>
+                  <span>Đi tới trang Tạo hồ sơ nhân viên</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              </div>
+            )}
           </div>
+        )}
 
-          <FormField label="Chọn vai trò mới" required>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value as Role)}
-              className="flex h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
-              disabled={availableRoles.length === 0}
-            >
-              <option value="">-- Chọn vai trò cần phân bổ --</option>
-              {availableRoles.map((role) => (
-                <option key={role} value={role}>
-                  {role}
+        <FormField label="Chọn vai trò mới" htmlFor="role" required>
+          <InlineSelect
+            id="role"
+            name="role"
+            required
+            value={role}
+            disabled={busy || confirming || !availableRoles.length}
+            onChange={(event) => {
+              setRole(event.target.value as Role);
+              setError("");
+            }}
+            className="admin-input"
+          >
+            <option value="">Chọn vai trò cần phân bổ</option>
+            {availableRoles.map((value) => {
+              const requiresStaff = ROLES_REQUIRING_STAFF_PROFILE.includes(value);
+              const note = requiresStaff && !hasStaffProfile ? " (Yêu cầu hồ sơ nhân viên)" : "";
+              return (
+                <option key={value} value={value}>
+                  {value}{note}
                 </option>
-              ))}
-            </select>
-          </FormField>
+              );
+            })}
+          </InlineSelect>
+        </FormField>
 
-          {availableRoles.length === 0 && (
-            <p className="text-xs text-td-muted">
-              Tài khoản này đã sở hữu toàn bộ các vai trò trong hệ thống.
+        {isBlockedByMissingStaff && (
+          <div
+            role="status"
+            className="space-y-2 rounded border border-warning/40 bg-warning/10 p-3.5 text-xs text-td-ink"
+          >
+            <p className="font-bold text-warning flex items-center gap-1.5">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>Cần tạo hồ sơ nhân viên trước</span>
             </p>
-          )}
-
-          {selectedRole === "Admin" && (
-            <div className="flex items-start gap-2 rounded border border-warning/30 bg-warning-bg/40 p-3 text-xs text-warning">
-              <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>
-                <strong>Cảnh báo quan trọng:</strong> Vai trò Admin cho phép toàn quyền cấu hình,
-                xóa dữ liệu và quản trị nhân sự trên hệ thống.
-              </span>
+            <p className="text-td-muted">
+              Vai trò <strong className="text-td-ink">{role}</strong> yêu cầu người dùng phải có hồ sơ nhân sự (thuộc phòng ban, cơ sở làm việc). Tài khoản <strong className="text-td-ink">{userName}</strong> hiện chưa có hồ sơ nhân viên nội bộ.
+            </p>
+            <div className="pt-1">
+              <Link
+                href={`/admin/staffs/new?userId=${userId}`}
+                onClick={() => onOpenChange(false)}
+                className="inline-flex items-center gap-1.5 rounded bg-td-ink px-3 py-1.5 font-bold text-td-white hover:bg-td-teal transition-colors"
+              >
+                <span>Tạo hồ sơ nhân viên cho {userName}</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
             </div>
-          )}
-
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-td-rule">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => onOpenChange(false)}
-            >
-              Hủy
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={!selectedRole || isLoading}
-              isLoading={isLoading}
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              <span>Tiếp tục gán quyền</span>
-            </Button>
           </div>
-        </form>
-      </Modal>
+        )}
 
-      {/* Confirm Dialog Trước -> Sau */}
-      <ConfirmDialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        title="Xác nhận cấp quyền truy cập"
-        description={`Bạn có chắc chắn muốn cấp thêm vai trò ${selectedRole} cho người dùng ${userName}? Thay đổi sẽ có hiệu lực ngay trong phiên kế tiếp của người dùng.`}
-        confirmLabel="Xác nhận cấp vai trò"
-        cancelLabel="Quay lại"
-        variant="primary"
-        isPending={isLoading}
-        onConfirm={handleConfirmAssign}
-      />
-    </>
+        {confirming && !isBlockedByMissingStaff && (
+          <p className="border-l-2 border-td-oxide pl-3 text-sm text-td-ink">
+            Cấp thêm vai trò {role} cho {userName}. Các phiên đăng nhập hiện tại sẽ bị thu hồi để áp dụng quyền mới.
+          </p>
+        )}
+        {role === "Admin" && (
+          <p className="text-sm text-td-muted">
+            Vai trò Admin có toàn quyền quản trị hệ thống.
+          </p>
+        )}
+        {!availableRoles.length && (
+          <p className="text-sm text-td-muted">Tài khoản đã có tất cả vai trò.</p>
+        )}
+
+        <FormDialogFooter>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busy}
+            onClick={() => (confirming ? setConfirming(false) : onOpenChange(false))}
+          >
+            {confirming ? "Quay lại" : "Hủy"}
+          </Button>
+          <Button
+            type="submit"
+            disabled={busy || !availableRoles.length || isBlockedByMissingStaff || isSelf}
+            isLoading={busy}
+          >
+            {isSelf
+              ? "Không thể tự cấp vai trò"
+              : isBlockedByMissingStaff
+              ? "Cần tạo hồ sơ nhân viên trước"
+              : confirming
+              ? "Xác nhận cấp vai trò"
+              : "Tiếp tục gán quyền"}
+          </Button>
+        </FormDialogFooter>
+      </ValidatedForm>
+    </FormDialog>
   );
 }

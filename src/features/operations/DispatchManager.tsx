@@ -1,4 +1,6 @@
 "use client";
+
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { useState } from "react";
 import { formatAdminDateTime } from "@/lib/date-time";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
@@ -37,7 +39,7 @@ export default function DispatchManager() {
   const driverId = activeFilter.driverStaffId ? Number(activeFilter.driverStaffId) : undefined;
   const shifts = useQuery({ queryKey: ["dispatch-shifts", activeFilter], queryFn: () => getDriverShifts(from, to, driverId), retry: false });
   const schedule = useQuery({ queryKey: ["dispatch-schedule", activeFilter], queryFn: () => getDispatchSchedule(from, to, driverId), retry: false });
-  const driverOptions = (drivers.data ?? []).map((item) => ({ value: String(item.id), label: item.fullName?.trim() || item.email?.trim() || "Chưa có tên tài xế" }));
+  const driverOptions = (drivers.data ?? []).filter((item) => item.isActive).map((item) => ({ value: String(item.id), label: item.email?.trim() || "Chưa cập nhật email tài xế" }));
   const refresh = async () => { await Promise.all([shifts.refetch(), schedule.refetch()]); };
   return <div className="space-y-6">
     <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
@@ -81,7 +83,7 @@ export default function DispatchManager() {
         <tbody>
           {shifts.isPending ? <AdminTableSkeleton columns={5} label="Đang tải ca làm" /> : toList<DriverShift>(shifts.data).map((item) => (
             <tr key={item.id}>
-              <td className="font-semibold"><StaffName staffId={item.driverStaffId} name={driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
+              <td className="font-semibold"><StaffName staffId={item.driverStaffId} email={drivers.data?.find((driver) => driver.id === item.driverStaffId)?.email} /></td>
               <td className="text-td-muted">{dateLabel(item.startTime)}</td>
               <td className="text-td-muted">{dateLabel(item.endTime)}</td>
               <td><AdminStatusBadge domain="shift" status={item.status}>{item.status ?? "—"}</AdminStatusBadge></td>
@@ -104,7 +106,7 @@ export default function DispatchManager() {
         <tbody>
           {schedule.isPending ? <AdminTableSkeleton columns={6} label="Đang tải lịch chuyến" /> : toList<ScheduleEntry>(schedule.data).map((item, index) => (
             <tr key={item.assignmentId ?? index}>
-              <td><StaffName staffId={item.driverStaffId} name={item.driverName?.trim() || driverOptions.find((option) => option.value === String(item.driverStaffId))?.label} /></td>
+              <td><StaffName staffId={item.driverStaffId} email={drivers.data?.find((driver) => driver.id === item.driverStaffId)?.email} name={item.driverName} /></td>
               <td>{item.vehicleId != null ? <VehicleName vehicleId={item.vehicleId} /> : "Chưa có thông tin xe"}</td>
               <td className="text-td-muted">{dateLabel(item.startTime)}</td>
               <td className="text-td-muted">{dateLabel(item.endTime)}</td>
@@ -126,8 +128,8 @@ function ShiftForm({ record, drivers, close, saved }: { record: DriverShift | nu
   const fields: OperationField[] = [{ name: "driverStaffId", label: "Tài xế", required: true, options: [{ value: "", label: "Chọn tài xế" }, ...drivers] }, { name: "startTime", label: "Bắt đầu ca", type: "datetime-local", required: true }, { name: "endTime", label: "Kết thúc ca", type: "datetime-local", required: true }, { name: "cancelled", label: "Trạng thái ca", options: [{ value: "false", label: "Hoạt động" }, { value: "true", label: "Hủy ca" }] }];
   const submit = async () => {
     if (busy) return; setBusy(true); setError("");
-    try { await saveDriverShift({ driverStaffId: Number(values.driverStaffId), startTime: asIso(values.startTime), endTime: asIso(values.endTime), cancelled: values.cancelled === "true" }, record?.id); await saved(); close(); }
-    catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? operationalError(failure) : message); }
+    try { await saveDriverShift({ driverStaffId: Number(values.driverStaffId), startTime: asIso(values.startTime), endTime: asIso(values.endTime), cancelled: values.cancelled === "true" }, record?.id); notifySuccess(values.cancelled === "true" ? "Đã hủy ca làm." : record ? "Đã cập nhật ca làm." : "Đã tạo ca làm."); await saved(); close(); }
+    catch (failure) { const message = validation.report(failure); const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError); }
     finally { setBusy(false); }
   };
   return <FormDialog title={record ? "Cập nhật ca làm" : "Tạo ca làm mới"} onClose={close} busy={busy} size="xl"><ValidatedForm validation={validation} validate={() => validateBookingTimes(values.startTime, values.endTime)} onSubmit={submit} className="space-y-5"><fieldset disabled={busy}><OperationFields prefix="shift-edit" fields={fields} values={values} change={(name, value) => setValues((current) => ({ ...current, [name]: value }))} /></fieldset>{error && <p role="alert" className="text-danger">{error}</p>}<FormDialogFooter><button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang lưu..." : "Lưu ca làm"}</button><button type="button" disabled={busy} onClick={close} className="rounded border border-td-rule px-4 py-3 text-sm">Đóng</button></FormDialogFooter></ValidatedForm></FormDialog>;

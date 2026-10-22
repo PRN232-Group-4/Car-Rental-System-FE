@@ -27,7 +27,6 @@ import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
-import styles from "./transit-desk.module.css";
 
 const subscribeNoChange = () => () => {};
 const getReportIdFromUrl = () => {
@@ -160,7 +159,6 @@ export function IncidentTriage() {
                 const isSelected = activeReport?.id === report.id;
                 const isClosed = report.status === "resolved" || report.status === "rejected";
                 const isOverdue = isSlaBreached(report.createdAt, report.status);
-                const isUrgent = !isClosed && isOverdue;
                 const waitStr = getWaitTimeText(report.createdAt, report.resolvedAt);
 
                 return (
@@ -170,7 +168,7 @@ export function IncidentTriage() {
                     onClick={() => setManualReportId(report.id)}
                     className={`grid w-full grid-cols-12 items-start gap-3 py-3.5 px-2 text-left transition-colors cursor-pointer relative ${
                       isSelected ? "bg-td-chalk/70" : "hover:bg-td-chalk/30"
-                    } ${isUrgent ? styles.incidentOverduePulse : ""}`}
+                    }`}
                   >
                     {/* Active marker on left */}
                     {isSelected && (
@@ -180,15 +178,8 @@ export function IncidentTriage() {
                       />
                     )}
 
-                    <div className="col-span-2 font-mono text-xl font-bold text-td-oxide flex items-center gap-1.5">
-                      {isUrgent && (
-                        <span
-                          className={styles.incidentRadarDot}
-                          aria-label="Sự cố khẩn cấp quá hạn SLA"
-                          title="Sự cố khẩn cấp quá hạn SLA"
-                        />
-                      )}
-                      <span>{String(idx + 1).padStart(2, "0")}</span>
+                    <div className="col-span-2 font-mono text-xl font-bold text-td-oxide">
+                      {String(idx + 1).padStart(2, "0")}
                     </div>
 
                     <div className="col-span-7 min-w-0">
