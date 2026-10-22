@@ -1,5 +1,9 @@
 # Kế hoạch triển khai FE — Car Rental System FE
 
+## Cập nhật 2026-10-22 — Áp lại sửa lỗi hồ sơ customer trên FE mới
+
+Source mới `ae93988` chưa có bản sửa giới tính và GPLX mặc định; đã áp lại handler sự kiện an toàn và kiểm tra số GPLX ở `/profile`, `/driver-license`, giữ backend hiện có. Kiểm chứng trên source mới: 40/40 unit test liên quan và 4/4 Playwright Edge desktop/mobile đạt, API giả lập toàn bộ. Xem [spec](specs/FE-customer-profile-regressions.md) và [thay đổi](../changes/2026-10-22-customer-profile-regressions.md). Chưa deploy.
+
 ## Cập nhật 2026-10-21 — Dot và số việc chờ xử lý trên menu
 
 Transit Desk lấy tổng từ `GET /api/admin/navigation-counts`, hiện dot chương và số chính xác ở mục con, cập nhật mỗi 30 giây và sau xử lý thành công. Thêm Duyệt GPLX với bộ lọc pending, giữ quyền hiện hữu; đồng bộ snapshot Swagger/schema có API counts và giới hạn auth mới. 636/636 unit test, 8/8 E2E Edge desktop/mobile sáng/tối, typecheck/design lint và production static build đạt; ESLint 0 lỗi/25 cảnh báo có sẵn. Xem [change](../changes/2026-10-21-admin-navigation-work-counts.md), [spec](specs/FE-26-admin-navigation-work-counts.md). Chưa deploy.
