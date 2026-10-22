@@ -167,6 +167,8 @@ Cập nhật ngày: **2026-10-21**.
 | **Quản trị Tài khoản & Phân vai trò** | `/api/users/**` | Full (No self-assign) | — | — | — | — | — | — |
 | **Quản lý Danh mục Vai trò** | `/api/roles/**` | Full | — | — | — | — | — | — |
 | **Nhật ký Kiểm toán** | `/api/audit-logs` | View | View | — | — | — | — | — |
+| **Quản lý Nhân sự nội bộ (Staff)** | `/api/staff/**` | View | **Full (Tạo, Sửa, Gán trạm, Thôi việc)** | — | — | — | — | — |
+| **Quản lý Đội xe (Fleet)** | `/api/vehicles/**` | View | **Full (Thêm xe, Sửa xe, Xóa xe, Định giá)** | View (tra cứu) | — | View (kỹ thuật) | — | — |
 | **Cơ cấu Phòng ban & Chi nhánh** | `/api/facilities`, `/departments` | Full | View | — | — | — | — | — |
 | **Phân công Tài xế trước ca** | `/api/drivers/shifts`, `/assignments` | Approve | Approve | Create/Update | — | — | View (own) | — |
 | **Tìm xe khả dụng kèm tài xế** | `/api/vehicles/search` | View | View | View | View | View | View | View |

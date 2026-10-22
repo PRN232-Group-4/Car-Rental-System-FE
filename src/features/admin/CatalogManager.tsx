@@ -112,7 +112,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
   const isAdmin = hasRole("admin");
   const isManager = hasRole("manager");
   const canManage = isAdmin || isManager;
-  const canDelete = isAdmin;
+  const canDelete = canManage;
   const showActions = canManage;
 
   const info = catalogInfo[catalog];
