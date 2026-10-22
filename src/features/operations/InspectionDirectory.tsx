@@ -73,7 +73,7 @@ export default function InspectionDirectory() {
             <td className="font-mono">#{record.rentalId}</td>
             <td><span className="block font-semibold">{record.vehicleName || "Chưa cập nhật tên xe"}</span><span className="text-xs text-td-muted">{record.licensePlate || "Chưa có biển số"}</span></td>
             <td>{inspectionLabel(record.inspectionType)}</td>
-            <td className="break-all text-xs">{record.inspectorEmail || "Chưa cập nhật email"}</td>
+            <td className="break-all text-xs">{record.confirmationSource === "driver_default" ? "Hệ thống · Đơn có tài xế" : record.confirmationSource === "admin_confirmation" ? `Admin xác nhận · ${record.confirmedBy || "Chưa cập nhật"}` : record.inspectorEmail || "Chưa cập nhật email"}</td>
             <td><AdminStatusBadge domain="license" status={record.isOk == null ? "pending" : record.isOk ? "approved" : "rejected"}>{record.isOk == null ? "Chưa kết luận" : record.isOk ? "Đạt" : "Không đạt"}</AdminStatusBadge></td>
             <td className="whitespace-nowrap text-xs">{formatAdminDateTime(record.inspectedAt)}</td>
             <td data-actions><AdminRowAction action="view" label={`Xem biên bản ${inspectionLabel(record.inspectionType).toLowerCase()} đơn #${record.rentalId}`} onClick={() => setSelected(record)} /></td>
@@ -86,7 +86,7 @@ export default function InspectionDirectory() {
     {selected && <section className="space-y-4 border-t border-td-rule pt-5" aria-label="Chi tiết biên bản kiểm tra">
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-bold text-td-ink">{inspectionLabel(selected.inspectionType)} · Đơn #{selected.rentalId}</h2><button type="button" onClick={() => setSelected(null)} className="text-sm text-td-oxide underline">Đóng chi tiết</button></div>
       <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
-        <div><dt className="text-td-muted">Người kiểm tra</dt><dd className="break-all">{selected.inspectorEmail || "Chưa cập nhật email"}</dd></div>
+        <div><dt className="text-td-muted">Nguồn kiểm tra / xác nhận</dt><dd className="break-all">{selected.confirmationSource === "driver_default" ? "Hệ thống · Mặc định cho đơn có tài xế" : selected.confirmationSource === "admin_confirmation" ? `Admin xác nhận · ${selected.confirmedBy || "Chưa cập nhật"}` : selected.inspectorEmail || "Chưa cập nhật email"}</dd></div>
         <div><dt className="text-td-muted">Thời gian kiểm tra</dt><dd>{formatAdminDateTime(selected.inspectedAt)}</dd></div>
         <div><dt className="text-td-muted">Số km</dt><dd>{selected.odometerKm ?? "Chưa ghi nhận"}</dd></div>
         <div><dt className="text-td-muted">Mức nhiên liệu / pin</dt><dd>{selected.fuelBatteryLevel ?? "Chưa ghi nhận"}</dd></div>

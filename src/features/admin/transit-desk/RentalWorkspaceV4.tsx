@@ -35,15 +35,20 @@ import {
   operationalError,
   rentalStatuses,
   rentalTransitionBlocker,
+  canAssignRental,
+  isClosedRental,
   type OperationalRental,
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import TechnicianAssignmentForm from "@/features/operations/TechnicianAssignmentForm";
+import RentalReturnStatus from "@/features/operations/RentalReturnStatus";
+import RentalOperationalBadge from "@/features/operations/RentalOperationalBadge";
+import RentalCancellationReason from "@/features/operations/RentalCancellationReason";
+import RentalCancelDialog from "@/features/operations/RentalCancelDialog";
 import VehicleName from "@/features/admin/VehicleName";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
-import TransitDeskStatus from "./TransitDeskStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useOptionalSession } from "@/features/auth/AuthContext";
 import { gsap } from "@/lib/motion/register";
@@ -63,6 +68,12 @@ export function formatCurrencySafe(value?: number | null): string {
     return "Chưa có dữ liệu";
   }
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
+}
+
+function rentalTypeLabel(value?: string | null): string {
+  if (value === "hourly") return "Thuê giờ";
+  if (value === "longterm") return "Dài hạn";
+  return "Chưa rõ loại thuê";
 }
 
 function isValidRental(data: unknown): data is OperationalRental {
@@ -271,7 +282,7 @@ export function RentalWorkspaceV4() {
   const { data: drivers = [], isPending: isDriversPending, error: driversError, refetch: refetchDrivers } = useQuery({
     queryKey: ["operational-drivers"],
     queryFn: getOperationalDrivers,
-    enabled: canMutate && !!activeRental,
+    enabled: canMutate && !!activeRental && canAssignRental(activeRental.status),
     retry: false,
   });
 
@@ -280,6 +291,7 @@ export function RentalWorkspaceV4() {
     queryKey: ["operational-rentals-queue", queueFilter],
     queryFn: () => listOperationalRentals({ status: queueFilter === "all" ? undefined : queueFilter, page: 1, pageSize: 30 }),
     staleTime: 30000,
+    refetchInterval: 30000,
     enabled: canMutate,
   });
 
@@ -362,7 +374,7 @@ export function RentalWorkspaceV4() {
   // Handle driver assignment
   const handleAssignDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeRental || !canMutate || assignmentLock.current || isDriversPending || driversError) return;
+    if (!activeRental || !canMutate || !canAssignRental(activeRental.status) || assignmentLock.current || isDriversPending || driversError) return;
     assignmentLock.current = true;
     setIsAssigning(true);
     setAssignMessage(null);
@@ -448,6 +460,7 @@ export function RentalWorkspaceV4() {
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    if (pendingTargetStatus === "cancelled") return;
     if (isConfirmOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
       // Focus modal dialog button
@@ -459,18 +472,18 @@ export function RentalWorkspaceV4() {
       previousFocusRef.current.focus();
       previousFocusRef.current = null;
     }
-  }, [isConfirmOpen]);
+  }, [isConfirmOpen, pendingTargetStatus]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isConfirmOpen) {
+      if (e.key === "Escape" && isConfirmOpen && pendingTargetStatus !== "cancelled") {
         setIsConfirmOpen(false);
         setPendingTargetStatus(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isConfirmOpen]);
+  }, [isConfirmOpen, pendingTargetStatus]);
 
   // Current active step index
   const currentStepIndex = useMemo(() => {
@@ -514,7 +527,7 @@ export function RentalWorkspaceV4() {
       case "renting":
         return {
           targetStatus: "post_inspection",
-          label: "Thu hồi xe & Kiểm tra trả",
+          label: "Xác nhận đã nhận lại xe",
           description: "Tiếp nhận xe trả tại trạm và kiểm tra hiện trạng",
           consequential: false,
         };
@@ -587,6 +600,7 @@ export function RentalWorkspaceV4() {
                   <option value="pending">Chờ xử lý</option>
                   <option value="pre_inspection">Kiểm tra trước</option>
                   <option value="renting">Đang thuê</option>
+                  <option value="overdue">Quá hạn</option>
                   <option value="post_inspection">Kiểm tra trả</option>
                   <option value="completed">Đã hoàn tất</option>
                 </select>
@@ -622,9 +636,7 @@ export function RentalWorkspaceV4() {
                   <VehicleName vehicleId={activeRental.vehicleId} />
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-[var(--v4-mineral)]">
-                  <TransitDeskStatus domain="rental" status={activeRental.status} className="scale-90 origin-left">
-                    {rentalStatuses[activeRental.status] || activeRental.status}
-                  </TransitDeskStatus>
+                  <RentalOperationalBadge rental={activeRental} />
                   <span>{activeRental.hasDriver ? "Có tài xế" : "Tự lái"}</span>
                 </div>
               </div>
@@ -655,15 +667,13 @@ export function RentalWorkspaceV4() {
                       <span className={`font-mono font-bold text-xs ${isSelected ? "text-[var(--td-vv-peach)]" : "text-[var(--td-vv-violet)]"} ${styles.queueId}`}>
                         #{item.id}
                       </span>
-                      <TransitDeskStatus domain="rental" status={item.status} className="scale-90 origin-right">
-                        {rentalStatuses[item.status || ""] || item.status}
-                      </TransitDeskStatus>
+                      <RentalOperationalBadge rental={item} />
                     </div>
                     <div className="text-xs font-semibold text-[var(--v4-ink)] truncate">
                       {item.vehicleName || "Phương tiện #" + item.vehicleId}
                     </div>
                     <div className="flex items-center justify-between text-[11px] text-[var(--v4-mineral)]">
-                      <span>{item.rentalType === "hourly" ? "Thuê giờ" : "Dài hạn"}</span>
+                      <span>{rentalTypeLabel(isSelected ? activeRental?.rentalType ?? item.rentalType : item.rentalType)}</span>
                       {item.endTime && (
                         <span>Hạn: {formatAdminDateTime(item.endTime).slice(0, 10)}</span>
                       )}
@@ -714,9 +724,7 @@ export function RentalWorkspaceV4() {
 
             {activeRental && (
               <div className="flex items-center gap-2">
-                <TransitDeskStatus domain="rental" status={activeRental.status}>
-                  {rentalStatuses[activeRental.status] || activeRental.status}
-                </TransitDeskStatus>
+                <RentalOperationalBadge rental={activeRental} />
                 {activeRental.contractLink && (
                   <a
                     href={activeRental.contractLink}
@@ -852,6 +860,7 @@ export function RentalWorkspaceV4() {
           ) : (
             <>
               {/* ADAPTIVE HORIZONTAL STEPPER RAIL (ZERO COLLISION) */}
+              <RentalCancellationReason key={`cancel-reason-${activeRental.id}`} rental={activeRental} />
               <div className={styles.stepperContainer} aria-label="Tiến trình vòng đời hợp đồng">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-[var(--v4-mineral)]">
@@ -966,7 +975,7 @@ export function RentalWorkspaceV4() {
                     <div className="text-right">
                       <span className="text-[11px] text-[var(--v4-mineral)] block">Hình thức</span>
                       <span className="text-xs font-semibold text-[var(--v4-ink)]">
-                        {activeRental.hasDriver ? "Có tài xế" : "Khách tự lái"} · {activeRental.rentalType === "hourly" ? "Thuê giờ" : "Dài hạn"}
+                        {activeRental.hasDriver ? "Có tài xế" : "Khách tự lái"} · {rentalTypeLabel(activeRental.rentalType)}
                       </span>
                     </div>
                     <div className="text-right pl-4 border-l border-[var(--v4-rule)]">
@@ -1058,12 +1067,14 @@ export function RentalWorkspaceV4() {
                     </div>
                     <span className="text-[10px] text-[var(--v4-mineral)] block truncate">
                       {activeRental.status === "completed"
-                        ? "Đã tất toán & bàn giao xe"
+                        ? "Đã hoàn tất trả xe"
                         : "Hạn trả xe dự kiến"}
                     </span>
                   </div>
                 </div>
               </div>
+
+              <RentalReturnStatus key={activeRental.id} rental={activeRental} />
 
               {/* LIVE GPS MONITORING PANEL */}
               <div className="space-y-1">
@@ -1166,6 +1177,13 @@ export function RentalWorkspaceV4() {
                   </div>
                 )}
 
+                {["pending", "pre_inspection"].includes(activeRental.status) && <button
+                  type="button"
+                  onClick={() => handleInitiateStatusChange("cancelled")}
+                  disabled={isUpdatingStatus || !canMutate}
+                  className={styles.secondaryActionButton}
+                >Hủy đơn thuê</button>}
+
                 {statusMessage && (
                   <div role="status" aria-live="polite" className="text-xs p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
                     {statusMessage}
@@ -1176,7 +1194,7 @@ export function RentalWorkspaceV4() {
               <TechnicianAssignmentForm key={activeRental.id} rental={activeRental} refresh={refetchRental} />
 
               {/* SHELF 2: VEHICLE & DRIVER ASSIGNMENT (MIDDLE SHELF) */}
-              <div className={styles.commandShelf}>
+              {canAssignRental(activeRental.status) && <div className={styles.commandShelf}>
                 <div className="flex items-center gap-2">
                   <UserCheck className="h-4 w-4 text-[var(--color-champagne)]" />
                   <span className="text-xs font-bold text-[var(--v4-ink)]">
@@ -1236,10 +1254,10 @@ export function RentalWorkspaceV4() {
                     </div>
                   )}
                 </ValidatedForm>
-              </div>
+              </div>}
 
               {/* SHELF 3: COLLAPSED MANUAL OVERRIDE (BOTTOM SHELF) */}
-              {canOverrideStatus && (
+              {canOverrideStatus && !isClosedRental(activeRental.status) && (
                 <div className={styles.commandShelf}>
                   <details className={styles.overrideDisclosure}>
                     <summary className={styles.overrideSummary}>
@@ -1270,7 +1288,7 @@ export function RentalWorkspaceV4() {
                         <option value="renting">Bàn giao & Đang thuê (renting)</option>
                         <option value="post_inspection">Nhận xe & Kiểm tra trả (post_inspection)</option>
                         <option value="completed">Hoàn tất & Quyết toán (completed)</option>
-                        <option value="cancelled">Hủy hợp đồng thuê (cancelled)</option>
+                        {["pending", "pre_inspection"].includes(activeRental.status) && <option value="cancelled">Hủy hợp đồng thuê (cancelled)</option>}
                       </InlineSelect>
 
                       <button
@@ -1294,7 +1312,13 @@ export function RentalWorkspaceV4() {
       {/* ========================================================================= */}
       {/* CONFIRMATION MODAL FOR TERMINAL ACTIONS (BUSINESS-SAFE DISTINCT COPY)     */}
       {/* ========================================================================= */}
-      {isConfirmOpen && activeRental && (
+      {isConfirmOpen && activeRental && pendingTargetStatus === "cancelled" && <RentalCancelDialog
+        key={activeRental.id}
+        rental={activeRental}
+        close={() => { setIsConfirmOpen(false); setPendingTargetStatus(null); }}
+        refresh={refetchRental}
+      />}
+      {isConfirmOpen && activeRental && pendingTargetStatus !== "cancelled" && (
         <div
           className={styles.modalOverlay}
           role="dialog"

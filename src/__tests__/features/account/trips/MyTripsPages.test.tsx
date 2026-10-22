@@ -47,7 +47,7 @@ describe("FE-07 My Trips — Component Tests", () => {
       };
       if (path === "rentals/mine/101") return {
         id: 101, status: "pending", rentalType: "hourly", isSubscription: false,
-        vehicle: { id: 1, brand: "VinFast", model: "VF 8 Plus" }, facility: "Chi nhánh Quận 1",
+        vehicle: { id: 1, brand: "VinFast", model: "VF 8 Plus" }, facility: { id: 5, name: "Chi nhánh Quận 1", phone: "0281234567" },
         start: "2027-01-02T08:00:00Z", end: "2027-01-03T08:00:00Z", hasDriver: false, canCancel: true,
         price: { rent: 2200000, vat: 220000, deposit: 280000, overtime: 0, total: 2700000 },
         inspections: [], timeline: [{ to: "pending", at: "2027-01-01T08:00:00Z", actor: "customer" }],
@@ -67,6 +67,7 @@ describe("FE-07 My Trips — Component Tests", () => {
 
       // Kiểm tra xe trong tab sắp tới xuất hiện
       expect(await screen.findByText("VinFast VF 8 Plus")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Hủy đơn thuê #101" })).toBeInTheDocument();
     });
   });
 
@@ -78,6 +79,7 @@ describe("FE-07 My Trips — Component Tests", () => {
       expect(screen.getByText("Mã yêu cầu: #101 · Chưa phát hành đơn chính thức")).toBeInTheDocument();
       expect(screen.getByText("Tiến trình đơn thuê")).toBeInTheDocument();
       expect(screen.getByText("Thông tin hành trình & Bàn giao")).toBeInTheDocument();
+      expect(screen.getByText("Chi nhánh Quận 1")).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /hủy chuyến/i })).toBeInTheDocument();
     });
   });

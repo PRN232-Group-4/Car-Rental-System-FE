@@ -7,6 +7,8 @@ import * as operationsApi from "@/features/operations/api";
 import { RENTAL_101 } from "./rental-fixture";
 
 beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
+  HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
   global.ResizeObserver = class {
     observe() {}
     unobserve() {}
@@ -91,6 +93,19 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
   });
 
   describe("Gate 1: Truthful States & Provenance", () => {
+    it.each(["cancelled", "completed"])("keeps %s rentals read-only without loading drivers", async status => {
+      mockSearchParams = new URLSearchParams("rentalId=101");
+      vi.spyOn(operationsApi,"getOperationalRental").mockResolvedValue({...RENTAL_101,status});
+      vi.spyOn(operationsApi,"getOperationalRentalDetail").mockResolvedValue({rental:{cancelReason:"Khách đổi lịch"},history:[]} as never);
+      const assign=vi.spyOn(operationsApi,"assignRental");
+      renderWithClient(<RentalWorkspaceV4 />);
+      await screen.findByText(`Hồ sơ hợp đồng đã ở trạng thái kết thúc (${status}).`);
+      expect(screen.queryByRole("button",{name:"Lưu phân công"})).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Tài xế nhận lệnh")).not.toBeInTheDocument();
+      expect(screen.queryByText("Ghi đè trạng thái thủ công")).not.toBeInTheDocument();
+      expect(operationsApi.getOperationalDrivers).not.toHaveBeenCalled();
+      expect(assign).not.toHaveBeenCalled();
+    });
     it("renders truthful empty message when work queue has no items", async () => {
       vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValueOnce({
         items: [],
@@ -267,7 +282,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       await waitFor(() => expect(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" })).toBeEnabled());
       rentalSpy.mockResolvedValue(renting);
       fireEvent.click(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" }));
-      await screen.findByRole("button", { name: "Thu hồi xe & Kiểm tra trả" });
+      await screen.findByRole("button", { name: "Xác nhận đã nhận lại xe" });
       expect(statusSpy).toHaveBeenCalledExactlyOnceWith(101, "renting");
       expect(await screen.findByText("Đã cập nhật đơn thuê sang trạng thái: Đang thuê")).toBeInTheDocument();
     });
@@ -279,7 +294,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       renderWithClient(<RentalWorkspaceV4 />);
       fireEvent.click(await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" }));
       expect(await screen.findByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.")).toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Thu hồi xe & Kiểm tra trả" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Xác nhận đã nhận lại xe" })).not.toBeInTheDocument();
     });
 
     it("provides prominent primary guided action corresponding to next operational state", async () => {
@@ -289,7 +304,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Hành động tiếp theo hợp lệ")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Xác nhận đã nhận lại xe" })).toBeInTheDocument();
       });
     });
 
@@ -337,7 +352,8 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
     it("opens distinct cancellation modal when cancelled status is chosen", async () => {
       mockSearchParams = new URLSearchParams("rentalId=101");
-      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({...RENTAL_101,status:"pre_inspection"});
+      const statusSpy = vi.spyOn(operationsApi, "cancelOperationalRental").mockResolvedValueOnce({} as never);
 
       renderWithClient(<RentalWorkspaceV4 />);
 
@@ -360,14 +376,15 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
         expect(screen.getByText("Xác nhận hủy hợp đồng thuê")).toBeInTheDocument();
-        expect(screen.getByText("Hủy bỏ ngay lập tức")).toBeInTheDocument();
+        expect(screen.getByLabelText("Lý do hủy *")).toBeInTheDocument();
       });
 
+      fireEvent.change(screen.getByLabelText("Lý do hủy *"), {target:{value:"Khách đổi lịch thuê"}});
       const confirmBtn = screen.getByRole("button", { name: "Xác nhận hủy đơn" });
       fireEvent.click(confirmBtn);
 
       await waitFor(() => {
-        expect(statusSpy).toHaveBeenCalledWith(101, "cancelled");
+        expect(statusSpy).toHaveBeenCalledWith(101, "Khách đổi lịch thuê");
       });
     });
   });

@@ -15,6 +15,9 @@ export interface Invoice {
   paymentBlockedReason?: string | null;
   paymentMethod?: "payos" | "cash" | string;
   orderId?: number | string | null;
+  kind?: string;
+  canConfirmCash?: boolean;
+  canCreateStaffCheckout?: boolean;
 }
 
 export interface CheckoutResult {

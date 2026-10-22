@@ -33,6 +33,19 @@ export function assignInspectionTechnician(rentalId: number, technicianStaffId: 
   return backendApiClient.put<InspectionAssignment>(`rentals/${rentalId}/inspection-assignment`, { technicianStaffId });
 }
 
+export function confirmInspectionChecked(rentalId: number, technicianStaffId: number) {
+  return backendApiClient.post<InspectionAssignment>(`rentals/${rentalId}/inspection-assignment/checked`, { technicianStaffId });
+}
+
+export function inspectionConfirmationError(error: unknown): string | null {
+  if (error instanceof ApiClientError && error.status === 404) {
+    return error.code === "RENTAL_NOT_FOUND"
+      ? "Không tìm thấy đơn thuê. Vui lòng tải lại hồ sơ đơn."
+      : "Backend đang kết nối chưa có API xác nhận kiểm tra đạt. Cần cập nhật backend mới cùng migration 0028 rồi thử lại.";
+  }
+  return null;
+}
+
 export function isInspectionTechnician(staff: StaffDto): boolean {
   return staff.isActive && (staff.roles
     ? staff.roles.some((role) => role.toLowerCase() === "maintenance")

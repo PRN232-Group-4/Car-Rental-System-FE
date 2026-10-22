@@ -1,5 +1,47 @@
 # Kế hoạch triển khai FE — Car Rental System FE
 
+## Cập nhật 2026-10-22 — Quá hạn và thu phí sau trả xe
+
+Đã có nhãn/bộ lọc Quá hạn ở Admin, dấu trả trễ trong hồ sơ và panel thu phí phần thiếu bằng cash/PayOS theo cờ backend; chỉ hiển thị paid từ dữ liệu máy chủ. 60 unit/integration FE, 15 Edge E2E và 109 backend tests liên quan đạt; TypeScript/design lint đạt. Cần backend source mới, chưa deploy/chưa thử PayOS tiền thật. Xem [spec](specs/FE-overdue-collection.md), [thay đổi](../changes/2026-10-22-overdue-collection.md).
+
+## Cập nhật 2026-10-22 — Danh sách tài xế trong điều phối
+
+Điều phối có danh sách tài xế đang hoạt động độc lập với ca/chuyến, phân trang và Xếp ca chọn sẵn người. Có trạng thái chưa có ca, lỗi/tải lại và làm mới sau thay đổi nhân sự/vai trò. 21 unit API và 6 Edge E2E desktop/mobile đạt; TypeScript/design lint/ESLint đạt. Xem [thay đổi](../changes/2026-10-22-dispatch-driver-directory.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Lý do hủy đơn
+
+Đã hiện trực tiếp lý do và thời gian hủy trong Admin workspace/tra cứu, Customer my-rentals và account trip detail. Admin đọc nested detail/history, Customer đọc timeline đã lưu; có retry khi lỗi, nêu rõ dữ liệu cũ chưa ghi nhận. Xem [thay đổi](../changes/2026-10-22-show-cancellation-reason.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Đơn kết thúc không còn thao tác phân công
+
+Ẩn phân xe/tài xế và ghi đè trạng thái ở cancelled/completed; ngừng tải tài xế và chặn hàm gửi khi trạng thái không cho phép. Giữ lịch sử/biên bản đọc được. 45 unit/integration, 14 E2E, TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-closed-rental-assignment.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Hủy Customer/Admin và lỗi phiên bản inspect
+
+Tiếp tục: đã đồng bộ hủy ở cả account trips list/detail, thay dialog cũ bằng shared preview/validation. 71 unit/integration, 22 Customer E2E và 20 Admin E2E đạt; TypeScript/design lint/ESLint sạch. Người dùng xác nhận chỉ sửa source, không triển khai Railway.
+
+Nút hủy Customer có ở danh sách/chi tiết trước renting, dialog đọc phí/hoàn tiền từ preview và giữ dữ liệu khi lỗi; Admin giữ nút hủy tương ứng. Inspect 404 báo rõ thiếu API trên backend Railway (đã xác nhận bằng Swagger). 53 unit/integration, 38 E2E desktop/mobile, TypeScript/design lint/ESLint đạt; backend 148 tests đạt. Cần triển khai BE/migration 0028 để hoạt động trên môi trường đang mở. Xem [thay đổi](../changes/2026-10-22-inspect-version-and-customer-cancel.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Nút Đã inspect và Hủy đơn thuê
+
+Đã đặt nút Đã inspect dưới lưu phân công, dùng kỹ thuật viên giao sẵn. Bảng lệnh thêm Hủy đơn thuê ở pending/pre_inspection, yêu cầu lý do và xác nhận qua lifecycle `/cancel`; renting trở đi ẩn/chặn hủy. 52 unit/integration và 20 E2E đạt; TypeScript/design lint đạt, ESLint không lỗi (7 warning cũ). Xem [thay đổi](../changes/2026-10-22-inspect-and-cancel-actions.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Xe chưa thuê và kiểm tra theo hình thức lái
+
+Customer dùng public search thống nhất, chọn có tài xế/tự lái cho cả hourly/longterm. GPLX chỉ chặn tự lái. Admin đọc readiness mặc định của đơn có tài xế; tự lái có phân công chờ kỹ thuật hoặc Admin xác nhận phân công và kiểm tra đạt. Directory phân biệt nguồn/người xác nhận. 68 unit, 28 E2E, TypeScript/design lint/ESLint đạt; backend 244 tests liên quan đạt. Cần backend/migration 0028 đồng bộ. Xem [spec](specs/FE-rental-inspection-modes.md) và [thay đổi](../changes/2026-10-22-customer-availability-inspection-modes.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Tài xế, trả xe và phí quá hạn
+
+Booking và tiến trình customer phân biệt yêu cầu tài xế với đã phân công. Admin có tình trạng trả xe/returnedAt/cảnh báo quá hạn và phí từ settlement. Nút nhận xe dùng `/return`; hoàn tất dùng `/complete` để ghi giờ nhận, tính phí theo chính sách và xử lý cọc/hóa đơn sau kiểm tra. 34/34 unit API/workspace, 71/71 backend lifecycle/domain và 18 E2E liên quan đạt; TypeScript/design lint/ESLint đạt. Xem [spec](specs/FE-rental-driver-and-return.md), [thay đổi](../changes/2026-10-22-driver-assignment-and-return.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Danh sách Admin mới nhất trước
+
+Sắp toàn bộ danh mục phòng ban/loại xe/gói/cơ sở theo ID giảm dần trước chia trang, mặc định nhân viên theo ID thay vì ngày vào làm. Backend xếp xe/customer/GPLX/cơ sở/vai trò/nhân viên trước phân trang SQL; giữ lịch/ca và dashboard theo nghiệp vụ. 14/14 unit test liên quan, TypeScript và ESLint đạt. Xem [thay đổi](../changes/2026-10-22-admin-newest-first.md). Chưa deploy; cần khởi động lại backend.
+
+## Cập nhật 2026-10-22 — Tiến trình customer và loại thuê Admin
+
+Sửa crash do render object cơ sở tại tiến trình customer, đồng bộ adapter chi tiết chuyến đi, thêm mục theo dõi vào account desktop/mobile. Hàng đợi Admin hiển thị đúng giờ/dài hạn và không suy diễn khi API cũ thiếu loại; backend bổ sung `rentalType` từ DB. 10/10 E2E và 53/53 unit test liên quan, TypeScript/design lint đạt; ESLint 0 lỗi/7 cảnh báo sẵn có. Xem [thay đổi](../changes/2026-10-22-rental-progress-and-types.md). Chưa deploy; cần khởi động lại backend để danh sách trả trường mới.
+
 ## Cập nhật 2026-10-22 — Áp lại sửa lỗi hồ sơ customer trên FE mới
 
 Source mới `ae93988` chưa có bản sửa giới tính và GPLX mặc định; đã áp lại handler sự kiện an toàn và kiểm tra số GPLX ở `/profile`, `/driver-license`, giữ backend hiện có. Kiểm chứng trên source mới: 40/40 unit test liên quan và 4/4 Playwright Edge desktop/mobile đạt, API giả lập toàn bộ. Xem [spec](specs/FE-customer-profile-regressions.md) và [thay đổi](../changes/2026-10-22-customer-profile-regressions.md). Chưa deploy.

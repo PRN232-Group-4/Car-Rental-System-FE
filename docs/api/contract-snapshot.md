@@ -1,5 +1,9 @@
 # Snapshot Hợp Đồng API — Car Rental System (VRS Thong Dong)
 
+## Bổ sung source 22/10/2026 — Quá hạn và thu phí sau trả xe
+
+GET rentals nhận status=overdue, lọc phía server trước phân trang; item thêm isOverdue boolean, lifecycle status vẫn renting. Invoice detail thêm kind/canConfirmCash/canCreateStaffCheckout. Staff POST `/invoices/{id}/staff-checkout` trả CheckoutResult cho overtime liên kết settlement completed; POST cash-confirmation thu overtime tiền mặt trước checkout_started_at, idempotent, có audit. Quyền Admin/Manager/CustomerService, không nhận amount/paid/email từ client, webhook mới ghi paid online. Backend cần cùng phiên bản source; chưa deploy. Xem [spec FE](../specs/FE-overdue-collection.md), [API backend](../../../Car-Rental-System-BE/docs/API.md).
+
 > **Cập nhật:** 15/10/2026  
 > **Nguồn đối chiếu:** Toàn bộ 18 controller tại `../Car-Rental-System-BE/src/VehicleRental.WebApi/Controllers/*.cs`, Application Contracts/DTOs, middleware `ApiSuccessResponseFilter`, `AuthorizationPolicies.cs`, DB migrations `0001`–`0018` và `Init.sql`.  
 > **Mục đích:** Cung cấp nguồn sự thật duy nhất (Single Source of Truth) cho tất cả module FE (`FE-02` đến `FE-25`) theo quy định tại mục 8 của `docs/specs/FE-FOUNDATION.md`. Mọi spec FE chỉ tin snapshot này; nếu spec có ví dụ khác biệt, snapshot này là căn cứ quyết định.

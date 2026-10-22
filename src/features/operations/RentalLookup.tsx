@@ -1,6 +1,6 @@
 "use client";
 import { formatAdminDateTime } from "@/lib/date-time";
-import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import RentalOperationalBadge from "./RentalOperationalBadge";
 import VehicleName from "@/features/admin/VehicleName";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import { FormSkeleton } from "@/components/ui/Skeleton";
@@ -13,10 +13,11 @@ import Link from "@/components/navigation/NavigationLink";
 import { Search } from "lucide-react";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
 import { InlineInput, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
-import { getOperationalRental, operationalError, operationsPanel, rentalStatuses } from "./api";
+import { getOperationalRental, operationalError, operationsPanel } from "./api";
 import type { OperationalRental } from "./api";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import RentalStatusTracker from "@/features/rentals/components/RentalStatusTracker";
+import RentalCancellationReason from "./RentalCancellationReason";
 
 export default function RentalLookup({ title, children, staffLinks = true }: { title: string; staffLinks?: boolean; children: (rental: OperationalRental, refresh: () => Promise<unknown>) => ReactNode }) {
   const params = useSearchParams();
@@ -41,8 +42,9 @@ export default function RentalLookup({ title, children, staffLinks = true }: { t
     {query.isFetching && !query.data && <FormSkeleton label="Đang tải thông tin đơn thuê" fields={4} />}
     {query.data && <>
       <section className={operationsPanel}>
-        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{query.data.orderId ? `Đơn thuê chính thức #${query.data.orderId}` : `Yêu cầu thuê #${query.data.id}`}</h2><AdminStatusBadge domain="rental" status={query.data.status}>{rentalStatuses[query.data.status] ?? query.data.status}</AdminStatusBadge></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{query.data.orderId ? `Đơn thuê chính thức #${query.data.orderId}` : `Yêu cầu thuê #${query.data.id}`}</h2><RentalOperationalBadge rental={query.data} /></div>
         <RentalStatusTracker status={query.data.status} />
+        {staffLinks && <RentalCancellationReason key={`cancel-reason-${query.data.id}`} rental={query.data} />}
         <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <div><dt className="text-td-muted">Khách hàng</dt><dd>#{query.data.customerId ?? "—"}</dd></div><div className="sm:col-span-2 lg:col-span-1"><dt className="mb-2 text-td-muted">Phương tiện</dt><dd><VehicleName vehicleId={query.data.vehicleId} /></dd></div>
           <div><dt className="text-td-muted">Nhận xe</dt><dd>{formatAdminDateTime(query.data.startTime)}</dd></div><div><dt className="text-td-muted">Trả xe</dt><dd>{formatAdminDateTime(query.data.endTime)}</dd></div>
