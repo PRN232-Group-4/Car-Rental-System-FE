@@ -9,7 +9,7 @@ import { bookingLicenseHref, hasCustomerLicense } from "@/features/licenses/book
 import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 
-export default function BookingLicenseGate({ children }: { children: ReactNode }) {
+export default function BookingLicenseGate({ children, requireLicense = false }: { children: ReactNode; requireLicense?: boolean }) {
   const router = useNavigationRouter();
   const params = useSearchParams();
   const { isLoading: authLoading, isAuthenticated } = useAuth();
@@ -18,22 +18,26 @@ export default function BookingLicenseGate({ children }: { children: ReactNode }
   const license = useQuery({
     queryKey: ["customer-license"],
     queryFn: getCustomerLicense,
-    enabled: !authLoading && isAuthenticated,
+    enabled: requireLicense && !authLoading && isAuthenticated,
     retry: false,
     refetchOnMount: "always",
   });
   const checked = license.isFetchedAfterMount && !license.isPending;
-  const needsLicense = checked && !license.isError && !hasCustomerLicense(license.data);
+  const needsLicense = requireLicense && checked && !license.isError && !hasCustomerLicense(license.data);
 
   useEffect(() => {
+    if (!requireLicense) return;
     if (authLoading) return;
     if (!isAuthenticated) {
       router.replace(`/login?next=${encodeURIComponent(bookingPath)}`);
     } else if (needsLicense) {
       router.replace(bookingLicenseHref(bookingPath));
     }
-  }, [authLoading, isAuthenticated, needsLicense, bookingPath, router]);
+  }, [requireLicense, authLoading, isAuthenticated, needsLicense, bookingPath, router]);
 
+  // Chauffeur-only: khách đi xe có tài xế nên GPLX chỉ là hồ sơ tuỳ chọn, không chặn đặt xe.
+  // Giữ cổng này để bật lại khi mở thuê tự lái.
+  if (!requireLicense) return children;
   if (authLoading || !isAuthenticated || !checked) {
     return <FormSkeleton label="Đang kiểm tra giấy phép lái xe trước khi đặt xe..." />;
   }
