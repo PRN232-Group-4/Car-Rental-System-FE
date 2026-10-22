@@ -1,7 +1,7 @@
 import type { CustomerLicense } from "./types";
 
 /** New customers can have a pending placeholder record with no license number. */
-export function hasCustomerLicense(license: CustomerLicense | null | undefined): boolean {
+export function hasCustomerLicense(license: (Omit<CustomerLicense, "status"> & { status?: string | null }) | null | undefined): boolean {
   return Boolean(license?.number?.trim()) && license?.status !== "none";
 }
 

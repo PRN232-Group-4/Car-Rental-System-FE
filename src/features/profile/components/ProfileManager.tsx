@@ -26,6 +26,7 @@ import {
   updateAccountProfile,
 } from "../api";
 import { saveCustomerLicense } from "@/features/licenses/api";
+import { hasCustomerLicense } from "@/features/licenses/booking-license";
 import { ApiClientError } from "@/api/api-client";
 import { useAuth } from "@/features/auth";
 import ChangePasswordForm from "./ChangePasswordForm";
@@ -102,7 +103,7 @@ export default function ProfileManager() {
           setIssueDate(license.issueDate?.slice(0, 10) ?? "");
           setExpiryDate(license.expiryDate?.slice(0, 10) ?? "");
           setLicenseImageUrl(license.imageUrl ?? "");
-          setLicenseStatus(license.status ?? "");
+          setLicenseStatus(hasCustomerLicense(license) ? license.status ?? "" : "");
         }
       } catch (loadError) {
         if (active) {
@@ -118,7 +119,7 @@ export default function ProfileManager() {
     };
   }, [authLoading, isAuthenticated, router]);
 
-  const updateDetails = (event: ChangeEvent<HTMLInputElement>) => {
+  const updateDetails = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.currentTarget;
     setDetails((current) => ({ ...current, [name]: value }));
     setProfileSaved(false);
@@ -341,7 +342,7 @@ export default function ProfileManager() {
                   />
                 </FormField>
                 <FormField label="Giới tính" htmlFor="gender" icon={<UserRound className="h-4 w-4" />}>
-                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded border border-td-rule bg-td-white/75 px-4 py-3 text-sm text-td-ink outline-none transition focus:border-primary focus:bg-td-white focus:ring-4 focus:ring-primary/10">
+                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={updateDetails} className="w-full rounded border border-td-rule bg-td-white/75 px-4 py-3 text-sm text-td-ink outline-none transition focus:border-primary focus:bg-td-white focus:ring-4 focus:ring-primary/10">
                     <option value="">Chọn giới tính</option>
                     <option value="Male">Nam</option>
                     <option value="Female">Nữ</option>

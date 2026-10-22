@@ -10,7 +10,10 @@ vi.mock("@/features/licenses", () => ({ getCustomerLicense: mocks.getLicense, sa
 vi.mock("@/features/licenses/api", () => ({ saveCustomerLicense: mocks.save }));
 vi.mock("@/features/profile/api", () => ({ getAccountProfile: mocks.getProfile, getCustomerLicense: mocks.getLicense, updateAccountProfile: vi.fn() }));
 vi.mock("@/features/auth", () => ({ useAuth: () => ({ isLoading: false, isAuthenticated: true }) }));
-vi.mock("@/components/navigation/NavigationProvider", () => ({ useNavigationRouter: () => ({ replace: mocks.replace }) }));
+vi.mock("@/components/navigation/NavigationProvider", () => {
+  const router = { replace: mocks.replace };
+  return { useNavigationRouter: () => router };
+});
 vi.mock("@/features/profile/components/ChangePasswordForm", () => ({ default: () => null }));
 vi.mock("@/features/licenses/components/BookingLicenseReturn", () => ({ default: () => null }));
 vi.mock("next/image", () => ({ default: () => <span>Ảnh GPLX</span> }));
@@ -73,6 +76,39 @@ describe.each(["driver-license", "profile"] as const)("Form GPLX tại %s", (pag
     fireEvent.change(fileInput(), { target: { files: [photo()] } });
     submit();
     expect(field("issueDate")).toHaveAttribute("aria-invalid", "true");
+    expect(mocks.save).not.toHaveBeenCalled();
+  });
+
+  it.each([null, "", "   "])("khách chưa gửi số GPLX (%s) không bị hiển thị hoặc khóa chờ duyệt", async (number) => {
+    mocks.getLicense.mockResolvedValue({ number, type: null, issueDate: null, expiryDate: null, imageUrl: null, status: "pending" });
+    await open();
+    expect(screen.queryByText("Đã gửi tài liệu")).not.toBeInTheDocument();
+    expect(screen.queryByText("Chờ phê duyệt")).not.toBeInTheDocument();
+    expect(screen.queryByText("Hồ sơ đang chờ phê duyệt")).not.toBeInTheDocument();
+    expect(screen.queryByText("Đang chờ duyệt")).not.toBeInTheDocument();
+    fillDetails();
+    fireEvent.change(fileInput(), { target: { files: [photo()] } });
+    submit();
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+    if (page === "profile") {
+      expect(await screen.findByText("Đã gửi tài liệu")).toBeVisible();
+      expect(screen.getByRole("button", { name: "Đang chờ phê duyệt" })).toBeDisabled();
+    }
+  });
+
+  it("status none không đánh dấu đã gửi tài liệu", async () => {
+    mocks.getLicense.mockResolvedValue({ number: null, type: null, issueDate: null, expiryDate: null, imageUrl: null, status: "none" });
+    await open();
+    expect(screen.queryByText("Đã gửi tài liệu")).not.toBeInTheDocument();
+    expect(submitButton()).toBeEnabled();
+  });
+
+  if (page === "profile") it("hồ sơ đã gửi thực sự tiếp tục chờ duyệt và khóa gửi lặp", async () => {
+    mocks.getLicense.mockResolvedValue(saved);
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+    ({ container } = render(<QueryClientProvider client={client}><ProfileManager /></QueryClientProvider>));
+    expect(await screen.findByText("Đã gửi tài liệu")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Đang chờ phê duyệt" })).toBeDisabled();
     expect(mocks.save).not.toHaveBeenCalled();
   });
 

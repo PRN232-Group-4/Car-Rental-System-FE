@@ -1,4 +1,6 @@
 # Changelog
+- 2026-10-22 — [Sửa giới tính và trạng thái GPLX trên FE mới](2026-10-22-customer-profile-regressions.md)
+- 2026-10-22 — [GPLX chưa gửi của customer mới](2026-10-22-unsubmitted-customer-license.md)
 - 2026-10-21 — [Dot và số việc chờ xử lý trên menu Admin](2026-10-21-admin-navigation-work-counts.md)
 - 2026-10-21 — [Đổi mật khẩu bắt buộc OTP email](2026-10-21-password-change-otp.md)
 - 2026-10-21 — [Toast cho thao tác tạo, cập nhật và xóa Admin](2026-10-21-admin-mutation-toasts.md)
