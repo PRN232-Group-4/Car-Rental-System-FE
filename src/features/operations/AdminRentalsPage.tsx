@@ -8,7 +8,7 @@ import { AdminFilterBar, AdminFilterButton, AdminFilterField } from "@/component
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
-import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import RentalOperationalBadge from "./RentalOperationalBadge";
 import { InlineInput, InlineSelect, ValidatedForm, mapValidationErrors, useInlineValidation } from "@/components/forms/inline-validation";
 import { ApiClientError } from "@/api/api-client";
 import ResultPagination from "@/components/ui/ResultPagination";
@@ -39,7 +39,7 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
       if (!handovers) return getOperationalRentals(request, signal);
       const result = await getHandovers(request, signal);
       return { ...result, items: (result.items ?? []).map((item) => item.rental) };
-    }, enabled: allowed, retry: false,
+    }, enabled: allowed, retry: false, refetchInterval: 30000,
   });
   const mapped = mapValidationErrors(query.error instanceof ApiClientError ? query.error.data : null, Object.keys(draft));
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
           <td><p className="font-semibold">{rental.customerName || rental.customerEmail || "Chưa có tên khách hàng"}</p><p className="text-xs text-td-muted">{rental.customerEmail}</p></td>
           <td><VehicleName vehicleId={rental.vehicleId} /></td><td className="text-xs"><p>{formatAdminDateTime(rental.startTime)}</p><p>{formatAdminDateTime(rental.endTime)}</p></td>
           <td>{rental.hasDriver ? rental.driverName || "Chưa phân tài xế" : "Tự lái"}</td><td>{rental.totalPrice.toLocaleString("vi-VN")} đ</td>
-          <td><AdminStatusBadge domain="rental" status={rental.status}>{rentalStatuses[rental.status] ?? rental.status}</AdminStatusBadge></td>
+          <td><RentalOperationalBadge rental={rental} /></td>
           <td data-actions><AdminRowAction action="view" href={`/admin/${handovers ? "handovers" : "rentals"}?${handovers ? "" : "view=list&"}rentalId=${rental.id}#rental-detail`} label={`Xem yêu cầu của ${rental.customerName || rental.customerEmail || "khách hàng"}`} /></td>
         </tr>)}{!query.isFetching && !items.length && <AdminTableEmptyRow colSpan={7}>{query.error ? "Chưa tải được dữ liệu." : "Không có kết quả phù hợp."}</AdminTableEmptyRow>}</tbody>
       </AdminTable>

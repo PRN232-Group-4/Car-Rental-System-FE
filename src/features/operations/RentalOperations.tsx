@@ -7,15 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import RentalLookup from "./RentalLookup";
 import VehicleName from "@/features/admin/VehicleName";
-import { assignRental, changeRentalStatus, getOperationalDrivers, operationalError, operationsButton, operationsInput, operationsPanel, rentalStatuses, rentalTransitionBlocker } from "./api";
+import { assignRental, canAssignRental, isClosedRental, changeRentalStatus, getOperationalDrivers, operationalError, operationsButton, operationsInput, operationsPanel, rentalStatuses, rentalTransitionBlocker } from "./api";
 import type { OperationalRental } from "./api";
 import CashReceiptPanel from "./CashReceiptPanel";
 import RentalEditForm from "./RentalEditForm";
 import HandoverPanel from "./HandoverPanel";
 import TechnicianAssignmentForm from "./TechnicianAssignmentForm";
+import RentalReturnStatus from "./RentalReturnStatus";
 
 export default function RentalOperations() {
-  return <RentalLookup title="Vận hành yêu cầu và đơn thuê">{(rental, refresh) => <div className="grid gap-6 lg:grid-cols-2"><TechnicianAssignmentForm key={rental.id} rental={rental} refresh={refresh} /><AssignmentForm rental={rental} refresh={refresh} /><StatusForm rental={rental} refresh={refresh} /><CashReceiptPanel rental={rental} refresh={refresh} /><RentalEditForm rental={rental} refresh={refresh} /><HandoverPanel rentalId={rental.id} refresh={refresh} /></div>}</RentalLookup>;
+  return <RentalLookup title="Vận hành yêu cầu và đơn thuê">{(rental, refresh) => <div className="grid gap-6 lg:grid-cols-2"><RentalReturnStatus key={rental.id} rental={rental} /><TechnicianAssignmentForm key={rental.id} rental={rental} refresh={refresh} /><AssignmentForm rental={rental} refresh={refresh} /><StatusForm rental={rental} refresh={refresh} /><CashReceiptPanel rental={rental} refresh={refresh} /><RentalEditForm rental={rental} refresh={refresh} /><HandoverPanel rentalId={rental.id} refresh={refresh} /></div>}</RentalLookup>;
 }
 
 export function AssignmentForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
@@ -24,16 +25,17 @@ export function AssignmentForm({ rental, refresh }: { rental: OperationalRental;
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const validation = useInlineValidation();
-  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, retry: false });
+  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, enabled: canAssignRental(rental.status), retry: false });
   const lock = useRef(false);
   const submit = async () => {
-    if (lock.current || drivers.isPending || drivers.error) return;
+    if (!canAssignRental(rental.status) || lock.current || drivers.isPending || drivers.error) return;
     lock.current = true;
     setBusy(true); setError(""); setSuccess("");
     try { await assignRental(Number(rental.id), driverId ? Number(driverId) : null); setSuccess("Đã lưu phân công xe / tài xế."); notifySuccess("Đã lưu phân công xe / tài xế."); await refresh(); }
     catch (failure) { const message = validation.report(failure); const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError); }
     finally { lock.current = false; setBusy(false); }
   };
+  if (!canAssignRental(rental.status)) return null;
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Phân xe và tài xế</h2>
     <div className="text-sm"><p className="mb-2 text-td-muted">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>
@@ -60,6 +62,7 @@ function StatusForm({ rental, refresh }: { rental: OperationalRental; refresh: (
     catch (failure) { const message = validation.report(failure); const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError); }
     finally { setBusy(false); }
   };
+  if (isClosedRental(rental.status)) return <p className="text-sm text-td-muted">Đơn thuê đã kết thúc. Chỉ có thể xem lại hồ sơ.</p>;
   return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
     <h2 className="text-lg font-bold">Duyệt yêu cầu và bàn giao xe</h2><p className="text-sm text-td-muted">Duyệt yêu cầu để khách thanh toán. Đơn trực tiếp cần thanh toán và hoàn thành kiểm tra, phân công trước khi bàn giao xe.</p>
     <div><label htmlFor="rental-next-status" className="text-sm font-semibold">Thao tác</label><InlineSelect id="rental-next-status" name="status" required className={operationsInput} value={status} onChange={(event) => setStatus(event.target.value)} disabled={busy}><option value="">Chọn thao tác</option><option value="pre_inspection">Duyệt yêu cầu — mở thanh toán</option><option value="renting">Bàn giao xe — bắt đầu thuê</option><option value="post_inspection">Nhận xe — kiểm tra sau thuê</option><option value="completed">Hoàn tất đơn thuê</option><option value="cancelled">Hủy yêu cầu / đơn thuê</option></InlineSelect></div>

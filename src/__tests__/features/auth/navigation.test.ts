@@ -194,6 +194,7 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       const hrefs = customerNav.map((item) => item.href);
 
       expect(hrefs).toContain("/booking");
+      expect(customerNav.find((item) => item.href === "/my-rentals")?.label).toBe("Theo dõi tiến trình thuê xe");
       expect(hrefs).toContain("/driver-license");
       expect(hrefs).toContain("/rental-contract");
       expect(hrefs).toContain("/my-subscriptions");
@@ -209,6 +210,7 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       expect(hrefs).toContain("/booking");
       expect(hrefs).toContain("/invoices");
       expect(hrefs).not.toContain("/driver-license");
+      expect(hrefs).not.toContain("/my-rentals");
       expect(hrefs).not.toContain("/rental-contract");
       expect(hrefs).not.toContain("/my-subscriptions");
     });

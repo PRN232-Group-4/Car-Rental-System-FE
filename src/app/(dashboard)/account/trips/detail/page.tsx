@@ -25,6 +25,7 @@ import { CancelDialog } from "@/features/account/trips/components/CancelDialog";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/time";
+import CancellationReason from "@/features/rentals/components/CancellationReason";
 
 function TripDetailContent() {
   const searchParams = useSearchParams();
@@ -118,7 +119,7 @@ function TripDetailContent() {
             </Link>
           )}
 
-          {trip.canCancel && (
+          {["pending", "pre_inspection"].includes(trip.status) && (
             <Button
               variant="danger"
               onClick={() => setCancelModalOpen(true)}
@@ -130,6 +131,8 @@ function TripDetailContent() {
           )}
         </div>
       </div>
+
+      {trip.status === "cancelled" && <CancellationReason reason={[...trip.timeline].reverse().find(event => event.to === "cancelled")?.reason} cancelledAt={[...trip.timeline].reverse().find(event => event.to === "cancelled")?.at} />}
 
       {/* Banner đếm ngược / Quá giờ khi đang renting */}
       {countdown && (

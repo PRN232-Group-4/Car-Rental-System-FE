@@ -14,6 +14,7 @@ export interface CustomerRentalSummary {
   startTime: string;
   endTime: string;
   totalPrice: number;
+  canCancel?: boolean;
 }
 
 export interface CustomerRentalDetail {
@@ -23,7 +24,7 @@ export interface CustomerRentalDetail {
   rentalType: string;
   isSubscription: boolean;
   vehicle: { id: number; brand: string; model: string; mainImageUrl?: string | null; color?: string | null };
-  facility: string;
+  facility: { id: number; name: string; phone: string | null } | null;
   start: string;
   end: string;
   hasDriver: boolean;

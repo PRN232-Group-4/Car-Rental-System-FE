@@ -6,14 +6,14 @@ export async function getVehicles(params?: VehicleFilterParams): Promise<Vehicle
   const queryParams: Record<string, string | number> = {};
   if (params?.category && params.category !== "all") queryParams.category = params.category;
   if (params?.facilityId && params.facilityId !== "all") queryParams.facilityId = params.facilityId;
-  if (params?.search && params.search.trim()) queryParams.search = params.search.trim();
+  if (params?.search && params.search.trim()) queryParams.q = params.search.trim();
 
   const vehicles: Vehicle[] = [];
   let page = 1;
   while (true) {
-    const res = await defaultApiClient.get<{ items: Record<string, unknown>[]; totalCount: number }>("vehicles", { ...queryParams, page, pageSize: 100 });
+    const res = await defaultApiClient.get<{ items: Record<string, unknown>[]; totalCount: number }>("vehicles/search", { ...queryParams, page, pageSize: 100 });
     if (!res || !Array.isArray(res.items)) throw new Error("Dữ liệu danh mục xe không hợp lệ. Vui lòng thử lại.");
-    vehicles.push(...res.items.map(mapVehicleFromBE));
+    vehicles.push(...res.items.map(mapVehicleSearchFromBE));
     if (vehicles.length >= res.totalCount) break;
     if (!res.items.length) throw new Error("Chưa tải đủ danh mục xe. Vui lòng thử lại.");
     page++;
@@ -45,18 +45,12 @@ export async function getVehiclesPaginated(params?: VehicleFilterParams): Promis
     queryParams.to = params.to;
   }
 
-  // The landing preview uses the status catalogue; /vehicles/search has its own server-side filters.
-  const res = params?.status
-    ? await defaultApiClient.get<unknown>("vehicles", {
-      page, pageSize, status: params.status,
-      ...(params.facilityId && params.facilityId !== "all" ? { facilityId: params.facilityId } : {}),
-      ...(params.from ? { from: params.from } : {}), ...(params.to ? { to: params.to } : {}),
-    })
-    : await defaultApiClient.get<unknown>("vehicles/search", queryParams);
+  // Public search filters unrented vehicles before pagination on every customer list.
+  const res = await defaultApiClient.get<unknown>("vehicles/search", queryParams);
   if (typeof res === "object" && res !== null && "items" in res && Array.isArray((res as { items: unknown[] }).items)) {
     const paged = res as { items: Record<string, unknown>[]; totalCount?: number; page?: number; pageSize?: number };
     return {
-      items: paged.items.map(params?.status ? mapVehicleFromBE : mapVehicleSearchFromBE),
+      items: paged.items.map(mapVehicleSearchFromBE),
       totalCount: Number(paged.totalCount ?? paged.items.length),
       page: Number(paged.page ?? page),
       pageSize: Number(paged.pageSize ?? pageSize),

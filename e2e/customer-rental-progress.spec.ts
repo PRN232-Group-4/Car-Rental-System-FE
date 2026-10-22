@@ -1,7 +1,60 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const envelope = (data: unknown) => ({ code: 200, status: "success", is_success: true, data, message: "OK", error: null });
 const summary = { id: 42, orderId: null, status: "pending", rentalType: "hourly", isSubscription: false, vehicleBrand: "Toyota", vehicleModel: "Vios", startTime: "2026-10-20T08:00:00Z", endTime: "2026-10-20T12:00:00Z", totalPrice: 500000 };
+
+async function mockCustomerRental(page: Page, facility: { id: number; name: string; phone: string | null } | null, driver: { fullName: string } | null = { fullName: "Tài xế thử nghiệm" }) {
+  // Every backend call is intercepted; these tests never access real customer data.
+  await page.route("**/api/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    const data = path.endsWith("/account/profile") ? { fullName: "Khách hàng", email: "customer@test.local", roles: ["Customer"] } :
+      path.endsWith("/rentals/mine/42") ? { id: 42, status: "pending", vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility, start: summary.startTime, end: summary.endTime, hasDriver: true, driver, timeline: [], invoice: null, nextAction: "WAITING_CONFIRMATION" } :
+      path.endsWith("/rentals/mine") ? { items: [summary], totalCount: 1, page: 1, pageSize: 20 } : [];
+    return route.fulfill({ json: envelope(data) });
+  });
+}
+
+test("requested chauffeur service without assignment is explicitly unassigned", async ({ page }) => {
+  await mockCustomerRental(page, null, null);
+  await page.goto("/my-rentals?rentalId=42#rental-progress");
+  await expect(page.locator("#rental-progress").getByText("Yêu cầu có tài xế · Chưa phân công", { exact: true })).toBeVisible();
+  await expect(page.locator("#rental-progress").getByText("Có tài xế", { exact: true })).toHaveCount(0);
+});
+
+for (const width of [1440, 390]) {
+  for (const facility of [{ id: 5, name: "Cơ sở Quận 1", phone: "0281234567" }, null]) {
+    test(`direct progress link renders backend facility ${facility ? "object" : "null"} at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await mockCustomerRental(page, facility);
+      await page.goto("/my-rentals?rentalId=42#rental-progress");
+      const detail = page.locator("#rental-progress");
+      await expect(detail.getByRole("heading", { name: "Yêu cầu thuê #42" })).toBeVisible();
+      await expect(detail.getByText(facility?.name ?? "Chưa có thông tin cơ sở", { exact: true })).toBeVisible();
+      await expect(detail.getByText("Có tài xế · Tài xế thử nghiệm", { exact: true })).toBeVisible();
+      await page.getByRole("button", { name: "Tài khoản cá nhân", exact: true }).click();
+      const menu = page.getByRole("menu");
+      await menu.getByRole("menuitem", { name: "Theo dõi tiến trình thuê xe", exact: true }).click();
+      await expect(page).toHaveURL(/\/my-rentals$/);
+      await expect(menu).toHaveCount(0);
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test(`landing customer account links to rental progress at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await mockCustomerRental(page, null);
+    await page.goto("/");
+    if (width < 640) await page.getByRole("button", { name: "Mở menu điều hướng" }).click();
+    else await page.locator('[aria-controls="landing-account-menu"]').click();
+    const link = page.getByRole("link", { name: "Theo dõi tiến trình thuê xe", exact: true });
+    await expect(link).toHaveAttribute("href", "/my-rentals");
+    await link.click();
+    await expect(page).toHaveURL(/\/my-rentals$/);
+    await expect(page.getByRole("link", { name: "Xem chi tiết yêu cầu 42" })).toBeVisible();
+  });
+}
 
 test("customer opens own rental progress and refreshes actual status", async ({ page }) => {
   let status = "pending";
@@ -13,7 +66,7 @@ test("customer opens own rental progress and refreshes actual status", async ({ 
       listRequests.push(url);
       return route.fulfill({ json: envelope({ items: [summary], totalCount: 1, page: 1, pageSize: 20 }) });
     }
-    if (url.pathname.endsWith("/rentals/mine/42")) return route.fulfill({ json: envelope({ id: 42, orderId: status === "pending" ? null : 88, status, rentalType: "hourly", isSubscription: false, vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility: "Cơ sở Quận 1", start: summary.startTime, end: summary.endTime, hasDriver: false, driver: null, price: { total: 500000 }, invoice: { id: 55, number: "INV-55", status: "unpaid", amount: 500000 }, timeline: [], nextAction: status === "pending" ? "WAITING_CONFIRMATION" : "PREPARING_VEHICLE" }) });
+    if (url.pathname.endsWith("/rentals/mine/42")) return route.fulfill({ json: envelope({ id: 42, orderId: status === "pending" ? null : 88, status, rentalType: "hourly", isSubscription: false, vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility: { id: 5, name: "Cơ sở Quận 1", phone: "0281234567" }, start: summary.startTime, end: summary.endTime, hasDriver: false, driver: null, price: { total: 500000 }, invoice: { id: 55, number: "INV-55", status: "unpaid", amount: 500000 }, timeline: [], nextAction: status === "pending" ? "WAITING_CONFIRMATION" : "PREPARING_VEHICLE" }) });
     return route.fulfill({ json: envelope([]) });
   });
   await page.goto("/my-rentals");
@@ -21,6 +74,7 @@ test("customer opens own rental progress and refreshes actual status", async ({ 
   await page.getByRole("link", { name: "Xem chi tiết yêu cầu 42" }).click();
   const detail = page.locator("#rental-progress");
   await expect(detail.getByRole("heading", { name: "Yêu cầu thuê #42" })).toBeVisible();
+  await expect(detail.getByText("Cơ sở Quận 1", { exact: true })).toBeVisible();
   await expect(detail.locator('[aria-current="step"]')).toContainText("Chờ duyệt");
   await expect(detail.getByText("Yêu cầu đang chờ nhân viên duyệt.")).toBeVisible();
   status = "renting";

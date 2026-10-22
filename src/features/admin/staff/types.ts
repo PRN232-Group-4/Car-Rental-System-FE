@@ -52,7 +52,7 @@ export interface StaffFilterParams {
   licenseStatus?: string; // 'all' | 'valid' | 'expiring' | 'expired' | 'missing'
   page?: number;
   pageSize?: number;
-  sortBy?: "fullName" | "hiredDate" | "rating" | "email";
+  sortBy?: "id" | "fullName" | "hiredDate" | "rating" | "email";
   sortOrder?: "asc" | "desc";
 }
 

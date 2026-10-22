@@ -70,11 +70,13 @@ export async function getStaffList(
   }
 
   // 7. Sắp xếp
-  const sortBy = params.sortBy || "hiredDate";
+  const sortBy = params.sortBy || "id";
   const sortOrder = params.sortOrder || "desc";
   filtered.sort((a, b) => {
     let cmp = 0;
-    if (sortBy === "hiredDate") {
+    if (sortBy === "id") {
+      cmp = a.id - b.id;
+    } else if (sortBy === "hiredDate") {
       cmp = new Date(a.hiredDate || 0).getTime() - new Date(b.hiredDate || 0).getTime();
     } else if (sortBy === "fullName") {
       cmp = a.fullName.localeCompare(b.fullName, "vi");
@@ -83,7 +85,7 @@ export async function getStaffList(
     } else if (sortBy === "email") {
       cmp = a.email.localeCompare(b.email);
     }
-    return sortOrder === "asc" ? cmp : -cmp;
+    return (sortOrder === "asc" ? cmp : -cmp) || b.id - a.id;
   });
 
   const totalCount = filtered.length;

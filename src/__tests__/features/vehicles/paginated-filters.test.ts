@@ -12,13 +12,13 @@ const car = {
 
 // The new /vehicles/search endpoint applies filters and sorting before server pagination.
 describe("getVehiclesPaginated search contract", () => {
-  it("keeps the landing preview on the status catalogue with the flat vehicle mapper", async () => {
+  it("uses the unrented public search for the landing preview too", async () => {
     const get = vi.spyOn(defaultApiClient, "get").mockResolvedValue({
-      items: [{ id: 3, brand: "Honda", model: "SH", vehicleType: "Xe máy xăng", status: "available", hourlyPrice: 60000 }],
+      items: [{ id: 3, brand: "Honda", model: "SH", vehicleType: {type:"motorbike",fuelType:"petrol"}, priceHourly: 60000 }],
       page: 1, pageSize: 6, totalCount: 9,
     });
     const result = await getVehiclesPaginated({ status: "available", page: 1, pageSize: 6 });
-    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles", { status: "available", page: 1, pageSize: 6 });
+    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles/search", { rentalType:"hourly", page: 1, pageSize: 6 });
     expect(result.items[0]).toMatchObject({ category: "motorbike", hourlyPrice: 60000, isAvailable: true });
   });
 

@@ -67,6 +67,7 @@ export function useSetUserActive() {
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
         queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+        queryClient.invalidateQueries({ queryKey: ["operational-drivers"] }),
       ]);
       toast.success(
         updated.isActive
@@ -102,6 +103,7 @@ export function useAssignRole() {
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
         queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+        queryClient.invalidateQueries({ queryKey: ["operational-drivers"] }),
       ]);
       toast.success(`Đã thêm vai trò ${variables.role} cho ${updated.fullName}`);
     },
@@ -135,6 +137,7 @@ export function useRemoveRole() {
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
         queryClient.invalidateQueries({ queryKey: ["staffs"] }),
+        queryClient.invalidateQueries({ queryKey: ["operational-drivers"] }),
       ]);
       toast.success(`Đã gỡ vai trò ${variables.role} khỏi ${updated.fullName}`);
     },
