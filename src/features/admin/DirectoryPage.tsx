@@ -58,7 +58,9 @@ const pageInfo: Record<Directory, { title: string; description: string; kicker: 
 export default function DirectoryPage({ directory }: { directory: Directory }) {
   const { hasRole } = useAuth();
   const isAdmin = hasRole("admin");
-  const canModify = isAdmin && directory !== "roles";
+  const isManager = hasRole("manager");
+  // Admin quản trị tài khoản/vai trò; Manager vận hành cơ sở và nhân sự.
+  const canModify = (isAdmin || isManager) && directory !== "roles";
 
   const info = pageInfo[directory];
   const [rows, setRows] = useState<Row[]>([]);
@@ -89,8 +91,8 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         setRows(facilityData.map(toOrganizationRow));
         setTotalCount(facilityData.length);
       } else if (directory === "staffs") {
-        if (!isAdmin) {
-          notifyError("Bạn cần quyền Quản trị viên (Admin) để xem và quản lý danh sách nhân sự.");
+        if (!canModify) {
+          notifyError("Bạn cần quyền Quản lý vận hành hoặc Quản trị viên để xem danh sách nhân sự.");
           setRows([]);
           setTotalCount(0);
           return;
@@ -167,7 +169,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
     } finally {
       setLoading(false);
     }
-  }, [directory, info.title, isAdmin, page, pageSize, search]);
+  }, [directory, info.title, canModify, isAdmin, page, pageSize, search]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);

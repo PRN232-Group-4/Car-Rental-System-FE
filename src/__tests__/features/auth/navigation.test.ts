@@ -62,6 +62,7 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       expect(hrefs).toContain("/admin");
       expect(hrefs).toContain("/admin/dashboard");
       expect(hrefs).toContain("/admin/staffs");
+      expect(hrefs).toContain("/admin/facilities"); // Manager quản lý cơ sở/chi nhánh
       expect(hrefs).toContain("/admin/audit-logs"); // Manager xem nhật ký kiểm toán
       expect(hrefs).toContain("/admin/customers"); // Manager xem khách hàng và GPLX
       expect(hrefs).toContain("/admin/handovers"); // Manager giám sát bàn giao
@@ -80,7 +81,6 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
 
       expect(hrefs).not.toContain("/admin/users"); // route chỉ cho Admin
       expect(hrefs).not.toContain("/admin/departments"); // Admin only
-      expect(hrefs).not.toContain("/admin/facilities"); // Admin only
       expect(hrefs).not.toContain("/admin/roles"); // Admin only
     });
 

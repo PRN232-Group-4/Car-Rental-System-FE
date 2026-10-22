@@ -168,13 +168,14 @@ Cập nhật ngày: **2026-10-21**.
 | **Quản lý Danh mục Vai trò** | `/api/roles/**` | Full | — | — | — | — | — | — |
 | **Nhật ký Kiểm toán** | `/api/audit-logs` | View | View | — | — | — | — | — |
 | **Quản lý Nhân sự nội bộ (Staff)** | `/api/staff/**` | View | **Full (Tạo, Sửa, Gán trạm, Thôi việc)** | — | — | — | — | — |
-| **Quản lý Đội xe (Fleet)** | `/api/vehicles/**` | View | **Full (Thêm xe, Sửa xe, Xóa xe, Định giá)** | View (tra cứu) | — | View (kỹ thuật) | — | — |
-| **Cơ cấu Phòng ban & Chi nhánh** | `/api/facilities`, `/departments` | Full | View | — | — | — | — | — |
+| **Quản lý Đội xe (Fleet)** | `/api/vehicles/**`, `/api/vehicle-types/**` | View | **Full (Thêm, Sửa, Xóa, Định giá)** | View (tra cứu) | — | View (kỹ thuật) | — | — |
+| **Cơ sở / Chi nhánh** | `/api/facilities/**` | Full | **Full (Thêm, Sửa, Xóa)** | View | — | — | — | — |
+| **Phòng ban (cơ cấu tổ chức)** | `/api/departments/**` | Full | Gán thành viên | — | — | — | — | — |
 | **Phân công Tài xế trước ca** | `/api/drivers/shifts`, `/assignments` | Approve | Approve | Create/Update | — | — | View (own) | — |
 | **Tìm xe khả dụng kèm tài xế** | `/api/vehicles/search` | View | View | View | View | View | View | View |
 | **Tạo yêu cầu thuê (Chauffeur)** | `/api/rentals/hourly`, `/longterm` | — | — | Create (hộ) | Create (hộ) | — | — | **Create** |
 | **Duyệt yêu cầu thuê & Bàn giao** | `/api/rentals/{id}/confirm`, `/start` | Override | Approve | **Execute** | Support | — | — | — |
-| **Kiểm tra Kỹ thuật (Pre/Post)** | `/api/rentals/{id}/inspections/**` | View | View | View | — | **Full** | — | — |
+| **Kiểm tra Kỹ thuật (Pre/Post)** | `/api/rentals/{id}/inspections/**` | Override | **Override** | View | — | **Full** | — | — |
 | **Tiếp nhận & Xử lý Sự cố** | `/api/reports/**` | View | Approve | Handle | **Handle** | View (hỏng hóc) | Report | **Report** |
 | **Kiểm duyệt Đánh giá Tài xế** | `/api/ratings/**` | Moderate | **Moderate/Reply** | — | — | — | View (own) | Rate |
 | **Bảo dưỡng & Sửa chữa Xe** | `/api/maintenance/**` | View | Approve chi | — | — | **Full** | — | — |

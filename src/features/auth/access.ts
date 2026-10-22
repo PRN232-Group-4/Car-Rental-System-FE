@@ -74,7 +74,7 @@ export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = [
   { pattern: "/admin/users", roles: ["Admin"] },
   { pattern: "/admin/roles", roles: ["Admin"] },
   { pattern: "/admin/departments", roles: ["Admin"] },
-  { pattern: "/admin/facilities", roles: ["Admin"] },
+  { pattern: "/admin/facilities", roles: ["Admin", "Manager"] },
   { pattern: "/admin/audit-logs", roles: ["Admin", "Manager"] },
 
   // Cấp Quản lý điều hành & Chiến lược

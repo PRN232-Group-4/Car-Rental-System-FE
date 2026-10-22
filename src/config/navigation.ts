@@ -206,7 +206,7 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     href: "/admin/facilities",
     label: "Cơ Sở",
     icon: Building2,
-    roles: ["Admin"],
+    roles: ["Admin", "Manager"],
   },
   {
     href: "/admin/staffs",
