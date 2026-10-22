@@ -11,6 +11,7 @@ export interface OperationalRentalListItem {
   licensePlate: string | null;
   vehicleModel: string;
   status: string;
+  isOverdue?: boolean;
   startTime: string;
   endTime: string;
   totalPrice: number;

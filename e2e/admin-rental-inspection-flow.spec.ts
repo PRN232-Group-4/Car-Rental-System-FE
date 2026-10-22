@@ -29,7 +29,7 @@ for (const width of [1600, 1280, 390]) {
           assigned = { rentalId: 101, vehicleId: 8, technicianStaffId: 9, technicianName: technician.fullName, assignedAt: "2026-10-21T03:00:00Z", assignedBy: "admin@example.test" };
         }
         data = assigned;
-      } else if (path.endsWith("/rentals/101/status/renting")) {
+      } else if (path.endsWith("/rentals/101/start")) {
         startRequests += 1;
         expect(passing).toBe(true);
         started = true;
@@ -58,7 +58,7 @@ for (const width of [1600, 1280, 390]) {
     await expect(handover).toBeEnabled();
     await handover.click();
     await expect(page.getByRole("complementary", { name: "Bảng lệnh điều phối" }).getByRole("status").filter({ hasText: "Đã cập nhật đơn thuê sang trạng thái: Đang thuê" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Thu hồi xe & Kiểm tra trả", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Xác nhận đã nhận lại xe", exact: true })).toBeVisible();
     expect(startRequests).toBe(1);
   });
 }

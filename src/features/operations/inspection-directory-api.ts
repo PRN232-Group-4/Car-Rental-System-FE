@@ -15,6 +15,8 @@ export interface InspectionDirectoryRecord {
   fuelBatteryLevel: number | null;
   damageNotes: string | null;
   imageUrls: string | null;
+  confirmationSource?: "technician" | "driver_default" | "admin_confirmation";
+  confirmedBy?: string | null;
 }
 
 export function getInspectionDirectory(params: {

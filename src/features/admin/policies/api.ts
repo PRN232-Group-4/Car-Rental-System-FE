@@ -1,4 +1,5 @@
 import { backendApiClient } from "@/api/backend-api-client";
+import { newestFirst } from "../list-order";
 import type { PlanInput, PolicyInput, RentalPolicy, SubscriptionPlan, VehicleTypeOption } from "./types";
 
 export function fetchVehicleTypes(): Promise<VehicleTypeOption[]> {
@@ -22,8 +23,8 @@ export function createRentalPolicy(input: PolicyInput): Promise<RentalPolicy> {
   return backendApiClient.post<RentalPolicy>("rental-policies", input);
 }
 
-export function fetchSubscriptionPlans(includeAll = true): Promise<SubscriptionPlan[]> {
-  return backendApiClient.get<SubscriptionPlan[]>("subscription-plans", { all: includeAll });
+export async function fetchSubscriptionPlans(includeAll = true): Promise<SubscriptionPlan[]> {
+  return newestFirst(await backendApiClient.get<SubscriptionPlan[]>("subscription-plans", { all: includeAll }));
 }
 
 export function createSubscriptionPlan(input: PlanInput): Promise<SubscriptionPlan> {

@@ -1,12 +1,45 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { backendApiClient } from "@/api/backend-api-client";
-import { confirmHandover, getOperationalDrivers, getOperationalRentalDetail, operationalError, rentalTransitionBlocker, updateRental } from "./api";
+import { cancelOperationalRental, canAssignRental, changeRentalStatus, confirmHandover, getOperationalDrivers, getOperationalRentalDetail, operationalError, rentalTransitionBlocker, updateRental } from "./api";
 import type { OperationalRental } from "./api";
 
 vi.mock("@/api/backend-api-client", () => ({ backendApiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn() } }));
 
 describe("operational rental prerequisites and drivers", () => {
   beforeEach(() => vi.resetAllMocks());
+
+  it.each(["cancelled", "completed"])("blocks status mutations and assignment for %s", status => {
+    expect(canAssignRental(status)).toBe(false);
+    for (const target of ["pending", "pre_inspection", "renting", "post_inspection", "completed", "cancelled"]) {
+      expect(rentalTransitionBlocker({status},target)).toContain("đã kết thúc");
+    }
+  });
+
+  it("cancels through the lifecycle API with the entered reason and server policy", async () => {
+    await cancelOperationalRental(77,"  Khách đổi lịch  ");
+    expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("rentals/77/cancel",{reason:"Khách đổi lịch",initiator:null,waiveFee:false});
+  });
+
+  it.each(["pending","pre_inspection","renting","post_inspection","completed","cancelled"])("allows cancellation only before renting (%s)", status => {
+    const blocker=rentalTransitionBlocker({status} as OperationalRental,"cancelled");
+    expect(blocker===null).toBe(["pending","pre_inspection"].includes(status));
+  });
+
+  it.each([["pre_inspection", "confirm"], ["renting", "start"], ["post_inspection", "return"], ["completed", "complete"]])("uses the lifecycle endpoint for %s", async (status, action) => {
+    const flat = { id: 77, status };
+    vi.mocked(backendApiClient.get).mockResolvedValue(flat);
+    expect(await changeRentalStatus(77, status)).toBe(flat);
+    if (action === "return") expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("rentals/77/return", {});
+    else expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith(`rentals/77/${action}`);
+    expect(backendApiClient.get).toHaveBeenCalledExactlyOnceWith("rentals/77");
+  });
+
+  it("does not claim a status update when the lifecycle endpoint fails", async () => {
+    const failure = new Error("POST_INSPECTION_REQUIRED");
+    vi.mocked(backendApiClient.post).mockRejectedValueOnce(failure);
+    await expect(changeRentalStatus(77, "completed")).rejects.toBe(failure);
+    expect(backendApiClient.get).not.toHaveBeenCalled();
+  });
 
   it("keeps handover confirmation and rental editing on their dedicated endpoints", async () => {
     const input = { vehicleId: 8, startTime: "2027-01-01T02:00:00Z", endTime: "2027-01-02T02:00:00Z", hasDriver: false };

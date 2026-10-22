@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
+import { hasCustomerLicense } from "@/features/licenses/booking-license";
 import BookingLicenseReturn from "@/features/licenses/components/BookingLicenseReturn";
 
 export default function GPLXPage() {
@@ -43,7 +44,7 @@ export default function GPLXPage() {
         title={<>Giấy phép <em className="italic text-td-teal">lái xe.</em></>}
         description="Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp."
       >
-        {getStatusBadge(license?.status)}
+        {getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}
       </TransitFolio>
 
       <Suspense fallback={null}>
@@ -60,11 +61,11 @@ export default function GPLXPage() {
             <div className="text-xs text-td-muted font-semibold uppercase tracking-wider">
               Trạng thái hồ sơ lái xe
             </div>
-            <div className="mt-1">{getStatusBadge(license?.status)}</div>
+            <div className="mt-1">{getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}</div>
           </div>
         </div>
 
-        {license?.status === "approved" ? (
+        {hasCustomerLicense(license) && license?.status === "approved" ? (
           <div className="text-xs text-primary bg-primary-tint px-3.5 py-2 rounded border border-primary/30 max-w-xs">
             Bạn đã đủ điều kiện thuê trực tiếp tất cả các dòng xe ô tô và xe máy trong hệ thống.
           </div>

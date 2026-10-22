@@ -4,11 +4,20 @@ import type { StaffDto, PagedResult } from "@/features/admin/api";
 
 export type OperationalRental = RentalContract & {
   invoiceId?: number;
+  returnedAt?: string | null;
+  isOverdue?: boolean;
   hasPassingPreInspection?: boolean;
   hasPostInspection?: boolean;
 };
 
-export function rentalTransitionBlocker(rental: OperationalRental, status: string): string | null {
+export const canAssignRental = (status: string) => ["pre_inspection", "renting"].includes(status);
+export const isClosedRental = (status: string) => ["cancelled", "completed"].includes(status);
+
+export function rentalTransitionBlocker(rental: Pick<OperationalRental, "status" | "hasPassingPreInspection" | "hasPostInspection">, status: string): string | null {
+  if (isClosedRental(rental.status)) return "Đơn thuê đã kết thúc, không thể thay đổi trạng thái.";
+  if (status === "cancelled" && !["pending", "pre_inspection"].includes(rental.status)) {
+    return "Chỉ có thể hủy đơn trước khi chuyển sang Đang thuê.";
+  }
   if (status === "renting" && rental.hasPassingPreInspection !== true) {
     return "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.";
   }
@@ -45,7 +54,8 @@ export async function getOperationalDrivers(): Promise<StaffDto[]> {
 }
 
 export interface OperationalRentalDetail {
-  rental: Omit<RentalContract, "startTime" | "endTime" | "status"> & { scheduledStart: string; scheduledEnd: string; status: string | number };
+  rental: Omit<RentalContract, "startTime" | "endTime" | "status"> & { scheduledStart: string; scheduledEnd: string; status: string | number; returnedAt?: string | null; cancelReason?: string | null; cancelledAt?: string | null };
+  history?: { toStatus: string; reason: string | null; createdAt: string }[];
   orderId: number | null;
   customerName: string | null;
   customerEmail: string | null;
@@ -56,6 +66,7 @@ export interface OperationalRentalDetail {
   invoice: { id: number; number: string; status: string; amount: number } | null;
   hasPassingPreInspection?: boolean;
   hasPostInspection?: boolean;
+  settlement?: { returnedAt: string; overtimeMinutes: number; overtimeHours: number; overtimeAmount: number; overtimeVat: number; depositDeducted: number; shortfallInvoiceId: number | null } | null;
 }
 
 export const getOperationalRentalDetail = (id: number | string) => backendApiClient.get<OperationalRentalDetail>(`rentals/${id}/detail`);
@@ -64,10 +75,24 @@ export interface RentalUpdate { vehicleId: number; startTime: string; endTime: s
 export const updateRental = (id: number | string, body: RentalUpdate) => backendApiClient.put<unknown>(`rentals/${id}`, body);
 
 export function assignRental(id: number, driverStaffId: number | null) {
-  return backendApiClient.post<unknown>(`rentals/${id}/assignments`, { driverStaffId });
+  // CustomerService policy: Admin/Manager/CustomerService; the legacy `/assignments` alias is Manager-only.
+  return backendApiClient.post<unknown>(`rentals/${id}/assignments/driver`, { driverStaffId, reason: "initial" });
 }
 
-export function changeRentalStatus(id: number, status: string) {
+export const cancelOperationalRental = (id: number | string, reason: string, initiator: "customer" | null = null) =>
+  backendApiClient.post<unknown>(`rentals/${id}/cancel`, { reason: reason.trim(), initiator, waiveFee: false });
+
+export const getRentalCancellationPreview = (id: number | string) => backendApiClient.get<{
+  allowed: boolean; feeAmount: number; refundAmount: number; reasons?: string[]; freeUntil: string | null;
+}>(`rentals/${id}/cancellation-preview`);
+
+export async function changeRentalStatus(id: number, status: string) {
+  const action = ({ pre_inspection: "confirm", renting: "start", post_inspection: "return", completed: "complete" } as Record<string, string>)[status];
+  if (action) {
+    if (action === "return") await backendApiClient.post(`rentals/${id}/return`, {});
+    else await backendApiClient.post(`rentals/${id}/${action}`);
+    return getOperationalRental(id);
+  }
   return backendApiClient.post<OperationalRental>(`rentals/${id}/status/${encodeURIComponent(status)}`);
 }
 
@@ -87,7 +112,7 @@ export async function uploadInspectionImage(file: File) {
 
 export const rentalStatuses: Record<string, string> = {
   pending: "Chờ xử lý", pre_inspection: "Kiểm tra trước thuê", renting: "Đang thuê",
-  post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
+  overdue: "Quá hạn", post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
 };
 export const operationsInput = "admin-input mt-2 w-full";
 export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-td-oxide-hover disabled:cursor-not-allowed disabled:opacity-50";

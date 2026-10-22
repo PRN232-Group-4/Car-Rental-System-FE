@@ -83,6 +83,12 @@ export const ROUTE_CHAPTER_MAP: Record<string, string> = {
 /** Danh mục điều hướng cổng khách hàng cá nhân */
 export const CUSTOMER_NAV_ITEMS: readonly NavItem[] = [
   {
+    href: "/my-rentals",
+    label: "Theo dõi tiến trình thuê xe",
+    icon: CarFront,
+    roles: ["Customer"],
+  },
+  {
     href: "/account/trips",
     label: "Chuyến của tôi",
     icon: Compass,

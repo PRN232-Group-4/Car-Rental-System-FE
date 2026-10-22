@@ -1,74 +1,69 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const envelope = (data: unknown) => ({ code: 200, status: "success", is_success: true, data, message: "OK", error: null });
-const bookingPath = "/booking?mode=longterm&vehicleId=8&startTime=2027-01-10T08%3A00&endTime=2027-01-11T08%3A00&facilityId=5";
+const vehicle = { id: 8, vehicleType: { id: 6, type: "car" }, facility: { id: 5, name: "Quận 1" }, brand: "Toyota", model: "Corolla Cross", priceHourly: 120000, priceLongterm: 18500000 };
 
-async function mockApis(page: Page) {
-  await page.route("**/api/**", (route) => {
-    const path = new URL(route.request().url()).pathname;
-    const data = path.endsWith("/account/profile")
-      ? { fullName: "Khách kiểm thử", email: "license-test@example.com", roles: ["Customer"] }
-      : path.endsWith("/facilities") ? [{ id: 5, name: "Quận 1" }]
-      : path.endsWith("/vehicles/search")
-        ? { items: [{ id: 8, vehicleTypeId: 6, facilityId: 5, status: "available", brand: "Toyota", model: "Corolla Cross", hourlyPrice: 120000, longtermPrice: 18500000 }], page: 1, pageSize: 20, totalCount: 1 }
-        : [];
-    return route.fulfill({ json: envelope(data) });
+async function mockApis(page: Page, license: unknown, expectedDriver: boolean, rentalType="hourly") {
+  let requests=0;
+  let failLicense=false;
+  await page.route("**/api/**", async route => {
+    const path=new URL(route.request().url()).pathname;
+    if(path.endsWith("/customer/license") && failLicense) return route.fulfill({status:503,json:{...envelope(null),code:503,status:"error",is_success:false,message:"Không thể tải GPLX"}});
+    if(path.endsWith(`/rentals/${rentalType}`)) {
+      requests++;
+      expect(route.request().postDataJSON().hasDriver).toBe(expectedDriver);
+      return route.fulfill({json:envelope({id:111,vehicleId:8,rentalType,status:"pending"})});
+    }
+    let data:unknown=[];
+    if(path.endsWith("/account/profile")) data={fullName:"Khách kiểm thử",email:"customer@test.local",roles:["Customer"]};
+    else if(path.endsWith("/customer/license")) data=license;
+    else if(path.endsWith("/facilities")) data=[{id:5,name:"Quận 1"}];
+    else if(path.endsWith("/vehicles/search")) {
+      expect(new URL(route.request().url()).searchParams.get("hasDriver")).toBe(String(expectedDriver));
+      data={items:[vehicle],page:1,pageSize:100,totalCount:1};
+    }
+    return route.fulfill({json:envelope(data)});
+  });
+  return {requests:()=>requests,setFailLicense:(value:boolean)=>{failLicense=value;}};
+}
+
+for(const width of [1440,390]) {
+  for(const hasDriver of [true,false]) {
+    for(const rentalType of ["hourly","longterm"]) {
+      test(`booking preserves ${hasDriver?"driver":"self-drive"} ${rentalType} choice at ${width}px`,async({page})=>{
+        await page.setViewportSize({width,height:900});
+        const api=await mockApis(page,hasDriver?null:{number:"TEST",status:"approved"},hasDriver,rentalType);
+        await page.goto(`/booking?facilityId=5&vehicleId=8&mode=${hasDriver?"driver":"self"}&rentalType=${rentalType}`);
+        await expect(page.locator("#hasDriver")).toHaveValue(String(hasDriver));
+        await expect(page.locator("#rentalType")).toHaveValue(rentalType);
+        await page.getByRole("button",{name:"Xác nhận đặt xe",exact:true}).click();
+        await expect(page.getByRole("heading",{name:"Đã gửi yêu cầu đặt xe",exact:true})).toBeVisible();
+        expect(api.requests()).toBe(1);
+      });
+    }
+  }
+}
+
+for(const license of [null,{number:null,status:"pending"},{number:"TEST",status:"rejected"}]) {
+  test(`self-drive blocks missing or unapproved GPLX ${JSON.stringify(license)}`,async({page})=>{
+    const api=await mockApis(page,license,false);
+    await page.goto("/booking?facilityId=5&vehicleId=8&mode=self");
+    await expect(page.getByRole("link",{name:"Cập nhật và xem trạng thái GPLX"})).toBeVisible();
+    await page.getByRole("button",{name:"Xác nhận đặt xe",exact:true}).click();
+    await expect(page.getByText("Để thuê tự lái, hãy cập nhật GPLX và chờ được phê duyệt, hoặc chọn thuê có tài xế.",{exact:true})).toBeVisible();
+    await expect(page.locator("#hasDriver")).toHaveAttribute("aria-invalid","true");
+    expect(api.requests()).toBe(0);
   });
 }
 
-test.beforeEach(async ({ page }) => mockApis(page));
-
-for (const license of [null, { number: null, status: "pending" }]) {
-  test(`redirects ${license ? "placeholder" : "missing"} license before rendering booking`, async ({ page }) => {
-    await page.route("**/api/customer/license", (route) => route.fulfill({ json: envelope(license) }));
-    await page.goto(bookingPath);
-    await expect(page).toHaveURL(`/driver-license?returnTo=${encodeURIComponent(bookingPath)}`);
-    await expect(page.getByRole("main").getByRole("heading", { name: "Giấy phép lái xe (GPLX)" })).toBeVisible();
-    await expect(page.getByText("Vui lòng cập nhật GPLX trước khi đặt xe.", { exact: false })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Xác nhận đặt xe" })).toHaveCount(0);
-  });
-}
-
-test("keeps license loading failures on booking and supports retry", async ({ page }) => {
-  let failing = true;
-  await page.route("**/api/customer/license", (route) => failing
-    ? route.fulfill({ status: 500, json: { ...envelope(null), code: 500, is_success: false, status: "error", message: "Không thể tải" } })
-    : route.fulfill({ json: envelope({ number: "123", status: "approved" }) }));
-  await page.goto("/booking");
-  await expect(page.getByRole("main").getByRole("alert")).toContainText("Không thể kiểm tra GPLX");
-  await expect(page).toHaveURL("/booking");
-  await expect(page.getByRole("button", { name: "Xác nhận đặt xe" })).toHaveCount(0);
-  failing = false;
-  await page.getByRole("button", { name: "Thử lại", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Xác nhận đặt xe" })).toBeVisible();
-});
-
-for (const status of ["pending", "rejected"]) {
-  test(`keeps existing approval handling for a populated ${status} license`, async ({ page }) => {
-    await page.route("**/api/customer/license", (route) => route.fulfill({ json: envelope({ number: "123", status }) }));
-    await page.goto("/booking");
-    await expect(page.getByRole("button", { name: "Xác nhận đặt xe" })).toBeVisible();
-    await expect(page).toHaveURL("/booking");
-    await expect(page.locator("#licenseStatus")).toHaveValue("Chưa được duyệt");
-  });
-}
-
-test("returns to the same booking after submitting the missing license", async ({ page }) => {
-  let license: Record<string, unknown> = { number: null, status: "pending" };
-  await page.route("**/api/customer/license", (route) => {
-    if (route.request().method() === "PUT") license = { number: "123456789", type: "B2", expiryDate: "2030-01-01", status: "pending" };
-    return route.fulfill({ json: envelope(license) });
-  });
-  await page.goto(bookingPath);
-  await expect(page.getByRole("main").getByRole("heading", { name: "Giấy phép lái xe (GPLX)" })).toBeVisible();
-  await page.locator("#license-number").fill("123456789");
-  await page.locator("#license-expiry-date").fill("2030-01-01");
-  await page.locator("#customer-license-image").setInputFiles({ name: "license.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64") });
-  await page.getByRole("button", { name: "Cập nhật hồ sơ GPLX" }).click();
-  await expect(page.getByRole("link", { name: "Quay lại đặt xe" })).toHaveAttribute("href", bookingPath);
-  await page.getByRole("link", { name: "Quay lại đặt xe" }).click();
-  await expect(page).toHaveURL(bookingPath);
-  await expect(page.locator("#rentalType")).toHaveValue("longterm");
-  await expect(page.locator("#startTime")).toHaveValue("2027-01-10T08:00");
-  await expect(page.getByRole("button", { name: "Xác nhận đặt xe" })).toBeVisible();
+test("self-drive supports retry after GPLX network failure",async({page})=>{
+  const api=await mockApis(page,{number:"TEST",status:"approved"},false);
+  api.setFailLicense(true);
+  await page.goto("/booking?facilityId=5&vehicleId=8&mode=self");
+  await expect(page.getByRole("alert").filter({hasText:"Không thể kiểm tra GPLX"})).toBeVisible();
+  api.setFailLicense(false);
+  await page.getByRole("button",{name:"Thử lại",exact:true}).click();
+  await expect(page.getByRole("alert").filter({hasText:"Không thể kiểm tra GPLX"})).toHaveCount(0);
+  await page.getByRole("button",{name:"Xác nhận đặt xe",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Đã gửi yêu cầu đặt xe",exact:true})).toBeVisible();
 });

@@ -1,4 +1,5 @@
 import { backendApiClient } from "@/api/backend-api-client";
+import { newestFirst } from "./list-order";
 
 export interface VehicleTypeDto {
   id: number;
@@ -154,8 +155,8 @@ export interface CreateStaffRequest {
 
 export type UpdateStaffRequest = Omit<CreateStaffRequest, "email" | "password">;
 
-export function getVehicleTypes() {
-  return backendApiClient.get<VehicleTypeDto[]>("vehicle-types");
+export async function getVehicleTypes() {
+  return newestFirst(await backendApiClient.get<VehicleTypeDto[]>("vehicle-types"));
 }
 
 export function createVehicleType(body: { name: string; fuelType: string; type: string }) {
@@ -170,8 +171,8 @@ export function deleteVehicleType(id: number) {
   return backendApiClient.delete<void>(`vehicle-types/${id}`);
 }
 
-export function getDepartments() {
-  return backendApiClient.get<OrganizationUnitDto[]>("departments");
+export async function getDepartments() {
+  return newestFirst(await backendApiClient.get<OrganizationUnitDto[]>("departments"));
 }
 
 export function createDepartment(name: string) {
@@ -191,12 +192,12 @@ export async function getFacilities(): Promise<OrganizationUnitDto[]> {
   let page = 1;
   while (true) {
     const result = await backendApiClient.get<PagedResult<OrganizationUnitDto> | OrganizationUnitDto[]>("facilities", { page, pageSize: 100 });
-    if (Array.isArray(result)) return items.concat(result);
+    if (Array.isArray(result)) return newestFirst(items.concat(result));
     if (!result || !Array.isArray(result.items) || result.page !== page || !Number.isSafeInteger(result.totalCount) || result.totalCount < 0) {
       throw new Error("Dữ liệu chi nhánh không hợp lệ. Vui lòng thử lại.");
     }
     items.push(...result.items);
-    if (items.length >= result.totalCount) return items;
+    if (items.length >= result.totalCount) return newestFirst(items);
     if (!result.items.length) throw new Error("Chưa tải đủ danh sách chi nhánh. Vui lòng thử lại.");
     page++;
   }
@@ -229,8 +230,8 @@ export function setRentalPolicyStatus(id: number, isActive: boolean) {
   return backendApiClient.patch<RentalPolicyDto>(`rental-policies/${id}/status`, { isActive });
 }
 
-export function getSubscriptionPlans(all = true) {
-  return backendApiClient.get<SubscriptionPlanDto[]>("subscription-plans", { all });
+export async function getSubscriptionPlans(all = true) {
+  return newestFirst(await backendApiClient.get<SubscriptionPlanDto[]>("subscription-plans", { all }));
 }
 
 export function createSubscriptionPlan(body: SubscriptionPlanRequest) {

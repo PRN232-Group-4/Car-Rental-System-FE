@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiClientError } from "@/api/api-client";
 import { RENTAL_101 } from "@/__tests__/features/admin/rentals/rental-fixture";
 
-const api = vi.hoisted(() => ({ getInspectionAssignment: vi.fn(), getInspectionTechnicians: vi.fn(), assignInspectionTechnician: vi.fn() }));
+const api = vi.hoisted(() => ({ getInspectionAssignment: vi.fn(), getInspectionTechnicians: vi.fn(), assignInspectionTechnician: vi.fn(), confirmInspectionChecked: vi.fn() }));
 const auth = vi.hoisted(() => ({ role: "Admin" }));
 vi.mock("./technician-api", async (importOriginal) => ({ ...await importOriginal<typeof import("./technician-api")>(), ...api }));
 vi.mock("@/features/auth/AuthContext", () => ({ useOptionalSession: () => ({ hasAnyRole: (roles: string[]) => roles.includes(auth.role) }) }));
@@ -17,9 +17,9 @@ beforeEach(() => {
   api.getInspectionTechnicians.mockResolvedValue([{ id: 9, fullName: "Nguyễn Văn Kỹ", email: "technician@example.com", isActive: true, staffRole: "Maintenance" }]);
 });
 
-function setup(refresh = vi.fn().mockResolvedValue(undefined)) {
+function setup(refresh = vi.fn().mockResolvedValue(undefined), overrides = {}) {
   const cache = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  render(<QueryClientProvider client={cache}><TechnicianAssignmentForm rental={{ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: false }} refresh={refresh} /></QueryClientProvider>);
+  render(<QueryClientProvider client={cache}><TechnicianAssignmentForm rental={{ ...RENTAL_101, status: "pre_inspection", hasDriver: false, hasPassingPreInspection: false, ...overrides }} refresh={refresh} /></QueryClientProvider>);
   return { refresh };
 }
 
@@ -36,10 +36,79 @@ it("requires a technician then saves the selection and displays persisted assign
   fireEvent.change(select, { target: { value: "9" } });
   expect(select).toHaveAttribute("aria-invalid", "false");
   fireEvent.click(save);
-  await screen.findByText("Đã phân công kỹ thuật viên kiểm tra trước thuê.");
+  await screen.findByText("Đã phân công kỹ thuật viên. Đang chờ kết quả kiểm tra.");
   expect(api.assignInspectionTechnician).toHaveBeenCalledWith(101, 9);
   expect(refresh).toHaveBeenCalledTimes(1);
   expect(screen.getByText("Đã giao:")).toBeVisible();
+});
+
+it("lets Admin explicitly confirm assignment and a passing check after selecting a technician", async () => {
+  api.confirmInspectionChecked.mockResolvedValue({ technicianStaffId: 9, technicianEmail: "technician@example.com", assignedAt: "2026-10-21T03:00:00Z" });
+  const { refresh } = setup();
+  await screen.findByRole("option", { name: "technician@example.com" });
+  fireEvent.click(screen.getByRole("button", { name: "Đã inspect" }));
+  expect(await screen.findByText("Vui lòng chọn kỹ thuật viên phụ trách trước khi xác nhận.")).toBeVisible();
+  expect(api.confirmInspectionChecked).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText("Kỹ thuật viên phụ trách"), { target: { value: "9" } });
+  fireEvent.click(screen.getByRole("button", { name: "Đã inspect" }));
+  expect(api.confirmInspectionChecked).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Xác nhận kiểm tra đạt" }));
+  await screen.findByText("Đã xác nhận phân công và kiểm tra trước thuê đạt.");
+  expect(api.confirmInspectionChecked).toHaveBeenCalledWith(101,9);
+  expect(api.assignInspectionTechnician).not.toHaveBeenCalled();
+  expect(refresh).toHaveBeenCalledTimes(1);
+});
+
+it("retains technician selection when Admin confirmation fails", async () => {
+  api.confirmInspectionChecked.mockRejectedValue(new TypeError("network"));
+  setup();
+  await screen.findByRole("option", { name: "technician@example.com" });
+  fireEvent.change(screen.getByLabelText("Kỹ thuật viên phụ trách"), { target: { value: "9" } });
+  fireEvent.click(screen.getByRole("button", { name: "Đã inspect" }));
+  fireEvent.click(screen.getByRole("button", { name: "Xác nhận kiểm tra đạt" }));
+  await screen.findByRole("alert");
+  expect(screen.getByLabelText("Kỹ thuật viên phụ trách")).toHaveValue("9");
+  expect(screen.queryByText("Đã xác nhận phân công và kiểm tra trước thuê đạt.")).not.toBeInTheDocument();
+});
+
+it("explains a missing checked endpoint and keeps the selected technician", async () => {
+  api.confirmInspectionChecked.mockRejectedValue(new ApiClientError(404,"Not Found",{error:{title:"Not Found",detail:"Not Found"}}));
+  setup();
+  await screen.findByRole("option",{name:"technician@example.com"});
+  fireEvent.change(screen.getByLabelText("Kỹ thuật viên phụ trách"),{target:{value:"9"}});
+  fireEvent.click(screen.getByRole("button",{name:"Đã inspect"}));
+  fireEvent.click(screen.getByRole("button",{name:"Xác nhận kiểm tra đạt"}));
+  await screen.findByText("Backend đang kết nối chưa có API xác nhận kiểm tra đạt. Cần cập nhật backend mới cùng migration 0028 rồi thử lại.");
+  expect(screen.getByLabelText("Kỹ thuật viên phụ trách")).toHaveValue("9");
+});
+
+it("offers Đã inspect for an already assigned rental even when a driver booking has no passing check yet", async () => {
+  api.getInspectionAssignment.mockResolvedValue({ technicianStaffId: 9, technicianEmail: "technician@example.com", assignedAt: "2026-10-22T03:21:00Z" });
+  api.confirmInspectionChecked.mockResolvedValue({ technicianStaffId: 9, technicianEmail: "technician@example.com", assignedAt: "2026-10-22T03:21:00Z" });
+  const { refresh } = setup(undefined, {hasDriver:true});
+  const inspect = await screen.findByRole("button", { name: "Đã inspect" });
+  await waitFor(() => expect(inspect).toBeEnabled());
+  expect(screen.getByLabelText("Kỹ thuật viên phụ trách")).toHaveValue("9");
+  fireEvent.click(inspect);
+  fireEvent.click(screen.getByRole("button", { name: "Xác nhận kiểm tra đạt" }));
+  await screen.findByText("Đã xác nhận phân công và kiểm tra trước thuê đạt.");
+  expect(api.confirmInspectionChecked).toHaveBeenCalledWith(101,9);
+  expect(api.assignInspectionTechnician).not.toHaveBeenCalled();
+  expect(refresh).toHaveBeenCalledTimes(1);
+});
+
+it("shows driver default readiness and does not offer another pre-inspection assignment", async () => {
+  setup(undefined, {hasDriver:true,hasPassingPreInspection:true});
+  expect(await screen.findByText("Đơn có tài xế: đã đạt kiểm tra trước thuê theo mặc định.")).toBeVisible();
+  expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+  expect(api.getInspectionTechnicians).not.toHaveBeenCalled();
+});
+
+it("does not offer direct confirmation to Manager", async () => {
+  auth.role="Manager";
+  setup();
+  await screen.findByRole("button", {name:"Lưu phân công kiểm tra"});
+  expect(screen.queryByRole("button", {name:"Đã inspect"})).not.toBeInTheDocument();
 });
 
 it("keeps the selection and maps backend field errors inline", async () => {

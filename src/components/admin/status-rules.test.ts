@@ -26,6 +26,7 @@ describe("Admin semantic status rules", () => {
     expect(getAdminStatusTone("license", "rejected")).toBe("danger");
     expect(getAdminStatusTone("license", "expired")).toBe("danger");
     expect(getAdminStatusTone("rental", "cancelled")).toBe("danger");
+    expect(getAdminStatusTone("rental", "overdue")).toBe("danger");
     expect(getAdminStatusTone("vehicle", "maintenance")).toBe("warning");
   });
 });

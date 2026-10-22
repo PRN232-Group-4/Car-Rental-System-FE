@@ -21,6 +21,9 @@ export function mapInvoiceFromBE(raw: Record<string, unknown>): Invoice {
     paymentBlockedReason: (raw.paymentBlockedReason ?? raw.PaymentBlockedReason ?? null) as string | null,
     paymentMethod: String(raw.paymentMethod ?? raw.PaymentMethod ?? "payos"),
     orderId: (raw.orderId ?? raw.OrderId ?? null) as number | string | null,
+    kind: String(raw.kind ?? raw.Kind ?? "rental"),
+    canConfirmCash: (raw.canConfirmCash ?? raw.CanConfirmCash) === true,
+    canCreateStaffCheckout: (raw.canCreateStaffCheckout ?? raw.CanCreateStaffCheckout) === true,
   };
 }
 
@@ -39,6 +42,7 @@ export async function getInvoiceById(id: number | string): Promise<Invoice | nul
   return raw ? mapInvoiceFromBE(raw) : null;
 }
 export const checkoutInvoice = (id: number | string) => defaultApiClient.post<CheckoutResult>(`invoices/${id}/checkout`);
+export const checkoutOvertimeForStaff = (id: number | string) => defaultApiClient.post<CheckoutResult>(`invoices/${id}/staff-checkout`);
 export function confirmCashReceipt(id: number | string) {
   return defaultApiClient.post<{ paymentId: number; invoiceId: number; status: string; orderId: number | null }>(`invoices/${encodeURIComponent(id)}/cash-confirmation`);
 }
