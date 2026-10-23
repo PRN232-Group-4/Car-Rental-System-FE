@@ -22,6 +22,9 @@ it("posts the exact RentalRequest and reads a real backend rental id", async () 
   expect(result.bookingId).toBe(321);
   expect(result.invoiceId).toBeUndefined();
 });
+it("defaults to a chauffeur booking when the mode is not provided", () => {
+  expect(toRentalRequest({ rentalType: "hourly", vehicleId: 8, startTime: "a", endTime: "b" })).toMatchObject({ hasDriver: true });
+});
 it("uses the longterm endpoint and retains failures without fabricating confirmations", async () => {
   const failure = new Error("Xe đã có lịch thuê.");
   client.post.mockRejectedValue(failure);
