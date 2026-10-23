@@ -1,4 +1,5 @@
 # Changelog
+- 2026-10-23 — [Restyle khối kiểm tra xe theo bố cục landing của dev-huy](2026-10-23-landing-inspection-restyle.md)
 - 2026-10-23 — [Loading dùng chung cho Admin/Customer và dashboard doanh thu – lượt thuê](2026-10-23-loading-and-dashboard-polish.md)
 - 2026-10-23 — [Kiểm tra UI/UX phía Customer](2026-10-23-customer-ui-ux-audit.md)
 - 2026-10-23 — [Kiểm tra và dọn dữ liệu giả](2026-10-23-mock-data-cleanup.md)
