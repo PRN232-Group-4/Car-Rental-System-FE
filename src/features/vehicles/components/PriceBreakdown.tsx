@@ -26,8 +26,9 @@ export interface PriceBreakdownProps {
  *   cọc      = (tiền thuê + phí tài xế) × deposit_percentage% — **không** gồm VAT
  *   hóa đơn  = tiền thuê + phí tài xế + VAT + cọc
  * Ví dụ đối chiếu: 100.000/giờ × 2 giờ, VAT 10%, cọc 20% ⇒ thuê 200.000 · VAT 20.000 · cọc 40.000 · tổng 260.000
- * (xem `docs/rental-deposit-penalty-audit.md`). Không hiển thị dự toán khi thiếu chính sách,
- * thiếu đơn giá tháng cho thuê dài hạn, hoặc thiếu dữ liệu phí tài xế khi khách chọn có tài xế.
+ * (xem `docs/rental-deposit-penalty-audit.md`). Không hiển thị dự toán khi thiếu chính sách hoặc thiếu đơn giá
+ * tháng cho thuê dài hạn. Hình thức thuê kèm tài xế **không** làm mất dự toán: bảng giá hiện hành chỉ tính
+ * tiền thuê theo đơn giá, nên chỉ cộng dòng phụ phí tài xế khi có nguồn dữ liệu phí thật.
  */
 export function PriceBreakdown({
   hourlyRate,
@@ -42,7 +43,6 @@ export function PriceBreakdown({
   const calculation = useMemo(() => {
     // Thiếu chính sách thì không tự bịa tỷ lệ VAT/cọc.
     if (!policy) return null;
-    if (hasDriver && driverFeePerDay === undefined) return null;
 
     const billableHours = Math.max(0, hours);
     const months = Math.max(1, Math.ceil(billableHours / 720));

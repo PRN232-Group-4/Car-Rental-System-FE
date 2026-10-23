@@ -25,9 +25,8 @@ export default {
           executable: 'npm',
           args: ['run', 'dev'],
           // Next 16 từ chối chạy dev server thứ hai khi đã có một cái đang chạy.
-          // Local dùng lại server sẵn có; CI luôn spawn (và ép chế độ mock).
+          // Local dùng lại server sẵn có; CI luôn spawn.
           reuseExisting: true,
-          env: { NEXT_PUBLIC_USE_MOCK: 'true' },
           log: '.e2e/logs/dev-server.log',
         },
       },
