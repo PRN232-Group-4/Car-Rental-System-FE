@@ -56,7 +56,7 @@ export default function GoiThueBaoPage() {
                 </div>
                 <h3 className="font-bold text-lg text-ink mb-2">Đặt xe tức thì không cần cọc từng lượt</h3>
                 <p className="text-sm text-ink-2 leading-relaxed">
-                  Gói còn hiệu lực trong tài khoản sẽ trừ thẳng giờ di chuyển. Không tạo hoá đơn trung gian, không giam tiền cọc qua cổng, không chờ đối soát sau mỗi chuyến đi.
+                  Gói còn hiệu lực trong tài khoản sẽ trừ thẳng giờ di chuyển. Không tạo hóa đơn trung gian, không giam tiền cọc qua cổng, không chờ đối soát sau mỗi chuyến đi.
                 </p>
               </div>
               <div className="pt-5 mt-5 border-t border-line text-xs font-mono text-primary font-bold">

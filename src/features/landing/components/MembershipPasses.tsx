@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { 
   Clock, 
@@ -14,6 +14,7 @@ import { getSubscriptionPlans, purchaseSubscriptionPlan } from "@/features/subsc
 import type { SubscriptionPlan } from "@/features/subscriptions/types";
 import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/Button";
+import { CardGridSkeleton } from "@/components/ui/Skeleton";
 
 export default function MembershipPasses() {
   const router = useRouter();
@@ -25,11 +26,20 @@ export default function MembershipPasses() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const loadPlans = useCallback(() => {
+    setLoading(true);
+    setLoadError(null);
+    return getSubscriptionPlans()
+      .then(setPlans)
+      .catch(() => { setLoadError("Không tải được các gói thuê bao. Vui lòng thử lại."); })
+      .finally(() => { setLoading(false); });
+  }, []);
+
   useEffect(() => {
     let active = true;
     getSubscriptionPlans()
       .then((data) => { if (active) setPlans(data); })
-      .catch(() => { if (active) setLoadError("Không tải được các gói thuê bao. Vui lòng tải lại trang."); })
+      .catch(() => { if (active) setLoadError("Không tải được các gói thuê bao. Vui lòng thử lại."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
@@ -157,8 +167,8 @@ export default function MembershipPasses() {
           </div>
         )}
 
-        {loading && <p role="status" className="mb-6 text-sm text-ink-2">Đang tải các gói thuê bao...</p>}
-        {loadError && <p role="alert" className="mb-6 text-sm text-danger">{loadError}</p>}
+        {loading && <CardGridSkeleton label="Đang tải các gói thuê bao" className="mb-6 grid grid-cols-1 items-stretch gap-8 md:grid-cols-3" count={3} mediaClassName="hidden" lines={4} />}
+        {loadError && <div className="mb-6 space-y-3"><p role="alert" className="text-sm text-danger">{loadError}</p><Button type="button" variant="secondary" onClick={() => { void loadPlans(); }}>Tải lại gói</Button></div>}
         {!loading && !loadError && plans.length === 0 && <p role="status" className="mb-6 text-sm text-ink-2">Hiện chưa có gói thuê bao đang mở bán.</p>}
 
         {/* 3 Apple Wallet / Digital Passes */}

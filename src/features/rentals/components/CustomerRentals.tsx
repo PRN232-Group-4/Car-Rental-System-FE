@@ -14,7 +14,7 @@ import RentalCountdown from "./RentalCountdown";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import RentalCancelDialog from "@/features/operations/RentalCancelDialog";
 
-const panel = "space-y-4 border-t border-td-ink pt-4";
+const panel = "space-y-4 border-t border-td-ink pt-4 scroll-mt-32";
 const tabs = [{ value: "", label: "Tất cả" }, { value: "upcoming", label: "Sắp tới" }, { value: "ongoing", label: "Đang thuê" }, { value: "completed", label: "Đã trả xe" }, { value: "cancelled", label: "Đã hủy" }, { value: "expired", label: "Đã hết hạn" }];
 const errorText = (error: unknown) => error instanceof TypeError ? "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại." : error instanceof Error ? error.message : "Không tải được đơn thuê. Vui lòng thử lại.";
 /** Trạng thái kết thúc: không cần hỏi lại máy chủ theo chu kỳ để chờ chuyển trạng thái. */

@@ -150,13 +150,11 @@ export async function revokeUserSessions(userId: number): Promise<{ success: boo
   return { success: true };
 }
 
-export async function reviewCustomerLicense({ customerId, status }: { customerId: number; status: "approved" | "rejected" }): Promise<{ fullName: string }> {
+export async function reviewCustomerLicense({ customerId, status }: { customerId: number; status: "approved" | "rejected" }): Promise<void> {
   await backendApiClient.put(`customers/${customerId}/license-status`, { status });
-  return { fullName: "khách hàng" };
 }
 
-export async function adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }: { customerId: number; points: number; reason: string; idempotencyKey: string }): Promise<{ fullName: string }> {
+export async function adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }: { customerId: number; points: number; reason: string; idempotencyKey: string }): Promise<void> {
   if (!Number.isInteger(points) || points === 0) throw problem(400, "Số điểm điều chỉnh phải là số nguyên khác 0.");
   await backendApiClient.post(`customers/${customerId}/loyalty/adjustments`, { points, reason: reason.trim(), idempotencyKey });
-  return { fullName: "khách hàng" };
 }

@@ -125,7 +125,7 @@ export function listOperationalRentals(params?: { status?: string; page?: number
   return backendApiClient.get<PagedResult<OperationalRental>>("rentals", params);
 }
 
-/** Một số endpoint trả mảng trực tiếp, một số trả envelope { items } — chuẩn hoá lại. */
+/** Một số endpoint trả mảng trực tiếp, một số trả envelope { items } — chuẩn hóa lại. */
 export function toList<T>(data: unknown): T[] {
   if (Array.isArray(data)) return data as T[];
   const items = (data as { items?: unknown } | null | undefined)?.items;

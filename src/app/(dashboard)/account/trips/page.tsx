@@ -15,10 +15,11 @@ import { Button } from "@/components/ui/Button";
 import type { TripTab } from "@/features/account/trips/types";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
+/** Nhãn tab dùng chung với `/my-rentals` để hai trang khách không gọi cùng một trạng thái bằng hai tên. */
 const TABS: { key: TripTab; label: string }[] = [
   { key: "upcoming", label: "Sắp tới" },
-  { key: "ongoing", label: "Đang diễn ra" },
-  { key: "completed", label: "Đã hoàn thành" },
+  { key: "ongoing", label: "Đang thuê" },
+  { key: "completed", label: "Đã trả xe" },
   { key: "cancelled", label: "Đã hủy" },
 ];
 

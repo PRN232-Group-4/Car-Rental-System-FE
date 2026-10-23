@@ -4,7 +4,7 @@ import BookingLicenseGate from "@/features/rentals/components/BookingLicenseGate
 
 export const metadata = {
   title: "Tạo đơn thuê xe | Thong Dong",
-  description: "Đặt xe theo giờ hoặc thuê dài hạn với quy trình bàn giao số hoá 3 phút.",
+  description: "Đặt xe theo giờ hoặc thuê dài hạn với quy trình bàn giao số hóa 3 phút.",
 };
 
 export default function BookingPage() {

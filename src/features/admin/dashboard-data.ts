@@ -1,23 +1,33 @@
 import { getVehicles } from "./api";
 
-export type DashboardSnapshot = {
+export type DashboardSnapshotValues = {
   revenue: number | null;
   renting: number | null;
   maintenance: number | null;
   activeSubscriptions: number | null;
 };
 
+export type DashboardSnapshot = DashboardSnapshotValues & {
+  /** Cùng bộ chỉ số của kỳ liền trước do API trả về, dùng để hiển thị xu hướng thật. */
+  previous: DashboardSnapshotValues;
+};
+
 export type DashboardChartItem = { key: string; label: string; value: number; color: string };
 export type FleetCounts = { total: number; available: number; rented: number; renting: number; maintenance: number };
 
-// A missing/invalid field stays unknown; it must never turn into a fabricated zero.
-export function parseDashboardSnapshot(data: unknown): DashboardSnapshot {
-  const source = typeof data === "object" && data !== null ? data as Record<string, unknown> : {};
+/** Một chỉ số thiếu/không hợp lệ phải giữ nguyên là "chưa biết", tuyệt đối không tự đổi thành 0. */
+function readSnapshotValues(input: unknown): DashboardSnapshotValues {
+  const source = typeof input === "object" && input !== null ? input as Record<string, unknown> : {};
   const number = (key: string, count = false) => {
     const value = source[key];
     return typeof value === "number" && Number.isFinite(value) && value >= 0 && (!count || Number.isSafeInteger(value)) ? value : null;
   };
   return { revenue: number("revenue"), renting: number("renting", true), maintenance: number("maintenance", true), activeSubscriptions: number("activeSubscriptions", true) };
+}
+
+export function parseDashboardSnapshot(data: unknown): DashboardSnapshot {
+  const source = typeof data === "object" && data !== null ? data as Record<string, unknown> : {};
+  return { ...readSnapshotValues(source), previous: readSnapshotValues(source.previous) };
 }
 
 export function activityChartItems(data: DashboardSnapshot): DashboardChartItem[] {

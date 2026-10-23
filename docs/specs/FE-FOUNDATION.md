@@ -8,6 +8,7 @@
 
 * Next.js 16.3.8 + React 19.2.8 + Tailwind v4, `output: "export"` (xuất tĩnh), triển khai Cloudflare Workers static assets (`wrangler.jsonc`). Chỉ có `next, react, gsap, @gsap/react, lucide-react` — **không** có thư viện dữ liệu/biểu mẫu/bảng/biểu đồ/toast/ngày giờ/test.
 * `ApiClient` viết tay (`src/api/api-client.ts`) + mock in-memory (`src/api/mock/*`, bật bằng `NEXT_PUBLIC_USE_MOCK`); **không** `credentials: "include"`, không đọc `ProblemDetails`, không xử lý 401/403, chưa unwrap envelope `{ message, is_success, data }`.
+  > **Cập nhật (2026-10-23):** mock engine đã được gỡ hoàn toàn. Không còn thư mục `src/api/mock/*`, không còn cờ `NEXT_PUBLIC_USE_MOCK` / `isMockMode`; mọi màn hình đọc backend thật qua `defaultApiClient` và fail closed khi lỗi (hiển thị trạng thái lỗi + nút thử lại).
 * Không `middleware`, không session, không role constants. Route đã có: `/` (thật), và trên nhánh `feature/profile` của Anh: `/profile`, `/admin/*` (stub, dữ liệu tĩnh, không phân quyền, bảng/biểu mẫu code inline).
 * Quy ước dự án (Anh đã dùng): do static export không có route động, trang chi tiết/sửa dùng **query string**: `/admin/vehicles/edit?id=…`.
 

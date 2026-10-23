@@ -8,7 +8,7 @@ export interface CheckoutCancellation {
 
 /**
  * Xác minh với BE (BE hỏi lại payOS) rồi mới đánh dấu giao dịch 'cancelled'. payOS không gửi
- * webhook khi khách huỷ link thanh toán nên đây là bước bắt buộc để hoá đơn/gói không treo ở
+ * webhook khi khách huỷ link thanh toán nên đây là bước bắt buộc để hóa đơn/gói không treo ở
  * trạng thái chờ. Trả null khi không huỷ được (BE cũ chưa có endpoint, hoặc link vẫn hiệu lực).
  */
 export async function cancelCheckout(orderCode: number | string): Promise<CheckoutCancellation | null> {

@@ -31,15 +31,21 @@ describe('Landing — nội dung từng section', () => {
     await expect(browser.locator('#doi-xe').getByText(/đ\/giờ/).first()).toBeVisible();
   });
 
-  test('section kiểm định có 4 hạng mục và bảng chứng thực PayOS', async ({ app, browser, screen }) => {
+  test('section kiểm định có 4 điểm kiểm tra chọn được và panel đối chiếu quyết toán', async ({ app, browser, screen }) => {
     await app.open('/');
 
-    await expect(screen.getByRole('heading', { name: /Kiểm Định 2 Chiều & Hoàn Cọc Tự Động/i })).toBeVisible();
-    for (const name of ['Ngoại Quan 360°', 'ECU Odometer & Pin', 'Áp Suất Lốp & Phanh', 'Ký Số Điện Tử']) {
-      // Panel bên phải lặp lại tên hạng mục đang chọn nên chỉ cần có ít nhất một.
+    await expect(screen.getByRole('heading', { name: /Kiểm tra xe trước và sau chuyến đi/i })).toBeVisible();
+    for (const name of ['Ngoại thất và ảnh xe', 'Chỉ số km', 'Xăng hoặc pin', 'Kết quả và người xác nhận']) {
+      // Panel bên phải lặp lại tên điểm đang chọn nên chỉ cần có ít nhất một heading.
       await expect(screen.getByRole('heading', { name, exact: true }).first()).toBeVisible();
     }
-    await expect(browser.locator('#cong-nghe').getByText('CƠ CHẾ HOÀN CỌC PAYOS TỨC THÌ')).toBeVisible();
+    await expect(browser.locator('#kiem-dinh').getByText('DÙNG KHI QUYẾT TOÁN')).toBeVisible();
+
+    // Chọn điểm khác thì panel chi tiết đổi theo (state cục bộ, không gọi API).
+    const detailPanel = browser.locator('#kiem-dinh');
+    await expect(detailPanel.getByText('ODOMETER')).toHaveCount(0);
+    await screen.getByRole('button', { name: /Chỉ số km/i }).first().click();
+    await expect(detailPanel.getByText('ODOMETER')).toBeVisible();
   });
 
   test('thẻ hội viên: mỗi gói đang mở bán có đúng một CTA mua', async ({ app, browser, screen }) => {

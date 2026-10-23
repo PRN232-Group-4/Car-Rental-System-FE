@@ -10,8 +10,10 @@ import {
   CalendarClock,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
+import { usePortalAccess } from "@/features/auth/use-portal-access";
+import { DriverShellSkeleton } from "@/components/layout/PortalShellSkeleton";
 import { initialsFor } from "@/features/profile/api";
-import type { DriverPortalAccount } from "./api";
+import { isDriverStaffAccount, type DriverPortalAccount } from "./api";
 import AppPortalShell, { type PortalNavItem } from "@/components/layout/AppPortalShell";
 
 const navigation: PortalNavItem[] = [
@@ -32,47 +34,55 @@ export function useDriverPortalAccount(): DriverPortalAccount {
   return account;
 }
 
+/**
+ * Cổng tài xế chỉ chạy trên hồ sơ nhân sự thật: `usePortalAccess` xác thực hồ sơ
+ * (Staff/Driver + staffId) trước khi render, nên không còn danh tính/SĐT/cơ sở bịa và
+ * không có chuyện gọi API bằng staffId giả khi chưa đăng nhập.
+ */
 export default function DriverPortalShell({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const { account, checkingAccess, accessError } = usePortalAccess<DriverPortalAccount>(isDriverStaffAccount);
 
-  const activeAccount: DriverPortalAccount = useMemo(() => ({
-    email: user?.email || "driver@thongdong.vn",
-    fullName: user?.fullName || "Tài xế Thong Dong",
-    gender: "Nam",
-    phone: "0901 234 567",
-    avatarUrl: user?.avatarUrl || null,
-    roles: ["Driver", "Staff"],
-    staffId: 1,
-    departmentId: 1,
-    departmentName: "Đội xe & Tài xế",
-    facilityId: 1,
-  }), [user]);
+  const initials = useMemo(() => (account ? initialsFor(account.fullName ?? account.email ?? "TD") : "TD"), [account]);
 
-  const initials = useMemo(
-    () => initialsFor(activeAccount.fullName),
-    [activeAccount.fullName],
-  );
+  if (checkingAccess) return <DriverShellSkeleton />;
+
+  if (!account) {
+    return <div role="alert" className="mx-auto max-w-xl space-y-4 px-4 py-16 text-sm text-td-ink">
+      <p className="font-bold">Không mở được cổng tài xế.</p>
+      <p className="text-td-muted">
+        {accessError || "Tài khoản này chưa có hồ sơ nhân sự tài xế. Vui lòng liên hệ quản trị viên để được gán vai trò Tài xế."}
+      </p>
+      <button
+        type="button"
+        onClick={() => router.replace("/login")}
+        className="rounded border border-td-rule px-4 py-2.5 font-bold"
+      >
+        Về trang đăng nhập
+      </button>
+    </div>;
+  }
 
   return (
-    <DriverPortalContext.Provider value={activeAccount}>
+    <DriverPortalContext.Provider value={account}>
       <AppPortalShell
         portalLabel="Driver portal"
         portalSubLabel="Cổng tài xế / Nhân viên"
         brandHref="/staff"
         navItems={navigation}
         user={{
-          name: activeAccount.fullName ?? "Tài xế",
-          subtitle: activeAccount.departmentName ?? "Phòng ban tài xế",
+          name: account.fullName?.trim() || account.email || "Tài xế Thong Dong",
+          subtitle: account.departmentName?.trim() || "Chưa cập nhật phòng ban",
           initials,
-          badge: activeAccount.facilityId ? `Cơ sở #${activeAccount.facilityId}` : null,
+          badge: account.facilityId !== null ? `Cơ sở #${account.facilityId}` : null,
         }}
         profileHref="/staff/profile"
         profileButtonText="Hồ sơ của tôi"
         rightHeaderActions={
-          activeAccount.facilityId !== null ? (
+          account.facilityId !== null ? (
             <span className="hidden rounded-full border border-td-rule bg-td-chalk px-3 py-1.5 text-xs font-semibold text-td-ink sm:inline-flex">
-              Cơ sở #{activeAccount.facilityId}
+              Cơ sở #{account.facilityId}
             </span>
           ) : null
         }

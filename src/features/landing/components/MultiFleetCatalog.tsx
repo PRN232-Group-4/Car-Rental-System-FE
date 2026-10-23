@@ -17,7 +17,7 @@ import BookingModal from "@/features/rentals/components/BookingModal";
 import { formatVnd } from "@/lib/format";
 import { useFleetVehicles } from "../use-fleet-vehicles";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { SkeletonBlock, Skeleton } from "@/components/ui/Skeleton";
+import { CardGridSkeleton } from "@/components/ui/Skeleton";
 import type { Vehicle, VehicleCategory } from "@/features/vehicles/types";
 import { VehicleLicenseRequirement } from "@/features/vehicles/components/VehicleLicenseRequirement";
 
@@ -226,7 +226,7 @@ export default function MultiFleetCatalog() {
         </Button>
       </div>
 
-      {fleet.isPending && <SkeletonBlock label="Đang tải danh mục xe" className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((key) => <Skeleton key={key} className="h-96 w-full" />)}</SkeletonBlock>}
+      {fleet.isPending && <CardGridSkeleton label="Đang tải danh mục xe" className="grid gap-8 md:grid-cols-2 lg:grid-cols-3" count={3} mediaClassName="h-56 w-full rounded-none" lines={4} containerClassName="rounded-3xl border border-line-strong bg-surface" />}
       {fleet.isError && <ErrorState message={fleet.error.message} onRetry={() => { void fleet.refetch(); }} />}
       {!fleet.isPending && !fleet.isError && !filteredVehicles.length && <p role="status" className="py-8 text-center text-sm text-ink-2">Không có phương tiện phù hợp trong danh sách gợi ý.</p>}
       {/* Vehicles Grid */}

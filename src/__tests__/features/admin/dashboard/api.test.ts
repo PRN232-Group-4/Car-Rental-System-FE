@@ -163,5 +163,16 @@ describe("Dashboard Math & Helpers", () => {
       expect(lastMonth.from).toBeDefined();
       expect(new Date(lastMonth.from).getTime()).toBeLessThan(new Date(thisMonth.from).getTime());
     });
+
+    it("preset năm nay bắt đầu từ 01/01 GMT+7 và bao trọn hôm nay", () => {
+      const range = getPresetDateRange("this_year");
+      const from = new Date(range.from);
+      const to = new Date(range.to);
+      expect(from.getTime()).toBeLessThan(to.getTime());
+      // Mốc đầu năm theo giờ GMT+7 ⇒ khi đổi sang UTC là 31/12 năm trước 17:00Z.
+      expect(from.toISOString().slice(5, 10)).toBe("12-31");
+      expect(from.toISOString().slice(11, 13)).toBe("17");
+      expect(to.getTime()).toBeGreaterThanOrEqual(Date.now());
+    });
   });
 });

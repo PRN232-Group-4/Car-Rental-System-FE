@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
-vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client, isMockMode: false }));
+vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client }));
 import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, toRentalRequest, updateRentalContract, uploadRentalContract } from "./api";
 
 beforeEach(() => vi.resetAllMocks());
