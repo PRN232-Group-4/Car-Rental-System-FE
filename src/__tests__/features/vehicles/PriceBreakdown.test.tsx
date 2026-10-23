@@ -43,11 +43,11 @@ describe("PriceBreakdown — đối chiếu với công thức backend", () => {
     expect(text).toMatch(/Tổng thanh toán dự kiến:[\s\S]{0,120}?260đ/);
   });
 
-  it("không hiển thị dự toán khi chưa biết phí tài xế, và không tự thêm dòng tài xế", () => {
+  it("vẫn dự toán khi thuê kèm tài xế, không tự thêm dòng phí tài xế", () => {
     render(<PriceBreakdown {...baseProps} hasDriver policy={policy} />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Chưa đủ bảng giá hoặc chính sách");
     expect(screen.queryByText(/Tài xế riêng/)).not.toBeInTheDocument();
+    expect(panelText()).toMatch(/Tổng thanh toán dự kiến:[\s\S]{0,120}?260đ/);
   });
 
   it("cộng phí tài xế khi có dữ liệu và vẫn tính cọc trên cơ sở trước VAT", () => {

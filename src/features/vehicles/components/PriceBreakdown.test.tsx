@@ -15,8 +15,13 @@ describe("real pricing and policy data", () => {
     expect(screen.queryByText(/Thuế VAT/)).not.toBeInTheDocument();
   });
   it("does not invent a driver fee or monthly discount", () => {
+    // Thuê kèm tài xế vẫn phải có dự toán (bảng giá backend không cộng phụ phí tài xế) nhưng không được
+    // tự vẽ ra dòng "Tài xế riêng" khi chưa có nguồn dữ liệu phí.
     const { rerender } = render(<PriceBreakdown {...props} policy={policy} hasDriver />);
-    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tài xế riêng/)).not.toBeInTheDocument();
+    expect(screen.getByText(formatVnd(260000))).toBeInTheDocument();
+    // Chưa có đơn giá tháng cho thuê dài hạn thì vẫn không dự toán.
     rerender(<PriceBreakdown {...props} policy={policy} rentalType="longterm" />);
     expect(screen.getByRole("status")).toBeInTheDocument();
   });

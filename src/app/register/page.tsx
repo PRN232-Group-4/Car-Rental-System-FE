@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="h-dvh w-full overflow-hidden flex flex-col bg-canvas relative selection:bg-primary/15 selection:text-primary">
+    <div className="min-h-dvh w-full overflow-y-auto flex flex-col bg-canvas relative selection:bg-primary/15 selection:text-primary">
       {/* Background CAD Grid & Aero Blueprint đồng bộ với Landing Page */}
       <AuthBackground />
 
@@ -37,7 +37,7 @@ export default function RegisterPage() {
       </header>
 
       {/* Main Content: Single focused card perfectly centered in viewport */}
-      <main className="flex-1 w-full max-w-md mx-auto px-4 flex flex-col justify-center pb-6">
+      <main className="flex-1 w-full max-w-md mx-auto px-4 py-6 flex flex-col justify-center">
         <Suspense fallback={<div className="p-8 text-center text-xs text-ink-3">Đang tải biểu mẫu...</div>}>
           <RegisterForm />
         </Suspense>

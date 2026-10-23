@@ -24,11 +24,11 @@ export default function HowItWorks() {
     {
       step: "02",
       tag: "DIGITAL HANDOVER",
-      title: "Kiểm định thực tế & bàn giao số hoá",
+      title: "Kiểm định thực tế & bàn giao số hóa",
       description:
         "Kỹ thuật viên cùng bạn đối soát xe qua ứng dụng: kiểm tra 6 góc ngoại quan, chốt số Odometer và dung lượng pin SoH lưu trực tiếp lên hợp đồng điện tử.",
       icon: FileCheck2,
-      highlight: "Biên bản số hoá có ảnh",
+      highlight: "Biên bản số hóa có ảnh",
     },
     {
       step: "03",
@@ -109,8 +109,8 @@ export default function HowItWorks() {
         <div ref={leftColRef} className="lg:col-span-5 lg:sticky lg:top-28">
           <SectionHeading
             kicker="QUY TRÌNH 4 BƯỚC"
-            title="Trải nghiệm thuê xe số hoá nhanh chóng & minh bạch"
-            subtitle="Đơn giản hoá thủ tục giấy tờ, số hoá toàn bộ biên bản bàn giao giúp bạn khởi hành tự tin chỉ sau 3 phút."
+            title="Trải nghiệm thuê xe số hóa nhanh chóng & minh bạch"
+            subtitle="Đơn giản hóa thủ tục giấy tờ, số hóa toàn bộ biên bản bàn giao giúp bạn khởi hành tự tin chỉ sau 3 phút."
           />
 
           {/* Quick Step Indicators */}

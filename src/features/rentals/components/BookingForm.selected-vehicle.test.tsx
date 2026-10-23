@@ -41,7 +41,7 @@ describe("booking selected vehicle context", () => {
     expect(screen.getByLabelText("Ngày giờ nhận xe")).toHaveValue("2027-11-01T10:00");
     expect(screen.getByLabelText("Ngày giờ trả xe")).toHaveValue("2027-11-01T12:00");
     expect(mocks.search).toHaveBeenCalledWith("2027-11-01T03:00:00.000Z", "2027-11-01T05:00:00.000Z", "1", false, "hourly", expect.any(AbortSignal));
-    expect(screen.getByText("Đơn giá: 125.000 đ / giờ")).toBeVisible();
+    expect(screen.getByText("Đơn giá: 125.000đ / giờ")).toBeVisible();
     await waitFor(() => expect(mocks.policy).toHaveBeenCalledWith(3));
     fireEvent.click(screen.getByRole("button", { name: "Xác nhận đặt xe" }));
     await waitFor(() => expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ vehicleId: 8, hasDriver: false, startTime: "2027-11-01T03:00:00.000Z" })));

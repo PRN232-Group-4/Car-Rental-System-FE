@@ -6,10 +6,13 @@ import { Package, AlertTriangle, ArrowRight, PlusCircle, HelpCircle } from "luci
 import { useQuery } from "@tanstack/react-query";
 import { getMySubscriptions, CustomerSubscription } from "@/features/subscriptions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { CardGridSkeleton } from "@/components/ui/Skeleton";
+import { formatDate } from "@/lib/time";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function MySubscriptionsPage() {
-  const { data: subscriptions = [], isLoading } = useQuery<CustomerSubscription[]>({
+  const { data: subscriptions = [], isLoading, error, refetch } = useQuery<CustomerSubscription[]>({
     queryKey: ["my-subscriptions"],
     queryFn: getMySubscriptions,
   });
@@ -29,7 +32,7 @@ export default function MySubscriptionsPage() {
         <div className="border-l border-td-rule pl-4 text-right">
           <span className="block font-mono text-[10px] tracking-wider text-td-muted">GÓI ĐANG HOẠT ĐỘNG</span>
           <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-            {isLoading ? "—" : String(activeSubscriptions.length).padStart(2, "0")}
+            {isLoading || error ? "—" : String(activeSubscriptions.length).padStart(2, "0")}
           </strong>
         </div>
         <Link
@@ -43,11 +46,18 @@ export default function MySubscriptionsPage() {
 
       {/* Active Subscriptions Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-64 rounded bg-td-white border border-td-rule animate-pulse" />
-          ))}
-        </div>
+        <CardGridSkeleton
+          label="Đang tải gói thuê bao"
+          className="grid grid-cols-1 gap-6 md:grid-cols-2"
+          count={2}
+          mediaClassName="hidden"
+          lines={3}
+        />
+      ) : error ? (
+        <ErrorState
+          message="Không thể tải danh sách gói thuê bao. Vui lòng kiểm tra kết nối và thử lại."
+          onRetry={() => { void refetch(); }}
+        />
       ) : activeSubscriptions.length === 0 ? (
         <div className="p-10 rounded bg-td-white border border-dashed border-td-rule text-center space-y-4">
           <div className="w-14 h-14 rounded bg-primary-tint text-primary flex items-center justify-center mx-auto">
@@ -94,7 +104,7 @@ export default function MySubscriptionsPage() {
                       <StatusBadge status="active">Đang hoạt động</StatusBadge>
                     </div>
                     <p className="mt-1 font-mono text-[11px] text-td-muted">
-                      Mã gói #{sub.id} · {new Date(sub.startDate).toLocaleDateString("vi-VN")} → {endDate.toLocaleDateString("vi-VN")} ({daysRemaining} ngày)
+                      Mã gói #{sub.id} · {formatDate(sub.startDate)} → {formatDate(endDate)} ({daysRemaining} ngày)
                     </p>
                   </div>
                   <div className="text-right">
@@ -118,7 +128,7 @@ export default function MySubscriptionsPage() {
                       )}
                       {isExpiringSoon && (
                         <p>
-                          Gói sẽ hết hạn trong <strong>{daysRemaining} ngày</strong> tới (hạn: {endDate.toLocaleDateString("vi-VN")}).
+                          Gói sẽ hết hạn trong <strong>{daysRemaining} ngày</strong> tới (hạn: {formatDate(endDate)}).
                         </p>
                       )}
                     </div>
@@ -174,8 +184,8 @@ export default function MySubscriptionsPage() {
                   <tr key={item.id} className="hover:bg-td-chalk/50">
                     <td className="p-4 font-bold text-td-ink">{item.planName}</td>
                     <td className="p-4 text-xs text-td-muted">
-                      {new Date(item.startDate).toLocaleDateString("vi-VN")} -{" "}
-                      {new Date(item.endDate).toLocaleDateString("vi-VN")}
+                      {formatDate(item.startDate)} -{" "}
+                      {formatDate(item.endDate)}
                     </td>
                     <td className="p-4 font-semibold text-td-ink">{item.totalHours} giờ</td>
                     <td className="p-4">

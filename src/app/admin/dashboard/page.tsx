@@ -19,6 +19,7 @@ import {
 import { DashboardFiltersBar } from "@/features/admin/dashboard/components/DashboardFiltersBar";
 import { KpiStrip } from "@/features/admin/dashboard/components/KpiStrip";
 import { RevenueChart } from "@/features/admin/dashboard/components/RevenueChart";
+import { RentalsVolumeChart } from "@/features/admin/dashboard/components/RentalsVolumeChart";
 import { FleetStatusChart } from "@/features/admin/dashboard/components/FleetStatusChart";
 import { RentalsStatusChart } from "@/features/admin/dashboard/components/RentalsStatusChart";
 import { TopVehiclesTable } from "@/features/admin/dashboard/components/TopVehiclesTable";
@@ -164,6 +165,15 @@ export default function AdminDashboardPage() {
                 isLoading={fleetQuery.isLoading}
                 isError={fleetQuery.isError}
                 onRetry={() => fleetQuery.refetch()}
+              />
+            </div>
+            {/* Cùng nguồn revenue-series: số lượt thuê thực tế bắt đầu theo từng ngày. */}
+            <div className="grid grid-cols-1 gap-6">
+              <RentalsVolumeChart
+                data={revenueQuery.data}
+                isLoading={revenueQuery.isLoading}
+                isError={revenueQuery.isError}
+                onRetry={() => revenueQuery.refetch()}
               />
             </div>
           </section>

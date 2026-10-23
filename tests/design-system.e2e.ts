@@ -37,10 +37,12 @@ describe('Design system — đồng bộ điểm nhấn', () => {
 
   test('trạng thái luôn kèm nhãn chữ chứ không chỉ màu', async ({ app, browser }) => {
     await app.open('/');
-    await browser.locator('#cong-nghe').scrollIntoView();
+    await browser.locator('#kiem-dinh').scrollIntoView();
 
-    for (const status of ['ĐÃ ĐỐI SOÁT', 'KHÓA ĐIỆN TỬ', 'CHUẨN AN TOÀN', 'SHA-256 VERIFIED']) {
-      await expect(browser.locator('#cong-nghe').getByText(status, { exact: true })).toBeVisible();
+    // Khối kiểm tra xe dùng nhãn chữ cho mọi trạng thái (đang xem / chi tiết / trong đơn thuê)
+    // thay cho thanh màu đơn thuần.
+    for (const label of ['TRONG ĐƠN THUÊ', 'ĐANG XEM', 'CHI TIẾT', 'DÙNG KHI QUYẾT TOÁN']) {
+      await expect(browser.locator('#kiem-dinh').getByText(label, { exact: true }).first()).toBeVisible();
     }
   });
 });

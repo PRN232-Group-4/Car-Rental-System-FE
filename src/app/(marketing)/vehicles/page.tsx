@@ -3,10 +3,11 @@
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
+import PageFallback from "@/components/ui/PageFallback";
 
 export default function VehiclesRedirectPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageFallback label="Đang mở danh sách phương tiện..." />}>
       <RedirectHandler />
     </Suspense>
   );

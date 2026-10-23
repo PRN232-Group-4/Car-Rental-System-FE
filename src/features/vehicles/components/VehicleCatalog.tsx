@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import VehicleImage from "@/components/ui/VehicleImage";
-import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
+import { CardGridSkeleton } from "@/components/ui/Skeleton";
 import {
   Users,
   Cog,
@@ -136,22 +136,14 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
 
       {/* Loading Skeleton state */}
       {loading && (
-        <SkeletonBlock label="Đang tải danh sách phương tiện" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((n) => (
-            <div
-              key={n}
-              className="glass-lite rounded overflow-hidden flex flex-col border border-td-rule"
-            >
-              <Skeleton className="h-64 w-full rounded-none" />
-              <div className="p-6 space-y-4">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            </div>
-          ))}
-        </SkeletonBlock>
+        <CardGridSkeleton
+          label="Đang tải danh sách phương tiện"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          count={3}
+          mediaClassName="h-64 w-full rounded-none"
+          lines={4}
+          containerClassName="glass-lite border border-td-rule"
+        />
       )}
 
       {/* Error state */}

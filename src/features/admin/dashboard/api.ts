@@ -29,6 +29,9 @@ export function getPresetDateRange(preset: DashboardDatePreset): { from: string;
         to: toUtcIso(lastDayPrevMonth),
       };
     }
+    case "this_year":
+      fromDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0);
+      break;
     default:
       fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29, 0, 0, 0);
   }
@@ -86,13 +89,14 @@ export async function fetchDashboardKpis(filters: DashboardFilters): Promise<Das
   const snapshot = parseDashboardSnapshot(raw);
   const total = Object.values(fleet).reduce((sum, count) => sum + count, 0);
   return {
-    revenue: { value: snapshot.revenue, previous: null, format: "currency" },
+    revenue: { value: snapshot.revenue, previous: snapshot.previous.revenue, format: "currency" },
     completedRentals: { value: Number.isSafeInteger(completed?.totalCount) && completed.totalCount >= 0 ? completed.totalCount : null, previous: null, format: "number" },
-    rentingVehicles: { value: fleet.renting, previous: null, format: "number" },
+    rentingVehicles: { value: fleet.renting, previous: snapshot.previous.renting, format: "number" },
     totalVehicles: { value: total, previous: null, format: "number" },
     utilizationRate: { value: total ? Number((fleet.renting / total * 100).toFixed(1)) : 0, previous: null, format: "percentage" },
-    maintenanceCost: { value: null, previous: null, format: "currency" },
-    activeSubscriptions: { value: snapshot.activeSubscriptions, previous: null, format: "number" },
+    // Hợp đồng API: `maintenance` là SỐ XE đang bảo dưỡng tại cuối kỳ, không phải chi phí.
+    maintenanceVehicles: { value: snapshot.maintenance, previous: snapshot.previous.maintenance, format: "number" },
+    activeSubscriptions: { value: snapshot.activeSubscriptions, previous: snapshot.previous.activeSubscriptions, format: "number" },
   };
 }
 
@@ -115,10 +119,18 @@ async function fetchDashboardRows<T>(endpoint: string, filters: DashboardFilters
 
 export async function fetchRevenueSeries(filters: DashboardFilters): Promise<RevenuePoint[]> {
   const rows = await fetchDashboardRows<RevenuePoint>("revenue-series", filters);
+  const count = (value: unknown) => (typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined);
   return rows.map((row) => {
     const bucket = formatDate(row.dateIso, "dd/MM");
     if (!bucket) throw new Error("Ngày doanh thu không hợp lệ. Vui lòng tải lại.");
-    return { ...row, bucket, byGroup: row.byGroup ?? undefined };
+    return {
+      ...row,
+      bucket,
+      byGroup: row.byGroup ?? undefined,
+      // Backend cũ không trả hai trường này ⇒ giữ "chưa biết" thay vì tự điền 0.
+      rentals: count(row.rentals),
+      previousRentals: count(row.previousRentals),
+    };
   });
 }
 export async function fetchRentalsByStatus(filters: DashboardFilters): Promise<RentalStatusCount[]> {
@@ -126,6 +138,7 @@ export async function fetchRentalsByStatus(filters: DashboardFilters): Promise<R
   const statuses = [
     ["pending", "Chờ xác nhận"], ["pre_inspection", "Đang kiểm tra trước thuê"], ["renting", "Đang thuê"],
     ["post_inspection", "Đang kiểm tra sau thuê"], ["completed", "Đã hoàn tất"], ["cancelled", "Đã hủy"],
+    ["expired", "Hết hạn"],
   ] as const;
   return Promise.all(statuses.map(async ([status, label]) => {
     const result = await backendApiClient.get<{ totalCount: number }>("rentals", { status, from: filters.from, to: filters.to, page: 1, pageSize: 1 });

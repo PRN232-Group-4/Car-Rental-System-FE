@@ -21,7 +21,7 @@ const MOCK_KPIS: DashboardKpis = {
   rentingVehicles: { value: 18, previous: 15 },
   totalVehicles: { value: 45, previous: 42 },
   utilizationRate: { value: 72.5, previous: 66.8 },
-  maintenanceCost: { value: 18_400_000, previous: 22_100_000 },
+  maintenanceVehicles: { value: 4, previous: 7 },
   activeSubscriptions: { value: 127, previous: 110 },
 };
 
@@ -50,7 +50,8 @@ describe("Dashboard Widgets Components", () => {
       expect(screen.getByText("142")).toBeInTheDocument();
       expect(screen.getByText("18 / 45")).toBeInTheDocument();
       expect(screen.getByText("72.5%")).toBeInTheDocument();
-      expect(screen.getByText("18.4 tr đ")).toBeInTheDocument();
+      expect(screen.getByText("Xe đang bảo dưỡng")).toBeInTheDocument();
+      expect(screen.getByText("4")).toBeInTheDocument();
       expect(screen.getByText("127")).toBeInTheDocument();
     });
 

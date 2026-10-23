@@ -1,4 +1,4 @@
-export type DashboardDatePreset = "7d" | "30d" | "this_month" | "last_month" | "custom";
+export type DashboardDatePreset = "7d" | "30d" | "this_month" | "last_month" | "this_year" | "custom";
 
 export interface DashboardFilters {
   from: string; // ISO UTC
@@ -21,7 +21,8 @@ export interface DashboardKpis {
   rentingVehicles: KpiValue;
   totalVehicles: KpiValue;
   utilizationRate: KpiValue;
-  maintenanceCost: KpiValue;
+  /** Số xe đang trong bảo dưỡng tại cuối kỳ (API trả số lượng, không phải chi phí). */
+  maintenanceVehicles: KpiValue;
   activeSubscriptions: KpiValue;
 }
 
@@ -30,6 +31,10 @@ export interface RevenuePoint {
   dateIso: string;
   total: number;
   byGroup?: Record<string, number>;
+  /** Số lượt thuê thực tế bắt đầu trong ngày (bỏ đơn đã hủy). */
+  rentals?: number;
+  /** Cùng chỉ số đó ở kỳ liền trước. */
+  previousRentals?: number;
 }
 
 export type FleetStatusKey = "available" | "renting" | "maintenance" | "inactive";

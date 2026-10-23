@@ -120,7 +120,7 @@ describe("Domain Mappers (BE to UI)", () => {
   });
 
   it("quy 'unpaid' của BE về 'pending' và giữ nguyên 'cancelled'", () => {
-    // BE trả 'unpaid' cho hoá đơn chưa trả; badge/filter/CTA của FE chỉ hiểu 'pending'.
+    // BE trả 'unpaid' cho hóa đơn chưa trả; badge/filter/CTA của FE chỉ hiểu 'pending'.
     expect(mapInvoiceFromBE({ id: 1, status: "unpaid" }).status).toBe("pending");
     expect(mapInvoiceFromBE({ id: 1, status: "UNPAID" }).status).toBe("pending");
     expect(mapInvoiceFromBE({ id: 1, status: "Cancelled" }).status).toBe("cancelled");

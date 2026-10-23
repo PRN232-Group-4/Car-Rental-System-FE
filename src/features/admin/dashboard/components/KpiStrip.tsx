@@ -73,17 +73,15 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
   const rentalsTrend = calculatePercentageChange(data.completedRentals.value, data.completedRentals.previous);
   const rentingVehiclesTrend = calculatePercentageChange(data.rentingVehicles.value, data.rentingVehicles.previous);
   const utilizationTrend = calculatePercentageChange(data.utilizationRate.value, data.utilizationRate.previous);
+  const maintenanceTrend = calculatePercentageChange(data.maintenanceVehicles.value, data.maintenanceVehicles.previous);
 
   const rentingCount = data.rentingVehicles.value ?? 0;
   const totalVehicles = data.totalVehicles.value ?? 0;
   const utilizationDisplay = data.utilizationRate.value !== null ? `${data.utilizationRate.value}%` : "—";
   const idleCount = Math.max(0, totalVehicles - rentingCount);
 
-  // Maintenance ratio over revenue
-  const revenueVal = data.revenue.value || 0;
-  const maintenanceVal = data.maintenanceCost.value || 0;
-  const maintenanceRatio = revenueVal > 0 ? ((maintenanceVal / revenueVal) * 100).toFixed(1) : "0";
-  const isMaintenanceAlert = Number(maintenanceRatio) > 20;
+  // Maintenance load: số xe đang bảo dưỡng tại cuối kỳ (không phải chi phí).
+  const maintenanceCount = data.maintenanceVehicles.value;
 
   return (
     <section aria-label="Trung tâm chỉ huy telemetry KPI điều hành" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
@@ -194,31 +192,35 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
         </div>
       </article>
 
-      {/* 3. MAINTENANCE RISK & HEALTH (1 cột) */}
+      {/* 3. FLEET MAINTENANCE LOAD (1 cột) */}
       <article className="flex flex-col justify-between border-t border-td-rule pt-4 md:col-span-1 lg:col-span-1">
         <div>
           <div className="flex items-center justify-between gap-1">
             <span className="flex h-7 w-7 items-center justify-center rounded bg-warning-bg text-warning">
               <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
-            {isMaintenanceAlert && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-danger-bg px-1.5 py-0.5 text-[10px] font-bold text-danger">
-                <AlertCircle className="h-2.5 w-2.5" />
-                {maintenanceRatio}%
+            {maintenanceCount !== null && maintenanceCount > 0 && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-warning-bg px-1.5 py-0.5 text-[10px] font-bold text-warning">
+                <AlertCircle className="h-2.5 w-2.5" aria-hidden="true" />
+                <span>Cần theo dõi</span>
               </span>
             )}
           </div>
           <p className="mt-3 text-xs font-bold uppercase tracking-wider text-td-ink">
-            Chi phí bảo dưỡng
+            Xe đang bảo dưỡng
           </p>
-          <p className="mt-1 font-mono text-xl font-bold tracking-tight text-td-ink tabular-nums">
-            {formatVndCompact(data.maintenanceCost.value)}
-          </p>
+          <div className="mt-1 flex items-baseline gap-2">
+            <p className="font-mono text-xl font-bold tracking-tight text-td-ink tabular-nums">
+              {maintenanceCount ?? "—"}
+            </p>
+            <span className="text-[11px] text-td-muted">xe tại cuối kỳ</span>
+          </div>
         </div>
 
         <div className="mt-3 border-t border-td-rule/70 pt-2 text-[11px] text-td-muted">
-          <span>Tỉ trọng/doanh thu: </span>
-          <span className="font-mono font-semibold text-td-ink tabular-nums">{maintenanceRatio}%</span>
+          <span>Kỳ trước: </span>
+          <span className="font-mono font-semibold text-td-ink tabular-nums">{data.maintenanceVehicles.previous ?? "—"}</span>
+          {maintenanceTrend.text !== "—" && <span className="ml-1">({maintenanceTrend.text})</span>}
         </div>
       </article>
 

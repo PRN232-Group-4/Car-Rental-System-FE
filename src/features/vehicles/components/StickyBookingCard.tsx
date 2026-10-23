@@ -200,7 +200,7 @@ export function StickyBookingCard({
             <UserCheck className="w-4 h-4 text-primary" />
             <div>
               <span className="text-xs font-bold text-td-ink">Kèm tài xế Thong Dong</span>
-              <p className="text-[10px] text-td-muted">+500.000đ/ngày • Lái xe kinh nghiệm</p>
+              <p className="text-[10px] text-td-muted">Không phụ phí riêng · Tài xế do đơn vị phân công</p>
             </div>
           </div>
 

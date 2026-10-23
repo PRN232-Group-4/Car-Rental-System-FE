@@ -61,8 +61,8 @@ describe("FE-07 My Trips — Component Tests", () => {
 
       expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Chuyến của tôi.");
       expect(screen.getByRole("tab", { name: "Sắp tới" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "Đang diễn ra" })).toBeInTheDocument();
-      expect(screen.getByRole("tab", { name: "Đã hoàn thành" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Đang thuê" })).toBeInTheDocument();
+      expect(screen.getByRole("tab", { name: "Đã trả xe" })).toBeInTheDocument();
       expect(screen.getByRole("tab", { name: "Đã hủy" })).toBeInTheDocument();
 
       // Kiểm tra xe trong tab sắp tới xuất hiện

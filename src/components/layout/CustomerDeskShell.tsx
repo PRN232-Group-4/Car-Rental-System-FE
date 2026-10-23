@@ -33,6 +33,7 @@ const CUSTOMER_CHAPTERS: CustomerChapter[] = [
       { href: "/booking", label: "Đặt xe" },
       { href: "/my-rentals", label: "Đơn thuê" },
       { href: "/rental-contract", label: "Hợp đồng dài hạn" },
+      { href: "/nearby-vehicles", label: "Xe gần đây" },
     ],
   },
   {
@@ -45,7 +46,7 @@ const CUSTOMER_CHAPTERS: CustomerChapter[] = [
   {
     chapter: "Tài chính",
     routes: [
-      { href: "/invoices", label: "Hoá đơn" },
+      { href: "/invoices", label: "Hóa đơn" },
       { href: "/payment-history", label: "Lịch sử thanh toán" },
     ],
   },
@@ -283,7 +284,7 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
           routes={commandRoutes}
           storageKey="thong_dong_customer_recent_routes"
           title="Tìm chức năng khách hàng"
-          placeholder="Gõ tên trang hoặc đường dẫn (ví dụ: hoá đơn, gplx, /invoices)..."
+          placeholder="Gõ tên trang hoặc đường dẫn (ví dụ: hóa đơn, gplx, /invoices)..."
           emptyHint="Không tìm thấy trang phù hợp trong cổng khách hàng."
         />
       )}
