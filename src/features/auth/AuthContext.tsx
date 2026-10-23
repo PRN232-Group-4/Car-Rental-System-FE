@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ? "authenticated"
       : "anonymous";
 
-  // 2. Đồng bộ hoá đa tab qua BroadcastChannel("vrs-auth")
+  // 2. Đồng bộ hóa đa tab qua BroadcastChannel("vrs-auth")
   useEffect(() => {
     if (typeof window === "undefined" || typeof BroadcastChannel === "undefined") return;
 

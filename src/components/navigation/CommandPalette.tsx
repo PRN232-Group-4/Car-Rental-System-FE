@@ -18,7 +18,7 @@ export interface CommandPaletteProps {
   onClose: () => void;
   /** Danh sách route đã được lọc theo quyền của cổng đang dùng. */
   routes: CommandRoute[];
-  /** Khoá localStorage giữ danh sách route mở gần đây, mỗi cổng một khoá. */
+  /** Khóa localStorage giữ danh sách route mở gần đây, mỗi cổng một khóa. */
   storageKey: string;
   title?: string;
   placeholder?: string;

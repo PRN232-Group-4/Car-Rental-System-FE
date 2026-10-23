@@ -1,7 +1,7 @@
 import { backendApiClient as defaultApiClient } from "@/api/backend-api-client";
 import { Invoice, CheckoutResult } from "./types";
 
-/** BE dùng 'unpaid' cho hoá đơn chưa trả, FE dùng 'pending' — quy về một giá trị để badge/filter khớp. */
+/** BE dùng 'unpaid' cho hóa đơn chưa trả, FE dùng 'pending' — quy về một giá trị để badge/filter khớp. */
 function normalizeInvoiceStatus(status: string): string {
   const value = status.toLowerCase();
   return value === "unpaid" ? "pending" : value;
