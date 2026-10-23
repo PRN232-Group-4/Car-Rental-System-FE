@@ -13,13 +13,20 @@ Ba nơi trong FE tự tính tiền theo công thức khác backend, nên con s�
 ## Đã sửa
 
 - `calculateHourlyEstimate`: `cọc = tiền thuê × deposit%` (không gồm VAT), `total = tiền thuê + VAT + cọc` — khớp `NpgsqlOperationsRepository.CreateRentalAsync` và kịch bản kiểm thử backend (100/giờ × 2 giờ, VAT 10%, cọc 20% ⇒ 200/20/40/260).
-- `PriceBreakdown`: bỏ phụ phí tài xế; dùng số giờ thực; thuê dài hạn theo `max(1, ceil(giờ/720))`; khi chưa tải được chính sách thì hiển thị “—” và ghi rõ “chưa gồm VAT và tiền cọc” thay vì tự bịa tỷ lệ 8%/30%.
-- `RentalPolicyPanel`: viết lại theo quy tắc đang chạy — cọc theo % tiền thuê, hủy trước 24 giờ miễn phí / hủy muộn 20% tiền thuê gồm VAT (phần còn lại được hoàn, không vượt số đã trả), phụ phí quá giờ cộng thêm `overtime_fee_rate%` theo giờ làm tròn lên và miễn 15 phút đầu, hư hại/nhiên liệu/vệ sinh xử lý theo biên bản kiểm định.
-- Thêm test `src/__tests__/features/rentals/pricing-reconciliation.test.ts` khóa công thức FE vào đúng các con số của kịch bản backend, và `src/__tests__/features/vehicles/PriceBreakdown.test.tsx` render thật bảng dự toán để khẳng định 200/20/40/260, không có dòng “Tài xế riêng”, không tự bịa tỷ lệ khi thiếu chính sách, và thuê dài hạn làm tròn số tháng như backend.
+- `PriceBreakdown`: bỏ phụ phí tài xế tự đặt; dùng số giờ thực; thuê dài hạn theo `max(1, ceil(giờ/720))`; cọc tính trên cơ sở trước VAT; và **không hiển thị dự toán** khi thiếu chính sách, thiếu đơn giá tháng cho thuê dài hạn, hoặc khách chọn có tài xế mà chưa biết phí tài xế — thay vì tự bịa tỷ lệ 8%/30%.
+- `RentalPolicyPanel`: bản viết lại của nhánh này trùng mục đích với bản đã vào `dev` trong `feat/rental` (bỏ mọi mức phạt tự đặt, chỉ hiển thị tỷ lệ từ API). Khi hợp nhất, giữ bản của `dev` (gọn hơn, đã có test riêng) và sửa một chỗ sai: dòng mô tả cọc đang ghi “% tổng tiền thuê **có VAT**”, trong khi backend tính cọc trên tiền thuê **không gồm VAT**; bổ sung dòng cách tính phụ phí quá giờ (làm tròn theo giờ, miễn 15 phút đầu, trừ vào cọc trước, phần vượt quá cọc thành hóa đơn bổ sung).
+- Thêm test `src/__tests__/features/rentals/pricing-reconciliation.test.ts` khóa công thức FE vào đúng các con số của kịch bản backend, và `src/__tests__/features/vehicles/PriceBreakdown.test.tsx` render thật bảng dự toán để khẳng định 200/20/40/260, không có dòng “Tài xế riêng” khi không có dữ liệu phí, cách cộng phí tài xế khi có dữ liệu, trạng thái “chưa đủ dữ liệu” khi thiếu chính sách, và thuê dài hạn làm tròn số tháng như backend.
 
 ## Kiểm chứng
 
-- FE: `npx vitest run src/__tests__/features/rentals src/__tests__/features/vehicles/PriceBreakdown.test.tsx src/features/rentals/booking-rules.test.ts` đạt; `npm test` 106 file / 894 test đạt; `npm run typecheck` + `npx eslint` sạch.
+- FE: `npx vitest run src/__tests__/features/rentals src/__tests__/features/vehicles/PriceBreakdown.test.tsx src/features/rentals/booking-rules.test.ts` đạt; sau khi hợp nhất: `npm test` 118 file / 983 test đạt, `npm run typecheck` sạch, `npx eslint` 0 lỗi, `npm run lint:design` đạt, `npm run build` đạt.
+
+## Đối chiếu với bản đã vào `dev`
+
+`feat/rental` (PR #54) đã tự sửa cùng khu vực theo hướng tương tự. Khi hợp nhất `dev` vào nhánh này:
+
+- Giữ công thức đã đối chiếu backend: cọc = tiền thuê × %, hóa đơn 200.000 + 20.000 + 40.000 = **260.000** cho kịch bản 100.000/giờ × 2 giờ. Bản trên `dev` kỳ vọng 264.000 (cọc tính trên phần đã gồm VAT) và thuê dài hạn dùng `giá tháng × ngày/30`; cả hai lệch với `NpgsqlOperationsRepository.CreateRentalAsync` (dài hạn dùng `max(1, ceil(giờ/720))`) nên đã sửa kỳ vọng test theo backend.
+- Giữ các guard “không đủ dữ liệu thì không hiện dự toán” của `dev`; sửa kỳ vọng cọc trong `RentalPolicyPanel`.
 - BE: `dotnet test --filter "FullyQualifiedName~RentalMoneyReconciliationTests"` — 23 test mới đạt, mỗi dòng của bảng đối chiếu là một khẳng định chạy thật.
 
 ## Chưa xử lý

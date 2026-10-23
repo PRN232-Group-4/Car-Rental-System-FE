@@ -55,13 +55,14 @@ const PRICE_PRESETS = [
 export function VehicleFilters({
   filters,
   facilities = [],
-  brands = ["Toyota", "VinFast", "Honda", "Porsche", "Mazda", "Mercedes-Benz", "Dat Bike"],
+  brands = [],
   onChange,
   onReset,
   onApplyMobile,
   className = "",
   isMobileDrawer = false,
 }: VehicleFiltersProps) {
+  const brandInputId = React.useId();
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Tiêu đề sidebar */}
@@ -133,7 +134,8 @@ export function VehicleFilters({
 
       {/* 3. Thương hiệu xe */}
       <div className="space-y-2 border-t border-td-rule pt-4">
-        <label className="text-xs font-bold text-td-ink">Thương hiệu</label>
+        <label htmlFor={brandInputId} className="text-xs font-bold text-td-ink">Thương hiệu</label>
+        <input id={brandInputId} type="text" value={filters.brand === "all" ? "" : filters.brand || ""} onChange={event => onChange({ brand: event.target.value || "all" })} placeholder="Nhập thương hiệu cần tìm" className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink" />
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"

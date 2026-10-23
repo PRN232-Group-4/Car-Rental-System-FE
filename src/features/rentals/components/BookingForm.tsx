@@ -18,6 +18,9 @@ import BookingPickupMap from "@/features/facilities/components/BookingPickupMap"
 import BookingVehicleCards from "./BookingVehicleCards";
 import { getFacilities } from "@/features/facilities";
 import { getCustomerLicense } from "@/features/licenses";
+import { bookingLicenseHref, matchingCustomerLicenses } from "@/features/licenses/booking-license";
+import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
+import { getVehicleById } from "@/features/vehicles/api";
 
 const inputClass = "mt-2 w-full rounded border border-td-rule bg-td-white px-3 py-3 text-sm text-td-ink";
 const money = (value: number) => `${value.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} đ`;
@@ -26,15 +29,16 @@ const errorText = (error: unknown) => error instanceof Error && !(error instance
 
 export default function BookingForm() {
   const params = useSearchParams();
+  const router = useNavigationRouter();
   const queryClient = useQueryClient();
   const [rentalType, setRentalType] = useState(params.get("mode") === "longterm" || params.get("rentalType") === "longterm" ? "longterm" : "hourly");
   const [vehicleId, setVehicleId] = useState(params.get("vehicleId") ?? "");
   const [subscriptionId, setSubscriptionId] = useState(params.get("subscriptionId") ?? "");
-  const [paymentMode, setPaymentMode] = useState(params.get("subscriptionId") ? "subscription" : "direct");
-  const [paymentMethod, setPaymentMethod] = useState<"payos" | "cash">("payos");
+  const [paymentMode, setPaymentMode] = useState(params.get("subscriptionId") || params.get("paymentMode") === "subscription" ? "subscription" : "direct");
+  const [paymentMethod, setPaymentMethod] = useState<"payos" | "cash">(params.get("paymentMethod") === "cash" ? "cash" : "payos");
   const [startTime, setStartTime] = useState(() => params.get("startTime") ?? (params.get("from") ? localDateTime(new Date(params.get("from")!)) : localDateTime(new Date(Date.now() + 86400000))));
   const [endTime, setEndTime] = useState(() => params.get("endTime") ?? (params.get("to") ? localDateTime(new Date(params.get("to")!)) : localDateTime(new Date(Date.now() + 2 * 86400000))));
-  const [facilityId, setFacilityId] = useState(params.get("facilityId") ?? "");
+  const [chosenFacilityId, setFacilityId] = useState<string | null>(params.get("facilityId"));
   const [hasDriver, setHasDriver] = useState(params.get("mode") !== "self");
   const [submitting, setSubmitting] = useState(false);
   const submissionLock = useRef(false);
@@ -48,29 +52,40 @@ export default function BookingForm() {
   const [sessionStartedAt] = useState(Date.now);
   const from = iso(startTime);
   const to = iso(endTime);
+  // Older/shared booking URLs may contain only vehicleId. Recover its pickup
+  // branch from the canonical vehicle; availability and price still come from search.
+  const selectedVehicleQuery = useQuery({
+    queryKey: ["booking-selected-vehicle", vehicleId],
+    queryFn: () => getVehicleById(vehicleId),
+    enabled: Boolean(vehicleId) && chosenFacilityId === null,
+    retry: false,
+  });
+  const facilityId = chosenFacilityId ?? (selectedVehicleQuery.data?.facilityId ? String(selectedVehicleQuery.data.facilityId) : "");
   const facilitiesQuery = useQuery({ queryKey: ["facilities"], queryFn: getFacilities, retry: false });
   const facility = facilitiesQuery.data?.find((item) => item.id === facilityId);
   const canChooseVehicle = Boolean(facility);
   const licenseQuery = useQuery({ queryKey: ["customer-license"], queryFn: getCustomerLicense, enabled: !hasDriver, retry: false });
-  const canSelfDrive = licenseQuery.data?.status === "approved" && (!licenseQuery.data.expiryDate || licenseQuery.data.expiryDate.slice(0, 10) >= new Date(sessionStartedAt).toISOString().slice(0, 10));
   const vehiclesQuery = useQuery({
     queryKey: ["booking-vehicles", from, to, facilityId, hasDriver, rentalType],
     queryFn: ({ signal }) => getBookingVehicles(from, to, facilityId, hasDriver, rentalType, signal),
     enabled: canChooseVehicle && !!from && !!to && new Date(to) > new Date(from),
     retry: false,
   });
+  const vehicle = canChooseVehicle ? vehiclesQuery.data?.find((item) => String(item.id) === vehicleId && String(item.facilityId) === facilityId) : undefined;
   const activePolicyQuery = useQuery({
-    queryKey: ["active-policy", vehicleId],
-    queryFn: () => {
-      const selectedVehicle = vehiclesQuery.data?.find((item) => String(item.id) === vehicleId);
-      return selectedVehicle?.vehicleTypeId ? getActivePolicyForVehicleType(selectedVehicle.vehicleTypeId) : null;
-    },
-    enabled: Boolean(vehicleId),
+    queryKey: ["active-policy", vehicle?.vehicleTypeId],
+    queryFn: () => vehicle?.vehicleTypeId ? getActivePolicyForVehicleType(vehicle.vehicleTypeId) : null,
+    enabled: Boolean(vehicle?.vehicleTypeId),
     retry: false,
   });
   const policyQuery = useQuery({ queryKey: ["booking-policies"], queryFn: getBookingPolicies, retry: false });
   const subscriptionsQuery = useQuery({ queryKey: ["my-subscriptions"], queryFn: getMySubscriptions, enabled: rentalType === "hourly" && paymentMode === "subscription" });
-  const vehicle = canChooseVehicle ? vehiclesQuery.data?.find((item) => String(item.id) === vehicleId && String(item.facilityId) === facilityId) : undefined;
+  const matchingLicenses = matchingCustomerLicenses(licenseQuery.data, vehicle?.allowedLicenseTypes, endTime);
+  const canSelfDrive = matchingLicenses.some((license) => license.status === "approved");
+  const licenseAwaitingReview = matchingLicenses.some((license) => license.status === "pending");
+  const bookingQuery = new URLSearchParams({ vehicleId, facilityId, rentalType, mode: "self", startTime, endTime, paymentMethod, paymentMode });
+  if (paymentMode === "subscription" && subscriptionId) bookingQuery.set("subscriptionId", subscriptionId);
+  const licenseHref = bookingLicenseHref(`/booking?${bookingQuery}`);
   const policy = activePolicyQuery.data ?? selectBookingPolicy(policyQuery.data ?? [], vehicle?.vehicleTypeId);
   const hours = from && to ? Math.max(0, (new Date(to).getTime() - new Date(from).getTime()) / 3600000) : 0;
   const subscriptions = (subscriptionsQuery.data ?? []).filter((item) => item.status === "active" && new Date(item.endDate).getTime() > sessionStartedAt);
@@ -79,7 +94,7 @@ export default function BookingForm() {
 
   const validate = () => ({
     facilityId: !facility ? "Vui lòng chọn cơ sở nhận xe trong danh sách." : undefined,
-    hasDriver: !hasDriver && !canSelfDrive ? "Để thuê tự lái, hãy cập nhật GPLX và chờ được phê duyệt, hoặc chọn thuê có tài xế." : undefined,
+    hasDriver: !hasDriver && (licenseQuery.isPending || licenseQuery.isError) ? "Chưa kiểm tra được GPLX. Vui lòng chờ hoặc thử lại." : !hasDriver && !canSelfDrive && licenseAwaitingReview ? "GPLX phù hợp đang chờ duyệt. Vui lòng chờ được phê duyệt hoặc chọn thuê có tài xế." : undefined,
     ...validateBookingTimes(startTime, endTime),
     vehicleId: canChooseVehicle && !vehicle ? "Vui lòng chọn xe khả dụng trong khoảng thời gian thuê." : undefined,
     subscriptionId: paymentMode === "subscription" ? (!subscription ? "Vui lòng chọn gói thuê bao còn hiệu lực." : subscription.remainingHours < hours ? `Gói còn ${subscription.remainingHours} giờ, chưa đủ ${hours} giờ thuê. Hãy chọn gói khác hoặc giảm thời gian.` : undefined) : undefined,
@@ -87,6 +102,10 @@ export default function BookingForm() {
 
   const submit = async () => {
     if (submissionLock.current || !vehicle || !from || !to || vehiclesQuery.isFetching || vehiclesQuery.isError) return;
+    if (!hasDriver && !canSelfDrive) {
+      if (!licenseAwaitingReview && !licenseQuery.isPending && !licenseQuery.isError) router.push(licenseHref);
+      return;
+    }
     submissionLock.current = true;
     setSubmitting(true);
     setGeneralError("");
@@ -123,6 +142,7 @@ export default function BookingForm() {
 
   if (result) return <section className="mx-auto max-w-3xl space-y-5 rounded border border-td-rule bg-td-white p-6 sm:p-8" aria-live="polite">
     <h1 className="text-2xl font-bold tracking-tight text-td-ink sm:text-3xl">Đã gửi yêu cầu đặt xe</h1>
+    {resultType === "longterm" && <p className="text-sm text-td-muted">Vui lòng tải file hoặc ảnh hợp đồng đã ký trước khi bàn giao xe. Bạn có thể hoàn tất trong hồ sơ hợp đồng của yêu cầu này.</p>}
     <p>{result.bookingId ? `Mã yêu cầu: #${result.bookingId}` : "Máy chủ đã tiếp nhận yêu cầu đặt xe. Vui lòng liên hệ chi nhánh để tra cứu."}</p>
     {result.rental && <VehicleName vehicleId={result.rental.vehicleId} />}
     {result.rental && <div className="space-y-2 rounded bg-td-paper p-4"><p>Trạng thái: {result.rental.status}</p><p>Tổng tiền thuê từ máy chủ: {money(result.rental.totalPrice)}</p><p>Tiền cọc: {money(result.rental.depositPrice)}</p></div>}
@@ -132,7 +152,7 @@ export default function BookingForm() {
     <div className="flex flex-wrap gap-3">
       {result.bookingId && <Link href={`/my-rentals?rentalId=${encodeURIComponent(result.bookingId)}#rental-progress`} className="rounded border border-td-rule px-4 py-3">Theo dõi tiến trình thuê xe</Link>}
       {result.bookingId && <Link href={`/report-incident?rentalId=${encodeURIComponent(result.bookingId)}`} className="rounded border border-td-rule px-4 py-3">Báo cáo sự cố của đơn</Link>}
-      {resultType === "longterm" && result.bookingId && <Link className="rounded bg-primary px-4 py-3 text-white" href={`/rental-contract?rentalId=${encodeURIComponent(result.bookingId)}`}>Xem hợp đồng</Link>}
+      {resultType === "longterm" && result.bookingId && <Link className="rounded bg-primary px-4 py-3 text-white" href={`/rental-contract?rentalId=${encodeURIComponent(result.bookingId)}`}>Tải hợp đồng đã ký</Link>}
       {!resultIsSubscription && (invoiceId ? <Link className="rounded bg-primary px-4 py-3 text-white" href={`/invoices/${invoiceId}`}>Xem hóa đơn</Link> : result.bookingId && <button type="button" onClick={prepareInvoice} disabled={loadingInvoice} className="rounded border border-td-rule px-4 py-3 disabled:opacity-50">{loadingInvoice ? "Đang tra cứu hóa đơn..." : "Tra cứu hóa đơn"}</button>)}
       <Link href={resultIsSubscription ? "/my-subscriptions" : "/invoices"} className="rounded border border-td-rule px-4 py-3">{resultIsSubscription ? "Gói của tôi" : "Danh sách hóa đơn"}</Link>
       <button type="button" className="rounded border border-td-rule px-4 py-3" onClick={() => { setResult(null); setGeneralError(""); validation.reset(); }}>Tạo đơn khác</button>
@@ -150,13 +170,15 @@ export default function BookingForm() {
             {(facilitiesQuery.data ?? []).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
           </InlineSelect>
           {facilitiesQuery.error && <p role="alert" className="mt-2 text-sm text-danger">Không thể tải cơ sở. <button type="button" onClick={() => void facilitiesQuery.refetch()} className="underline">Thử lại</button></p>}
+          {vehicleId && chosenFacilityId === null && selectedVehicleQuery.isFetching && <p role="status" className="mt-2 text-sm text-td-muted">Đang lấy cơ sở nhận xe của phương tiện đã chọn...</p>}
+          {selectedVehicleQuery.isError && chosenFacilityId === null && <p role="alert" className="mt-2 text-sm text-danger">Không thể lấy cơ sở của xe đã chọn. <button type="button" onClick={() => void selectedVehicleQuery.refetch()} className="underline">Thử lại</button> hoặc chọn cơ sở nhận xe.</p>}
           {!facilitiesQuery.isPending && !facilitiesQuery.error && !facilitiesQuery.data?.length && <p role="status" className="mt-2 text-sm text-td-muted">Chưa có cơ sở nhận xe. Vui lòng thử lại sau.</p>}
           {facility?.address && <p className="mt-2 text-sm text-td-muted">{facility.address}</p>}
         </div>
-        <div><label htmlFor="rentalType" className="text-sm font-semibold">Hình thức thuê</label><InlineSelect id="rentalType" name="rentalType" className={inputClass} value={rentalType} onChange={(event) => { setRentalType(event.target.value); setVehicleId(""); validation.clear("vehicleId"); if (event.target.value === "longterm") setPaymentMode("direct"); }}><option value="hourly">Thuê theo giờ</option><option value="longterm">Thuê dài hạn</option></InlineSelect></div>
-        <div><label htmlFor="hasDriver" className="text-sm font-semibold">Hình thức lái</label><InlineSelect id="hasDriver" name="hasDriver" className={inputClass} value={String(hasDriver)} onChange={(event) => { setHasDriver(event.target.value === "true"); setVehicleId(""); validation.clear("vehicleId"); }}><option value="true">Có tài xế</option><option value="false">Tự lái</option></InlineSelect></div>
+        <div><label htmlFor="rentalType" className="text-sm font-semibold">Hình thức thuê</label><InlineSelect id="rentalType" name="rentalType" className={inputClass} value={rentalType} onChange={(event) => { setRentalType(event.target.value); validation.clear("vehicleId"); if (event.target.value === "longterm") setPaymentMode("direct"); }}><option value="hourly">Thuê theo giờ</option><option value="longterm">Thuê dài hạn</option></InlineSelect></div>
+        <div><label htmlFor="hasDriver" className="text-sm font-semibold">Hình thức lái</label><InlineSelect id="hasDriver" name="hasDriver" className={inputClass} value={String(hasDriver)} onChange={(event) => { setHasDriver(event.target.value === "true"); validation.clear("vehicleId"); }}><option value="true">Có tài xế</option><option value="false">Tự lái</option></InlineSelect></div>
         {facility && <div className="rounded border border-primary/20 bg-primary/5 p-3 text-xs text-primary font-medium">{hasDriver ? "Đây là yêu cầu thuê xe kèm tài xế. Thông tin tài xế sẽ hiển thị sau khi nhân viên phân công." : "Thuê tự lái cần GPLX được phê duyệt và kiểm tra xe trước khi bàn giao."}</div>}
-        {!hasDriver && <div className="text-sm text-td-muted">{licenseQuery.isPending ? <p role="status">Đang kiểm tra GPLX...</p> : licenseQuery.isError ? <p role="alert">Không thể kiểm tra GPLX. <button type="button" className="underline" onClick={() => void licenseQuery.refetch()}>Thử lại</button></p> : !canSelfDrive && <Link href="/profile" className="text-primary underline">Cập nhật và xem trạng thái GPLX</Link>}</div>}
+        {!hasDriver && <div className="text-sm text-td-muted">{licenseQuery.isPending ? <p role="status">Đang kiểm tra GPLX...</p> : licenseQuery.isError ? <p role="alert">Không thể kiểm tra GPLX. <button type="button" className="underline" onClick={() => void licenseQuery.refetch()}>Thử lại</button></p> : vehicle && (canSelfDrive ? <p role="status">Bạn đã có GPLX phù hợp với xe và thời gian thuê.</p> : licenseAwaitingReview ? <p role="status">GPLX phù hợp đang chờ duyệt. Bạn không cần gửi lại hồ sơ.</p> : <Link href={licenseHref} className="text-primary underline">Bổ sung GPLX phù hợp để thuê xe này</Link>)}{vehicle?.allowedLicenseTypes?.length ? <p className="mt-2">Hạng bằng được chấp nhận: {vehicle.allowedLicenseTypes.join(", ")}</p> : null}</div>}
         <div className="grid gap-4 sm:grid-cols-2">
           <div><label htmlFor="startTime" className="text-sm font-semibold">Ngày giờ nhận xe</label><InlineInput id="startTime" name="startTime" type="datetime-local" required min={localDateTime(earliestBookingStart())} className={inputClass} value={startTime} onChange={(event) => setStartTime(event.target.value)} /><p className="mt-2 text-xs text-td-muted">Giờ nhận xe phải cách thời điểm đặt ít nhất {BOOKING_MINIMUM_LEAD_MINUTES} phút để kịp duyệt và thanh toán.</p></div>
           <div><label htmlFor="endTime" className="text-sm font-semibold">Ngày giờ trả xe</label><InlineInput id="endTime" name="endTime" type="datetime-local" required className={inputClass} value={endTime} onChange={(event) => setEndTime(event.target.value)} /></div>

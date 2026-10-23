@@ -43,34 +43,45 @@ describe("PriceBreakdown — đối chiếu với công thức backend", () => {
     expect(text).toMatch(/Tổng thanh toán dự kiến:[\s\S]{0,120}?260đ/);
   });
 
-  it("không cộng phụ phí tài xế dù chọn thuê kèm tài xế", () => {
+  it("không hiển thị dự toán khi chưa biết phí tài xế, và không tự thêm dòng tài xế", () => {
     render(<PriceBreakdown {...baseProps} hasDriver policy={policy} />);
 
+    expect(screen.getByRole("status")).toHaveTextContent("Chưa đủ bảng giá hoặc chính sách");
     expect(screen.queryByText(/Tài xế riêng/)).not.toBeInTheDocument();
-    expect(panelText()).toMatch(/Tổng thanh toán dự kiến:[\s\S]{0,120}?260đ/);
+  });
+
+  it("cộng phí tài xế khi có dữ liệu và vẫn tính cọc trên cơ sở trước VAT", () => {
+    render(<PriceBreakdown {...baseProps} hasDriver driverFeePerDay={50} policy={policy} />);
+    const text = panelText();
+
+    expect(text).toMatch(/Tài xế riêng \(1 ngày × 50đ\)50đ/);
+    // (200 thuê + 50 tài xế) ⇒ VAT 25 · cọc 50 · tổng 325.
+    expect(text).toMatch(/Thuế VAT \(10%\)25đ/);
+    expect(text).toMatch(/Tiền đặt cọc hoàn lại \(20%\)[\s\S]{0,200}?50đ/);
+    expect(text).toMatch(/Tổng thanh toán dự kiến:[\s\S]{0,120}?325đ/);
   });
 
   it("không tự bịa tỷ lệ khi chưa tải được chính sách", () => {
-    render(<PriceBreakdown {...baseProps} policy={null} hasDriver />);
-    const text = panelText();
+    render(<PriceBreakdown {...baseProps} policy={null} />);
 
-    expect(screen.getByText(/Tạm tính tiền thuê:/)).toBeVisible();
-    expect(text).toContain("Thuế VAT (theo chính sách)");
-    expect(text).toContain("Tiền đặt cọc hoàn lại (theo chính sách)");
-    expect(text).toContain("—");
-    expect(text).toContain("Chưa tải được chính sách giá");
-    // Không còn rơi về tỷ lệ mặc định tự đặt (8% VAT / 30% cọc).
-    expect(text).not.toContain("8%");
-    expect(text).not.toContain("30%");
-    expect(text).toMatch(/Tiền thuê xe \(2h × 100đ\)200đ/);
+    expect(screen.getByRole("status")).toHaveTextContent("Chưa đủ bảng giá hoặc chính sách");
+    expect(screen.queryByText(/Thuế VAT/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/8%/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/30%/)).not.toBeInTheDocument();
   });
 
   it("thuê dài hạn dùng số tháng làm tròn lên như backend", () => {
-    // 800 giờ ⇒ ceil(800/720) = 2 tháng × 1000 = 2000 tiền thuê.
+    // 800 giờ ⇒ ceil(800/720) = 2 tháng × 1000 = 2000 tiền thuê ⇒ VAT 200 · cọc 400 · tổng 2600.
     render(<PriceBreakdown {...baseProps} rentalType="longterm" hours={800} days={34} policy={policy} />);
     const text = panelText();
 
-    expect(text).toMatch(/Tiền thuê xe \(800h × 100đ\)2\.000đ/);
+    expect(text).toMatch(/Tiền thuê xe \(2 tháng × 1\.000đ\)2\.000đ/);
     expect(text).toMatch(/Tổng thanh toán dự kiến:[\s\S]{0,120}?2\.600đ/);
+  });
+
+  it("thuê dài hạn chưa có đơn giá tháng thì không dự toán", () => {
+    render(<PriceBreakdown {...baseProps} monthlyRate={0} rentalType="longterm" days={34} policy={policy} />);
+
+    expect(screen.getByRole("status")).toHaveTextContent("Chưa đủ bảng giá hoặc chính sách");
   });
 });

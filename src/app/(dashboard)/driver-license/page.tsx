@@ -14,16 +14,20 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
-import { hasCustomerLicense } from "@/features/licenses/booking-license";
+import { customerLicenses, hasCustomerLicense } from "@/features/licenses/booking-license";
 import BookingLicenseReturn from "@/features/licenses/components/BookingLicenseReturn";
 import LicenseImageField from "@/features/licenses/components/LicenseImageField";
 
 export default function GPLXPage() {
   const queryClient = useQueryClient();
+  const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const { data: license, isPending, error } = useQuery<CustomerLicense | null>({
     queryKey: ["customer-license"],
     queryFn: getCustomerLicense,
   });
+  const licenses = customerLicenses(license);
+  const editingLicense = selectedLicense === "new" ? null : selectedLicense === null ? license : licenses.find((item) => String(item.id ?? item.number) === selectedLicense);
 
   const getStatusBadge = (status?: string) => {
     const key = status?.toLowerCase() ?? "";
@@ -65,7 +69,7 @@ export default function GPLXPage() {
 
         {hasCustomerLicense(license) && license?.status === "approved" ? (
           <div className="text-xs text-primary bg-primary-tint px-3.5 py-2 rounded border border-primary/30 max-w-xs">
-            Bạn đã đủ điều kiện thuê trực tiếp tất cả các dòng xe ô tô và xe máy trong hệ thống.
+            Bạn có GPLX đã được duyệt. Điều kiện thuê phụ thuộc hạng bằng được xe chấp nhận và thời hạn của bằng.
           </div>
         ) : (
           <div className="text-xs text-warning bg-primary-tint px-3.5 py-2 rounded border border-primary/30 max-w-xs">
@@ -75,7 +79,16 @@ export default function GPLXPage() {
       </div>
 
       {/* Form rendered with key to synchronize initial state without effects */}
-      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <LicenseEditForm license={license} queryClient={queryClient} />}
+      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <>
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold">Các giấy phép của bạn</h2>
+          <div className="flex flex-wrap gap-3">{licenses.map((item) => <button type="button" disabled={saving} key={item.id ?? item.number} aria-pressed={editingLicense?.number === item.number} onClick={() => setSelectedLicense(String(item.id ?? item.number))} className="rounded border border-td-rule px-4 py-3 text-left disabled:opacity-50">
+            <span className="block font-semibold">{item.type} · {item.number}</span>{getStatusBadge(item.status)}
+          </button>)}
+          <button type="button" disabled={saving} onClick={() => setSelectedLicense("new")} className="rounded border border-primary px-4 py-3 text-primary disabled:opacity-50">Thêm giấy phép khác</button></div>
+        </div>
+        <LicenseEditForm key={selectedLicense ?? String(license?.id ?? license?.number ?? "new")} license={editingLicense} queryClient={queryClient} onSavingChange={setSaving} onSaved={(saved) => setSelectedLicense(String(saved.id ?? saved.number))} />
+      </>}
     </div>
   );
 }
@@ -83,9 +96,13 @@ export default function GPLXPage() {
 function LicenseEditForm({
   license,
   queryClient,
+  onSaved,
+  onSavingChange,
 }: {
   license?: CustomerLicense | null;
   queryClient: QueryClient;
+  onSaved: (license: CustomerLicense) => void;
+  onSavingChange: (saving: boolean) => void;
 }) {
   const validation = useInlineValidation();
   const [licenseNumber, setLicenseNumber] = useState(() => license?.number || "");
@@ -96,6 +113,8 @@ function LicenseEditForm({
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const saveMutation = useMutation({
+    onMutate: () => onSavingChange(true),
+    onSettled: () => onSavingChange(false),
     mutationFn: async () => {
       setStatusMessage(null);
       if (!licenseNumber.trim()) throw new Error("Vui lòng nhập số giấy phép lái xe.");
@@ -104,6 +123,7 @@ function LicenseEditForm({
       if (!selectedFile) throw new Error("Vui lòng chọn ảnh GPLX để gửi hồ sơ.");
 
       return saveCustomerLicense({
+        ...(license?.id != null ? { licenseId: license.id } : {}),
         number: licenseNumber.trim(),
         type: licenseType,
         issueDate,
@@ -112,7 +132,15 @@ function LicenseEditForm({
       });
     },
     onSuccess: (savedLicense) => {
-      queryClient.setQueryData(["customer-license"], savedLicense);
+      queryClient.setQueryData<CustomerLicense | null>(["customer-license"], (previous) => ({
+        ...savedLicense,
+        licenses: savedLicense.licenses ?? [
+          ...customerLicenses(previous).filter((item) => savedLicense.id != null ? item.id !== savedLicense.id : item.number !== savedLicense.number),
+          savedLicense,
+        ],
+      }));
+      void queryClient.invalidateQueries({ queryKey: ["customer-license"] });
+      onSaved(savedLicense);
       setSelectedFile(null);
       setStatusMessage({
         text: "Hồ sơ GPLX đã được gửi lên hệ thống và đang trong quá trình xét duyệt.",
@@ -184,11 +212,7 @@ function LicenseEditForm({
             onChange={(e) => setLicenseType(e.target.value)}
             className="w-full px-4 py-3 rounded border border-td-rule focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm font-semibold bg-td-white"
           >
-            <option value="B1">Hạng B1 (Số tự động)</option>
-            <option value="B2">Hạng B2 (Ô tô đến 9 chỗ, số sàn/tự động)</option>
-            <option value="C">Hạng C (Xe tải, chuyên dùng)</option>
-            <option value="A1">Hạng A1 (Mô tô hai bánh dưới 175cc)</option>
-            <option value="A2">Hạng A2 (Mô tô hai bánh từ 175cc trở lên)</option>
+            {Array.from(new Set(["A1", "A2", "A", "B1", "B2", "B", "C1", "C", "D1", "D2", "D", "BE", "C1E", "CE", "D1E", "D2E", "DE", licenseType])).filter(Boolean).map((type) => <option key={type} value={type}>Hạng {type}</option>)}
           </InlineSelect>
         </div>
 

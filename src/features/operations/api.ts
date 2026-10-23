@@ -13,13 +13,16 @@ export type OperationalRental = RentalContract & {
 export const canAssignRental = (status: string) => ["pre_inspection", "renting"].includes(status);
 export const isClosedRental = (status: string) => ["cancelled", "completed", "expired"].includes(status);
 
-export function rentalTransitionBlocker(rental: Pick<OperationalRental, "status" | "hasPassingPreInspection" | "hasPostInspection">, status: string): string | null {
+export function rentalTransitionBlocker(rental: Pick<OperationalRental, "status" | "hasPassingPreInspection" | "hasPostInspection"> & Partial<Pick<OperationalRental, "rentalType" | "hasUploadedContract">>, status: string): string | null {
   if (isClosedRental(rental.status)) return "Đơn thuê đã kết thúc, không thể thay đổi trạng thái.";
   if (status === "cancelled" && !["pending", "pre_inspection"].includes(rental.status)) {
     return "Chỉ có thể hủy đơn trước khi chuyển sang Đang thuê.";
   }
   if (status === "renting" && rental.hasPassingPreInspection !== true) {
     return "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.";
+  }
+  if (status === "renting" && rental.rentalType === "longterm" && rental.hasUploadedContract !== true) {
+    return "Cần tải file hoặc ảnh hợp đồng đã ký trước khi bàn giao xe dài hạn.";
   }
   if (status === "completed" && rental.hasPostInspection !== true) {
     return "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.";

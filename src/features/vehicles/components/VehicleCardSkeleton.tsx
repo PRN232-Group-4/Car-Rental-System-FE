@@ -24,6 +24,7 @@ export function VehicleCardSkeleton({ className = "" }: { className?: string }) 
             <div className="h-4 rounded bg-td-chalk" />
             <div className="h-4 rounded bg-td-chalk" />
           </div>
+          <div className="mt-3.5 h-4 w-3/4 rounded bg-td-chalk" />
         </div>
 
         {/* Giá và nút */}

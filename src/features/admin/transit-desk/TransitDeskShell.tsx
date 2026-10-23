@@ -349,9 +349,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
             );
           })}
         </nav>
-        <span className={styles.contextTotal}>
-          {permittedItems.length} CHỨC NĂNG KHẢ DỤNG
-        </span>
       </div>
       <div className={styles.operatorContext} role="status" aria-label="Cơ sở công tác hiện tại">
         <span>Cơ sở công tác: <strong>{facility}</strong></span>

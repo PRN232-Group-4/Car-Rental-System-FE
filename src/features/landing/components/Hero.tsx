@@ -102,7 +102,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           ref={subtitleRef}
           className="text-ink-2 text-base sm:text-lg md:text-xl max-w-3xl text-center font-normal leading-relaxed mb-8 text-pretty"
         >
-          Hệ thống quản lý 4 nhóm phương tiện thuần điện & xăng cao cấp. Tùy chọn tự lái linh hoạt hoặc có tài xế riêng. Bàn giao số hóa 3 phút, kiểm định minh bạch và hoàn cọc tự động qua PayOS.
+          Hệ thống quản lý 4 nhóm phương tiện thuần điện & xăng cao cấp. Tùy chọn tự lái linh hoạt hoặc có tài xế riêng. Theo dõi đặt xe, kiểm tra xe và thanh toán trong tài khoản.
         </p>
 
         {/* 5. Direct Action CTA Buttons */}
@@ -188,14 +188,14 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           <div className="flex items-center gap-2.5">
             <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
             <span className="font-bold text-ink">100% Xe Chính Chủ</span>
-            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(OBD-II Verified)</span>
+            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Đội xe vận hành)</span>
           </div>
 
           <div className="hidden sm:inline-block text-line-strong font-light">/</div>
 
           <div className="flex items-center gap-2.5">
             <Clock className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-bold text-ink">Bàn Giao 3 Phút</span>
+            <span className="font-bold text-ink">Biên Bản Bàn Giao</span>
             <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Biên bản số)</span>
           </div>
 
@@ -203,8 +203,8 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
 
           <div className="flex items-center gap-2.5">
             <RefreshCw className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-bold text-ink">Hoàn Cọc Tự Động</span>
-            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(PayOS 5 Phút)</span>
+            <span className="font-bold text-ink">Theo Dõi Quyết Toán</span>
+            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Theo đơn thuê)</span>
           </div>
         </div>
 

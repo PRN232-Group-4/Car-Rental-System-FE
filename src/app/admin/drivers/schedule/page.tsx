@@ -40,6 +40,7 @@ function DriverScheduleContent() {
     rentalCode: string;
     vehicleName: string;
     currentDriverName?: string;
+    timeRange?: string;
   } | null>(null);
 
   // Tính 7 ngày của tuần được chọn theo GMT+7
@@ -72,12 +73,13 @@ function DriverScheduleContent() {
     facilityId: selectedFacilityId !== "all" ? parseInt(selectedFacilityId, 10) : undefined,
   });
 
-  const handleOpenAssignModal = (rentalId: number, rentalCode: string, vehicleName: string, currentDriverName?: string) => {
+  const handleOpenAssignModal = (rentalId: number, rentalCode: string, vehicleName: string, currentDriverName?: string, timeRange?: string) => {
     setSelectedRentalForAssign({
       rentalId,
       rentalCode,
       vehicleName,
       currentDriverName,
+      timeRange,
     });
     setAssignDrawerOpen(true);
   };
@@ -94,7 +96,7 @@ function DriverScheduleContent() {
               Bảng lịch trình <em className="italic text-td-teal">tài xế.</em>
             </h1>
             <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">
-              Theo dõi phân bổ chuyến đi, vùng đệm 60 phút và chỉ định / thay đổi tài xế kịp thời.
+              Theo dõi phân bổ chuyến đi, vùng đệm theo từng xe và chỉ định / thay đổi tài xế.
             </p>
           </div>
         </div>
@@ -132,13 +134,10 @@ function DriverScheduleContent() {
             </button>
           </div>
 
-          <Button
-            variant="primary"
-            onClick={() => handleOpenAssignModal(104, "#104", "VinFast VF 8 Eco")}
-          >
+          <Link href="/admin/dispatch" className="inline-flex items-center rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white">
             <UserCheck className="w-4 h-4 mr-1.5" />
-            <span>Gán tài xế</span>
-          </Button>
+            <span>Điều phối tài xế</span>
+          </Link>
         </div>
       </div>
 
@@ -284,7 +283,8 @@ function DriverScheduleContent() {
                                       sched.rentalId,
                                       `#${sched.rentalId}`,
                                       sched.vehicleName || "Xe cho thuê",
-                                      driver.fullName
+                                      driver.fullName,
+                                      `${formatDate(sched.start, "HH:mm dd/MM/yyyy")} - ${formatDate(sched.end, "HH:mm dd/MM/yyyy")} (GMT+7)`
                                     )
                                   }
                                   className="group rounded border border-td-oxide/30 bg-td-chalk p-2 transition-colors hover:border-td-oxide cursor-pointer"
@@ -302,7 +302,7 @@ function DriverScheduleContent() {
                                   <div className="mt-1 flex items-center justify-between text-[10px] text-td-muted">
                                     <span className="font-mono">{sched.licensePlate}</span>
                                     <span className="rounded bg-td-white px-1 text-[9px] font-bold text-td-ink">
-                                      +{sched.bufferMinutes || 60}p
+                                      {sched.bufferMinutes == null ? "Chưa có vùng đệm" : `+${sched.bufferMinutes}p`}
                                     </span>
                                   </div>
                                 </div>
@@ -368,7 +368,8 @@ function DriverScheduleContent() {
                         s.rentalId,
                         `#${s.rentalId}`,
                         s.vehicleName || "Xe thuê",
-                        s.driverName
+                        s.driverName,
+                        `${formatDate(s.start, "HH:mm dd/MM/yyyy")} - ${formatDate(s.end, "HH:mm dd/MM/yyyy")} (GMT+7)`
                       )
                     }
                   >
@@ -392,6 +393,7 @@ function DriverScheduleContent() {
           rentalId={selectedRentalForAssign.rentalId}
           rentalCode={selectedRentalForAssign.rentalCode}
           vehicleName={selectedRentalForAssign.vehicleName}
+          timeRange={selectedRentalForAssign.timeRange}
           currentDriverName={selectedRentalForAssign.currentDriverName}
           onSuccess={() => {
             void refetch();

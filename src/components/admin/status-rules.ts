@@ -11,6 +11,7 @@ const statusTones = {
   shift: { active: "success", scheduled: "info", completed: "neutral", cancelled: "danger" },
   report: { new: "warning", pending: "warning", in_progress: "info", investigating: "info", resolved: "success", rejected: "danger", dismissed: "danger" },
   review: { visible: "success", published: "success", hidden: "neutral", reported: "warning" },
+  payment: { pending: "warning", unpaid: "warning", paid: "success", requested: "info", refunded: "neutral", rejected: "danger", cancelled: "neutral", failed: "danger" },
 } satisfies Record<string, Record<string, AdminStatusTone>>;
 
 export type AdminStatusDomain = keyof typeof statusTones;

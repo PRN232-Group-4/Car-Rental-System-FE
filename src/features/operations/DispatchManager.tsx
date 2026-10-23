@@ -26,6 +26,8 @@ import { getOperationalDrivers, operationalError, operationsButton, toList } fro
 type ScheduleEntry = DriverScheduleEntry & { driverName?: string | null };
 import RentalLookup from "./RentalLookup";
 import { AssignmentForm } from "./RentalOperations";
+import { DRIVER_SHIFT_MANAGEMENT_ENABLED, DRIVER_SHIFT_PAUSED_MESSAGE } from "@/config/operational-features";
+import { useOptionalSession } from "@/features/auth/AuthContext";
 
 const asIso = localInputToUtcIso;
 const dateLabel = formatAdminDateTime;
@@ -37,18 +39,20 @@ export default function DispatchManager() {
   const [creatingDriverId, setCreatingDriverId] = useState("");
   const [driverPage, setDriverPage] = useState(1);
   const validation = useInlineValidation();
-  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, retry: false });
+  const session = useOptionalSession();
+  const canReadDispatch = Boolean(session?.hasAnyRole(["Admin", "Manager"]));
+  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, enabled: canReadDispatch, retry: false });
   const from = asIso(activeFilter.startTime); const to = asIso(activeFilter.endTime);
   const driverId = activeFilter.driverStaffId ? Number(activeFilter.driverStaffId) : undefined;
-  const shifts = useQuery({ queryKey: ["dispatch-shifts", activeFilter], queryFn: () => getDriverShifts(from, to, driverId), retry: false });
-  const schedule = useQuery({ queryKey: ["dispatch-schedule", activeFilter], queryFn: () => getDispatchSchedule(from, to, driverId), retry: false });
+  const shifts = useQuery({ queryKey: ["dispatch-shifts", activeFilter], queryFn: () => getDriverShifts(from, to, driverId), enabled: canReadDispatch, retry: false });
+  const schedule = useQuery({ queryKey: ["dispatch-schedule", activeFilter], queryFn: () => getDispatchSchedule(from, to, driverId), enabled: canReadDispatch, retry: false });
   const driverOptions = (drivers.data ?? []).filter((item) => item.isActive).map((item) => ({ value: String(item.id), label: item.email?.trim() || "Chưa cập nhật email tài xế" }));
   const visibleDrivers = (drivers.data ?? []).filter(item => item.isActive && (!driverId || item.id === driverId));
   const driverPageCount = Math.max(1, Math.ceil(visibleDrivers.length / 10));
   const currentDriverPage = Math.min(driverPage, driverPageCount);
   const pageDrivers = visibleDrivers.slice((currentDriverPage - 1) * 10, currentDriverPage * 10);
-  const createShift = (id = activeFilter.driverStaffId) => { setCreatingDriverId(id); setEditing(null); };
-  const refresh = async () => { await Promise.all([shifts.refetch(), schedule.refetch()]); };
+  const createShift = (id = activeFilter.driverStaffId) => { if (!DRIVER_SHIFT_MANAGEMENT_ENABLED) return; setCreatingDriverId(id); setEditing(null); };
+  const refresh = async () => { if (canReadDispatch) await Promise.all([shifts.refetch(), schedule.refetch()]); };
   return <div className="space-y-6">
     <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
       <div className="flex items-start gap-5">
@@ -56,11 +60,13 @@ export default function DispatchManager() {
         <div>
           <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · CA LÀM & PHÂN CHUYẾN</span>
           <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Điều phối <em className="italic text-td-teal">tài xế.</em></h1>
-          <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Xếp ca theo tài xế trước, đọc lịch chuyến sau. Mọi thay đổi đi qua một bảng tra cứu duy nhất.</p>
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Tra cứu tài xế và phân công cho xe theo từng đơn thuê.</p>
         </div>
       </div>
-      <button type="button" className={`${operationsButton} self-start sm:self-end`} disabled={drivers.isPending || drivers.isError || !driverOptions.length} onClick={() => createShift()}>Tạo ca làm</button>
+      <button type="button" className={`${operationsButton} self-start sm:self-end`} aria-describedby={!DRIVER_SHIFT_MANAGEMENT_ENABLED ? "driver-shift-paused" : undefined} disabled={!DRIVER_SHIFT_MANAGEMENT_ENABLED || drivers.isPending || drivers.isError || !driverOptions.length} onClick={() => createShift()}>Tạo ca làm</button>
     </div>
+    {!DRIVER_SHIFT_MANAGEMENT_ENABLED && <p id="driver-shift-paused" role="status" className="border-l-2 border-td-oxide pl-3 text-sm text-td-muted">{DRIVER_SHIFT_PAUSED_MESSAGE} <a className="font-semibold text-td-oxide underline" href="#rental-driver-assignment">Mở phân công tài xế</a></p>}
+    {canReadDispatch && <>
     <ValidatedForm validation={validation} validate={() => validateBookingTimes(filter.startTime, filter.endTime)} onSubmit={() => { setActiveFilter({ ...filter }); setDriverPage(1); }}>
       <AdminFilterBar description="Lọc ca làm và lịch chuyến theo tài xế, khoảng thời gian." actions={<>
         <AdminFilterButton type="submit">Xem lịch</AdminFilterButton>
@@ -87,7 +93,7 @@ export default function DispatchManager() {
         <thead><tr><th scope="col">Tài xế</th><th scope="col">Cơ sở</th><th scope="col">Ca trong khoảng đang xem</th><th scope="col" data-actions>Thao tác</th></tr></thead>
         <tbody>{drivers.isFetching ? <AdminTableSkeleton columns={4} label="Đang tải danh sách tài xế" /> : !drivers.isError && pageDrivers.map(driver => {
           const count = toList<DriverShift>(shifts.data).filter(shift => shift.driverStaffId === driver.id && shift.status !== "cancelled").length;
-          return <tr key={driver.id}><td><span className="block font-semibold">{driver.email?.trim() || "Chưa cập nhật email tài xế"}</span><span className="text-xs text-td-muted">{driver.fullName}</span></td><td>{driver.facilityName || "Chưa phân bổ cơ sở"}</td><td>{shifts.isFetching ? "Đang tải ca..." : shifts.isError ? "Chưa tải được ca làm" : count ? `${count} ca` : "Chưa có ca trong khoảng đang xem"}</td><td data-actions><AdminRowAction action="edit" label={`Xếp ca cho ${driver.email || driver.fullName}`} onClick={() => createShift(String(driver.id))} /></td></tr>;
+          return <tr key={driver.id}><td><span className="block font-semibold">{driver.email?.trim() || "Chưa cập nhật email tài xế"}</span><span className="text-xs text-td-muted">{driver.fullName}</span></td><td>{driver.facilityName || "Chưa phân bổ cơ sở"}</td><td>{shifts.isFetching ? "Đang tải ca..." : shifts.isError ? "Chưa tải được ca làm" : count ? `${count} ca` : "Chưa có ca trong khoảng đang xem"}</td><td data-actions><AdminRowAction action="edit" label={`Xếp ca cho ${driver.email || driver.fullName}`} disabled={!DRIVER_SHIFT_MANAGEMENT_ENABLED} aria-describedby={!DRIVER_SHIFT_MANAGEMENT_ENABLED ? "driver-shift-paused" : undefined} onClick={() => createShift(String(driver.id))} /></td></tr>;
         })}
         {!drivers.isFetching && !drivers.isError && !pageDrivers.length && <AdminTableEmptyRow colSpan={4}>Không có tài xế đang hoạt động phù hợp bộ lọc.</AdminTableEmptyRow>}
         </tbody>
@@ -109,14 +115,14 @@ export default function DispatchManager() {
               <td className="text-td-muted">{dateLabel(item.startTime)}</td>
               <td className="text-td-muted">{dateLabel(item.endTime)}</td>
               <td><AdminStatusBadge domain="shift" status={item.status}>{item.status ?? "—"}</AdminStatusBadge></td>
-              <td data-actions><AdminRowAction action="edit" label="Sửa / hủy ca" onClick={() => setEditing(item)} /></td>
+              <td data-actions><AdminRowAction action="edit" label="Sửa / hủy ca" disabled={!DRIVER_SHIFT_MANAGEMENT_ENABLED} aria-describedby={!DRIVER_SHIFT_MANAGEMENT_ENABLED ? "driver-shift-paused" : undefined} onClick={() => { if (DRIVER_SHIFT_MANAGEMENT_ENABLED) setEditing(item); }} /></td>
             </tr>
           ))}
           {!shifts.isPending && toList<DriverShift>(shifts.data).length === 0 && <AdminTableEmptyRow colSpan={5}>Không có ca làm trong khoảng thời gian này.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
     </AdminTableCard>
-    {editing !== undefined && <ShiftForm key={editing?.id ?? `new-${creatingDriverId}`} record={editing} initialDriverId={creatingDriverId} drivers={driverOptions} close={() => setEditing(undefined)} saved={refresh} />}
+    {DRIVER_SHIFT_MANAGEMENT_ENABLED && editing !== undefined && <ShiftForm key={editing?.id ?? `new-${creatingDriverId}`} record={editing} initialDriverId={creatingDriverId} drivers={driverOptions} close={() => setEditing(undefined)} saved={refresh} />}
     <AdminTableCard>
       <div className="flex items-baseline justify-between gap-3 border-b border-td-rule pb-2 pt-3">
         <h2 className="text-sm font-bold text-td-ink">Các chuyến đã phân công</h2>
@@ -140,7 +146,8 @@ export default function DispatchManager() {
         </tbody>
       </AdminTable>
     </AdminTableCard>
-    <RentalLookup title="Phân chuyến theo mã đơn">{(rental, refreshRental) => <AssignmentForm rental={rental} refresh={async () => { await refreshRental(); await refresh(); }} />}</RentalLookup>
+    </>}
+    <section id="rental-driver-assignment" aria-label="Phân công tài xế theo đơn thuê"><RentalLookup title="Phân chuyến theo mã đơn">{(rental, refreshRental) => <AssignmentForm rental={rental} refresh={async () => { await refreshRental(); await refresh(); }} />}</RentalLookup></section>
   </div>;
 }
 

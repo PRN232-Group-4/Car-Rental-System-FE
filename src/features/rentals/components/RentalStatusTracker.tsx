@@ -7,8 +7,8 @@ export default function RentalStatusTracker({ status }: { status: string | null 
   return <section aria-label="Tiến trình thuê xe" className={styles.tracker}>
     <p className="text-sm font-semibold text-td-ink">Tiến trình thuê xe</p>
     <ol aria-label="Các bước thuê xe" className={styles.steps}>
-      {progress.steps.map((step) => <li key={step.status} className={styles.step} data-state={step.state} aria-current={step.state === "current" ? "step" : undefined}>
-        <span aria-hidden="true" className={styles.dot}>{step.state === "complete" && <Check size={14} strokeWidth={3} />}</span>
+      {progress.steps.map((step, index) => <li key={step.status} className={styles.step} data-state={step.state} aria-current={step.state === "current" ? "step" : undefined}>
+        <span aria-hidden="true" className={styles.dot}>{step.state === "complete" ? <Check size={14} strokeWidth={3} /> : String(index + 1).padStart(2, "0")}</span>
         <span className={styles.label}>{step.label}</span>
         <span className="sr-only">{step.state === "complete" ? " — Đã qua" : step.state === "current" ? step.status === "completed" ? " — Đã hoàn tất" : " — Hiện tại" : step.state === "upcoming" ? " — Chưa đến" : step.state === "stopped" ? " — Đã dừng" : " — Chưa có dữ liệu"}</span>
       </li>)}

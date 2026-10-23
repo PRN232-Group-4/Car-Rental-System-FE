@@ -29,6 +29,7 @@ import LicenseImageField from "@/features/licenses/components/LicenseImageField"
 import { ApiClientError } from "@/api/api-client";
 import { useAuth } from "@/features/auth";
 import ChangePasswordForm from "./ChangePasswordForm";
+import Link from "@/components/navigation/NavigationLink";
 
 type ProfileDetails = {
   fullName: string;
@@ -47,6 +48,7 @@ export default function ProfileManager() {
     gender: "",
   });
   const [licenseNumber, setLicenseNumber] = useState("");
+  const [licenseId, setLicenseId] = useState<number | null>(null);
   const [licenseType, setLicenseType] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -92,6 +94,7 @@ export default function ProfileManager() {
           gender: profile.gender ?? "",
         });
         if (license) {
+          setLicenseId(license.id ?? null);
           setLicenseNumber(license.number ?? "");
           setLicenseType(license.type ?? "");
           setIssueDate(license.issueDate?.slice(0, 10) ?? "");
@@ -130,6 +133,7 @@ export default function ProfileManager() {
     setFileError("");
     try {
       const license = await saveCustomerLicense({
+        ...(licenseId != null ? { licenseId } : {}),
         number: licenseNumber.trim(),
         type: licenseType.trim(),
         issueDate,
@@ -137,6 +141,7 @@ export default function ProfileManager() {
         file: selectedFile,
       });
       setLicenseImageUrl(license.imageUrl ?? "");
+      setLicenseId(license.id ?? null);
       const status = license.status ?? "pending";
       setLicenseStatus(status);
       setSelectedFile(null);
@@ -331,6 +336,7 @@ export default function ProfileManager() {
                 <div>
                   <h2 className="text-xl font-bold text-td-ink">Giấy phép lái xe</h2>
                   <p className="mt-1 text-sm text-td-muted">Tải lên giấy phép hợp lệ để xác minh danh tính.</p>
+                  <Link href="/driver-license" className="mt-2 inline-block text-sm text-primary underline">Quản lý tất cả GPLX và thêm giấy phép khác</Link>
                 </div>
               </div>
 

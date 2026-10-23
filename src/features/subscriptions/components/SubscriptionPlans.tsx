@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Clock, Sparkles, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
-import { getSubscriptionPlans, getInitialSubscriptionPlans, purchaseSubscriptionPlan } from "../api";
+import { getSubscriptionPlans, purchaseSubscriptionPlan } from "../api";
 import type { SubscriptionPlan } from "../types";
 import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/Button";
@@ -11,14 +11,19 @@ import { Button } from "@/components/ui/Button";
 export default function SubscriptionPlans() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [plans, setPlans] = useState<SubscriptionPlan[]>(getInitialSubscriptionPlans());
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [purchasingId, setPurchasingId] = useState<number | string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   useEffect(() => {
+    let active = true;
     getSubscriptionPlans()
-      .then(setPlans)
-      .catch(() => setPlans([]));
+      .then(data => { if (active) setPlans(data); })
+      .catch(() => { if (active) setLoadError("Không tải được các gói thuê bao. Vui lòng tải lại trang."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const handlePurchase = async (plan: SubscriptionPlan) => {
@@ -41,7 +46,7 @@ export default function SubscriptionPlans() {
     }
   };
 
-  const popularPlan = plans.find((p) => p.popular) || plans[1] || plans[0];
+  const popularPlan = plans.find((p) => p.popular);
   const regularPlans = plans.filter((p) => p.id !== popularPlan?.id);
 
   const formatVND = (amount: number) => {
@@ -68,6 +73,9 @@ export default function SubscriptionPlans() {
         </div>
 
         {/* Asymmetrical Grid: 7 cols (Hero/Popular card) + 5 cols (Other plans) */}
+        {loading && <p role="status" className="mb-6 text-sm text-td-muted">Đang tải các gói thuê bao...</p>}
+        {loadError && <p role="alert" className="mb-6 text-sm text-danger">{loadError}</p>}
+        {!loading && !loadError && plans.length === 0 && <p role="status" className="mb-6 text-sm text-td-muted">Hiện chưa có gói thuê bao đang mở bán.</p>}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-2">
           {/* Main Popular Plan (Asymmetric Large Card: 7 cols) */}
           {popularPlan && (
@@ -119,12 +127,7 @@ export default function SubscriptionPlans() {
                       <span>{feature}</span>
                     </div>
                   ))}
-                  <div className="flex items-center gap-3 text-sm text-td-ink">
-                    <div className="w-5 h-5 rounded-full bg-primary-tint text-primary flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 stroke-[3]" />
-                    </div>
-                    <span>Ưu tiên giữ xe trong các dịp cao điểm & cuối tuần</span>
-                  </div>
+
                 </div>
               </div>
 
@@ -157,7 +160,7 @@ export default function SubscriptionPlans() {
           )}
 
           {/* Regular Plans Stack (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className={popularPlan ? "lg:col-span-5 flex flex-col gap-6" : "lg:col-span-12 grid gap-6 md:grid-cols-2"}>
             {regularPlans.map((plan) => (
               <div
                 key={plan.id}

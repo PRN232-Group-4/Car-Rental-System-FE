@@ -1,6 +1,7 @@
 export type VehicleCategory = "car" | "electric_car" | "motorbike" | "electric_motorbike";
 
 export interface Vehicle {
+  allowedLicenseTypes?: string[];
   id: number | string;
   vehicleTypeId?: number;
   name: string;

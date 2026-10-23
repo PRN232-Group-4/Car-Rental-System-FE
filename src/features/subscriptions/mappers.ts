@@ -10,7 +10,7 @@ export function mapSubscriptionPlanFromBE(raw: BESubscriptionPlan | Record<strin
   const name = String(r.name ?? r.Name ?? "");
   const price = Number(r.price ?? r.Price ?? 0);
   const hours = Number(r.includedHours ?? r.IncludedHours ?? r.hours ?? 0);
-  const validityDays = Number(r.durationDays ?? r.DurationDays ?? r.validityDays ?? 30);
+  const validityDays = Number(r.durationDays ?? r.DurationDays ?? r.validityDays ?? 0);
   const description = (r.description ?? r.Description ?? null) as string | null;
   const isActive = Boolean(r.isActive ?? r.IsActive ?? true);
 
@@ -22,8 +22,6 @@ export function mapSubscriptionPlanFromBE(raw: BESubscriptionPlan | Record<strin
     features = [
       `${hours} giờ sử dụng linh hoạt`,
       `Thời hạn ${validityDays} ngày`,
-      "Áp dụng cho mọi dòng xe trong gói",
-      "Hỗ trợ giao xe tận nơi ưu tiên",
     ];
   }
 
@@ -49,17 +47,17 @@ export function mapCustomerSubscriptionFromBE(raw: BECustomerSubscription | Reco
   const customerId = (r.customerId ?? r.CustomerId) as number | string;
   const planId = (r.planId ?? r.PlanId) as number | string;
   const planName = (r.planName ?? r.PlanName ?? "Gói thuê bao") as string;
-  const startDate = String(r.startDate ?? r.StartDate ?? new Date().toISOString());
-  const endDate = String(r.endDate ?? r.EndDate ?? new Date().toISOString());
+  const startDate = String(r.startDate ?? r.StartDate ?? "");
+  const endDate = String(r.endDate ?? r.EndDate ?? "");
   const totalHours = Number(r.totalHours ?? r.TotalHours ?? 0);
   const remainingHours = Number(r.remainingHours ?? r.RemainingHours ?? 0);
 
   // Derive active/expired based on endDate and remainingHours
-  let status = String(r.status ?? r.Status ?? "active").toLowerCase();
+  let status = String(r.status ?? r.Status ?? "unknown").toLowerCase();
   const end = new Date(endDate);
   if (end < new Date()) {
     status = "expired";
-  } else if (remainingHours <= 0) {
+  } else if (endDate && remainingHours <= 0) {
     status = "depleted";
   }
 
