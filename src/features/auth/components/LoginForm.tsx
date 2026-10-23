@@ -130,7 +130,7 @@ export default function LoginForm() {
 
         {/* Error Alert Box */}
         {shownError && (
-          <div className="mb-3.5 p-3 rounded-xl bg-danger-bg border border-danger/30 text-danger text-xs flex items-start gap-2 animate-in fade-in duration-200">
+          <div role="alert" aria-live="assertive" className="mb-3.5 p-3 rounded-xl bg-danger-bg border border-danger/30 text-danger text-xs flex items-start gap-2 animate-in fade-in duration-200">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span className="leading-snug">{shownError}</span>
           </div>

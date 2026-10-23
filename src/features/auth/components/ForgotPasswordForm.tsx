@@ -96,7 +96,7 @@ export default function ForgotPasswordForm() {
         </div>
 
         {generalError && (
-          <div className="p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
+          <div role="alert" aria-live="assertive" className="p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{generalError}</span>
           </div>
@@ -182,7 +182,7 @@ export default function ForgotPasswordForm() {
       </div>
 
       {generalError && (
-        <div className="p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
+        <div role="alert" aria-live="assertive" className="p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{generalError}</span>
         </div>

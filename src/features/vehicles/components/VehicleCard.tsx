@@ -145,7 +145,7 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
 
           <Link
             href={vehicleDetailHref(vehicle, bookingContext)}
-            className="inline-flex items-center justify-center gap-1.5 rounded bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-all hover:bg-primary-hover group-hover:shadow-e1 cursor-pointer"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-primary-hover group-hover:shadow-e1 cursor-pointer"
           >
             <span>Chi tiết</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />

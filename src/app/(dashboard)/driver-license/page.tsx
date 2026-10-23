@@ -5,6 +5,7 @@ import { ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@
 import React, { Suspense, useState } from "react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { FormSkeleton } from "@/components/ui/Skeleton";
 import {
   FileCheck,
   ShieldCheck,
@@ -22,7 +23,7 @@ export default function GPLXPage() {
   const queryClient = useQueryClient();
   const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const { data: license, isPending, error } = useQuery<CustomerLicense | null>({
+  const { data: license, isPending, error, refetch } = useQuery<CustomerLicense | null>({
     queryKey: ["customer-license"],
     queryFn: getCustomerLicense,
   });
@@ -79,7 +80,7 @@ export default function GPLXPage() {
       </div>
 
       {/* Form rendered with key to synchronize initial state without effects */}
-      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <>
+      {isPending ? <FormSkeleton label="Đang tải hồ sơ GPLX..." fields={4} /> : error ? <div className="space-y-3"><p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và thử lại.</p><button type="button" onClick={() => { void refetch(); }} className="rounded border border-td-rule px-4 py-2.5 text-sm font-bold text-td-ink">Thử lại</button></div> : <>
         <div className="space-y-3">
           <h2 className="text-lg font-bold">Các giấy phép của bạn</h2>
           <div className="flex flex-wrap gap-3">{licenses.map((item) => <button type="button" disabled={saving} key={item.id ?? item.number} aria-pressed={editingLicense?.number === item.number} onClick={() => setSelectedLicense(String(item.id ?? item.number))} className="rounded border border-td-rule px-4 py-3 text-left disabled:opacity-50">

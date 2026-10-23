@@ -10,6 +10,7 @@ import { getInvoices } from "@/features/invoices/api";
 import { createRentalBooking, getActivePolicyForVehicleType, getBookingPolicies, getBookingVehicles } from "../api";
 import { calculateHourlyEstimate, earliestBookingStart, localDateTime, selectBookingPolicy, validateBookingTimes, BOOKING_MINIMUM_LEAD_MINUTES } from "../booking-rules";
 import { localInputToUtcIso } from "@/lib/time";
+import { formatVnd } from "@/lib/format";
 import type { RentalBookingResponse } from "../types";
 import VehicleImage from "@/components/ui/VehicleImage";
 import VehicleName from "@/features/admin/VehicleName";
@@ -23,7 +24,7 @@ import { useNavigationRouter } from "@/components/navigation/NavigationProvider"
 import { getVehicleById } from "@/features/vehicles/api";
 
 const inputClass = "mt-2 w-full rounded border border-td-rule bg-td-white px-3 py-3 text-sm text-td-ink";
-const money = (value: number) => `${value.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} đ`;
+
 const iso = (value: string) => Number.isFinite(new Date(value).getTime()) ? localInputToUtcIso(value) : undefined;
 const errorText = (error: unknown) => error instanceof Error && !(error instanceof TypeError) ? error.message : "Không thể kết nối máy chủ. Vui lòng kiểm tra mạng và thử lại.";
 
@@ -145,7 +146,7 @@ export default function BookingForm() {
     {resultType === "longterm" && <p className="text-sm text-td-muted">Vui lòng tải file hoặc ảnh hợp đồng đã ký trước khi bàn giao xe. Bạn có thể hoàn tất trong hồ sơ hợp đồng của yêu cầu này.</p>}
     <p>{result.bookingId ? `Mã yêu cầu: #${result.bookingId}` : "Máy chủ đã tiếp nhận yêu cầu đặt xe. Vui lòng liên hệ chi nhánh để tra cứu."}</p>
     {result.rental && <VehicleName vehicleId={result.rental.vehicleId} />}
-    {result.rental && <div className="space-y-2 rounded bg-td-paper p-4"><p>Trạng thái: {result.rental.status}</p><p>Tổng tiền thuê từ máy chủ: {money(result.rental.totalPrice)}</p><p>Tiền cọc: {money(result.rental.depositPrice)}</p></div>}
+    {result.rental && <div className="space-y-2 rounded bg-td-paper p-4"><p>Trạng thái: {result.rental.status}</p><p>Tổng tiền thuê từ máy chủ: {formatVnd(result.rental.totalPrice)}</p><p>Tiền cọc: {formatVnd(result.rental.depositPrice)}</p></div>}
     {resultIsSubscription ? <p>Yêu cầu dùng gói thuê bao đang chờ nhân viên duyệt. Đơn thuê chính thức được phát hành sau khi duyệt.</p> : <p>Yêu cầu đang chờ nhân viên duyệt. {paymentMethod === "cash" ? "Sau khi được duyệt, bạn thanh toán tiền mặt tại cơ sở; nhân viên xác nhận đã thu tiền để phát hành đơn thuê chính thức." : "Sau khi được duyệt, bạn thanh toán PayOS trong chi tiết hóa đơn. Đơn thuê chính thức chỉ được phát hành khi hệ thống xác nhận đã nhận tiền."}</p>}
     {generalError && <p role="alert" className="text-danger">{generalError}</p>}
     <p className="text-sm text-td-muted">Đơn sẽ tự động hết hạn nếu chưa được duyệt <strong>và</strong> chưa thanh toán trong vòng {BOOKING_MINIMUM_LEAD_MINUTES} phút kể từ lúc đặt. Sau khi hết hạn, lịch xe được giải phóng cho khách khác.</p>
@@ -194,10 +195,10 @@ export default function BookingForm() {
         {facility && <><p className="text-sm text-td-muted">Nhận xe: {facility.name}</p><p className="text-sm text-td-muted">{hasDriver ? "Tài xế: Chưa phân công" : "Hình thức: Tự lái"}</p></>}
         {vehicle && <BookingPickupMap facilityId={vehicle.facilityId} />}
         <p className="text-sm">{vehicle?.name ?? "Chưa chọn phương tiện"}</p><p className="text-sm text-td-muted">Thời gian: {hours.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} giờ</p>
-        {vehicle && <p className="text-sm">Đơn giá: {money(rentalType === "longterm" ? vehicle.monthlyPrice : vehicle.hourlyPrice)} / {rentalType === "longterm" ? "tháng" : "giờ"}</p>}
+        {vehicle && <p className="text-sm">Đơn giá: {formatVnd(rentalType === "longterm" ? vehicle.monthlyPrice : vehicle.hourlyPrice)} / {rentalType === "longterm" ? "tháng" : "giờ"}</p>}
         {paymentMode === "subscription" ? <p className="text-sm">Sử dụng giờ trong gói thuê bao, không tạo hóa đơn thuê trực tiếp.</p> : <>
           {policy && <p className="text-sm">Chính sách: {policy.name ?? `#${policy.id}`}<br />VAT {policy.vatRate}% · Cọc {policy.depositPercentage}%</p>}
-          {estimate && <dl className="space-y-2 text-sm"><div className="flex justify-between"><dt>Tiền thuê dự kiến</dt><dd>{money(estimate.rentalFee)}</dd></div><div className="flex justify-between"><dt>VAT</dt><dd>{money(estimate.vat)}</dd></div><div className="flex justify-between"><dt>Tiền cọc</dt><dd>{money(estimate.deposit)}</dd></div><div className="flex justify-between border-t border-td-rule pt-3 font-bold"><dt>Tạm tính gồm cọc</dt><dd>{money(estimate.total)}</dd></div></dl>}
+          {estimate && <dl className="space-y-2 text-sm"><div className="flex justify-between"><dt>Tiền thuê dự kiến</dt><dd>{formatVnd(estimate.rentalFee)}</dd></div><div className="flex justify-between"><dt>VAT</dt><dd>{formatVnd(estimate.vat)}</dd></div><div className="flex justify-between"><dt>Tiền cọc</dt><dd>{formatVnd(estimate.deposit)}</dd></div><div className="flex justify-between border-t border-td-rule pt-3 font-bold"><dt>Tạm tính gồm cọc</dt><dd>{formatVnd(estimate.total)}</dd></div></dl>}
           <p className="text-xs text-td-muted">{rentalType === "longterm" ? "Tiền thuê dài hạn được máy chủ xác định theo khoảng thời gian và giá tháng." : "Số tiền chính thức được xác nhận trên đơn thuê và hóa đơn."}</p>
           {policyQuery.error && <p className="text-sm text-td-muted">Chưa tải được chính sách. Máy chủ sẽ áp dụng chính sách khi tạo đơn. <button type="button" className="underline" onClick={() => void policyQuery.refetch()}>Tải lại</button></p>}
         </>}
