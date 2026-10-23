@@ -6,9 +6,21 @@ vi.mock("./api", () => ({ getVehicles: vi.fn() }));
 
 describe("dashboard data", () => {
   it("keeps absent/invalid metrics unknown and accepts real zeroes", () => {
-    expect(parseDashboardSnapshot({ revenue: 0, renting: -1, maintenance: "5", activeSubscriptions: Infinity })).toEqual({ revenue: 0, renting: null, maintenance: null, activeSubscriptions: null });
-    expect(parseDashboardSnapshot(null)).toEqual({ revenue: null, renting: null, maintenance: null, activeSubscriptions: null });
+    const unknown = { revenue: null, renting: null, maintenance: null, activeSubscriptions: null };
+    expect(parseDashboardSnapshot({ revenue: 0, renting: -1, maintenance: "5", activeSubscriptions: Infinity })).toEqual({ revenue: 0, renting: null, maintenance: null, activeSubscriptions: null, previous: unknown });
+    expect(parseDashboardSnapshot(null)).toEqual({ ...unknown, previous: unknown });
     expect(parseDashboardSnapshot({ renting: 0.5 }).renting).toBeNull();
+  });
+
+  it("đọc bộ chỉ số kỳ trước để hiển thị xu hướng thật", () => {
+    const snapshot = parseDashboardSnapshot({ revenue: 100, renting: 3, previous: { revenue: 80, renting: 2, maintenance: 1, activeSubscriptions: 5 } });
+    expect(snapshot.revenue).toBe(100);
+    expect(snapshot.previous.revenue).toBe(80);
+    expect(snapshot.previous.renting).toBe(2);
+    expect(snapshot.previous.maintenance).toBe(1);
+    // Kỳ trước thiếu/không hợp lệ vẫn là "chưa biết", không tự thành 0.
+    expect(parseDashboardSnapshot({ revenue: 100, previous: { revenue: -5 } }).previous.revenue).toBeNull();
+    expect(parseDashboardSnapshot({ revenue: 100 }).previous.revenue).toBeNull();
   });
 
   it("plots counts only and never mixes revenue with a count axis", () => {
