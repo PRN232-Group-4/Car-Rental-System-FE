@@ -14,7 +14,8 @@ export default function RentalStatusTracker({ status }: { status: string | null 
       </li>)}
     </ol>
     {progress.cancelled ? <p className="text-sm text-danger">Yêu cầu / đơn thuê đã hủy. Tiến trình đã dừng.</p>
-      : !progress.known ? <p className="text-sm text-td-muted">Chưa có thông tin tiến trình cho trạng thái này.</p>
-        : <p className="text-xs text-td-muted">Tiến trình thể hiện tình trạng thuê xe. Thông tin thanh toán và mã đơn chính thức được hiển thị riêng.</p>}
+      : progress.expired ? <p className="text-sm text-danger">Yêu cầu đã hết hạn vì chưa được duyệt hoặc chưa thanh toán trong thời hạn. Tiến trình đã dừng.</p>
+        : !progress.known ? <p className="text-sm text-td-muted">Chưa có thông tin tiến trình cho trạng thái này.</p>
+          : <p className="text-xs text-td-muted">Tiến trình thể hiện tình trạng thuê xe. Thông tin thanh toán và mã đơn chính thức được hiển thị riêng.</p>}
   </section>;
 }

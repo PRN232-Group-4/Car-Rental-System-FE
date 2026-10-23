@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getRentalProgress } from "./rental-progress";
+import { getRentalProgress, rentalStatusLabel } from "./rental-progress";
 
 describe("rental progress", () => {
   it.each([
@@ -23,6 +23,25 @@ describe("rental progress", () => {
     const progress = getRentalProgress("cancelled");
     expect(progress.cancelled).toBe(true);
     expect(progress.steps.every((step) => step.state === "stopped")).toBe(true);
+  });
+
+  it("shows an expired request as stopped but not cancelled", () => {
+    const progress = getRentalProgress("expired");
+    expect(progress.expired).toBe(true);
+    expect(progress.cancelled).toBe(false);
+    expect(progress.known).toBe(true);
+    expect(progress.steps.every((step) => step.state === "stopped")).toBe(true);
+  });
+
+  it.each([
+    ["expired", "Hết hạn"],
+    ["cancelled", "Đã hủy"],
+    ["cancelled ", "Đã hủy"],
+    ["renting", "Đang thuê"],
+    [null, "Cập nhật trạng thái"],
+    ["future_status", "Cập nhật trạng thái"],
+  ])("labels %s as %s", (status, label) => {
+    expect(rentalStatusLabel(status)).toBe(label);
   });
 
   it.each([null, undefined, "", "inactive", "confirmed", "ongoing", "future_status"])("does not invent a current milestone for %s", (status) => {

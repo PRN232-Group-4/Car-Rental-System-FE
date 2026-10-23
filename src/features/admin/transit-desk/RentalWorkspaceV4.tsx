@@ -621,6 +621,7 @@ export function RentalWorkspaceV4() {
                   <option value="overdue">Quá hạn</option>
                   <option value="post_inspection">Kiểm tra trả</option>
                   <option value="completed">Đã hoàn tất</option>
+                  <option value="expired">Hết hạn</option>
                 </select>
                 <button
                   type="submit"

@@ -85,6 +85,13 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
   const canPay = canCheckout && !isPaid && invoice.canPay === true && invoice.paymentMethod !== "cash";
   const waitingCash = !isPaid && invoice.canPay === true && invoice.paymentMethod === "cash";
   const waitingConfirmation = !isPaid && invoice.paymentBlockedReason === "RENTAL_CONFIRMATION_REQUIRED";
+  /** FR-042: lý do chặn thanh toán từ BE được diễn giải thành câu tiếng Việt thay vì mã lỗi thô. */
+  const blockedMessage = (() => {
+    if (!invoice.paymentBlockedReason) return null;
+    if (invoice.paymentBlockedReason === "RENTAL_CONFIRMATION_REQUIRED") return "Chờ nhân viên duyệt yêu cầu";
+    if (invoice.status === "cancelled") return "Hóa đơn đã bị hủy vì đơn thuê đã hết hạn hoặc đã bị hủy";
+    return "Hóa đơn không thể thanh toán ở trạng thái hiện tại";
+  })();
   const beforeVat = Math.max(0, invoice.amount - invoice.vatAmount);
 
   return (
@@ -224,7 +231,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
               <CheckCircle2 className="w-5 h-5" />
               <span>Hoá đơn đã được thanh toán</span>
             </div>
-          ) : <span className="text-sm font-semibold text-ink-3">{waitingConfirmation ? "Chờ nhân viên duyệt yêu cầu" : waitingCash ? "Chờ xác nhận thu tiền mặt" : (invoice.paymentBlockedReason || (canCheckout ? "Hóa đơn chưa thể thanh toán" : "Khách hàng thực hiện thanh toán qua tài khoản của mình"))}</span>}
+          ) : <span className="text-sm font-semibold text-ink-3">{blockedMessage ?? (waitingCash ? "Chờ xác nhận thu tiền mặt" : (canCheckout ? "Hóa đơn chưa thể thanh toán" : "Khách hàng thực hiện thanh toán qua tài khoản của mình"))}</span>}
         </div>
       </div>
     </div>
