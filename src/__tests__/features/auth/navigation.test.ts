@@ -52,7 +52,8 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       expect(hrefs).not.toContain("/admin/handovers");
       expect(hrefs).not.toContain("/admin/inspections");
       expect(hrefs).not.toContain("/admin/maintenance");
-      expect(hrefs.length).toBe(8);
+      expect(hrefs).toContain("/admin/payments");
+      expect(hrefs.length).toBe(9);
     });
 
     it("filters out Admin-only items for Manager role while keeping management items", () => {

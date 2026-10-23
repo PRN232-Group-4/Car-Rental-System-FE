@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { bookingLicenseHref, getBookingReturnPath, hasCustomerLicense } from "./booking-license";
+import { bookingLicenseHref, getBookingReturnPath, hasCustomerLicense, matchingCustomerLicenses } from "./booking-license";
 
 describe("license check before booking", () => {
+  it("checks every independent license against explicit vehicle classes and rental end", () => {
+    const licenses = [
+      { number: "motorcycle", type: "A1", status: "approved", expiryDate: "2099-01-01" },
+      { number: "car", type: " b2 ", status: "approved", expiryDate: "2027-01-01" },
+      { number: "truck", type: "C", status: "pending", expiryDate: "2099-01-01" },
+    ];
+    const profile = { ...licenses[2], licenses };
+    expect(matchingCustomerLicenses(profile, ["B2"], "2027-01-01T20:00")).toEqual([licenses[1]]);
+    expect(matchingCustomerLicenses(profile, ["B2"], "2027-01-02")).toEqual([]);
+    expect(matchingCustomerLicenses(profile, ["B"], "2026-01-01")).toEqual([]);
+    expect(matchingCustomerLicenses(profile, ["C"], "2026-01-01")[0].status).toBe("pending");
+    expect(matchingCustomerLicenses(profile, [], "2026-01-01")).toHaveLength(3);
+  });
   it("detects both missing and pending placeholder licenses", () => {
     expect(hasCustomerLicense(null)).toBe(false);
     expect(hasCustomerLicense(undefined)).toBe(false);

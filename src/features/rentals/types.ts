@@ -59,6 +59,7 @@ export interface RentalPolicy {
 export interface RentalContract extends Rental {
   contractLink: string | null;
   signedAt: string | null;
+  hasUploadedContract?: boolean;
   hourlyPriceSnapshot?: number | null;
   monthlyPriceSnapshot?: number | null;
 }

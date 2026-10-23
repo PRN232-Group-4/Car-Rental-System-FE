@@ -30,8 +30,8 @@ export function DriverAssignDrawer({
   onOpenChange,
   rentalId,
   rentalCode = `#${rentalId}`,
-  vehicleName = "VinFast VF 9",
-  timeRange = "Hôm nay, 08:00 - 18:00 (GMT+7)",
+  vehicleName = "Chưa có thông tin phương tiện",
+  timeRange = "Chưa có thông tin lịch thuê",
   currentDriverName,
   onSuccess,
 }: DriverAssignDrawerProps) {
@@ -112,7 +112,7 @@ export function DriverAssignDrawer({
               <h4 className="text-xs font-bold uppercase tracking-wider text-td-muted">
                 Danh sách tài xế ({drivers.length})
               </h4>
-              <span className="text-[11px] text-td-muted">Đã tính 60 phút đệm</span>
+
             </div>
 
             {isLoading ? (

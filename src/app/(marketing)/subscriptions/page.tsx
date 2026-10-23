@@ -8,7 +8,7 @@ import Link from "next/link";
 export const metadata = {
   title: "Gói thuê bao xe | Thong Dong - Trả trước theo giờ",
   description:
-    "Mua gói thuê bao tiết kiệm đến 35%. Thuê xe theo giờ nhanh chóng không cần thanh toán từng lượt, quản lý số dư giờ linh hoạt trên ứng dụng.",
+    "Xem các gói thuê bao đang mở bán, giá, số giờ và thời hạn; theo dõi số dư giờ trong tài khoản.",
 };
 
 export default function GoiThueBaoPage() {
@@ -60,7 +60,7 @@ export default function GoiThueBaoPage() {
                 </p>
               </div>
               <div className="pt-5 mt-5 border-t border-line text-xs font-mono text-primary font-bold">
-                Quy tắc BE-22: rentals.is_subscription = true, miễn hoá đơn
+                Giờ thuê được trừ từ gói đủ điều kiện đã chọn
               </div>
             </div>
 
@@ -85,9 +85,9 @@ export default function GoiThueBaoPage() {
                     <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-base text-ink mb-1">Ưu tiên giữ xe tại mọi trạm</h3>
+                    <h3 className="font-bold text-base text-ink mb-1">Chọn xe còn lịch trống</h3>
                     <p className="text-xs text-ink-3 leading-relaxed">
-                      Thành viên sở hữu gói thuê bao được hệ thống ưu tiên giữ xe trong các khung giờ cao điểm và ngày cuối tuần tại toàn bộ chi nhánh.
+                      Khả năng đặt xe phụ thuộc vào lịch trống của phương tiện và điều kiện áp dụng của gói thuê bao.
                     </p>
                   </div>
                 </div>

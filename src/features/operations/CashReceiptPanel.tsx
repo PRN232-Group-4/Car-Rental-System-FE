@@ -12,7 +12,7 @@ import { operationsButton, operationsPanel, operationalError, type OperationalRe
 import { useRentalInvoice } from "./rental-invoice";
 import RentalIdentifiers from "./RentalIdentifiers";
 
-export default function CashReceiptPanel({ rental, refresh, compact = false }: { rental: OperationalRental; refresh: () => Promise<unknown>; compact?: boolean }) {
+export default function CashReceiptPanel({ rental, refresh, compact = false, embedded = false }: { rental: OperationalRental; refresh: () => Promise<unknown>; compact?: boolean; embedded?: boolean }) {
   const session = useOptionalSession();
   const allowed = Boolean(session?.isAuthenticated && session.hasAnyRole(["Admin", "Manager", "CustomerService"]));
   const cache = useQueryClient();
@@ -37,7 +37,7 @@ export default function CashReceiptPanel({ rental, refresh, compact = false }: {
     } catch (failure) { const message = operationalError(failure); setError(message); notifyError(message); await query.refetch(); }
     finally { lock.current = false; setBusy(false); }
   };
-  return <section aria-label="Thanh toán đơn thuê" className={compact ? "space-y-3 border-t border-td-rule pt-4" : operationsPanel} aria-busy={query.isFetching || busy}>
+  return <section aria-label="Thanh toán đơn thuê" className={embedded ? "min-w-0 space-y-3 pl-6" : compact ? "space-y-3 border-t border-td-rule pt-4" : operationsPanel} aria-busy={query.isFetching || busy}>
     <h2 className={compact ? "text-sm font-bold text-td-ink" : "text-lg font-bold"}>Thanh toán đơn thuê</h2>
     {query.isPending ? <p role="status" className="text-sm text-td-muted">Đang kiểm tra hóa đơn...</p>
       : query.isError ? <p role="alert" className="text-sm text-danger">{operationalError(query.error)}</p>

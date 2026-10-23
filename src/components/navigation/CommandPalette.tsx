@@ -271,8 +271,7 @@ export function CommandPalette({
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-td-rule bg-td-white px-5 py-2.5 font-mono text-[11px] text-td-muted">
-          <span>{filteredRoutes.length} chức năng khả dụng</span>
+        <div className="flex items-center justify-end border-t border-td-rule bg-td-white px-5 py-2.5 font-mono text-[11px] text-td-muted">
           <div className="flex items-center gap-2">
             <span>↑↓ Di chuyển</span>
             <span>↵ Mở</span>

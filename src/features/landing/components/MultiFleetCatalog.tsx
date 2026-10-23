@@ -19,6 +19,7 @@ import { useFleetVehicles } from "../use-fleet-vehicles";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { SkeletonBlock, Skeleton } from "@/components/ui/Skeleton";
 import type { Vehicle, VehicleCategory } from "@/features/vehicles/types";
+import { VehicleLicenseRequirement } from "@/features/vehicles/components/VehicleLicenseRequirement";
 
 interface FleetVehicle {
   vehicle: Vehicle;
@@ -266,6 +267,8 @@ export default function MultiFleetCatalog() {
                 <p className="text-xs text-ink-3 mb-5">
                   {vehicle.brand} {vehicle.model}{vehicle.vehicle.year ? ` · Đời ${vehicle.vehicle.year}` : ""}
                 </p>
+
+                <VehicleLicenseRequirement allowedLicenseTypes={vehicle.vehicle.allowedLicenseTypes} className="mb-4" />
 
                 {/* Specs Matrix */}
                 <div className="grid grid-cols-2 gap-3 mb-6 p-3.5 rounded-2xl bg-surface-raised text-xs">

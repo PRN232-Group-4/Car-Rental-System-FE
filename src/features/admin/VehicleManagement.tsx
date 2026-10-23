@@ -149,11 +149,12 @@ export default function VehicleManagement() {
               <th scope="col">Chi nhánh</th>
               <th scope="col">Giá thuê / giờ</th>
               <th scope="col">Trạng thái</th>
+              <th scope="col">Hạng bằng lái</th>
               {canManage && <th scope="col" data-actions>Thao tác</th>}
             </tr>
           </thead>
           <tbody>
-            {loading ? <AdminTableSkeleton columns={canManage ? 6 : 5} rows={pageSize} label="Đang tải danh sách phương tiện" /> : filteredVehicles.map((vehicle) => (
+            {loading ? <AdminTableSkeleton columns={canManage ? 7 : 6} rows={pageSize} label="Đang tải danh sách phương tiện" /> : filteredVehicles.map((vehicle) => (
               <tr key={vehicle.id}>
                 <td>
                   <VehicleIdentity vehicle={vehicle} />
@@ -162,6 +163,7 @@ export default function VehicleManagement() {
                 <td className="text-td-muted">{vehicle.facility ?? facilities.find((item) => item.id === vehicle.facilityId)?.name ?? "—"}</td>
                 <td className="font-medium text-td-ink">{(vehicle.hourlyPrice ?? 0).toLocaleString("vi-VN")} ₫</td>
                 <td><AdminStatusBadge domain="vehicle" status={vehicle.status}>{statusLabels[vehicle.status ?? ""] ?? vehicle.status ?? "—"}</AdminStatusBadge></td>
+                <td className="text-td-muted">{vehicle.allowedLicenseTypes?.length ? vehicle.allowedLicenseTypes.join(", ") : "Mọi hạng hợp lệ"}</td>
                 {canManage && (
                   <td data-actions>
                     <div className="flex justify-end gap-1">
@@ -173,7 +175,7 @@ export default function VehicleManagement() {
               </tr>
             ))}
             {!loading && filteredVehicles.length === 0 && (
-              <AdminTableEmptyRow colSpan={canManage ? 6 : 5}>Không tìm thấy phương tiện phù hợp.</AdminTableEmptyRow>
+              <AdminTableEmptyRow colSpan={canManage ? 7 : 6}>Không tìm thấy phương tiện phù hợp.</AdminTableEmptyRow>
             )}
           </tbody>
         </AdminTable>

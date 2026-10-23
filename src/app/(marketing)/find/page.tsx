@@ -386,6 +386,12 @@ function FindCatalogContent() {
                     key={vehicle.id}
                     vehicle={vehicle}
                     priority={idx < 3}
+                    bookingContext={{
+                      from: filters.startDate,
+                      to: filters.endDate,
+                      rentalType: filters.mode,
+                      mode: searchParams.get("mode") === "driver" ? "driver" : searchParams.get("mode") === "subscription" ? "subscription" : "self",
+                    }}
                   />
                 ))}
               </div>

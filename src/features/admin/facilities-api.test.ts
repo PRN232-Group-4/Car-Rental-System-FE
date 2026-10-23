@@ -23,10 +23,7 @@ it("loads facilities beyond the first page for all selectors", async () => {
     .mockResolvedValueOnce({ items: firstPage, page: 1, pageSize: 100, totalCount: 101 })
     .mockResolvedValueOnce({ items: [lastFacility], page: 2, pageSize: 100, totalCount: 101 });
 
-  // Catalogues are rendered newest-first (highest id first); pagination still loads every page.
-  const result = await getFacilities();
-  expect(result).toHaveLength(101);
-  expect(result).toEqual(expect.arrayContaining([firstPage[0], lastFacility]));
+  expect(await getFacilities()).toEqual([lastFacility, ...firstPage.toReversed()]);
   expect(client.get).toHaveBeenNthCalledWith(1, "facilities", { page: 1, pageSize: 100 });
   expect(client.get).toHaveBeenNthCalledWith(2, "facilities", { page: 2, pageSize: 100 });
   expect(client.get).toHaveBeenCalledTimes(2);
