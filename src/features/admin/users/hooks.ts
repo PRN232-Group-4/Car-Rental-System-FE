@@ -182,16 +182,14 @@ export function useAdjustLoyalty() {
       reason: string;
       idempotencyKey: string;
     }) => adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }),
-    onSuccess: async (updated, variables) => {
+    onSuccess: async (_updated, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: USER_QUERY_KEYS.all }),
         queryClient.invalidateQueries({ queryKey: ["admin", "staff-account-options"] }),
         queryClient.invalidateQueries({ queryKey: ["staffs"] }),
       ]);
       toast.success(
-        `Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm cho ${
-          updated.fullName
-        }`
+        `Đã ${variables.points > 0 ? "cộng" : "trừ"} ${Math.abs(variables.points)} điểm cho khách hàng`
       );
     },
     onError: (err: unknown) => {
@@ -215,7 +213,7 @@ export function useReviewLicense() {
       customerId: number;
       status: "approved" | "rejected";
     }) => reviewCustomerLicense({ customerId, status }),
-    onSuccess: async (updated, variables) => {
+    onSuccess: async (_updated, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ADMIN_NAVIGATION_COUNTS_KEY }),
         queryClient.invalidateQueries({ queryKey: ["admin-customers"] }),
@@ -225,8 +223,8 @@ export function useReviewLicense() {
       ]);
       toast.success(
         variables.status === "approved"
-          ? `Đã phê duyệt GPLX cho ${updated.fullName}`
-          : `Đã từ chối GPLX của ${updated.fullName}`
+          ? "Đã phê duyệt GPLX của khách hàng"
+          : "Đã từ chối GPLX của khách hàng"
       );
     },
     onError: (err: unknown) => {
