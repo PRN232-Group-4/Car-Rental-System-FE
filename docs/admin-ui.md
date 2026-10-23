@@ -68,7 +68,7 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 - Màu nhấn vẫn dùng cam amber chung; mặt hồ sơ luôn sáng dùng `--stage-amber` để giữ tương phản. Không khai báo lại màu tím trong CSS riêng.
 - Trang Vận hành đơn thuê giữ art-direction riêng: `RentalWorkspaceV4` + `rental-workspace-v4.module.css`, canvas tối riêng, stage kính, 3 cột (hàng đợi · hồ sơ · bảng lệnh).
-- Route này **full-bleed**: `[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width. Trên desktop `>1200px`, shell cao `100dvh`, header không co và workspace nhận phần chiều cao còn lại bằng flex; stage rộng hết vùng làm việc, ba cột cuộn độc lập. Không trừ cứng chiều cao header vì masthead có thể xuống dòng. Ở `≤1200px`, các cột xếp dọc và trang cuộn tự nhiên, hàng đợi cuộn riêng. Không bọc thêm khung giấy của shell.
+- Route này **full-bleed**: `[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width. Trang cuộn tự nhiên ở mọi kích thước; không khóa shell ở `100dvh`/`overflow:hidden`, không đặt hồ sơ/bảng lệnh trong vùng cuộn lồng có chiều cao cố định. Container workspace `>1200px` giữ ba cột; container `640–1200px` giữ hàng đợi bên trái, hồ sơ và bảng lệnh nối tiếp bên phải. Chỉ container `<640px` mới xếp danh sách phía trên chi tiết. Hàng đợi cuộn riêng, dùng overscroll auto để tiếp tục cuộn trang khi tới biên. Thao tác chính nằm trong luồng trang để không bị header dính che. Không bọc thêm khung giấy của shell.
 - Không áp `TransitFolio` cho route này; nhưng vẫn dùng `AdminStatusBadge`/`status-rules` cho trạng thái và tuân thủ a11y/form rules.
 
 ## 8. Ảnh và thành phần tham chiếu

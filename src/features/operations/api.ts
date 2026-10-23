@@ -11,15 +11,18 @@ export type OperationalRental = RentalContract & {
 };
 
 export const canAssignRental = (status: string) => ["pre_inspection", "renting"].includes(status);
-export const isClosedRental = (status: string) => ["cancelled", "completed"].includes(status);
+export const isClosedRental = (status: string) => ["cancelled", "completed", "expired"].includes(status);
 
-export function rentalTransitionBlocker(rental: Pick<OperationalRental, "status" | "hasPassingPreInspection" | "hasPostInspection">, status: string): string | null {
+export function rentalTransitionBlocker(rental: Pick<OperationalRental, "status" | "hasPassingPreInspection" | "hasPostInspection"> & Partial<Pick<OperationalRental, "rentalType" | "hasUploadedContract">>, status: string): string | null {
   if (isClosedRental(rental.status)) return "Đơn thuê đã kết thúc, không thể thay đổi trạng thái.";
   if (status === "cancelled" && !["pending", "pre_inspection"].includes(rental.status)) {
     return "Chỉ có thể hủy đơn trước khi chuyển sang Đang thuê.";
   }
   if (status === "renting" && rental.hasPassingPreInspection !== true) {
     return "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.";
+  }
+  if (status === "renting" && rental.rentalType === "longterm" && rental.hasUploadedContract !== true) {
+    return "Cần tải file hoặc ảnh hợp đồng đã ký trước khi bàn giao xe dài hạn.";
   }
   if (status === "completed" && rental.hasPostInspection !== true) {
     return "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.";
@@ -113,6 +116,7 @@ export async function uploadInspectionImage(file: File) {
 export const rentalStatuses: Record<string, string> = {
   pending: "Chờ xử lý", pre_inspection: "Kiểm tra trước thuê", renting: "Đang thuê",
   overdue: "Quá hạn", post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
+  expired: "Hết hạn",
 };
 export const operationsInput = "admin-input mt-2 w-full";
 export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-td-oxide-hover disabled:cursor-not-allowed disabled:opacity-50";
@@ -132,6 +136,7 @@ export function operationalError(error: unknown) {
   if (error instanceof Error) {
     const messages: Record<string, string> = {
       "A successful pre-rental inspection is required to start.": "Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.",
+      "Direct rental must be paid before handover.": "Cần thanh toán đủ hóa đơn trước khi bàn giao xe. Vui lòng kiểm tra mục Thanh toán đơn thuê.",
       "A post-rental inspection is required to complete.": "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.",
       "Post-rental inspection must be recorded before completing rental.": "Cần hoàn tất phiếu kiểm tra sau thuê trước khi quyết toán đơn thuê.",
       "An unexpected server error occurred.": "Máy chủ gặp lỗi khi xử lý yêu cầu. Vui lòng thử lại.",

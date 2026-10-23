@@ -68,6 +68,7 @@ export interface VehicleDetailDto {
 }
 
 export interface VehicleDto {
+  allowedLicenseTypes?: string[];
   id: number;
   vehicleTypeId: number;
   vehicleType: string | null;
@@ -89,6 +90,7 @@ export interface VehicleDto {
 }
 
 export interface VehicleRequest {
+  allowedLicenseTypes?: string[];
   licensePlate: string | null;
   vehicleTypeId: number;
   facilityId: number | null;

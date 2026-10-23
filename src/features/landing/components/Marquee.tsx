@@ -41,10 +41,10 @@ export default function Marquee() {
   const items = [
     { tag: "MULTI-CATEGORY", desc: "4 Nhóm Xe: Ô Tô & Xe Máy, Xăng & Điện", icon: Zap },
     { tag: "CHAUFFEUR & SELF-DRIVE", desc: "Linh Hoạt Tự Lái Hoặc Kèm Tài Xế", icon: Award },
-    { tag: "DIGITAL HANDOVER", desc: "Biên Bản Bàn Giao 3 Phút Không Giấy Tờ", icon: ShieldCheck },
-    { tag: "PAYOS REFUND", desc: "Hoàn Cọc Tự Động Minh Bạch Trong 5 Phút", icon: RefreshCw },
-    { tag: "VERIFIED 2-WAY", desc: "Kiểm Định Hai Chiều Có Ảnh Chụp 6 Góc", icon: Cpu },
-    { tag: "NATIONAL HUBS", desc: "Mạng Lưới Chi Nhánh TP.HCM, Hà Nội, Đà Nẵng", icon: Activity },
+    { tag: "DIGITAL HANDOVER", desc: "Theo Dõi Biên Bản Bàn Giao", icon: ShieldCheck },
+    { tag: "PAYMENTS", desc: "Theo Dõi Thanh Toán Và Quyết Toán", icon: RefreshCw },
+    { tag: "VERIFIED 2-WAY", desc: "Kiểm Tra Trước Và Sau Thuê", icon: Cpu },
+    { tag: "FACILITIES", desc: "Tra Cứu Cơ Sở Và Điểm Nhận Xe", icon: Activity },
   ];
 
   return (

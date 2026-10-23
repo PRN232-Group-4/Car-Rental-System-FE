@@ -90,4 +90,11 @@ describe("operational rental prerequisites and drivers", () => {
   it("explains the backend inspection guard in Vietnamese", () => {
     expect(operationalError(new Error("A successful pre-rental inspection is required to start."))).toContain("Cần hoàn tất phiếu kiểm tra trước thuê");
   });
+
+  it("requires a stored signed attachment for longterm handover, not just a legacy URL", () => {
+    const rental = { status: "pre_inspection", hasPassingPreInspection: true, rentalType: "longterm", contractLink: "https://example.test/signed.pdf", signedAt: "2026-10-23T03:00:00Z" };
+    expect(rentalTransitionBlocker(rental, "renting")).toContain("hợp đồng đã ký");
+    expect(rentalTransitionBlocker({ ...rental, hasUploadedContract: true }, "renting")).toBeNull();
+    expect(rentalTransitionBlocker({ ...rental, rentalType: "hourly" }, "renting")).toBeNull();
+  });
 });

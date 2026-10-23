@@ -85,18 +85,20 @@ function LicenseReviewDialog({ customer, onClose, onSaved }: { customer: Custome
   const queryClient = useQueryClient();
   const detail = useQuery({ queryKey: ["customer-license-detail", customer.id], queryFn: () => getCustomerLicenseDetail(customer.id), retry: false, staleTime: 0 });
   const [status, setStatus] = useState("");
+  const [selectedLicenseIndex, setSelectedLicenseIndex] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [imageFailed, setImageFailed] = useState(false);
   const saving = useRef(false);
   const validation = useInlineValidation();
-  const license = detail.data?.license;
+  const licenses = detail.data?.license?.licenses ?? detail.data?.licenses ?? (detail.data?.license ? [detail.data.license] : []);
+  const license = licenses[selectedLicenseIndex];
   const imageUrl = license?.imageUrl && /^https?:\/\//i.test(license.imageUrl) ? license.imageUrl : null;
   const submit = async () => {
-    if (saving.current || !detail.data) return;
+    if (saving.current || !detail.data || !license) return;
     saving.current = true; setBusy(true); setError("");
-    try { await reviewCustomerLicense(customer.id, status); void queryClient.invalidateQueries({ queryKey: ["customer-license-detail", customer.id] }); onSaved(); }
+    try { await reviewCustomerLicense(customer.id, status, license.id); void queryClient.invalidateQueries({ queryKey: ["customer-license-detail", customer.id] }); onSaved(); }
     catch (failure) { const message = validation.report(failure); setError(failure instanceof TypeError ? errorMessage(failure) : message); }
     finally { saving.current = false; setBusy(false); }
   };
@@ -104,15 +106,16 @@ function LicenseReviewDialog({ customer, onClose, onSaved }: { customer: Custome
     <ValidatedForm validation={validation} onSubmit={submit}>
       <div className="space-y-5">
         {detail.isFetching ? <FormSkeleton label="Đang tải chi tiết GPLX..." /> : detail.error ? <div className="space-y-3"><p role="alert" className="text-sm text-danger">{errorMessage(detail.error)}</p><Button type="button" variant="secondary" onClick={() => void detail.refetch()}>Thử lại</Button></div> : detail.data && <>
+          {licenses.length > 1 && <div><label htmlFor="license-review-selection" className="mb-2 block text-sm font-semibold">Giấy phép cần xét duyệt</label><InlineSelect id="license-review-selection" name="licenseId" className={inputClass} disabled={busy} value={selectedLicenseIndex} onChange={(event) => { setSelectedLicenseIndex(Number(event.target.value)); setStatus(""); setConfirmed(false); setImageFailed(false); setError(""); validation.reset(); }}>{licenses.map((item, index) => <option key={item.id ?? index} value={index}>{item.type || "Chưa có hạng"} · {item.number || "Chưa có số"} · {licenseStatusLabel(item.status)}</option>)}</InlineSelect></div>}
           <dl className="grid gap-4 text-sm sm:grid-cols-2"><div><dt className="text-ink-3">Khách hàng</dt><dd className="font-semibold">{detail.data.fullName || detail.data.email || "Chưa cập nhật"}</dd></div><div><dt className="text-ink-3">Email</dt><dd className="break-all">{detail.data.email || "Chưa cập nhật"}</dd></div><div><dt className="text-ink-3">Số GPLX</dt><dd>{license?.number || "Chưa cập nhật"}</dd></div><div><dt className="text-ink-3">Hạng giấy phép</dt><dd>{license?.type || "Chưa cập nhật"}</dd></div><div><dt className="text-ink-3">Ngày cấp</dt><dd>{formatAdminDate(license?.issueDate)}</dd></div><div><dt className="text-ink-3">Ngày hết hạn</dt><dd>{formatAdminDate(license?.expiryDate)}</dd></div><div><dt className="mb-1 text-ink-3">Trạng thái hiện tại</dt><dd><AdminStatusBadge domain="license" status={license?.status}>{licenseStatusLabel(license?.status)}</AdminStatusBadge></dd></div></dl>
           <div className="space-y-2"><h3 className="text-sm font-semibold">Ảnh giấy phép lái xe</h3>{imageUrl ? <><a href={imageUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-sm text-primary underline">Mở ảnh gốc</a>{imageFailed ? <p role="status" className="text-sm text-ink-3">Không tải được ảnh xem trước. Bạn có thể mở ảnh gốc để kiểm tra.</p> : <Image src={imageUrl} alt={`Ảnh GPLX của ${customerLabel(customer)}`} width={960} height={600} unoptimized onError={() => setImageFailed(true)} className="max-h-80 w-full rounded-xl border border-line object-contain" />}</> : <p className="text-sm text-ink-3">Khách hàng chưa có ảnh GPLX hợp lệ.</p>}</div>
-          <fieldset disabled={busy} className="space-y-4"><legend className="sr-only">Kết quả xét duyệt</legend><div><label htmlFor="license-review-status" className="mb-2 block text-sm font-semibold">Trạng thái mới *</label><InlineSelect id="license-review-status" name="status" required value={status} onChange={(event) => setStatus(event.target.value)} className={inputClass}><option value="">Chọn kết quả xét duyệt</option><option value="approved">Duyệt GPLX</option><option value="rejected">Từ chối GPLX</option></InlineSelect></div>
+          <fieldset disabled={busy || !license} className="space-y-4"><legend className="sr-only">Kết quả xét duyệt</legend><div><label htmlFor="license-review-status" className="mb-2 block text-sm font-semibold">Trạng thái mới *</label><InlineSelect id="license-review-status" name="status" required value={status} onChange={(event) => setStatus(event.target.value)} className={inputClass}><option value="">Chọn kết quả xét duyệt</option><option value="approved">Duyệt GPLX</option><option value="rejected">Từ chối GPLX</option></InlineSelect></div>
             <div><div className="flex items-start gap-3"><InlineInput id="license-review-confirm" name="confirmed" type="checkbox" required checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} showError={false} className="mt-1 h-4 w-4 accent-primary" /><label htmlFor="license-review-confirm" className="text-sm">Tôi xác nhận đã kiểm tra hồ sơ và muốn cập nhật trạng thái GPLX của khách hàng này.</label></div><InlineError name="confirmed" inputId="license-review-confirm" /></div>
           </fieldset>
         </>}
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       </div>
-      <FormDialogFooter><Button type="button" variant="secondary" disabled={busy} onClick={onClose}>Đóng</Button><Button type="submit" disabled={busy || detail.isFetching || !detail.data || !!detail.error} isLoading={busy}>Lưu trạng thái</Button></FormDialogFooter>
+      <FormDialogFooter><Button type="button" variant="secondary" disabled={busy} onClick={onClose}>Đóng</Button><Button type="submit" disabled={busy || detail.isFetching || !license || !!detail.error} isLoading={busy}>Lưu trạng thái</Button></FormDialogFooter>
     </ValidatedForm>
   </FormDialog>;
 }

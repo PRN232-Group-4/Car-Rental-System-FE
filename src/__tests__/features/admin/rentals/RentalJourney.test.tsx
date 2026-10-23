@@ -4,10 +4,13 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import RentalOperationsPage from "@/app/admin/rentals/page";
 import * as operationsApi from "@/features/operations/api";
+import * as staffApi from "@/features/admin/staff/api";
 import { RENTAL_101 } from "./rental-fixture";
 import { driverStaff } from "../staff/staff-backend-fixture";
 
 beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
+  HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
   global.ResizeObserver = class {
     observe() {}
     unobserve() {}
@@ -79,6 +82,7 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
     // App không còn fixture: test tự cấp dữ liệu cho hồ sơ đơn thuê.
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue(RENTAL_101);
     vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([]);
+    vi.spyOn(staffApi, "getAssignableDrivers").mockResolvedValue([]);
     vi.spyOn(operationsApi, "listOperationalRentals").mockResolvedValue({ items: [], totalCount: 0, page: 1, pageSize: 30 });
   });
 
@@ -109,16 +113,20 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
 
     // Kiểm tra tracking panel và các nút hành động
     expect(screen.getByTestId("rental-tracking-panel")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Lưu phân công" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Xác nhận cập nhật trạng thái" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Lưu phân công" })).not.toBeInTheDocument();
+    expect(operationsApi.getOperationalDrivers).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Xác nhận đã nhận lại xe" })).toBeDisabled();
+    expect(screen.getByRole("group", { name: "Điều kiện chuyển bước" })).toBeInTheDocument();
   });
 
   it("thực hiện phân công tài xế thành công và thông báo phản hồi", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, hasDriver: true });
     vi.spyOn(operationsApi, "getOperationalDrivers").mockResolvedValue([
       { ...driverStaff, id: 1, email: "hung@example.test" },
     ]);
-    const assignSpy = vi.spyOn(operationsApi, "assignRental").mockResolvedValueOnce({} as never);
+    vi.spyOn(staffApi, "getAssignableDrivers").mockResolvedValue([{ staffId: 1, fullName: "Hùng", eligible: true, reasons: [] }]);
+    const assignSpy = vi.spyOn(staffApi, "assignDriverToRental").mockResolvedValueOnce(undefined);
 
     renderWithClient(<RentalOperationsPage />);
 
@@ -135,25 +143,19 @@ describe("FE-TransitDesk: /admin/rentals — Rental Journey Operational Screen",
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(assignSpy).toHaveBeenCalledWith(101, 1);
-      expect(screen.getByText("Đã lưu phân công phương tiện và tài xế.")).toBeInTheDocument();
+      expect(assignSpy).toHaveBeenCalledWith({ rentalId: 101, driverStaffId: 1, reason: "other", notes: undefined });
+      expect(screen.getByText("Đã lưu phân công tài xế cho xe của đơn thuê.")).toBeInTheDocument();
     });
   });
 
   it("hiển thị modal xác nhận khi chuyển sang trạng thái cuối (completed hoặc cancelled)", async () => {
     mockSearchParams = new URLSearchParams("rentalId=101");
-    const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({} as never);
-
+    vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "post_inspection" });
+    const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockResolvedValueOnce({ ...RENTAL_101, status: "completed" });
     renderWithClient(<RentalOperationsPage />);
-
-    await waitFor(() => {
-      expect(screen.getByLabelText("Thao tác chuyển bước")).toBeInTheDocument();
-    });
-
-    const statusSelect = screen.getByLabelText("Thao tác chuyển bước");
-    fireEvent.change(statusSelect, { target: { value: "completed" } });
-
-    const updateBtn = screen.getByRole("button", { name: "Xác nhận cập nhật trạng thái" });
+    const updateBtn = await screen.findByRole("button", { name: "Quyết toán & Hoàn tất hợp đồng" });
+    expect(updateBtn).toBeDisabled();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Đã đối soát phụ phí và nghĩa vụ thanh toán trong hồ sơ" }));
     fireEvent.click(updateBtn);
 
     // Modal xác nhận xuất hiện với tiêu đề nghiệp vụ cụ thể cho completed

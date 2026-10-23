@@ -12,6 +12,8 @@ export interface CustomerLicenseSummary {
 }
 
 export interface ReviewableLicense {
+  id?: number;
+  licenses?: ReviewableLicense[];
   number: string | null;
   type: string | null;
   issueDate: string | null;
@@ -22,6 +24,7 @@ export interface ReviewableLicense {
 
 export interface CustomerLicenseDetail extends CustomerLicenseSummary {
   license: ReviewableLicense | null;
+  licenses?: ReviewableLicense[];
 }
 
 export function getCustomerLicenses(search = "", licenseStatus = "pending", page = 1, pageSize = 20) {
@@ -34,8 +37,8 @@ export function getCustomerLicenseDetail(customerId: number) {
   return backendApiClient.get<CustomerLicenseDetail>(`customers/${customerId}`);
 }
 
-export function reviewCustomerLicense(customerId: number, status: string) {
-  return backendApiClient.put<ReviewableLicense>(`customers/${customerId}/license-status`, { status });
+export function reviewCustomerLicense(customerId: number, status: string, licenseId?: number) {
+  return backendApiClient.put<ReviewableLicense>(`customers/${customerId}/license-status`, { status, ...(licenseId === undefined ? {} : { licenseId }) });
 }
 
 export const licenseStatusLabels: Record<string, string> = {

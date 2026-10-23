@@ -45,7 +45,7 @@ for (const width of [1600, 1280, 390]) {
     await expect(handover).toBeDisabled();
     await expect(page.getByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.").first()).toBeVisible();
     await page.getByLabel("Kỹ thuật viên phụ trách", { exact: true }).selectOption("9");
-    await page.getByRole("button", { name: "Lưu phân công kiểm tra", exact: true }).click();
+    await page.getByRole("region", {name:"Phân công kiểm tra trước thuê"}).getByRole("button", { name: "Xác nhận", exact: true }).click();
     await expect(page.getByText("Đã giao:")).toBeVisible();
     expect(startRequests).toBe(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -54,6 +54,7 @@ for (const width of [1600, 1280, 390]) {
       await page.screenshot({ path: `test-results/inspection-assignment-${width}-${theme}.png` });
     }
     passing = true;
+    await page.getByText("Hướng dẫn kiểm tra", {exact:true}).click();
     await page.getByRole("button", { name: "Tải lại kết quả kiểm tra", exact: true }).click();
     await expect(handover).toBeEnabled();
     await handover.click();

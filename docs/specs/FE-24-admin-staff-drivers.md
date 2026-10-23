@@ -1,5 +1,19 @@
 # FE-24 — Admin: quản lý nhân viên & tài xế
 
+## Điều chỉnh đã duyệt — 2026-10-22
+
+- Tạm khóa **tạo, sửa, hủy ca trực tài xế** trên giao diện bằng `DRIVER_SHIFT_MANAGEMENT_ENABLED=false` trong `src/config/operational-features.ts`. Các nút bị disable, liên kết mô tả nguyên nhân rõ ràng; không mở form hoặc gửi mutation ca khi đang khóa. Không thay đổi API hay xóa ca đã lưu. Khi mở lại tính năng, đổi cờ và cập nhật kiểm thử theo yêu cầu mới.
+- Giữ tra cứu ca và lịch chuyến thật; cổng tài xế thông báo quản lý ca đang tạm khóa. Lịch chuyến/phân công theo đơn thuê không bị khóa theo chức năng xếp ca.
+- Trong `/admin/dispatch`, danh bạ/ca/lịch toàn hệ thống chỉ tải cho Admin/Manager đúng quyền API; CustomerService dùng tra cứu và phân công theo đơn, không gọi các API quản lý này.
+- Tài xế được gán cho **xe của từng đơn thuê**, không phải gán cố định cho xe. Điểm vào: Vận hành → đơn có tài xế → “Phân xe và tài xế”; hoặc Điều phối → “Mở phân công tài xế” → “Phân chuyến theo mã đơn”. Lịch tài xế vẫn cho phép đổi tài xế của chuyến thật.
+- Form dùng `GET /rentals/{id}/assignable-drivers?eligibleOnly=false`; tài xế không hợp lệ bị disable kèm lý do tiếng Việt. Admin/Manager bổ sung email từ danh sách tài xế thật; CustomerService chỉ dùng tên thật do API candidates chưa có email và `/staff/drivers` chỉ cho Admin/Manager. Không gọi API danh bạ ngoài quyền hoặc chặn phân công khi dữ liệu bổ sung này lỗi. Lưu qua `POST /rentals/{id}/assignments/driver` cùng lý do/ghi chú; không gửi `driverStaffId=null` cho đơn có tài xế. Có lỗi inline, tải lại khi lỗi, khóa gửi lặp, giữ dữ liệu khi API từ chối. Tự lái/đơn kết thúc không hiện form tài xế; quyền phân công theo API: Admin/Manager/CustomerService.
+
+Acceptance cho điều chỉnh:
+
+- [x] Tạo/xếp/sửa/hủy ca đều tạm khóa; vẫn xem được dữ liệu thật và phân công tài xế cho đơn thuê.
+- [x] Phân công dùng tài xế hợp lệ theo từng đơn; không có lựa chọn tự lái trên đơn có tài xế.
+- [x] Kiểm thử thiếu tài xế, tài xế bận, lỗi API/mạng, giữ dữ liệu và retry, quyền chỉ đọc, desktop/mobile và không mutation ca.
+
 - **Priority:** P0; **Milestone:** M3; **Assignee:** Huy
 - **Phụ thuộc:** BE-32 (staff/driver, Done), BE-33 (lịch & khả dụng tài xế — Lạc, **chưa xong**), BE-14 (gán/đổi tài xế, `assignable-drivers`), FE-11 (shell, Anh), FE-FOUNDATION (DataTable, ImageUploader…), FE-02. Liên quan: FE-12 (Anh — danh mục phòng ban/cơ sở/vai trò), FE-23 (liên kết tài khoản).
 - **Ranh giới với Anh (cần xác nhận):** FE-12 sở hữu `/admin/departments`, `/admin/facilities`, `/admin/roles`. **FE-24 sở hữu toàn bộ `/admin/staffs/**` và `/admin/drivers/**`** (Anh đang có `/admin/staffs` là bảng tĩnh — sẽ được thay).

@@ -10,6 +10,7 @@ import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { formatAdminDateTime } from "@/lib/date-time";
 import { getHandover } from "./handover-api";
 import { confirmHandover, operationalError, operationsButton, operationsPanel } from "./api";
+import RentalIdentifiers from "./RentalIdentifiers";
 
 export default function HandoverPanel({ rentalId, refresh }: { rentalId: number | string; refresh?: () => Promise<unknown> }) {
   const { hasAnyRole } = useAuth();
@@ -40,7 +41,7 @@ export default function HandoverPanel({ rentalId, refresh }: { rentalId: number 
   return <section className={operationsPanel} aria-busy={query.isFetching || busy}>
     <h2 className="text-lg font-bold">Bàn giao phương tiện</h2>
     {query.isPending ? <FormSkeleton label="Đang tải hồ sơ bàn giao..." fields={3} /> : query.error ? <p role="alert" className="text-sm text-danger">{operationalError(query.error)} <button type="button" className="underline" onClick={() => void query.refetch()}>Thử lại</button></p> : detail && <>
-      <p className="text-sm">Mã yêu cầu: #{entity?.id} · {detail.rental.orderId ? `Mã đơn chính thức: #${detail.rental.orderId}` : "Chưa có mã đơn chính thức"}</p>
+      <RentalIdentifiers rentalId={entity?.id ?? rentalId} orderId={detail.rental.orderId} />
       <p className="text-sm">{detail.rental.customerName || detail.rental.customerEmail || "Khách hàng chưa có tên"} · {[detail.rental.vehicleBrand, detail.rental.vehicleModel, detail.rental.licensePlate].filter(Boolean).join(" · ")}</p>
       <p className="text-sm text-td-muted">Nhận: {formatAdminDateTime(entity?.scheduledStart)} · Trả: {formatAdminDateTime(entity?.scheduledEnd)}</p>
       <p className="text-sm">{detail.status === "completed" ? "Đã bàn giao" : "Chờ bàn giao"}</p>

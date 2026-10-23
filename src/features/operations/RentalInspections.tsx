@@ -28,7 +28,7 @@ export default function RentalInspections() {
       <InspectionDirectory />
       <InspectionWorkQueue />
       <section id="inspection-editor" className="scroll-mt-60" aria-label="Lập biên bản theo đơn thuê">
-        <RentalLookup key={params.get("rentalId") ?? "lookup"} title="Mở đơn để lập biên bản">{(rental, refresh) => <div className="space-y-6"><TechnicianAssignmentForm rental={rental} refresh={refresh} /><InspectionForm rental={rental} refresh={refresh} /></div>}</RentalLookup>
+        <RentalLookup key={params.get("rentalId") ?? "lookup"} title="Mở đơn để lập biên bản">{(rental, refresh) => <div className="space-y-6"><TechnicianAssignmentForm key={`${rental.id}-${rental.status}`} rental={rental} refresh={refresh} /><InspectionForm rental={rental} refresh={refresh} /></div>}</RentalLookup>
       </section>
     </div>
   );

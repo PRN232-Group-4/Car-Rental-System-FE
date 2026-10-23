@@ -18,6 +18,7 @@ import { RentalPolicyPanel } from "./RentalPolicyPanel";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { StickyBookingCard } from "./StickyBookingCard";
 import { VehicleCard } from "./VehicleCard";
+import { VehicleLicenseRequirement } from "./VehicleLicenseRequirement";
 
 const DynamicVehicle3DViewer = dynamic(
   () => import("./Vehicle3DViewer"),
@@ -39,6 +40,7 @@ export interface VehicleDetailViewProps {
   initialFrom?: string;
   initialTo?: string;
   initialMode?: "self" | "driver" | "subscription";
+  initialRentalType?: "hourly" | "longterm";
   className?: string;
 }
 
@@ -50,6 +52,7 @@ export function VehicleDetailView({
   initialFrom,
   initialTo,
   initialMode = "self",
+  initialRentalType = "hourly",
   className = "",
 }: VehicleDetailViewProps) {
   // Tab chuyển đổi phương tiện hiển thị (Ảnh thực tế / Mô hình 3D / Lịch trống)
@@ -113,6 +116,8 @@ export function VehicleDetailView({
             <Building2 className="w-3.5 h-3.5 text-primary" />
             <span>Địa điểm nhận xe: <strong>{vehicle.facilityName}</strong></span>
           </div>
+
+          <VehicleLicenseRequirement allowedLicenseTypes={vehicle.allowedLicenseTypes} detailed className="mt-4 sm:text-sm" />
         </div>
       </div>
 
@@ -259,7 +264,7 @@ export function VehicleDetailView({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {similarVehicles.slice(0, 2).map((item) => (
-                  <VehicleCard key={item.id} vehicle={item} />
+                  <VehicleCard key={item.id} vehicle={item} bookingContext={{ from: bookingFrom, to: bookingTo, mode: initialMode, rentalType: initialRentalType }} />
                 ))}
               </div>
             </div>
@@ -274,6 +279,7 @@ export function VehicleDetailView({
             initialFrom={bookingFrom}
             initialTo={bookingTo}
             initialMode={initialMode}
+            initialRentalType={initialRentalType}
           />
         </div>
       </div>

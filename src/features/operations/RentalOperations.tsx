@@ -3,75 +3,79 @@
 import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 
 import { useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
+import { ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import RentalLookup from "./RentalLookup";
-import VehicleName from "@/features/admin/VehicleName";
-import { assignRental, canAssignRental, isClosedRental, changeRentalStatus, getOperationalDrivers, operationalError, operationsButton, operationsInput, operationsPanel, rentalStatuses, rentalTransitionBlocker } from "./api";
+import { canAssignRental, isClosedRental, changeRentalStatus, operationalError, operationsButton, operationsPanel, rentalStatuses, rentalTransitionBlocker } from "./api";
 import type { OperationalRental } from "./api";
 import CashReceiptPanel from "./CashReceiptPanel";
 import RentalEditForm from "./RentalEditForm";
 import HandoverPanel from "./HandoverPanel";
 import TechnicianAssignmentForm from "./TechnicianAssignmentForm";
 import RentalReturnStatus from "./RentalReturnStatus";
+import DriverAssignmentForm from "./DriverAssignmentForm";
+import RentalWorkflowChecklist, { useRentalWorkflowChecklist } from "./RentalWorkflowChecklist";
+import SignedContractUpload from "@/features/rentals/components/SignedContractUpload";
+import { useRentalInvoice } from "./rental-invoice";
 import RentalCancelDialog from "./RentalCancelDialog";
+import { useOptionalSession } from "@/features/auth/AuthContext";
 
 export default function RentalOperations() {
-  return <RentalLookup title="Vận hành yêu cầu và đơn thuê">{(rental, refresh) => <div className="grid gap-6 lg:grid-cols-2"><RentalReturnStatus key={rental.id} rental={rental} /><TechnicianAssignmentForm key={rental.id} rental={rental} refresh={refresh} /><AssignmentForm rental={rental} refresh={refresh} /><StatusForm rental={rental} refresh={refresh} /><CashReceiptPanel rental={rental} refresh={refresh} /><RentalEditForm rental={rental} refresh={refresh} /><HandoverPanel rentalId={rental.id} refresh={refresh} /></div>}</RentalLookup>;
+  return <RentalLookup title="Vận hành yêu cầu và đơn thuê">{(rental, refresh) => <div className="grid gap-6 lg:grid-cols-2">
+    <RentalReturnStatus key={rental.id} rental={rental} />
+    <StatusForm key={`${rental.id}-${rental.status}`} rental={rental} refresh={refresh} />
+    {!["pre_inspection", "post_inspection"].includes(rental.status) && <details className={operationsPanel}><summary className="cursor-pointer text-sm font-bold">Kiểm tra phương tiện</summary><TechnicianAssignmentForm key={rental.id} rental={rental} refresh={refresh} showApprovalAction={false} /></details>}
+    {rental.hasDriver && canAssignRental(rental.status) && <details className={operationsPanel}><summary className="cursor-pointer text-sm font-bold">Phân công tài xế</summary><AssignmentForm rental={rental} refresh={refresh} /></details>}
+    {!rental.isSubscription && rental.status === "pending" && <details className={operationsPanel}><summary className="cursor-pointer text-sm font-bold">Thanh toán đơn thuê</summary><CashReceiptPanel rental={rental} refresh={refresh} /></details>}
+    <details className={operationsPanel}><summary className="cursor-pointer text-sm font-bold">Chỉnh sửa yêu cầu</summary><RentalEditForm rental={rental} refresh={refresh} /></details>
+    <details className={operationsPanel}><summary className="cursor-pointer text-sm font-bold">Hồ sơ bàn giao</summary><HandoverPanel rentalId={rental.id} refresh={refresh} /></details>
+  </div>}</RentalLookup>;
 }
 
 export function AssignmentForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
-  const [driverId, setDriverId] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const validation = useInlineValidation();
-  const drivers = useQuery({ queryKey: ["operational-drivers"], queryFn: getOperationalDrivers, enabled: canAssignRental(rental.status), retry: false });
-  const lock = useRef(false);
-  const submit = async () => {
-    if (!canAssignRental(rental.status) || lock.current || drivers.isPending || drivers.error) return;
-    lock.current = true;
-    setBusy(true); setError(""); setSuccess("");
-    try { await assignRental(Number(rental.id), driverId ? Number(driverId) : null); setSuccess("Đã lưu phân công xe / tài xế."); notifySuccess("Đã lưu phân công xe / tài xế."); await refresh(); }
-    catch (failure) { const message = validation.report(failure); const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError); }
-    finally { lock.current = false; setBusy(false); }
-  };
-  if (!canAssignRental(rental.status)) return null;
-  return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
-    <h2 className="text-lg font-bold">Phân xe và tài xế</h2>
-    <div className="text-sm"><p className="mb-2 text-td-muted">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>
-    <p className="text-xs text-td-muted">Phân công sử dụng phương tiện đã chọn trong đơn thuê.</p>
-    <div><label htmlFor="assignment-driver" className="text-sm font-semibold">Tài xế</label><InlineSelect id="assignment-driver" name="driverStaffId" className={operationsInput} value={driverId} onChange={(event) => setDriverId(event.target.value)} disabled={busy || drivers.isPending || !!drivers.error}><option value="">Không phân tài xế (tự lái)</option>{(drivers.data ?? []).filter((driver) => driver.isActive).map((driver) => <option key={driver.id} value={driver.id}>{driver.email?.trim() || "Chưa cập nhật email tài xế"}</option>)}</InlineSelect></div>
-    {drivers.error && <p role="alert" className="text-sm text-danger">{operationalError(drivers.error)} <button type="button" className="underline" onClick={() => void drivers.refetch()}>Tải lại tài xế</button></p>}
-    {error && <p role="alert" className="text-sm text-danger">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
-    <button type="submit" disabled={busy || drivers.isPending || !!drivers.error} className={operationsButton}>{busy ? "Đang phân công..." : "Lưu phân công"}</button>
-  </ValidatedForm>;
+  const session = useOptionalSession();
+  const canMutate = Boolean(session?.isAuthenticated && session.hasAnyRole(["Admin", "Manager", "CustomerService"]));
+  return <DriverAssignmentForm key={rental.id} rental={rental} refresh={refresh} canMutate={canMutate} />;
 }
 
-function StatusForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
-  const [status, setStatus] = useState("");
-  const [cancelOpen, setCancelOpen] = useState(false);
-  const cancelBlocker = rentalTransitionBlocker(rental, "cancelled");
+export function StatusForm({ rental, refresh }: { rental: OperationalRental; refresh: () => Promise<unknown> }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const lock = useRef(false);
   const validation = useInlineValidation();
+  const session = useOptionalSession();
+  const canMutate = Boolean(session?.isAuthenticated && session.hasAnyRole(["Admin", "Manager", "CustomerService"]));
+  const invoice = useRentalInvoice(rental, canMutate);
+  const paymentBlocker = rental.status === "pre_inspection" && !rental.isSubscription && invoice.data?.status !== "paid"
+    ? invoice.isError ? "Chưa kiểm tra được thanh toán. Vui lòng tải lại hóa đơn trong mục Thanh toán đơn thuê." : "Cần thanh toán đủ hóa đơn trước khi bàn giao xe."
+    : null;
+  const checklist = useRentalWorkflowChecklist(rental, paymentBlocker);
   const submit = async () => {
-    if (busy) return;
-    const blocker = rentalTransitionBlocker(rental, status);
-    if (blocker) { validation.setField("status", blocker); return; }
+    const status = checklist.nextStatus;
+    if (lock.current || !canMutate || !status || !checklist.ready || rentalTransitionBlocker(rental, status)) return;
+    lock.current = true;
     setBusy(true); setError(""); setSuccess("");
-    try { await changeRentalStatus(Number(rental.id), status); const message = status === "pre_inspection" ? "Đã duyệt yêu cầu thuê. Khách hàng có thể thanh toán hóa đơn." : `Đã cập nhật: ${rentalStatuses[status]}.`; setSuccess(message); notifySuccess(message); setStatus(""); await refresh(); }
-    catch (failure) { const message = validation.report(failure); const generalError = failure instanceof TypeError ? operationalError(failure) : message; setError(generalError); notifyError(generalError); }
-    finally { setBusy(false); }
+    try { await changeRentalStatus(Number(rental.id), status); const message = status === "pre_inspection" ? "Đã duyệt yêu cầu thuê. Khách hàng có thể thanh toán hóa đơn." : `Đã cập nhật: ${rentalStatuses[status]}.`; setSuccess(message); notifySuccess(message); await refresh(); }
+    catch (failure) { const generalError = operationalError(failure); setError(generalError); if (generalError) notifyError(generalError); }
+    finally { lock.current = false; setBusy(false); }
   };
   if (isClosedRental(rental.status)) return <p className="text-sm text-td-muted">Đơn thuê đã kết thúc. Chỉ có thể xem lại hồ sơ.</p>;
-  return <ValidatedForm validation={validation} onSubmit={submit} className={operationsPanel}>
-    <h2 className="text-lg font-bold">Duyệt yêu cầu và bàn giao xe</h2><p className="text-sm text-td-muted">Duyệt yêu cầu để khách thanh toán. Đơn trực tiếp cần thanh toán và hoàn thành kiểm tra, phân công trước khi bàn giao xe.</p>
-    <div><label htmlFor="rental-next-status" className="text-sm font-semibold">Thao tác</label><InlineSelect id="rental-next-status" name="status" required className={operationsInput} value={status} onChange={(event) => setStatus(event.target.value)} disabled={busy}><option value="">Chọn thao tác</option><option value="pre_inspection">Duyệt yêu cầu — mở thanh toán</option><option value="renting">Bàn giao xe — bắt đầu thuê</option><option value="post_inspection">Nhận xe — kiểm tra sau thuê</option><option value="completed">Hoàn tất đơn thuê</option></InlineSelect></div>
-    {error && <p role="alert" className="text-sm text-danger">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
-    <button type="submit" disabled={busy} className={operationsButton}>{busy ? "Đang cập nhật..." : "Xác nhận cập nhật trạng thái"}</button>
-    {!cancelBlocker && <button type="button" onClick={() => setCancelOpen(true)} className="text-sm font-semibold text-danger underline">Hủy yêu cầu / đơn thuê</button>}
-    {cancelOpen && <RentalCancelDialog rental={rental} close={() => setCancelOpen(false)} refresh={refresh} />}
-  </ValidatedForm>;
+  return <>
+    <section className={operationsPanel}>
+      <h2 className="text-lg font-bold">Thao tác đơn thuê</h2>
+      <RentalWorkflowChecklist checklist={checklist} disabled={busy || !canMutate} controls={{
+        contract: canMutate && <SignedContractUpload key={`contract-${rental.id}`} rental={rental} refresh={refresh} />,
+        inspection: <TechnicianAssignmentForm key={`${rental.id}-${rental.status}`} rental={rental} refresh={refresh} compact embedded showApprovalAction={false} />,
+        payment: <CashReceiptPanel key={`payment-${rental.id}`} rental={rental} refresh={refresh} compact embedded />,
+      }} />
+      {checklist.blocker && <p className="text-sm text-td-muted">{checklist.blocker}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}{success && <p role="status" className="text-sm text-success">{success}</p>}
+      <ValidatedForm validation={validation} onSubmit={submit}>
+      <button type="submit" disabled={busy || !canMutate || !checklist.ready} className={operationsButton}>{busy ? "Đang cập nhật..." : `Cập nhật: ${rentalStatuses[checklist.nextStatus ?? ""] || "Bước tiếp theo"}`}</button>
+      </ValidatedForm>
+      {["pending", "pre_inspection"].includes(rental.status) && <button type="button" disabled={busy || !canMutate} onClick={() => setCancelling(true)} className="text-sm text-td-muted underline">Hủy đơn thuê</button>}
+    </section>
+    {cancelling && <RentalCancelDialog rental={rental} close={() => setCancelling(false)} refresh={refresh} />}
+  </>;
 }

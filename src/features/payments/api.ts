@@ -33,7 +33,7 @@ export function mapPaymentFromBE(raw: Record<string, unknown>): PaymentSummary {
     method: (raw.method ?? raw.Method) as string | null,
     providerReference: (raw.providerReference ?? raw.ProviderReference) as string | null,
     paidAt: (raw.paidAt ?? raw.PaidAt) as string | null,
-    createdAt: String(raw.createdAt ?? raw.CreatedAt ?? new Date().toISOString()),
+    createdAt: String(raw.createdAt ?? raw.CreatedAt ?? ""),
   };
 }
 

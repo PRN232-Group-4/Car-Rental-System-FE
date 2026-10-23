@@ -9,7 +9,7 @@ import {
 } from "./types";
 
 /**
- * Đăng nhập người dùng qua API backend hoặc mock mode.
+ * Đăng nhập người dùng qua API backend.
  * Quản lý phiên 100% trong bộ nhớ (In-Memory) — KHÔNG lưu bất kỳ thông tin cá nhân (PII) nào vào localStorage.
  */
 export async function loginUser(credentials: LoginCredentials): Promise<AuthUser> {
@@ -24,7 +24,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<AuthUser
 
   let user: AuthUser;
 
-  // Nếu phản hồi có sẵn đối tượng người dùng (chế độ mock hoặc API mở rộng)
+  // Nếu phản hồi backend có sẵn đối tượng người dùng
   if (response && response.email && response.fullName) {
     user = {
       email: response.email,

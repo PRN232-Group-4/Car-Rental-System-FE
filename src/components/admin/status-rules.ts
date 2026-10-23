@@ -5,12 +5,13 @@ export type AdminStatusTone = "success" | "warning" | "danger" | "info" | "neutr
 const statusTones = {
   activity: { active: "success", inactive: "neutral" },
   vehicle: { active: "success", available: "success", rented: "info", renting: "info", maintenance: "warning", unavailable: "neutral", inactive: "neutral" },
-  rental: { active: "success", pending: "warning", pre_inspection: "info", renting: "success", overdue: "danger", post_inspection: "info", completed: "neutral", cancelled: "danger" },
+  rental: { active: "success", pending: "warning", pre_inspection: "info", renting: "success", overdue: "danger", post_inspection: "info", completed: "neutral", cancelled: "danger", expired: "danger" },
   maintenance: { scheduled: "info", in_progress: "warning", completed: "success", verified: "success", cancelled: "neutral" },
   license: { approved: "success", pending: "warning", expiring: "warning", rejected: "danger", expired: "danger", incomplete: "neutral" },
   shift: { active: "success", scheduled: "info", completed: "neutral", cancelled: "danger" },
   report: { new: "warning", pending: "warning", in_progress: "info", investigating: "info", resolved: "success", rejected: "danger", dismissed: "danger" },
   review: { visible: "success", published: "success", hidden: "neutral", reported: "warning" },
+  payment: { pending: "warning", unpaid: "warning", paid: "success", requested: "info", refunded: "neutral", rejected: "danger", cancelled: "neutral", failed: "danger" },
 } satisfies Record<string, Record<string, AdminStatusTone>>;
 
 export type AdminStatusDomain = keyof typeof statusTones;

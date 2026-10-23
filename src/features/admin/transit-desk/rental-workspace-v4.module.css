@@ -258,30 +258,14 @@
   }
 }
 
-@media (max-width: 1200px) {
-  .cockpitGrid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
-  .queuePanel {
-    max-height: 420px;
-  }
-  .queueList {
-    max-height: 240px;
-  }
+.detailWorkspace {
+  display: contents;
 }
 
-@container workspace (max-width: 1120px) {
-  .cockpitGrid {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 1.25rem;
-  }
-  .queuePanel {
-    max-height: 420px;
-  }
-  .queueList {
-    max-height: 240px;
-  }
+.queuePanel,
+.dossierPanel,
+.commandPanel {
+  min-width: 0;
 }
 
 /* ========================================================================= */
@@ -297,6 +281,8 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.15);
+  height: min(720px, calc(100dvh - 15rem));
+  min-height: 320px;
 }
 
 .queueHeader {
@@ -330,9 +316,9 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: 240px;
+  flex: 1;
   overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
 }
 
 .queueItem {
@@ -359,9 +345,7 @@
   color: var(--on-primary);
 }
 
-.queueItem:hover {
-  background: var(--dossier-active-bg);
-}
+
 
 .queueItemActive {
   background: var(--peripheral-solid) !important;
@@ -427,21 +411,7 @@
   z-index: 2;
 }
 
-.dossierPanel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  opacity: var(--dossier-sheen-opacity, 0);
-  transition: opacity 0.3s ease;
-  background: radial-gradient(
-    650px circle at var(--dossier-mouse-x, 50%) var(--dossier-mouse-y, 0%),
-    rgba(255, 255, 255, 0.45),
-    transparent 70%
-  );
-  z-index: 1;
-}
+
 
 :global(html[data-admin-theme="dark"]) .dossierPanel::before {
   background: radial-gradient(
@@ -492,32 +462,32 @@
 }
 
 .stepperLinePassed {
-  background-color: var(--color-mulberry);
+  background-color: var(--stage-amber);
 }
 
 .stepperLineActiveLead {
   position: relative;
   overflow: hidden;
-  background-color: var(--color-mulberry) !important;
+  background-color: var(--stage-amber) !important;
 }
 
 .stepperLineActiveLead::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: var(--color-champagne);
+  background-color: var(--stage-amber);
   animation: lineFlow 1.8s ease-in-out infinite;
 }
 
 @keyframes stepperRipple {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--td-oxide) 45%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--stage-amber) 45%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 8px color-mix(in srgb, var(--td-oxide) 0%, transparent);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--stage-amber) 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--td-oxide) 0%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--stage-amber) 0%, transparent);
   }
 }
 
@@ -557,25 +527,25 @@
 }
 
 .stepperGlyphPassed {
-  border-color: var(--color-mulberry);
-  background-color: var(--color-mulberry);
-  color: #ffffff;
+  border-color: var(--stage-amber);
+  background-color: var(--stage-amber);
+  color: var(--color-white);
 }
 
 .stepperGlyphActive {
-  border-color: var(--color-champagne);
-  background-color: var(--color-champagne);
-  color: #1F1B22; /* WCAG AAA high contrast */
-  box-shadow: 0 0 0 3px rgba(200, 169, 107, 0.28);
+  border-color: var(--stage-amber);
+  background-color: var(--stage-amber);
+  color: var(--color-white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--stage-amber) 28%, transparent);
   animation: stepperRipple 2.2s infinite;
 }
 
 :global([data-admin-theme="light"]) .stepperGlyphActive,
 :global([data-theme="light"]) .stepperGlyphActive {
-  border-color: var(--color-mulberry);
-  background-color: var(--color-mulberry);
-  color: #ffffff;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--td-oxide) 22%, transparent);
+  border-color: var(--stage-amber);
+  background-color: var(--stage-amber);
+  color: var(--color-white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--stage-amber) 22%, transparent);
 }
 
 .stepperLabel {
@@ -590,7 +560,7 @@
 }
 
 .stepperLabelPassed {
-  color: var(--color-mulberry);
+  color: var(--stage-amber);
 }
 
 .stepperLabelActive {
@@ -721,7 +691,6 @@
 }
 
 .gpsTrackingPanel :global(button:hover) {
-  background-color: rgba(200, 169, 107, 0.16);
   border-color: var(--td-oxide) !important;
 }
 
@@ -775,7 +744,6 @@
 
 :global([data-admin-theme="light"]) .gpsTrackingPanel :global(button:hover),
 :global([data-theme="light"]) .gpsTrackingPanel :global(button:hover) {
-  background-color: color-mix(in srgb, var(--td-oxide) 10%, transparent);
   border-color: var(--td-oxide) !important;
 }
 
@@ -822,6 +790,10 @@
   padding-bottom: 0;
 }
 
+.primaryCommand button[id] {
+  scroll-margin-top: 144px;
+}
+
 /* SHELF 1: PRIMARY GUIDED LEGAL ACTION BUTTON (BRAND AMBER) */
 .primaryActionButton {
   background-color: var(--color-mulberry);
@@ -842,24 +814,14 @@
   width: 100%;
 }
 
-.primaryActionButton:hover:not(:disabled) {
-  background-color: var(--color-mulberry-hover);
-  opacity: 0.96;
-}
+
 
 .primaryActionButton:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.primaryActionButton:active:not(:disabled),
-.consequentialActionButton:active:not(:disabled),
-.secondaryActionButton:active:not(:disabled),
-.modalConfirmCompletedBtn:active:not(:disabled),
-.modalConfirmCancelledBtn:active:not(:disabled) {
-  transform: scale(0.975);
-  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
-}
+
 
 .primaryActionButton:focus-visible,
 .consequentialActionButton:focus-visible,
@@ -1122,45 +1084,50 @@
   background-repeat: no-repeat;
 }
 
-/* Desktop panes share the height left by the actual shell header. */
-@media (min-width: 1201px) {
-  .workspaceRoot {
-    height: 100%;
-    padding: 1rem;
-  }
-
-  .stageWrapper,
+/* Keep the queue beside the dossier on smaller desktop/tablet workspaces.
+   Dossier and commands use the document scroll, including on wide desktops. */
+@container workspace (max-width: 1200px) {
   .cockpitGrid {
-    height: 100%;
-    min-height: 0;
+    grid-template-columns: minmax(220px, 26%) minmax(0, 1fr);
+    gap: 1rem;
   }
 
-  .cockpitGrid {
-    grid-template-rows: minmax(0, 1fr);
-    align-items: stretch;
-  }
-
-  .queuePanel,
-  .dossierPanel,
-  .commandPanel {
+  .detailWorkspace {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     min-width: 0;
     min-height: 0;
   }
 
-  .queueList {
-    flex: 1;
-    max-height: none;
-  }
-
   .dossierPanel,
   .commandPanel {
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
+    flex-shrink: 0;
+    overflow: visible;
   }
 
-  .dossierPanel > *,
-  .commandShelf {
-    flex-shrink: 0;
+}
+
+/* Only phone-sized workspaces stack the queue above the selected rental. */
+@container workspace (max-width: 639px) {
+  .cockpitGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .detailWorkspace {
+    display: contents;
+  }
+
+  .queuePanel {
+    height: auto;
+    min-height: 0;
+    max-height: 420px;
+  }
+
+  .queueList {
+    flex: auto;
+    max-height: 240px;
   }
 }
 
@@ -1205,11 +1172,5 @@
     transition: none !important;
     animation: none !important;
   }
-  .primaryActionButton:active:not(:disabled),
-  .consequentialActionButton:active:not(:disabled),
-  .secondaryActionButton:active:not(:disabled),
-  .modalConfirmCompletedBtn:active:not(:disabled),
-  .modalConfirmCancelledBtn:active:not(:disabled) {
-    transform: none !important;
-  }
+
 }
