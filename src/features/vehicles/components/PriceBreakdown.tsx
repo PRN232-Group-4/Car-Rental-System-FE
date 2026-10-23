@@ -25,10 +25,12 @@ export function PriceBreakdown({
   hasDriver,
   rentalType,
   policy,
-  driverFeePerDay = 500000,
+  driverFeePerDay,
   className = "",
 }: PriceBreakdownProps) {
   const calculation = useMemo(() => {
+    if (!policy || (hasDriver && driverFeePerDay === undefined) || (rentalType === "longterm" && !monthlyRate)) return null;
+
     // 1. Tiền thuê cơ sở
     const safeHours = Math.max(1, hours);
     const safeDays = Math.max(1, days);
@@ -37,23 +39,23 @@ export function PriceBreakdown({
       rentalType === "hourly"
         ? Math.round(hourlyRate * safeHours)
         : Math.round(
-            (monthlyRate && monthlyRate > 0 ? monthlyRate : hourlyRate * 24 * 30 * 0.75) *
+            monthlyRate! *
               (safeDays / 30)
           );
 
     // 2. Phụ phí tài xế
     const driverDays = Math.max(1, Math.ceil(safeHours / 24));
-    const driverFee = hasDriver ? driverFeePerDay * driverDays : 0;
+    const driverFee = hasDriver ? driverFeePerDay! * driverDays : 0;
 
     // 3. Thuế VAT
-    const vatRate = policy?.vatRate ?? 8;
+    const vatRate = policy.vatRate;
     const vatFee = Math.round((baseRentalFee + driverFee) * (vatRate / 100));
 
     // 4. Tiền thuê dịch vụ (A)
     const rentalSubtotal = baseRentalFee + driverFee + vatFee;
 
     // 5. Tiền đặt cọc hoàn lại (B)
-    const depositRate = policy?.depositPercentage ?? 30;
+    const depositRate = policy.depositPercentage;
     const depositAmount = Math.round(rentalSubtotal * (depositRate / 100));
 
     // 6. Tổng dự toán tạm tính ban đầu (A + B)
@@ -74,6 +76,10 @@ export function PriceBreakdown({
     };
   }, [hourlyRate, monthlyRate, hours, days, hasDriver, rentalType, policy, driverFeePerDay]);
 
+  if (!calculation) {
+    return <p role="status" data-testid="price-breakdown" className={`rounded border border-td-rule bg-td-paper p-4 text-xs text-td-muted ${className}`}>Chưa đủ bảng giá hoặc chính sách để dự toán chi phí. Vui lòng xem báo giá khi đặt xe.</p>;
+  }
+
   return (
     <div
       data-testid="price-breakdown"
@@ -91,7 +97,7 @@ export function PriceBreakdown({
         {/* Tiền thuê cơ sở */}
         <div className="flex items-center justify-between">
           <span className="text-td-muted">
-            Tiền thuê xe ({calculation.safeHours}h × {formatVnd(hourlyRate)})
+            Tiền thuê xe ({rentalType === "hourly" ? `${calculation.safeHours}h × ${formatVnd(hourlyRate)}` : `${calculation.safeDays} ngày × ${formatVnd(monthlyRate!)} / 30`})
           </span>
           <span className="font-mono tabular-nums font-semibold text-td-ink">
             {formatVnd(calculation.baseRentalFee)}
@@ -102,7 +108,7 @@ export function PriceBreakdown({
         {hasDriver && (
           <div className="flex items-center justify-between">
             <span className="text-td-muted">
-              Tài xế riêng ({calculation.driverDays} ngày × {formatVnd(driverFeePerDay)})
+              Tài xế riêng ({calculation.driverDays} ngày × {formatVnd(driverFeePerDay!)})
             </span>
             <span className="font-mono tabular-nums font-semibold text-td-ink">
               {formatVnd(calculation.driverFee)}
@@ -132,11 +138,11 @@ export function PriceBreakdown({
             <div className="flex items-center gap-1 font-semibold text-td-ink">
               <span>Tiền đặt cọc hoàn lại ({calculation.depositRate}%)</span>
               <span className="text-[10px] text-success font-bold bg-success-bg px-1.5 py-0.2 rounded">
-                Hoàn 100%
+                Theo quyết toán
               </span>
             </div>
             <p className="text-[10px] text-td-muted mt-0.5">
-              Hoàn trả vào tài khoản trong 24h sau bàn giao
+              Hoàn cọc theo kết quả kiểm tra và quyết toán khi trả xe
             </p>
           </div>
           <span className="font-mono tabular-nums font-bold text-td-ink">
@@ -161,7 +167,7 @@ export function PriceBreakdown({
       {/* Cam kết minh bạch */}
       <div className="flex items-center gap-1.5 text-[11px] text-td-muted pt-1">
         <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />
-        <span>Đã bao gồm VAT và bảo hiểm trách nhiệm dân sự bắt buộc.</span>
+        <span>Dự toán theo bảng giá và chính sách hiện hành.</span>
       </div>
     </div>
   );

@@ -30,7 +30,7 @@
 }
 
 .step[data-state="complete"]::after {
-  background: var(--info);
+  background: var(--td-oxide);
 }
 
 .dot {
@@ -44,17 +44,21 @@
   border: 2px solid var(--line-strong);
   border-radius: 50%;
   background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .step[data-state="complete"] .dot,
 .step[data-state="current"] .dot {
-  border-color: var(--info);
-  background: var(--info);
-  color: var(--surface);
+  border-color: var(--td-oxide);
+  background: var(--td-oxide);
+  color: var(--on-primary);
 }
 
 .step[data-state="current"] .dot {
-  outline: 3px solid var(--info-bg);
+  outline: 3px solid var(--primary-tint);
   outline-offset: 3px;
 }
 

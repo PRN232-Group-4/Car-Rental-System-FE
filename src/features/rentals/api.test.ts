@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
 vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client, isMockMode: false }));
-import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, updateRentalContract } from "./api";
+import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, updateRentalContract, uploadRentalContract } from "./api";
 
 beforeEach(() => vi.resetAllMocks());
 it("reads every policy page after the list contract changes to pagination", async () => {
@@ -42,4 +42,17 @@ it("records a contract with the deployed request fields", async () => {
   const result = await updateRentalContract(321, "https://example.com/a.pdf", "2026-10-10T03:00:00Z");
   expect(client.put).toHaveBeenCalledWith("rentals/321/contract", { contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
   expect(result.contractLink).toBe("https://example.com/a.pdf");
+});
+
+it("uploads a private signed contract as multipart with its rental and signature time", async () => {
+  client.post.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "/api/rentals/321/contract/document", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z" });
+  const file = new File(["%PDF-1.4"], "signed.pdf", { type: "application/pdf" });
+  const result = await uploadRentalContract(321, file, "2026-10-23T03:00:00Z");
+  const [path, body] = client.post.mock.calls[0];
+  expect(path).toBe("rentals/321/contract/upload");
+  expect(body).toBeInstanceOf(FormData);
+  expect(body.get("file")).toBe(file);
+  expect(body.get("signedAt")).toBe("2026-10-23T03:00:00Z");
+  expect(result.hasUploadedContract).toBe(true);
+  expect(result.contractLink).toBe("/api/rentals/321/contract/document");
 });

@@ -155,3 +155,27 @@ describe("vehicle display media and pickup facility", () => {
     expect(mapped.facilityName).toBe("Chi nhánh Quận 7");
   });
 });
+
+
+describe("missing backend values", () => {
+  it("does not invent subscription dates or an active status", () => {
+    const sub = mapCustomerSubscriptionFromBE({ id: 1, planId: 2 });
+    expect(sub.startDate).toBe("");
+    expect(sub.endDate).toBe("");
+    expect(sub.status).toBe("unknown");
+  });
+  it("derives only plan facts from the API without promising delivery perks", () => {
+    const plan = mapSubscriptionPlanFromBE({ id: 2, includedHours: 10, durationDays: 7 });
+    expect(plan.features).toEqual(["10 giờ sử dụng linh hoạt", "Thời hạn 7 ngày"]);
+    expect(mapSubscriptionPlanFromBE({ id: 3 }).validityDays).not.toBe(30);
+  });
+  it("respects the backend subscription eligibility and does not invent fuel", () => {
+    const vehicle = mapVehicleFromBE({ id: 1, hourlyPrice: 100, supportsSubscription: false });
+    expect(vehicle.supportsSubscription).toBe(false);
+    expect(vehicle.fuelType).toBe("");
+  });
+});
+
+it("does not invent the creation time of a payment", () => {
+  expect(mapPaymentFromBE({ id: 1, amount: 100 }).createdAt).toBe("");
+});

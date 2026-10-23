@@ -1,6 +1,8 @@
 export type LicenseStatus = "pending" | "approved" | "rejected" | "none";
 
 export interface CustomerLicense {
+  id?: number | null;
+  licenses?: CustomerLicense[];
   number?: string | null;
   type?: string | null;
   issueDate?: string | null;
@@ -11,6 +13,7 @@ export interface CustomerLicense {
 }
 
 export interface SaveLicensePayload {
+  licenseId?: number | null;
   number: string;
   type: string;
   issueDate: string;

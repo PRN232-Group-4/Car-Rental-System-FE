@@ -1,5 +1,20 @@
 # Kế hoạch triển khai FE — Car Rental System FE
 
+## Cập nhật 2026-10-23 — Nhiều GPLX và điều kiện từng xe
+
+Admin cấu hình hạng bằng, khách lưu nhiều GPLX độc lập; booking dùng tất cả bằng đã duyệt phù hợp xe/thời gian. Log proxy in một lần và loại hiệu ứng dịch chuyển nút trong workspace. [Chi tiết](../changes/2026-10-23-proxy-hover-and-license-classes.md).
+
+## Cập nhật 2026-10-22 — Tạm khóa ca trực, giữ phân tài xế theo đơn thuê
+
+Tạm khóa tạo/xếp/sửa/hủy ca trực trên giao diện; giữ dữ liệu ca và chuyến đã lưu. Phân tài xế tại Vận hành → đơn có tài xế → Phân xe và tài xế, hoặc Điều phối → Phân chuyến theo mã đơn. Form dùng candidates và endpoint phân tài xế theo từng đơn, chặn người không hợp lệ và báo lỗi dưới trường; CustomerService không cần truy cập danh bạ ngoài quyền. Không gán cố định tài xế vào xe. Xem [thay đổi](../changes/2026-10-22-driver-shift-pause-and-rental-assignment.md).
+
+Kiểm chứng tổng hợp: 883/883 unit tests frontend đạt; sau bổ sung guard CustomerService, 37/37 tests mục tiêu và 13/13 Chrome E2E đạt (desktop/mobile, sáng/tối, Admin/CustomerService). TypeScript, design lint và build production 263 trang đạt; ESLint không lỗi, còn 7 cảnh báo có sẵn trong workspace đơn thuê. Backend bàn giao tự lái đạt build và 63/63 tests trên PostgreSQL riêng, không migration mới/deploy. Chưa khởi động lại backend ứng dụng; xem [thay đổi backend](../../Car-Rental-System-BE/changes/2026-10-22-self-drive-handover.md).
+
+## Cập nhật 2026-10-22 — Bỏ dữ liệu mẫu runtime
+
+Đã bỏ dữ liệu mẫu và fallback nghiệp vụ trong đăng ký, tra cứu đơn/lịch driver, giá/policy, thuê bao và các bản ghi giới thiệu. Giữ dữ liệu API, trạng thái thiếu/loading/error rõ ràng; không xóa dữ liệu database hoặc fixtures kiểm thử. 21 regressions đạt. Xem [thay đổi](../changes/2026-10-22-remove-runtime-mock-data.md).
+
+
 ## Cập nhật 2026-10-22 — Mã yêu cầu và mã đơn chính thức
 
 Hiện tách hai mã tại workspace, danh sách, tra cứu, thanh toán và bàn giao. Đọc orderId từ server, không giả mã khi null/thiếu trường, giữ nguyên phân quyền. 35 unit/integration, 14 navigation tests và 2 Edge E2E đạt; TypeScript/design lint/ESLint đạt. Xem [thay đổi](../changes/2026-10-22-visible-official-order.md). Chỉ FE/chưa deploy.
@@ -239,6 +254,8 @@ app/(dashboard)/dat-xe/page.tsx              # "trả từng lượt" | "dùng g
 **DoD:** mua gói → thấy giờ còn lại → thuê bằng gói trừ đúng số giờ; gói hết hạn/không đủ giờ bị chặn rõ ràng.
 
 ### Phase 4 — FE-08 Invoice & Payment
+
+Cập nhật 23/10/2026: thêm `/admin/payments` cho Admin/Manager với danh sách giao dịch thật, bộ lọc và phân trang phía client theo API hiện có. Cấu hình GPLX phương tiện chuyển sang checkbox và card; vận hành đơn thuê dùng checklist để mở bước kế tiếp. Chi tiết nghiệm thu: [FE-operations-ui-refinements](specs/FE-operations-ui-refinements.md).
 
 Routes:
 

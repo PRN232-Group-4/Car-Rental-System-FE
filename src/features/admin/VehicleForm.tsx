@@ -30,8 +30,10 @@ import VehicleMaintenanceTechnicians from "./VehicleMaintenanceTechnicians";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { VehicleIdentity } from "@/features/admin/VehicleName";
 import { VehiclePhotoGrid } from "./VehiclePhotos";
+import VehicleLicenseConfig, { parseAllowedLicenseTypes } from "./VehicleLicenseConfig";
 
 type VehicleDraft = {
+  allowedLicenseTypes: string;
   licensePlate: string;
   vehicleTypeId: string;
   facilityId: string;
@@ -59,6 +61,7 @@ type VehicleDraft = {
 };
 
 const emptyDraft: VehicleDraft = {
+  allowedLicenseTypes: "",
   licensePlate: "",
   vehicleTypeId: "",
   facilityId: "",
@@ -240,6 +243,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
       galleryImages: draft.galleryImages,
     };
     const body: VehicleRequest = {
+      allowedLicenseTypes: parseAllowedLicenseTypes(draft.allowedLicenseTypes),
       vehicleTypeId,
       licensePlate: draft.licensePlate.trim() || null,
       facilityId: draft.facilityId ? Number(draft.facilityId) : null,
@@ -302,11 +306,18 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-danger">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
       {loading ? <FormSkeleton label="Đang tải thông tin phương tiện..." fields={10} /> : <ValidatedForm validation={validation} validate={() => {
+        const errors: Record<string, string> = {};
+        const licenseTypes = parseAllowedLicenseTypes(draft.allowedLicenseTypes);
+        if (licenseTypes.length > 30 || licenseTypes.some((type) => !/^[A-Z0-9]{1,20}$/.test(type))) {
+          errors.allowedLicenseTypes = "Chọn tối đa 30 hạng bằng. Hạng khác chỉ gồm 1–20 chữ cái hoặc chữ số, cách nhau bằng dấu phẩy.";
+        }
         const typeId = Number(draft.vehicleTypeId);
         if (!Number.isInteger(typeId) || !vehicleTypes.some((item) => item.id === typeId)) {
-          return { vehicleTypeId: "Vui lòng chọn một loại phương tiện hợp lệ." };
+          errors.vehicleTypeId = "Vui lòng chọn một loại phương tiện hợp lệ.";
+        } else if (!vehicleKind.isValid) {
+          errors.vehicleTypeId = "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu.";
         }
-        return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
+        return errors;
       }} onSubmit={submit} className="space-y-6">
         <div className={onClose ? "space-y-6" : "grid min-w-0 items-start gap-8 lg:grid-cols-12"}>
           {!onClose && (
@@ -352,6 +363,10 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
             <Field label="Giá thuê theo giờ (₫)" htmlFor="hourlyPrice"><InlineInput id="hourlyPrice" name="hourlyPrice" type="number" min="0" step="1000" value={draft.hourlyPrice} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Giá thuê dài hạn (₫)" htmlFor="longtermPrice"><InlineInput id="longtermPrice" name="longtermPrice" type="number" min="0" step="100000" value={draft.longtermPrice} onChange={updateDraft} className="admin-input" /></Field>
           </div>
+          <div className="mt-5"><VehicleLicenseConfig value={draft.allowedLicenseTypes} disabled={saving || uploading} error={validation.errors.allowedLicenseTypes} onChange={(value) => {
+            setDraft((current) => ({ ...current, allowedLicenseTypes: value }));
+            validation.clear("allowedLicenseTypes");
+          }} /></div>
           <div className="mt-5"><Field label="Mô tả" htmlFor="description"><InlineTextarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
         </section>
 
@@ -466,6 +481,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
 function fromVehicle(vehicle: VehicleDto): VehicleDraft {
   const detail = vehicle.detail;
   return {
+    allowedLicenseTypes: (vehicle.allowedLicenseTypes ?? []).join(", "),
     licensePlate: vehicle.licensePlate ?? "",
     vehicleTypeId: String(vehicle.vehicleTypeId),
     facilityId: vehicle.facilityId === null ? "" : String(vehicle.facilityId),

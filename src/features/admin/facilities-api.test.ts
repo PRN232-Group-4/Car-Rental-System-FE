@@ -23,7 +23,7 @@ it("loads facilities beyond the first page for all selectors", async () => {
     .mockResolvedValueOnce({ items: firstPage, page: 1, pageSize: 100, totalCount: 101 })
     .mockResolvedValueOnce({ items: [lastFacility], page: 2, pageSize: 100, totalCount: 101 });
 
-  expect(await getFacilities()).toEqual([...firstPage, lastFacility]);
+  expect(await getFacilities()).toEqual([lastFacility, ...firstPage.toReversed()]);
   expect(client.get).toHaveBeenNthCalledWith(1, "facilities", { page: 1, pageSize: 100 });
   expect(client.get).toHaveBeenNthCalledWith(2, "facilities", { page: 2, pageSize: 100 });
   expect(client.get).toHaveBeenCalledTimes(2);

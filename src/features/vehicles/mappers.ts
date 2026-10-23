@@ -23,7 +23,7 @@ export function mapVehicleSearchFromBE(raw: Record<string, unknown>): Vehicle {
     fuelType: type.fuelType,
     driverAvailable: badges.driverAvailable,
     badges: [],
-    status: "available",
+    status: raw.status ?? "available",
   });
 }
 
@@ -53,7 +53,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
   const year = Number(r.yearOfManufacture ?? r.YearOfManufacture ?? r.year ?? 0);
   const seats = detail.seatCount ? Number(detail.seatCount) : (r.seats ? Number(r.seats) : undefined);
   const transmission = String(detail.transmission ?? r.transmission ?? "");
-  const fuelType = category.includes("electric") ? "Điện" : String(r.fuelType ?? "Xăng");
+  const fuelType = category.includes("electric") ? "Điện" : String(r.fuelType ?? "");
   const batteryCapacity = detail.batteryCapacity ? String(detail.batteryCapacity) : undefined;
   const maxRange = detail.maxRangeKm ? `${detail.maxRangeKm} km` : (r.maxRange ? String(r.maxRange) : undefined);
   const storageCapacity = detail.trunkCapacity ? `${detail.trunkCapacity}L` : undefined;
@@ -92,6 +92,9 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
 
   return {
     id,
+    allowedLicenseTypes: Array.isArray(r.allowedLicenseTypes ?? r.AllowedLicenseTypes)
+      ? (r.allowedLicenseTypes ?? r.AllowedLicenseTypes) as string[]
+      : [],
     vehicleTypeId: Number(r.vehicleTypeId ?? r.VehicleTypeId) || undefined,
     name,
     brand,
@@ -119,7 +122,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
     hasDriverOption: typeof r.driverAvailable === "boolean" ? r.driverAvailable : undefined,
     badges,
     isAvailable,
-    supportsSubscription: true,
+    supportsSubscription: typeof r.supportsSubscription === "boolean" ? r.supportsSubscription : hourlyPrice > 0,
     status,
     description: (r.description ?? r.Description) as string | undefined,
     features,

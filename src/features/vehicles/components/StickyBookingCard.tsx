@@ -7,7 +7,7 @@ import { Vehicle, RentalPolicy } from "../types";
 import { DateTimeRangePicker, DateTimeRangeValue } from "@/components/ui/DateTimeRangePicker";
 import { PriceBreakdown } from "./PriceBreakdown";
 import { checkVehicleAvailability } from "../api";
-import { nowGmt7, toUtcIso, fromUtcIso, diffHours } from "@/lib/time";
+import { nowGmt7, toUtcIso, fromUtcIso, diffHours, formatTime } from "@/lib/time";
 import { addDays } from "date-fns";
 
 export interface StickyBookingCardProps {
@@ -16,6 +16,7 @@ export interface StickyBookingCardProps {
   initialFrom?: string;
   initialTo?: string;
   initialMode?: "self" | "driver" | "subscription";
+  initialRentalType?: "hourly" | "longterm";
   className?: string;
 }
 
@@ -25,12 +26,13 @@ export function StickyBookingCard({
   initialFrom,
   initialTo,
   initialMode = "self",
+  initialRentalType = "hourly",
   className = "",
 }: StickyBookingCardProps) {
   const router = useRouter();
 
   // Hình thức thuê
-  const [rentalType, setRentalType] = useState<"hourly" | "longterm">("hourly");
+  const [rentalType, setRentalType] = useState<"hourly" | "longterm">(initialRentalType);
   // Có tài xế hay tự lái
   const [hasDriver, setHasDriver] = useState(initialMode === "driver");
 
@@ -42,8 +44,8 @@ export function StickyBookingCard({
         to: initialTo,
         startDate: fromUtcIso(initialFrom),
         endDate: fromUtcIso(initialTo),
-        startTime: "08:00",
-        endTime: "18:00",
+        startTime: formatTime(initialFrom),
+        endTime: formatTime(initialTo),
       };
     }
     // Mặc định: ngày mai 08:00 đến ngày mốt 08:00 (24 giờ)
@@ -58,6 +60,16 @@ export function StickyBookingCard({
       endTime: "08:00",
     };
   });
+
+  const [previousDates, setPreviousDates] = useState({ from: initialFrom, to: initialTo });
+  if (previousDates.from !== initialFrom || previousDates.to !== initialTo) {
+    setPreviousDates({ from: initialFrom, to: initialTo });
+    if (initialFrom && initialTo) setDateRange({
+      from: initialFrom, to: initialTo,
+      startDate: fromUtcIso(initialFrom), endDate: fromUtcIso(initialTo),
+      startTime: formatTime(initialFrom), endTime: formatTime(initialTo),
+    });
+  }
 
   // Tính số giờ và số ngày
   const duration = useMemo(() => {
@@ -110,11 +122,13 @@ export function StickyBookingCard({
 
     const query = new URLSearchParams({
       vehicleId: String(vehicle.id),
+      facilityId: String(vehicle.facilityId),
       from: dateRange.from,
       to: dateRange.to,
       mode: hasDriver ? "driver" : "self",
       rentalType,
     });
+    if (initialMode === "subscription" && !hasDriver && rentalType === "hourly") query.set("paymentMode", "subscription");
 
     router.push(`/booking?${query.toString()}`);
   };

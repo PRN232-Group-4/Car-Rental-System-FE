@@ -100,6 +100,7 @@ function mapContract(raw: Record<string, unknown>): RentalContract {
     ...mapRentalFromBE(raw),
     contractLink: (raw.contractLink ?? raw.ContractLink ?? null) as string | null,
     signedAt: (raw.signedAt ?? raw.SignedAt ?? null) as string | null,
+    hasUploadedContract: (raw.hasUploadedContract ?? raw.HasUploadedContract) === true,
     hourlyPriceSnapshot: (raw.hourlyPriceSnapshot ?? null) as number | null,
     monthlyPriceSnapshot: (raw.monthlyPriceSnapshot ?? null) as number | null,
   };
@@ -109,4 +110,11 @@ export async function updateRentalContract(id: number | string, contractLink: st
   return mapContract(await defaultApiClient.put<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}/contract`, {
     contractLink, signedAt,
   }));
+}
+
+export async function uploadRentalContract(id: number | string, file: File, signedAt: string) {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("signedAt", signedAt);
+  return mapContract(await defaultApiClient.post<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}/contract/upload`, body));
 }

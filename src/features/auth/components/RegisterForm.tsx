@@ -57,16 +57,6 @@ export default function RegisterForm() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const fillSampleData = () => {
-    validation.reset();
-    setFullName("Nguyễn Văn An");
-    setEmail(`an.${Date.now().toString().slice(-4)}@example.com`);
-    setPassword("matkhau123456");
-    setConfirmPassword("matkhau123456");
-    setAgreeTerms(true);
-    setErrorMessage(null);
-  };
-
   const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -148,20 +138,6 @@ export default function RegisterForm() {
 
   return (
     <div className="w-full">
-      {/* Quick sample fill - 1 dòng gọn */}
-      {step === "form" && (
-        <div className="mb-3 px-3 py-2 rounded-xl bg-surface-raised border border-line flex items-center justify-between">
-          <span className="text-xs text-ink-3 font-medium">Thử nghiệm nhanh:</span>
-          <button
-            type="button"
-            onClick={fillSampleData}
-            className="px-2.5 py-1 text-xs font-bold text-primary bg-surface hover:bg-sunken rounded-lg border border-line shadow-2xs transition-colors cursor-pointer"
-          >
-            Điền mẫu tự động
-          </button>
-        </div>
-      )}
-
       {/* Main Card */}
       <div className="bg-surface rounded-2xl p-6 sm:p-7 border border-line shadow-e2 text-ink">
         {/* Step indicator */}

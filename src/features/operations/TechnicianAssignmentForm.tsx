@@ -14,11 +14,12 @@ import { changeRentalStatus, operationalError, operationsButton, operationsInput
 import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 import { assignInspectionTechnician, confirmInspectionChecked, getInspectionAssignment, getInspectionTechnicians, inspectionAssignmentError, inspectionConfirmationError } from "./technician-api";
 
-export default function TechnicianAssignmentForm({ rental, refresh, compact = false, showApprovalAction = true }: {
+export default function TechnicianAssignmentForm({ rental, refresh, compact = false, showApprovalAction = true, embedded = false }: {
   rental: OperationalRental;
   refresh: () => Promise<unknown>;
   compact?: boolean;
   showApprovalAction?: boolean;
+  embedded?: boolean;
 }) {
   const session = useOptionalSession();
   const cache = useQueryClient();
@@ -107,12 +108,12 @@ export default function TechnicianAssignmentForm({ rental, refresh, compact = fa
       <p className="break-words text-sm text-td-ink">Đã giao: <strong>{assignment.data.technicianEmail || options.find((staff) => staff.id === assignment.data?.technicianStaffId)?.email || "Chưa cập nhật email kỹ thuật viên"}</strong><span className="mt-1 block text-xs text-td-muted">{formatAdminDateTime(assignment.data.assignedAt)}</span></p> :
       <p className="text-sm text-td-muted">Chưa phân công kỹ thuật viên kiểm tra.</p>;
   const inspectionLink = <Link href={`/admin/inspections?rentalId=${rental.id}`} className="inline-block text-sm font-semibold text-td-oxide underline">Mở biên bản kiểm tra trước / sau thuê</Link>;
-  if (compact && !canAssign) return <section aria-label={`Phân công kiểm tra ${phaseLabel}`} className="space-y-3 border-t border-td-rule pt-4">
+  if (compact && !canAssign) return <section aria-label={`Phân công kiểm tra ${phaseLabel}`} className={embedded ? "min-w-0 space-y-3 pl-6" : "space-y-3 border-t border-td-rule pt-4"}>
     <h2 className="text-sm font-bold text-td-ink">Kiểm tra {phaseLabel}</h2>
     <p className="text-sm text-td-muted">{rental.status === "pending" ? "Xác nhận đơn thuê trước, sau đó phân công và xác nhận Đã inspect." : inspected ? post ? "Đã có biên bản kiểm tra sau trả xe." : "Đã đạt kiểm tra trước thuê." : "Xem lại hồ sơ kiểm tra."}</p>
     <details className="space-y-3"><summary className="cursor-pointer text-sm font-semibold text-td-oxide">Chi tiết kiểm tra</summary>{assignmentInfo}{inspectionLink}</details>
   </section>;
-  return <section className="min-w-0 space-y-4 border-t border-td-rule pt-5" aria-label={`Phân công kiểm tra ${phaseLabel}`}>
+  return <section className={embedded ? "min-w-0 space-y-3 pl-6" : "min-w-0 space-y-4 border-t border-td-rule pt-5"} aria-label={`Phân công kiểm tra ${phaseLabel}`}>
     <h2 className="text-sm font-bold text-td-ink">Kỹ thuật viên kiểm tra {phaseLabel}</h2>
     {post && inspected && <p role="status" className="text-sm text-td-teal">Đã có biên bản kiểm tra sau trả xe.</p>}
     {rental.status === "pending" && !rental.hasPassingPreInspection && <p className="text-sm text-td-muted">Xác nhận đơn thuê trước, sau đó phân công và xác nhận Đã inspect.</p>}

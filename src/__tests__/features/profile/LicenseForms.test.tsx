@@ -133,6 +133,41 @@ describe.each(["driver-license", "profile"] as const)("Form GPLX tại %s", (pag
     await waitFor(() => expect(mocks.save).toHaveBeenCalledWith({ number: "ABC123", type: "B1", issueDate: "2024-01-01", expiryDate: "2099-01-01", file }));
   });
 
+  if (page === "driver-license") {
+    it("thêm bằng độc lập không gửi id hoặc ghi đè bằng đã có", async () => {
+      const existing = { ...saved, id: 7, number: "CAR123", status: "approved" };
+      mocks.getLicense.mockResolvedValue({ ...existing, licenses: [existing] });
+      await open();
+      expect(numberInput()).toHaveValue("CAR123");
+      fireEvent.click(screen.getByRole("button", { name: "Thêm giấy phép khác" }));
+      expect(numberInput()).toHaveValue("");
+      expect(field("issueDate")).toHaveValue("");
+      fillDetails();
+      fireEvent.change(field("licenseType"), { target: { value: "A1" } });
+      const file = photo();
+      fireEvent.change(fileInput(), { target: { files: [file] } });
+      submit();
+      await waitFor(() => expect(mocks.save).toHaveBeenCalledWith({ number: "ABC123", type: "A1", issueDate: "2024-01-01", expiryDate: "2099-01-01", file }));
+      expect(mocks.save.mock.calls[0][0]).not.toHaveProperty("licenseId");
+    });
+
+    it("chọn bằng thứ hai để sửa gửi đúng id của bằng đó", async () => {
+      const first = { ...saved, id: 7, number: "CAR123", status: "approved" };
+      const second = { ...saved, id: 8, number: "BIKE456", type: "A1", status: "rejected" };
+      mocks.getLicense.mockResolvedValue({ ...first, licenses: [first, second] });
+      mocks.save.mockResolvedValue({ ...second, number: "BIKE789", status: "pending" });
+      await open();
+      fireEvent.click(screen.getByRole("button", { name: /A1 · BIKE456/ }));
+      expect(numberInput()).toHaveValue("BIKE456");
+      expect(field("licenseType")).toHaveValue("A1");
+      fireEvent.change(numberInput(), { target: { value: "BIKE789" } });
+      const file = photo();
+      fireEvent.change(fileInput(), { target: { files: [file] } });
+      submit();
+      await waitFor(() => expect(mocks.save).toHaveBeenCalledWith({ licenseId: 8, number: "BIKE789", type: "A1", issueDate: "2024-01-01", expiryDate: "2099-01-01", file }));
+    });
+  }
+
   it("chặn ngày cấp sau ngày hết hạn và giấy phép hết hạn", async () => {
     await open(); fillDetails();
     fireEvent.change(field("issueDate"), { target: { value: "2099-01-02" } });

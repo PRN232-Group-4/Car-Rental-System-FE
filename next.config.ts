@@ -14,6 +14,8 @@ const backendLogOrigin = (() => {
   catch { return ""; }
 })();
 
+let hasLoggedProxy = false;
+
 const nextConfig: NextConfig = {
   // Use static export for production deployment (Cloudflare Pages)
   ...(isDev ? {} : { output: "export" }),
@@ -25,7 +27,11 @@ const nextConfig: NextConfig = {
     ? {
         env: { NEXT_PUBLIC_DEV_API_PROXY_ORIGIN: backendLogOrigin },
         async rewrites() {
-          console.info(`[API proxy] /api/* -> ${backendLogOrigin || "(URL không hợp lệ)"} · ${process.env.DEV_API_ORIGIN ? "DEV_API_ORIGIN" : process.env.BACKEND_ORIGIN ? "BACKEND_ORIGIN" : "Railway mặc định"}`);
+          // Next calls this for both routing and route types using the same config.
+          if (!hasLoggedProxy) {
+            hasLoggedProxy = true;
+            console.info(`[API proxy] /api/* -> ${backendLogOrigin || "(URL không hợp lệ)"} · ${process.env.DEV_API_ORIGIN ? "DEV_API_ORIGIN" : process.env.BACKEND_ORIGIN ? "BACKEND_ORIGIN" : "Railway mặc định"}`);
+          }
           return [
             {
               source: "/api/:path*",

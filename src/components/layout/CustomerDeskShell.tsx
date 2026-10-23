@@ -127,7 +127,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
 
   const displayName = user?.fullName || "Khách hàng";
   const displayEmail = user?.email || "Chưa cập nhật email";
-  const totalRoutes = CUSTOMER_CHAPTERS.reduce((total, entry) => total + entry.routes.length, 0);
 
   const handleLogout = async () => {
     await logout();
@@ -268,7 +267,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
               </Link>
             ))}
           </nav>
-          <span className={styles.contextTotal}>{totalRoutes} CHỨC NĂNG KHẢ DỤNG</span>
         </div>
       </div>
 

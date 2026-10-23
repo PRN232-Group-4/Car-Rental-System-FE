@@ -8,14 +8,9 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   Search,
-  CheckCircle2,
   AlertTriangle,
   ArrowRight,
   ExternalLink,
-  Car,
-  Clock,
-  UserCheck,
-  RotateCcw,
   Check,
   ShieldAlert,
 } from "lucide-react";
@@ -27,14 +22,13 @@ import {
   operationalError,
   rentalStatuses,
   rentalTransitionBlocker,
-  type OperationalRental,
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import VehicleName from "@/features/admin/VehicleName";
 import TechnicianAssignmentForm from "@/features/operations/TechnicianAssignmentForm";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
-import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
+import { useInlineValidation, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -307,23 +301,7 @@ export function RentalJourney() {
               </button>
             </div>
 
-            {/* Quick Sample IDs */}
-            <div className="flex items-center gap-1.5 font-mono text-xs text-td-muted">
-              <span className="text-[11px]">Mẫu test:</span>
-              {[1, 101, 98].map((sampleId) => (
-                <button
-                  key={sampleId}
-                  type="button"
-                  onClick={() => {
-                    setIdInput(String(sampleId));
-                    setLookupId(String(sampleId));
-                  }}
-                  className="rounded border border-td-rule bg-td-white px-2 py-0.5 text-xs font-bold text-td-ink hover:border-td-oxide hover:text-td-oxide transition-colors cursor-pointer"
-                >
-                  #{sampleId}
-                </button>
-              ))}
-            </div>
+
           </div>
         </ValidatedForm>
 

@@ -14,7 +14,7 @@ describe("public rental search", () => {
       vehicleType: { id: 8, name: "SUV", type: "car", fuelType: "electric" },
       facility: { id: 3, name: "Quận 1" }, priceHourly: 150000, priceLongterm: 20000000,
       summary: { seatCount: 5, transmission: "CVT", batteryCapacity: "87 kWh" },
-      badges: { electric: true, driverAvailable: true }, mainImageUrl: "/car.jpg" }],
+      badges: { electric: true, driverAvailable: true }, allowedLicenseTypes: ["B", "B2"], mainImageUrl: "/car.jpg" }],
       page: 2, pageSize: 6, totalCount: 12 });
     const result = await getVehiclesPaginated({ category: "electric_car", facilityId: "3", brand: "VinFast",
       seats: 5, transmission: "cvt", fuelType: "electric", priceMin: 100000, priceMax: 200000,
@@ -26,7 +26,7 @@ describe("public rental search", () => {
       from: "2030-06-01T02:00:00.000Z", to: "2030-06-01T04:00:00.000Z" });
     expect(result).toMatchObject({ totalCount: 12, page: 2, items: [{ name: "VinFast VF8", category: "electric_car",
       facilityId: 3, facilityName: "Quận 1", hourlyPrice: 150000, monthlyPrice: 20000000,
-      seats: 5, transmission: "CVT", batteryCapacity: "87 kWh", isAvailable: true }] });
+      seats: 5, transmission: "CVT", batteryCapacity: "87 kWh", allowedLicenseTypes: ["B", "B2"], isAvailable: true }] });
   });
 
   it("omits all/default sentinels, supports name sorting and monthly prices", async () => {

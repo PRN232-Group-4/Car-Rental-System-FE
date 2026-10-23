@@ -6,6 +6,7 @@ export type AccountProfile = components["schemas"]["AccountResponse"] & {
 };
 
 export interface CustomerLicense {
+  id?: number | null;
   number: string | null;
   type: string | null;
   issueDate: string | null;
