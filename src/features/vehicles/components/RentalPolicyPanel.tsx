@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { ShieldCheck, BatteryCharging, Fuel, XCircle, Clock, Sparkles, CigaretteOff } from "lucide-react";
+import { ShieldCheck, BatteryCharging, Fuel, XCircle, Clock } from "lucide-react";
 import { RentalPolicy, VehicleCategory } from "../types";
-import { formatVnd } from "@/lib/format";
 
 export interface RentalPolicyPanelProps {
   policy?: RentalPolicy | null;
@@ -12,13 +11,22 @@ export interface RentalPolicyPanelProps {
   className?: string;
 }
 
+/**
+ * Khối chính sách thuê xe trên trang chi tiết phương tiện.
+ * Mọi con số ở đây phải khớp với quy tắc mà backend thực sự áp dụng:
+ * - cọc = % tiền thuê (chưa gồm VAT), hoàn cọc qua yêu cầu hoàn tiền có duyệt (FR-021);
+ * - hủy trước 24h miễn phí, hủy muộn tính 20% tiền thuê đã gồm VAT (RentalCancellationOptions);
+ * - quá giờ tính theo giờ làm tròn lên, cộng thêm `overtime_fee_rate`%, trừ vào cọc trước (FR-012/FR-021).
+ * Khi chưa tải được chính sách thì không suy diễn tỷ lệ nào.
+ */
 export function RentalPolicyPanel({
   policy,
   isElectric = false,
   className = "",
 }: RentalPolicyPanelProps) {
-  const depositRate = policy?.depositPercentage ?? 30;
-  const overtimeRate = policy?.overtimeFeeRate ?? (isElectric ? 50000 : 60000);
+  const depositText = policy ? `${policy.depositPercentage}%` : "theo chính sách của loại xe";
+  const overtimeText = policy ? `đơn giá giờ cộng thêm ${policy.overtimeFeeRate}%` : "theo chính sách của loại xe";
+  const vatText = policy ? `${policy.vatRate}%` : "theo chính sách của loại xe";
 
   return (
     <div className={`space-y-4 rounded border border-td-rule bg-td-white p-5 ${className}`}>
@@ -42,10 +50,13 @@ export function RentalPolicyPanel({
             <span>Tiền đặt cọc & Hoàn cọc</span>
           </div>
           <p className="text-xs text-td-ink leading-relaxed">
-            Mức đặt cọc áp dụng là <strong className="font-mono text-primary font-bold">{depositRate}%</strong> tổng giá trị đơn thuê.
+            Mức đặt cọc áp dụng là{" "}
+            <strong className="font-mono text-primary font-bold">{depositText}</strong> tiền thuê (không gồm VAT).
+            Hóa đơn còn cộng <strong className="font-mono">{vatText}</strong> thuế GTGT.
           </p>
           <p className="text-[11px] text-td-muted leading-relaxed">
-            Cọc sẽ được hoàn trả tự động 100% về tài khoản ban đầu trong vòng 24 giờ sau khi xe được nghiệm thu và không phát sinh vi phạm phạt nguội.
+            Cọc được giữ trong suốt chuyến đi. Sau khi trả xe và có biên bản kiểm định, hệ thống tạo yêu cầu hoàn cọc
+            và bộ phận vận hành duyệt đúng số tiền còn lại của cọc.
           </p>
         </div>
 
@@ -69,7 +80,7 @@ export function RentalPolicyPanel({
             </p>
           )}
           <p className="text-[11px] text-td-muted">
-            Hỗ trợ sạc nhanh khẩn cấp qua tổng đài hỗ trợ 24/7.
+            Mức pin và vạch xăng được ghi trong biên bản kiểm định trước và sau chuyến đi.
           </p>
         </div>
 
@@ -82,37 +93,39 @@ export function RentalPolicyPanel({
           <ul className="text-xs text-td-ink space-y-1">
             <li className="flex items-start gap-1.5">
               <span className="text-success font-bold">•</span>
-              <span>Trước 24h nhận xe: <strong>Miễn phí hủy</strong> (hoàn cọc 100%).</span>
+              <span>Trước 24h nhận xe: <strong>Miễn phí hủy</strong>, hoàn lại toàn bộ số tiền đã thanh toán.</span>
             </li>
             <li className="flex items-start gap-1.5">
               <span className="text-warning font-bold">•</span>
-              <span>Từ 12h – 24h: Phí hủy <strong>30%</strong> tiền cọc.</span>
+              <span>Sau mốc 24h hoặc không đến nhận xe: phí hủy <strong>20% tiền thuê bao gồm VAT</strong>; phần còn lại của số tiền đã thanh toán được hoàn.</span>
             </li>
             <li className="flex items-start gap-1.5">
-              <span className="text-danger font-bold">•</span>
-              <span>Dưới 12h hoặc không nhận xe: Phí hủy <strong>100%</strong> tiền cọc.</span>
+              <span className="text-td-muted font-bold">•</span>
+              <span>Chi nhánh hủy hoặc hệ thống tự động hủy đơn: không thu phí và hoàn lại toàn bộ số tiền đã thanh toán.</span>
             </li>
           </ul>
+          <p className="text-[11px] text-td-muted">
+            Số tiền hoàn không vượt quá số tiền bạn đã thanh toán. Con số cụ thể được hệ thống tính và hiển thị ngay trong hộp thoại hủy đơn trước khi bạn xác nhận.
+          </p>
         </div>
 
-        {/* 4. Phụ phí phát sinh & Vệ sinh */}
+        {/* 4. Phụ phí phát sinh */}
         <div className="rounded border border-td-rule bg-td-paper p-4 space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-td-ink">
             <Clock className="w-4 h-4 text-primary" />
-            <span>Phụ phí quá hạn & Vệ sinh</span>
+            <span>Phụ phí quá giờ &amp; hư hại</span>
           </div>
           <div className="text-xs text-td-ink space-y-1.5">
             <p>
-              Phí trễ hạn: <strong className="font-mono tabular-nums text-primary">{formatVnd(overtimeRate)}/giờ</strong> vượt quá thời gian hợp đồng.
+              Phí trả xe quá giờ: <strong className="font-mono text-primary">{overtimeText}</strong>, tính theo giờ làm tròn lên và miễn 15 phút đầu.
             </p>
-            <div className="flex items-center gap-1.5 text-[11px] text-td-muted">
-              <CigaretteOff className="w-3.5 h-3.5 text-danger shrink-0" />
-              <span>Phạt 500.000đ vi phạm hút thuốc (xe 100% không khói thuốc).</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-td-muted">
-              <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span>Phí vệ sinh chuyên sâu nội thất bẩn nặng: 150.000đ – 300.000đ.</span>
-            </div>
+            <p className="text-[11px] text-td-muted">
+              Phụ phí quá giờ trừ vào tiền đặt cọc trước; nếu vượt quá cọc, phần thiếu hụt được phát hành thành hóa đơn bổ sung có thời hạn thanh toán.
+            </p>
+            <p className="text-[11px] text-td-muted">
+              Hư hỏng, trầy xước, thiếu nhiên liệu hoặc vệ sinh được ghi nhận trong biên bản kiểm định khi trả xe.
+              Nhân viên căn cứ biên bản để xử lý và quyết toán riêng; hệ thống không tự trừ thêm khoản nào ngoài biên bản.
+            </p>
           </div>
         </div>
       </div>
