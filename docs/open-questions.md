@@ -4,6 +4,24 @@ Tài liệu này lưu trữ các câu hỏi mở, giả định thiết kế và
 
 ---
 
+## 0. Từ đợt rà soát 2026-10-23
+
+### 0.1 Cần xác nhận: mốc hết hạn đơn thuê (FR-042)
+
+Backend đang hiểu “hết hạn” là `expire_at = thời điểm đặt + 1 giờ` (cấu hình `Rental:Expiry:ApprovalWindowMinutes`), tức đơn đặt xa ngày nhận vẫn phải được duyệt **và** thanh toán trong vòng 1 giờ kể từ lúc đặt. Cách hiểu thay thế “hết hạn tại `start_time − 1 giờ`” chỉ cần đổi cách tính `rentals.expire_at` ở backend, không cần đổi schema hay state machine. FE hiển thị câu “còn … để đơn được duyệt và thanh toán” nên phải sửa cùng lúc nếu chốt cách hiểu khác. Chi tiết: `../Car-Rental-System-BE/docs/open-questions.md`.
+
+### 0.2 Cần xác nhận: role `Staff` có được làm nghiệp vụ chi nhánh?
+
+FR-007 và `docs/API.md` của backend xác định `Staff` chỉ là dấu hiệu nhân viên và policy danh sách đơn không gồm Staff, nhưng menu/route FE hiện cho `Staff` vào đơn thuê, bàn giao, kiểm tra xe, khách hàng/GPLX, lịch tài xế và theo dõi — các tài khoản chỉ có `Staff` sẽ nhận 403 ở mọi request. Đây là quyết định D1 trong `docs/specs/admin-role-simplification-plan.md`. Ma trận và hai phương án xử lý: `docs/rbac-permission-matrix.md`. Chưa tự đổi quyền vì vượt phạm vi đã chốt.
+
+### 0.3 Cần backend hỗ trợ: ảnh mặt sau GPLX
+
+Yêu cầu “xem trước mặt trước/mặt sau nếu có” chưa làm được vì `customer_license`/`CustomerLicense` chỉ có một trường ảnh (`imageUrl`). Muốn hai mặt phải thêm cột + endpoint + thay đổi biểu mẫu duyệt; FE hiện tại chỉ xử lý một ảnh và nêu rõ trong nhãn.
+
+### 0.4 Cần xác nhận: thông báo sắp hết hạn / đã hết hạn
+
+Chưa có mẫu email nào cho yêu cầu đặt xe sắp hết hạn hoặc đã hết hạn. Cần chốt có gửi email qua Brevo hay chỉ hiển thị trên giao diện trước khi bổ sung.
+
 ## 1. Hợp đồng đề xuất cho BE-34 — Đánh giá nhân viên / Tài xế (Gửi: Kiệt)
 
 * **Module FE:** FE-25 (Admin Staff Reviews / Quản trị đánh giá nhân sự & tài xế)

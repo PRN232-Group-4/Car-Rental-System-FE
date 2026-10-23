@@ -27,7 +27,9 @@ describe("real pricing and policy data", () => {
   });
   it("calculates from actual prices and policy", () => {
     render(<PriceBreakdown {...props} policy={policy} />);
-    expect(screen.getByText(formatVnd(264000))).toBeInTheDocument();
+    // Backend: cọc = tiền thuê × 20% (không gồm VAT) ⇒ 200.000 + 20.000 + 40.000 = 260.000.
+    // Xem docs/rental-deposit-penalty-audit.md và RentalMoneyReconciliationTests phía backend.
+    expect(screen.getByText(formatVnd(260000))).toBeInTheDocument();
     expect(screen.getByText("Thuế VAT (10%)")).toBeInTheDocument();
   });
   it("shows the overtime API rate as a percentage and no invented penalties", () => {

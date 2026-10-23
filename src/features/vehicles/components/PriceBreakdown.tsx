@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
 import { RentalPolicy } from "../types";
 import { formatVnd } from "@/lib/format";
@@ -13,72 +13,79 @@ export interface PriceBreakdownProps {
   hasDriver: boolean;
   rentalType: "hourly" | "longterm";
   policy?: RentalPolicy | null;
+  /** Phí tài xế mỗi ngày khi có nguồn dữ liệu; bỏ trống nghĩa là không cộng phụ phí tài xế. */
   driverFeePerDay?: number;
   className?: string;
 }
 
+/**
+ * Dự toán chi phí khớp công thức backend (`NpgsqlOperationsRepository.CreateRentalAsync`):
+ *   hourly   : tiền thuê = đơn giá giờ × số giờ
+ *   longterm : tiền thuê = đơn giá tháng × max(1, ceil(số giờ / 720))
+ *   VAT      = (tiền thuê + phí tài xế) × vat_rate%
+ *   cọc      = (tiền thuê + phí tài xế) × deposit_percentage% — **không** gồm VAT
+ *   hóa đơn  = tiền thuê + phí tài xế + VAT + cọc
+ * Ví dụ đối chiếu: 100.000/giờ × 2 giờ, VAT 10%, cọc 20% ⇒ thuê 200.000 · VAT 20.000 · cọc 40.000 · tổng 260.000
+ * (xem `docs/rental-deposit-penalty-audit.md`). Không hiển thị dự toán khi thiếu chính sách,
+ * thiếu đơn giá tháng cho thuê dài hạn, hoặc thiếu dữ liệu phí tài xế khi khách chọn có tài xế.
+ */
 export function PriceBreakdown({
   hourlyRate,
   monthlyRate,
   hours,
-  days,
-  hasDriver,
   rentalType,
+  hasDriver,
   policy,
   driverFeePerDay,
   className = "",
 }: PriceBreakdownProps) {
   const calculation = useMemo(() => {
-    if (!policy || (hasDriver && driverFeePerDay === undefined) || (rentalType === "longterm" && !monthlyRate)) return null;
+    // Thiếu chính sách thì không tự bịa tỷ lệ VAT/cọc.
+    if (!policy) return null;
+    if (hasDriver && driverFeePerDay === undefined) return null;
 
-    // 1. Tiền thuê cơ sở
-    const safeHours = Math.max(1, hours);
-    const safeDays = Math.max(1, days);
+    const billableHours = Math.max(0, hours);
+    const months = Math.max(1, Math.ceil(billableHours / 720));
+    const monthly = monthlyRate && monthlyRate > 0 ? monthlyRate : hourlyRate * 24 * 30;
+    if (rentalType === "hourly" && !(hourlyRate > 0)) return null;
+    if (rentalType === "longterm" && !(monthlyRate && monthlyRate > 0)) return null;
 
-    const baseRentalFee =
-      rentalType === "hourly"
-        ? Math.round(hourlyRate * safeHours)
-        : Math.round(
-            monthlyRate! *
-              (safeDays / 30)
-          );
+    const baseRentalFee = Math.round(
+      rentalType === "hourly" ? hourlyRate * billableHours : monthly * months
+    );
 
-    // 2. Phụ phí tài xế
-    const driverDays = Math.max(1, Math.ceil(safeHours / 24));
-    const driverFee = hasDriver ? driverFeePerDay! * driverDays : 0;
+    const driverDays = Math.max(1, Math.ceil(billableHours / 24));
+    const driverFee = hasDriver ? Math.round((driverFeePerDay ?? 0) * driverDays) : 0;
 
-    // 3. Thuế VAT
     const vatRate = policy.vatRate;
     const vatFee = Math.round((baseRentalFee + driverFee) * (vatRate / 100));
 
-    // 4. Tiền thuê dịch vụ (A)
-    const rentalSubtotal = baseRentalFee + driverFee + vatFee;
-
-    // 5. Tiền đặt cọc hoàn lại (B)
     const depositRate = policy.depositPercentage;
-    const depositAmount = Math.round(rentalSubtotal * (depositRate / 100));
-
-    // 6. Tổng dự toán tạm tính ban đầu (A + B)
-    const totalEstimated = rentalSubtotal + depositAmount;
+    const depositAmount = Math.round((baseRentalFee + driverFee) * (depositRate / 100));
 
     return {
-      safeHours,
-      safeDays,
+      billableHours,
+      months,
+      monthly,
       baseRentalFee,
       driverDays,
       driverFee,
       vatRate,
       vatFee,
-      rentalSubtotal,
       depositRate,
       depositAmount,
-      totalEstimated,
+      totalEstimated: baseRentalFee + driverFee + vatFee + depositAmount,
     };
-  }, [hourlyRate, monthlyRate, hours, days, hasDriver, rentalType, policy, driverFeePerDay]);
+  }, [hourlyRate, monthlyRate, hours, rentalType, hasDriver, policy, driverFeePerDay]);
 
   if (!calculation) {
     return <p role="status" data-testid="price-breakdown" className={`rounded border border-td-rule bg-td-paper p-4 text-xs text-td-muted ${className}`}>Chưa đủ bảng giá hoặc chính sách để dự toán chi phí. Vui lòng xem báo giá khi đặt xe.</p>;
   }
+
+  const rentLabel =
+    rentalType === "hourly"
+      ? `Tiền thuê xe (${calculation.billableHours.toLocaleString("vi-VN", { maximumFractionDigits: 2 })}h × ${formatVnd(hourlyRate)})`
+      : `Tiền thuê xe (${calculation.months} tháng × ${formatVnd(calculation.monthly)})`;
 
   return (
     <div
@@ -96,19 +103,17 @@ export function PriceBreakdown({
       <div className="space-y-2 text-td-ink">
         {/* Tiền thuê cơ sở */}
         <div className="flex items-center justify-between">
-          <span className="text-td-muted">
-            Tiền thuê xe ({rentalType === "hourly" ? `${calculation.safeHours}h × ${formatVnd(hourlyRate)}` : `${calculation.safeDays} ngày × ${formatVnd(monthlyRate!)} / 30`})
-          </span>
+          <span className="text-td-muted">{rentLabel}</span>
           <span className="font-mono tabular-nums font-semibold text-td-ink">
             {formatVnd(calculation.baseRentalFee)}
           </span>
         </div>
 
-        {/* Phụ phí tài xế nếu có */}
-        {hasDriver && (
+        {/* Phụ phí tài xế khi có dữ liệu */}
+        {calculation.driverFee > 0 && (
           <div className="flex items-center justify-between">
             <span className="text-td-muted">
-              Tài xế riêng ({calculation.driverDays} ngày × {formatVnd(driverFeePerDay!)})
+              Tài xế riêng ({calculation.driverDays} ngày × {formatVnd(driverFeePerDay ?? 0)})
             </span>
             <span className="font-mono tabular-nums font-semibold text-td-ink">
               {formatVnd(calculation.driverFee)}
@@ -124,11 +129,11 @@ export function PriceBreakdown({
           </span>
         </div>
 
-        {/* Tổng tiền thuê dịch vụ (A) */}
+        {/* Tiền thuê dịch vụ (A) */}
         <div className="flex items-center justify-between border-t border-td-rule/60 pt-2 font-bold text-td-ink">
           <span>Tiền thuê chuyến xe (A)</span>
           <span className="font-mono tabular-nums text-primary text-sm">
-            {formatVnd(calculation.rentalSubtotal)}
+            {formatVnd(calculation.baseRentalFee + calculation.driverFee + calculation.vatFee)}
           </span>
         </div>
 
@@ -142,7 +147,7 @@ export function PriceBreakdown({
               </span>
             </div>
             <p className="text-[10px] text-td-muted mt-0.5">
-              Hoàn cọc theo kết quả kiểm tra và quyết toán khi trả xe
+              Tính trên tiền thuê (không gồm VAT); hoàn cọc theo kết quả kiểm tra và quyết toán khi trả xe
             </p>
           </div>
           <span className="font-mono tabular-nums font-bold text-td-ink">
@@ -167,7 +172,7 @@ export function PriceBreakdown({
       {/* Cam kết minh bạch */}
       <div className="flex items-center gap-1.5 text-[11px] text-td-muted pt-1">
         <ShieldCheck className="w-3.5 h-3.5 text-success shrink-0" />
-        <span>Dự toán theo bảng giá và chính sách hiện hành.</span>
+        <span>Dự toán theo bảng giá và chính sách hiện hành; số tiền chính thức do máy chủ xác nhận trên đơn thuê và hóa đơn.</span>
       </div>
     </div>
   );

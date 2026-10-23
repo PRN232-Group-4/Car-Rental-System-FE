@@ -11,7 +11,7 @@ export type OperationalRental = RentalContract & {
 };
 
 export const canAssignRental = (status: string) => ["pre_inspection", "renting"].includes(status);
-export const isClosedRental = (status: string) => ["cancelled", "completed"].includes(status);
+export const isClosedRental = (status: string) => ["cancelled", "completed", "expired"].includes(status);
 
 export function rentalTransitionBlocker(rental: Pick<OperationalRental, "status" | "hasPassingPreInspection" | "hasPostInspection"> & Partial<Pick<OperationalRental, "rentalType" | "hasUploadedContract">>, status: string): string | null {
   if (isClosedRental(rental.status)) return "Đơn thuê đã kết thúc, không thể thay đổi trạng thái.";
@@ -116,6 +116,7 @@ export async function uploadInspectionImage(file: File) {
 export const rentalStatuses: Record<string, string> = {
   pending: "Chờ xử lý", pre_inspection: "Kiểm tra trước thuê", renting: "Đang thuê",
   overdue: "Quá hạn", post_inspection: "Kiểm tra sau thuê", completed: "Hoàn tất", cancelled: "Đã hủy",
+  expired: "Hết hạn",
 };
 export const operationsInput = "admin-input mt-2 w-full";
 export const operationsButton = "inline-flex min-h-11 items-center justify-center gap-2 rounded bg-td-oxide px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-td-oxide-hover disabled:cursor-not-allowed disabled:opacity-50";

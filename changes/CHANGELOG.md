@@ -1,5 +1,8 @@
 # Changelog
-
+- 2026-10-23 — [Xem trước ảnh GPLX khi upload](2026-10-23-license-upload-preview.md)
+- 2026-10-23 — [Hết hạn đơn chưa duyệt/chưa thanh toán trên giao diện khách](2026-10-23-rental-expiry-ui.md)
+- 2026-10-23 — [Đối chiếu tiền cọc/phạt và sửa dự toán giá](2026-10-23-deposit-penalty-reconciliation.md)
+- 2026-10-23 — [Rà soát account/role và ma trận phân quyền](2026-10-23-rbac-matrix-audit.md)
 - 2026-10-23 — [Hạng bằng yêu cầu trên card và chi tiết xe](2026-10-23-vehicle-license-requirements.md)
 - 2026-10-23 — [Tải hợp đồng dài hạn đã ký](2026-10-23-signed-contract-upload-ui.md)
 - 2026-10-23 — [Kỹ thuật viên và thanh toán ngay trong checklist](2026-10-23-inline-checklist-controls.md)

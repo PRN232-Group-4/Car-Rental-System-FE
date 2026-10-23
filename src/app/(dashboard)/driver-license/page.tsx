@@ -1,24 +1,22 @@
 "use client";
 
-import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+import { ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
-import React, { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
+import React, { Suspense, useState } from "react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   FileCheck,
   ShieldCheck,
   AlertCircle,
-  Upload,
   CheckCircle2,
-  Camera,
   Loader2,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
 import { customerLicenses, hasCustomerLicense } from "@/features/licenses/booking-license";
 import BookingLicenseReturn from "@/features/licenses/components/BookingLicenseReturn";
+import LicenseImageField from "@/features/licenses/components/LicenseImageField";
 
 export default function GPLXPage() {
   const queryClient = useQueryClient();
@@ -111,32 +109,8 @@ function LicenseEditForm({
   const [licenseType, setLicenseType] = useState(() => license?.type || "B2");
   const [issueDate, setIssueDate] = useState(() => license?.issueDate || "");
   const [expiryDate, setExpiryDate] = useState(() => license?.expiryDate || "");
-  const [imagePreview, setImagePreview] = useState<string | null>(() => license?.imageUrl || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
-    };
-  }, [imagePreview]);
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/") || file.size === 0 || file.size > 5 * 1024 * 1024) {
-      setSelectedFile(null);
-      setImagePreview(license?.imageUrl ?? null);
-      e.target.value = "";
-      validation.setField("file", "Vui lòng chọn tệp ảnh có nội dung và không vượt quá 5 MB.");
-      return;
-    }
-
-    validation.clear("file");
-    setSelectedFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
 
   const saveMutation = useMutation({
     onMutate: () => onSavingChange(true),
@@ -168,9 +142,6 @@ function LicenseEditForm({
       void queryClient.invalidateQueries({ queryKey: ["customer-license"] });
       onSaved(savedLicense);
       setSelectedFile(null);
-      setImagePreview(savedLicense.imageUrl ?? null);
-      const input = document.getElementById("customer-license-image") as HTMLInputElement | null;
-      if (input) input.value = "";
       setStatusMessage({
         text: "Hồ sơ GPLX đã được gửi lên hệ thống và đang trong quá trình xét duyệt.",
         type: "success",
@@ -272,50 +243,17 @@ function LicenseEditForm({
         </div>
       </div>
 
-      {/* License Photo Upload & Preview */}
-      <div>
-        <label htmlFor="customer-license-image" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
-          Ảnh chụp mặt trước giấy phép lái xe *
-        </label>
-        <div className="mt-2 flex flex-col sm:flex-row items-center gap-6 p-6 rounded border-2 border-dashed border-td-rule bg-td-chalk/50 hover:bg-td-chalk transition-colors">
-          {imagePreview ? (
-            <div className="relative w-48 h-32 rounded overflow-hidden border border-td-rule bg-td-white shrink-0 shadow-xs">
-              <Image
-                src={imagePreview}
-                alt="Ảnh GPLX"
-                fill
-                sizes="192px"
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-          ) : (
-            <div className="w-48 h-32 rounded bg-td-chalk flex flex-col items-center justify-center text-td-muted shrink-0 border border-td-rule">
-              <Camera className="w-8 h-8 mb-1" />
-              <span className="text-xs font-semibold">Chưa có ảnh</span>
-            </div>
-          )}
-
-          <div className="space-y-2 flex-1 text-center sm:text-left">
-            <button type="button" data-validation-field="file" aria-describedby={validation.errors.file ? "customer-license-image-error" : undefined} onClick={() => document.getElementById("customer-license-image")?.click()} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded bg-td-white border ${validation.errors.file ? "border-danger" : "border-td-rule"} hover:border-td-rule text-td-ink text-xs font-bold cursor-pointer shadow-xs transition-all`}>
-              <Upload className="w-3.5 h-3.5 text-td-muted" />
-              <span>Chọn ảnh từ thiết bị</span>
-            </button>
-              <InlineInput showError={false} name="file" id="customer-license-image"
-                type="file"
-                aria-required="true"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            <p className="text-xs text-td-muted">
-              Định dạng JPG, PNG · Tối đa 5 MB. Ảnh chụp rõ mặt trước, không bị loá sáng hay che khuất thông tin.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <InlineError name="file" inputId="customer-license-image" />
+      <LicenseImageField
+        label="Ảnh chụp mặt trước giấy phép lái xe *"
+        name="file"
+        inputId="customer-license-image"
+        validation={validation}
+        value={selectedFile}
+        onChange={setSelectedFile}
+        existingUrl={license?.imageUrl ?? null}
+        disabled={saveMutation.isPending}
+        busy={saveMutation.isPending}
+      />
       </fieldset>
       {/* Action Button */}
       <div className="pt-4 border-t border-td-rule flex items-center justify-end">

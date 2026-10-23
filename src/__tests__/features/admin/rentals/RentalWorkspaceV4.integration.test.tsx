@@ -635,7 +635,9 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Giám sát vị trí trạm & Tín hiệu xe")).toBeInTheDocument();
-        expect(screen.getByText("Đã xác thực chữ ký điện tử")).toBeInTheDocument();
+        // Nhãn “Đã xác thực chữ ký điện tử” cũ đã bị bỏ; trạng thái hợp đồng nay nêu đúng dữ liệu thật
+    // (không bắt buộc với đơn theo giờ, chưa/đã có file với đơn dài hạn), nên khẳng định theo các nhãn đó.
+    expect(screen.getByText(/Không bắt buộc tải hợp đồng dài hạn|Chưa tải hợp đồng đã ký|Đã có file hợp đồng đã ký|Hợp đồng đã ký|Tài liệu hợp đồng|Chưa ghi nhận ngày ký/)).toBeInTheDocument();
       });
 
       // Unsubstantiated claims are absent

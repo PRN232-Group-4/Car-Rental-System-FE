@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
 vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client, isMockMode: false }));
-import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, updateRentalContract, uploadRentalContract } from "./api";
+import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, toRentalRequest, updateRentalContract, uploadRentalContract } from "./api";
 
 beforeEach(() => vi.resetAllMocks());
 it("reads every policy page after the list contract changes to pagination", async () => {
