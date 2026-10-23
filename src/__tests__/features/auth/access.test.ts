@@ -112,6 +112,20 @@ describe("access.ts (RBAC Permissions & Route Access)", () => {
       expect(canAccessRoute("/admin/policies", csRoles)).toBe(false);
     });
 
+    /**
+     * Bất biến: mọi role mà quy tắc route cho phép vào `/admin/reports` phải vào được cả trang chi tiết
+     * `/admin/reports/detail` — trang này chỉ đi tiếp từ danh sách báo cáo sự cố.
+     * Trước đây cổng `AuthGate` của trang chi tiết thiếu `Maintenance` nên role này bị chặn giữa đường.
+     */
+    it("keeps the report detail page open for every role the report list allows", () => {
+      for (const role of ["Staff", "CustomerService", "Maintenance", "Manager"]) {
+        expect(canAccessRoute("/admin/reports", [role])).toBe(true);
+        expect(canAccessRoute("/admin/reports/detail", [role])).toBe(true);
+      }
+      expect(canAccessRoute("/admin/reports/detail", ["Customer"])).toBe(false);
+      expect(canAccessRoute("/admin/reports/detail", null)).toBe(false);
+    });
+
     it("allows Driver, Admin, Manager, Staff on /staff portal", () => {
       expect(canAccessRoute("/staff", ["Driver"])).toBe(true);
       expect(canAccessRoute("/staff", ["Admin"])).toBe(true);

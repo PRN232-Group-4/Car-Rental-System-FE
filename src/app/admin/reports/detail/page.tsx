@@ -18,7 +18,7 @@ export default function ReportDetailPage() {
   const { data: report, isLoading, isError, refetch } = useReport(reportId);
 
   return (
-    <AuthGate allowedRoles={["Admin", "Manager", "Staff", "CustomerService"]}>
+    <AuthGate allowedRoles={["Admin", "Manager", "Staff", "CustomerService", "Maintenance"]}>
         <div className="space-y-6">
           {/* Breadcrumb / Back button */}
           <div>
