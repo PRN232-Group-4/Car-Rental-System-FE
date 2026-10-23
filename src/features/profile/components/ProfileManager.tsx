@@ -1,22 +1,20 @@
 "use client";
 
-import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+import { ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
-import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
+import { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import {
   AlertCircle,
   BadgeCheck,
   Check,
   Clock3,
-  FileText,
   Mail,
   Phone,
   ShieldCheck,
   Upload,
   UserRound,
-  X,
 } from "lucide-react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -27,12 +25,10 @@ import {
 } from "../api";
 import { saveCustomerLicense } from "@/features/licenses/api";
 import { hasCustomerLicense } from "@/features/licenses/booking-license";
+import LicenseImageField from "@/features/licenses/components/LicenseImageField";
 import { ApiClientError } from "@/api/api-client";
 import { useAuth } from "@/features/auth";
 import ChangePasswordForm from "./ChangePasswordForm";
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 type ProfileDetails = {
   fullName: string;
@@ -44,7 +40,6 @@ type ProfileDetails = {
 export default function ProfileManager() {
   const router = useRouter();
   const { isLoading: authLoading, isAuthenticated } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [details, setDetails] = useState<ProfileDetails>({
     fullName: "",
     email: "",
@@ -59,7 +54,6 @@ export default function ProfileManager() {
   const [licenseStatus, setLicenseStatus] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const validation = useInlineValidation();
   const profileValidation = useInlineValidation();
   const [fileError, setFileError] = useState("");
@@ -125,38 +119,6 @@ export default function ProfileManager() {
     setProfileSaved(false);
   };
 
-  const selectFile = (file?: File) => {
-    setFileError("");
-    if (!file) return;
-
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      setSelectedFile(null);
-      validation.setField("imageUrl", "Vui lòng chọn ảnh JPG, PNG hoặc WEBP.");
-      return;
-    }
-
-    if (file.size === 0 || file.size > MAX_FILE_SIZE) {
-      setSelectedFile(null);
-      validation.setField("imageUrl", "Vui lòng chọn tệp ảnh có nội dung và không vượt quá 5 MB.");
-      return;
-    }
-
-    validation.clear("imageUrl");
-    setSelectedFile(file);
-    setFileError("");
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    selectFile(event.currentTarget.files?.[0]);
-    event.currentTarget.value = "";
-  };
-
-  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-    selectFile(event.dataTransfer.files[0]);
-  };
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isSubmittingLicense || isLoading || isPendingStatus(licenseStatus)) return;
@@ -211,11 +173,6 @@ export default function ProfileManager() {
     }
   };
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    setFileError("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
   const statusLabel = formatLicenseStatus(licenseStatus);
   const hasPendingStatus = isPendingStatus(licenseStatus) || isPending;
 
@@ -389,73 +346,16 @@ export default function ProfileManager() {
                   <label className="block text-sm font-semibold text-td-ink">Ngày cấp *<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
                   <label className="block text-sm font-semibold text-td-ink">Ngày hết hạn *<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
                 </div>
-                <p id="license-file-label" className="mb-2 text-sm font-semibold text-td-ink">Ảnh giấy phép lái xe *</p>
-                <label
-                  htmlFor="license-file"
-                  data-validation-field="imageUrl"
-                  tabIndex={0}
-                  role="button"
-                  aria-labelledby="license-file-label"
-                  aria-describedby={validation.errors.imageUrl ? "license-file-error" : undefined}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      fileInputRef.current?.click();
-                    }
-                  }}
-                  onDragOver={(event) => {
-                    event.preventDefault();
-                    setIsDragging(true);
-                  }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  className={`flex min-h-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed px-5 py-7 text-center transition ${
-                    validation.errors.imageUrl
-                      ? "border-danger"
-                      : isDragging
-                      ? "border-primary bg-primary/10"
-                      : "border-td-rule bg-td-white/50 hover:border-primary/50 hover:bg-primary/5"
-                  }`}
-                >
-                  <InlineInput showError={false} name="imageUrl"
-                    ref={fileInputRef}
-                    id="license-file"
-                    type="file"
-                    aria-required="true"
-                    aria-labelledby="license-file-label"
-                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                    onChange={handleFileChange}
-                    className="sr-only"
-                  />
-                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded bg-td-white text-primary shadow-sm">
-                    <Upload className="h-5 w-5" />
-                  </span>
-                  <span className="text-sm font-bold text-td-ink">
-                    {selectedFile ? "Chọn tệp khác" : "Nhấn để tải lên hoặc kéo thả tệp"}
-                  </span>
-                  <span className="mt-2 text-xs text-td-muted">JPG, PNG hoặc WEBP · Tối đa 5 MB</span>
-                </label>
-
-                <InlineError name="imageUrl" inputId="license-file" />
-                {(selectedFile || licenseImageUrl) && (
-                  <div className="mt-4 flex items-center gap-3 rounded border border-td-rule bg-td-white/70 p-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
-                      <FileText className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-td-ink">{selectedFile?.name ?? "Ảnh giấy phép đã tải lên"}</p>
-                      <p className="text-xs text-td-muted">{selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : licenseStatus || "Đã lưu"}</p>
-                    </div>
-                    {selectedFile && <button
-                      type="button"
-                      onClick={removeFile}
-                      className="rounded p-2 text-td-muted transition hover:bg-td-chalk hover:text-td-ink focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label="Xóa tệp đã chọn"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>}
-                  </div>
-                )}
+                <LicenseImageField
+                  label="Ảnh giấy phép lái xe *"
+                  name="imageUrl"
+                  inputId="license-file"
+                  validation={validation}
+                  value={selectedFile}
+                  onChange={setSelectedFile}
+                  existingUrl={licenseImageUrl || null}
+                  busy={isSubmittingLicense}
+                />
 
                 {fileError && (
                   <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-danger">
