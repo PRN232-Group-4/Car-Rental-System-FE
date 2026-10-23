@@ -1,4 +1,7 @@
 # Changelog
+- 2026-10-23 — [Loading dùng chung cho Admin/Customer và dashboard doanh thu – lượt thuê](2026-10-23-loading-and-dashboard-polish.md)
+- 2026-10-23 — [Kiểm tra UI/UX phía Customer](2026-10-23-customer-ui-ux-audit.md)
+- 2026-10-23 — [Kiểm tra và dọn dữ liệu giả](2026-10-23-mock-data-cleanup.md)
 - 2026-10-23 — [Xem trước ảnh GPLX khi upload](2026-10-23-license-upload-preview.md)
 - 2026-10-23 — [Hết hạn đơn chưa duyệt/chưa thanh toán trên giao diện khách](2026-10-23-rental-expiry-ui.md)
 - 2026-10-23 — [Đối chiếu tiền cọc/phạt và sửa dự toán giá](2026-10-23-deposit-penalty-reconciliation.md)
