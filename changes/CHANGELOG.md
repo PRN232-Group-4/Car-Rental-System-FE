@@ -1,4 +1,8 @@
 # Changelog
+- 2026-10-23 — [Xem trước ảnh GPLX khi upload](2026-10-23-license-upload-preview.md)
+- 2026-10-23 — [Hết hạn đơn chưa duyệt/chưa thanh toán trên giao diện khách](2026-10-23-rental-expiry-ui.md)
+- 2026-10-23 — [Đối chiếu tiền cọc/phạt và sửa dự toán giá](2026-10-23-deposit-penalty-reconciliation.md)
+- 2026-10-23 — [Rà soát account/role và ma trận phân quyền](2026-10-23-rbac-matrix-audit.md)
 - 2026-10-22 — [Hiển thị mã đơn chính thức trong Admin](2026-10-22-visible-official-order.md)
 - 2026-10-22 — [Khởi động backend local mới cho inspect sau trả](2026-10-22-local-post-inspection-runtime.md)
 - 2026-10-22 — [Phân công và Đã inspect sau trả xe](2026-10-22-post-inspection-dispatch.md)
