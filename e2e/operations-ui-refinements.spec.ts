@@ -9,7 +9,7 @@ async function mockApi(page: Page, role: string) {
   await page.route("**/api/**", async route => {
     const path = new URL(route.request().url()).pathname;
     if (route.request().method() !== "GET") {
-      expect(path).toBe("/api/rentals/111/return");
+      expect(path).toBe("/api/rental/111/return");
       transitions++;
       status = "post_inspection";
       return route.fulfill({ json: envelope({ rentalId: 111, toStatus: status }) });
@@ -18,9 +18,9 @@ async function mockApi(page: Page, role: string) {
       : path === "/api/payments" ? [{ id: 30, rentalId: 111, invoiceId: 55, type: "rental", status: "paid", amount: 100000, method: "cash", createdAt: "2026-10-23T03:00:00Z", paidAt: "2026-10-23T03:00:00Z" }]
       : path === "/api/vehicle-types" ? [{ id: 1, name: "Ô tô", type: "car", fuelType: "gasoline" }]
       : path === "/api/facilities" ? [{ id: 2, name: "Thủ Đức" }]
-      : path === "/api/vehicles/8" ? { id: 8, vehicleTypeId: 1, brand: "Toyota", model: "Vios", facilityId: 2, status: "available", allowedLicenseTypes: ["B", "B2"], detail: {} }
-      : path === "/api/rentals/111" ? rental()
-      : path === "/api/rentals/111/detail" ? { rental: { ...rental(), scheduledEnd: rental().endTime }, settlement: null }
+      : path === "/api/vehicle/8" ? { id: 8, vehicleTypeId: 1, brand: "Toyota", model: "Vios", facilityId: 2, status: "available", allowedLicenseTypes: ["B", "B2"], detail: {} }
+      : path === "/api/rental/111" ? rental()
+      : path === "/api/rental/111/detail" ? { rental: { ...rental(), scheduledEnd: rental().endTime }, settlement: null }
       : path === "/api/rentals" ? { items: [rental()], totalCount: 1, page: 1, pageSize: 20 }
       : path.endsWith("/inspection-assignment") ? null : { items: [], totalCount: 0, page: 1, pageSize: 20 };
     return route.fulfill({ json: envelope(data) });

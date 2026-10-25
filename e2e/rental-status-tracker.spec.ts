@@ -6,8 +6,8 @@ test("customer sees actual rental milestones on desktop and mobile", async ({ pa
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const data = path.endsWith("/account/profile") ? { fullName: "Customer", email: "customer@test.local", roles: ["Customer"] }
-      : path.endsWith("/rentals/42") ? { id: 42, orderId: 88, vehicleId: 8, status: "renting", rentalType: "longterm", totalPrice: 3000000, isSubscription: false }
-        : path.endsWith("/vehicles/8") ? { id: 8, brand: "Toyota", model: "Vios" } : [];
+      : path.endsWith("/rental/42") ? { id: 42, orderId: 88, vehicleId: 8, status: "renting", rentalType: "longterm", totalPrice: 3000000, isSubscription: false }
+        : path.endsWith("/vehicle/8") ? { id: 8, brand: "Toyota", model: "Vios" } : [];
     return route.fulfill({ json: envelope(data) });
   });
   await page.goto("/rental-contract?rentalId=42");
@@ -42,8 +42,8 @@ test("staff preparation milestone does not assert payment or official order", as
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const data = path.endsWith("/account/profile") ? { fullName: "Manager", email: "manager@test.local", roles: ["Manager"] }
-      : path.endsWith("/rentals/42") ? { id: 42, orderId: null, customerId: 3, vehicleId: 8, status: "pre_inspection", rentalType: "hourly", totalPrice: 3000000, isSubscription: false }
-        : path.endsWith("/vehicles/8") ? { id: 8, brand: "Toyota", model: "Vios" }
+      : path.endsWith("/rental/42") ? { id: 42, orderId: null, customerId: 3, vehicleId: 8, status: "pre_inspection", rentalType: "hourly", totalPrice: 3000000, isSubscription: false }
+        : path.endsWith("/vehicle/8") ? { id: 8, brand: "Toyota", model: "Vios" }
           : path.endsWith("/staff/drivers") || path.endsWith("/rentals") ? { items: [], totalCount: 0 } : [];
     return route.fulfill({ json: envelope(data) });
   });
@@ -61,8 +61,8 @@ test("cancelled customer rental stops without fabricating prior progress", async
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const data = path.endsWith("/account/profile") ? { fullName: "Customer", email: "customer@test.local", roles: ["Customer"] }
-      : path.endsWith("/rentals/42") ? { id: 42, vehicleId: 8, status: "cancelled", rentalType: "longterm", totalPrice: 3000000, isSubscription: false }
-        : path.endsWith("/vehicles/8") ? { id: 8, brand: "Toyota", model: "Vios" } : [];
+      : path.endsWith("/rental/42") ? { id: 42, vehicleId: 8, status: "cancelled", rentalType: "longterm", totalPrice: 3000000, isSubscription: false }
+        : path.endsWith("/vehicle/8") ? { id: 8, brand: "Toyota", model: "Vios" } : [];
     return route.fulfill({ json: envelope(data) });
   });
   await page.goto("/rental-contract?rentalId=42");

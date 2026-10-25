@@ -208,11 +208,11 @@ export async function getDriverSchedules(params: { from?: string; to?: string; d
 }
 
 export function getAssignableDrivers(rentalId: number): Promise<AssignableDriver[]> {
-  return backendApiClient.get<AssignableDriver[]>(`rentals/${rentalId}/assignable-drivers`, { eligibleOnly: false });
+  return backendApiClient.get<AssignableDriver[]>(`rental/${rentalId}/assignable-drivers`, { eligibleOnly: false });
 }
 
 export async function assignDriverToRental(input: AssignDriverInput): Promise<void> {
-  await backendApiClient.post(`rentals/${input.rentalId}/assignments/driver`, {
+  await backendApiClient.post(`rental/${input.rentalId}/assignments/driver`, {
     driverStaffId: input.driverStaffId, reason: input.reason, note: input.notes,
   });
 }

@@ -82,7 +82,7 @@ export async function getAdminUsers(params: UserFilterParams = {}): Promise<User
 
 export async function getAdminUserById(id: number): Promise<AdminUserDetail | null> {
   let record: AdministrativeUser;
-  try { record = await backendApiClient.get<AdministrativeUser>(`users/${id}`); }
+  try { record = await backendApiClient.get<AdministrativeUser>(`user/${id}`); }
   catch (error) {
     if (error instanceof ApiProblemError && error.status === 404) return null;
     throw error;
@@ -94,7 +94,7 @@ export async function getAdminUserById(id: number): Promise<AdminUserDetail | nu
       user.staff = { id: staff.id, department: staff.departmentName ?? undefined, facility: staff.facilityName ?? undefined,
         isDriver: user.roles.includes("Driver"), licenseExpiry: staff.licenseExpiryDate ?? undefined, rating: staff.rating ?? undefined };
     }),
-    record.customerId == null ? Promise.resolve() : backendApiClient.get<CustomerDetail>(`customers/${record.customerId}`).then((customer) => {
+    record.customerId == null ? Promise.resolve() : backendApiClient.get<CustomerDetail>(`customer/${record.customerId}`).then((customer) => {
       user.customer = { id: customer.id, licenseStatus: customer.license.status,
         licenseNumber: customer.license.number ?? undefined, licenseType: customer.license.type ?? undefined,
         licenseExpiry: customer.license.expiryDate ?? undefined, licenseImgUrl: customer.license.imageUrl ?? undefined,
@@ -110,7 +110,7 @@ export async function setUserActiveStatus(input: {
   if (!input.isActive && input.currentActorId === input.userId) throw problem(409, "Bạn không thể tự khóa tài khoản quản trị của chính mình.");
   const reason = input.reason?.trim() || (input.isActive ? "Mở khóa tài khoản theo xác nhận của quản trị viên." : "");
   if (!reason || reason.length > 1000) throw problem(400, "Vui lòng nhập lý do khóa tài khoản từ 1 đến 1000 ký tự.");
-  return mapAdministrativeUser(await backendApiClient.patch<AdministrativeUser>(`users/${input.userId}/status`, { isActive: input.isActive, reason }));
+  return mapAdministrativeUser(await backendApiClient.patch<AdministrativeUser>(`user/${input.userId}/status`, { isActive: input.isActive, reason }));
 }
 
 export async function assignUserRole({
@@ -127,7 +127,7 @@ export async function assignUserRole({
     throw problem(409, "Bạn không thể tự gán thêm vai trò cho chính mình. Thao tác này yêu cầu kiểm soát chéo từ quản trị viên khác.");
   }
   try {
-    return mapAdministrativeUser(await backendApiClient.post<AdministrativeUser>(`users/${userId}/roles`, { role }));
+    return mapAdministrativeUser(await backendApiClient.post<AdministrativeUser>(`user/${userId}/roles`, { role }));
   } catch (error) {
     if (error instanceof ApiProblemError && error.detail && /employee profile is required/i.test(error.detail)) {
       throw new ApiProblemError(error.status, "Yêu cầu hồ sơ nhân viên", {
@@ -142,19 +142,19 @@ export async function assignUserRole({
 export async function removeUserRole(input: { userId: number; role: Role; currentActorId?: number; currentActorEmail?: string }): Promise<AdminUserDetail> {
   if (!ROLES.includes(input.role)) throw problem(400, `Vai trò '${input.role}' không tồn tại trong danh mục hệ thống.`);
   if (input.role === "Admin" && input.userId === input.currentActorId) throw problem(409, "Bạn không thể tự gỡ vai trò Quản trị viên (Admin) của chính mình.");
-  return mapAdministrativeUser(await backendApiClient.delete<AdministrativeUser>(`users/${input.userId}/roles`, { body: JSON.stringify({ role: input.role }) }));
+  return mapAdministrativeUser(await backendApiClient.delete<AdministrativeUser>(`user/${input.userId}/roles`, { body: JSON.stringify({ role: input.role }) }));
 }
 
 export async function revokeUserSessions(userId: number): Promise<{ success: boolean }> {
-  await backendApiClient.post(`users/${userId}/sessions/revoke`);
+  await backendApiClient.post(`user/${userId}/sessions/revoke`);
   return { success: true };
 }
 
 export async function reviewCustomerLicense({ customerId, status }: { customerId: number; status: "approved" | "rejected" }): Promise<void> {
-  await backendApiClient.put(`customers/${customerId}/license-status`, { status });
+  await backendApiClient.put(`customer/${customerId}/license-status`, { status });
 }
 
 export async function adjustCustomerLoyalty({ customerId, points, reason, idempotencyKey }: { customerId: number; points: number; reason: string; idempotencyKey: string }): Promise<void> {
   if (!Number.isInteger(points) || points === 0) throw problem(400, "Số điểm điều chỉnh phải là số nguyên khác 0.");
-  await backendApiClient.post(`customers/${customerId}/loyalty/adjustments`, { points, reason: reason.trim(), idempotencyKey });
+  await backendApiClient.post(`customer/${customerId}/loyalty/adjustments`, { points, reason: reason.trim(), idempotencyKey });
 }

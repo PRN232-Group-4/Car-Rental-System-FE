@@ -59,17 +59,17 @@ export async function fetchReportDetail(id: number): Promise<ReportDetail> {
 }
 
 export function resolveReport(id: number): Promise<void> {
-  return backendApiClient.post<void>(`reports/${id}/resolve`);
+  return backendApiClient.post<void>(`report/${id}/resolve`);
 }
 
 export async function updateReportStatus(id: number, status: ReportStatus): Promise<ReportDetail> {
-  if (status !== "resolved") return unsupportedApi("tiếp nhận hoặc từ chối báo cáo (cần PATCH /api/reports/{id}/status)");
+  if (status !== "resolved") return unsupportedApi("tiếp nhận hoặc từ chối báo cáo (cần PATCH /api/report/{id}/status)");
   await resolveReport(id);
   return fetchReportDetail(id);
 }
 
 export async function createMaintenanceFromReport(payload: CreateMaintenancePayload): Promise<void> {
-  await backendApiClient.post(`reports/${payload.reportId}/maintenance`, {
+  await backendApiClient.post(`report/${payload.reportId}/maintenance`, {
     assignedStaffId: payload.assignedStaffId, facilityId: payload.facilityId, scheduledDate: payload.scheduledDate,
   });
 }

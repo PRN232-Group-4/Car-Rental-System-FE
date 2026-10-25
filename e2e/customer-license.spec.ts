@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
       const records = search ? customers.filter((customer) => customer.email.includes(search)) : customers;
       const pageNumber = Number(url.searchParams.get("Page") ?? 1);
       data = { items: records.slice((pageNumber - 1) * 100, pageNumber * 100), totalCount: records.length, page: pageNumber, pageSize: 100 };
-    } else if (/\/customers\/\d+$/.test(url.pathname)) {
+    } else if (/\/customer\/\d+$/.test(url.pathname)) {
       const id = Number(url.pathname.split("/").at(-1));
       data = { ...customers.find((customer) => customer.id === id), license };
     } else if (route.request().method() !== "GET") return route.fulfill({ status: 400, json: { detail: "Unexpected test mutation" } });
@@ -48,11 +48,11 @@ test("filters all backend pages, resets filters and submits a confirmed customer
   await dialog.locator("#license-review-status").selectOption("approved");
   await expect(dialog.locator("#license-review-confirm-error")).toBeVisible();
   await dialog.locator("#license-review-confirm").check();
-  await page.route("**/api/customers/101/license-status", (route) => route.fulfill({ status: 400, json: { is_success: false, error: { errors: { "request.Status": ["Vui lòng kiểm tra lại kết quả duyệt."] } } } }));
+  await page.route("**/api/customer/101/license-status", (route) => route.fulfill({ status: 400, json: { is_success: false, error: { errors: { "request.Status": ["Vui lòng kiểm tra lại kết quả duyệt."] } } } }));
   await dialog.getByRole("button", { name: "Lưu trạng thái", exact: true }).click();
   await expect(dialog.locator("#license-review-status-error")).toHaveText("Vui lòng kiểm tra lại kết quả duyệt.");
   await expect(dialog.locator("#license-review-confirm")).toBeChecked();
-  await page.route("**/api/customers/101/license-status", (route) => { expect(route.request().postDataJSON()).toEqual({ status: "rejected" }); return route.fulfill({ json: envelope({ ...license, status: "rejected" }) }); });
+  await page.route("**/api/customer/101/license-status", (route) => { expect(route.request().postDataJSON()).toEqual({ status: "rejected" }); return route.fulfill({ json: envelope({ ...license, status: "rejected" }) }); });
   await dialog.locator("#license-review-status").selectOption("rejected");
   await dialog.getByRole("button", { name: "Lưu trạng thái", exact: true }).click();
   await expect(dialog).toHaveCount(0);
@@ -68,7 +68,7 @@ test("mobile dialog keeps values after network failure and fits the viewport", a
   const dialog = page.getByRole("dialog");
   await dialog.locator("#license-review-status").selectOption("approved");
   await dialog.locator("#license-review-confirm").check();
-  await page.route("**/api/customers/101/license-status", (route) => route.abort("failed"));
+  await page.route("**/api/customer/101/license-status", (route) => route.abort("failed"));
   await dialog.getByRole("button", { name: "Lưu trạng thái", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("Không thể kết nối máy chủ");
   await expect(dialog.locator("#license-review-status")).toHaveValue("approved");

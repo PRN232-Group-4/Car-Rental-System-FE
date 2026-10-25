@@ -43,19 +43,19 @@ it("queries availability by time and reads all vehicle pages", async () => {
 it("records a contract with the deployed request fields", async () => {
   client.put.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
   const result = await updateRentalContract(321, "https://example.com/a.pdf", "2026-10-10T03:00:00Z");
-  expect(client.put).toHaveBeenCalledWith("rentals/321/contract", { contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
+  expect(client.put).toHaveBeenCalledWith("rental/321/contract", { contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
   expect(result.contractLink).toBe("https://example.com/a.pdf");
 });
 
 it("uploads a private signed contract as multipart with its rental and signature time", async () => {
-  client.post.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "/api/rentals/321/contract/document", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z" });
+  client.post.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "/api/rental/321/contract/document", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z" });
   const file = new File(["%PDF-1.4"], "signed.pdf", { type: "application/pdf" });
   const result = await uploadRentalContract(321, file, "2026-10-23T03:00:00Z");
   const [path, body] = client.post.mock.calls[0];
-  expect(path).toBe("rentals/321/contract/upload");
+  expect(path).toBe("rental/321/contract/upload");
   expect(body).toBeInstanceOf(FormData);
   expect(body.get("file")).toBe(file);
   expect(body.get("signedAt")).toBe("2026-10-23T03:00:00Z");
   expect(result.hasUploadedContract).toBe(true);
-  expect(result.contractLink).toBe("/api/rentals/321/contract/document");
+  expect(result.contractLink).toBe("/api/rental/321/contract/document");
 });

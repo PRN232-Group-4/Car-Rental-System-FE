@@ -7,7 +7,7 @@ async function mockApi(page: Page, roles = ["Admin"]) {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const json = path.endsWith("/account/profile") ? { email: "admin@test.local", fullName: "Gia Linh", roles }
-      : path.endsWith("/vehicles/10") ? vehicle
+      : path.endsWith("/vehicle/10") ? vehicle
         : path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 }
           : path.endsWith("/vehicle-types") ? [{ id: 1, name: "Ô tô", type: "car", fuelType: "gasoline" }]
             : path.endsWith("/departments") ? [{ id: 1, name: "Vận hành" }]
@@ -63,7 +63,7 @@ for (const width of [1440, 390]) {
     let finishDelete!: () => void;
     const deletePending = new Promise<void>((resolve) => { finishDelete = resolve; });
     let removed = false;
-    await page.route("**/api/vehicles/10", async (route) => {
+    await page.route("**/api/vehicle/10", async (route) => {
       if (route.request().method() !== "DELETE") return route.fallback();
       removed = true;
       await deletePending;

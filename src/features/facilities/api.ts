@@ -46,7 +46,7 @@ export async function getFacilities(): Promise<Facility[]> {
 }
 
 export async function getFacilityById(id: string): Promise<Facility | undefined> {
-  // The backend exposes a public collection but has no GET /facilities/{id} route.
+  // The backend exposes a public collection but has no GET /facility/{id} route.
   return (await getFacilities()).find((facility) => facility.id === id);
 }
 

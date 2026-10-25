@@ -58,7 +58,7 @@ it("uploads the selected file and GMT+7 signature time, preventing repeat submit
   expect(screen.getByRole("button", { name: "Đang tải hợp đồng..." })).toBeDisabled();
   fireEvent.click(screen.getByRole("button", { name: "Đang tải hợp đồng..." }));
   expect(api.uploadRentalContract).toHaveBeenCalledExactlyOnceWith(42, file, "2026-10-23T03:00:00.000Z");
-  const updated = { ...rental, hasUploadedContract: true, contractLink: "/api/rentals/42/contract/document", signedAt: "2026-10-23T03:00:00Z" };
+  const updated = { ...rental, hasUploadedContract: true, contractLink: "/api/rental/42/contract/document", signedAt: "2026-10-23T03:00:00Z" };
   resolve(updated);
   await screen.findByText("Đã lưu hợp đồng đã ký.");
   expect(cache.getQueryData(["rental-contract", "42"])).toEqual(updated);
@@ -80,7 +80,7 @@ it.each([
 });
 
 it("shows a protected download and locks file changes after handover", () => {
-  setup({ status: "renting", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z", contractLink: "/api/rentals/42/contract/document" });
-  expect(screen.getByRole("link", { name: "Tải hợp đồng đã ký" })).toHaveAttribute("href", "/api/rentals/42/contract/document");
+  setup({ status: "renting", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z", contractLink: "/api/rental/42/contract/document" });
+  expect(screen.getByRole("link", { name: "Tải hợp đồng đã ký" })).toHaveAttribute("href", "/api/rental/42/contract/document");
   expect(screen.queryByLabelText("File hoặc ảnh hợp đồng đã ký (bắt buộc)")).not.toBeInTheDocument();
 });

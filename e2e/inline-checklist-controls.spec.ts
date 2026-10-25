@@ -18,26 +18,26 @@ for (const width of [1600, 1280, 390]) {
       await page.route("**/api/**", async route => {
         const path = new URL(route.request().url()).pathname;
         const method = route.request().method();
-        if (method === "PUT" && path === "/api/rentals/111/inspection-assignment") {
+        if (method === "PUT" && path === "/api/rental/111/inspection-assignment") {
           expect(route.request().postDataJSON()).toEqual({ technicianStaffId: 12 });
           assigned = true;
           assignments++;
           return route.fulfill({ json: envelope(assignment()) });
         }
-        if (method === "POST" && path === "/api/invoices/55/cash-confirmation") {
+        if (method === "POST" && path === "/api/invoice/55/cash-confirmation") {
           paid = true;
           receipts++;
           return route.fulfill({ json: envelope({ paymentId: 30, invoiceId: 55, status: "paid", orderId: 88 }) });
         }
         expect(method).toBe("GET");
         const data = path.endsWith("/account/profile") ? { email: "manager@example.test", fullName: "Quản lý", roles: ["Manager"] }
-          : path === "/api/rentals/111" ? rental()
+          : path === "/api/rental/111" ? rental()
           : path === "/api/rentals" ? { items: [rental()], totalCount: 1, page: 1, pageSize: 20 }
-          : path === "/api/rentals/111/detail" ? { rental: { ...rental(), scheduledEnd: rental().endTime }, invoice: { id: 55 }, settlement: null }
-          : path === "/api/invoices/55" ? { id: 55, rentalId: 111, invoiceNumber: "INV-55", amount: 100000, status: paid ? "paid" : "unpaid", paymentMethod: "cash", kind: "rental", canPay: !paid, orderId: paid ? 88 : null }
-          : path === "/api/rentals/111/inspection-assignment" ? assignment()
+          : path === "/api/rental/111/detail" ? { rental: { ...rental(), scheduledEnd: rental().endTime }, invoice: { id: 55 }, settlement: null }
+          : path === "/api/invoice/55" ? { id: 55, rentalId: 111, invoiceNumber: "INV-55", amount: 100000, status: paid ? "paid" : "unpaid", paymentMethod: "cash", kind: "rental", canPay: !paid, orderId: paid ? 88 : null }
+          : path === "/api/rental/111/inspection-assignment" ? assignment()
           : path === "/api/staff" ? { items: [{ id: 12, email: "tech@example.test", isActive: true, roles: ["Maintenance"] }], totalCount: 1, page: 1, pageSize: 100 }
-          : path === "/api/vehicles/8" ? { id: 8, vehicleTypeId: 1, brand: "Toyota", model: "Vios", allowedLicenseTypes: ["B"] }
+          : path === "/api/vehicle/8" ? { id: 8, vehicleTypeId: 1, brand: "Toyota", model: "Vios", allowedLicenseTypes: ["B"] }
           : { items: [], totalCount: 0, page: 1, pageSize: 20 };
         return route.fulfill({ json: envelope(data) });
       });

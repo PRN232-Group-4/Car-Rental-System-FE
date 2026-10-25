@@ -8,10 +8,10 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const json = path.endsWith("/account/profile") ? { fullName: "Quản trị viên", email: "admin@test.local", roles: ["Admin"] }
-      : path.endsWith("/vehicles/10") ? vehicle
+      : path.endsWith("/vehicle/10") ? vehicle
         : path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 }
           : path.endsWith("/maintenance") ? maintenance
-            : path.endsWith("/rentals/70") ? { id: 70, vehicleId: 10, customerId: 1, status: "pending", rentalType: "hourly", totalPrice: 500000, startTime: "2026-10-20T02:00:00Z", endTime: "2026-10-20T08:00:00Z", hasDriver: false }
+            : path.endsWith("/rental/70") ? { id: 70, vehicleId: 10, customerId: 1, status: "pending", rentalType: "hourly", totalPrice: 500000, startTime: "2026-10-20T02:00:00Z", endTime: "2026-10-20T08:00:00Z", hasDriver: false }
               : path.endsWith("/vehicle-types") ? [{ id: 1, name: "Ô tô", type: "car", fuelType: "gasoline" }]
                 : path.endsWith("/staff/drivers") ? { items: [], totalCount: 0 } : [];
     return route.fulfill({ json });
@@ -39,7 +39,7 @@ test("maintenance shares vehicle lookup and replaces skeletons with thumbnails",
   let lookups = 0;
   let release!: () => void;
   const gate = new Promise<void>((resolve) => { release = resolve; });
-  await page.route("**/api/vehicles/10", async (route) => { lookups += 1; await gate; await route.fulfill({ json: vehicle }); });
+  await page.route("**/api/vehicle/10", async (route) => { lookups += 1; await gate; await route.fulfill({ json: vehicle }); });
   await page.goto("/admin/maintenance");
   const table = page.getByRole("table");
   await expect(table.getByRole("status", { name: "Đang tải phương tiện", exact: true })).toHaveCount(2);
@@ -52,7 +52,7 @@ test("maintenance shares vehicle lookup and replaces skeletons with thumbnails",
 
 test("rental details and assignment both show the vehicle using one lookup", async ({ page }) => {
   let lookups = 0;
-  page.on("request", (request) => { if (new URL(request.url()).pathname === "/api/vehicles/10") lookups += 1; });
+  page.on("request", (request) => { if (new URL(request.url()).pathname === "/api/vehicle/10") lookups += 1; });
   await page.goto("/admin/rentals?rentalId=70");
   const images = page.getByRole("img", { name: "Toyota Vios", exact: true });
   await expect(images).toHaveCount(2);
@@ -63,7 +63,7 @@ test("editing a vehicle refreshes its cached name and photo", async ({ page }) =
   let current = { ...vehicle, yearOfManufacture: null, hourlyPrice: null, longtermPrice: null, detail: null };
   let lookups = 0;
   await page.route("**/api/vehicles?*", (route) => route.fulfill({ json: { items: [current], totalCount: 1 } }));
-  await page.route("**/api/vehicles/10", (route) => {
+  await page.route("**/api/vehicle/10", (route) => {
     if (route.request().method() === "PUT") current = { ...current, ...route.request().postDataJSON() };
     else lookups += 1;
     return route.fulfill({ json: current });

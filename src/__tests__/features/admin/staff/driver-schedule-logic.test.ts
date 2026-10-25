@@ -10,13 +10,13 @@ describe("Staff and dispatch use server decisions", () => {
     const drivers = [{ staffId: 8, fullName: "An", eligible: false, reasons: ["BUSY"] }];
     const get = vi.spyOn(backendApiClient, "get").mockResolvedValue(drivers);
     expect(await getAssignableDrivers(77)).toEqual(drivers);
-    expect(get).toHaveBeenCalledWith("rentals/77/assignable-drivers", { eligibleOnly: false });
+    expect(get).toHaveBeenCalledWith("rental/77/assignable-drivers", { eligibleOnly: false });
   });
   it("sends only the assignment contract and propagates failure", async () => {
     const error = new Error("Mất kết nối");
     const post = vi.spyOn(backendApiClient, "post").mockRejectedValue(error);
     await expect(assignDriverToRental({ rentalId: 88, driverStaffId: 9, reason: "customer_request", notes: "Khách yêu cầu", currentActorEmail: "untrusted@example.com" })).rejects.toBe(error);
-    expect(post).toHaveBeenCalledWith("rentals/88/assignments/driver", { driverStaffId: 9, reason: "customer_request", note: "Khách yêu cầu" });
+    expect(post).toHaveBeenCalledWith("rental/88/assignments/driver", { driverStaffId: 9, reason: "customer_request", note: "Khách yêu cầu" });
   });
   it("maps the real driver schedule instead of hardcoded dates", async () => {
     vi.spyOn(backendApiClient, "get").mockResolvedValue([{ assignmentId: 9, rentalId: 77, driverStaffId: 8, vehicleId: 44, startTime: "2027-01-01T08:00:00Z", endTime: "2027-01-01T12:00:00Z" }]);

@@ -3606,7 +3606,7 @@
         }
       }
     },
-    "/api/customers/{customerId}": {
+    "/api/customer/{customerId}": {
       "get": {
         "tags": [
           "Customers"
@@ -6348,7 +6348,7 @@
         }
       }
     },
-    "/api/departments/{departmentId}/members/{userId}": {
+    "/api/department/{departmentId}/member/{userId}": {
       "put": {
         "tags": [
           "DepartmentMembers"
@@ -7636,7 +7636,7 @@
         }
       }
     },
-    "/api/devices/{id}": {
+    "/api/device/{id}": {
       "get": {
         "tags": [
           "Devices"
@@ -9341,7 +9341,7 @@
         }
       }
     },
-    "/api/drivers/shifts/{id}": {
+    "/api/drivers/shift/{id}": {
       "put": {
         "tags": [
           "Dispatch"
@@ -9775,7 +9775,7 @@
         }
       }
     },
-    "/api/rentals/{id}/reports": {
+    "/api/rental/{id}/reports": {
       "post": {
         "tags": [
           "Dispatch"
@@ -10653,7 +10653,7 @@
         }
       }
     },
-    "/api/reports/{id}/maintenance": {
+    "/api/report/{id}/maintenance": {
       "post": {
         "tags": [
           "Dispatch"
@@ -11087,7 +11087,7 @@
         }
       }
     },
-    "/api/reports/{id}/resolve": {
+    "/api/report/{id}/resolve": {
       "post": {
         "tags": [
           "Dispatch"
@@ -11422,7 +11422,7 @@
         }
       }
     },
-    "/api/reports/{id}/status": {
+    "/api/report/{id}/status": {
       "patch": {
         "tags": [
           "Dispatch"
@@ -11858,7 +11858,7 @@
         }
       }
     },
-    "/api/rentals/{id}/replacement-inspections/{vehicleId}": {
+    "/api/rental/{id}/replacement-inspection/{vehicleId}": {
       "post": {
         "tags": [
           "Dispatch"
@@ -12301,7 +12301,7 @@
         }
       }
     },
-    "/api/rentals/{id}/replacements": {
+    "/api/rental/{id}/replacements": {
       "post": {
         "tags": [
           "Dispatch"
@@ -13254,7 +13254,7 @@
         }
       }
     },
-    "/api/facilities/{facilityId}/members/{userId}": {
+    "/api/facility/{facilityId}/member/{userId}": {
       "put": {
         "tags": [
           "FacilityMembers"
@@ -15430,7 +15430,7 @@
         }
       }
     },
-    "/api/handovers/{rentalId}": {
+    "/api/handover/{rentalId}": {
       "get": {
         "tags": [
           "Handovers"
@@ -15847,7 +15847,7 @@
         }
       }
     },
-    "/api/handovers/{rentalId}/confirm": {
+    "/api/handover/{rentalId}/confirm": {
       "post": {
         "tags": [
           "Handovers"
@@ -16736,7 +16736,7 @@
         }
       }
     },
-    "/api/rentals/{id}/inspection-assignment": {
+    "/api/rental/{id}/inspection-assignment": {
       "get": {
         "tags": [
           "InspectionAssignments"
@@ -18916,7 +18916,7 @@
         }
       }
     },
-    "/api/customers/{id}/loyalty": {
+    "/api/customer/{id}/loyalty": {
       "get": {
         "tags": [
           "Loyalty"
@@ -19331,7 +19331,7 @@
         }
       }
     },
-    "/api/customers/{id}/loyalty/adjustments": {
+    "/api/customer/{id}/loyalty/adjustments": {
       "post": {
         "tags": [
           "Loyalty"
@@ -25904,7 +25904,7 @@
         }
       }
     },
-    "/api/rentals/{id}/contract": {
+    "/api/rental/{id}/contract": {
       "put": {
         "tags": [
           "Operations"
@@ -27623,7 +27623,7 @@
         }
       }
     },
-    "/api/customers/{customerId}/license-status": {
+    "/api/customer/{customerId}/license-status": {
       "put": {
         "tags": [
           "Operations"
@@ -28721,7 +28721,7 @@
         }
       }
     },
-    "/api/vehicle-types/{id}": {
+    "/api/vehicle-type/{id}": {
       "put": {
         "tags": [
           "Operations"
@@ -30207,7 +30207,7 @@
         }
       }
     },
-    "/api/vehicles/{id}": {
+    "/api/vehicle/{id}": {
       "get": {
         "tags": [
           "Operations"
@@ -32052,7 +32052,7 @@
         }
       }
     },
-    "/api/departments/{id}": {
+    "/api/department/{id}": {
       "put": {
         "tags": [
           "Operations"
@@ -33499,7 +33499,7 @@
         }
       }
     },
-    "/api/facilities/{id}": {
+    "/api/facility/{id}": {
       "put": {
         "tags": [
           "Operations"
@@ -35118,7 +35118,7 @@
         }
       }
     },
-    "/api/rental-policies/{id}/status": {
+    "/api/rental-policy/{id}/status": {
       "patch": {
         "tags": [
           "Operations"
@@ -36242,7 +36242,7 @@
         }
       }
     },
-    "/api/rentals/{id}": {
+    "/api/rental/{id}": {
       "get": {
         "tags": [
           "Operations"
@@ -37138,7 +37138,7 @@
         }
       }
     },
-    "/api/rentals/{id}/assignments": {
+    "/api/rental/{id}/assignments": {
       "post": {
         "tags": [
           "Operations"
@@ -38368,7 +38368,7 @@
         }
       }
     },
-    "/api/rentals/{id}/inspections/pre": {
+    "/api/rental/{id}/inspections/pre": {
       "post": {
         "tags": [
           "Operations"
@@ -38722,7 +38722,7 @@
         }
       }
     },
-    "/api/rentals/{id}/inspections/post": {
+    "/api/rental/{id}/inspections/post": {
       "post": {
         "tags": [
           "Operations"
@@ -39076,7 +39076,7 @@
         }
       }
     },
-    "/api/rentals/{id}/status/{status}": {
+    "/api/rental/{id}/status/{status}": {
       "post": {
         "tags": [
           "Operations"
@@ -40173,7 +40173,7 @@
         }
       }
     },
-    "/api/subscription-plans/{id}": {
+    "/api/subscription-plan/{id}": {
       "get": {
         "tags": [
           "Operations"
@@ -42751,7 +42751,7 @@
         }
       }
     },
-    "/api/rentals/{rentalId}/ratings": {
+    "/api/rental/{rentalId}/ratings": {
       "post": {
         "tags": [
           "Operations"
@@ -43625,7 +43625,7 @@
         }
       }
     },
-    "/api/ratings/{id}": {
+    "/api/rating/{id}": {
       "patch": {
         "tags": [
           "Operations"
@@ -44061,7 +44061,7 @@
         }
       }
     },
-    "/api/ratings/{id}/reply": {
+    "/api/rating/{id}/reply": {
       "post": {
         "tags": [
           "Operations"
@@ -44497,7 +44497,7 @@
         }
       }
     },
-    "/api/invoices/{invoiceId}/cash-confirmation": {
+    "/api/invoice/{invoiceId}/cash-confirmation": {
       "post": {
         "tags": [
           "Payments"
@@ -44960,7 +44960,7 @@
         }
       }
     },
-    "/api/invoices/{invoiceId}/checkout": {
+    "/api/invoice/{invoiceId}/checkout": {
       "post": {
         "tags": [
           "Payments"
@@ -45466,7 +45466,7 @@
         }
       }
     },
-    "/api/subscription-plans/{planId}/purchase": {
+    "/api/subscription-plan/{planId}/purchase": {
       "post": {
         "tags": [
           "Payments"
@@ -45926,7 +45926,7 @@
         }
       }
     },
-    "/api/payments/checkouts/{orderCode}/cancel": {
+    "/api/payments/checkout/{orderCode}/cancel": {
       "post": {
         "tags": [
           "Payments"
@@ -46386,7 +46386,7 @@
         }
       }
     },
-    "/api/subscription-plans/purchases/{orderCode}": {
+    "/api/subscription-plans/purchase/{orderCode}": {
       "get": {
         "tags": [
           "Payments"
@@ -47054,7 +47054,7 @@
         }
       }
     },
-    "/api/payments/{paymentId}/refunds": {
+    "/api/payment/{paymentId}/refunds": {
       "post": {
         "tags": [
           "Payments"
@@ -47901,7 +47901,7 @@
         }
       }
     },
-    "/api/invoices/{invoiceId}": {
+    "/api/invoice/{invoiceId}": {
       "get": {
         "tags": [
           "Payments"
@@ -48317,7 +48317,7 @@
         }
       }
     },
-    "/api/rentals/{rentalId}/invoice": {
+    "/api/rental/{rentalId}/invoice": {
       "post": {
         "tags": [
           "Payments"
@@ -49155,7 +49155,7 @@
         }
       }
     },
-    "/api/payments/refunds/{refundId}/approve": {
+    "/api/payments/refund/{refundId}/approve": {
       "post": {
         "tags": [
           "Payments"
@@ -49570,7 +49570,7 @@
         }
       }
     },
-    "/api/payments/refunds/{refundId}/reject": {
+    "/api/payments/refund/{refundId}/reject": {
       "post": {
         "tags": [
           "Payments"
@@ -49985,7 +49985,7 @@
         }
       }
     },
-    "/api/rentals/{id}/assignments/driver": {
+    "/api/rental/{id}/assignments/driver": {
       "post": {
         "tags": [
           "RentalAssignments"
@@ -50464,7 +50464,7 @@
         }
       }
     },
-    "/api/rentals/{id}/assignments/vehicle": {
+    "/api/rental/{id}/assignments/vehicle": {
       "post": {
         "tags": [
           "RentalAssignments"
@@ -50943,7 +50943,7 @@
         }
       }
     },
-    "/api/rentals/{id}/assignable-drivers": {
+    "/api/rental/{id}/assignable-drivers": {
       "get": {
         "tags": [
           "RentalAssignments"
@@ -51375,7 +51375,7 @@
         }
       }
     },
-    "/api/rentals/{id}/assignable-vehicles": {
+    "/api/rental/{id}/assignable-vehicles": {
       "get": {
         "tags": [
           "RentalAssignments"
@@ -51799,7 +51799,7 @@
         }
       }
     },
-    "/api/rentals/{id}/confirm": {
+    "/api/rental/{id}/confirm": {
       "post": {
         "tags": [
           "RentalLifecycle"
@@ -52260,7 +52260,7 @@
         }
       }
     },
-    "/api/rentals/{id}/start": {
+    "/api/rental/{id}/start": {
       "post": {
         "tags": [
           "RentalLifecycle"
@@ -52720,7 +52720,7 @@
         }
       }
     },
-    "/api/rentals/{id}/return": {
+    "/api/rental/{id}/return": {
       "post": {
         "tags": [
           "RentalLifecycle"
@@ -53199,7 +53199,7 @@
         }
       }
     },
-    "/api/rentals/{id}/complete": {
+    "/api/rental/{id}/complete": {
       "post": {
         "tags": [
           "RentalLifecycle"
@@ -53659,7 +53659,7 @@
         }
       }
     },
-    "/api/rentals/{id}/cancel": {
+    "/api/rental/{id}/cancel": {
       "post": {
         "tags": [
           "RentalLifecycle"
@@ -54138,7 +54138,7 @@
         }
       }
     },
-    "/api/rentals/{id}/cancellation-preview": {
+    "/api/rental/{id}/cancellation-preview": {
       "get": {
         "tags": [
           "RentalLifecycle"
@@ -54989,7 +54989,7 @@
         }
       }
     },
-    "/api/rentals/mine/{id}": {
+    "/api/rental/mine/{id}": {
       "get": {
         "tags": [
           "RentalQueries"
@@ -55877,7 +55877,7 @@
         }
       }
     },
-    "/api/rentals/{id}/detail": {
+    "/api/rental/{id}/detail": {
       "get": {
         "tags": [
           "RentalQueries"
@@ -61311,7 +61311,7 @@
         }
       }
     },
-    "/api/tracking/vehicles/{vehicleId}/last-position": {
+    "/api/tracking/vehicle/{vehicleId}/last-position": {
       "get": {
         "tags": [
           "Tracking"
@@ -61726,7 +61726,7 @@
         }
       }
     },
-    "/api/tracking/vehicles/{vehicleId}/history": {
+    "/api/tracking/vehicle/{vehicleId}/history": {
       "get": {
         "tags": [
           "Tracking"
@@ -62631,7 +62631,7 @@
         }
       }
     },
-    "/api/tracking/rentals/{rentalId}/route": {
+    "/api/tracking/rental/{rentalId}/route": {
       "get": {
         "tags": [
           "Tracking"
@@ -63046,7 +63046,7 @@
         }
       }
     },
-    "/api/tracking/rentals/{rentalId}/verify-dropoff": {
+    "/api/tracking/rental/{rentalId}/verify-dropoff": {
       "post": {
         "tags": [
           "Tracking"
@@ -64473,7 +64473,7 @@
         }
       }
     },
-    "/api/tracking/alerts/{alertId}/resolve": {
+    "/api/tracking/alert/{alertId}/resolve": {
       "post": {
         "tags": [
           "Tracking"
@@ -65341,7 +65341,7 @@
         }
       }
     },
-    "/api/users/{id}": {
+    "/api/user/{id}": {
       "get": {
         "tags": [
           "Users"
@@ -65759,7 +65759,7 @@
         }
       }
     },
-    "/api/users/{id}/status": {
+    "/api/user/{id}/status": {
       "patch": {
         "tags": [
           "Users"
@@ -66241,7 +66241,7 @@
         }
       }
     },
-    "/api/users/{id}/roles": {
+    "/api/user/{id}/roles": {
       "post": {
         "tags": [
           "Users"
@@ -67203,7 +67203,7 @@
         }
       }
     },
-    "/api/users/{id}/sessions/revoke": {
+    "/api/user/{id}/sessions/revoke": {
       "post": {
         "tags": [
           "Users"
@@ -68010,7 +68010,7 @@
         }
       }
     },
-    "/api/vehicles/{id}/availability": {
+    "/api/vehicle/{id}/availability": {
       "get": {
         "tags": [
           "VehicleSearch"
@@ -68351,7 +68351,7 @@
         }
       }
     },
-    "/api/vehicles/{id}/busy-slots": {
+    "/api/vehicle/{id}/busy-slots": {
       "get": {
         "tags": [
           "VehicleSearch"
@@ -68701,7 +68701,7 @@
         }
       }
     },
-    "/api/vehicle-types/{id}/active-policy": {
+    "/api/vehicle-type/{id}/active-policy": {
       "get": {
         "tags": [
           "VehicleSearch"
@@ -69026,7 +69026,7 @@
         }
       }
     },
-    "/api/vehicles/{id}/affected-rentals": {
+    "/api/vehicle/{id}/affected-rentals": {
       "get": {
         "tags": [
           "VehicleSearch"

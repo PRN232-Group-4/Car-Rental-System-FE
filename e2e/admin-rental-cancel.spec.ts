@@ -13,18 +13,18 @@ for(const width of [1440,390]) {
         expect(path).not.toContain("/status/cancelled");
         let data:unknown={items:[],totalCount:0,page:1,pageSize:100};
         if(path.endsWith("/account/profile")) data={fullName:"Admin",email:"admin@test.local",roles:["Admin"]};
-        else if(path.endsWith("/rentals/101/cancel")) {
+        else if(path.endsWith("/rental/101/cancel")) {
           writes++;
           expect(route.request().postDataJSON()).toEqual({reason:"Khách đổi lịch thuê",initiator:null,waiveFee:false});
           if(initial==="failed") return route.fulfill({status:409,json:{...envelope(null),code:409,status:"error",is_success:false,message:"Đơn đã được bàn giao. Vui lòng tải lại.",error:{detail:"Đơn đã được bàn giao. Vui lòng tải lại."}}});
           status="cancelled";
           data={rentalId:101,toStatus:"cancelled"};
         }
-        else if(path.endsWith("/rentals/101/inspection-assignment")) data=null;
-        else if(path.endsWith("/rentals/101/detail")) data={rental:{...rental(),scheduledStart:rental().startTime,scheduledEnd:rental().endTime,cancelReason:status==="cancelled"?"Khách đổi lịch thuê":null,cancelledAt:status==="cancelled"?"2026-10-22T03:21:00Z":null},history:[],settlement:null};
-        else if(path.endsWith("/rentals/101")) data=rental();
+        else if(path.endsWith("/rental/101/inspection-assignment")) data=null;
+        else if(path.endsWith("/rental/101/detail")) data={rental:{...rental(),scheduledStart:rental().startTime,scheduledEnd:rental().endTime,cancelReason:status==="cancelled"?"Khách đổi lịch thuê":null,cancelledAt:status==="cancelled"?"2026-10-22T03:21:00Z":null},history:[],settlement:null};
+        else if(path.endsWith("/rental/101")) data=rental();
         else if(path.endsWith("/rentals")) data={items:[rental()],page:1,pageSize:30,totalCount:1};
-        else if(path.endsWith("/vehicles/8")) data={id:8,brand:"Toyota",model:"Vios",detail:null};
+        else if(path.endsWith("/vehicle/8")) data={id:8,brand:"Toyota",model:"Vios",detail:null};
         return route.fulfill({json:envelope(data)});
       });
       await page.goto("/admin/rentals?rentalId=101");

@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }) => {
       ? { email: "admin@test.local", fullName: "Quản trị viên", roles: ["Admin"] }
       : path.endsWith("/vehicle-types") ? vehicleTypes
       : path.endsWith("/facilities") ? [{ id: 7, name: "Chi nhánh trung tâm" }]
-      : path.endsWith("/vehicles/42") ? vehicle
+      : path.endsWith("/vehicle/42") ? vehicle
       : path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 }
       : [];
     return route.fulfill({ status: 200, json });
@@ -96,7 +96,7 @@ test("edit retains inline validation, API errors and upload error associations",
   await model.fill("Vios");
   await seats.fill("5");
 
-  await page.route("**/api/vehicles/42", (route) => route.fulfill({ status: 400, json: {
+  await page.route("**/api/vehicle/42", (route) => route.fulfill({ status: 400, json: {
     errors: { Brand: ["Hãng xe không hợp lệ."], "Detail.SeatCount": ["Số chỗ chưa được chấp nhận."], VehicleState: ["Xe đang được bàn giao. Vui lòng thử lại sau."] },
   } }));
   await save.click();
@@ -140,7 +140,7 @@ for (const type of vehicleTypes) {
       await page.getByLabel("Thời gian sạc (giờ)", { exact: true }).fill("6");
       await page.getByLabel("Quãng đường tối đa (km)", { exact: true }).fill("300");
     }
-    const request = page.waitForRequest((request) => request.method() === "PUT" && new URL(request.url()).pathname === "/api/vehicles/42");
+    const request = page.waitForRequest((request) => request.method() === "PUT" && new URL(request.url()).pathname === "/api/vehicle/42");
     await page.getByRole("button", { name: "Lưu thay đổi", exact: true }).click();
     expect((await request).postDataJSON()).toEqual({
       vehicleTypeId: type.id, facilityId: 7, licensePlate: vehicle.licensePlate,
@@ -164,7 +164,7 @@ test("save network failure keeps the loaded vehicle and edited values", async ({
   const model = page.getByLabel("Dòng xe / mẫu xe", { exact: true });
   await expect(model).toHaveValue("Vios");
   await model.fill("Vios G");
-  await page.route("**/api/vehicles/42", (route) => route.abort("failed"));
+  await page.route("**/api/vehicle/42", (route) => route.abort("failed"));
   await page.getByRole("button", { name: "Lưu thay đổi", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Không thể lưu phương tiện. Vui lòng kiểm tra kết nối mạng và thử lại." })).toBeVisible();
   await expect(model).toHaveValue("Vios G");

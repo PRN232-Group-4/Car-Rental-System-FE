@@ -95,7 +95,7 @@ describe("Runtime adapters never substitute mock data", () => {
     const post = vi.spyOn(backendApiClient, "post").mockResolvedValue({ rentalId: 77, toStatus: "cancelled" });
     vi.spyOn(backendApiClient, "get").mockResolvedValue({ ...trip, status: "cancelled" });
     expect((await cancelTrip({ rentalId: 77, reason: "Đổi lịch" })).status).toBe("cancelled");
-    expect(post).toHaveBeenCalledWith("rentals/77/cancel", { reason: "Đổi lịch", initiator: "customer", waiveFee: false });
+    expect(post).toHaveBeenCalledWith("rental/77/cancel", { reason: "Đổi lịch", initiator: "customer", waiveFee: false });
   });
   it("does not update trip data locally after cancellation fails", async () => {
     vi.spyOn(backendApiClient, "post").mockRejectedValue(new Error("Offline"));

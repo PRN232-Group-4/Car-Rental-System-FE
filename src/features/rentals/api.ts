@@ -46,7 +46,7 @@ export function createLongTermRental(input: RentalBookingRequest) {
 
 export async function getActivePolicyForVehicleType(vehicleTypeId: number): Promise<RentalPolicy | null> {
   try {
-    return await defaultApiClient.get<RentalPolicy>(`vehicle-types/${vehicleTypeId}/active-policy`);
+    return await defaultApiClient.get<RentalPolicy>(`vehicle-type/${vehicleTypeId}/active-policy`);
   } catch {
     return null;
   }
@@ -92,7 +92,7 @@ export async function getBookingVehicles(from?: string, to?: string, facilityId?
 }
 
 export async function getRentalById(id: number | string): Promise<RentalContract> {
-  return mapContract(await defaultApiClient.get<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}`));
+  return mapContract(await defaultApiClient.get<Record<string, unknown>>(`rental/${encodeURIComponent(id)}`));
 }
 
 function mapContract(raw: Record<string, unknown>): RentalContract {
@@ -107,7 +107,7 @@ function mapContract(raw: Record<string, unknown>): RentalContract {
 }
 
 export async function updateRentalContract(id: number | string, contractLink: string | null, signedAt: string) {
-  return mapContract(await defaultApiClient.put<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}/contract`, {
+  return mapContract(await defaultApiClient.put<Record<string, unknown>>(`rental/${encodeURIComponent(id)}/contract`, {
     contractLink, signedAt,
   }));
 }
@@ -116,5 +116,5 @@ export async function uploadRentalContract(id: number | string, file: File, sign
   const body = new FormData();
   body.append("file", file);
   body.append("signedAt", signedAt);
-  return mapContract(await defaultApiClient.post<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}/contract/upload`, body));
+  return mapContract(await defaultApiClient.post<Record<string, unknown>>(`rental/${encodeURIComponent(id)}/contract/upload`, body));
 }

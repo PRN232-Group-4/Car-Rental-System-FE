@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
     else if (path.endsWith("/facilities")) data = { items: [{ id: 7, name: currentFacility }], totalCount: 1, page: 1, pageSize: 100 };
     else if (path.endsWith("/staff")) data = { items: [technician], totalCount: 1, page: 1, pageSize: 100 };
     else if (path.endsWith("/vehicles")) data = { items: [{ id: 8, brand: "Hyundai", model: "Accent", licensePlate: "51F-010.02" }], totalCount: 1, page: 1, pageSize: 100 };
-    else if (path.endsWith("/vehicles/8")) data = { id: 8, brand: "Hyundai", model: "Accent", licensePlate: "51F-010.02" };
+    else if (path.endsWith("/vehicle/8")) data = { id: 8, brand: "Hyundai", model: "Accent", licensePlate: "51F-010.02" };
     return route.fulfill({ json: { code: 200, status: "success", is_success: true, data, message: "Thành công.", error: null } });
   });
 });

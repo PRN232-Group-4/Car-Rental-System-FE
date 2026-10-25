@@ -45,7 +45,7 @@ describe("FE-07 My Trips — Component Tests", () => {
         items: [{ id: 101, status: "pending", rentalType: "hourly", isSubscription: false, vehicleId: 1, vehicleBrand: "VinFast", vehicleModel: "VF 8 Plus", startTime: "2027-01-02T08:00:00Z", endTime: "2027-01-03T08:00:00Z", totalPrice: 2700000 }],
         page: 1, pageSize: 12, totalCount: 1,
       };
-      if (path === "rentals/mine/101") return {
+      if (path === "rental/mine/101") return {
         id: 101, status: "pending", rentalType: "hourly", isSubscription: false,
         vehicle: { id: 1, brand: "VinFast", model: "VF 8 Plus" }, facility: { id: 5, name: "Chi nhánh Quận 1", phone: "0281234567" },
         start: "2027-01-02T08:00:00Z", end: "2027-01-03T08:00:00Z", hasDriver: false, canCancel: true,

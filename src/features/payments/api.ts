@@ -14,7 +14,7 @@ export interface CheckoutCancellation {
 export async function cancelCheckout(orderCode: number | string): Promise<CheckoutCancellation | null> {
   try {
     return await defaultApiClient.post<CheckoutCancellation>(
-      `payments/checkouts/${orderCode}/cancel`,
+      `payments/checkout/${orderCode}/cancel`,
     );
   } catch (err) {
     console.warn("[Payments API] Cancel checkout warning:", err);

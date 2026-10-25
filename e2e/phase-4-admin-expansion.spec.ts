@@ -207,7 +207,7 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
       if (p.endsWith("/admin/dashboard") || p.endsWith("/dashboard")) {
         return route.fulfill({ status: 200, json: MOCK_DASHBOARD_DATA });
       }
-      if (p.endsWith("/vehicles/1")) {
+      if (p.endsWith("/vehicle/1")) {
         return route.fulfill({ status: 200, json: MOCK_VEHICLES.items[0] });
       }
       if (p.endsWith("/vehicles")) {
@@ -228,13 +228,13 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
       if (p.endsWith("/staffs") || p.endsWith("/staff/drivers")) {
         return route.fulfill({ status: 200, json: { items: MOCK_STAFF, totalCount: MOCK_STAFF.length } });
       }
-      if (p.endsWith("/reports/501")) {
+      if (p.endsWith("/report/501")) {
         return route.fulfill({ status: 200, json: MOCK_REPORTS.items[0] });
       }
       if (p.endsWith("/reports")) {
         return route.fulfill({ status: 200, json: MOCK_REPORTS });
       }
-      if (p.endsWith("/users/1")) {
+      if (p.endsWith("/user/1")) {
         return route.fulfill({ status: 200, json: { id: 1, email: "admin@thongdong.vn", fullName: "VA� Thị Quản Trị", roles: ["Admin"] } });
       }
       if (p.endsWith("/users")) {

@@ -20,11 +20,11 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", (route) => {
     const url = new URL(route.request().url());
     const path = url.pathname;
-    const rental = rentals.find((item) => path.endsWith(`/rentals/${item.id}`));
+    const rental = rentals.find((item) => path.endsWith(`/rental/${item.id}`));
     const json = path.endsWith("/account/profile")
       ? { fullName: "Admin", email: "admin@test.local", roles: ["Admin"] }
       : path.endsWith("/rentals") ? { items: rentals, totalCount: rentals.length }
-      : rental ?? (path.endsWith("/vehicles/8")
+      : rental ?? (path.endsWith("/vehicle/8")
         ? { id: 8, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" }
         : { items: [], totalCount: 0 });
     return route.fulfill({ json });

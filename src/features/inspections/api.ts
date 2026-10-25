@@ -6,7 +6,7 @@ export async function getLatestInspectionRecord(): Promise<InspectionRecord> {
 }
 
 export async function getInspectionByRentalId(rentalId: string): Promise<InspectionRecord> {
-  return defaultApiClient.get<InspectionRecord>(`rentals/${rentalId}/inspections`);
+  return defaultApiClient.get<InspectionRecord>(`rental/${rentalId}/inspections`);
 }
 
 export function getInitialInspectionRecord(): InspectionRecord | null {
