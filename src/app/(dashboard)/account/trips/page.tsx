@@ -85,7 +85,7 @@ function TripsListContent() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · HÀNH TRÌNH"
-        title={<>Chuyến <em className="italic text-td-teal">của tôi.</em></>}
+        title={<>Chuyến <span className="text-td-teal">của tôi.</span></>}
         description="Theo dõi hành trình, kiểm tra biên bản bàn giao xe và quản lý các đơn thuê xe của bạn."
       >
         <div className="border-l border-td-rule pl-4 text-right">

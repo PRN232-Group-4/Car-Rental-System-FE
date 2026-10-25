@@ -25,7 +25,7 @@ export default function RentalContractManager() {
       index="09"
       tag="KH"
       kicker="KHÁCH HÀNG · HỢP ĐỒNG DÀI HẠN"
-      title={<>Hợp đồng <em className="italic text-td-teal">thuê dài hạn.</em></>}
+      title={<>Hợp đồng <span className="text-td-teal">thuê dài hạn.</span></>}
       description="Tra cứu đơn thuê và tải file hoặc ảnh hợp đồng đã ký trước khi nhận xe dài hạn."
     />
     <ValidatedForm validation={validation} onSubmit={() => setLookupId(rentalId)} className="space-y-3 border-y border-td-rule py-4">

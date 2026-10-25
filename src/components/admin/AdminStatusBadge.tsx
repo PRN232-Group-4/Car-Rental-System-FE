@@ -2,19 +2,12 @@ import type { ReactNode } from "react";
 import { getAdminStatusTone } from "./status-rules";
 import type { AdminStatusDomain } from "./status-rules";
 import { StatusGlyph } from "@/components/ui/StatusGlyph";
+import { statusPillClasses, statusToneClasses } from "@/components/ui/status-tone";
 
 /**
- * Trạng thái kiểu Transit Desk: glyph hình học + nhãn mono, không dùng pill màu.
- * Màu sắc lấy từ status-rules.ts để mọi trang admin đọc trạng thái giống nhau.
+ * Badge trạng thái pill màu nền dùng chung bảng ánh xạ `status-rules.ts`
+ * để mọi trang admin đọc trạng thái giống nhau.
  */
-const toneClass = {
-  success: "text-td-ink font-semibold",
-  info: "text-td-ink font-semibold",
-  warning: "text-td-oxide font-bold",
-  danger: "text-td-oxide font-bold",
-  neutral: "text-td-muted",
-} as const;
-
 export function AdminStatusBadge({
   domain,
   status,
@@ -28,7 +21,7 @@ export function AdminStatusBadge({
   return (
     <span
       data-status-tone={tone}
-      className={`inline-flex w-fit items-center gap-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wide ${toneClass[tone]}`}
+      className={`${statusPillClasses} text-[11px] ${statusToneClasses[tone]}`}
     >
       <StatusGlyph tone={tone} />
       {children}

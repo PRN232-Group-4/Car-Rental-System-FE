@@ -93,7 +93,7 @@ export default function AuditLogsPage() {
           index="07"
           tag="ORG"
           kicker="TỔ CHỨC · TRUY VẾT QUẢN TRỊ"
-          title={<>Nhật ký <em className="italic text-td-teal">kiểm toán hệ thống.</em></>}
+          title={<>Nhật ký <span className="text-td-teal">kiểm toán hệ thống.</span></>}
           description="Truy vết bất biến các can thiệp phân quyền vai trò, khóa tài khoản, thu hồi phiên và thao tác bảo mật theo múi giờ GMT+7."
         />
 

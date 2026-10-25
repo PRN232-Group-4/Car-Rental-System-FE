@@ -41,7 +41,7 @@ export default function CustomerRentals() {
       index="09"
       tag="KH"
       kicker="KHÁCH HÀNG · ĐƠN THUÊ"
-      title={<>Đơn thuê <em className="italic text-td-teal">của tôi.</em></>}
+      title={<>Đơn thuê <span className="text-td-teal">của tôi.</span></>}
       description="Theo dõi yêu cầu đặt xe và tiến trình thuê xe của bạn."
     >
       <div className="border-l border-td-rule pl-4 text-right">

@@ -115,7 +115,7 @@ export default function AdminDashboardPage() {
             index="01"
             tag="OPS"
             kicker="TRẠM VẬN HÀNH · DASHBOARD BIỂU ĐỒ"
-            title={<>Chỉ huy điều hành & <em className="italic text-td-teal">doanh thu.</em></>}
+            title={<>Chỉ huy điều hành & <span className="text-td-teal">doanh thu.</span></>}
             description="Giám sát dòng tiền thực thu, hiệu suất khai thác đội xe, tỷ lệ đơn hàng và rủi ro chi phí theo múi giờ GMT+7."
           >
             <span className="inline-flex items-center gap-1.5 border-l border-td-rule pl-4 text-[11px] font-semibold text-td-muted">

@@ -64,7 +64,7 @@ function CreateStaffContent() {
         <ArrowLeft className="mr-1 h-4 w-4" />Quay lại danh sách
       </Button>
       <TransitFolio index="07" tag="ORG" kicker="TỔ CHỨC · HỒ SƠ NHÂN SỰ MỚI"
-        title={<>Tạo hồ sơ <em className="italic text-td-teal">nhân viên / tài xế.</em></>}
+        title={<>Tạo hồ sơ <span className="text-td-teal">nhân viên / tài xế.</span></>}
         description="Chọn email tài khoản có sẵn và phân công phòng ban, cơ sở làm việc." />
       {loading ? <FormSkeleton fields={4} label="Đang tải tài khoản và danh mục nhân sự..." /> : loadError ? (
         <div role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">

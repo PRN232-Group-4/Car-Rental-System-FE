@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { StatusGlyph, type StatusTone } from "./StatusGlyph";
+import { statusPillClasses, statusToneClasses } from "./status-tone";
 
 export type StatusType =
   | "available"
@@ -41,14 +42,6 @@ const statusDictionary: Record<string, StatusConfig> = {
   rejected: { label: "Từ chối", tone: "danger" },
 };
 
-const toneClass: Record<StatusTone, string> = {
-  success: "text-td-ink font-semibold",
-  info: "text-td-ink font-semibold",
-  warning: "text-td-oxide font-bold",
-  danger: "text-td-oxide font-bold",
-  neutral: "text-td-muted",
-};
-
 export interface StatusBadgeProps {
   status: StatusType;
   label?: string;
@@ -59,8 +52,8 @@ export interface StatusBadgeProps {
 }
 
 /**
- * Trạng thái hiển thị kiểu Transit Desk: glyph + nhãn mono viết hoa.
- * `icon` chỉ giữ để tương thích call site cũ, không render nữa.
+ * Badge trạng thái pill màu nền (cặp màu theo A2), glyph + nhãn, ánh xạ tone
+ * tập trung ở `status-tone.ts`. `icon` chỉ giữ để tương thích call site cũ.
  */
 export function StatusBadge({
   status,
@@ -77,9 +70,9 @@ export function StatusBadge({
     <span
       data-status-tone={config.tone}
       className={cn(
-        "inline-flex w-fit items-center gap-2 whitespace-nowrap font-mono uppercase tracking-wide",
+        statusPillClasses,
         size === "md" ? "text-[11px]" : "text-[10px]",
-        toneClass[config.tone],
+        statusToneClasses[config.tone],
         className,
       )}
     >

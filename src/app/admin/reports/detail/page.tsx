@@ -42,7 +42,7 @@ export default function ReportDetailPage() {
             index="03"
             tag="TRI"
             kicker="CHĂM SÓC & SỰ CỐ · HỒ SƠ BÁO CÁO"
-            title={<>Chi tiết <em className="italic text-td-teal">sự cố.</em></>}
+            title={<>Chi tiết <span className="text-td-teal">sự cố.</span></>}
             description="Hồ sơ tiếp nhận, bằng chứng và tiến trình xử lý báo cáo sự cố tại trạm."
           />
 

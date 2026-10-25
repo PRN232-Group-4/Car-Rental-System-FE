@@ -35,7 +35,7 @@ export default function DriverPortalOverview() {
         index="10"
         tag="NV"
         kicker="NHÂN VIÊN · TÀI XẾ"
-        title={<>Xin chào, <em className="italic text-td-teal">{account.fullName?.trim() || account.email || "bạn"}.</em></>}
+        title={<>Xin chào, <span className="text-td-teal">{account.fullName?.trim() || account.email || "bạn"}.</span></>}
         description="Quản lý phương tiện được phân công, xem doanh thu chuyến xe và cập nhật hồ sơ."
       >
         <div className="border-l border-td-rule pl-4 text-right">

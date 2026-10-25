@@ -56,7 +56,6 @@
 .tdMark {
   font-family: var(--font-display);
   font-weight: 700;
-  font-style: italic;
   font-size: 28px;
   line-height: 1;
   letter-spacing: -0.05em;

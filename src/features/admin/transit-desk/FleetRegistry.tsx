@@ -119,7 +119,7 @@ export function FleetRegistry() {
         index="02"
         tag="FLT"
         kicker="TÀI SẢN · ĐỘI XE"
-        title={<>Sổ <em className="italic text-td-teal">phương tiện.</em></>}
+        title={<>Sổ <span className="text-td-teal">phương tiện.</span></>}
         description="Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi."
       >
         <TransitFolioMetric

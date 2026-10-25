@@ -16,13 +16,8 @@ const statusTones = {
 
 export type AdminStatusDomain = keyof typeof statusTones;
 
-export const adminStatusToneClasses: Record<AdminStatusTone, string> = {
-  success: "bg-success-bg text-success",
-  warning: "bg-warning-bg text-warning",
-  danger: "bg-danger-bg text-danger",
-  info: "bg-info-bg text-info",
-  neutral: "bg-sunken text-ink-2",
-};
+/** Tone → class màu pill dùng chung một nguồn với `StatusBadge` (status-tone.ts). */
+export { statusToneClasses as adminStatusToneClasses } from "@/components/ui/status-tone";
 
 export function getAdminStatusTone(domain: AdminStatusDomain, status: string | null | undefined): AdminStatusTone {
   const key = status?.trim().toLowerCase() ?? "";
