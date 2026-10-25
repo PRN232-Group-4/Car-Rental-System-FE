@@ -1,5 +1,19 @@
 # FE-24 — Admin: quản lý nhân viên & tài xế
 
+## Điều chỉnh đã duyệt — 2026-10-22
+
+- Tạm khóa **tạo, sửa, hủy ca trực tài xế** trên giao diện bằng `DRIVER_SHIFT_MANAGEMENT_ENABLED=false` trong `src/config/operational-features.ts`. Các nút bị disable, liên kết mô tả nguyên nhân rõ ràng; không mở form hoặc gửi mutation ca khi đang khóa. Không thay đổi API hay xóa ca đã lưu. Khi mở lại tính năng, đổi cờ và cập nhật kiểm thử theo yêu cầu mới.
+- Giữ tra cứu ca và lịch chuyến thật; cổng tài xế thông báo quản lý ca đang tạm khóa. Lịch chuyến/phân công theo đơn thuê không bị khóa theo chức năng xếp ca.
+- Trong `/admin/dispatch`, danh bạ/ca/lịch toàn hệ thống chỉ tải cho Admin/Manager đúng quyền API; CustomerService dùng tra cứu và phân công theo đơn, không gọi các API quản lý này.
+- Tài xế được gán cho **xe của từng đơn thuê**, không phải gán cố định cho xe. Điểm vào: Vận hành → đơn có tài xế → “Phân xe và tài xế”; hoặc Điều phối → “Mở phân công tài xế” → “Phân chuyến theo mã đơn”. Lịch tài xế vẫn cho phép đổi tài xế của chuyến thật.
+- Form dùng `GET /rentals/{id}/assignable-drivers?eligibleOnly=false`; tài xế không hợp lệ bị disable kèm lý do tiếng Việt. Admin/Manager bổ sung email từ danh sách tài xế thật; CustomerService chỉ dùng tên thật do API candidates chưa có email và `/staff/drivers` chỉ cho Admin/Manager. Không gọi API danh bạ ngoài quyền hoặc chặn phân công khi dữ liệu bổ sung này lỗi. Lưu qua `POST /rentals/{id}/assignments/driver` cùng lý do/ghi chú; không gửi `driverStaffId=null` cho đơn có tài xế. Có lỗi inline, tải lại khi lỗi, khóa gửi lặp, giữ dữ liệu khi API từ chối. Tự lái/đơn kết thúc không hiện form tài xế; quyền phân công theo API: Admin/Manager/CustomerService.
+
+Acceptance cho điều chỉnh:
+
+- [x] Tạo/xếp/sửa/hủy ca đều tạm khóa; vẫn xem được dữ liệu thật và phân công tài xế cho đơn thuê.
+- [x] Phân công dùng tài xế hợp lệ theo từng đơn; không có lựa chọn tự lái trên đơn có tài xế.
+- [x] Kiểm thử thiếu tài xế, tài xế bận, lỗi API/mạng, giữ dữ liệu và retry, quyền chỉ đọc, desktop/mobile và không mutation ca.
+
 - **Priority:** P0; **Milestone:** M3; **Assignee:** Huy
 - **Phụ thuộc:** BE-32 (staff/driver, Done), BE-33 (lịch & khả dụng tài xế — Lạc, **chưa xong**), BE-14 (gán/đổi tài xế, `assignable-drivers`), FE-11 (shell, Anh), FE-FOUNDATION (DataTable, ImageUploader…), FE-02. Liên quan: FE-12 (Anh — danh mục phòng ban/cơ sở/vai trò), FE-23 (liên kết tài khoản).
 - **Ranh giới với Anh (cần xác nhận):** FE-12 sở hữu `/admin/departments`, `/admin/facilities`, `/admin/roles`. **FE-24 sở hữu toàn bộ `/admin/staffs/**` và `/admin/drivers/**`** (Anh đang có `/admin/staffs` là bảng tĩnh — sẽ được thay).
@@ -42,6 +56,8 @@ Quyền (mặc định, đối chiếu `[Authorize]` thật): **Admin, Manager**
 Hai chế độ theo BE-32 (xác nhận qua snapshot): (a) chọn **tài khoản có sẵn** chưa có hồ sơ staff (`Combobox` tìm user, loại user đã có hồ sơ staff — ràng buộc `staffs.user_id` duy nhất; lỗi trùng hiển thị thân thiện), (b) tạo mới user + hồ sơ nếu BE có. Trường: phòng ban, chi nhánh, ngày vào làm, `is_driver`, giấy phép (nếu tài xế). Sau tạo → trang chi tiết. Không tự cấp vai trò hệ thống (làm ở FE-23).
 
 ### 3.4 Bảng lịch tài xế `/admin/drivers/schedule`
+
+* **Điều phối `/admin/dispatch` (2026-10-22):** có danh sách tài xế đang hoạt động riêng, tải đủ các trang `GET /api/staff/drivers`, không phụ thuộc tài xế đã có ca/chuyến. Hiển thị email, tên, cơ sở và số ca chưa hủy trong khoảng đang xem; thiếu ca ghi rõ "Chưa có ca trong khoảng đang xem". Phân trang 10 tài xế, áp dụng/đặt lại bộ lọc tài xế. Thao tác "Xếp ca" mở form đã chọn đúng tài xế; không tự tạo ca khi tạo hồ sơ/cấp vai trò Driver. Bảng ca và chuyến chỉ hiện dữ liệu đã lưu. Có skeleton, lỗi đọc/tải lại riêng; lỗi ca không được báo là chưa có ca. Danh sách được làm mới sau cập nhật hồ sơ/GPLX hoặc vai trò/trạng thái tài khoản và có nút cập nhật thủ công.
 
 * Bộ chọn khoảng (tuần hiện tại mặc định, ←/→, hôm nay), lọc chi nhánh, tài xế, trạng thái (`assigned`, kèm lịch sử nếu BE có). Dữ liệu từ `GET /api/drivers/schedule?from&to&driverStaffId` (UTC).
 * **Bố cục:** hàng = tài xế, cột = ngày (desktop; mobile chuyển sang danh sách nhóm theo ngày). Mỗi khoảng là khối có chữ (mã đơn, giờ GMT+7, xe) + vùng đệm nhạt; **không** chỉ phân biệt bằng màu (viền nét/họa tiết cho `reassigned`/cảnh báo). Tài xế có bằng hết hạn trong tuần hiển thị biểu tượng cảnh báo. Có bảng "Xem dạng danh sách" thay thế cho trình đọc màn hình.

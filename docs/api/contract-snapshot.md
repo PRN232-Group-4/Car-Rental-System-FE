@@ -1,5 +1,13 @@
 # Snapshot Hợp Đồng API — Car Rental System (VRS Thong Dong)
 
+## Bổ sung source 22/10/2026 — Kiểm tra kèm duyệt
+
+Admin POST checked thêm approveRequest boolean, mặc định false. FE pending yêu cầu xác nhận rõ kiểm tra đạt kèm duyệt rồi gửi true; backend ghi evidence/phân công/confirmed_at/history và chuyển pre_inspection nguyên tử. Không tự start hoặc ghi paid. Pending đã pass dùng confirm riêng. Backend cũ chưa xử lý flag thì FE giữ pending từ dữ liệu server, giải thích chờ duyệt và có nút duyệt; không giả chuyển thanh tiến trình.
+
+## Bổ sung source 22/10/2026 — Quá hạn và thu phí sau trả xe
+
+GET rentals nhận status=overdue, lọc phía server trước phân trang; item thêm isOverdue boolean, lifecycle status vẫn renting. Invoice detail thêm kind/canConfirmCash/canCreateStaffCheckout. Staff POST `/invoices/{id}/staff-checkout` trả CheckoutResult cho overtime liên kết settlement completed; POST cash-confirmation thu overtime tiền mặt trước checkout_started_at, idempotent, có audit. Quyền Admin/Manager/CustomerService, không nhận amount/paid/email từ client, webhook mới ghi paid online. Backend cần cùng phiên bản source; chưa deploy. Xem [spec FE](../specs/FE-overdue-collection.md), [API backend](../../../Car-Rental-System-BE/docs/API.md).
+
 > **Cập nhật:** 15/10/2026  
 > **Nguồn đối chiếu:** Toàn bộ 18 controller tại `../Car-Rental-System-BE/src/VehicleRental.WebApi/Controllers/*.cs`, Application Contracts/DTOs, middleware `ApiSuccessResponseFilter`, `AuthorizationPolicies.cs`, DB migrations `0001`–`0018` và `Init.sql`.  
 > **Mục đích:** Cung cấp nguồn sự thật duy nhất (Single Source of Truth) cho tất cả module FE (`FE-02` đến `FE-25`) theo quy định tại mục 8 của `docs/specs/FE-FOUNDATION.md`. Mọi spec FE chỉ tin snapshot này; nếu spec có ví dụ khác biệt, snapshot này là căn cứ quyết định.
@@ -338,3 +346,4 @@ Dưới đây là các endpoint được mô tả trong spec của từng module
    - Bảng `inspections` có ràng buộc duy nhất `UNIQUE(rental_id, inspection_type)`. Do đó, xe thay thế ghi nhận inspection qua endpoint riêng `/replacement-inspections/{vehicleId}` và chưa thể ghi đè pre-inspection vào bảng chính nếu cùng loại.
 5. **Đổi Xe Khác Loại (Vehicle Swap):**
    - Code `NpgsqlAssignmentRepository.cs` kiểm tra nghiêm ngặt `vehicle_type_id`: Đổi xe khác loại sẽ trả lỗi **409 `VEHICLE_TYPE_MISMATCH`** để tránh phá vỡ bảng giá snapshot của đơn thuê.
+2026-10-22: GET/PUT rentals/{id}/inspection-assignment và POST rentals/{id}/inspection-assignment/checked thêm query inspectionType=pre_rental (default)|post_rental. Post chỉ ghi ở post_inspection, quyền như pre, không tự complete. Body/response giữ nguyên, backend/migration 0029 lưu phân công hai giai đoạn độc lập.

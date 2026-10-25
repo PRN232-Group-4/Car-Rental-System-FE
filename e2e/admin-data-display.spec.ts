@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const json = path.endsWith("/account/profile") ? profile
-      : path.endsWith("/vehicles/10") ? vehicle
+      : path.endsWith("/vehicle/10") ? vehicle
         : path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 }
           : path.endsWith("/maintenance") ? maintenance
             : path.endsWith("/vehicle-types") ? [{ id: 1, name: "Ô tô", type: "car", fuelType: "gasoline" }]
@@ -43,7 +43,7 @@ test("a broken avatar falls back to initials", async ({ page }) => {
 
 test("maintenance renders vehicle names and shares lookups between records", async ({ page }) => {
   let lookups = 0;
-  page.on("request", (request) => { if (new URL(request.url()).pathname === "/api/vehicles/10") lookups += 1; });
+  page.on("request", (request) => { if (new URL(request.url()).pathname === "/api/vehicle/10") lookups += 1; });
   await page.goto("/admin/maintenance");
   const table = page.getByRole("table", { name: "Danh sách phiếu bảo trì", exact: true });
   await expect(table.getByText("Toyota Vios", { exact: true })).toHaveCount(2);
@@ -54,12 +54,12 @@ test("maintenance renders vehicle names and shares lookups between records", asy
 });
 
 test("vehicle lookup failure keeps maintenance records usable and can retry", async ({ page }) => {
-  await page.route("**/api/vehicles/10", (route) => route.fulfill({ status: 500, json: { title: "Vehicle lookup failed" } }));
+  await page.route("**/api/vehicle/10", (route) => route.fulfill({ status: 500, json: { title: "Vehicle lookup failed" } }));
   await page.goto("/admin/maintenance");
   const table = page.getByRole("table", { name: "Danh sách phiếu bảo trì", exact: true });
   await expect(table.getByRole("button", { name: "Cập nhật", exact: true })).toHaveCount(2);
   await expect(table.getByText("Không tải được tên xe", { exact: false })).toHaveCount(2);
-  await page.route("**/api/vehicles/10", (route) => route.fulfill({ json: vehicle }));
+  await page.route("**/api/vehicle/10", (route) => route.fulfill({ json: vehicle }));
   await table.getByRole("button", { name: "Tải lại tên xe", exact: true }).first().click();
   await expect(table.getByText("Toyota Vios", { exact: true })).toHaveCount(2);
 });
@@ -139,7 +139,7 @@ test("dispatch hides shift and rental IDs while keeping edit and rental actions"
   await expect(trips.getByRole("link", { name: "Mở đơn thuê", exact: true })).toHaveAttribute("href", "/admin/rentals?rentalId=9501");
   await shifts.getByRole("button", { name: "Sửa / hủy ca", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Cập nhật ca làm", exact: true });
-  const saved = page.waitForRequest((request) => request.method() === "PUT" && new URL(request.url()).pathname === "/api/drivers/shifts/9401");
+  const saved = page.waitForRequest((request) => request.method() === "PUT" && new URL(request.url()).pathname === "/api/drivers/shift/9401");
   await dialog.getByRole("button", { name: "Lưu ca làm", exact: true }).click();
   await saved;
   await expect(dialog).toHaveCount(0);

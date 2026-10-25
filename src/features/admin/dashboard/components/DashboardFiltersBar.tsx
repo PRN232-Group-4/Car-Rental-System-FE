@@ -41,6 +41,7 @@ const PRESET_OPTIONS: { id: DashboardDatePreset; label: string }[] = [
   { id: "30d", label: "30 ngày qua" },
   { id: "this_month", label: "Tháng này" },
   { id: "last_month", label: "Tháng trước" },
+  { id: "this_year", label: "Năm nay" },
   { id: "custom", label: "Tùy chọn" },
 ];
 
@@ -102,7 +103,7 @@ export function DashboardFiltersBar({
       rows.push(["KPI", "Xe đang thuê", k.rentingVehicles.value ?? 0, k.rentingVehicles.previous ?? "—"]);
       rows.push(["KPI", "Tổng xe", k.totalVehicles.value ?? 0, k.totalVehicles.previous ?? "—"]);
       rows.push(["KPI", "Tỉ lệ khai thác (%)", `${k.utilizationRate.value ?? 0}%`, `${k.utilizationRate.previous ?? 0}%`]);
-      rows.push(["KPI", "Chi phí bảo dưỡng (VND)", k.maintenanceCost.value ?? 0, k.maintenanceCost.previous ?? "—"]);
+      rows.push(["KPI", "Xe đang bảo dưỡng", k.maintenanceVehicles.value ?? "—", k.maintenanceVehicles.previous ?? "—"]);
       rows.push(["KPI", "Gói đang hoạt động", k.activeSubscriptions.value ?? 0, k.activeSubscriptions.previous ?? "—"]);
     }
 
@@ -110,6 +111,13 @@ export function DashboardFiltersBar({
     if (exportData?.topVehicles) {
       exportData.topVehicles.forEach((v) => {
         rows.push(["Top Xe", v.name, `${v.revenue.toLocaleString("vi-VN")} đ`, `${v.rentals} lượt (${v.utilization}%)`]);
+      });
+    }
+
+    // Số lượt thuê theo ngày (cùng nguồn revenue-series)
+    if (exportData?.revenue) {
+      exportData.revenue.forEach((point) => {
+        rows.push(["Lượt thuê theo ngày", point.bucket, `${point.rentals ?? 0} lượt`, `${point.previousRentals ?? 0} lượt`]);
       });
     }
 

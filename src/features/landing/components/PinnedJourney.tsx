@@ -13,30 +13,30 @@ export default function PinnedJourney() {
   const phases = [
     {
       index: "01",
-      tag: "INSTANT DIGITAL UNLOCK",
-      title: "Bàn Giao Số Hoá 3 Phút Không Giấy Tờ",
+      tag: "VEHICLE HANDOVER",
+      title: "Kiểm Tra Và Nhận Xe",
       description:
-        "Tạm biệt những thủ tục ký giấy rườm rà. Bạn quét mã QR tại trạm Smart EV Hub để xác thực GPLX và ký biên bản điện tử trực tiếp trên điện thoại chỉ trong 3 phút.",
+        "Hoàn tất thông tin đặt xe, thanh toán và kiểm tra trước thuê. Nhận xe theo lịch và cơ sở đã được xác nhận trong đơn thuê.",
       icon: KeyRound,
-      highlight: "Quy trình số hoá 100%",
+      highlight: "Theo dõi tiến trình đơn thuê",
     },
     {
       index: "02",
-      tag: "UNLIMITED EV TOURING",
-      title: "Tự Do Hành Trình Không Khí Thải",
+      tag: "YOUR JOURNEY",
+      title: "Chủ Động Hành Trình",
       description:
-        "Tận hưởng cảm giác lái êm ái, yên tĩnh trên những cung đường đẹp nhất Việt Nam. Hệ thống trạm sạc nhanh phủ rộng và đội ngũ kỹ thuật cứu hộ pin túc trực 24/7.",
+        "Sử dụng phương tiện theo thời gian và điều kiện của hợp đồng. Theo dõi thông tin chuyến đi và gửi báo cáo sự cố từ tài khoản.",
       icon: BatteryCharging,
-      highlight: "Mạng lưới sạc nhanh & Cứu hộ 24/7",
+      highlight: "Thông tin chuyến đi trong tài khoản",
     },
     {
       index: "03",
-      tag: "ZERO-DEPOSIT SETTLEMENT",
-      title: "Trả Xe Nhanh & Quyết Toán Hoàn Cọc PayOS",
+      tag: "RETURN AND SETTLEMENT",
+      title: "Trả Xe Và Quyết Toán",
       description:
-        "Ghé trạm hoặc yêu cầu kỹ thuật viên thu hồi tận nơi. Hệ thống đối soát 6 góc ảnh gốc ban đầu; tiền cọc được lệnh hoàn trả tức thì qua cổng PayOS không chờ đợi.",
+        "Trả xe theo lịch hẹn để nhân viên kiểm tra sau thuê, đối chiếu biên bản và quyết toán các khoản phát sinh theo đơn thuê.",
       icon: RefreshCw,
-      highlight: "Hoàn cọc tự động qua PayOS",
+      highlight: "Đối chiếu biên bản và hóa đơn",
     },
   ];
 

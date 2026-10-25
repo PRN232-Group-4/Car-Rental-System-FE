@@ -4,18 +4,37 @@ import { fetchAllStaff, getStaffById } from "@/features/admin/staff/api";
 import type { RatingSummary, ReviewDetail, ReviewFilterParams, ReviewListItem } from "./types";
 
 export interface ReviewsResponse { items: ReviewListItem[]; page: number; pageSize: number; totalCount: number }
-interface StaffRating { id: number; rentalId: number; staffId: number; rating: number; comment: string | null; createdAt: string }
+interface StaffRating {
+  id: number;
+  rentalId: number;
+  staffId: number;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  status?: string | null;
+  customerName?: string | null;
+  replyText?: string | null;
+  replyBy?: string | null;
+  replyAt?: string | null;
+}
 
 async function loadRatings(staffId?: number): Promise<ReviewDetail[]> {
   const staff = staffId ? [await getStaffById(staffId)] : await fetchAllStaff();
   const groups = await Promise.all(staff.map(async (person) => {
-    const ratings = await backendApiClient.get<StaffRating[]>(`staff/${person.id}/ratings`);
-    if (!Array.isArray(ratings)) throw new Error("Dữ liệu đánh giá không hợp lệ. Vui lòng thử lại.");
+    const response = await backendApiClient.get<StaffRating[] | { items?: StaffRating[] }>(`staff/${person.id}/ratings`);
+    const ratings = Array.isArray(response) ? response : (response.items ?? []);
     return ratings.map((rating): ReviewDetail => ({
-      id: rating.id, rating: rating.rating, comment: rating.comment ?? "", commentPreview: rating.comment ?? "",
-      createdAt: rating.createdAt, rentalId: rating.rentalId,
+      id: rating.id,
+      rating: rating.rating,
+      comment: rating.comment ?? "",
+      commentPreview: rating.comment ?? "",
+      createdAt: rating.createdAt,
+      rentalId: rating.rentalId,
       staff: { id: person.id, fullName: person.fullName, isDriver: person.isDriver, departmentName: person.department?.name },
-      customerName: "API chưa cung cấp tên khách hàng", status: "unavailable", hasReply: false,
+      customerName: rating.customerName || "API chưa cung cấp tên khách hàng",
+      status: (rating.status === "visible" || rating.status === "hidden" || rating.status === "reported") ? rating.status : "unavailable",
+      hasReply: Boolean(rating.replyText),
+      reply: rating.replyText ? { text: rating.replyText, by: rating.replyBy ?? "Quản lý", at: rating.replyAt ?? rating.createdAt } : undefined,
     }));
   }));
   return groups.flat();
@@ -59,8 +78,8 @@ export async function fetchRatingSummary(staffId?: number): Promise<RatingSummar
 }
 
 export async function hideReview(payload: { id: number; reason: string }): Promise<ReviewDetail> {
-  void payload; return unsupportedApi("ẩn đánh giá (cần PATCH /api/ratings/{id})"); }
+  void payload; return unsupportedApi("ẩn đánh giá (cần PATCH /api/rating/{id})"); }
 export async function unhideReview(id: number): Promise<ReviewDetail> {
-  void id; return unsupportedApi("hiện lại đánh giá (cần PATCH /api/ratings/{id})"); }
+  void id; return unsupportedApi("hiện lại đánh giá (cần PATCH /api/rating/{id})"); }
 export async function replyReview(payload: { id: number; replyText: string }): Promise<ReviewDetail> {
-  void payload; return unsupportedApi("trả lời đánh giá (cần POST /api/ratings/{id}/reply)"); }
+  void payload; return unsupportedApi("trả lời đánh giá (cần POST /api/rating/{id}/reply)"); }

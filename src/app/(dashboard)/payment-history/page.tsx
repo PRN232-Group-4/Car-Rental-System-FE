@@ -5,11 +5,15 @@ import Link from "@/components/navigation/NavigationLink";
 import { CreditCard, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { getPayments, PaymentSummary } from "@/features/payments";
+import { formatDateTime } from "@/lib/time";
+import { formatVnd } from "@/lib/format";
 
 export default function LichSuThanhToanPage() {
-  const { data: payments = [], isLoading } = useQuery<PaymentSummary[]>({
+  const { data: payments = [], isLoading, error, refetch } = useQuery<PaymentSummary[]>({
     queryKey: ["payments"],
     queryFn: () => getPayments(),
   });
@@ -73,7 +77,7 @@ export default function LichSuThanhToanPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · SỔ CÁI TÀI CHÍNH"
-        title={<>Lịch sử thanh toán & <em className="italic text-td-teal">hoàn cọc.</em></>}
+        title={<>Lịch sử thanh toán & <span className="text-td-teal">hoàn cọc.</span></>}
         description="Minh bạch toàn bộ dòng tiền: tiền thuê, tiền cọc đã nộp và trạng thái hoàn cọc sau khi kết thúc chuyến xe."
       >
         <div className="border-l border-td-rule pl-4 text-right">
@@ -91,7 +95,7 @@ export default function LichSuThanhToanPage() {
             Tổng tiền đã nộp
           </div>
           <div className="text-2xl font-bold text-td-ink">
-            {totalPaid.toLocaleString("vi-VN")} đ
+            {formatVnd(totalPaid)}
           </div>
           <div className="text-xs text-td-muted mt-1">Bao gồm cọc và phí thuê</div>
         </div>
@@ -101,7 +105,7 @@ export default function LichSuThanhToanPage() {
             Tiền cọc đã hoàn trả
           </div>
           <div className="text-2xl font-bold text-info">
-            {totalRefunded.toLocaleString("vi-VN")} đ
+            {formatVnd(totalRefunded)}
           </div>
           <div className="text-xs text-td-muted mt-1">Đã giải ngân về tài khoản</div>
         </div>
@@ -111,7 +115,7 @@ export default function LichSuThanhToanPage() {
             Tiền cọc đang giữ / chờ duyệt
           </div>
           <div className="text-2xl font-bold text-primary-graphic">
-            {depositHolding.toLocaleString("vi-VN")} đ
+            {formatVnd(depositHolding)}
           </div>
           <div className="text-xs text-td-muted mt-1">Chờ biên bản hậu kiểm định</div>
         </div>
@@ -142,7 +146,14 @@ export default function LichSuThanhToanPage() {
       {/* Ledger Table */}
       <div className="rounded border border-td-rule bg-td-white overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-td-muted">Đang tải lịch sử giao dịch...</div>
+          <div className="p-6"><TableSkeleton label="Đang tải lịch sử giao dịch" rows={5} columns={5} /></div>
+        ) : error ? (
+          <div className="p-6">
+            <ErrorState
+              message="Không thể tải lịch sử giao dịch. Vui lòng kiểm tra kết nối và thử lại."
+              onRetry={() => { void refetch(); }}
+            />
+          </div>
         ) : filteredPayments.length === 0 ? (
           <div className="p-12 text-center space-y-2">
             <CreditCard className="w-10 h-10 text-td-muted mx-auto" />
@@ -155,7 +166,7 @@ export default function LichSuThanhToanPage() {
               <thead className="bg-td-chalk text-xs font-semibold text-td-muted uppercase border-b border-td-rule">
                 <tr>
                   <th className="p-4 sm:p-5">Giao dịch</th>
-                  <th className="p-4 sm:p-5">Mã đơn / Hoá đơn</th>
+                  <th className="p-4 sm:p-5">Mã đơn / Hóa đơn</th>
                   <th className="p-4 sm:p-5">Phương thức</th>
                   <th className="p-4 sm:p-5">Thời gian</th>
                   <th className="p-4 sm:p-5">Số tiền</th>
@@ -201,7 +212,7 @@ export default function LichSuThanhToanPage() {
                               href={`/invoices/${p.invoiceId}`}
                               className="block text-xs text-primary hover:underline"
                             >
-                              Hoá đơn #{p.invoiceId}
+                              Hóa đơn #{p.invoiceId}
                             </Link>
                           )}
                         </div>
@@ -214,7 +225,7 @@ export default function LichSuThanhToanPage() {
                       </td>
 
                       <td className="p-4 sm:p-5 text-xs text-td-muted">
-                        {new Date(p.createdAt).toLocaleDateString("vi-VN")}{" "}
+                        {formatDateTime(p.createdAt)}{" "}
                         <span className="text-xs text-td-muted">
                           {new Date(p.createdAt).toLocaleTimeString("vi-VN", {
                             hour: "2-digit",
@@ -226,7 +237,7 @@ export default function LichSuThanhToanPage() {
                       <td className="p-4 sm:p-5 font-bold text-sm">
                         <span className={meta.isCredit ? "text-info" : "text-td-ink"}>
                           {meta.isCredit ? "+" : "-"}
-                          {p.amount.toLocaleString("vi-VN")} đ
+                          {formatVnd(p.amount)}
                         </span>
                       </td>
 

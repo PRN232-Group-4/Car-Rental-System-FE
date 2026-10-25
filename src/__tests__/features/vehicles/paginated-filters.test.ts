@@ -1,70 +1,56 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultApiClient } from "@/api/default-api-client";
 import { getVehiclesPaginated } from "@/features/vehicles/api";
 
-const raw = (overrides: Record<string, unknown>) => ({
-  id: 1,
-  brand: "Honda",
-  model: "City",
-  vehicleType: "Ô tô 5 chỗ",
-  status: "available",
-  hourlyPrice: 100000,
-  longtermPrice: 3000000,
-  facilityId: 5,
-  facility: "Chi nhánh Quận 1",
-  ...overrides,
-});
+beforeEach(() => vi.restoreAllMocks());
 
-const fleet = [
-  raw({ id: 1, brand: "Toyota", model: "Corolla Cross", vehicleType: "Ô tô 5 chỗ", hourlyPrice: 120000 }),
-  raw({ id: 2, brand: "VinFast", model: "VF 8", vehicleType: "Ô tô điện", hourlyPrice: 250000 }),
-  raw({ id: 3, brand: "Honda", model: "SH 160i", vehicleType: "Xe máy xăng", hourlyPrice: 60000 }),
-  raw({ id: 4, brand: "VinFast", model: "Feliz S", vehicleType: "Xe máy điện", hourlyPrice: 50000 }),
-];
+const car = {
+  id: 2, brand: "VinFast", model: "VF 8", vehicleType: { id: 8, name: "Ô tô điện", type: "car", fuelType: "electric" },
+  facility: { id: 5, name: "Chi nhánh Quận 1" }, priceHourly: 250000, priceLongterm: 30000000,
+  summary: { seatCount: 5, transmission: "CVT" }, badges: { electric: true },
+};
 
-function mockFleet(onQuery?: (query: Record<string, unknown>) => void) {
-  return vi.spyOn(defaultApiClient, "get").mockImplementation(async (_path, query) => {
-    const params = (query ?? {}) as Record<string, unknown>;
-    onQuery?.(params);
-    const page = Number(params.page ?? 1);
-    const pageSize = Number(params.pageSize ?? 9);
-    return { items: fleet.slice((page - 1) * pageSize, page * pageSize), totalCount: fleet.length, page, pageSize };
-  });
-}
-
-describe("getVehiclesPaginated", () => {
-  it("only sends the parameters the API supports", async () => {
-    const seen: Record<string, unknown>[] = [];
-    const spy = mockFleet((query) => seen.push(query));
-    await getVehiclesPaginated({ category: "electric_car", search: "VinFast", sort: "price_asc", pageSize: 9 });
-    expect(spy).toHaveBeenCalled();
-    for (const query of seen) {
-      expect(Object.keys(query).sort()).toEqual(["page", "pageSize"]);
-    }
+// The new /vehicles/search endpoint applies filters and sorting before server pagination.
+describe("getVehiclesPaginated search contract", () => {
+  it("uses the unrented public search for the landing preview too", async () => {
+    const get = vi.spyOn(defaultApiClient, "get").mockResolvedValue({
+      items: [{ id: 3, brand: "Honda", model: "SH", vehicleType: {type:"motorbike",fuelType:"petrol"}, priceHourly: 60000 }],
+      page: 1, pageSize: 6, totalCount: 9,
+    });
+    const result = await getVehiclesPaginated({ status: "available", page: 1, pageSize: 6 });
+    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles/search", { rentalType:"hourly", page: 1, pageSize: 6 });
+    expect(result.items[0]).toMatchObject({ category: "motorbike", hourlyPrice: 60000, isAvailable: true });
   });
 
-  it("filters by category locally and paginates the filtered result", async () => {
-    mockFleet();
-    const electricCars = await getVehiclesPaginated({ category: "electric_car", pageSize: 9 });
-    expect(electricCars.items.map((vehicle) => vehicle.id)).toEqual([2]);
-    expect(electricCars.totalCount).toBe(1);
-
-    const motorbikes = await getVehiclesPaginated({ category: "motorbike", pageSize: 1 });
-    expect(motorbikes.items.map((vehicle) => vehicle.id)).toEqual([3]);
-    expect(motorbikes.totalCount).toBe(1);
+  it("uses public search with the backend query names", async () => {
+    const get = vi.spyOn(defaultApiClient, "get").mockResolvedValue({ items: [car], page: 1, pageSize: 9, totalCount: 1 });
+    await getVehiclesPaginated({ category: "electric_car", search: " VinFast ", sort: "price_asc", pageSize: 9 });
+    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles/search", {
+      category: "electric_car", q: "VinFast", sort: "price_asc", rentalType: "hourly", page: 1, pageSize: 9,
+    });
   });
 
-  it("applies branch, price and search filters to the whole fleet", async () => {
-    mockFleet();
-    expect((await getVehiclesPaginated({ priceMax: 60000 })).items.map((v) => v.id)).toEqual([3, 4]);
-    expect((await getVehiclesPaginated({ search: "vinfast" })).items.map((v) => v.id)).toEqual([2, 4]);
-    expect((await getVehiclesPaginated({ search: "o to dien" })).items.map((v) => v.id)).toEqual([2]);
+  it("preserves filtered results and the server total instead of filtering a single page again", async () => {
+    vi.spyOn(defaultApiClient, "get").mockResolvedValue({ items: [car], page: 2, pageSize: 1, totalCount: 7 });
+    const result = await getVehiclesPaginated({ category: "electric_car", page: 2, pageSize: 1 });
+    expect(result).toMatchObject({ page: 2, pageSize: 1, totalCount: 7, items: [{ id: 2, category: "electric_car", facilityId: 5 }] });
   });
 
-  it("sorts locally and keeps the requested page", async () => {
-    mockFleet();
-    const asc = await getVehiclesPaginated({ sort: "price_asc", pageSize: 2, page: 2 });
-    expect(asc.items.map((vehicle) => vehicle.id)).toEqual([1, 2]);
-    expect(asc.totalCount).toBe(4);
+  it("combines category, branch, search and pricing filters in one server request", async () => {
+    const get = vi.spyOn(defaultApiClient, "get").mockResolvedValue({ items: [], page: 1, pageSize: 9, totalCount: 0 });
+    await getVehiclesPaginated({ category: "electric_car", facilityId: "5", brand: "VinFast", seats: 5,
+      fuelType: "electric", transmission: "cvt", priceMin: 100000, priceMax: 300000, search: " VF 8 ", mode: "longterm" });
+    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles/search", {
+      category: "electric_car", facilityId: "5", brand: "VinFast", seatCount: 5, fuelType: "electric", transmission: "cvt",
+      minPrice: 100000, maxPrice: 300000, q: "VF 8", rentalType: "longterm", page: 1, pageSize: 9,
+    });
+  });
+
+  it("preserves server ordering and translates the newest sort", async () => {
+    const get = vi.spyOn(defaultApiClient, "get").mockResolvedValue({ items: [{ ...car, id: 4 }, car], page: 2, pageSize: 2, totalCount: 8 });
+    const result = await getVehiclesPaginated({ sort: "year_desc", page: 2, pageSize: 2 });
+    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles/search", { sort: "newest", rentalType: "hourly", page: 2, pageSize: 2 });
+    expect(result.items.map((vehicle) => vehicle.id)).toEqual([4, 2]);
+    expect(result.totalCount).toBe(8);
   });
 });

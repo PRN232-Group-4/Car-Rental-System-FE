@@ -8,6 +8,8 @@ import { AdminFilterBar, AdminFilterButton, AdminFilterField } from "@/component
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
+import { AdminRowAction } from "@/components/admin/AdminRowAction";
+import { useOptionalSession } from "@/features/auth/AuthContext";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
 import { InlineInput, InlineSelect, ValidatedForm, mapValidationErrors, useInlineValidation } from "@/components/forms/inline-validation";
@@ -23,9 +25,12 @@ const licenseLabels: Record<string, string> = {
 const emptyFilter = { search: "", licenseStatus: "", isActive: "" };
 const pageButtonClass = "inline-flex h-8 w-8 items-center justify-center rounded border border-td-rule bg-transparent text-td-ink hover:bg-td-chalk disabled:opacity-40";
 
-export default function CustomerDirectory() {
-  const [filter, setFilter] = useState(emptyFilter);
-  const [activeFilter, setActiveFilter] = useState(emptyFilter);
+export default function CustomerDirectory({ initialLicenseStatus = "" }: { initialLicenseStatus?: string }) {
+  const session = useOptionalSession();
+  const canOpenProfile = Boolean(session?.hasAnyRole(["Admin", "Staff", "CustomerService", "Manager"]));
+  const initialFilter = { ...emptyFilter, licenseStatus: initialLicenseStatus === "pending" ? "pending" : "" };
+  const [filter, setFilter] = useState(initialFilter);
+  const [activeFilter, setActiveFilter] = useState(initialFilter);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const validation = useInlineValidation();
@@ -73,7 +78,7 @@ export default function CustomerDirectory() {
       index="07"
       tag="ORG"
       kicker="TỔ CHỨC · KHÁCH HÀNG"
-      title={<>Khách <em className="italic text-td-teal">hàng.</em></>}
+      title={<>Khách <span className="text-td-teal">hàng.</span></>}
       description="Tra cứu toàn bộ khách hàng và theo dõi giấy phép lái xe đang chờ phê duyệt."
     >
       <TransitFolioMetric
@@ -113,16 +118,17 @@ export default function CustomerDirectory() {
       </div>
       <AdminTable className="min-w-[860px]" aria-busy={query.isFetching}>
         <caption className="sr-only">Danh sách khách hàng</caption>
-        <thead><tr>{["Khách hàng", "Số điện thoại", "Giấy phép lái xe", "Tài khoản", "Điểm tích lũy"].map((label) => <th key={label} scope="col">{label}</th>)}</tr></thead>
+        <thead><tr>{["Khách hàng", "Số điện thoại", "Giấy phép lái xe", "Tài khoản", "Điểm tích lũy"].map((label) => <th key={label} scope="col">{label}</th>)}{canOpenProfile && <th scope="col" data-actions>Thao tác</th>}</tr></thead>
         <tbody>
-          {query.isFetching ? <AdminTableSkeleton columns={5} label="Đang tải danh sách khách hàng" /> : !query.error && customers.map((customer) => <tr key={customer.id}>
+          {query.isFetching ? <AdminTableSkeleton columns={canOpenProfile ? 6 : 5} label="Đang tải danh sách khách hàng" /> : !query.error && customers.map((customer) => <tr key={customer.id}>
             <td><p className="font-semibold text-td-ink">{customer.fullName?.trim() || customer.email || "Chưa có tên khách hàng"}</p><p className="mt-1 font-mono text-[11px] text-td-muted">{customer.email}</p></td>
             <td className="text-td-muted">{customer.phone?.trim() || "Chưa cập nhật"}</td>
             <td><AdminStatusBadge domain="license" status={customer.licenseStatus}>{licenseLabels[customer.licenseStatus] ?? "Chưa xác định"}</AdminStatusBadge></td>
             <td><AdminStatusBadge domain="activity" status={customer.isActive ? "active" : "inactive"}>{customer.isActive ? "Đang hoạt động" : "Đã ngừng hoạt động"}</AdminStatusBadge></td>
             <td className="font-mono tabular-nums text-td-ink">{customer.loyaltyPoint.toLocaleString("vi-VN")}</td>
+            {canOpenProfile && <td data-actions><AdminRowAction action="view" href={`/admin/users/detail?id=${customer.userId}`} label={`Xem hồ sơ GPLX ${customer.email}`} /></td>}
           </tr>)}
-          {!query.isFetching && !query.error && !customers.length && <AdminTableEmptyRow colSpan={5}>Không có khách hàng phù hợp. Hãy thử thay đổi hoặc đặt lại bộ lọc.</AdminTableEmptyRow>}
+          {!query.isFetching && !query.error && !customers.length && <AdminTableEmptyRow colSpan={canOpenProfile ? 6 : 5}>Không có khách hàng phù hợp. Hãy thử thay đổi hoặc đặt lại bộ lọc.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
       <div className="flex flex-col gap-3 border-t border-td-rule py-3 sm:flex-row sm:items-center sm:justify-between">

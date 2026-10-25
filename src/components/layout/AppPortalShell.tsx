@@ -11,6 +11,7 @@ import {
   ChevronDown,
   CircleUserRound,
   LogOut,
+  KeyRound,
   Menu,
   Moon,
   PanelLeftClose,
@@ -410,6 +411,11 @@ export default function AppPortalShell({
                     >
                       <CircleUserRound className="h-4 w-4 text-primary" />
                       <span>{profileButtonText}</span>
+                    </Link>
+                    <Link href={`${profileHref}#change-password`} onClick={() => setHeaderProfileOpen(false)}
+                      className="flex items-center gap-2.5 rounded px-2.5 py-2 text-xs font-semibold text-td-ink hover:bg-td-paper transition-colors">
+                      <KeyRound className="h-4 w-4 text-primary" aria-hidden="true" />
+                      <span>Đổi mật khẩu</span>
                     </Link>
                   </div>
 

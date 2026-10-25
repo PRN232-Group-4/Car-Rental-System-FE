@@ -76,7 +76,7 @@ export function IncidentTriage() {
         index="03"
         tag="TRI"
         kicker="TIẾP NHẬN & XỬ LÝ · SỰ CỐ"
-        title={<>Xử lý khiếu nại & <em className="italic text-td-teal">báo cáo sự cố.</em></>}
+        title={<>Xử lý khiếu nại & <span className="text-td-teal">báo cáo sự cố.</span></>}
         description="Bàn ưu tiên xử lý sự cố. Đọc thời hạn phản hồi trước, mở bằng chứng sau. Không giấu công việc khẩn cấp trong các badge nhiều màu."
       >
         <TransitFolioMetric

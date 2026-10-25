@@ -8,22 +8,24 @@ import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
 import { useAdminTheme } from "@/features/admin/use-admin-theme";
-import { getFacilities, getStaffById } from "@/features/admin/api";
-import { ADMIN_NAV_ITEMS, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
-import { hasAnyRole } from "@/features/auth/access";
+import { getNavigation, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
 import type { Role } from "@/features/auth/roles";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "./transit-desk.module.css";
 import RentalLiquidTransition from "./RentalLiquidTransition";
-import { FormSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { FormSkeleton } from "@/components/ui/Skeleton";
+import { operatorContext } from "./operator-context";
 import AccountAvatar from "@/components/ui/AccountAvatar";
-import { House, Moon, Sun, LogOut, User, Volume2, VolumeX } from "lucide-react";
+import { House, Moon, Sun, LogOut, User, KeyRound, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 import {
   isHapticAudioEnabled,
   setHapticAudioEnabled,
   playTactileClick,
 } from "@/lib/audio/haptic-audio";
+import { useNavigationCounts } from "@/features/admin/use-navigation-counts";
+import { navigationCount } from "@/features/admin/navigation-counts";
+import { NavigationCount, NavigationDot } from "./NavigationIndicator";
 
 export interface TransitDeskShellProps {
   children: ReactNode;
@@ -37,10 +39,9 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   const { account, checkingAccess, accessError } = usePortalAccess(
     isAdminOrStaffAccount,
   );
+  const navigationCounts = useNavigationCounts(account);
+  const counts = navigationCounts.isError ? undefined : navigationCounts.data;
 
-  const [staffRole, setStaffRole] = useState<string | null>(null);
-  const [facilityName, setFacilityName] = useState<string | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
   const [isRouteIndexOpen, setIsRouteIndexOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
@@ -75,66 +76,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
       }
     };
   }, []);
-
-  // Load operator assignment details safely
-  useEffect(() => {
-    if (!account) return;
-    let active = true;
-
-    const loadAssignment = async () => {
-      try {
-        let nextStaffRole: string | null = null;
-        let nextFacilityName: string | null = null;
-        const isAdmin = userRoles.some((r) => r.toLowerCase() === "admin");
-
-        if (account.staffId) {
-          try {
-            const staff = await getStaffById(account.staffId);
-            if (active && staff) {
-              nextStaffRole = staff.isDriver ? "Tài xế trạm" : "Điều phối viên";
-              if (staff.departmentName) {
-                nextStaffRole = `${nextStaffRole} · ${staff.departmentName}`;
-              }
-              if (staff.facilityName) {
-                nextFacilityName = staff.facilityName;
-              }
-            }
-          } catch {
-            // Staff details may not exist for pure admins
-          }
-        }
-
-        if (!nextFacilityName && account.facilityId && isAdmin) {
-          try {
-            const facilities = await getFacilities();
-            const facility = facilities.find(
-              (f) => f.id === account.facilityId,
-            );
-            if (active && facility) {
-              nextFacilityName = facility.name;
-            }
-          } catch {
-            // Ignore if forbidden
-          }
-        }
-
-        if (active) {
-          setStaffRole(nextStaffRole);
-          setFacilityName(nextFacilityName);
-        }
-      } finally {
-        if (active) {
-          setProfileLoading(false);
-        }
-      }
-    };
-
-    void loadAssignment();
-    return () => {
-      active = false;
-    };
-  }, [account, userRoles]);
-
   // Global hotkey for Ctrl+K / Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -147,13 +88,8 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Filter allowed navigation items by user roles
-  const permittedItems = useMemo(() => {
-    return ADMIN_NAV_ITEMS.filter((item: NavItem) => {
-      if (!item.roles || item.roles.length === 0) return true;
-      return hasAnyRole(userRoles, item.roles);
-    });
-  }, [userRoles]);
+  // Masthead và command palette dùng chung luật lọc với getNavigation (role hiển thị + quyền route)
+  const permittedItems = useMemo(() => getNavigation(userRoles, "admin"), [userRoles]);
 
   // Group permitted items into chapters
   const chaptersWithRoutes = useMemo(() => {
@@ -173,7 +109,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     () =>
       permittedItems.map((item) => ({
         chapter: ROUTE_CHAPTER_MAP[item.href] || "Hệ thống",
-        href: item.href,
+        href: item.href + (item.defaultQuery ?? ""),
         label: item.label,
         description: item.description,
       })),
@@ -277,7 +213,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
 
   const displayName = account?.fullName || user?.fullName || "Quản trị viên";
   const avatarUrl = account?.avatarUrl || user?.avatarUrl;
-  const jobTitle = staffRole || "Nhân sự vận hành";
+  const { jobTitle, facility } = operatorContext(account);
 
   return (
     <div
@@ -290,202 +226,192 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     >
       {/* Masthead + Context Strip: dính đỉnh cùng nhau khi cuộn */}
       <div className={styles.topBar}>
-        <header className={styles.masthead}>
-          {/* Monogram / Brand Block */}
-          <Link
-            href="/admin"
-            className={styles.logoZone}
-            aria-label="Thong Dong Transit Desk"
-          >
-            <div className={styles.tdMark}>
-              t<span className={styles.tdMarkSlash}>/</span>d
-            </div>
-            <div>
-              <div className={styles.brandName}>Thong Dong</div>
-              <div className={styles.brandKicker}>TRANSIT DESK · OPERATIONS</div>
-            </div>
-          </Link>
-
-          {/* Chapter Index (Wayfinding Segments) */}
-          <nav ref={chaptersNavRef} className={styles.chapters} aria-label="Nhóm chức năng">
-            <div ref={gliderRef} className={styles.chapterGlider} aria-hidden="true" />
-            {Array.from(chaptersWithRoutes.entries()).map(([chapter, routes]) => {
-              const isActive = chapter === activeChapter;
-              const primaryHref = routes[0]?.href || "/admin";
-              return (
-                <Link
-                  key={chapter}
-                  href={primaryHref}
-                  onClick={() => playTactileClick()}
-                  className={styles.chapterBtn}
-                  aria-current={isActive ? "true" : undefined}
-                >
-                  {chapter}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Utilities */}
-          <div className={styles.utilities}>
-            <div className={styles.utilityMeta}>
-              <div className="font-bold text-td-ink">
-                {profileLoading ? (
-                  <Skeleton className="h-3 w-20" />
-                ) : (
-                  facilityName || "Trạm Trung Tâm"
-                )}
-              </div>
-              <div className="text-[10px] text-td-muted">{jobTitle}</div>
-            </div>
-
-            <CommandTrigger onClick={() => setIsRouteIndexOpen(true)} />
-
-            <button
-              type="button"
-              id="admin-theme-toggle"
-              data-testid="admin-theme-toggle"
-              onClick={() => {
-                playTactileClick();
-                toggleTheme();
-              }}
-              className={styles.themeToggle}
-              aria-label={
-                theme === "dark"
-                  ? "Chuyển giao diện sáng"
-                  : "Chuyển giao diện tối"
-              }
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </button>
-
-            {/* Audio Haptic Toggle */}
-            <button
-              type="button"
-              id="admin-audio-toggle"
-              data-testid="admin-audio-toggle"
-              onClick={handleToggleAudio}
-              className={styles.themeToggle}
-              aria-label={
-                isAudioEnabled
-                  ? "Tắt âm thanh haptic (Đang bật)"
-                  : "Bật âm thanh haptic (Đang tắt)"
-              }
-              title={isAudioEnabled ? "Âm thanh haptic: Đang bật" : "Âm thanh haptic: Đang tắt"}
-            >
-              {isAudioEnabled ? (
-                <Volume2 className="h-4 w-4 text-td-oxide" />
-              ) : (
-                <VolumeX className="h-4 w-4 text-td-muted" />
-              )}
-            </button>
-
-            {/* User Account Menu */}
-            <div>
-              <button
-                type="button"
-                onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                aria-label="Tài khoản cá nhân"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-td-rule bg-td-white text-xs font-bold text-td-ink hover:border-td-ink cursor-pointer"
-              >
-                <AccountAvatar src={avatarUrl} name={displayName} size={36} className="h-9 w-9 rounded-full" />
-              </button>
-
-              {isUserMenuOpen && (
-                <div
-                  className={styles.accountMenu}
-                  onMouseLeave={() => setIsUserMenuOpen(false)}
-                >
-                  <div className="px-3 py-2 border-b border-td-rule mb-1">
-                    <div className="font-bold text-td-ink">{displayName}</div>
-                    <div className="text-[11px] text-td-muted">
-                      {account?.email || user?.email}
-                    </div>
-                  </div>
-                  <Link
-                    href="/"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer"
-                  >
-                    <House aria-hidden="true" className="h-3.5 w-3.5" />
-                    <span>Về trang chủ</span>
-                  </Link>
-                  <Link
-                    href="/admin/profile"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer"
-                  >
-                    <User className="h-3.5 w-3.5" />
-                    <span>Hồ sơ cá nhân</span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsUserMenuOpen(false);
-                      void handleLogout();
-                    }}
-                    className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-td-oxide hover:bg-td-chalk cursor-pointer"
-                  >
-                    <LogOut className="h-3.5 w-3.5" />
-                    <span>Đăng xuất</span>
-                  </button>
-                </div>
-              )}
-            </div>
+      <header className={styles.masthead}>
+        {/* Monogram / Brand Block */}
+        <Link
+          href="/admin"
+          className={styles.logoZone}
+          aria-label="Thong Dong Transit Desk"
+        >
+          <div className={styles.tdMark}>
+            t<span className={styles.tdMarkSlash}>/</span>d
           </div>
-        </header>
+          <div>
+            <div className={styles.brandName}>Thong Dong</div>
+            <div className={styles.brandKicker}>TRANSIT DESK · OPERATIONS</div>
+          </div>
+        </Link>
 
-        {/* Contextual Route Strip */}
-        <div className={styles.contextStrip}>
-          <span className={styles.contextLabel}>
-            {activeChapter.toUpperCase()}
-          </span>
-          <svg
-            className={styles.contextDelimiter}
-            width="8"
-            height="14"
-            viewBox="0 0 8 14"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
+        {/* Chapter Index (Wayfinding Segments) */}
+        <nav ref={chaptersNavRef} className={styles.chapters} aria-label="Nhóm chức năng">
+          <div ref={gliderRef} className={styles.chapterGlider} aria-hidden="true" />
+          {Array.from(chaptersWithRoutes.entries()).map(([chapter, routes]) => {
+            const isActive = chapter === activeChapter;
+            const primaryHref = routes[0] ? routes[0].href + (routes[0].defaultQuery ?? "") : "/admin";
+            return (
+              <Link
+                key={chapter}
+                href={primaryHref}
+                onClick={() => playTactileClick()}
+                className={styles.chapterBtn}
+                aria-current={isActive ? "true" : undefined}
+              >
+                {chapter}
+                <NavigationDot hasWork={routes.some((route) => navigationCount(counts, route.href) > 0)} />
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Utilities */}
+        <div className={styles.utilities}>
+          <div className={styles.utilityMeta}>
+            <div className="font-bold text-td-ink">
+              {displayName}
+            </div>
+            <div className="text-[10px] text-td-muted">{jobTitle}</div>
+          </div>
+
+          <CommandTrigger onClick={() => setIsRouteIndexOpen(true)} />
+
+          <button
+            type="button"
+            id="admin-theme-toggle"
+            data-testid="admin-theme-toggle"
+            onClick={() => {
+              playTactileClick();
+              toggleTheme();
+            }}
+            className={styles.themeToggle}
+            aria-label={
+              theme === "dark"
+                ? "Chuyển giao diện sáng"
+                : "Chuyển giao diện tối"
+            }
           >
-            <path
-              d="M7 1L1 13"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-          <nav
-            className={styles.contextLinks}
-            aria-label={`Các route thuộc nhóm ${activeChapter}`}
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </button>
+
+          {/* Micro-Haptic Audio Toggle */}
+          <button
+            type="button"
+            id="admin-audio-toggle"
+            data-testid="admin-audio-toggle"
+            onClick={handleToggleAudio}
+            className={styles.themeToggle}
+            aria-label={
+              isAudioEnabled
+                ? "Tắt âm thanh haptic (Đang bật)"
+                : "Bật âm thanh haptic (Đang tắt)"
+            }
+            title={isAudioEnabled ? "Âm thanh haptic: Đang bật" : "Âm thanh haptic: Đang tắt"}
           >
-            {currentChapterRoutes.map((route) => {
-              const isCurrent =
-                route.href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname === route.href ||
-                    pathname.startsWith(`${route.href}/`);
-              return (
+            {isAudioEnabled ? (
+              <Volume2 className="h-4 w-4 text-td-oxide" />
+            ) : (
+              <VolumeX className="h-4 w-4 text-td-muted" />
+            )}
+          </button>
+
+          {/* User Account Menu */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setIsUserMenuOpen((prev) => !prev)}
+              aria-label="Tài khoản cá nhân"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-td-rule bg-td-white text-xs font-bold text-td-ink hover:border-td-ink cursor-pointer"
+            >
+              <AccountAvatar src={avatarUrl} name={displayName} size={36} className="h-9 w-9 rounded-full" />
+            </button>
+
+            {isUserMenuOpen && (
+              <div
+                className={styles.accountMenu}
+                onMouseLeave={() => setIsUserMenuOpen(false)}
+              >
+                <div className="px-3 py-2 border-b border-td-rule mb-1">
+                  <div className="font-bold text-td-ink">{displayName}</div>
+                  <div className="text-[11px] text-td-muted">
+                    {account?.email || user?.email}
+                  </div>
+                  <div className="mt-1 break-words text-[11px] text-td-muted">Cơ sở công tác: {facility}</div>
+                </div>
                 <Link
-                  key={route.href}
-                  href={route.href}
-                  className={styles.contextLink}
-                  aria-current={isCurrent ? "page" : undefined}
+                  href="/"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer"
                 >
-                  {route.label}
+                  <House aria-hidden="true" className="h-3.5 w-3.5" />
+                  <span>Về trang chủ</span>
                 </Link>
-              );
-            })}
-          </nav>
-          <span className={styles.contextTotal}>
-            {permittedItems.length} CHỨC NĂNG KHẢ DỤNG
-          </span>
+                <Link
+                  href="/admin/profile"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer"
+                >
+                  <User className="h-3.5 w-3.5" />
+                  <span>Hồ sơ cá nhân</span>
+                </Link>
+                <Link href="/admin/profile#change-password" onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk cursor-pointer">
+                  <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Đổi mật khẩu</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsUserMenuOpen(false);
+                    void handleLogout();
+                  }}
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-td-oxide hover:bg-td-chalk cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Đăng xuất</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+      </header>
+
+      {/* Contextual Route Strip */}
+      <div className={styles.contextStrip}>
+        <span className={styles.contextLabel}>
+          {activeChapter.toUpperCase()}
+        </span>
+        <nav
+          className={styles.contextLinks}
+          aria-label={`Các route thuộc nhóm ${activeChapter}`}
+        >
+          {currentChapterRoutes.map((route) => {
+            const isCurrent =
+              route.href === "/admin"
+                ? pathname === "/admin"
+                : pathname === route.href ||
+                  pathname.startsWith(`${route.href}/`);
+            return (
+              <Link
+                key={route.href}
+                href={route.href + (route.defaultQuery ?? "")}
+                onClick={() => playTactileClick()}
+                className={styles.contextLink}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {route.label}
+                <NavigationCount count={navigationCount(counts, route.href)} />
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+      <div className={styles.operatorContext} role="status" aria-label="Cơ sở công tác hiện tại">
+        <span>Cơ sở công tác: <strong>{facility}</strong></span>
+        <span>{account?.email || user?.email}</span>
+      </div>
       </div>
 
       {/* Main Work Area */}

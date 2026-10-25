@@ -214,7 +214,7 @@ function StaffsListContent() {
         index="07"
         tag="ORG"
         kicker="TỔ CHỨC · ĐỘI NGŨ & NHÂN SỰ"
-        title={<>Nhân viên & <em className="italic text-td-teal">tài xế.</em></>}
+        title={<>Nhân viên & <span className="text-td-teal">tài xế.</span></>}
         description="Theo dõi phân bổ phòng ban, trạm trực, tình trạng giấy phép lái xe và lịch công tác."
       >
         <TransitFolioMetric

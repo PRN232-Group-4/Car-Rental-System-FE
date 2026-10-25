@@ -1,6 +1,6 @@
 # API/field còn thiếu để bỏ hoàn toàn dữ liệu mock
 
-Cập nhật: 2026-10-20. Nguồn đối chiếu: `src/api/generated/swagger.json` và Swagger production (`/swagger/v1/swagger.json`). Mọi mục dưới đây đang được FE chặn hoặc hiển thị “API chưa hỗ trợ”; **không** còn store/bộ dữ liệu giả.
+Cập nhật: 2026-10-20. Nguồn đối chiếu: `src/api/generated/swagger.json` và Swagger production (`/swagger/v1/swagger.json`). Tài liệu phản ánh Swagger production tại thời điểm đối chiếu. Khi gộp ngày 2026-10-21, backend trong workspace đã có `UsersController` (`GET /api/users`, `GET /api/users/{id}`, đổi trạng thái, gán/gỡ vai trò, thu hồi phiên) và `POST /api/staff/from-user`; FE giữ tích hợp thật cho các API này. Các mục 1–5, 14–15 bên dưới là thiếu sót của bản Swagger cũ, không còn là giới hạn của mã nguồn hiện tại. Những API còn thiếu vẫn được FE chặn hoặc hiển thị “API chưa hỗ trợ”; không thay bằng dữ liệu giả.
 
 ## 1. Cần endpoint mới
 
@@ -21,6 +21,7 @@ Cập nhật: 2026-10-20. Nguồn đối chiếu: `src/api/generated/swagger.jso
 | 13 | Lọc KPI/thống kê theo cơ sở & loại xe | `facilityId`, `vehicleTypeId` cho các endpoint dashboard | `GET /api/dashboard` chỉ nhận `from`, `to`. |
 | 14 | Duyệt GPLX ngay trong hồ sơ tài khoản | Đã dùng `PUT /api/customers/{id}/license-status`; cần `GET /api/customers/{id}` trả `userId` để mở từ trang User | `CustomerListItem`/`CustomerDetail` có `userId`, nhưng trang User không có danh sách user để dẫn tới. |
 | 15 | Điều chỉnh điểm thưởng trong hồ sơ tài khoản | Đã dùng `POST /api/customers/{id}/loyalty/adjustments` (có `Idempotency-Key`); cần `userId` trên `CustomerDetail` | Như trên: thiếu nguồn userId → customerId ở màn `/admin/users`. |
+| 16 | `/admin/audit-logs` nhật ký kiểm toán hệ thống | `GET /api/audit-logs?search&action&from&to&page&pageSize` | Backend chỉ ghi nhận audit nội bộ trong DB khi đổi role/khóa tài khoản, chưa có endpoint GET để truy vấn lịch sử kiểm toán ra màn hình. |
 
 ## 2. Cần bổ sung field trong endpoint đã có
 

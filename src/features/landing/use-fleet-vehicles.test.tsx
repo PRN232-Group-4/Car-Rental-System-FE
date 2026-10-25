@@ -22,7 +22,7 @@ describe("Landing fleet preview", () => {
     const { result } = renderFleet();
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.map((row) => row.id)).toEqual([1, 2, 3, 4, 5, 6]);
-    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles", { status: "available", page: 1, pageSize: 6 });
+    expect(get).toHaveBeenCalledExactlyOnceWith("vehicles/search", { rentalType: "hourly", page: 1, pageSize: 6 });
   });
 
   it("never displays unavailable vehicles even if the backend returns one", async () => {

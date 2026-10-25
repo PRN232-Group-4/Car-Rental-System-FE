@@ -14,6 +14,9 @@ export interface CustomerRentalSummary {
   startTime: string;
   endTime: string;
   totalPrice: number;
+  canCancel?: boolean;
+  /** FR-042: hạn duyệt + thanh toán của yêu cầu. */
+  expireAt?: string | null;
 }
 
 export interface CustomerRentalDetail {
@@ -23,7 +26,7 @@ export interface CustomerRentalDetail {
   rentalType: string;
   isSubscription: boolean;
   vehicle: { id: number; brand: string; model: string; mainImageUrl?: string | null; color?: string | null };
-  facility: string;
+  facility: { id: number; name: string; phone: string | null } | null;
   start: string;
   end: string;
   hasDriver: boolean;
@@ -37,6 +40,8 @@ export interface CustomerRentalDetail {
   settlement?: { overtimeHours: number; depositHeld: number; depositDeducted: number; shortfallInvoiceId: number | null } | null;
   cancellation?: { allowed: boolean; feeAmount: number; refundAmount: number; reasons: string[] | null; freeUntil: string | null } | null;
   nextAction: string | null;
+  /** FR-042: hạn duyệt + thanh toán của yêu cầu. */
+  expireAt?: string | null;
 }
 
 export function getCustomerRentals(page = 1, tab = "") {
@@ -44,5 +49,5 @@ export function getCustomerRentals(page = 1, tab = "") {
 }
 
 export function getCustomerRental(id: number) {
-  return backendApiClient.get<CustomerRentalDetail>(`rentals/mine/${id}`);
+  return backendApiClient.get<CustomerRentalDetail>(`rental/mine/${id}`);
 }

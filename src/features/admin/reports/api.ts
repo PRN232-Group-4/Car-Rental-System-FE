@@ -3,9 +3,11 @@ import { unsupportedApi } from "@/api/unsupported";
 import type { CreateMaintenancePayload, ReportDetail, ReportFilterParams, ReportStatus } from "./types";
 
 interface IncidentReport {
-  id: number; rentalId: number; vehicleId: number; reporterStaffId: number;
+  id: number; rentalId: number; vehicleId: number; reporterStaffId?: number | null;
   type: string | null; description: string | null; status: string | null;
   maintenanceId: number | null; imageUrls: string | null;
+  createdAt?: string | null; resolvedAt?: string | null;
+  customer?: { id?: number; fullName?: string | null; phone?: string | null; email?: string | null } | null;
 }
 
 function mapReport(record: IncidentReport): ReportDetail {
@@ -15,15 +17,21 @@ function mapReport(record: IncidentReport): ReportDetail {
     id: record.id, rentalId: record.rentalId, vehicleId: record.vehicleId, maintenanceId: record.maintenanceId,
     type: record.type ?? "other", status: record.status === "open" ? "new" : record.status === "assigned" ? "in_progress" : record.status ?? "unavailable",
     description: record.description ?? "", descriptionPreview: record.description ?? "",
-    // IncidentReport does not expose customer identity or timestamps; never invent them.
-    createdAt: "", customer: { fullName: "API chưa cung cấp thông tin khách hàng" }, imageUrls: images as string[],
+    createdAt: record.createdAt || "",
+    customer: {
+      id: record.customer?.id,
+      fullName: record.customer?.fullName || record.customer?.email || "API chưa cung cấp thông tin khách hàng",
+      phone: record.customer?.phone || undefined,
+      email: record.customer?.email || undefined,
+    },
+    imageUrls: images as string[],
   };
 }
 
 async function loadReports(): Promise<ReportDetail[]> {
-  const result = await backendApiClient.get<IncidentReport[]>("reports");
-  if (!Array.isArray(result)) throw new Error("Dữ liệu báo cáo không hợp lệ. Vui lòng thử lại.");
-  return result.map(mapReport);
+  const result = await backendApiClient.get<IncidentReport[] | { items?: IncidentReport[] }>("reports");
+  const rawList = Array.isArray(result) ? result : (result.items ?? []);
+  return rawList.map(mapReport);
 }
 
 export async function fetchReports(params: ReportFilterParams = {}) {
@@ -51,17 +59,17 @@ export async function fetchReportDetail(id: number): Promise<ReportDetail> {
 }
 
 export function resolveReport(id: number): Promise<void> {
-  return backendApiClient.post<void>(`reports/${id}/resolve`);
+  return backendApiClient.post<void>(`report/${id}/resolve`);
 }
 
 export async function updateReportStatus(id: number, status: ReportStatus): Promise<ReportDetail> {
-  if (status !== "resolved") return unsupportedApi("tiếp nhận hoặc từ chối báo cáo (cần PATCH /api/reports/{id}/status)");
+  if (status !== "resolved") return unsupportedApi("tiếp nhận hoặc từ chối báo cáo (cần PATCH /api/report/{id}/status)");
   await resolveReport(id);
   return fetchReportDetail(id);
 }
 
 export async function createMaintenanceFromReport(payload: CreateMaintenancePayload): Promise<void> {
-  await backendApiClient.post(`reports/${payload.reportId}/maintenance`, {
+  await backendApiClient.post(`report/${payload.reportId}/maintenance`, {
     assignedStaffId: payload.assignedStaffId, facilityId: payload.facilityId, scheduledDate: payload.scheduledDate,
   });
 }

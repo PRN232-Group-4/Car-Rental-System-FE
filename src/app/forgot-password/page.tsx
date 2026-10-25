@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="h-dvh w-full overflow-hidden flex flex-col bg-canvas relative selection:bg-primary/15 selection:text-primary">
+    <div className="min-h-dvh w-full overflow-y-auto flex flex-col bg-canvas relative selection:bg-primary/15 selection:text-primary">
       <AuthBackground />
 
       <header className="shrink-0 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
         </Link>
       </header>
 
-      <main className="flex-1 w-full max-w-md mx-auto px-4 flex flex-col justify-center pb-6">
+      <main className="flex-1 w-full max-w-md mx-auto px-4 py-6 flex flex-col justify-center">
         <Suspense fallback={<div className="p-8 text-center text-xs text-ink-3">Đang tải...</div>}>
           <ForgotPasswordForm />
         </Suspense>

@@ -1,30 +1,34 @@
 "use client";
 
-import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+import { ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
-import React, { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
+import React, { Suspense, useState } from "react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { FormSkeleton } from "@/components/ui/Skeleton";
 import {
   FileCheck,
   ShieldCheck,
   AlertCircle,
-  Upload,
   CheckCircle2,
-  Camera,
   Loader2,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
+import { customerLicenses, hasCustomerLicense } from "@/features/licenses/booking-license";
 import BookingLicenseReturn from "@/features/licenses/components/BookingLicenseReturn";
+import LicenseImageField from "@/features/licenses/components/LicenseImageField";
 
 export default function GPLXPage() {
   const queryClient = useQueryClient();
-  const { data: license, isPending, error } = useQuery<CustomerLicense | null>({
+  const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const { data: license, isPending, error, refetch } = useQuery<CustomerLicense | null>({
     queryKey: ["customer-license"],
     queryFn: getCustomerLicense,
   });
+  const licenses = customerLicenses(license);
+  const editingLicense = selectedLicense === "new" ? null : selectedLicense === null ? license : licenses.find((item) => String(item.id ?? item.number) === selectedLicense);
 
   const getStatusBadge = (status?: string) => {
     const key = status?.toLowerCase() ?? "";
@@ -40,10 +44,10 @@ export default function GPLXPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · HỒ SƠ LÁI XE"
-        title={<>Giấy phép <em className="italic text-td-teal">lái xe.</em></>}
+        title={<>Giấy phép <span className="text-td-teal">lái xe.</span></>}
         description="Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp."
       >
-        {getStatusBadge(license?.status)}
+        {getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}
       </TransitFolio>
 
       <Suspense fallback={null}>
@@ -60,13 +64,13 @@ export default function GPLXPage() {
             <div className="text-xs text-td-muted font-semibold uppercase tracking-wider">
               Trạng thái hồ sơ lái xe
             </div>
-            <div className="mt-1">{getStatusBadge(license?.status)}</div>
+            <div className="mt-1">{getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}</div>
           </div>
         </div>
 
-        {license?.status === "approved" ? (
+        {hasCustomerLicense(license) && license?.status === "approved" ? (
           <div className="text-xs text-primary bg-primary-tint px-3.5 py-2 rounded border border-primary/30 max-w-xs">
-            Bạn đã đủ điều kiện thuê trực tiếp tất cả các dòng xe ô tô và xe máy trong hệ thống.
+            Bạn có GPLX đã được duyệt. Điều kiện thuê phụ thuộc hạng bằng được xe chấp nhận và thời hạn của bằng.
           </div>
         ) : (
           <div className="text-xs text-warning bg-primary-tint px-3.5 py-2 rounded border border-primary/30 max-w-xs">
@@ -76,7 +80,16 @@ export default function GPLXPage() {
       </div>
 
       {/* Form rendered with key to synchronize initial state without effects */}
-      {isPending ? <p role="status">Đang tải hồ sơ GPLX...</p> : error ? <p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và tải lại trang.</p> : <LicenseEditForm license={license} queryClient={queryClient} />}
+      {isPending ? <FormSkeleton label="Đang tải hồ sơ GPLX..." fields={4} /> : error ? <div className="space-y-3"><p role="alert" className="text-danger">Không thể tải hồ sơ GPLX. Vui lòng kiểm tra kết nối và thử lại.</p><button type="button" onClick={() => { void refetch(); }} className="rounded border border-td-rule px-4 py-2.5 text-sm font-bold text-td-ink">Thử lại</button></div> : <>
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold">Các giấy phép của bạn</h2>
+          <div className="flex flex-wrap gap-3">{licenses.map((item) => <button type="button" disabled={saving} key={item.id ?? item.number} aria-pressed={editingLicense?.number === item.number} onClick={() => setSelectedLicense(String(item.id ?? item.number))} className="rounded border border-td-rule px-4 py-3 text-left disabled:opacity-50">
+            <span className="block font-semibold">{item.type} · {item.number}</span>{getStatusBadge(item.status)}
+          </button>)}
+          <button type="button" disabled={saving} onClick={() => setSelectedLicense("new")} className="rounded border border-primary px-4 py-3 text-primary disabled:opacity-50">Thêm giấy phép khác</button></div>
+        </div>
+        <LicenseEditForm key={selectedLicense ?? String(license?.id ?? license?.number ?? "new")} license={editingLicense} queryClient={queryClient} onSavingChange={setSaving} onSaved={(saved) => setSelectedLicense(String(saved.id ?? saved.number))} />
+      </>}
     </div>
   );
 }
@@ -84,43 +97,25 @@ export default function GPLXPage() {
 function LicenseEditForm({
   license,
   queryClient,
+  onSaved,
+  onSavingChange,
 }: {
   license?: CustomerLicense | null;
   queryClient: QueryClient;
+  onSaved: (license: CustomerLicense) => void;
+  onSavingChange: (saving: boolean) => void;
 }) {
   const validation = useInlineValidation();
   const [licenseNumber, setLicenseNumber] = useState(() => license?.number || "");
   const [licenseType, setLicenseType] = useState(() => license?.type || "B2");
   const [issueDate, setIssueDate] = useState(() => license?.issueDate || "");
   const [expiryDate, setExpiryDate] = useState(() => license?.expiryDate || "");
-  const [imagePreview, setImagePreview] = useState<string | null>(() => license?.imageUrl || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (imagePreview?.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
-    };
-  }, [imagePreview]);
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setSelectedFile(null);
-      setImagePreview(license?.imageUrl ?? null);
-      e.target.value = "";
-      validation.setField("file", "Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, JPEG).");
-      return;
-    }
-
-    validation.clear("file");
-    setSelectedFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
-
   const saveMutation = useMutation({
+    onMutate: () => onSavingChange(true),
+    onSettled: () => onSavingChange(false),
     mutationFn: async () => {
       setStatusMessage(null);
       if (!licenseNumber.trim()) throw new Error("Vui lòng nhập số giấy phép lái xe.");
@@ -129,6 +124,7 @@ function LicenseEditForm({
       if (!selectedFile) throw new Error("Vui lòng chọn ảnh GPLX để gửi hồ sơ.");
 
       return saveCustomerLicense({
+        ...(license?.id != null ? { licenseId: license.id } : {}),
         number: licenseNumber.trim(),
         type: licenseType,
         issueDate,
@@ -137,11 +133,16 @@ function LicenseEditForm({
       });
     },
     onSuccess: (savedLicense) => {
-      queryClient.setQueryData(["customer-license"], savedLicense);
+      queryClient.setQueryData<CustomerLicense | null>(["customer-license"], (previous) => ({
+        ...savedLicense,
+        licenses: savedLicense.licenses ?? [
+          ...customerLicenses(previous).filter((item) => savedLicense.id != null ? item.id !== savedLicense.id : item.number !== savedLicense.number),
+          savedLicense,
+        ],
+      }));
+      void queryClient.invalidateQueries({ queryKey: ["customer-license"] });
+      onSaved(savedLicense);
       setSelectedFile(null);
-      setImagePreview(savedLicense.imageUrl ?? null);
-      const input = document.getElementById("customer-license-image") as HTMLInputElement | null;
-      if (input) input.value = "";
       setStatusMessage({
         text: "Hồ sơ GPLX đã được gửi lên hệ thống và đang trong quá trình xét duyệt.",
         type: "success",
@@ -155,6 +156,7 @@ function LicenseEditForm({
 
   return (
     <ValidatedForm validation={validation} validate={() => ({
+      issueDate: issueDate && expiryDate && issueDate > expiryDate ? "Ngày cấp không được sau ngày hết hạn. Vui lòng kiểm tra lại." : undefined,
       expiryDate: expiryDate && new Date(`${expiryDate}T23:59:59`) < new Date() ? "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." : undefined,
       file: !selectedFile ? "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ." : undefined,
     })}
@@ -211,20 +213,17 @@ function LicenseEditForm({
             onChange={(e) => setLicenseType(e.target.value)}
             className="w-full px-4 py-3 rounded border border-td-rule focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm font-semibold bg-td-white"
           >
-            <option value="B1">Hạng B1 (Số tự động)</option>
-            <option value="B2">Hạng B2 (Ô tô đến 9 chỗ, số sàn/tự động)</option>
-            <option value="C">Hạng C (Xe tải, chuyên dùng)</option>
-            <option value="A1">Hạng A1 (Mô tô hai bánh dưới 175cc)</option>
-            <option value="A2">Hạng A2 (Mô tô hai bánh từ 175cc trở lên)</option>
+            {Array.from(new Set(["A1", "A2", "A", "B1", "B2", "B", "C1", "C", "D1", "D2", "D", "BE", "C1E", "CE", "D1E", "D2E", "DE", licenseType])).filter(Boolean).map((type) => <option key={type} value={type}>Hạng {type}</option>)}
           </InlineSelect>
         </div>
 
         <div>
           <label htmlFor="license-issue-date" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
-            Ngày cấp
+            Ngày cấp *
           </label>
           <InlineInput id="license-issue-date" name="issueDate"
             type="date"
+            required
             value={issueDate}
             onChange={(e) => setIssueDate(e.target.value)}
             className="w-full px-4 py-3 rounded border border-td-rule focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 text-sm font-semibold"
@@ -245,49 +244,17 @@ function LicenseEditForm({
         </div>
       </div>
 
-      {/* License Photo Upload & Preview */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
-          Ảnh chụp mặt trước giấy phép lái xe *
-        </label>
-        <div className="mt-2 flex flex-col sm:flex-row items-center gap-6 p-6 rounded border-2 border-dashed border-td-rule bg-td-chalk/50 hover:bg-td-chalk transition-colors">
-          {imagePreview ? (
-            <div className="relative w-48 h-32 rounded overflow-hidden border border-td-rule bg-td-white shrink-0 shadow-xs">
-              <Image
-                src={imagePreview}
-                alt="Ảnh GPLX"
-                fill
-                sizes="192px"
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-          ) : (
-            <div className="w-48 h-32 rounded bg-td-chalk flex flex-col items-center justify-center text-td-muted shrink-0 border border-td-rule">
-              <Camera className="w-8 h-8 mb-1" />
-              <span className="text-xs font-semibold">Chưa có ảnh</span>
-            </div>
-          )}
-
-          <div className="space-y-2 flex-1 text-center sm:text-left">
-            <button type="button" data-validation-field="file" aria-describedby={validation.errors.file ? "customer-license-image-error" : undefined} onClick={() => document.getElementById("customer-license-image")?.click()} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded bg-td-white border ${validation.errors.file ? "border-danger" : "border-td-rule"} hover:border-td-rule text-td-ink text-xs font-bold cursor-pointer shadow-xs transition-all`}>
-              <Upload className="w-3.5 h-3.5 text-td-muted" />
-              <span>Chọn ảnh từ thiết bị</span>
-            </button>
-              <InlineInput showError={false} name="file" id="customer-license-image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            <p className="text-xs text-td-muted">
-              Định dạng JPG, PNG. Ảnh chụp rõ mặt trước, không bị loá sáng hay che khuất thông tin.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <InlineError name="file" inputId="customer-license-image" />
+      <LicenseImageField
+        label="Ảnh chụp mặt trước giấy phép lái xe *"
+        name="file"
+        inputId="customer-license-image"
+        validation={validation}
+        value={selectedFile}
+        onChange={setSelectedFile}
+        existingUrl={license?.imageUrl ?? null}
+        disabled={saveMutation.isPending}
+        busy={saveMutation.isPending}
+      />
       </fieldset>
       {/* Action Button */}
       <div className="pt-4 border-t border-td-rule flex items-center justify-end">

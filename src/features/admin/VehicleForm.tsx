@@ -19,18 +19,21 @@ import {
 import type { OrganizationUnitDto, VehicleDto, VehicleRequest, VehicleTypeDto } from "./api";
 import { getVehicleKind } from "./vehicle-category";
 import { useAuth } from "@/features/auth";
-import { notifySuccess } from "@/components/ui/Toaster";
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { FormField as Field } from "@/components/ui/FormField";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import VehicleTrackingPanel from "@/features/maps/VehicleTrackingPanel";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
+import VehicleMaintenanceTechnicians from "./VehicleMaintenanceTechnicians";
 
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { VehicleIdentity } from "@/features/admin/VehicleName";
-import { VehiclePhotoGrid } from "@/features/admin/VehiclePhotos";
+import { VehiclePhotoGrid } from "./VehiclePhotos";
+import VehicleLicenseConfig, { parseAllowedLicenseTypes } from "./VehicleLicenseConfig";
 
 type VehicleDraft = {
+  allowedLicenseTypes: string;
   licensePlate: string;
   vehicleTypeId: string;
   facilityId: string;
@@ -58,6 +61,7 @@ type VehicleDraft = {
 };
 
 const emptyDraft: VehicleDraft = {
+  allowedLicenseTypes: "",
   licensePlate: "",
   vehicleTypeId: "",
   facilityId: "",
@@ -102,6 +106,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
   const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeDto[]>([]);
   const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
   const [vehicleId, setVehicleId] = useState<number | null>(editingVehicleId ?? null);
+  const [persistedVehicle, setPersistedVehicle] = useState<VehicleDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -122,12 +127,13 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           const [types, facilityList] = await Promise.all([getVehicleTypes(), getFacilities()]);
           setVehicleTypes(types);
           setFacilities(facilityList);
-          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : new URLSearchParams(window.location.search).get("vehicleId");
+          const idString = editingVehicleId != null ? String(editingVehicleId) : onClose ? null : (new URLSearchParams(window.location.search).get("id") ?? new URLSearchParams(window.location.search).get("vehicleId"));
           if (idString) {
             const id = Number(idString);
             if (!Number.isInteger(id) || id < 1) throw new Error("ID phương tiện không hợp lệ.");
             const vehicle = await queryClient.fetchQuery(vehicleQueryOptions(id));
             setVehicleId(id);
+            setPersistedVehicle(vehicle);
             setDraft(fromVehicle(vehicle));
           }
         } catch (loadError) {
@@ -237,6 +243,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
       galleryImages: draft.galleryImages,
     };
     const body: VehicleRequest = {
+      allowedLicenseTypes: parseAllowedLicenseTypes(draft.allowedLicenseTypes),
       vehicleTypeId,
       licensePlate: draft.licensePlate.trim() || null,
       facilityId: draft.facilityId ? Number(draft.facilityId) : null,
@@ -263,7 +270,9 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
       if (onSaved) onSaved();
       else router.push("/admin/vehicles");
     } catch (saveError) {
-      setError(saveError instanceof TypeError ? messageOf(saveError, "Không thể lưu phương tiện.") : validation.report(saveError));
+      const message = saveError instanceof TypeError ? messageOf(saveError, "Không thể lưu phương tiện.") : validation.report(saveError);
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }
@@ -289,7 +298,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           index="02"
           tag="FLT"
           kicker="TÀI SẢN · HỒ SƠ PHƯƠNG TIỆN"
-          title={loading ? <>Hồ sơ <em className="italic text-td-teal">phương tiện.</em></> : isEditing ? <>Chỉnh sửa <em className="italic text-td-teal">phương tiện.</em></> : <>Thêm <em className="italic text-td-teal">phương tiện mới.</em></>}
+          title={loading ? <>Hồ sơ <span className="text-td-teal">phương tiện.</span></> : isEditing ? <>Chỉnh sửa <span className="text-td-teal">phương tiện.</span></> : <>Thêm <span className="text-td-teal">phương tiện mới.</span></>}
           description="Cập nhật hồ sơ, giá thuê và thông số kỹ thuật theo từng loại xe."
         />
       </>}
@@ -297,11 +306,18 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
 
       {selectedVehicleType && !vehicleKind.isValid && <p role="alert" className="text-sm text-danger">Loại xe chưa được cấu hình nhóm xe và nhiên liệu hợp lệ. Hãy cập nhật tại mục Loại phương tiện.</p>}
       {loading ? <FormSkeleton label="Đang tải thông tin phương tiện..." fields={10} /> : <ValidatedForm validation={validation} validate={() => {
+        const errors: Record<string, string> = {};
+        const licenseTypes = parseAllowedLicenseTypes(draft.allowedLicenseTypes);
+        if (licenseTypes.length > 30 || licenseTypes.some((type) => !/^[A-Z0-9]{1,20}$/.test(type))) {
+          errors.allowedLicenseTypes = "Chọn tối đa 30 hạng bằng. Hạng khác chỉ gồm 1–20 chữ cái hoặc chữ số, cách nhau bằng dấu phẩy.";
+        }
         const typeId = Number(draft.vehicleTypeId);
         if (!Number.isInteger(typeId) || !vehicleTypes.some((item) => item.id === typeId)) {
-          return { vehicleTypeId: "Vui lòng chọn một loại phương tiện hợp lệ." };
+          errors.vehicleTypeId = "Vui lòng chọn một loại phương tiện hợp lệ.";
+        } else if (!vehicleKind.isValid) {
+          errors.vehicleTypeId = "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu.";
         }
-        return vehicleKind.isValid ? {} : { vehicleTypeId: "Loại xe chưa được cấu hình đúng nhóm xe và nhiên liệu." };
+        return errors;
       }} onSubmit={submit} className="space-y-6">
         <div className={onClose ? "space-y-6" : "grid min-w-0 items-start gap-8 lg:grid-cols-12"}>
           {!onClose && (
@@ -332,6 +348,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           <div className={onClose ? "min-w-0 space-y-6" : "min-w-0 space-y-8 lg:col-span-8"}>
         <section aria-labelledby="vehicle-general-title" className="min-w-0 border-t border-td-ink pt-5">
           <h2 id="vehicle-general-title" className="text-sm font-bold text-td-ink">Thông tin phương tiện</h2>
+          {persistedVehicle && <div className="mt-4"><VehicleMaintenanceTechnicians vehicle={persistedVehicle} /></div>}
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
@@ -346,6 +363,10 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
             <Field label="Giá thuê theo giờ (₫)" htmlFor="hourlyPrice"><InlineInput id="hourlyPrice" name="hourlyPrice" type="number" min="0" step="1000" value={draft.hourlyPrice} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Giá thuê dài hạn (₫)" htmlFor="longtermPrice"><InlineInput id="longtermPrice" name="longtermPrice" type="number" min="0" step="100000" value={draft.longtermPrice} onChange={updateDraft} className="admin-input" /></Field>
           </div>
+          <div className="mt-5"><VehicleLicenseConfig value={draft.allowedLicenseTypes} disabled={saving || uploading} error={validation.errors.allowedLicenseTypes} onChange={(value) => {
+            setDraft((current) => ({ ...current, allowedLicenseTypes: value }));
+            validation.clear("allowedLicenseTypes");
+          }} /></div>
           <div className="mt-5"><Field label="Mô tả" htmlFor="description"><InlineTextarea id="description" name="description" rows={3} value={draft.description} onChange={updateDraft} className="admin-input resize-y" /></Field></div>
         </section>
 
@@ -460,6 +481,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
 function fromVehicle(vehicle: VehicleDto): VehicleDraft {
   const detail = vehicle.detail;
   return {
+    allowedLicenseTypes: (vehicle.allowedLicenseTypes ?? []).join(", "),
     licensePlate: vehicle.licensePlate ?? "",
     vehicleTypeId: String(vehicle.vehicleTypeId),
     facilityId: vehicle.facilityId === null ? "" : String(vehicle.facilityId),

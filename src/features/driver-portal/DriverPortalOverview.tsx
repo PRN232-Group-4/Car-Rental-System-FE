@@ -35,13 +35,13 @@ export default function DriverPortalOverview() {
         index="10"
         tag="NV"
         kicker="NHÂN VIÊN · TÀI XẾ"
-        title={<>Xin chào, <em className="italic text-td-teal">{account.fullName ?? "Tài xế"}.</em></>}
+        title={<>Xin chào, <span className="text-td-teal">{account.fullName?.trim() || account.email || "bạn"}.</span></>}
         description="Quản lý phương tiện được phân công, xem doanh thu chuyến xe và cập nhật hồ sơ."
       >
         <div className="border-l border-td-rule pl-4 text-right">
           <span className="block font-mono text-[10px] tracking-wider text-td-muted">BỘ PHẬN</span>
           <strong className="block text-sm font-bold text-td-ink">
-            {account.departmentName?.trim() || "Đội xe & Tài xế"}
+            {account.departmentName?.trim() || "Chưa cập nhật phòng ban"}
           </strong>
         </div>
       </TransitFolio>

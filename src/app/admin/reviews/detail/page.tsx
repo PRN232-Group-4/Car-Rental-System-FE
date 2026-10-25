@@ -42,7 +42,7 @@ export default function ReviewDetailPage() {
             index="03"
             tag="TRI"
             kicker="CHĂM SÓC & SỰ CỐ · HỒ SƠ ĐÁNH GIÁ"
-            title={<>Chi tiết <em className="italic text-td-teal">đánh giá.</em></>}
+            title={<>Chi tiết <span className="text-td-teal">đánh giá.</span></>}
             description="Nội dung nhận xét, bằng chứng chuyến đi và thao tác kiểm duyệt."
           />
 

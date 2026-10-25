@@ -3,7 +3,6 @@ import { canAccessRoute } from "@/features/auth/access";
 import {
   getNavigation,
   PUBLIC_NAV_ITEMS,
-  ADMIN_NAV_ITEMS,
   CUSTOMER_NAV_ITEMS,
   DRIVER_NAV_ITEMS,
 } from "@/config/navigation";
@@ -19,18 +18,18 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
   });
 
   describe("admin navigation", () => {
-    it("keeps customer license review below maintenance with its review roles", () => {
-      for (const role of ["Admin", "Manager", "CustomerService"]) {
+    it("unifies license review under customers queue for CS, Staff, and Manager", () => {
+      for (const role of ["Staff", "CustomerService", "Manager"]) {
         const hrefs = getNavigation([role], "admin").map((item) => item.href);
-        expect(hrefs.indexOf("/admin/vehicle-license")).toBe(hrefs.indexOf("/admin/maintenance") + 1);
-        expect(canAccessRoute("/admin/vehicle-license", [role])).toBe(true);
+        expect(hrefs).toContain("/admin/customers");
+        expect(canAccessRoute("/admin/customers", [role])).toBe(true);
       }
-      for (const role of ["Staff", "Maintenance", "Driver", "Customer"]) {
-        expect(getNavigation([role], "admin").map((item) => item.href)).not.toContain("/admin/vehicle-license");
-        expect(canAccessRoute("/admin/vehicle-license", [role])).toBe(false);
+      for (const role of ["Admin", "Maintenance", "Driver", "Customer"]) {
+        expect(getNavigation([role], "admin").map((item) => item.href)).not.toContain("/admin/customers");
       }
     });
-    it("returns full admin menu for Admin role including system administration items", () => {
+
+    it("returns system administration menu for Admin role without operational bloat", () => {
       const adminNav = getNavigation(["Admin"], "admin");
       const hrefs = adminNav.map((item) => item.href);
 
@@ -39,11 +38,22 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       expect(hrefs).toContain("/admin/facilities");
       expect(hrefs).toContain("/admin/staffs");
       expect(hrefs).toContain("/admin/roles");
-      expect(hrefs).toContain("/admin/policies");
-      expect(hrefs).toContain("/admin/rentals");
-      expect(hrefs).toContain("/admin/dispatch");
-      expect(hrefs).toContain("/admin/vehicles");
-      expect(hrefs.length).toBe(ADMIN_NAV_ITEMS.length);
+      expect(hrefs).toContain("/admin/users");
+      expect(hrefs).toContain("/admin/audit-logs");
+      expect(hrefs).toContain("/admin/profile");
+
+      // Admin không thấy các module vận hành / chăm sóc & sự cố
+      expect(hrefs).not.toContain("/admin/policies");
+      expect(hrefs).not.toContain("/admin/rentals");
+      expect(hrefs).not.toContain("/admin/dispatch");
+      expect(hrefs).not.toContain("/admin/vehicles");
+      expect(hrefs).not.toContain("/admin/reports");
+      expect(hrefs).not.toContain("/admin/customers");
+      expect(hrefs).not.toContain("/admin/handovers");
+      expect(hrefs).not.toContain("/admin/inspections");
+      expect(hrefs).not.toContain("/admin/maintenance");
+      expect(hrefs).toContain("/admin/payments");
+      expect(hrefs.length).toBe(9);
     });
 
     it("filters out Admin-only items for Manager role while keeping management items", () => {
@@ -51,33 +61,130 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       const hrefs = managerNav.map((item) => item.href);
 
       expect(hrefs).toContain("/admin");
-      expect(hrefs).toContain("/admin/staffs"); // FE-24: Manager allowed to view
+      expect(hrefs).toContain("/admin/dashboard");
+      expect(hrefs).toContain("/admin/staffs");
+      expect(hrefs).toContain("/admin/facilities"); // Manager quản lý cơ sở/chi nhánh
+      expect(hrefs).toContain("/admin/audit-logs"); // Manager xem nhật ký kiểm toán
+      expect(hrefs).toContain("/admin/customers"); // Manager xem khách hàng và GPLX
+      expect(hrefs).toContain("/admin/handovers"); // Manager giám sát bàn giao
+      expect(hrefs).toContain("/admin/inspections"); // Manager giám sát kiểm tra xe
+      expect(hrefs).toContain("/admin/maintenance"); // Manager duyệt chi phí bảo dưỡng
+      expect(hrefs).toContain("/admin/policies");
+      expect(hrefs).toContain("/admin/subscription-plans");
+      expect(hrefs).toContain("/admin/vehicles");
+      expect(hrefs).toContain("/admin/vehicle-types");
+      expect(hrefs).toContain("/admin/rentals");
+      expect(hrefs).toContain("/admin/dispatch");
+      expect(hrefs).toContain("/admin/drivers/schedule");
+      expect(hrefs).toContain("/admin/tracking");
+      expect(hrefs).toContain("/admin/reviews");
+      expect(hrefs).toContain("/admin/reports");
+
+      expect(hrefs).not.toContain("/admin/users"); // route chỉ cho Admin
       expect(hrefs).not.toContain("/admin/departments"); // Admin only
-      expect(hrefs).not.toContain("/admin/facilities"); // Admin only
       expect(hrefs).not.toContain("/admin/roles"); // Admin only
     });
 
-    it("filters out management and admin items for Staff role", () => {
+    it("allocates branch operations and customer care to Staff role", () => {
       const staffNav = getNavigation(["Staff"], "admin");
       const hrefs = staffNav.map((item) => item.href);
 
       expect(hrefs).toContain("/admin");
       expect(hrefs).toContain("/admin/rentals");
-      expect(hrefs).toContain("/admin/vehicles");
+      expect(hrefs).toContain("/admin/handovers");
       expect(hrefs).toContain("/admin/inspections");
-      expect(hrefs).not.toContain("/admin/policies"); // Manager/Admin only
+      expect(hrefs).toContain("/admin/dispatch");
+      expect(hrefs).toContain("/admin/drivers/schedule");
+      expect(hrefs).toContain("/admin/tracking");
+      expect(hrefs).toContain("/admin/reports");
+      expect(hrefs).toContain("/admin/customers");
+      expect(hrefs).toContain("/admin/vehicles");
+
+      expect(hrefs).not.toContain("/admin/policies"); // Manager only
+      expect(hrefs).not.toContain("/admin/subscription-plans");
+      expect(hrefs).not.toContain("/admin/dashboard");
+      expect(hrefs).not.toContain("/admin/reviews");
       expect(hrefs).not.toContain("/admin/roles");
       expect(hrefs).not.toContain("/admin/facilities");
+      expect(hrefs).not.toContain("/admin/users");
+      expect(hrefs).not.toContain("/admin/departments");
+      expect(hrefs).not.toContain("/admin/audit-logs");
     });
 
-    it("includes dispatch for CustomerService role", () => {
+    it("allocates customer care and booking support to CustomerService role without branch dispatch", () => {
       const csNav = getNavigation(["CustomerService"], "admin");
       const hrefs = csNav.map((item) => item.href);
 
-      expect(hrefs).toContain("/admin/dispatch");
+      expect(hrefs).toContain("/admin");
+      expect(hrefs).toContain("/admin/customers");
+      expect(hrefs).toContain("/admin/reports");
       expect(hrefs).toContain("/admin/rentals");
+
+      // CS rút khỏi bàn giao xe tại garage và điều phối tài xế tại trạm
+      expect(hrefs).not.toContain("/admin/handovers");
+      expect(hrefs).not.toContain("/admin/dispatch");
+      expect(hrefs).not.toContain("/admin/drivers/schedule");
+      expect(hrefs).not.toContain("/admin/maintenance");
+      expect(hrefs).not.toContain("/admin/inspections");
       expect(hrefs).not.toContain("/admin/policies");
       expect(hrefs).not.toContain("/admin/departments");
+      expect(hrefs).not.toContain("/admin/users");
+      expect(hrefs).not.toContain("/admin/roles");
+    });
+
+    it("allocates technical fleet maintenance and incident visibility to Maintenance role", () => {
+      const maintNav = getNavigation(["Maintenance"], "admin");
+      const hrefs = maintNav.map((item) => item.href);
+
+      expect(hrefs).toContain("/admin");
+      expect(hrefs).toContain("/admin/inspections");
+      expect(hrefs).toContain("/admin/maintenance");
+      expect(hrefs).toContain("/admin/vehicles");
+      expect(hrefs).toContain("/admin/reports"); // Xem sự cố kỹ thuật xe
+
+      expect(hrefs).not.toContain("/admin/rentals");
+      expect(hrefs).not.toContain("/admin/handovers");
+      expect(hrefs).not.toContain("/admin/dispatch");
+      expect(hrefs).not.toContain("/admin/policies");
+      expect(hrefs).not.toContain("/admin/customers");
+    });
+
+    it("never offers an admin menu item the role cannot open", () => {
+      const roleSets: string[][] = [
+        ["Admin"],
+        ["Manager"],
+        ["Staff"],
+        ["CustomerService"],
+        ["Maintenance"],
+        ["Driver"],
+        ["Customer"],
+        ["Staff", "CustomerService"],
+        ["Manager", "CustomerService"],
+        ["Staff", "Admin"],
+        ["Maintenance", "CustomerService"],
+        ["Customer", "Staff"],
+      ];
+
+      for (const roles of roleSets) {
+        for (const item of getNavigation(roles, "admin")) {
+          expect(canAccessRoute(item.href, roles), `${roles.join("+")} → ${item.href}`).toBe(true);
+        }
+      }
+      expect(getNavigation(["Customer"], "admin")).toHaveLength(0);
+      expect(getNavigation([], "admin")).toHaveLength(0);
+    });
+
+    it("keeps valid links for combined roles without picking a single role", () => {
+      const combined = getNavigation(["Staff", "Admin"], "admin").map((item) => item.href);
+      expect(combined).toContain("/admin/rentals"); // Staff cấp quyền
+      expect(combined).toContain("/admin/users"); // Admin cấp quyền
+      expect(combined).toContain("/admin/drivers/schedule");
+      expect(combined).toContain("/admin/reports");
+
+      const csAndStaff = getNavigation(["CustomerService", "Staff"], "admin").map((item) => item.href);
+      expect(csAndStaff).toContain("/admin/rentals");
+      expect(csAndStaff).toContain("/admin/reports");
+      expect(csAndStaff).not.toContain("/admin/users");
     });
   });
 
@@ -88,6 +195,7 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       const hrefs = customerNav.map((item) => item.href);
 
       expect(hrefs).toContain("/booking");
+      expect(customerNav.find((item) => item.href === "/my-rentals")?.label).toBe("Theo dõi tiến trình thuê xe");
       expect(hrefs).toContain("/driver-license");
       expect(hrefs).toContain("/rental-contract");
       expect(hrefs).toContain("/my-subscriptions");
@@ -103,8 +211,20 @@ describe("navigation.ts (Centralized Navigation & Role Filtering)", () => {
       expect(hrefs).toContain("/booking");
       expect(hrefs).toContain("/invoices");
       expect(hrefs).not.toContain("/driver-license");
+      expect(hrefs).not.toContain("/my-rentals");
       expect(hrefs).not.toContain("/rental-contract");
       expect(hrefs).not.toContain("/my-subscriptions");
+    });
+
+    it("keeps guest customer items unfiltered by route access", () => {
+      // Vùng customer không áp canAccessRoute: chỉ lọc theo role hiển thị như trước
+      expect(getNavigation(null, "customer").map((item) => item.href)).toEqual([
+        "/booking",
+        "/nearby-vehicles",
+        "/invoices",
+        "/payment-history",
+        "/report-incident",
+      ]);
     });
   });
 

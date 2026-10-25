@@ -1,8 +1,8 @@
 import { beforeEach, expect, it, vi } from "vitest";
 
 const client = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn() }));
-vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client, isMockMode: false }));
-import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, updateRentalContract } from "./api";
+vi.mock("@/api/default-api-client", () => ({ defaultApiClient: client }));
+import { createRentalBooking, getBookingPolicies, getBookingVehicles, mapBookingResponse, toRentalRequest, updateRentalContract, uploadRentalContract } from "./api";
 
 beforeEach(() => vi.resetAllMocks());
 it("reads every policy page after the list contract changes to pagination", async () => {
@@ -22,6 +22,9 @@ it("posts the exact RentalRequest and reads a real backend rental id", async () 
   expect(result.bookingId).toBe(321);
   expect(result.invoiceId).toBeUndefined();
 });
+it("defaults to a chauffeur booking when the mode is not provided", () => {
+  expect(toRentalRequest({ rentalType: "hourly", vehicleId: 8, startTime: "a", endTime: "b" })).toMatchObject({ hasDriver: true });
+});
 it("uses the longterm endpoint and retains failures without fabricating confirmations", async () => {
   const failure = new Error("Xe đã có lịch thuê.");
   client.post.mockRejectedValue(failure);
@@ -40,6 +43,19 @@ it("queries availability by time and reads all vehicle pages", async () => {
 it("records a contract with the deployed request fields", async () => {
   client.put.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
   const result = await updateRentalContract(321, "https://example.com/a.pdf", "2026-10-10T03:00:00Z");
-  expect(client.put).toHaveBeenCalledWith("rentals/321/contract", { contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
+  expect(client.put).toHaveBeenCalledWith("rental/321/contract", { contractLink: "https://example.com/a.pdf", signedAt: "2026-10-10T03:00:00Z" });
   expect(result.contractLink).toBe("https://example.com/a.pdf");
+});
+
+it("uploads a private signed contract as multipart with its rental and signature time", async () => {
+  client.post.mockResolvedValue({ id: 321, rentalType: "longterm", contractLink: "/api/rental/321/contract/document", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z" });
+  const file = new File(["%PDF-1.4"], "signed.pdf", { type: "application/pdf" });
+  const result = await uploadRentalContract(321, file, "2026-10-23T03:00:00Z");
+  const [path, body] = client.post.mock.calls[0];
+  expect(path).toBe("rental/321/contract/upload");
+  expect(body).toBeInstanceOf(FormData);
+  expect(body.get("file")).toBe(file);
+  expect(body.get("signedAt")).toBe("2026-10-23T03:00:00Z");
+  expect(result.hasUploadedContract).toBe(true);
+  expect(result.contractLink).toBe("/api/rental/321/contract/document");
 });

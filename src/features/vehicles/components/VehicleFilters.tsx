@@ -55,13 +55,14 @@ const PRICE_PRESETS = [
 export function VehicleFilters({
   filters,
   facilities = [],
-  brands = ["Toyota", "VinFast", "Honda", "Porsche", "Mazda", "Mercedes-Benz", "Dat Bike"],
+  brands = [],
   onChange,
   onReset,
   onApplyMobile,
   className = "",
   isMobileDrawer = false,
 }: VehicleFiltersProps) {
+  const brandInputId = React.useId();
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Tiêu đề sidebar */}
@@ -133,7 +134,8 @@ export function VehicleFilters({
 
       {/* 3. Thương hiệu xe */}
       <div className="space-y-2 border-t border-td-rule pt-4">
-        <label className="text-xs font-bold text-td-ink">Thương hiệu</label>
+        <label htmlFor={brandInputId} className="text-xs font-bold text-td-ink">Thương hiệu</label>
+        <input id={brandInputId} type="text" value={filters.brand === "all" ? "" : filters.brand || ""} onChange={event => onChange({ brand: event.target.value || "all" })} placeholder="Nhập thương hiệu cần tìm" className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink" />
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
@@ -170,7 +172,7 @@ export function VehicleFilters({
       <div className="space-y-2 border-t border-td-rule pt-4">
         <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
           <Users className="w-3.5 h-3.5 text-primary" />
-          <span>Số chỗ ngồi (ô tô)</span>
+          <span>Số chỗ tối thiểu (ô tô)</span>
         </label>
         <div className="grid grid-cols-5 gap-1.5">
           {SEAT_OPTIONS.map((seat) => {
@@ -202,7 +204,7 @@ export function VehicleFilters({
           </label>
           <select
             value={filters.transmission || "all"}
-            onChange={(e) => onChange({ transmission: e.target.value })}
+            onChange={(e) => onChange({ transmission: e.target.value as FindFilterState["transmission"] })}
             aria-label="Loại hộp số"
             className="w-full rounded border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
           >
@@ -221,7 +223,7 @@ export function VehicleFilters({
           </label>
           <select
             value={filters.fuelType || "all"}
-            onChange={(e) => onChange({ fuelType: e.target.value })}
+            onChange={(e) => onChange({ fuelType: e.target.value as FindFilterState["fuelType"] })}
             aria-label="Loại nhiên liệu"
             className="w-full rounded border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
           >
@@ -238,10 +240,14 @@ export function VehicleFilters({
       <div className="space-y-2 border-t border-td-rule pt-4">
         <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
           <DollarSign className="w-3.5 h-3.5 text-primary" />
-          <span>Khoảng giá thuê / giờ</span>
+          <span>Khoảng giá thuê / {filters.mode === "longterm" ? "tháng" : "giờ"}</span>
         </label>
         <div className="space-y-1">
-          {PRICE_PRESETS.map((p, idx) => {
+          {(filters.mode === "longterm" ? [
+            { label: "Dưới 10.000.000đ/tháng", min: 0, max: 10000000 },
+            { label: "10.000.000đ – 20.000.000đ/tháng", min: 10000000, max: 20000000 },
+            { label: "Trên 20.000.000đ/tháng", min: 20000000, max: 0 },
+          ] : PRICE_PRESETS).map((p, idx) => {
             const isMatch =
               Number(filters.priceMin || 0) === p.min &&
               Number(filters.priceMax || 0) === p.max;

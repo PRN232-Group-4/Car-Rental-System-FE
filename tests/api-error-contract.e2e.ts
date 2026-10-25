@@ -14,7 +14,7 @@ const MOCK_MODE_REASON = 'dev server đang ở chế độ mock — không có r
 
 describe('Hợp đồng lỗi API — FE hiển thị đúng thông báo của BE', () => {
   test('lỗi 401 khi đăng nhập dùng nguyên văn message của BE', async ({ app, browser, screen }) => {
-    const apiMessage = 'Tài khoản đã bị tạm khoá 15 phút do đăng nhập sai quá nhiều lần.';
+    const apiMessage = 'Tài khoản đã bị tạm khóa 15 phút do đăng nhập sai quá nhiều lần.';
 
     await app.open('/login');
     await browser.route('**/api/auth/login', async (route) => {
@@ -41,7 +41,7 @@ describe('Hợp đồng lỗi API — FE hiển thị đúng thông báo của B
     if (!(await response)) test.skip(MOCK_MODE_REASON);
 
     await expect(screen.getByText(apiMessage)).toBeVisible();
-    // Bản cũ thay bằng câu tự đặt nên các lý do khác (khoá tài khoản) bị che mất.
+    // Bản cũ thay bằng câu tự đặt nên các lý do khác (khóa tài khoản) bị che mất.
     await expect(screen.getByText('Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại.')).toBeHidden();
   });
 

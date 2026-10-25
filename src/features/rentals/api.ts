@@ -11,7 +11,7 @@ export function toRentalRequest(input: RentalBookingRequest) {
     startTime: input.startTime,
     endTime: input.endTime,
     subscriptionId: input.subscriptionId ? Number(input.subscriptionId) : null,
-    hasDriver: input.hasDriver ?? false,
+    hasDriver: input.hasDriver !== false,
     paymentMethod: input.paymentMethod ?? "payos",
   };
 }
@@ -44,6 +44,14 @@ export function createLongTermRental(input: RentalBookingRequest) {
   return createRentalBooking({ ...input, rentalType: "longterm" });
 }
 
+export async function getActivePolicyForVehicleType(vehicleTypeId: number): Promise<RentalPolicy | null> {
+  try {
+    return await defaultApiClient.get<RentalPolicy>(`vehicle-type/${vehicleTypeId}/active-policy`);
+  } catch {
+    return null;
+  }
+}
+
 export async function getBookingPolicies() {
   const policies: RentalPolicy[] = [];
   let page = 1;
@@ -57,7 +65,7 @@ export async function getBookingPolicies() {
   }
 }
 
-export async function getBookingVehicles(from?: string, to?: string, facilityId?: string, hasDriver = false, rentalType = "hourly", signal?: AbortSignal) {
+export async function getBookingVehicles(from?: string, to?: string, facilityId?: string, hasDriver = true, rentalType = "hourly", signal?: AbortSignal) {
   const items: import("@/features/vehicles").Vehicle[] = [];
   let page = 1;
   while (true) {
@@ -84,7 +92,7 @@ export async function getBookingVehicles(from?: string, to?: string, facilityId?
 }
 
 export async function getRentalById(id: number | string): Promise<RentalContract> {
-  return mapContract(await defaultApiClient.get<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}`));
+  return mapContract(await defaultApiClient.get<Record<string, unknown>>(`rental/${encodeURIComponent(id)}`));
 }
 
 function mapContract(raw: Record<string, unknown>): RentalContract {
@@ -92,13 +100,21 @@ function mapContract(raw: Record<string, unknown>): RentalContract {
     ...mapRentalFromBE(raw),
     contractLink: (raw.contractLink ?? raw.ContractLink ?? null) as string | null,
     signedAt: (raw.signedAt ?? raw.SignedAt ?? null) as string | null,
+    hasUploadedContract: (raw.hasUploadedContract ?? raw.HasUploadedContract) === true,
     hourlyPriceSnapshot: (raw.hourlyPriceSnapshot ?? null) as number | null,
     monthlyPriceSnapshot: (raw.monthlyPriceSnapshot ?? null) as number | null,
   };
 }
 
 export async function updateRentalContract(id: number | string, contractLink: string | null, signedAt: string) {
-  return mapContract(await defaultApiClient.put<Record<string, unknown>>(`rentals/${encodeURIComponent(id)}/contract`, {
+  return mapContract(await defaultApiClient.put<Record<string, unknown>>(`rental/${encodeURIComponent(id)}/contract`, {
     contractLink, signedAt,
   }));
+}
+
+export async function uploadRentalContract(id: number | string, file: File, signedAt: string) {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("signedAt", signedAt);
+  return mapContract(await defaultApiClient.post<Record<string, unknown>>(`rental/${encodeURIComponent(id)}/contract/upload`, body));
 }

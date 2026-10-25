@@ -6,6 +6,8 @@ import { FileText, ArrowRight, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoices, Invoice } from "@/features/invoices";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatDate } from "@/lib/time";
+import { formatVnd } from "@/lib/format";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 
 export default function HoaDonPage() {
@@ -46,8 +48,8 @@ export default function HoaDonPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · TÀI CHÍNH & HOÁ ĐƠN"
-        title={<>Danh sách <em className="italic text-td-teal">hoá đơn.</em></>}
-        description="Tra cứu hoá đơn tiền thuê xe trực tiếp, tiền đặt cọc và thanh toán trực tuyến qua cổng PayOS."
+        title={<>Danh sách <span className="text-td-teal">hóa đơn.</span></>}
+        description="Tra cứu hóa đơn tiền thuê xe trực tiếp, tiền đặt cọc và thanh toán trực tuyến qua cổng PayOS."
       >
         <div className="border-l border-td-rule pl-4 text-right">
           <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG HOÁ ĐƠN</span>
@@ -96,8 +98,8 @@ export default function HoaDonPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo số hoá đơn, mã đơn..."
-            aria-label="Tìm hoá đơn"
+            placeholder="Tìm theo số hóa đơn, mã đơn..."
+            aria-label="Tìm hóa đơn"
             className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 font-mono text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
           />
         </div>
@@ -115,17 +117,20 @@ export default function HoaDonPage() {
       ) : filteredInvoices.length === 0 ? (
         <div className="border-t border-td-ink py-12 text-center">
           <FileText className="mx-auto h-8 w-8 text-td-muted" aria-hidden="true" />
-          <h3 className="mt-3 text-sm font-bold text-td-ink">Không tìm thấy hoá đơn phù hợp</h3>
+          <h3 className="mt-3 text-sm font-bold text-td-ink">Không tìm thấy hóa đơn phù hợp</h3>
           <p className="mt-1 text-xs text-td-muted">
             {searchQuery
-              ? "Hãy thử tìm kiếm với từ khoá khác hoặc xoá bộ lọc."
-              : "Bạn chưa có hoá đơn thuê xe trực tiếp nào trong mục này."}
+              ? "Hãy thử tìm kiếm với từ khóa khác hoặc xoá bộ lọc."
+              : "Bạn chưa có hóa đơn thuê xe trực tiếp nào trong mục này."}
           </p>
         </div>
       ) : (
-        <section aria-label="Danh sách hoá đơn" className="border-t border-td-ink">
+        <section aria-label="Danh sách hóa đơn" className="border-t border-td-ink">
+          {/* Trên màn hình hẹp, sổ cái cuộn ngang thay vì bóp méo từng cột. */}
+          <div className="overflow-x-auto">
+          <div className="min-w-[720px]">
           <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
-            <span className="col-span-5">Hoá đơn</span>
+            <span className="col-span-5">Hóa đơn</span>
             <span className="col-span-3">Mốc thời gian</span>
             <span className="col-span-2 text-right">Tổng thanh toán</span>
             <span className="col-span-2 text-right">Trạng thái</span>
@@ -145,11 +150,11 @@ export default function HoaDonPage() {
                   </span>
                 </div>
                 <div className="col-span-3 font-mono text-[11px] text-td-muted">
-                  <span className="block">Lập {new Date(inv.issuedAt).toLocaleDateString("vi-VN")}</span>
-                  {inv.dueAt && <span className="block">Hạn {new Date(inv.dueAt).toLocaleDateString("vi-VN")}</span>}
+                  <span className="block">Lập {formatDate(inv.issuedAt)}</span>
+                  {inv.dueAt && <span className="block">Hạn {formatDate(inv.dueAt)}</span>}
                 </div>
                 <span className="col-span-2 text-right font-mono text-xs font-bold text-td-ink">
-                  {inv.amount.toLocaleString("vi-VN")} đ
+                  {formatVnd(inv.amount)}
                 </span>
                 <div className="col-span-2 flex items-center justify-end gap-3">
                   {getStatusBadge(inv.status)}
@@ -162,6 +167,8 @@ export default function HoaDonPage() {
                 </div>
               </div>
             ))}
+          </div>
+          </div>
           </div>
         </section>
       )}

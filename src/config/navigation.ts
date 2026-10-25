@@ -22,7 +22,7 @@ import {
   Star,
 } from "lucide-react";
 import type { Role } from "@/features/auth/roles";
-import { hasAnyRole } from "@/features/auth/access";
+import { canAccessRoute, hasAnyRole } from "@/features/auth/access";
 
 export interface NavItem {
   href: string;
@@ -32,6 +32,7 @@ export interface NavItem {
   badge?: string;
   description?: string;
   external?: boolean;
+  defaultQuery?: string;
 }
 
 export type NavigationArea = "public" | "customer" | "admin" | "driver";
@@ -53,6 +54,7 @@ export const ROUTE_CHAPTER_MAP: Record<string, string> = {
   "/admin/vehicles/edit": "Đội xe",
   "/admin/vehicle-types": "Đội xe",
   "/admin/rentals": "Vận hành",
+  "/admin/payments": "Vận hành",
   "/admin/handovers": "Vận hành",
   "/admin/vehicle-license": "Chăm sóc & Sự cố",
   "/admin/tracking": "Điều phối",
@@ -64,6 +66,7 @@ export const ROUTE_CHAPTER_MAP: Record<string, string> = {
   "/admin/reports/detail": "Chăm sóc & Sự cố",
   "/admin/reviews": "Chăm sóc & Sự cố",
   "/admin/reviews/detail": "Chăm sóc & Sự cố",
+  "/admin/customers": "Chăm sóc & Sự cố",
   "/admin/policies": "Chính sách",
   "/admin/subscription-plans": "Chính sách",
   "/admin/users": "Tổ chức",
@@ -74,11 +77,18 @@ export const ROUTE_CHAPTER_MAP: Record<string, string> = {
   "/admin/departments": "Tổ chức",
   "/admin/facilities": "Tổ chức",
   "/admin/roles": "Tổ chức",
+  "/admin/audit-logs": "Tổ chức",
   "/admin/profile": "Cá nhân",
 };
 
 /** Danh mục điều hướng cổng khách hàng cá nhân */
 export const CUSTOMER_NAV_ITEMS: readonly NavItem[] = [
+  {
+    href: "/my-rentals",
+    label: "Theo dõi tiến trình thuê xe",
+    icon: CarFront,
+    roles: ["Customer"],
+  },
   {
     href: "/account/trips",
     label: "Chuyến của tôi",
@@ -122,75 +132,83 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     href: "/admin/dashboard",
     label: "Dashboard biểu đồ",
     icon: LayoutDashboard,
-    roles: ["Admin", "Manager"],
+    roles: ["Manager"],
   },
   {
     href: "/admin/maintenance",
     label: "Quản lý bảo trì",
     icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+    roles: ["Maintenance", "Manager"],
   },
   {
-    href: "/admin/vehicle-license",
-    label: "Duyệt giấy phép lái xe",
+    href: "/admin/customers",
+    label: "Khách hàng & GPLX",
     icon: FileCheck,
-    roles: ["Admin", "Manager", "CustomerService"],
+    roles: ["CustomerService", "Staff", "Manager"],
+    defaultQuery: "?licenseStatus=pending",
   },
   {
     href: "/admin/dispatch",
     label: "Điều phối tài xế",
     icon: UsersRound,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
+    roles: ["Staff", "Manager"],
   },
   {
     href: "/admin/rentals",
     label: "Vận hành đơn thuê",
     icon: ReceiptText,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
+    roles: ["Staff", "CustomerService", "Manager"],
   },
-  { href: "/admin/handovers", label: "Bàn giao xe", icon: KeyRound, roles: ["Admin", "Manager", "CustomerService"] },
-  { href: "/admin/tracking", label: "Vùng địa lý và cảnh báo", icon: ShieldAlert, roles: ["Admin", "Manager"] },
+  {
+    href: "/admin/payments",
+    label: "Thanh toán đơn thuê",
+    description: "Tra cứu giao dịch, hóa đơn và hoàn tiền",
+    icon: CreditCard,
+    roles: ["Admin", "Manager"],
+  },
+  { href: "/admin/handovers", label: "Bàn giao xe", icon: KeyRound, roles: ["Staff", "Manager"] },
+  { href: "/admin/tracking", label: "Vùng địa lý và cảnh báo", icon: ShieldAlert, roles: ["Staff", "Manager"] },
   {
     href: "/admin/reports",
     label: "Báo cáo sự cố",
     icon: MessageSquareWarning,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
+    roles: ["Staff", "CustomerService", "Maintenance", "Manager"],
   },
   {
     href: "/admin/reviews",
     label: "Đánh giá nhân sự",
     icon: Star,
-    roles: ["Admin", "Manager"],
+    roles: ["Manager"],
   },
   {
     href: "/admin/inspections",
     label: "Kiểm tra xe",
     icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+    roles: ["Staff", "Maintenance", "Manager"],
   },
   {
     href: "/admin/vehicles",
     label: "Quản lý phương tiện",
     icon: CarFront,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+    roles: ["Staff", "Maintenance", "Manager"],
   },
   {
     href: "/admin/vehicle-types",
     label: "Loại phương tiện",
     icon: Tags,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+    roles: ["Manager"],
   },
   {
     href: "/admin/policies",
     label: "Chính sách thuê xe",
     icon: ReceiptText,
-    roles: ["Admin", "Manager"],
+    roles: ["Manager"],
   },
   {
     href: "/admin/subscription-plans",
     label: "Gói Đăng Ký",
     icon: WalletCards,
-    roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"],
+    roles: ["Manager"],
   },
   {
     href: "/admin/departments",
@@ -202,7 +220,7 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     href: "/admin/facilities",
     label: "Cơ Sở",
     icon: Building2,
-    roles: ["Admin"],
+    roles: ["Admin", "Manager"],
   },
   {
     href: "/admin/staffs",
@@ -214,19 +232,25 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     href: "/admin/drivers/schedule",
     label: "Lịch Trình Tài Xế",
     icon: Calendar,
-    roles: ["Admin", "Manager", "Staff", "CustomerService"],
+    roles: ["Staff", "Manager"],
   },
   {
     href: "/admin/users",
     label: "Người dùng",
     icon: UsersRound,
-    roles: ["Admin", "Manager"],
+    roles: ["Admin"],
   },
   {
     href: "/admin/roles",
     label: "Vai Trò",
     icon: KeyRound,
     roles: ["Admin"],
+  },
+  {
+    href: "/admin/audit-logs",
+    label: "Nhật ký kiểm toán",
+    icon: ShieldAlert,
+    roles: ["Admin", "Manager"],
   },
   {
     href: "/admin/profile",
@@ -248,6 +272,8 @@ export const DRIVER_NAV_ITEMS: readonly NavItem[] = [
 
 /**
  * Lấy danh sách các mục điều hướng phù hợp với phân quyền vai trò người dùng trong từng phân vùng.
+ * Vùng admin yêu cầu mục vừa đạt role hiển thị vừa qua canAccessRoute: quyền route chỉ thu hẹp menu,
+ * không bao giờ nới rộng tập role hiển thị.
  *
  * @param roles Danh sách vai trò của người dùng hiện tại
  * @param area Phân vùng giao diện ("public" | "customer" | "admin" | "driver")
@@ -274,7 +300,8 @@ export function getNavigation(
   }
 
   return items.filter((item) => {
-    if (!item.roles || item.roles.length === 0) return true;
-    return hasAnyRole(roles, item.roles);
+    if (item.roles && item.roles.length > 0 && !hasAnyRole(roles, item.roles)) return false;
+    if (area !== "admin") return true;
+    return canAccessRoute(item.href, roles);
   });
 }

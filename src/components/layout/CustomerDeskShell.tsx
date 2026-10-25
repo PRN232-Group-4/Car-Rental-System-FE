@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useAuth } from "@/features/auth";
 import { initialsFor } from "@/features/profile/api";
-import { LogOut, Moon, Sun, User } from "lucide-react";
+import { CarFront, LogOut, Moon, Sun, User, KeyRound } from "lucide-react";
 import { useTheme } from "@/lib/use-theme";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "@/features/admin/transit-desk/transit-desk.module.css";
@@ -33,6 +33,7 @@ const CUSTOMER_CHAPTERS: CustomerChapter[] = [
       { href: "/booking", label: "Đặt xe" },
       { href: "/my-rentals", label: "Đơn thuê" },
       { href: "/rental-contract", label: "Hợp đồng dài hạn" },
+      { href: "/nearby-vehicles", label: "Xe gần đây" },
     ],
   },
   {
@@ -45,7 +46,7 @@ const CUSTOMER_CHAPTERS: CustomerChapter[] = [
   {
     chapter: "Tài chính",
     routes: [
-      { href: "/invoices", label: "Hoá đơn" },
+      { href: "/invoices", label: "Hóa đơn" },
       { href: "/payment-history", label: "Lịch sử thanh toán" },
     ],
   },
@@ -127,7 +128,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
 
   const displayName = user?.fullName || "Khách hàng";
   const displayEmail = user?.email || "Chưa cập nhật email";
-  const totalRoutes = CUSTOMER_CHAPTERS.reduce((total, entry) => total + entry.routes.length, 0);
 
   const handleLogout = async () => {
     await logout();
@@ -223,6 +223,16 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
                     <User className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Hồ sơ cá nhân</span>
                   </Link>
+                  <Link href="/profile#change-password" role="menuitem" onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk">
+                    <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Đổi mật khẩu</span>
+                  </Link>
+                  <Link href="/my-rentals" role="menuitem" onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded px-3 py-2 text-td-ink hover:bg-td-chalk">
+                    <CarFront className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Theo dõi tiến trình thuê xe</span>
+                  </Link>
                   <button
                     type="button"
                     role="menuitem"
@@ -258,7 +268,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
               </Link>
             ))}
           </nav>
-          <span className={styles.contextTotal}>{totalRoutes} CHỨC NĂNG KHẢ DỤNG</span>
         </div>
       </div>
 
@@ -275,7 +284,7 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
           routes={commandRoutes}
           storageKey="thong_dong_customer_recent_routes"
           title="Tìm chức năng khách hàng"
-          placeholder="Gõ tên trang hoặc đường dẫn (ví dụ: hoá đơn, gplx, /invoices)..."
+          placeholder="Gõ tên trang hoặc đường dẫn (ví dụ: hóa đơn, gplx, /invoices)..."
           emptyHint="Không tìm thấy trang phù hợp trong cổng khách hàng."
         />
       )}

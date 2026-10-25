@@ -1,19 +1,16 @@
 "use client";
 
+import { notifyError, notifySuccess } from "@/components/ui/Toaster";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   Search,
-  CheckCircle2,
   AlertTriangle,
   ArrowRight,
   ExternalLink,
-  Car,
-  Clock,
-  UserCheck,
-  RotateCcw,
   Check,
   ShieldAlert,
 } from "lucide-react";
@@ -24,13 +21,14 @@ import {
   changeRentalStatus,
   operationalError,
   rentalStatuses,
-  type OperationalRental,
+  rentalTransitionBlocker,
 } from "@/features/operations/api";
 import { formatAdminDateTime } from "@/lib/date-time";
 import VehicleName from "@/features/admin/VehicleName";
+import TechnicianAssignmentForm from "@/features/operations/TechnicianAssignmentForm";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
-import { useInlineValidation, InlineInput, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
+import { useInlineValidation, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -161,10 +159,13 @@ export function RentalJourney() {
     try {
       await assignRental(Number(rental.id), selectedDriverId ? Number(selectedDriverId) : null);
       setAssignSuccess("Đã lưu phân công phương tiện và tài xế.");
+      notifySuccess("Đã lưu phân công phương tiện và tài xế.");
       await refetchRental();
     } catch (failure) {
       const msg = assignValidation.report(failure);
-      setAssignError(failure instanceof TypeError ? operationalError(failure) : msg);
+      const generalError = failure instanceof TypeError ? operationalError(failure) : msg;
+      setAssignError(generalError);
+      notifyError(generalError);
     } finally {
       setAssignBusy(false);
     }
@@ -173,18 +174,24 @@ export function RentalJourney() {
   // Handle Status change execution
   const executeStatusChange = async (targetStatus: string) => {
     if (!rental || statusBusy) return;
+    const blocker = rentalTransitionBlocker(rental, targetStatus);
+    if (blocker) { statusValidation.setField("status", blocker); return; }
     setStatusBusy(true);
     setStatusError("");
     setStatusSuccess("");
     setConfirmStatusModal(null);
     try {
       await changeRentalStatus(Number(rental.id), targetStatus);
-      setStatusSuccess(`Đã chuyển trạng thái: ${rentalStatuses[targetStatus] ?? targetStatus}.`);
+      const message = `Đã chuyển trạng thái: ${rentalStatuses[targetStatus] ?? targetStatus}.`;
+      setStatusSuccess(message);
+      notifySuccess(message);
       setNextStatus("");
       await refetchRental();
     } catch (failure) {
       const msg = statusValidation.report(failure);
-      setStatusError(failure instanceof TypeError ? operationalError(failure) : msg);
+      const generalError = failure instanceof TypeError ? operationalError(failure) : msg;
+      setStatusError(generalError);
+      notifyError(generalError);
     } finally {
       setStatusBusy(false);
     }
@@ -294,23 +301,7 @@ export function RentalJourney() {
               </button>
             </div>
 
-            {/* Quick Sample IDs */}
-            <div className="flex items-center gap-1.5 font-mono text-xs text-td-muted">
-              <span className="text-[11px]">Mẫu test:</span>
-              {[1, 101, 98].map((sampleId) => (
-                <button
-                  key={sampleId}
-                  type="button"
-                  onClick={() => {
-                    setIdInput(String(sampleId));
-                    setLookupId(String(sampleId));
-                  }}
-                  className="rounded border border-td-rule bg-td-white px-2 py-0.5 text-xs font-bold text-td-ink hover:border-td-oxide hover:text-td-oxide transition-colors cursor-pointer"
-                >
-                  #{sampleId}
-                </button>
-              ))}
-            </div>
+
           </div>
         </ValidatedForm>
 
@@ -541,6 +532,7 @@ export function RentalJourney() {
 
             {/* Right Column: Guarded Action Shelves */}
             <div className="lg:col-span-5 space-y-6">
+              <TechnicianAssignmentForm key={rental.id} rental={rental} refresh={refetchRental} />
               {/* Action Shelf 1: Phân xe và tài xế */}
               <section className="border border-td-rule bg-td-white rounded p-6 space-y-4" aria-label="Bàn phân công tài xế">
                 <div className="border-b border-td-rule pb-3">
@@ -573,7 +565,7 @@ export function RentalJourney() {
                         .filter((driver) => driver.isActive)
                         .map((driver) => (
                           <option key={driver.id} value={driver.id}>
-                            {driver.fullName ?? driver.email ?? `Tài xế #${driver.id}`}
+                            {driver.email?.trim() || "Chưa cập nhật email tài xế"}
                           </option>
                         ))}
                     </InlineSelect>

@@ -16,7 +16,7 @@ test("maintenance applies draft filters and reset clears the request and control
     const filtered = new URL(route.request().url()).searchParams.has("vehicleId");
     return route.fulfill({ json: (filtered ? [1] : [1, 2]).map((id) => ({ id, vehicleId: 42, status: "in_progress" })) });
   });
-  await page.route("**/api/vehicles/42", (route) => route.fulfill({ json: { id: 42, brand: "Toyota", model: "Vios" } }));
+  await page.route("**/api/vehicle/42", (route) => route.fulfill({ json: { id: 42, brand: "Toyota", model: "Vios" } }));
   await page.goto("/admin/maintenance");
   const bar = page.locator("[data-admin-filters]");
   const vehicle = bar.getByLabel("Mã phương tiện", { exact: true });

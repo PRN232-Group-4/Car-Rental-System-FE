@@ -20,4 +20,6 @@ export const RENTAL_101: OperationalRental = {
   signedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
   hourlyPriceSnapshot: 150000,
   monthlyPriceSnapshot: null,
+  hasPassingPreInspection: true,
+  hasPostInspection: true,
 } as OperationalRental;

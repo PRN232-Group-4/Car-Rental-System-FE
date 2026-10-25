@@ -1,9 +1,12 @@
 import { backendApiClient } from "@/api/backend-api-client";
 import type { components } from "@/api/generated/schema";
 
-export type AccountProfile = components["schemas"]["AccountResponse"];
+export type AccountProfile = components["schemas"]["AccountResponse"] & {
+  facilityName?: string | null;
+};
 
 export interface CustomerLicense {
+  id?: number | null;
   number: string | null;
   type: string | null;
   issueDate: string | null;
@@ -26,6 +29,14 @@ export interface LicenseRequest {
  */
 export function getAccountProfile() {
   return backendApiClient.get<AccountProfile>("account/profile");
+}
+
+export function sendPasswordChangeOtp(currentPassword: string) {
+  return backendApiClient.post("account/password/otp", { currentPassword });
+}
+
+export function changePassword(data: components["schemas"]["ChangePasswordRequest"]) {
+  return backendApiClient.post("account/password", data);
 }
 
 export function initialsFor(name: string | null | undefined): string {

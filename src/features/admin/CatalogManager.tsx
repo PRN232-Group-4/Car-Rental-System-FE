@@ -18,7 +18,7 @@ import {
 } from "./api";
 import type { RentalPolicyDto, SubscriptionPlanDto, VehicleTypeDto } from "./api";
 import { useAuth } from "@/features/auth";
-import { notifyApiError, notifySuccess } from "@/components/ui/Toaster";
+import { notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { InlineInput, InlineSelect, InlineTextarea, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
@@ -46,7 +46,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; inde
     index: "02",
     tag: "FLT",
     kicker: "TÀI SẢN · PHÂN LOẠI XE",
-    folio: <>Loại <em className="italic text-td-teal">phương tiện.</em></>,
+    folio: <>Loại <span className="text-td-teal">phương tiện.</span></>,
   },
   policies: {
     title: "Chính sách thuê xe",
@@ -54,7 +54,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; inde
     index: "06",
     tag: "PLC",
     kicker: "CHÍNH SÁCH · ĐIỀU KHOẢN THUÊ",
-    folio: <>Chính sách <em className="italic text-td-teal">thuê xe.</em></>,
+    folio: <>Chính sách <span className="text-td-teal">thuê xe.</span></>,
   },
   "subscription-plans": {
     title: "Gói đăng ký",
@@ -62,7 +62,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; inde
     index: "06",
     tag: "PLC",
     kicker: "CHÍNH SÁCH · GÓI THUÊ BAO",
-    folio: <>Gói <em className="italic text-td-teal">đăng ký.</em></>,
+    folio: <>Gói <span className="text-td-teal">đăng ký.</span></>,
   },
 };
 
@@ -112,7 +112,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
   const isAdmin = hasRole("admin");
   const isManager = hasRole("manager");
   const canManage = isAdmin || isManager;
-  const canDelete = isAdmin;
+  const canDelete = canManage;
   const showActions = canManage;
 
   const info = catalogInfo[catalog];
@@ -207,7 +207,9 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
       if (catalog === "policies" && policyPage !== 1) setPolicyPage(1);
       else await loadRecords();
     } catch (saveError) {
-      setError(validation.report(saveError));
+      const message = validation.report(saveError);
+      setError(message);
+      notifyError(message);
     } finally {
       setSaving(false);
     }
@@ -239,7 +241,9 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
       setRecords((current) => current.map((item) => item.id === record.id ? toPolicyRecord(updated, vehicleTypes) : item));
       notifySuccess(nextActive ? "Đã kích hoạt chính sách thuê xe." : "Đã tạm ngưng chính sách thuê xe.");
     } catch (statusFailure) {
-      setStatusError(statusFailure instanceof Error ? statusFailure.message : "Không thể đổi trạng thái chính sách. Vui lòng thử lại.");
+      const message = statusFailure instanceof Error ? statusFailure.message : "Không thể đổi trạng thái chính sách. Vui lòng thử lại.";
+      setStatusError(message);
+      notifyError(message);
     } finally {
       statusBusy.current = false;
       setStatusPendingId(null);

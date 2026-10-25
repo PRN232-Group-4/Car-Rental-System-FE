@@ -76,7 +76,7 @@ export default function DriverVehicles() {
         index="10"
         tag="NV"
         kicker="NHÂN VIÊN · PHƯƠNG TIỆN PHÂN CÔNG"
-        title={<>Phương tiện <em className="italic text-td-teal">của tôi.</em></>}
+        title={<>Phương tiện <span className="text-td-teal">của tôi.</span></>}
         description="Danh sách xe có lịch phân công cho bạn trong khoảng một năm trước và sau ngày hiện tại."
       >
         <div className="border-l border-td-rule pl-4 text-right">

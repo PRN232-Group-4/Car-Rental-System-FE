@@ -14,6 +14,7 @@ import TransitDeskStatus from "./TransitDeskStatus";
 import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
+import VehicleMaintenanceTechnicians from "@/features/admin/VehicleMaintenanceTechnicians";
 import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus, BatteryCharging, Gauge } from "lucide-react";
 import { playTactileClick } from "@/lib/audio/haptic-audio";
 
@@ -119,7 +120,7 @@ export function FleetRegistry() {
         index="02"
         tag="FLT"
         kicker="TÀI SẢN · ĐỘI XE"
-        title={<>Sổ <em className="italic text-td-teal">phương tiện.</em></>}
+        title={<>Sổ <span className="text-td-teal">phương tiện.</span></>}
         description="Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi."
       >
         <TransitFolioMetric
@@ -277,6 +278,7 @@ export function FleetRegistry() {
                                 ? "Bảo dưỡng"
                                 : v.status || "Chưa rõ"}
                         </TransitDeskStatus>
+                        <div className="mt-2"><VehicleMaintenanceTechnicians vehicle={v} /></div>
                       </div>
 
                       {/* Audit 8: In-row Telemetry Ribbon (revealed on hover or when selected) */}
@@ -367,6 +369,7 @@ export function FleetRegistry() {
               </div>
 
               <VehiclePhotos vehicleId={selectedVehicle.id} />
+              <VehicleMaintenanceTechnicians vehicle={selectedVehicle} />
 
               {/* Data specifications - High fidelity (P1-05: no repetitive placeholder dash spam) */}
               <div className="divide-y divide-td-rule border-y border-td-rule text-xs font-mono">

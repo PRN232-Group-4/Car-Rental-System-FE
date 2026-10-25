@@ -6,10 +6,11 @@ import { Zap, Gauge, BatteryCharging, ArrowRight, ShieldCheck, Sparkles, CheckCi
 import { Button } from "@/components/ui/Button";
 import { BookingModal } from "@/features/rentals";
 import type { Vehicle } from "@/features/vehicles/types";
+import { VehicleLicenseRequirement } from "@/features/vehicles/components/VehicleLicenseRequirement";
 
 import { useFleetVehicles } from "../use-fleet-vehicles";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { SkeletonBlock, Skeleton } from "@/components/ui/Skeleton";
+import { CardGridSkeleton } from "@/components/ui/Skeleton";
 
 interface EVModel {
   vehicle: Vehicle;
@@ -57,7 +58,7 @@ export default function SpatialFleetShowcase({
     if (activeModel?.vehicle.isAvailable) setSelectedVehicleForBooking(activeModel.vehicle);
   };
 
-  if (fleet.isPending) return <SkeletonBlock label="Đang tải đội xe điện" className="mx-auto max-w-7xl px-6 py-24"><Skeleton className="h-96 w-full" /></SkeletonBlock>;
+  if (fleet.isPending) return <CardGridSkeleton label="Đang tải đội xe điện" className="mx-auto grid max-w-7xl gap-8 px-6 py-24 md:grid-cols-3" count={3} mediaClassName="h-72 w-full rounded-none" lines={3} containerClassName="rounded-3xl border border-line-strong bg-surface" />;
   if (fleet.isError) return <ErrorState message={fleet.error.message} onRetry={() => { void fleet.refetch(); }} />;
   if (!activeModel) return <p role="status" className="py-24 text-center">Chưa có xe điện phù hợp tại cơ sở này.</p>;
 
@@ -159,6 +160,8 @@ export default function SpatialFleetShowcase({
             <p className="text-xs sm:text-sm text-ink-2 font-normal leading-relaxed mb-6 text-pretty">
               {activeModel.tagline}
             </p>
+
+            <VehicleLicenseRequirement allowedLicenseTypes={activeModel.vehicle.allowedLicenseTypes} className="mb-6" />
 
             {/* 4-Grid Telemetry Telematics */}
             <div className="grid grid-cols-2 gap-3 mb-6">

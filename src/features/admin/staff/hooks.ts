@@ -10,8 +10,8 @@ import {
   getDriverSchedules,
   getAssignableDrivers,
   assignDriverToRental,
-  getDepartments,
-  getFacilities,
+  getStaffDepartments,
+  getStaffFacilities,
 } from "./api";
 import type {
   StaffFilterParams,
@@ -55,7 +55,7 @@ export function useStaff(id: number) {
 export function useDepartments() {
   return useQuery({
     queryKey: STAFF_QUERY_KEYS.departments,
-    queryFn: getDepartments,
+    queryFn: getStaffDepartments,
     staleTime: 5 * 60_000,
   });
 }
@@ -63,7 +63,7 @@ export function useDepartments() {
 export function useFacilities() {
   return useQuery({
     queryKey: STAFF_QUERY_KEYS.facilities,
-    queryFn: getFacilities,
+    queryFn: getStaffFacilities,
     staleTime: 5 * 60_000,
   });
 }
@@ -74,6 +74,7 @@ export function useCreateStaff() {
   return useMutation({
     mutationFn: (input: CreateStaffInput) => createStaff(input),
     onSuccess: (newStaff) => {
+      queryClient.invalidateQueries({ queryKey: ["operational-drivers"] });
       queryClient.invalidateQueries({ queryKey: STAFF_QUERY_KEYS.all });
       toast.success(`Đã tạo thành công hồ sơ nhân viên ${newStaff.fullName}`);
     },
@@ -93,6 +94,7 @@ export function useUpdateStaff() {
   return useMutation({
     mutationFn: (input: UpdateStaffInput) => updateStaff(input),
     onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ["operational-drivers"] });
       queryClient.invalidateQueries({ queryKey: STAFF_QUERY_KEYS.all });
       queryClient.invalidateQueries({ queryKey: STAFF_QUERY_KEYS.detail(updated.id) });
       toast.success("Cập nhật thông tin nhân viên thành công");
@@ -113,6 +115,7 @@ export function useUpdateStaffLicense() {
   return useMutation({
     mutationFn: (input: UpdateLicenseInput) => updateStaffLicense(input),
     onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ["operational-drivers"] });
       queryClient.invalidateQueries({ queryKey: STAFF_QUERY_KEYS.all });
       queryClient.invalidateQueries({ queryKey: STAFF_QUERY_KEYS.detail(updated.id) });
       toast.success("Đã cập nhật giấy phép lái xe thành công");

@@ -8,13 +8,13 @@ export interface CheckoutCancellation {
 
 /**
  * Xác minh với BE (BE hỏi lại payOS) rồi mới đánh dấu giao dịch 'cancelled'. payOS không gửi
- * webhook khi khách huỷ link thanh toán nên đây là bước bắt buộc để hoá đơn/gói không treo ở
+ * webhook khi khách huỷ link thanh toán nên đây là bước bắt buộc để hóa đơn/gói không treo ở
  * trạng thái chờ. Trả null khi không huỷ được (BE cũ chưa có endpoint, hoặc link vẫn hiệu lực).
  */
 export async function cancelCheckout(orderCode: number | string): Promise<CheckoutCancellation | null> {
   try {
     return await defaultApiClient.post<CheckoutCancellation>(
-      `payments/checkouts/${orderCode}/cancel`,
+      `payments/checkout/${orderCode}/cancel`,
     );
   } catch (err) {
     console.warn("[Payments API] Cancel checkout warning:", err);
@@ -33,7 +33,7 @@ export function mapPaymentFromBE(raw: Record<string, unknown>): PaymentSummary {
     method: (raw.method ?? raw.Method) as string | null,
     providerReference: (raw.providerReference ?? raw.ProviderReference) as string | null,
     paidAt: (raw.paidAt ?? raw.PaidAt) as string | null,
-    createdAt: String(raw.createdAt ?? raw.CreatedAt ?? new Date().toISOString()),
+    createdAt: String(raw.createdAt ?? raw.CreatedAt ?? ""),
   };
 }
 

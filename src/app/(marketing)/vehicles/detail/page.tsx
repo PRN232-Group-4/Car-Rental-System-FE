@@ -25,6 +25,7 @@ function VehicleDetailContent() {
   const initialFrom = searchParams.get("from") || undefined;
   const initialTo = searchParams.get("to") || undefined;
   const initialMode = (searchParams.get("mode") as "self" | "driver" | "subscription") || "self";
+  const initialRentalType = searchParams.get("rentalType") === "longterm" || searchParams.get("mode") === "longterm" ? "longterm" : "hourly";
 
   const [loading, setLoading] = useState(!id ? false : true);
   const [error, setError] = useState<string | null>(!id ? "Mã phương tiện không hợp lệ" : null);
@@ -129,6 +130,7 @@ function VehicleDetailContent() {
 
   return (
     <VehicleDetailView
+      key={`${vehicle.id}:${initialFrom}:${initialTo}:${initialMode}:${initialRentalType}`}
       vehicle={vehicle}
       policy={policy}
       busySlots={busySlots}
@@ -136,6 +138,7 @@ function VehicleDetailContent() {
       initialFrom={initialFrom}
       initialTo={initialTo}
       initialMode={initialMode}
+      initialRentalType={initialRentalType}
     />
   );
 }

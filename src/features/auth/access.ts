@@ -70,32 +70,42 @@ export interface RouteAccessRule {
  * - Authenticated: /booking, /invoices, /payment-history, /report-incident, /profile
  */
 export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = [
-  // Cấp cao nhất - Admin chỉ định
+  // Cấp cao nhất - Admin chỉ định quản trị hệ thống
   { pattern: "/admin/users", roles: ["Admin"] },
   { pattern: "/admin/roles", roles: ["Admin"] },
   { pattern: "/admin/departments", roles: ["Admin"] },
-  { pattern: "/admin/facilities", roles: ["Admin"] },
+  { pattern: "/admin/facilities", roles: ["Admin", "Manager"] },
+  { pattern: "/admin/audit-logs", roles: ["Admin", "Manager"] },
+  { pattern: "/admin/payments", roles: ["Admin", "Manager"] },
 
-  // Cấp Quản lý & Vận hành
-  { pattern: "/admin/vehicle-license", roles: ["Admin", "Manager", "CustomerService"] },
-  { pattern: "/admin/staffs", roles: ["Admin", "Manager"] },
+  // Cấp Quản lý điều hành & Chiến lược
+  { pattern: "/admin/dashboard", roles: ["Admin", "Manager"] },
   { pattern: "/admin/policies", roles: ["Admin", "Manager"] },
   { pattern: "/admin/reviews", roles: ["Admin", "Manager"] },
-  { pattern: "/admin/dashboard", roles: ["Admin", "Manager"] },
+  { pattern: "/admin/subscription-plans", roles: ["Admin", "Manager"] },
+  { pattern: "/admin/vehicle-types", roles: ["Admin", "Manager"] },
+  { pattern: "/admin/staffs", roles: ["Admin", "Manager"] },
+
+  // Chăm sóc khách hàng & Giấy phép lái xe
+  { pattern: "/admin/vehicle-license", roles: ["CustomerService", "Staff", "Manager"] },
+  { pattern: "/admin/customers", roles: ["CustomerService", "Staff", "Manager"] },
+  { pattern: "/admin/reports", roles: ["Staff", "CustomerService", "Maintenance", "Manager"] },
+
+  // Điều phối & Lịch trình
   { pattern: "/admin/dispatch", roles: ["Admin", "Manager", "Staff", "CustomerService"] },
   { pattern: "/admin/drivers", roles: ["Admin", "Manager", "Staff"] },
+  { pattern: "/admin/tracking", roles: ["Admin", "Manager", "Staff"] },
 
-  { pattern: "/admin/handovers", roles: ["Admin", "Manager", "CustomerService"] },
-  { pattern: "/admin/tracking", roles: ["Admin", "Manager"] },
+  // Vận hành đơn thuê & Bàn giao xe
+  { pattern: "/admin/rentals", roles: ["Staff", "CustomerService", "Manager"] },
+  { pattern: "/admin/handovers", roles: ["Staff", "Manager"] },
 
-  // Vận hành chung đội xe
-  { pattern: "/admin/rentals", roles: ["Admin", "Manager", "CustomerService"] },
-  { pattern: "/admin/inspections", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
-  { pattern: "/admin/maintenance", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
-  { pattern: "/admin/vehicles", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
-  { pattern: "/admin/vehicle-types", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
-  { pattern: "/admin/subscription-plans", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
-  { pattern: "/admin/reports", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
+  // Kỹ thuật & Bảo dưỡng
+  { pattern: "/admin/inspections", roles: ["Staff", "Maintenance", "Manager"] },
+  { pattern: "/admin/maintenance", roles: ["Maintenance", "Manager"] },
+  { pattern: "/admin/vehicles", roles: ["Staff", "Maintenance", "Manager"] },
+
+  // Dùng chung toàn bộ nhân sự cổng quản trị
   { pattern: "/admin/profile", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
   { pattern: "/admin", roles: ["Admin", "Manager", "Staff", "CustomerService", "Maintenance"] },
 

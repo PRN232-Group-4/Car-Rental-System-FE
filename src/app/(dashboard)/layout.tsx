@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useMounted } from "@/hooks/use-mounted";
 import CustomerDeskShell from "@/components/layout/CustomerDeskShell";
+import { CustomerShellSkeleton } from "@/components/layout/PortalShellSkeleton";
 import { getLoginPortalPath } from "@/features/auth/portal-routing";
 import { useSession, AuthGate } from "@/features/auth";
 
@@ -29,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [mounted, isLoading, isAuthenticated, user, router]);
 
   return (
-    <AuthGate requireAuth={true}>
+    <AuthGate requireAuth={true} fallback={<CustomerShellSkeleton />}>
       <CustomerDeskShell>{children}</CustomerDeskShell>
     </AuthGate>
   );

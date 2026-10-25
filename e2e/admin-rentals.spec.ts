@@ -13,11 +13,11 @@ test("staff approval refreshes both selected progress and table status", async (
   let approved = false;
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/rentals/201/confirm")) {
+    if (path.endsWith("/rental/201/confirm")) {
       approved = true;
       return route.fulfill({ json: { rentalId: 201, toStatus: "pre_inspection" } });
     }
-    if (path.endsWith("/rentals/201")) return route.fulfill({ json: { ...rentals[0], status: approved ? "pre_inspection" : "pending", rentalType: "hourly", isSubscription: false } });
+    if (path.endsWith("/rental/201")) return route.fulfill({ json: { ...rentals[0], status: approved ? "pre_inspection" : "pending", rentalType: "hourly", isSubscription: false } });
     if (path.endsWith("/rentals")) return route.fulfill({ json: { items: [{ ...rentals[0], status: approved ? "pre_inspection" : "pending" }], page: 1, pageSize: 20, totalCount: 1 } });
     return route.fallback();
   });
@@ -29,7 +29,7 @@ test("staff approval refreshes both selected progress and table status", async (
 });
 
 test("failed admin detail never falls back to fabricated sample rental", async ({ page }) => {
-  await page.route("**/api/rentals/1", (route) => route.fulfill({ status: 404, json: { message: "Không tìm thấy yêu cầu thuê." } }));
+  await page.route("**/api/rental/1", (route) => route.fulfill({ status: 404, json: { message: "Không tìm thấy yêu cầu thuê." } }));
   await page.goto("/admin/rentals?rentalId=1");
   await expect(page.locator("#rental-detail").getByRole("alert")).toContainText("Không tìm thấy yêu cầu thuê.");
   await expect(page.locator("#rental-detail").getByRole("region", { name: "Tiến trình thuê xe" })).toHaveCount(0);
@@ -46,11 +46,11 @@ test.beforeEach(async ({ page }) => {
       const pageSize = Number(url.searchParams.get("pageSize") ?? 20);
       return route.fulfill({ json: { items: filtered.slice((page - 1) * pageSize, page * pageSize), totalCount: filtered.length, page, pageSize } });
     }
-    const id = Number(path.match(/\/rentals\/(\d+)$/)?.[1]);
+    const id = Number(path.match(/\/rental\/(\d+)$/)?.[1]);
     const rental = rentals.find((rental) => rental.id === id);
     const data = path.endsWith("/account/profile") ? { fullName: "Admin", email: "admin@test.local", roles: ["Admin"] }
       : rental ? { ...rental, rentalType: "hourly", isSubscription: false }
-      : path.endsWith("/vehicles/8") ? { id: 8, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" }
+      : path.endsWith("/vehicle/8") ? { id: 8, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" }
       : path.endsWith("/staff/drivers") ? { items: [], totalCount: 0 } : [];
     return route.fulfill({ json: data });
   });

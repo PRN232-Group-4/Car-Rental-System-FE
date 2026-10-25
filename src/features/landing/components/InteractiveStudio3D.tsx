@@ -493,6 +493,9 @@ export default function InteractiveStudio3D() {
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
             Khu Trưng Bày Xe 3D Tương Tác
           </h2>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-td-muted">
+            Mô hình minh họa theo thiết kế · Không thuộc đội xe đang cho thuê
+          </p>
         </div>
         <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
           Tương tác 360° theo thời gian thực, phối màu sơn xe độc bản, giải phẫu từng chi tiết kỹ thuật cơ khí chính xác với 3D Hotspots.

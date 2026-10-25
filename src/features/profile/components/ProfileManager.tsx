@@ -1,22 +1,20 @@
 "use client";
 
-import { InlineError, ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
+import { ValidatedForm, useInlineValidation, InlineInput, InlineSelect } from "@/components/forms/inline-validation";
 
-import { useEffect, useRef, useState } from "react";
-import type { ChangeEvent, DragEvent, FormEvent, ReactNode } from "react";
+import { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent, ReactNode } from "react";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import {
   AlertCircle,
   BadgeCheck,
   Check,
   Clock3,
-  FileText,
   Mail,
   Phone,
   ShieldCheck,
   Upload,
   UserRound,
-  X,
 } from "lucide-react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -24,14 +22,14 @@ import {
   getAccountProfile,
   getCustomerLicense,
   updateAccountProfile,
-  updateCustomerLicense,
-  uploadLicenseImage,
 } from "../api";
+import { saveCustomerLicense } from "@/features/licenses/api";
+import { hasCustomerLicense } from "@/features/licenses/booking-license";
+import LicenseImageField from "@/features/licenses/components/LicenseImageField";
 import { ApiClientError } from "@/api/api-client";
 import { useAuth } from "@/features/auth";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+import ChangePasswordForm from "./ChangePasswordForm";
+import Link from "@/components/navigation/NavigationLink";
 
 type ProfileDetails = {
   fullName: string;
@@ -43,7 +41,6 @@ type ProfileDetails = {
 export default function ProfileManager() {
   const router = useRouter();
   const { isLoading: authLoading, isAuthenticated } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [details, setDetails] = useState<ProfileDetails>({
     fullName: "",
     email: "",
@@ -51,6 +48,7 @@ export default function ProfileManager() {
     gender: "",
   });
   const [licenseNumber, setLicenseNumber] = useState("");
+  const [licenseId, setLicenseId] = useState<number | null>(null);
   const [licenseType, setLicenseType] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -58,7 +56,6 @@ export default function ProfileManager() {
   const [licenseStatus, setLicenseStatus] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const validation = useInlineValidation();
   const profileValidation = useInlineValidation();
   const [fileError, setFileError] = useState("");
@@ -97,12 +94,13 @@ export default function ProfileManager() {
           gender: profile.gender ?? "",
         });
         if (license) {
+          setLicenseId(license.id ?? null);
           setLicenseNumber(license.number ?? "");
           setLicenseType(license.type ?? "");
           setIssueDate(license.issueDate?.slice(0, 10) ?? "");
           setExpiryDate(license.expiryDate?.slice(0, 10) ?? "");
           setLicenseImageUrl(license.imageUrl ?? "");
-          setLicenseStatus(license.status ?? "");
+          setLicenseStatus(hasCustomerLicense(license) ? license.status ?? "" : "");
         }
       } catch (loadError) {
         if (active) {
@@ -118,72 +116,38 @@ export default function ProfileManager() {
     };
   }, [authLoading, isAuthenticated, router]);
 
-  const updateDetails = (event: ChangeEvent<HTMLInputElement>) => {
+  const updateDetails = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.currentTarget;
     setDetails((current) => ({ ...current, [name]: value }));
     setProfileSaved(false);
   };
 
-  const selectFile = (file?: File) => {
-    setFileError("");
-    if (!file) return;
-
-    if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
-      setSelectedFile(null);
-      validation.setField("imageUrl", "Vui lòng chọn ảnh JPG, PNG hoặc WEBP.");
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      setSelectedFile(null);
-      validation.setField("imageUrl", "Tệp vượt quá 10 MB. Vui lòng chọn tệp nhỏ hơn.");
-      return;
-    }
-
-    validation.clear("imageUrl");
-    setSelectedFile(file);
-    setFileError("");
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    selectFile(event.currentTarget.files?.[0]);
-    event.currentTarget.value = "";
-  };
-
-  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-    selectFile(event.dataTransfer.files[0]);
-  };
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedFile && !licenseImageUrl) {
-      setFileError("Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt.");
+    if (isSubmittingLicense || isLoading || isPendingStatus(licenseStatus)) return;
+    if (!selectedFile) {
+      validation.setField("imageUrl", "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ.");
       return;
     }
     setIsSubmittingLicense(true);
     setFileError("");
     try {
-      let imageUrl = licenseImageUrl;
-      if (selectedFile) {
-        imageUrl = extractImageUrl(await uploadLicenseImage(selectedFile));
-        if (!imageUrl) throw new Error("API tải ảnh không trả về URL.");
-      }
-      const license = await updateCustomerLicense({
+      const license = await saveCustomerLicense({
+        ...(licenseId != null ? { licenseId } : {}),
         number: licenseNumber.trim(),
         type: licenseType.trim(),
-        issueDate: issueDate || null,
+        issueDate,
         expiryDate,
-        imageUrl,
+        file: selectedFile,
       });
-      setLicenseImageUrl(license.imageUrl ?? imageUrl);
+      setLicenseImageUrl(license.imageUrl ?? "");
+      setLicenseId(license.id ?? null);
       const status = license.status ?? "pending";
       setLicenseStatus(status);
       setSelectedFile(null);
       setIsPending(isPendingStatus(status));
     } catch (submitError) {
-      setFileError(validation.report(submitError, { number: "licenseNumber", type: "licenseType" }));
+      setFileError(validation.report(submitError, { number: "licenseNumber", type: "licenseType", file: "imageUrl" }));
     } finally {
       setIsSubmittingLicense(false);
     }
@@ -214,11 +178,6 @@ export default function ProfileManager() {
     }
   };
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    setFileError("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
   const statusLabel = formatLicenseStatus(licenseStatus);
   const hasPendingStatus = isPendingStatus(licenseStatus) || isPending;
 
@@ -229,7 +188,7 @@ export default function ProfileManager() {
           index="09"
           tag="KH"
           kicker="KHÁCH HÀNG · HỒ SƠ CÁ NHÂN"
-          title={<>Quản lý <em className="italic text-td-teal">hồ sơ.</em></>}
+          title={<>Quản lý <span className="text-td-teal">hồ sơ.</span></>}
           description="Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo."
         >
           <StatusBadge
@@ -345,7 +304,7 @@ export default function ProfileManager() {
                   />
                 </FormField>
                 <FormField label="Giới tính" htmlFor="gender" icon={<UserRound className="h-4 w-4" />}>
-                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={(event) => setDetails((current) => ({ ...current, gender: event.currentTarget.value }))} className="w-full rounded border border-td-rule bg-td-white/75 px-4 py-3 text-sm text-td-ink outline-none transition focus:border-primary focus:bg-td-white focus:ring-4 focus:ring-primary/10">
+                  <InlineSelect id="gender" name="gender" value={details.gender} onChange={updateDetails} className="w-full rounded border border-td-rule bg-td-white/75 px-4 py-3 text-sm text-td-ink outline-none transition focus:border-primary focus:bg-td-white focus:ring-4 focus:ring-primary/10">
                     <option value="">Chọn giới tính</option>
                     <option value="Male">Nam</option>
                     <option value="Female">Nữ</option>
@@ -377,67 +336,32 @@ export default function ProfileManager() {
                 <div>
                   <h2 className="text-xl font-bold text-td-ink">Giấy phép lái xe</h2>
                   <p className="mt-1 text-sm text-td-muted">Tải lên giấy phép hợp lệ để xác minh danh tính.</p>
+                  <Link href="/driver-license" className="mt-2 inline-block text-sm text-primary underline">Quản lý tất cả GPLX và thêm giấy phép khác</Link>
                 </div>
               </div>
 
-              <ValidatedForm validation={validation} validate={() => !selectedFile && !licenseImageUrl ? { imageUrl: "Vui lòng tải lên giấy phép lái xe trước khi gửi duyệt." } : {}} onSubmit={handleSubmit}>
+              <ValidatedForm validation={validation} validate={() => ({
+                issueDate: issueDate && expiryDate && issueDate > expiryDate ? "Ngày cấp không được sau ngày hết hạn. Vui lòng kiểm tra lại." : undefined,
+                imageUrl: !selectedFile ? "Vui lòng chọn ảnh GPLX từ thiết bị để gửi hồ sơ." : undefined,
+                expiryDate: expiryDate && new Date(`${expiryDate}T23:59:59`) < new Date() ? "Giấy phép lái xe đã hết hạn, không thể sử dụng để thuê xe." : undefined,
+              })} onSubmit={handleSubmit}>
+                <p className="mb-4 text-sm text-td-muted">Tất cả thông tin và ảnh GPLX đều bắt buộc khi gửi duyệt.</p>
                 <div className="mb-5 grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm font-semibold text-td-ink">Số giấy phép lái xe<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-td-ink">Hạng giấy phép<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-td-ink">Ngày cấp<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} className="admin-input mt-2" /></label>
-                  <label className="block text-sm font-semibold text-td-ink">Ngày hết hạn<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Số giấy phép lái xe *<InlineInput name="licenseNumber" value={licenseNumber} onChange={(event) => setLicenseNumber(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Hạng giấy phép *<InlineInput name="licenseType" value={licenseType} onChange={(event) => setLicenseType(event.currentTarget.value)} required placeholder="A1, B1, B2..." className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Ngày cấp *<InlineInput name="issueDate" type="date" value={issueDate} onChange={(event) => setIssueDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
+                  <label className="block text-sm font-semibold text-td-ink">Ngày hết hạn *<InlineInput name="expiryDate" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.currentTarget.value)} required className="admin-input mt-2" /></label>
                 </div>
-                <label
-                  htmlFor="license-file"
-                  onDragOver={(event) => {
-                    event.preventDefault();
-                    setIsDragging(true);
-                  }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  className={`flex min-h-52 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed px-5 py-7 text-center transition ${
-                    isDragging
-                      ? "border-primary bg-primary/10"
-                      : "border-td-rule bg-td-white/50 hover:border-primary/50 hover:bg-primary/5"
-                  }`}
-                >
-                  <InlineInput showError={false} name="imageUrl"
-                    ref={fileInputRef}
-                    id="license-file"
-                    type="file"
-                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                    onChange={handleFileChange}
-                    className="sr-only"
-                  />
-                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded bg-td-white text-primary shadow-sm">
-                    <Upload className="h-5 w-5" />
-                  </span>
-                  <span className="text-sm font-bold text-td-ink">
-                    {selectedFile ? "Chọn tệp khác" : "Nhấn để tải lên hoặc kéo thả tệp"}
-                  </span>
-                  <span className="mt-2 text-xs text-td-muted">JPG, PNG hoặc WEBP · Tối đa 10 MB</span>
-                </label>
-
-                <InlineError name="imageUrl" inputId="license-file" />
-                {(selectedFile || licenseImageUrl) && (
-                  <div className="mt-4 flex items-center gap-3 rounded border border-td-rule bg-td-white/70 p-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
-                      <FileText className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-td-ink">{selectedFile?.name ?? "Ảnh giấy phép đã tải lên"}</p>
-                      <p className="text-xs text-td-muted">{selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : licenseStatus || "Đã lưu"}</p>
-                    </div>
-                    {selectedFile && <button
-                      type="button"
-                      onClick={removeFile}
-                      className="rounded p-2 text-td-muted transition hover:bg-td-chalk hover:text-td-ink focus:outline-none focus:ring-2 focus:ring-primary"
-                      aria-label="Xóa tệp đã chọn"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>}
-                  </div>
-                )}
+                <LicenseImageField
+                  label="Ảnh giấy phép lái xe *"
+                  name="imageUrl"
+                  inputId="license-file"
+                  validation={validation}
+                  value={selectedFile}
+                  onChange={setSelectedFile}
+                  existingUrl={licenseImageUrl || null}
+                  busy={isSubmittingLicense}
+                />
 
                 {fileError && (
                   <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-danger">
@@ -460,7 +384,7 @@ export default function ProfileManager() {
 
                 <button
                   type="submit"
-                  disabled={(!selectedFile && !licenseImageUrl) || isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
+                  disabled={isPendingStatus(licenseStatus) || isSubmittingLicense || isLoading}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded bg-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-td-chalk disabled:shadow-none"
                 >
                   {isSubmittingLicense ? <Clock3 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
@@ -482,6 +406,7 @@ export default function ProfileManager() {
             </aside>
           </div>
         </div>
+        {!isLoading && isAuthenticated && <ChangePasswordForm />}
       </main>
 
     </div>
@@ -498,16 +423,6 @@ function formatLicenseStatus(status: string): string {
   if (/approved|verified/i.test(status)) return "Đã phê duyệt";
   if (/reject/i.test(status)) return "Chưa được phê duyệt";
   return status.replaceAll("_", " ");
-}
-
-function extractImageUrl(value: unknown): string {
-  if (typeof value === "string") return value;
-  if (typeof value !== "object" || value === null) return "";
-  const data = value as Record<string, unknown>;
-  for (const key of ["url", "imageUrl", "fileUrl", "mainImageUrl"]) {
-    if (typeof data[key] === "string") return data[key];
-  }
-  return "";
 }
 
 function messageOf(error: unknown, fallback: string): string {

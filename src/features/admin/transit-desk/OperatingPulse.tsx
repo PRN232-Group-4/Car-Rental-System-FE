@@ -86,7 +86,7 @@ export function OperatingPulse() {
         index="01"
         tag="OPS"
         kicker="TRẠM VẬN HÀNH · CA TRỰC ĐIỀU HÀNH"
-        title={<>Ca trực <em className="italic text-td-teal">đang diễn ra.</em></>}
+        title={<>Ca trực <span className="text-td-teal">đang diễn ra.</span></>}
         description="Các mốc quyết định trong một hành trình thuê xe. Tập trung vào sự cố sắp vượt hạn SLA và đơn cần bàn giao tại trạm."
       >
         <TransitFolioMetric label="NHẬT KÝ CA · ASIA/HO_CHI_MINH" value={todayStr} />

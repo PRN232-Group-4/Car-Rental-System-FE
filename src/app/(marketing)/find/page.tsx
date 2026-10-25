@@ -165,6 +165,8 @@ function FindCatalogContent() {
     if (key === "search") {
       setSearchInput("");
       updateFilters({ search: "" });
+    } else if (key === "startDate" || key === "endDate") {
+      updateFilters({ startDate: undefined, endDate: undefined, startTime: undefined, endTime: undefined });
     } else if (key === "seats" || key === "priceMin" || key === "priceMax") {
       updateFilters({ [key]: 0 });
     } else if (key === "mode") {
@@ -187,6 +189,7 @@ function FindCatalogContent() {
     if (filters.priceMin && Number(filters.priceMin) > 0) count++;
     if (filters.priceMax && Number(filters.priceMax) > 0) count++;
     if (filters.mode && filters.mode !== "hourly") count++;
+    if (filters.startDate && filters.endDate) count++;
     return count;
   }, [filters]);
 
@@ -219,7 +222,7 @@ function FindCatalogContent() {
               startTime: filters.startTime,
               endTime: filters.endTime,
             }}
-            rentalMode={filters.mode === "longterm" ? "longterm" : "daily"}
+            rentalMode={filters.mode}
             onChange={(val) => {
               updateFilters({
                 startDate: val.from ?? undefined,
@@ -383,6 +386,12 @@ function FindCatalogContent() {
                     key={vehicle.id}
                     vehicle={vehicle}
                     priority={idx < 3}
+                    bookingContext={{
+                      from: filters.startDate,
+                      to: filters.endDate,
+                      rentalType: filters.mode,
+                      mode: searchParams.get("mode") === "driver" ? "driver" : searchParams.get("mode") === "subscription" ? "subscription" : "self",
+                    }}
                   />
                 ))}
               </div>

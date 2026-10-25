@@ -385,7 +385,7 @@ Bộ lọc SVG `feDisplacementMap` + `feTurbulence` làm hậu cảnh bị bẻ 
 | **Error state**           | Thông điệp thân thiện + nút "Thử lại" + mã tham chiếu (`traceId` từ ProblemDetails) cho staff; không lộ 500/stack.                                                                                                                              |
 | **Chart**                 | A9. Màu phẳng, không gradient fill; vùng (area) dùng màu đặc alpha 0.12 + đường viền.                                                                                                                                                           |
 
-> **Biến thể Admin (Transit Desk — A9):** trong `/admin/**`, các thành phần trên dùng token `td-*`: CTA cam amber `td-oxide` (cùng màu thương hiệu với khu khách), control 36px bo 4px, input `.admin-input` 6px, bảng kiểu sổ mở với rule `td-ink`/`td-rule` (không card, không shadow), trạng thái render bằng `AdminStatusBadge` (glyph + mono) thay cho chip pill. Chi tiết tại A9 và `docs/admin-ui.md`.
+> **Biến thể Admin (Transit Desk — A9):** trong `/admin/**`, các thành phần trên dùng token `td-*`: CTA cam amber `td-oxide` (cùng màu thương hiệu với khu khách), control 36px bo 4px, input `.admin-input` 6px, bảng kiểu sổ mở với rule `td-ink`/`td-rule` (không card, không shadow), trạng thái render bằng `AdminStatusBadge` (chip pill màu trạng thái, ánh xạ tập trung `status-rules.ts` → `status-tone.ts`). Chi tiết tại A9 và `docs/admin-ui.md`.
 
 ---
 
@@ -484,15 +484,15 @@ Kỹ thuật & ngân sách:
 
 **Bảng màu (Palette A).** Light: `td-paper #FAF8F5`, `td-white #FFFFFF`, `td-ink #1F1B22`, `td-muted #58515E`, `td-rule rgba(31,27,34,.12)`, `td-oxide #B45309`, `td-teal #7A5B18`, `td-chalk #F0ECE6`. Dark: `td-paper #17161B`, `td-white #242126`, `td-ink #F5F1EC`, `td-muted #9E97A3`, `td-oxide #F6BA7C`, `td-teal #C8A96B`, `td-chalk #1C1A20`. `td-oxide` tham chiếu `--primary` ở cả hai theme; mọi cổng dùng chung cam amber. Chữ CTA dùng `--on-primary`: trắng ở light, `#17161B` ở dark.
 
-**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<em class="italic text-td-teal">`.
+**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<span class="text-td-teal">` (không dùng chữ in nghiêng).
 
 **Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: số chương + tag mono, kicker viết hoa, `h1` lớn (tối đa `text-5xl`), một câu mô tả, vùng phải chứa **một** số liệu tổng (`TransitFolioMetric`) và/hoặc **một** hành động chính có nhãn chữ. Mobile: vùng phải xuống dòng dưới tiêu đề.
 
-**Sổ mở thay cho card.** Danh sách render kiểu ledger: head mono chữ hoa với rule `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`; bảng rộng cuộn trong wrapper, toàn trang không tràn ngang. Trạng thái hiển thị bằng **glyph hình học + nhãn mono** (`AdminStatusBadge`), không dùng pill màu; bảng ánh xạ duy nhất `status-rules.ts` với các domain `activity`, `vehicle`, `rental`, `maintenance`, `license`, `shift`, `report`, `review`.
+**Sổ mở thay cho card.** Danh sách render kiểu ledger: head mono chữ hoa với rule `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`; bảng rộng cuộn trong wrapper, toàn trang không tràn ngang. Trạng thái hiển thị bằng **badge pill màu nền** — bo tròn, padding nhỏ, chữ nhỏ, glyph nhỏ + nhãn (`AdminStatusBadge`), cặp màu theo A2 và `status-tone.ts`; bảng ánh xạ duy nhất `status-rules.ts` với các domain `activity`, `vehicle`, `rental`, `maintenance`, `license`, `shift`, `report`, `review`.
 
 **Trang chi tiết/hồ sơ.** Lưới 12 cột: 4 cột hồ sơ định danh (avatar 64px bo 4px, tên, badge, danh sách `dl` dòng `divide-y`), 8 cột biểu mẫu/bảng. Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide`; không dùng banner nền tối hay khối nền màu.
 
-**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, cockpit 3 cột, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width; desktop dùng shell `100dvh` và flex chia phần chiều cao còn lại cho workspace, ba cột cuộn độc lập; ở `≤1200px` xếp dọc và cuộn trang tự nhiên) nên không lồng trong khung giấy của shell và không dùng `TransitFolio`.
+**Ngoại lệ `/admin/rentals`.** Trang Vận hành đơn thuê giữ art-direction riêng "Graphite Glass Deck": canvas tối, stage kính, chuyển theme bằng `RentalLiquidTransition`. Route này **full-bleed** (`[data-subportal="rental-v4"] .mainContent` bỏ padding/max-width) và cuộn trang tự nhiên ở mọi kích thước, không khóa shell bằng chiều cao viewport hoặc overflow hidden. Container rộng `>1200px` giữ cockpit ba cột; container `640–1200px` giữ danh sách đơn bên trái, hồ sơ và bảng lệnh nối tiếp bên phải. Chỉ container `<640px` xếp danh sách trên chi tiết. Hồ sơ/bảng lệnh không có vùng cuộn lồng; hàng đợi cuộn riêng nhưng truyền cuộn ra trang khi tới biên. Thao tác chính nằm trong luồng trang, không dính dưới header. Không lồng trong khung giấy của shell và không dùng `TransitFolio`.
 
 Các quy tắc vẫn giữ nguyên:
 
@@ -506,7 +506,7 @@ Các quy tắc vẫn giữ nguyên:
 - Motion tối thiểu: fade 160ms khi đổi tab/panel, drawer trượt 320ms, skeleton pulse, count-up KPI một lần, đường biểu đồ 600ms. Không parallax/pin/3D trong Admin (trừ trang thuê xe có liquid transition theo reduced-motion).
 - Biểu đồ (Recharts): không gradient fill, dùng 5 màu `--chart-*` kèm nhãn trực tiếp, luôn có nút "Xem dạng bảng", tắt animation khi reduce-motion.
 
-Bảng ánh xạ trạng thái → tone (render bằng `AdminStatusBadge` glyph + mono):
+Bảng ánh xạ trạng thái → tone (render bằng `AdminStatusBadge` pill màu):
 
 | Nhóm                | Giá trị                                            | Màu                                           | Icon                                                          |
 | ------------------- | -------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------- |

@@ -96,7 +96,9 @@ useSession(): SessionState & { refresh(): Promise<void>; logout(): Promise<void>
 
 `src/config/navigation.ts`: danh sách mục `{ id, label, href, icon, roles? | authenticated?, group }` cho: Navbar công khai (mục "Cổng nhân viên" chỉ với `STAFF_PORTAL_ROLES`), menu tài khoản, sidebar admin. `getNavigation(user, area)` lọc theo vai trò. `AdminShell` của Anh và Navbar **đọc** cấu hình này (không còn mảng cứng). Mục không đủ quyền **không render** (không chỉ vô hiệu hóa).
 
-### 3.6 Chế độ mock
+### 3.6 Chế độ mock (đã gỡ)
+
+> **Cập nhật (2026-10-23):** toàn bộ chế độ mock đã bị gỡ — không còn `src/api/mock/*`, `NEXT_PUBLIC_USE_MOCK`, `isMockMode` hay `localStorage["mock-role"]`. Mục dưới đây chỉ giữ lại làm mốc lịch sử của giai đoạn foundation.
 
 `NEXT_PUBLIC_USE_MOCK=true`: handler `GET /account/profile` đọc vai trò từ `localStorage["mock-role"]` (**chỉ khi** `process.env.NODE_ENV !== "production"`; trong bản production bỏ nhánh này khỏi bundle). Có thanh công cụ dev nhỏ để đổi vai trò (`Anonymous | Customer | Staff | Manager | Admin | Maintenance`), không hiển thị ở production. Mock đăng nhập/đăng xuất khớp hợp đồng FE-01.
 

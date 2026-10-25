@@ -1,5 +1,106 @@
 # Kế hoạch triển khai FE — Car Rental System FE
 
+## Cập nhật 2026-10-23 — Nhiều GPLX và điều kiện từng xe
+
+Admin cấu hình hạng bằng, khách lưu nhiều GPLX độc lập; booking dùng tất cả bằng đã duyệt phù hợp xe/thời gian. Log proxy in một lần và loại hiệu ứng dịch chuyển nút trong workspace. [Chi tiết](../changes/2026-10-23-proxy-hover-and-license-classes.md).
+
+## Cập nhật 2026-10-22 — Tạm khóa ca trực, giữ phân tài xế theo đơn thuê
+
+Tạm khóa tạo/xếp/sửa/hủy ca trực trên giao diện; giữ dữ liệu ca và chuyến đã lưu. Phân tài xế tại Vận hành → đơn có tài xế → Phân xe và tài xế, hoặc Điều phối → Phân chuyến theo mã đơn. Form dùng candidates và endpoint phân tài xế theo từng đơn, chặn người không hợp lệ và báo lỗi dưới trường; CustomerService không cần truy cập danh bạ ngoài quyền. Không gán cố định tài xế vào xe. Xem [thay đổi](../changes/2026-10-22-driver-shift-pause-and-rental-assignment.md).
+
+Kiểm chứng tổng hợp: 883/883 unit tests frontend đạt; sau bổ sung guard CustomerService, 37/37 tests mục tiêu và 13/13 Chrome E2E đạt (desktop/mobile, sáng/tối, Admin/CustomerService). TypeScript, design lint và build production 263 trang đạt; ESLint không lỗi, còn 7 cảnh báo có sẵn trong workspace đơn thuê. Backend bàn giao tự lái đạt build và 63/63 tests trên PostgreSQL riêng, không migration mới/deploy. Chưa khởi động lại backend ứng dụng; xem [thay đổi backend](../../Car-Rental-System-BE/changes/2026-10-22-self-drive-handover.md).
+
+## Cập nhật 2026-10-22 — Bỏ dữ liệu mẫu runtime
+
+Đã bỏ dữ liệu mẫu và fallback nghiệp vụ trong đăng ký, tra cứu đơn/lịch driver, giá/policy, thuê bao và các bản ghi giới thiệu. Giữ dữ liệu API, trạng thái thiếu/loading/error rõ ràng; không xóa dữ liệu database hoặc fixtures kiểm thử. 21 regressions đạt. Xem [thay đổi](../changes/2026-10-22-remove-runtime-mock-data.md).
+
+
+## Cập nhật 2026-10-22 — Mã yêu cầu và mã đơn chính thức
+
+Hiện tách hai mã tại workspace, danh sách, tra cứu, thanh toán và bàn giao. Đọc orderId từ server, không giả mã khi null/thiếu trường, giữ nguyên phân quyền. 35 unit/integration, 14 navigation tests và 2 Edge E2E đạt; TypeScript/design lint/ESLint đạt. Xem [thay đổi](../changes/2026-10-22-visible-official-order.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Runtime local inspect sau trả
+
+FE trỏ localhost:6789 nhưng tiến trình backend Debug cũ chưa có inspectionType. Đã chạy Release mới/kiểm tra migration trên cấu hình hiện hữu và thay backend local ở cùng cổng; không deploy Railway, không tự thao tác đơn. FE giải thích lỗi 409 legacy ở cả phân công/checked. 28 unit tests đạt, Swagger runtime có GET/PUT/POST post_rental. Xem [thay đổi](../changes/2026-10-22-local-post-inspection-runtime.md).
+
+## Cập nhật 2026-10-22 — Kiểm tra sau trả xe
+
+Sau nhận xe có phân công kỹ thuật hoặc Admin Đã inspect tương tự trước thuê, dùng phân công/kết quả riêng theo post_rental; không mặc định đạt cho đơn có tài xế và không tự hoàn tất. 70 unit/integration FE, 21 Edge E2E và 54 backend tests liên quan đạt, TypeScript/design lint/ESLint đạt. Cần backend mới/migration 0029; chưa deploy. Xem [thay đổi](../changes/2026-10-22-post-inspection-dispatch.md).
+
+## Cập nhật 2026-10-22 — Cuộn tự nhiên trong workspace đơn thuê
+
+Bỏ khóa shell 100dvh/overflow hidden và cuộn panel lồng; hồ sơ/bảng lệnh theo cuộn trang, hàng đợi vẫn cuộn riêng và truyền cuộn khi tới biên. Giữ bố cục trái/phải, bỏ primary sticky dưới header. 18 Edge E2E về con lăn/anchor/popup đạt, TypeScript/design lint đạt. Thay thế quy cách cuộn desktop cố định bên dưới. Xem [thay đổi](../changes/2026-10-22-rental-document-scroll.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Thanh toán và thứ tự xác nhận/inspect
+
+Workspace có thu tiền mặt và cập nhật thanh toán online; chặn bàn giao direct rental chưa paid, subscription không yêu cầu invoice. Chỉ inspect sau duyệt đơn; tự lái không tải/hiện/gửi phân công tài xế. 76 unit/integration, 27 Edge E2E liên quan đạt, TypeScript/design lint đạt. Yêu cầu mới thay thế việc gộp inspect và duyệt bên dưới. Xem [thay đổi](../changes/2026-10-22-rental-payment-and-action-order.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Hàng đợi trái, chi tiết phải
+
+Container 640–1200px giữ danh sách đơn bên trái và hồ sơ/bảng lệnh bên phải, thay vì xếp toàn bộ dọc. Màn hình lớn giữ ba cột; điện thoại xếp dọc. 9 Edge E2E bố cục/chọn đơn/cuộn đạt, TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-rental-queue-side-layout.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Bảng lệnh gọn và nhận trả xe
+
+Thao tác chính theo giai đoạn có nhãn ngắn, dính đầu cột desktop; link nhận trả đưa tới nút Đã trả xe. Kiểm tra chỉ một submit theo chế độ chọn; lịch sử/phân công/ghi đè thu gọn, không lặp nút duyệt. 45 unit/integration và 36 Edge E2E đạt; TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-compact-rental-actions.md). Chỉ FE/chưa deploy.
+
+## Cập nhật 2026-10-22 — Kiểm tra và bước duyệt yêu cầu
+
+Admin xác nhận checked pending kèm duyệt bằng approveRequest=true, refetch trạng thái thật và invalidation hàng đợi/count. Pending đã pass có nút duyệt riêng, không tự start/paid/default approval. Banner phân biệt kết quả kiểm tra với chờ duyệt. 43 unit/integration, 18 Edge E2E và 58 backend tests liên quan đạt; TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-inspection-approval-progress.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Quá hạn và thu phí sau trả xe
+
+Đã có nhãn/bộ lọc Quá hạn ở Admin, dấu trả trễ trong hồ sơ và panel thu phí phần thiếu bằng cash/PayOS theo cờ backend; chỉ hiển thị paid từ dữ liệu máy chủ. 60 unit/integration FE, 15 Edge E2E và 109 backend tests liên quan đạt; TypeScript/design lint đạt. Cần backend source mới, chưa deploy/chưa thử PayOS tiền thật. Xem [spec](specs/FE-overdue-collection.md), [thay đổi](../changes/2026-10-22-overdue-collection.md).
+
+## Cập nhật 2026-10-22 — Danh sách tài xế trong điều phối
+
+Điều phối có danh sách tài xế đang hoạt động độc lập với ca/chuyến, phân trang và Xếp ca chọn sẵn người. Có trạng thái chưa có ca, lỗi/tải lại và làm mới sau thay đổi nhân sự/vai trò. 21 unit API và 6 Edge E2E desktop/mobile đạt; TypeScript/design lint/ESLint đạt. Xem [thay đổi](../changes/2026-10-22-dispatch-driver-directory.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Lý do hủy đơn
+
+Đã hiện trực tiếp lý do và thời gian hủy trong Admin workspace/tra cứu, Customer my-rentals và account trip detail. Admin đọc nested detail/history, Customer đọc timeline đã lưu; có retry khi lỗi, nêu rõ dữ liệu cũ chưa ghi nhận. Xem [thay đổi](../changes/2026-10-22-show-cancellation-reason.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Đơn kết thúc không còn thao tác phân công
+
+Ẩn phân xe/tài xế và ghi đè trạng thái ở cancelled/completed; ngừng tải tài xế và chặn hàm gửi khi trạng thái không cho phép. Giữ lịch sử/biên bản đọc được. 45 unit/integration, 14 E2E, TypeScript/design lint đạt. Xem [thay đổi](../changes/2026-10-22-closed-rental-assignment.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Hủy Customer/Admin và lỗi phiên bản inspect
+
+Tiếp tục: đã đồng bộ hủy ở cả account trips list/detail, thay dialog cũ bằng shared preview/validation. 71 unit/integration, 22 Customer E2E và 20 Admin E2E đạt; TypeScript/design lint/ESLint sạch. Người dùng xác nhận chỉ sửa source, không triển khai Railway.
+
+Nút hủy Customer có ở danh sách/chi tiết trước renting, dialog đọc phí/hoàn tiền từ preview và giữ dữ liệu khi lỗi; Admin giữ nút hủy tương ứng. Inspect 404 báo rõ thiếu API trên backend Railway (đã xác nhận bằng Swagger). 53 unit/integration, 38 E2E desktop/mobile, TypeScript/design lint/ESLint đạt; backend 148 tests đạt. Cần triển khai BE/migration 0028 để hoạt động trên môi trường đang mở. Xem [thay đổi](../changes/2026-10-22-inspect-version-and-customer-cancel.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Nút Đã inspect và Hủy đơn thuê
+
+Đã đặt nút Đã inspect dưới lưu phân công, dùng kỹ thuật viên giao sẵn. Bảng lệnh thêm Hủy đơn thuê ở pending/pre_inspection, yêu cầu lý do và xác nhận qua lifecycle `/cancel`; renting trở đi ẩn/chặn hủy. 52 unit/integration và 20 E2E đạt; TypeScript/design lint đạt, ESLint không lỗi (7 warning cũ). Xem [thay đổi](../changes/2026-10-22-inspect-and-cancel-actions.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Xe chưa thuê và kiểm tra theo hình thức lái
+
+Customer dùng public search thống nhất, chọn có tài xế/tự lái cho cả hourly/longterm. GPLX chỉ chặn tự lái. Admin đọc readiness mặc định của đơn có tài xế; tự lái có phân công chờ kỹ thuật hoặc Admin xác nhận phân công và kiểm tra đạt. Directory phân biệt nguồn/người xác nhận. 68 unit, 28 E2E, TypeScript/design lint/ESLint đạt; backend 244 tests liên quan đạt. Cần backend/migration 0028 đồng bộ. Xem [spec](specs/FE-rental-inspection-modes.md) và [thay đổi](../changes/2026-10-22-customer-availability-inspection-modes.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Tài xế, trả xe và phí quá hạn
+
+Booking và tiến trình customer phân biệt yêu cầu tài xế với đã phân công. Admin có tình trạng trả xe/returnedAt/cảnh báo quá hạn và phí từ settlement. Nút nhận xe dùng `/return`; hoàn tất dùng `/complete` để ghi giờ nhận, tính phí theo chính sách và xử lý cọc/hóa đơn sau kiểm tra. 34/34 unit API/workspace, 71/71 backend lifecycle/domain và 18 E2E liên quan đạt; TypeScript/design lint/ESLint đạt. Xem [spec](specs/FE-rental-driver-and-return.md), [thay đổi](../changes/2026-10-22-driver-assignment-and-return.md). Chưa deploy.
+
+## Cập nhật 2026-10-22 — Danh sách Admin mới nhất trước
+
+Sắp toàn bộ danh mục phòng ban/loại xe/gói/cơ sở theo ID giảm dần trước chia trang, mặc định nhân viên theo ID thay vì ngày vào làm. Backend xếp xe/customer/GPLX/cơ sở/vai trò/nhân viên trước phân trang SQL; giữ lịch/ca và dashboard theo nghiệp vụ. 14/14 unit test liên quan, TypeScript và ESLint đạt. Xem [thay đổi](../changes/2026-10-22-admin-newest-first.md). Chưa deploy; cần khởi động lại backend.
+
+## Cập nhật 2026-10-22 — Tiến trình customer và loại thuê Admin
+
+Sửa crash do render object cơ sở tại tiến trình customer, đồng bộ adapter chi tiết chuyến đi, thêm mục theo dõi vào account desktop/mobile. Hàng đợi Admin hiển thị đúng giờ/dài hạn và không suy diễn khi API cũ thiếu loại; backend bổ sung `rentalType` từ DB. 10/10 E2E và 53/53 unit test liên quan, TypeScript/design lint đạt; ESLint 0 lỗi/7 cảnh báo sẵn có. Xem [thay đổi](../changes/2026-10-22-rental-progress-and-types.md). Chưa deploy; cần khởi động lại backend để danh sách trả trường mới.
+
+## Cập nhật 2026-10-22 — Áp lại sửa lỗi hồ sơ customer trên FE mới
+
+Source mới `ae93988` chưa có bản sửa giới tính và GPLX mặc định; đã áp lại handler sự kiện an toàn và kiểm tra số GPLX ở `/profile`, `/driver-license`, giữ backend hiện có. Kiểm chứng trên source mới: 40/40 unit test liên quan và 4/4 Playwright Edge desktop/mobile đạt, API giả lập toàn bộ. Xem [spec](specs/FE-customer-profile-regressions.md) và [thay đổi](../changes/2026-10-22-customer-profile-regressions.md). Chưa deploy.
+
+## Cập nhật 2026-10-21 — Dot và số việc chờ xử lý trên menu
+
+Transit Desk lấy tổng từ `GET /api/admin/navigation-counts`, hiện dot chương và số chính xác ở mục con, cập nhật mỗi 30 giây và sau xử lý thành công. Thêm Duyệt GPLX với bộ lọc pending, giữ quyền hiện hữu; đồng bộ snapshot Swagger/schema có API counts và giới hạn auth mới. 636/636 unit test, 8/8 E2E Edge desktop/mobile sáng/tối, typecheck/design lint và production static build đạt; ESLint 0 lỗi/25 cảnh báo có sẵn. Xem [change](../changes/2026-10-21-admin-navigation-work-counts.md), [spec](specs/FE-26-admin-navigation-work-counts.md). Chưa deploy.
+
+## Cập nhật 2026-10-21 — Đổi mật khẩu OTP
+
+Hoàn tất form đổi mật khẩu dùng chung trên hồ sơ customer/admin/staff, bắt buộc OTP email và đăng nhập lại sau đổi. 630 unit test, 2 E2E desktop/mobile, typecheck/design lint/ESLint và static build đạt; chưa kiểm thử email thật/chưa deploy. Xem [spec](specs/FE-03-password-change-otp.md) và [change](../changes/2026-10-21-password-change-otp.md).
+
 > **Trạng thái: đã chốt phương án auth same-origin bằng Cloudflare Worker proxy `/api/*` → BE.**
 > Bản này thay thế plan trước (bản cũ còn để mở 3 lựa chọn ở mục auth).
 > Ngày: 2026-10-03 · Base: `main`
@@ -153,6 +254,8 @@ app/(dashboard)/dat-xe/page.tsx              # "trả từng lượt" | "dùng g
 **DoD:** mua gói → thấy giờ còn lại → thuê bằng gói trừ đúng số giờ; gói hết hạn/không đủ giờ bị chặn rõ ràng.
 
 ### Phase 4 — FE-08 Invoice & Payment
+
+Cập nhật 23/10/2026: thêm `/admin/payments` cho Admin/Manager với danh sách giao dịch thật, bộ lọc và phân trang phía client theo API hiện có. Cấu hình GPLX phương tiện chuyển sang checkbox và card; vận hành đơn thuê dùng checklist để mở bước kế tiếp. Chi tiết nghiệm thu: [FE-operations-ui-refinements](specs/FE-operations-ui-refinements.md).
 
 Routes:
 

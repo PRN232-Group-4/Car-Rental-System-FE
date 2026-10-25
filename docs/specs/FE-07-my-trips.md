@@ -1,5 +1,11 @@
 # FE-07 — Đơn thuê của tôi (My Trips)
 
+## Sửa lỗi 2026-10-22 — Tiến trình và menu account
+
+- [x] `/my-rentals?rentalId=...#rental-progress` hiển thị tên cơ sở từ API `facility: {id,name,phone}|null`; thiếu cơ sở có thông báo rõ ràng, không crash React. Adapter `/account/trips/detail` giữ cùng contract.
+- [x] Menu tài khoản customer trên trang chủ (desktop/mobile) và Customer Desk có “Theo dõi tiến trình thuê xe” → `/my-rentals`.
+- [x] E2E dùng facility object thật theo contract, kiểm tra null, link trực tiếp, làm mới, lỗi quyền và menu ở desktop/mobile.
+
 - **Priority:** P0; **Milestone:** M4; **Assignee:** Huy; **FR:** FR-018
 - **Phụ thuộc:** BE-17 (`/api/rentals/mine`, `/mine/{id}`, `cancel`, `cancellation-preview`), FE-02 (phiên + guard), FE-FOUNDATION, P1. **Liên quan:** FE-08 (Phúc — hóa đơn/thanh toán), FE-09/10 (Trí — gói, báo sự cố), FE-05 (Trí — luồng đặt xe tạo đơn).
 - **Đặt vào repo FE:** `docs/specs/FE-07-my-trips.md`.

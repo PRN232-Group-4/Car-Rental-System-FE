@@ -8,7 +8,8 @@ import { AdminFilterBar, AdminFilterButton, AdminFilterField } from "@/component
 import { AdminTable, AdminTableCard, AdminTableEmptyRow } from "@/components/admin/AdminTable";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
-import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import RentalOperationalBadge from "./RentalOperationalBadge";
+import RentalIdentifiers from "./RentalIdentifiers";
 import { InlineInput, InlineSelect, ValidatedForm, mapValidationErrors, useInlineValidation } from "@/components/forms/inline-validation";
 import { ApiClientError } from "@/api/api-client";
 import ResultPagination from "@/components/ui/ResultPagination";
@@ -25,7 +26,7 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
   const params = useSearchParams();
   const rentalId = params.get("rentalId") ?? "";
   const { hasAnyRole, isLoading } = useAuth();
-  const allowed = hasAnyRole(["Admin", "Manager", "CustomerService"]);
+  const allowed = hasAnyRole(["Staff", "CustomerService", "Manager"]);
   const initial = { status: handovers ? "pending" : "", customerId: "", vehicleId: "", from: "", to: "" };
   const [draft, setDraft] = useState(initial);
   const [filter, setFilter] = useState(initial);
@@ -39,7 +40,7 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
       if (!handovers) return getOperationalRentals(request, signal);
       const result = await getHandovers(request, signal);
       return { ...result, items: (result.items ?? []).map((item) => item.rental) };
-    }, enabled: allowed, retry: false,
+    }, enabled: allowed, retry: false, refetchInterval: 30000,
   });
   const mapped = mapValidationErrors(query.error instanceof ApiClientError ? query.error.data : null, Object.keys(draft));
   useEffect(() => {
@@ -68,14 +69,15 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
     <AdminTableCard>
       <AdminTable aria-busy={query.isFetching} className="min-w-[960px]">
         <caption className="sr-only">{handovers ? "Danh sách bàn giao xe" : "Danh sách yêu cầu và đơn thuê"}</caption>
-        <thead><tr>{["Khách hàng", "Phương tiện", "Thời gian thuê", "Hình thức lái", "Tổng tiền", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
-        <tbody>{query.isFetching ? <AdminTableSkeleton columns={7} label="Đang tải danh sách..." /> : items.map((rental) => <tr key={rental.id}>
+        <thead><tr>{["Mã hồ sơ", "Khách hàng", "Phương tiện", "Thời gian thuê", "Hình thức lái", "Tổng tiền", "Trạng thái"].map((label) => <th key={label} scope="col">{label}</th>)}<th scope="col" data-actions>Thao tác</th></tr></thead>
+        <tbody>{query.isFetching ? <AdminTableSkeleton columns={8} label="Đang tải danh sách..." /> : items.map((rental) => <tr key={rental.id}>
+          <td><RentalIdentifiers rentalId={rental.id} orderId={rental.orderId} /></td>
           <td><p className="font-semibold">{rental.customerName || rental.customerEmail || "Chưa có tên khách hàng"}</p><p className="text-xs text-td-muted">{rental.customerEmail}</p></td>
           <td><VehicleName vehicleId={rental.vehicleId} /></td><td className="text-xs"><p>{formatAdminDateTime(rental.startTime)}</p><p>{formatAdminDateTime(rental.endTime)}</p></td>
           <td>{rental.hasDriver ? rental.driverName || "Chưa phân tài xế" : "Tự lái"}</td><td>{rental.totalPrice.toLocaleString("vi-VN")} đ</td>
-          <td><AdminStatusBadge domain="rental" status={rental.status}>{rentalStatuses[rental.status] ?? rental.status}</AdminStatusBadge></td>
+          <td><RentalOperationalBadge rental={rental} /></td>
           <td data-actions><AdminRowAction action="view" href={`/admin/${handovers ? "handovers" : "rentals"}?${handovers ? "" : "view=list&"}rentalId=${rental.id}#rental-detail`} label={`Xem yêu cầu của ${rental.customerName || rental.customerEmail || "khách hàng"}`} /></td>
-        </tr>)}{!query.isFetching && !items.length && <AdminTableEmptyRow colSpan={7}>{query.error ? "Chưa tải được dữ liệu." : "Không có kết quả phù hợp."}</AdminTableEmptyRow>}</tbody>
+        </tr>)}{!query.isFetching && !items.length && <AdminTableEmptyRow colSpan={8}>{query.error ? "Chưa tải được dữ liệu." : "Không có kết quả phù hợp."}</AdminTableEmptyRow>}</tbody>
       </AdminTable>
       <div className="border-t border-td-rule px-5 pt-4"><label className="text-xs text-td-muted">Số mục mỗi trang <select className="admin-input ml-2" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}</select></label></div>
       <ResultPagination page={query.data?.page ?? page} pageSize={query.data?.pageSize ?? pageSize} totalCount={query.data?.totalCount ?? 0} busy={query.isFetching || !!query.error} onPage={setPage} />

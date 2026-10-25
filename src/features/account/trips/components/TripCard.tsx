@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import RentalCancelDialog from "@/features/operations/RentalCancelDialog";
 import { ArrowRight, MapPin, AlertCircle, RefreshCw } from "lucide-react";
 import { formatVnd } from "@/lib/format";
 import { formatDateTime } from "@/lib/time";
@@ -11,6 +15,7 @@ interface TripCardProps {
 
 /** Một dòng trong sổ chuyến đi của khách hàng (ghi đè ledger của cổng khách). */
 export function TripCard({ trip }: TripCardProps) {
+  const [cancelOpen, setCancelOpen] = useState(false);
   const { vehicle, status, start, end, totalPrice, isSubscription, subscriptionHoursUsed } = trip;
 
   const a11ySummary = `Chuyến đi ${vehicle.brand} ${vehicle.model}, từ ${formatDateTime(
@@ -69,7 +74,8 @@ export function TripCard({ trip }: TripCardProps) {
         {/* Trạng thái + thao tác */}
         <div className="col-span-2 flex flex-col items-end gap-1.5">
           <TripStatusBadge status={status} />
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap justify-end items-center gap-2">
+            {["pending", "pre_inspection"].includes(status) && <button type="button" className="rounded border border-td-rule px-2 py-1 text-[11px] font-bold text-danger" aria-label={`Hủy đơn thuê #${trip.id}`} onClick={() => setCancelOpen(true)}>Hủy đơn</button>}
             {trip.nextAction === "report_issue" && (
               <Link
                 href={`/report-incident?rentalId=${trip.id}`}
@@ -105,6 +111,7 @@ export function TripCard({ trip }: TripCardProps) {
           )}
         </div>
       </div>
+      {cancelOpen && <RentalCancelDialog rental={trip} audience="customer" close={() => setCancelOpen(false)} refresh={async () => {}} />}
     </li>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { 
-  CreditCard, 
   Clock, 
   CheckCircle2, 
   ArrowUpRight, 
@@ -11,28 +10,38 @@ import {
   QrCode,
   Loader2
 } from "lucide-react";
-import { getSubscriptionPlans, getInitialSubscriptionPlans, purchaseSubscriptionPlan } from "@/features/subscriptions/api";
+import { getSubscriptionPlans, purchaseSubscriptionPlan } from "@/features/subscriptions/api";
 import type { SubscriptionPlan } from "@/features/subscriptions/types";
 import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/Button";
+import { CardGridSkeleton } from "@/components/ui/Skeleton";
 
 export default function MembershipPasses() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [plans, setPlans] = useState<SubscriptionPlan[]>(getInitialSubscriptionPlans());
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [purchasingId, setPurchasingId] = useState<number | string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadPlans = useCallback(() => {
+    setLoading(true);
+    setLoadError(null);
+    return getSubscriptionPlans()
+      .then(setPlans)
+      .catch(() => { setLoadError("Không tải được các gói thuê bao. Vui lòng thử lại."); })
+      .finally(() => { setLoading(false); });
+  }, []);
+
   useEffect(() => {
+    let active = true;
     getSubscriptionPlans()
-      .then((data) => {
-        if (data && data.length > 0) {
-          setPlans(data);
-        }
-      })
-      .catch(() => {
-        // Fallback to initial plans
-      });
+      .then((data) => { if (active) setPlans(data); })
+      .catch(() => { if (active) setLoadError("Không tải được các gói thuê bao. Vui lòng thử lại."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const handlePurchase = async (plan: SubscriptionPlan) => {
@@ -62,7 +71,7 @@ export default function MembershipPasses() {
   };
 
   // Chỉ một thẻ được nhấn: gói do BE đánh dấu, nếu không có thì lấy thẻ giữa.
-  const featuredId = (plans.find((plan) => plan.popular) ?? plans[1] ?? plans[0])?.id;
+  const featuredId = plans.find((plan) => plan.popular)?.id;
 
   return (
     <section 
@@ -147,7 +156,7 @@ export default function MembershipPasses() {
             </h2>
           </div>
           <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
-            Trả trước một lần với định danh NFC số, tích hợp vào tài khoản điện tử. Không phí ẩn phát sinh, không thủ tục giấy tờ rườm rà.
+            Xem giá, số giờ và thời hạn của các gói đang được mở bán. Thanh toán qua PayOS để kích hoạt gói trong tài khoản.
           </p>
         </div>
 
@@ -157,6 +166,10 @@ export default function MembershipPasses() {
             <span>{notice}</span>
           </div>
         )}
+
+        {loading && <CardGridSkeleton label="Đang tải các gói thuê bao" className="mb-6 grid grid-cols-1 items-stretch gap-8 md:grid-cols-3" count={3} mediaClassName="hidden" lines={4} />}
+        {loadError && <div className="mb-6 space-y-3"><p role="alert" className="text-sm text-danger">{loadError}</p><Button type="button" variant="secondary" onClick={() => { void loadPlans(); }}>Tải lại gói</Button></div>}
+        {!loading && !loadError && plans.length === 0 && <p role="status" className="mb-6 text-sm text-ink-2">Hiện chưa có gói thuê bao đang mở bán.</p>}
 
         {/* 3 Apple Wallet / Digital Passes */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
@@ -264,12 +277,9 @@ export default function MembershipPasses() {
         <div className="mt-16 p-6 rounded-2xl bg-surface border border-line-strong flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-ink-2 shadow-sm">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span>Thanh toán an toàn qua cổng bảo mật PayOS (chuẩn PCI DSS cấp cao nhất)</span>
+            <span>Thanh toán gói thuê bao qua PayOS</span>
           </div>
-          <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-primary" />
-            <span>Hỗ trợ VietQR, Thẻ Nội địa (NAPAS) & Thẻ Quốc tế (Visa / Mastercard)</span>
-          </div>
+
         </div>
       </div>
     </section>

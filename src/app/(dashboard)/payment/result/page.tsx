@@ -17,6 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, Invoice } from "@/features/invoices";
 import { getPlanPurchaseStatus, PlanPurchaseStatus } from "@/features/subscriptions";
 import { cancelCheckout } from "@/features/payments";
+import { formatVnd } from "@/lib/format";
 
 export default function PaymentResultPage() {
   return (
@@ -123,7 +124,7 @@ function PaymentResultContent() {
             {!isPlanPurchase && invoice && (
               <div className="p-5 rounded bg-td-chalk border border-td-rule text-left text-xs space-y-2.5 max-w-md mx-auto">
                 <div className="flex justify-between text-td-muted">
-                  <span>Số hoá đơn:</span>
+                  <span>Số hóa đơn:</span>
                   <span className="font-bold text-td-ink">{invoice.invoiceNumber}</span>
                 </div>
                 <div className="flex justify-between text-td-muted">
@@ -133,7 +134,7 @@ function PaymentResultContent() {
                 <div className="flex justify-between text-td-muted">
                   <span>Số tiền đã thanh toán:</span>
                   <span className="font-bold text-primary text-sm">
-                    {invoice.amount.toLocaleString("vi-VN")} đ
+                    {formatVnd(invoice.amount)}
                   </span>
                 </div>
               </div>
@@ -164,7 +165,7 @@ function PaymentResultContent() {
                     className="px-6 py-3 rounded bg-stage-ink hover:bg-stage-ink text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
-                    <span>Xem chi tiết hoá đơn</span>
+                    <span>Xem chi tiết hóa đơn</span>
                   </Link>
                   <Link
                     href="/booking"
@@ -209,7 +210,7 @@ function PaymentResultContent() {
                 href={isPlanPurchase ? "/subscriptions" : "/invoices"}
                 className="px-6 py-3 rounded border border-td-rule text-td-ink font-semibold text-xs sm:text-sm"
               >
-                {isPlanPurchase ? "Về trang gói cước" : "Về danh sách hoá đơn"}
+                {isPlanPurchase ? "Về trang gói cước" : "Về danh sách hóa đơn"}
               </Link>
             </div>
           </>
@@ -242,7 +243,7 @@ function PaymentResultContent() {
                 href={isPlanPurchase ? "/subscriptions" : "/invoices"}
                 className="px-5 py-2.5 rounded bg-primary text-white text-xs font-bold"
               >
-                {isPlanPurchase ? "Về trang gói cước" : "Về trang hoá đơn"}
+                {isPlanPurchase ? "Về trang gói cước" : "Về trang hóa đơn"}
               </Link>
             </div>
           </>

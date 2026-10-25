@@ -7,4 +7,4 @@ export interface RentalFilters { status?: string; customerId?: number; vehicleId
 export interface HandoverSummary { rental: OperationalRentalListItem; status: string | null }
 export interface HandoverDetail { rental: OperationalRentalDetail; status: string | null }
 export const getHandovers = (query: RentalFilters, signal?: AbortSignal) => backendApiClient.get<PagedResult<HandoverSummary>>("handovers", { ...query }, { signal });
-export const getHandover = (id: number | string) => backendApiClient.get<HandoverDetail>(`handovers/${id}`);
+export const getHandover = (id: number | string) => backendApiClient.get<HandoverDetail>(`handover/${id}`);

@@ -3,6 +3,30 @@ import { components } from "@/api/generated/schema";
 
 type BEVehicle = components["schemas"]["Vehicle"];
 
+/** Public search returns nested type/facility/summary references. */
+export function mapVehicleSearchFromBE(raw: Record<string, unknown>): Vehicle {
+  const type = (raw.vehicleType ?? {}) as Record<string, unknown>;
+  const facility = raw.facility as Record<string, unknown> | null;
+  const summary = (raw.summary ?? {}) as Record<string, unknown>;
+  const badges = (raw.badges ?? {}) as Record<string, unknown>;
+  const typeName = String(type.type ?? type.name ?? "car");
+  const electric = badges.electric === true || /electric|điện/i.test(String(type.fuelType ?? typeName));
+  return mapVehicleFromBE({
+    ...raw,
+    vehicleType: `${electric ? "electric " : ""}${typeName}`,
+    vehicleTypeId: type.id,
+    facilityId: facility?.id,
+    facility: facility?.name,
+    detail: summary,
+    hourlyPrice: raw.priceHourly,
+    longtermPrice: raw.priceLongterm,
+    fuelType: type.fuelType,
+    driverAvailable: badges.driverAvailable,
+    badges: [],
+    status: raw.status ?? "available",
+  });
+}
+
 export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehicle {
   const r = raw as Record<string, unknown>;
   const id = (r.id ?? r.Id) as number | string;
@@ -29,7 +53,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
   const year = Number(r.yearOfManufacture ?? r.YearOfManufacture ?? r.year ?? 0);
   const seats = detail.seatCount ? Number(detail.seatCount) : (r.seats ? Number(r.seats) : undefined);
   const transmission = String(detail.transmission ?? r.transmission ?? "");
-  const fuelType = category.includes("electric") ? "Điện" : String(r.fuelType ?? "Xăng");
+  const fuelType = category.includes("electric") ? "Điện" : String(r.fuelType ?? "");
   const batteryCapacity = detail.batteryCapacity ? String(detail.batteryCapacity) : undefined;
   const maxRange = detail.maxRangeKm ? `${detail.maxRangeKm} km` : (r.maxRange ? String(r.maxRange) : undefined);
   const storageCapacity = detail.trunkCapacity ? `${detail.trunkCapacity}L` : undefined;
@@ -68,6 +92,9 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
 
   return {
     id,
+    allowedLicenseTypes: Array.isArray(r.allowedLicenseTypes ?? r.AllowedLicenseTypes)
+      ? (r.allowedLicenseTypes ?? r.AllowedLicenseTypes) as string[]
+      : [],
     vehicleTypeId: Number(r.vehicleTypeId ?? r.VehicleTypeId) || undefined,
     name,
     brand,
@@ -95,7 +122,7 @@ export function mapVehicleFromBE(raw: BEVehicle | Record<string, unknown>): Vehi
     hasDriverOption: typeof r.driverAvailable === "boolean" ? r.driverAvailable : undefined,
     badges,
     isAvailable,
-    supportsSubscription: true,
+    supportsSubscription: typeof r.supportsSubscription === "boolean" ? r.supportsSubscription : hourlyPrice > 0,
     status,
     description: (r.description ?? r.Description) as string | undefined,
     features,

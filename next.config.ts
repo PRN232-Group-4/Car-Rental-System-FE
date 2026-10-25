@@ -8,6 +8,14 @@ const backendOrigin =
   process.env.BACKEND_ORIGIN?.replace(/\/+$/, "") ||
   "https://car-rental-system-be-production.up.railway.app";
 
+// Only expose the public server origin for diagnostics, never credentials/query values.
+const backendLogOrigin = (() => {
+  try { return new URL(backendOrigin).origin; }
+  catch { return ""; }
+})();
+
+let hasLoggedProxy = false;
+
 const nextConfig: NextConfig = {
   // Use static export for production deployment (Cloudflare Pages)
   ...(isDev ? {} : { output: "export" }),
@@ -17,7 +25,13 @@ const nextConfig: NextConfig = {
   // In local dev, proxy /api/* to live Railway backend so cookies and requests are same-origin
   ...(isDev
     ? {
+        env: { NEXT_PUBLIC_DEV_API_PROXY_ORIGIN: backendLogOrigin },
         async rewrites() {
+          // Next calls this for both routing and route types using the same config.
+          if (!hasLoggedProxy) {
+            hasLoggedProxy = true;
+            console.info(`[API proxy] /api/* -> ${backendLogOrigin || "(URL không hợp lệ)"} · ${process.env.DEV_API_ORIGIN ? "DEV_API_ORIGIN" : process.env.BACKEND_ORIGIN ? "BACKEND_ORIGIN" : "Railway mặc định"}`);
+          }
           return [
             {
               source: "/api/:path*",

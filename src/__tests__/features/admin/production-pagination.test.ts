@@ -23,7 +23,7 @@ describe("Admin production pagination", () => {
       .mockResolvedValueOnce(page([facility], 1, 2))
       .mockResolvedValueOnce(page([second], 2, 2));
 
-    expect(await getFacilities()).toEqual([facility, second]);
+    expect(await getFacilities()).toEqual([second, facility]);
     expect(get).toHaveBeenNthCalledWith(1, "facilities", { page: 1, pageSize: 100 });
     expect(get).toHaveBeenNthCalledWith(2, "facilities", { page: 2, pageSize: 100 });
     expect(get).toHaveBeenCalledTimes(2);

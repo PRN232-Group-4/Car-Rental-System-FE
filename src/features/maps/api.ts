@@ -34,7 +34,7 @@ export function hasGpsCoordinates(point: Pick<GpsPoint, "lat" | "lng"> | null | 
 
 export async function getVehiclePosition(vehicleId: number): Promise<VehiclePosition | null> {
   try {
-    const point = await backendApiClient.get<VehiclePosition>(`tracking/vehicles/${vehicleId}/last-position`);
+    const point = await backendApiClient.get<VehiclePosition>(`tracking/vehicle/${vehicleId}/last-position`);
     return hasGpsCoordinates(point) ? point : null;
   } catch (error) {
     if (error instanceof ApiClientError && error.status === 404) return null;
@@ -43,7 +43,7 @@ export async function getVehiclePosition(vehicleId: number): Promise<VehiclePosi
 }
 
 export function getRentalRoute(rentalId: number | string) {
-  return backendApiClient.get<RentalRoute>(`tracking/rentals/${encodeURIComponent(rentalId)}/route`);
+  return backendApiClient.get<RentalRoute>(`tracking/rental/${encodeURIComponent(rentalId)}/route`);
 }
 
 export function trackingError(error: unknown): string {
@@ -69,4 +69,4 @@ export async function getGeofences() {
 }
 export const getGeofenceEvents = (query: TrackingFilters) => backendApiClient.get<import("@/features/admin/api").PagedResult<GeofenceEvent>>("geofences/events", { ...query });
 export const getTrackingAlerts = (query: TrackingFilters & { isResolved?: boolean }) => backendApiClient.get<import("@/features/admin/api").PagedResult<TrackingAlert>>("tracking/alerts", { ...query });
-export const resolveTrackingAlert = (id: number) => backendApiClient.post<TrackingAlert>(`tracking/alerts/${id}/resolve`);
+export const resolveTrackingAlert = (id: number) => backendApiClient.post<TrackingAlert>(`tracking/alert/${id}/resolve`);

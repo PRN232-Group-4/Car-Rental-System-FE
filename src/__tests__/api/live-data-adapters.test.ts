@@ -20,7 +20,7 @@ const staff: StaffDto = {
 };
 const trip = {
   id: 77, status: "pending", rentalType: "hourly", isSubscription: false,
-  vehicle: { id: 18, brand: "Honda", model: "City" }, facility: "Chi nhánh Quận 1",
+  vehicle: { id: 18, brand: "Honda", model: "City" }, facility: { id: 5, name: "Chi nhánh Quận 1", phone: null },
   start: "2027-01-01T08:00:00Z", end: "2027-01-01T12:00:00Z", hasDriver: false, canCancel: false,
   price: { rent: 1000000, vat: 100000, deposit: 200000, overtime: 0, total: 1300000 },
   inspections: [{ type: "pre_rental", isOk: true, imgUrls: '["https://example.com/inspection.jpg"]' }],
@@ -70,7 +70,15 @@ describe("Runtime adapters never substitute mock data", () => {
     vi.spyOn(backendApiClient, "get").mockResolvedValue({ items: [{ id: 77, status: "pending", rentalType: "hourly", isSubscription: false, vehicleId: 18, vehicleBrand: "Honda", vehicleModel: "City", startTime: trip.start, endTime: trip.end, totalPrice: 1300000 }], totalCount: 1, page: 1, pageSize: 12 });
     expect((await fetchMyTrips()).items[0]).toMatchObject({ vehicle: { id: 18, brand: "Honda", model: "City" }, start: trip.start, canCancel: false });
   });
-  it("maps detail prices, string facility and serialized inspection images", async () => {
+
+  it("retains the server cancellation flag only before renting", async () => {
+    vi.spyOn(backendApiClient,"get").mockResolvedValue({items:[
+      {id:77,status:"pre_inspection",canCancel:true},
+      {id:78,status:"renting",canCancel:true},
+    ],page:1,pageSize:12,totalCount:2});
+    expect((await fetchMyTrips()).items.map(item=>item.canCancel)).toEqual([true,false]);
+  });
+  it("maps detail prices, facility reference and serialized inspection images", async () => {
     vi.spyOn(backendApiClient, "get").mockResolvedValue(trip);
     expect(await fetchMyTripDetail(77)).toMatchObject({ totalPrice: 1300000, facility: { name: "Chi nhánh Quận 1" }, inspections: [{ imgUrls: ["https://example.com/inspection.jpg"] }], canCancel: false });
   });
@@ -87,7 +95,7 @@ describe("Runtime adapters never substitute mock data", () => {
     const post = vi.spyOn(backendApiClient, "post").mockResolvedValue({ rentalId: 77, toStatus: "cancelled" });
     vi.spyOn(backendApiClient, "get").mockResolvedValue({ ...trip, status: "cancelled" });
     expect((await cancelTrip({ rentalId: 77, reason: "Đổi lịch" })).status).toBe("cancelled");
-    expect(post).toHaveBeenCalledWith("rentals/77/cancel", { reason: "Đổi lịch", initiator: "customer", waiveFee: false });
+    expect(post).toHaveBeenCalledWith("rental/77/cancel", { reason: "Đổi lịch", initiator: "customer", waiveFee: false });
   });
   it("does not update trip data locally after cancellation fails", async () => {
     vi.spyOn(backendApiClient, "post").mockRejectedValue(new Error("Offline"));
@@ -107,8 +115,10 @@ describe("Runtime adapters never substitute mock data", () => {
     expect(get).toHaveBeenCalledWith("dashboard/revenue-series", expect.objectContaining({ from: filters.from, to: filters.to, page: 1, pageSize: 100 }));
   });
   it("loads all public vehicle pages without fallback specifications", async () => {
-    vi.spyOn(defaultApiClient, "get").mockResolvedValueOnce({ items: [{ id: 1, status: "available", brand: "Honda", model: "City" }], totalCount: 2 }).mockResolvedValueOnce({ items: [{ id: 2, status: "maintenance", brand: "Toyota", model: "Vios" }], totalCount: 2 });
+    const get = vi.spyOn(defaultApiClient, "get").mockResolvedValueOnce({ items: [{ id: 1, vehicleType: { id: 1, type: "car" }, brand: "Honda", model: "City" }], totalCount: 2 }).mockResolvedValueOnce({ items: [{ id: 2, vehicleType: { id: 1, type: "car" }, brand: "Toyota", model: "Vios" }], totalCount: 2 });
     expect((await getVehicles()).map((vehicle) => vehicle.id)).toEqual([1, 2]);
+    expect(get).toHaveBeenNthCalledWith(1,"vehicles/search",{page:1,pageSize:100});
+    expect(get).toHaveBeenNthCalledWith(2,"vehicles/search",{page:2,pageSize:100});
     const missing = mapVehicleFromBE({ id: 99 });
     expect(missing.seats).toBeUndefined();
     expect(missing.transmission).toBe("");

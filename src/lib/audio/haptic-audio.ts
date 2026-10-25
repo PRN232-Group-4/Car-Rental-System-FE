@@ -4,6 +4,7 @@
  * Micro-Haptic Audio Synthesizer via Web Audio API.
  * Produces ultra-low latency, crisp tactile micro-feedback without external audio assets (0 KB payload).
  * Honors dispatcher & visitor workspace etiquette: Opt-in by default, persisted in localStorage.
+
  */
 
 const STORAGE_KEY = "thong_dong_haptic_sound_enabled";
@@ -16,6 +17,7 @@ function getAudioContext(): AudioContext | null {
     const AudioCtx =
       window.AudioContext ||
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+
     if (AudioCtx) {
       sharedAudioContext = new AudioCtx();
     }
@@ -79,6 +81,7 @@ export function playTactileClick(): void {
 /**
  * Play a crisp confirmation chime (e.g. rental status progression, step completion).
  * Pure 1760Hz tone (A6) with 24ms quick release.
+
  */
 export function playSuccessChime(): void {
   if (!isHapticAudioEnabled()) return;
@@ -241,3 +244,4 @@ export function playWarningThud(): void {
     // Fail silently
   }
 }
+
