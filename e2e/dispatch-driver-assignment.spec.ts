@@ -17,8 +17,8 @@ for (const { width, theme, role } of scenarios) {
       let data: unknown = { items: [], page: 1, pageSize: 100, totalCount: 0 };
       if (path.endsWith("/account/profile")) data = { email: "admin@test.local", roles: [role] };
       else if (path.endsWith("/staff/drivers")) { managementReads++; data = { items: [{ id: 7, email: "driver@example.com", fullName: "Tài xế hợp lệ", isDriver: true, isActive: true }], page: 1, pageSize: 100, totalCount: 1 }; }
-      else if (path.endsWith("/rentals/101/assignable-drivers")) data = [{ staffId: 7, fullName: "Tài xế hợp lệ", eligible: true, reasons: [] }, { staffId: 8, fullName: "Tài xế đang bận", eligible: false, reasons: ["BUSY"] }];
-      else if (path.endsWith("/rentals/101/assignments/driver")) {
+      else if (path.endsWith("/rental/101/assignable-drivers")) data = [{ staffId: 7, fullName: "Tài xế hợp lệ", eligible: true, reasons: [] }, { staffId: 8, fullName: "Tài xế đang bận", eligible: false, reasons: ["BUSY"] }];
+      else if (path.endsWith("/rental/101/assignments/driver")) {
         expect(route.request().method()).toBe("POST");
         expect(route.request().postDataJSON()).toMatchObject({ driverStaffId: 7, reason: "other" });
         assignments++;
@@ -29,8 +29,8 @@ for (const { width, theme, role } of scenarios) {
         if (route.request().method() !== "GET") shiftWrites++;
         data = [{ id: 44, driverStaffId: 7, startTime: "2027-01-01T02:00:00Z", endTime: "2027-01-01T05:00:00Z", status: "scheduled" }];
       } else if (path.endsWith("/drivers/schedule")) { managementReads++; data = []; }
-      else if (path.endsWith("/rentals/101")) data = rental;
-      else if (path.endsWith("/vehicles/5")) data = { id: 5, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" };
+      else if (path.endsWith("/rental/101")) data = rental;
+      else if (path.endsWith("/vehicle/5")) data = { id: 5, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" };
       return route.fulfill({ json: envelope(data) });
     });
     await page.goto("/admin/dispatch?rentalId=101");

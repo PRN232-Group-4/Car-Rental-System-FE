@@ -38,7 +38,7 @@ for (const width of [1440, 1024, 390]) {
             expect(mode).toBe("driver");
             expect(route.request().postDataJSON()).toEqual({ driverStaffId: 7 });
           } else {
-            expect(path).toBe("/api/rentals/112/start");
+            expect(path).toBe("/api/rental/112/start");
             expect(passing).toBe(true);
             expect(paid || mode === "subscription").toBe(true);
             status = "renting";
@@ -47,14 +47,14 @@ for (const width of [1440, 1024, 390]) {
         }
         if (path === "/api/staff/drivers") driverReads++;
         const data = path.endsWith("/account/profile") ? { email: "admin@test.local", roles: ["Admin"] } :
-          path === "/api/rentals/112" ? flat() :
+          path === "/api/rental/112" ? flat() :
           path === "/api/rentals" ? { items: [flat()], totalCount: 1 } :
-          path === "/api/invoices/55" ? invoice() :
-          path === "/api/rentals/112/detail" ? { rental: { ...flat(), scheduledEnd: flat().endTime }, invoice: invoice() } :
+          path === "/api/invoice/55" ? invoice() :
+          path === "/api/rental/112/detail" ? { rental: { ...flat(), scheduledEnd: flat().endTime }, invoice: invoice() } :
           path.endsWith("/inspection-assignment") ? null :
           path === "/api/staff" ? { items: [{ id: 9, email: "tech@test.local", isActive: true, roles: ["Maintenance"] }], totalCount: 1 } :
           path === "/api/staff/drivers" ? { items: [{ id: 7, email: "driver@test.local", isActive: true }], totalCount: 1 } :
-          path === "/api/vehicles/8" ? { id: 8, model: "Vios", brand: "Toyota" } : { items: [], totalCount: 0 };
+          path === "/api/vehicle/8" ? { id: 8, model: "Vios", brand: "Toyota" } : { items: [], totalCount: 0 };
         return route.fulfill({ json: envelope(data) });
       });
       await page.goto("/admin/rentals?rentalId=112");
@@ -82,7 +82,7 @@ for (const width of [1440, 1024, 390]) {
         if (mode === "inspect-error") {
           await expect(inspection.getByRole("alert")).toContainText("Chưa lưu được kiểm tra");
           await expect(primary).toBeDisabled();
-          expect(writes).not.toContain("/api/rentals/112/start");
+          expect(writes).not.toContain("/api/rental/112/start");
           return;
         }
         await expect(inspection).toContainText("Đã đạt kiểm tra trước thuê.");
@@ -121,7 +121,7 @@ for (const width of [1440, 1024, 390]) {
             await expect(dialog).toContainText("Chưa ghi nhận được tiền");
             await expect(payment).toContainText("Chưa thanh toán");
             await expect(primary).toBeDisabled();
-            expect(writes).not.toContain("/api/rentals/112/start");
+            expect(writes).not.toContain("/api/rental/112/start");
             return;
           }
         }
@@ -133,7 +133,7 @@ for (const width of [1440, 1024, 390]) {
       await primary.click();
       await expect(primary).toHaveText("Đã trả xe");
       expect(writes.filter(path => path.endsWith("/start"))).toHaveLength(1);
-      if (mode !== "driver") { expect(driverReads).toBe(0); expect(writes).not.toContain("/api/rentals/112/assignments"); }
+      if (mode !== "driver") { expect(driverReads).toBe(0); expect(writes).not.toContain("/api/rental/112/assignments"); }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     });
   }

@@ -61,7 +61,7 @@ export async function getVehiclesPaginated(params?: VehicleFilterParams): Promis
 }
 
 export async function getVehicleById(id: number | string): Promise<Vehicle | undefined> {
-  const raw = await defaultApiClient.get<unknown>(`vehicles/${id}`);
+  const raw = await defaultApiClient.get<unknown>(`vehicle/${id}`);
   return raw ? mapVehicleFromBE(raw as Record<string, unknown>) : undefined;
 }
 
@@ -73,7 +73,7 @@ export async function getVehicleBusySlots(
   const query: Record<string, string> = {};
   if (from) query.from = from;
   if (to) query.to = to;
-  const res = await defaultApiClient.get<BusySlot[]>(`vehicles/${vehicleId}/busy-slots`, query);
+  const res = await defaultApiClient.get<BusySlot[]>(`vehicle/${vehicleId}/busy-slots`, query);
   return Array.isArray(res) ? res : [];
 }
 
@@ -82,7 +82,7 @@ export async function checkVehicleAvailability(
   from: string,
   to: string
 ): Promise<AvailabilityResult> {
-  const res = await defaultApiClient.get<AvailabilityResult>(`vehicles/${vehicleId}/availability`, {
+  const res = await defaultApiClient.get<AvailabilityResult>(`vehicle/${vehicleId}/availability`, {
     from,
     to,
   });
@@ -111,7 +111,7 @@ export async function checkVehicleAvailability(
 }
 
 export async function getActiveRentalPolicy(vehicleTypeId: number): Promise<RentalPolicy | null> {
-  const res = await defaultApiClient.get<RentalPolicy>(`vehicle-types/${vehicleTypeId}/active-policy`);
+  const res = await defaultApiClient.get<RentalPolicy>(`vehicle-type/${vehicleTypeId}/active-policy`);
   return res && res.id ? res : null;
 }
 

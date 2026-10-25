@@ -1965,7 +1965,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/customers/{customerId}": {
+    "/api/customer/{customerId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3309,7 +3309,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/departments/{departmentId}/members/{userId}": {
+    "/api/department/{departmentId}/member/{userId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3958,7 +3958,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/devices/{id}": {
+    "/api/device/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -4814,7 +4814,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/drivers/shifts/{id}": {
+    "/api/drivers/shift/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -5039,7 +5039,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/reports": {
+    "/api/rental/{id}/reports": {
         parameters: {
             query?: never;
             header?: never;
@@ -5487,7 +5487,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reports/{id}/maintenance": {
+    "/api/report/{id}/maintenance": {
         parameters: {
             query?: never;
             header?: never;
@@ -5712,7 +5712,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reports/{id}/resolve": {
+    "/api/report/{id}/resolve": {
         parameters: {
             query?: never;
             header?: never;
@@ -5901,7 +5901,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reports/{id}/status": {
+    "/api/report/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -6126,7 +6126,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/api/rentals/{id}/replacement-inspections/{vehicleId}": {
+    "/api/rental/{id}/replacement-inspection/{vehicleId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -6352,7 +6352,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/replacements": {
+    "/api/rental/{id}/replacements": {
         parameters: {
             query?: never;
             header?: never;
@@ -6896,7 +6896,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/facilities/{facilityId}/members/{userId}": {
+    "/api/facility/{facilityId}/member/{userId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -7988,7 +7988,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/handovers/{rentalId}": {
+    "/api/handover/{rentalId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -8207,7 +8207,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/handovers/{rentalId}/confirm": {
+    "/api/handover/{rentalId}/confirm": {
         parameters: {
             query?: never;
             header?: never;
@@ -8716,7 +8716,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/inspection-assignment": {
+    "/api/rental/{id}/inspection-assignment": {
         parameters: {
             query?: never;
             header?: never;
@@ -9830,7 +9830,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/customers/{id}/loyalty": {
+    "/api/customer/{id}/loyalty": {
         parameters: {
             query?: never;
             header?: never;
@@ -10049,7 +10049,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/customers/{id}/loyalty/adjustments": {
+    "/api/customer/{id}/loyalty/adjustments": {
         parameters: {
             query?: never;
             header?: never;
@@ -13493,7 +13493,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/contract": {
+    "/api/rental/{id}/contract": {
         parameters: {
             query?: never;
             header?: never;
@@ -14386,7 +14386,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/customers/{customerId}/license-status": {
+    "/api/customer/{customerId}/license-status": {
         parameters: {
             query?: never;
             header?: never;
@@ -14959,7 +14959,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/vehicle-types/{id}": {
+    "/api/vehicle-type/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -15714,7 +15714,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/vehicles/{id}": {
+    "/api/vehicle/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -16664,7 +16664,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/departments/{id}": {
+    "/api/department/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -17414,7 +17414,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/facilities/{id}": {
+    "/api/facility/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -18244,7 +18244,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rental-policies/{id}/status": {
+    "/api/rental-policy/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -18859,7 +18859,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}": {
+    "/api/rental/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -19312,7 +19312,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/assignments": {
+    "/api/rental/{id}/assignments": {
         parameters: {
             query?: never;
             header?: never;
@@ -19935,7 +19935,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/inspections/pre": {
+    "/api/rental/{id}/inspections/pre": {
         parameters: {
             query?: never;
             header?: never;
@@ -20130,7 +20130,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/inspections/post": {
+    "/api/rental/{id}/inspections/post": {
         parameters: {
             query?: never;
             header?: never;
@@ -20325,7 +20325,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/status/{status}": {
+    "/api/rental/{id}/status/{status}": {
         parameters: {
             query?: never;
             header?: never;
@@ -20896,7 +20896,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/subscription-plans/{id}": {
+    "/api/subscription-plan/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -22235,7 +22235,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{rentalId}/ratings": {
+    "/api/rental/{rentalId}/ratings": {
         parameters: {
             query?: never;
             header?: never;
@@ -22683,7 +22683,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ratings/{id}": {
+    "/api/rating/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -22908,7 +22908,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/api/ratings/{id}/reply": {
+    "/api/rating/{id}/reply": {
         parameters: {
             query?: never;
             header?: never;
@@ -23133,7 +23133,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/invoices/{invoiceId}/cash-confirmation": {
+    "/api/invoice/{invoiceId}/cash-confirmation": {
         parameters: {
             query?: never;
             header?: never;
@@ -23376,7 +23376,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/invoices/{invoiceId}/checkout": {
+    "/api/invoice/{invoiceId}/checkout": {
         parameters: {
             query?: never;
             header?: never;
@@ -23642,7 +23642,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/subscription-plans/{planId}/purchase": {
+    "/api/subscription-plan/{planId}/purchase": {
         parameters: {
             query?: never;
             header?: never;
@@ -23884,7 +23884,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/checkouts/{orderCode}/cancel": {
+    "/api/payments/checkout/{orderCode}/cancel": {
         parameters: {
             query?: never;
             header?: never;
@@ -24126,7 +24126,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/subscription-plans/purchases/{orderCode}": {
+    "/api/subscription-plans/purchase/{orderCode}": {
         parameters: {
             query?: never;
             header?: never;
@@ -24492,7 +24492,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/{paymentId}/refunds": {
+    "/api/payment/{paymentId}/refunds": {
         parameters: {
             query?: never;
             header?: never;
@@ -24934,7 +24934,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/invoices/{invoiceId}": {
+    "/api/invoice/{invoiceId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -25154,7 +25154,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{rentalId}/invoice": {
+    "/api/rental/{rentalId}/invoice": {
         parameters: {
             query?: never;
             header?: never;
@@ -25592,7 +25592,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/refunds/{refundId}/approve": {
+    "/api/payments/refund/{refundId}/approve": {
         parameters: {
             query?: never;
             header?: never;
@@ -25811,7 +25811,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/payments/refunds/{refundId}/reject": {
+    "/api/payments/refund/{refundId}/reject": {
         parameters: {
             query?: never;
             header?: never;
@@ -26030,7 +26030,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/assignments/driver": {
+    "/api/rental/{id}/assignments/driver": {
         parameters: {
             query?: never;
             header?: never;
@@ -26278,7 +26278,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/assignments/vehicle": {
+    "/api/rental/{id}/assignments/vehicle": {
         parameters: {
             query?: never;
             header?: never;
@@ -26526,7 +26526,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/assignable-drivers": {
+    "/api/rental/{id}/assignable-drivers": {
         parameters: {
             query?: never;
             header?: never;
@@ -26747,7 +26747,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/assignable-vehicles": {
+    "/api/rental/{id}/assignable-vehicles": {
         parameters: {
             query?: never;
             header?: never;
@@ -26966,7 +26966,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/confirm": {
+    "/api/rental/{id}/confirm": {
         parameters: {
             query?: never;
             header?: never;
@@ -27209,7 +27209,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/start": {
+    "/api/rental/{id}/start": {
         parameters: {
             query?: never;
             header?: never;
@@ -27451,7 +27451,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/return": {
+    "/api/rental/{id}/return": {
         parameters: {
             query?: never;
             header?: never;
@@ -27699,7 +27699,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/complete": {
+    "/api/rental/{id}/complete": {
         parameters: {
             query?: never;
             header?: never;
@@ -27941,7 +27941,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/cancel": {
+    "/api/rental/{id}/cancel": {
         parameters: {
             query?: never;
             header?: never;
@@ -28189,7 +28189,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/cancellation-preview": {
+    "/api/rental/{id}/cancellation-preview": {
         parameters: {
             query?: never;
             header?: never;
@@ -28630,7 +28630,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/mine/{id}": {
+    "/api/rental/mine/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -29076,7 +29076,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/rentals/{id}/detail": {
+    "/api/rental/{id}/detail": {
         parameters: {
             query?: never;
             header?: never;
@@ -31945,7 +31945,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tracking/vehicles/{vehicleId}/last-position": {
+    "/api/tracking/vehicle/{vehicleId}/last-position": {
         parameters: {
             query?: never;
             header?: never;
@@ -32164,7 +32164,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tracking/vehicles/{vehicleId}/history": {
+    "/api/tracking/vehicle/{vehicleId}/history": {
         parameters: {
             query?: never;
             header?: never;
@@ -32612,7 +32612,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tracking/rentals/{rentalId}/route": {
+    "/api/tracking/rental/{rentalId}/route": {
         parameters: {
             query?: never;
             header?: never;
@@ -32831,7 +32831,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tracking/rentals/{rentalId}/verify-dropoff": {
+    "/api/tracking/rental/{rentalId}/verify-dropoff": {
         parameters: {
             query?: never;
             header?: never;
@@ -33564,7 +33564,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tracking/alerts/{alertId}/resolve": {
+    "/api/tracking/alert/{alertId}/resolve": {
         parameters: {
             query?: never;
             header?: never;
@@ -34007,7 +34007,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{id}": {
+    "/api/user/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -34227,7 +34227,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{id}/status": {
+    "/api/user/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -34476,7 +34476,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/api/users/{id}/roles": {
+    "/api/user/{id}/roles": {
         parameters: {
             query?: never;
             header?: never;
@@ -34958,7 +34958,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{id}/sessions/revoke": {
+    "/api/user/{id}/sessions/revoke": {
         parameters: {
             query?: never;
             header?: never;
@@ -35341,7 +35341,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/vehicles/{id}/availability": {
+    "/api/vehicle/{id}/availability": {
         parameters: {
             query?: never;
             header?: never;
@@ -35517,7 +35517,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/vehicles/{id}/busy-slots": {
+    "/api/vehicle/{id}/busy-slots": {
         parameters: {
             query?: never;
             header?: never;
@@ -35693,7 +35693,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/vehicle-types/{id}/active-policy": {
+    "/api/vehicle-type/{id}/active-policy": {
         parameters: {
             query?: never;
             header?: never;
@@ -35866,7 +35866,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/vehicles/{id}/affected-rentals": {
+    "/api/vehicle/{id}/affected-rentals": {
         parameters: {
             query?: never;
             header?: never;

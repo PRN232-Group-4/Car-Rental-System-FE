@@ -49,5 +49,5 @@ export function getCustomerRentals(page = 1, tab = "") {
 }
 
 export function getCustomerRental(id: number) {
-  return backendApiClient.get<CustomerRentalDetail>(`rentals/mine/${id}`);
+  return backendApiClient.get<CustomerRentalDetail>(`rental/mine/${id}`);
 }

@@ -10,17 +10,17 @@ for (const width of [1440, 390]) {
     await page.route("**/api/**", async route => {
       const path = new URL(route.request().url()).pathname;
       if (route.request().method() === "POST") {
-        expect(path).toBe("/api/invoices/55/cash-confirmation");
+        expect(path).toBe("/api/invoice/55/cash-confirmation");
         paid = true; writes++;
         return route.fulfill({ json: envelope({ invoiceId: 55, orderId: 731, status: "paid" }) });
       }
       const data = path.endsWith("/account/profile") ? { email: "admin@test.local", roles: ["Admin", "Staff"] } :
-        path === "/api/rentals/115" ? rental() :
+        path === "/api/rental/115" ? rental() :
         path === "/api/rentals" ? { items: [rental()], page: 1, pageSize: 20, totalCount: 1 } :
-        path === "/api/invoices/55" ? invoice() :
-        path === "/api/vehicles/8" ? { id: 8, model: "Vios", brand: "Toyota" } :
-        path === "/api/rentals/115/detail" ? { rental: rental(), orderId: rental().orderId, invoice: invoice() } :
-        path === "/api/handovers/115" ? { rental: { rental: rental(), orderId: rental().orderId, hasPassingPreInspection: true }, status: "pending" } :
+        path === "/api/invoice/55" ? invoice() :
+        path === "/api/vehicle/8" ? { id: 8, model: "Vios", brand: "Toyota" } :
+        path === "/api/rental/115/detail" ? { rental: rental(), orderId: rental().orderId, invoice: invoice() } :
+        path === "/api/handover/115" ? { rental: { rental: rental(), orderId: rental().orderId, hasPassingPreInspection: true }, status: "pending" } :
         { items: [], totalCount: 0 };
       return route.fulfill({ json: envelope(data) });
     });

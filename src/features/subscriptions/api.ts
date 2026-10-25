@@ -9,18 +9,18 @@ export async function getSubscriptionPlans(activeOnly = true): Promise<Subscript
 }
 
 export async function getSubscriptionPlanById(id: number | string): Promise<SubscriptionPlan | undefined> {
-  const raw = await defaultApiClient.get<unknown>(`subscription-plans/${id}`);
+  const raw = await defaultApiClient.get<unknown>(`subscription-plan/${id}`);
   return raw ? mapSubscriptionPlanFromBE(raw as Record<string, unknown>) : undefined;
 }
 
 export async function purchaseSubscriptionPlan(planId: number | string): Promise<PlanCheckoutResult> {
   // BE creates a pending payment and returns the PayOS checkout link; the subscription is
   // activated by the PayOS webhook once payment succeeds.
-  return defaultApiClient.post<PlanCheckoutResult>(`subscription-plans/${planId}/purchase`);
+  return defaultApiClient.post<PlanCheckoutResult>(`subscription-plan/${planId}/purchase`);
 }
 
 export async function getPlanPurchaseStatus(orderCode: number | string): Promise<PlanPurchaseStatus> {
-  return defaultApiClient.get<PlanPurchaseStatus>(`subscription-plans/purchases/${orderCode}`);
+  return defaultApiClient.get<PlanPurchaseStatus>(`subscription-plans/purchase/${orderCode}`);
 }
 
 export async function getMySubscriptions(): Promise<CustomerSubscription[]> {

@@ -32,9 +32,9 @@ export function createSubscriptionPlan(input: PlanInput): Promise<SubscriptionPl
 }
 
 export function updateSubscriptionPlan(id: number, input: PlanInput): Promise<SubscriptionPlan> {
-  return backendApiClient.put<SubscriptionPlan>(`subscription-plans/${id}`, input);
+  return backendApiClient.put<SubscriptionPlan>(`subscription-plan/${id}`, input);
 }
 
 export function deleteSubscriptionPlan(id: number): Promise<void> {
-  return backendApiClient.delete<void>(`subscription-plans/${id}`);
+  return backendApiClient.delete<void>(`subscription-plan/${id}`);
 }

@@ -14,21 +14,21 @@ for (const width of [1600, 1280, 390]) {
       await page.route("**/api/**", async route => {
         const path = new URL(route.request().url()).pathname;
         if (route.request().method() === "POST") {
-          if (path === "/api/rentals/111/assignments") {
+          if (path === "/api/rental/111/assignments") {
             expect(route.request().postDataJSON()).toEqual({ driverStaffId: null });
             assignments++;
             return route.fulfill({ json: envelope({ rentalId: 111 }) });
           }
-          expect(path).toBe("/api/rentals/111/return");
+          expect(path).toBe("/api/rental/111/return");
           returns++;
           status = "post_inspection";
           return route.fulfill({ json: envelope({ rentalId: 111, toStatus: status }) });
         }
         const data = path.endsWith("/account/profile") ? { email: "admin@test.local", roles: ["Admin"] } :
           path === "/api/rentals" ? { items: [flat()], totalCount: 1, page: 1, pageSize: 30 } :
-          path === "/api/rentals/111" ? flat() :
-          path === "/api/rentals/111/detail" ? { rental: { ...flat(), scheduledEnd: flat().endTime, returnedAt: ["completed", "post_inspection"].includes(status) ? "2027-01-01T09:00:00Z" : null }, settlement: null } :
-          path === "/api/vehicles/8" ? { id: 8, model: "Vios", brand: "Toyota" } :
+          path === "/api/rental/111" ? flat() :
+          path === "/api/rental/111/detail" ? { rental: { ...flat(), scheduledEnd: flat().endTime, returnedAt: ["completed", "post_inspection"].includes(status) ? "2027-01-01T09:00:00Z" : null }, settlement: null } :
+          path === "/api/vehicle/8" ? { id: 8, model: "Vios", brand: "Toyota" } :
           path.endsWith("/inspection-assignment") ? null : /\/(assignable-drivers|assignable-vehicles|assignments|inspections|history)$/.test(path) ? [] : { items: [], page: 1, pageSize: 100, totalCount: 0 };
         return route.fulfill({ json: envelope(data) });
       });

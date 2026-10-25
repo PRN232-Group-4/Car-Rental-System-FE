@@ -27,12 +27,12 @@ for (const width of [1440, 1024, 390]) {
           return route.fulfill({ json: envelope({ rentalId: 112 }) });
         }
         const data = path.endsWith("/account/profile") ? { email: "admin@test.local", roles: [mode === "manager" ? "Manager" : "Admin"] } :
-          path === "/api/rentals/112" ? rental() :
+          path === "/api/rental/112" ? rental() :
           path === "/api/rentals" ? { items: [rental()], totalCount: 1 } :
-          path === "/api/rentals/112/detail" ? { rental: { ...rental(), returnedAt: status === "renting" ? null : "2027-01-10T09:00:00Z" }, settlement: null } :
+          path === "/api/rental/112/detail" ? { rental: { ...rental(), returnedAt: status === "renting" ? null : "2027-01-10T09:00:00Z" }, settlement: null } :
           path.endsWith("/inspection-assignment") ? url.searchParams.get("inspectionType") === "post_rental" ? assignment : { technicianStaffId: 7, technicianEmail: "pre@test.local" } :
           path === "/api/staff" ? { items: [{ id: 9, email: "tech@test.local", isActive: true, roles: ["Maintenance"] }], totalCount: 1 } :
-          path === "/api/vehicles/8" ? { id: 8, brand: "Toyota", model: "Vios" } : { items: [], totalCount: 0 };
+          path === "/api/vehicle/8" ? { id: 8, brand: "Toyota", model: "Vios" } : { items: [], totalCount: 0 };
         return route.fulfill({ json: envelope(data) });
       });
       await page.goto("/admin/rentals?rentalId=112");
@@ -72,8 +72,8 @@ for (const width of [1440, 1024, 390]) {
         await page.getByRole("button", { name: "Xác nhận hoàn tất", exact: true }).click();
         await expect(commands).toContainText("Hồ sơ hợp đồng đã ở trạng thái kết thúc (completed)");
       }
-      expect(writes).not.toContain("/api/rentals/112/start");
-      expect(writes).not.toContain("/api/rentals/112/confirm");
+      expect(writes).not.toContain("/api/rental/112/start");
+      expect(writes).not.toContain("/api/rental/112/confirm");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     });
   }

@@ -17,13 +17,13 @@ export const getMaintenance = async (vehicleId?: number, status?: string) => {
   return Array.isArray(result) ? result : (result.items ?? []);
 };
 export const saveMaintenance = (body: MaintenanceInput, id?: number) => id ? backendApiClient.put<unknown>(`maintenance/${id}`, body) : backendApiClient.post<unknown>("maintenance", body);
-export const sendReport = (rentalId: number, body: ReportInput) => backendApiClient.post<unknown>(`rentals/${rentalId}/reports`, body);
+export const sendReport = (rentalId: number, body: ReportInput) => backendApiClient.post<unknown>(`rental/${rentalId}/reports`, body);
 export const getReports = async (rentalId?: number) => {
   const result = await backendApiClient.get<IncidentReport[] | { items?: IncidentReport[] }>("reports", { rentalId });
   return Array.isArray(result) ? result : (result.items ?? []);
 };
 export const getDriverShifts = (from?: string, to?: string, driverStaffId?: number) => backendApiClient.get<DriverShift[]>("drivers/shifts", { from, to, driverStaffId });
-export const saveDriverShift = (body: ShiftInput, id?: number) => id ? backendApiClient.put<unknown>(`drivers/shifts/${id}`, body) : backendApiClient.post<unknown>("drivers/shifts", body);
+export const saveDriverShift = (body: ShiftInput, id?: number) => id ? backendApiClient.put<unknown>(`drivers/shift/${id}`, body) : backendApiClient.post<unknown>("drivers/shifts", body);
 export const getDispatchSchedule = async (from: string, to: string, driverStaffId?: number) => {
   const result = await backendApiClient.get<(DriverScheduleEntry & { driverName?: string | null })[] | { items?: (DriverScheduleEntry & { driverName?: string | null })[] }>("drivers/schedule", { from, to, driverStaffId });
   return Array.isArray(result) ? result : (result.items ?? []);

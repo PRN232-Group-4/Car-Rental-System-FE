@@ -28,24 +28,24 @@ describe("Admin Users: bảo vệ API thật", () => {
     client.delete.mockRejectedValue(failure);
     await expect(setUserActiveStatus({ userId: 1, currentActorId: 99, isActive: false, reason: "Khóa" })).rejects.toBe(failure);
     await expect(removeUserRole({ userId: 1, currentActorId: 99, role: "Admin" })).rejects.toBe(failure);
-    expect(client.delete).toHaveBeenCalledWith("users/1/roles", { body: JSON.stringify({ role: "Admin" }) });
+    expect(client.delete).toHaveBeenCalledWith("user/1/roles", { body: JSON.stringify({ role: "Admin" }) });
   });
 
   it("yêu cầu lý do khi khóa và gửi lý do đúng lên backend", async () => {
     await expect(setUserActiveStatus({ userId: 2, isActive: false, reason: " " })).rejects.toThrow("Vui lòng nhập lý do");
     await setUserActiveStatus({ userId: 2, isActive: false, reason: "  Vi phạm quy chế  " });
-    expect(client.patch).toHaveBeenCalledWith("users/2/status", { isActive: false, reason: "Vi phạm quy chế" });
+    expect(client.patch).toHaveBeenCalledWith("user/2/status", { isActive: false, reason: "Vi phạm quy chế" });
   });
 
   it("mở khóa gửi boolean true và lý do audit thay vì chỉ đổi bộ nhớ", async () => {
     client.patch.mockResolvedValue({ ...managerUser, isActive: true });
     expect((await setUserActiveStatus({ userId: 2, isActive: true })).isActive).toBe(true);
-    expect(client.patch).toHaveBeenCalledWith("users/2/status", { isActive: true, reason: "Mở khóa tài khoản theo xác nhận của quản trị viên." });
+    expect(client.patch).toHaveBeenCalledWith("user/2/status", { isActive: true, reason: "Mở khóa tài khoản theo xác nhận của quản trị viên." });
   });
 
   it("gán vai trò chỉ qua API, không gửi actor giả hoặc chấp nhận vai trò lạ", async () => {
     await assignUserRole({ userId: 2, role: "Maintenance" });
-    expect(client.post).toHaveBeenCalledWith("users/2/roles", { role: "Maintenance" });
+    expect(client.post).toHaveBeenCalledWith("user/2/roles", { role: "Maintenance" });
     await expect(assignUserRole({ userId: 2, role: "SuperHackerRole" as Role })).rejects.toThrow("không tồn tại trong danh mục hệ thống");
     expect(client.post).toHaveBeenCalledTimes(1);
   });
@@ -63,7 +63,7 @@ describe("Admin Users: bảo vệ API thật", () => {
 
   it("thu hồi phiên đăng nhập thông qua endpoint backend", async () => {
     await expect(revokeUserSessions(2)).resolves.toEqual({ success: true });
-    expect(client.post).toHaveBeenCalledWith("users/2/sessions/revoke");
+    expect(client.post).toHaveBeenCalledWith("user/2/sessions/revoke");
     client.post.mockRejectedValue(new ApiProblemError(403, "Forbidden"));
     await expect(revokeUserSessions(2)).rejects.toMatchObject({ status: 403 });
   });

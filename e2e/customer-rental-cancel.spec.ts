@@ -12,18 +12,18 @@ for(const width of [1440,390]) {
         const path=new URL(route.request().url()).pathname;
         let data:unknown=[];
         if(path.endsWith("/account/profile")) data={fullName:"Customer",email:"customer@test.local",roles:["Customer"]};
-        else if(path.endsWith("/rentals/101/cancellation-preview")) {
+        else if(path.endsWith("/rental/101/cancellation-preview")) {
           if(initial==="preview-error") return route.fulfill({status:503,json:{...envelope(null),code:503,status:"error",is_success:false,message:"Không kết nối được",error:{}}});
           data={allowed:initial!=="disallowed",feeAmount:100000,refundAmount:400000,reasons:initial==="disallowed"?["Đơn đã được bàn giao."]:[],freeUntil:null};
         }
-        else if(path.endsWith("/rentals/101/cancel")) {
+        else if(path.endsWith("/rental/101/cancel")) {
           writes++;
           expect(route.request().postDataJSON()).toEqual({reason:"Khách đổi lịch thuê",initiator:"customer",waiveFee:false});
           if(initial==="cancel-error") return route.fulfill({status:409,json:{...envelope(null),code:409,status:"error",is_success:false,message:"Đơn đã chuyển sang Đang thuê.",error:{detail:"Đơn đã chuyển sang Đang thuê."}}});
           status="cancelled";
           data={rentalId:101,toStatus:"cancelled"};
         }
-        else if(path.endsWith("/rentals/mine/101")) data={...summary(),vehicle:{id:8,brand:"Toyota",model:"Vios"},facility:null,start:summary().startTime,end:summary().endTime,hasDriver:false,invoice:null,timeline:status==="cancelled"?[{to:"cancelled",reason:"Khách đổi lịch thuê",at:"2026-10-22T03:21:00Z",actor:"customer"}]:[]};
+        else if(path.endsWith("/rental/mine/101")) data={...summary(),vehicle:{id:8,brand:"Toyota",model:"Vios"},facility:null,start:summary().startTime,end:summary().endTime,hasDriver:false,invoice:null,timeline:status==="cancelled"?[{to:"cancelled",reason:"Khách đổi lịch thuê",at:"2026-10-22T03:21:00Z",actor:"customer"}]:[]};
         else if(path.endsWith("/rentals/mine")) data={items:[summary()],totalCount:1,page:1,pageSize:20};
         return route.fulfill({json:envelope(data)});
       });
@@ -79,9 +79,9 @@ for(const width of [1440,390]) {
         let data:unknown=[];
         if(path.endsWith("/account/profile")) data={email:"customer@test.local",roles:["Customer"]};
         else if(path.endsWith("/rentals/mine")) data={items:[summary()],totalCount:1,page:1,pageSize:12};
-        else if(path.endsWith("/rentals/mine/101")) data={...summary(),vehicle:{id:8,brand:"Toyota",model:"Vios"},facility:null,start:summary().startTime,end:summary().endTime,hasDriver:false,price:{rent:400000,vat:40000,deposit:60000,total:500000,overtime:0},inspections:[],timeline:status==="cancelled"?[{to:"cancelled",reason:"Khách đổi lịch thuê",at:"2026-10-22T03:21:00Z",actor:"customer"}]:[]};
-        else if(path.endsWith("/rentals/101/cancellation-preview")) data={allowed:true,feeAmount:100000,refundAmount:400000,reasons:[],freeUntil:null};
-        else if(path.endsWith("/rentals/101/cancel")) {
+        else if(path.endsWith("/rental/mine/101")) data={...summary(),vehicle:{id:8,brand:"Toyota",model:"Vios"},facility:null,start:summary().startTime,end:summary().endTime,hasDriver:false,price:{rent:400000,vat:40000,deposit:60000,total:500000,overtime:0},inspections:[],timeline:status==="cancelled"?[{to:"cancelled",reason:"Khách đổi lịch thuê",at:"2026-10-22T03:21:00Z",actor:"customer"}]:[]};
+        else if(path.endsWith("/rental/101/cancellation-preview")) data={allowed:true,feeAmount:100000,refundAmount:400000,reasons:[],freeUntil:null};
+        else if(path.endsWith("/rental/101/cancel")) {
           expect(route.request().postDataJSON()).toEqual({reason:"Khách đổi lịch thuê",initiator:"customer",waiveFee:false});
           writes++;
           status="cancelled";

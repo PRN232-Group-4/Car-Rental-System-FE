@@ -12,7 +12,7 @@ export interface InspectionAssignment {
   assignedBy: string;
 }
 
-const assignmentPath = (rentalId: number, post = false, checked = false) => `rentals/${rentalId}/inspection-assignment${checked ? "/checked" : ""}${post ? "?inspectionType=post_rental" : ""}`;
+const assignmentPath = (rentalId: number, post = false, checked = false) => `rental/${rentalId}/inspection-assignment${checked ? "/checked" : ""}${post ? "?inspectionType=post_rental" : ""}`;
 export function getInspectionAssignment(rentalId: number, post = false) {
   return backendApiClient.get<InspectionAssignment | null>(assignmentPath(rentalId, post));
 }

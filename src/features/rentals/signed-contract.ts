@@ -12,6 +12,6 @@ export function signedContractFileError(file: File | null): string | undefined {
 }
 
 export function signedContractDocumentHref(rental: Pick<RentalContract, "id" | "contractLink" | "hasUploadedContract">): string | null {
-  if (rental.hasUploadedContract) return `/api/rentals/${encodeURIComponent(rental.id)}/contract/document`;
+  if (rental.hasUploadedContract) return `/api/rental/${encodeURIComponent(rental.id)}/contract/document`;
   return rental.contractLink && isSafeContractLink(rental.contractLink) ? rental.contractLink : null;
 }

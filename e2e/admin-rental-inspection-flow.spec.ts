@@ -23,21 +23,21 @@ for (const width of [1600, 1280, 390]) {
       const path = new URL(request.url()).pathname;
       let data: unknown = { items: [], page: 1, pageSize: 100, totalCount: 0 };
       if (path.endsWith("/account/profile")) data = { fullName: "Quản trị viên", email: "admin@example.test", roles: ["Admin"] };
-      else if (path.endsWith("/rentals/101/inspection-assignment")) {
+      else if (path.endsWith("/rental/101/inspection-assignment")) {
         if (request.method() === "PUT") {
           expect(request.postDataJSON()).toEqual({ technicianStaffId: 9 });
           assigned = { rentalId: 101, vehicleId: 8, technicianStaffId: 9, technicianName: technician.fullName, assignedAt: "2026-10-21T03:00:00Z", assignedBy: "admin@example.test" };
         }
         data = assigned;
-      } else if (path.endsWith("/rentals/101/start")) {
+      } else if (path.endsWith("/rental/101/start")) {
         startRequests += 1;
         expect(passing).toBe(true);
         started = true;
         data = rental();
-      } else if (path.endsWith("/rentals/101")) data = rental();
+      } else if (path.endsWith("/rental/101")) data = rental();
       else if (path.endsWith("/rentals")) data = { items: [rental()], page: 1, pageSize: 30, totalCount: 1 };
       else if (path.endsWith("/staff")) data = { items: [technician], page: 1, pageSize: 100, totalCount: 1 };
-      else if (path.endsWith("/vehicles/8")) data = { id: 8, brand: "Hyundai", model: "Accent", licensePlate: "51F-010.02", detail: null };
+      else if (path.endsWith("/vehicle/8")) data = { id: 8, brand: "Hyundai", model: "Accent", licensePlate: "51F-010.02", detail: null };
       await route.fulfill({ json: { code: 200, status: "success", is_success: true, data, message: "Đã tải dữ liệu.", error: null } });
     });
     await page.goto("/admin/rentals?rentalId=101");

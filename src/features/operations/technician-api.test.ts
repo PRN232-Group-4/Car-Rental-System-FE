@@ -18,18 +18,18 @@ it("identifies the legacy pre-only backend response only for post-rental actions
 
 it("keeps post-rental assignment and confirmation distinct from pre-rental evidence", async () => {
   await getInspectionAssignment(101, true);
-  expect(client.get).toHaveBeenCalledWith("rentals/101/inspection-assignment?inspectionType=post_rental");
+  expect(client.get).toHaveBeenCalledWith("rental/101/inspection-assignment?inspectionType=post_rental");
   await assignInspectionTechnician(101, 5, true);
-  expect(client.put).toHaveBeenCalledWith("rentals/101/inspection-assignment?inspectionType=post_rental", { technicianStaffId: 5 });
+  expect(client.put).toHaveBeenCalledWith("rental/101/inspection-assignment?inspectionType=post_rental", { technicianStaffId: 5 });
   await confirmInspectionChecked(101, 5, false, true);
-  expect(client.post).toHaveBeenCalledWith("rentals/101/inspection-assignment/checked?inspectionType=post_rental", { technicianStaffId: 5 });
+  expect(client.post).toHaveBeenCalledWith("rental/101/inspection-assignment/checked?inspectionType=post_rental", { technicianStaffId: 5 });
 });
 
 it("only requests approval when explicitly selected with the passing check", async () => {
   await confirmInspectionChecked(101, 5);
-  expect(client.post).toHaveBeenLastCalledWith("rentals/101/inspection-assignment/checked", { technicianStaffId: 5 });
+  expect(client.post).toHaveBeenLastCalledWith("rental/101/inspection-assignment/checked", { technicianStaffId: 5 });
   await confirmInspectionChecked(101, 5, true);
-  expect(client.post).toHaveBeenLastCalledWith("rentals/101/inspection-assignment/checked", { technicianStaffId: 5, approveRequest: true });
+  expect(client.post).toHaveBeenLastCalledWith("rental/101/inspection-assignment/checked", { technicianStaffId: 5, approveRequest: true });
 });
 
 it("uses authoritative roles for multi-role technician accounts", () => {
@@ -57,7 +57,7 @@ it("does not substitute other staff when a later directory page fails", async ()
 it("reads and persists a distinct inspection assignment", async () => {
   client.get.mockResolvedValue(null);
   expect(await getInspectionAssignment(101)).toBeNull();
-  expect(client.get).toHaveBeenCalledWith("rentals/101/inspection-assignment");
+  expect(client.get).toHaveBeenCalledWith("rental/101/inspection-assignment");
   await assignInspectionTechnician(101, 5);
-  expect(client.put).toHaveBeenCalledWith("rentals/101/inspection-assignment", { technicianStaffId: 5 });
+  expect(client.put).toHaveBeenCalledWith("rental/101/inspection-assignment", { technicianStaffId: 5 });
 });

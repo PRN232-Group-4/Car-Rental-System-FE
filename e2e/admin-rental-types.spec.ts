@@ -11,12 +11,12 @@ test("operational queue distinguishes hourly, longterm and missing rental types"
   ].map((row) => ({ ...row, vehicleId: 8, status: "pending", vehicleModel: "Vios", startTime: "2027-01-01T08:00:00Z", endTime: "2027-01-01T12:00:00Z", totalPrice: 500000, hasDriver: false }));
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
-    const id = Number(path.match(/\/rentals\/(\d+)$/)?.[1]);
+    const id = Number(path.match(/\/rental\/(\d+)$/)?.[1]);
     const row = rows.find((item) => item.id === id);
     const data = path.endsWith("/account/profile") ? { fullName: "Quản lý kiểm thử", email: "manager@test.local", roles: ["Manager"] } :
       path === "/api/rentals" ? { items: rows, page: 1, pageSize: 30, totalCount: rows.length } :
       row ? { ...row, rentalType: id === 112 ? "longterm" : "hourly", isSubscription: false, contractLink: null, signedAt: null } :
-      path === "/api/vehicles/8" ? { id: 8, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" } :
+      path === "/api/vehicle/8" ? { id: 8, brand: "Toyota", model: "Vios", licensePlate: "51A-12345" } :
       path.endsWith("/staff/drivers") ? { items: [], totalCount: 0, page: 1, pageSize: 100 } : [];
     return route.fulfill({ json: envelope(data) });
   });

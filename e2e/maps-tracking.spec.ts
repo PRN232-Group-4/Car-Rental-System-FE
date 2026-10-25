@@ -9,11 +9,11 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const json = path.endsWith("/account/profile") ? { fullName: "Admin", email: "admin@test.local", roles: ["Admin"] }
-      : path.endsWith("/vehicles/10") ? vehicle
+      : path.endsWith("/vehicle/10") ? vehicle
         : path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 }
           : path.endsWith("/vehicle-types") ? [{ id: 1, name: "Ô tô", type: "car", fuelType: "gasoline" }]
             : path.endsWith("/staff") || path.endsWith("/staff/drivers") ? { items: [], totalCount: 0 }
-              : path.endsWith("/rentals/52") ? { id: 52, vehicleId: 10, status: "renting", rentalType: "hourly", totalPrice: 100000 }
+              : path.endsWith("/rental/52") ? { id: 52, vehicleId: 10, status: "renting", rentalType: "hourly", totalPrice: 100000 }
                 : [];
     return route.fulfill({ json });
   });
@@ -23,7 +23,7 @@ test("vehicle GPS loads on demand, exposes a real point and never submits the ed
   let trackingRequests = 0;
   let writes = 0;
   page.on("request", (request) => { if (request.method() !== "GET" && new URL(request.url()).pathname.startsWith("/api/")) writes++; });
-  await page.route("**/api/tracking/vehicles/10/last-position", (route) => { trackingRequests++; return route.fulfill({ json: point }); });
+  await page.route("**/api/tracking/vehicle/10/last-position", (route) => { trackingRequests++; return route.fulfill({ json: point }); });
   await page.goto("/admin/vehicles/edit?vehicleId=10");
   const panel = page.getByRole("region", { name: "Vị trí xe", exact: true });
   await expect(panel.getByRole("button", { name: "Xem vị trí xe", exact: true })).toBeVisible();
@@ -37,14 +37,14 @@ test("vehicle GPS loads on demand, exposes a real point and never submits the ed
 });
 
 test("missing GPS stays empty and forbidden data shows a useful error with retry", async ({ page }) => {
-  await page.route("**/api/tracking/vehicles/10/last-position", (route) => route.fulfill({ status: 404, json: { message: "No position" } }));
+  await page.route("**/api/tracking/vehicle/10/last-position", (route) => route.fulfill({ status: 404, json: { message: "No position" } }));
   await page.goto("/admin/vehicles/edit?vehicleId=10");
   await page.getByRole("button", { name: "Xem vị trí xe", exact: true }).click();
   const panel = page.getByRole("region", { name: "Vị trí xe", exact: true });
   await expect(panel.getByText("Xe chưa có vị trí GPS được ghi nhận.")).toBeVisible();
   await expect(panel.locator("iframe")).toHaveCount(0);
   await expect(panel.getByRole("link")).toHaveCount(0);
-  await page.route("**/api/tracking/vehicles/10/last-position", (route) => route.fulfill({ status: 403, json: { message: "Forbidden" } }));
+  await page.route("**/api/tracking/vehicle/10/last-position", (route) => route.fulfill({ status: 403, json: { message: "Forbidden" } }));
   await panel.getByRole("button", { name: "Cập nhật vị trí", exact: true }).click();
   await expect(panel.getByRole("alert")).toHaveText("Bạn không có quyền xem dữ liệu định vị này.");
 });
@@ -53,7 +53,7 @@ test("rental GPS has a loading skeleton, truthful endpoint map and paginated his
   let release!: () => void;
   const gate = new Promise<void>((resolve) => { release = resolve; });
   const points = Array.from({ length: 12 }, (_, index) => ({ ...point, lat: Number((10.77 + index / 100).toFixed(4)), recordedAt: `2026-10-15T03:${String(index).padStart(2, "0")}:00Z` }));
-  await page.route("**/api/tracking/rentals/52/route", async (route) => {
+  await page.route("**/api/tracking/rental/52/route", async (route) => {
     await gate;
     return route.fulfill({ json: { rentalId: 52, vehicleId: 10, totalPoints: 12, totalDistanceMeters: 12500, durationSeconds: 660, startPosition: points[0], endPosition: points[11], routePoints: points } });
   });

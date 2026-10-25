@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
       path.endsWith("/facilities") ? [{ id: 5, name: "Quận 1", address: "12 Nguyễn Huệ" }, { id: 6, name: "Quận 3" }] :
       path.endsWith("/vehicles/search") ? { items: [vehicle], totalCount: 1 } :
       path.endsWith("/rental-policies") ? [policy] :
-      path.endsWith("/rentals/321") ? rental : [];
+      path.endsWith("/rental/321") ? rental : [];
     return route.fulfill({ status: 200, json: envelope(data) });
   });
 });
@@ -153,10 +153,10 @@ test("records signed contract, validates unsafe links and displays backend field
   await expect(page.locator("#signedAt-error")).toBeVisible();
   await page.locator("#contractLink").fill("https://example.com/contract.pdf");
   await page.locator("#signedAt").fill("2027-01-10T08:00");
-  await page.route("**/api/rentals/321/contract", (route) => route.fulfill({ status: 400, json: { errors: { "request.ContractLink": ["Đường dẫn hợp đồng không hợp lệ."] } } }));
+  await page.route("**/api/rental/321/contract", (route) => route.fulfill({ status: 400, json: { errors: { "request.ContractLink": ["Đường dẫn hợp đồng không hợp lệ."] } } }));
   await page.getByRole("button", { name: "Lưu thông tin ký hợp đồng" }).click();
   await expect(page.locator("#contractLink-error")).toHaveText("Đường dẫn hợp đồng không hợp lệ.");
-  await page.route("**/api/rentals/321/contract", (route) => { payload = route.request().postDataJSON(); return route.fulfill({ json: envelope({ ...rental, contractLink: "https://example.com/contract.pdf", signedAt: "2027-01-10T01:00:00.000Z" }) }); });
+  await page.route("**/api/rental/321/contract", (route) => { payload = route.request().postDataJSON(); return route.fulfill({ json: envelope({ ...rental, contractLink: "https://example.com/contract.pdf", signedAt: "2027-01-10T01:00:00.000Z" }) }); });
   await page.locator("#contractLink").fill("https://example.com/contract.pdf");
   await page.getByRole("button", { name: "Lưu thông tin ký hợp đồng" }).click();
   await expect(page.getByText("Đã lưu thông tin hợp đồng.")).toBeVisible();

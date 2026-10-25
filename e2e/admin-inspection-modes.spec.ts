@@ -12,7 +12,7 @@ for(const width of [1440,390]) {
         const path=new URL(route.request().url()).pathname;
         let data:unknown={items:[],totalCount:0,page:1,pageSize:100};
         if(path.endsWith("/account/profile")) data={fullName:"Quản trị viên",email:"admin@test.local",roles:["Admin"]};
-        else if(path.endsWith("/rentals/101/inspection-assignment/checked")) {
+        else if(path.endsWith("/rental/101/inspection-assignment/checked")) {
           writes++;
           expect(route.request().method()).toBe("POST");
           expect(route.request().postDataJSON()).toEqual({technicianStaffId:9});
@@ -20,12 +20,12 @@ for(const width of [1440,390]) {
           checked=true;
           data={rentalId:101,vehicleId:8,technicianStaffId:9,technicianEmail:"tech@test.local",assignedAt:"2026-10-22T03:00:00Z",assignedBy:"admin@test.local"};
         }
-        else if(path.endsWith("/rentals/101/inspection-assignment")) data=mode==="driver" ? null : {rentalId:101,vehicleId:8,technicianStaffId:9,technicianEmail:"tech@test.local",assignedAt:"2026-10-22T03:00:00Z",assignedBy:"admin@test.local"};
-        else if(path.endsWith("/invoices/55")) data={id:55,status:"paid",amount:100000,paymentMethod:"cash",kind:"rental"};
-        else if(path.endsWith("/rentals/101")) data=rental();
+        else if(path.endsWith("/rental/101/inspection-assignment")) data=mode==="driver" ? null : {rentalId:101,vehicleId:8,technicianStaffId:9,technicianEmail:"tech@test.local",assignedAt:"2026-10-22T03:00:00Z",assignedBy:"admin@test.local"};
+        else if(path.endsWith("/invoice/55")) data={id:55,status:"paid",amount:100000,paymentMethod:"cash",kind:"rental"};
+        else if(path.endsWith("/rental/101")) data=rental();
         else if(path.endsWith("/rentals")) data={items:[rental()],page:1,pageSize:30,totalCount:1};
         else if(path.endsWith("/staff")) data={items:[{id:9,email:"tech@test.local",isActive:true,staffRole:"Maintenance"}],page:1,pageSize:100,totalCount:1};
-        else if(path.endsWith("/vehicles/8")) data={id:8,brand:"Toyota",model:"Vios",detail:null};
+        else if(path.endsWith("/vehicle/8")) data={id:8,brand:"Toyota",model:"Vios",detail:null};
         return route.fulfill({json:envelope(data)});
       });
       await page.goto("/admin/rentals?rentalId=101");

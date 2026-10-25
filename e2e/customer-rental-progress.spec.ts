@@ -8,7 +8,7 @@ async function mockCustomerRental(page: Page, facility: { id: number; name: stri
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const data = path.endsWith("/account/profile") ? { fullName: "Khách hàng", email: "customer@test.local", roles: ["Customer"] } :
-      path.endsWith("/rentals/mine/42") ? { id: 42, status: "pending", vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility, start: summary.startTime, end: summary.endTime, hasDriver: true, driver, timeline: [], invoice: null, nextAction: "WAITING_CONFIRMATION" } :
+      path.endsWith("/rental/mine/42") ? { id: 42, status: "pending", vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility, start: summary.startTime, end: summary.endTime, hasDriver: true, driver, timeline: [], invoice: null, nextAction: "WAITING_CONFIRMATION" } :
       path.endsWith("/rentals/mine") ? { items: [summary], totalCount: 1, page: 1, pageSize: 20 } : [];
     return route.fulfill({ json: envelope(data) });
   });
@@ -66,7 +66,7 @@ test("customer opens own rental progress and refreshes actual status", async ({ 
       listRequests.push(url);
       return route.fulfill({ json: envelope({ items: [summary], totalCount: 1, page: 1, pageSize: 20 }) });
     }
-    if (url.pathname.endsWith("/rentals/mine/42")) return route.fulfill({ json: envelope({ id: 42, orderId: status === "pending" ? null : 88, status, rentalType: "hourly", isSubscription: false, vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility: { id: 5, name: "Cơ sở Quận 1", phone: "0281234567" }, start: summary.startTime, end: summary.endTime, hasDriver: false, driver: null, price: { total: 500000 }, invoice: { id: 55, number: "INV-55", status: "unpaid", amount: 500000 }, timeline: [], nextAction: status === "pending" ? "WAITING_CONFIRMATION" : "PREPARING_VEHICLE" }) });
+    if (url.pathname.endsWith("/rental/mine/42")) return route.fulfill({ json: envelope({ id: 42, orderId: status === "pending" ? null : 88, status, rentalType: "hourly", isSubscription: false, vehicle: { id: 8, brand: "Toyota", model: "Vios" }, facility: { id: 5, name: "Cơ sở Quận 1", phone: "0281234567" }, start: summary.startTime, end: summary.endTime, hasDriver: false, driver: null, price: { total: 500000 }, invoice: { id: 55, number: "INV-55", status: "unpaid", amount: 500000 }, timeline: [], nextAction: status === "pending" ? "WAITING_CONFIRMATION" : "PREPARING_VEHICLE" }) });
     return route.fulfill({ json: envelope([]) });
   });
   await page.goto("/my-rentals");
@@ -101,7 +101,7 @@ test("cancelled customer rental has stopped progress and fits mobile", async ({ 
 test("customer detail denial remains an error without fabricated progress", async ({ page }) => {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/rentals/mine/1")) return route.fulfill({ status: 404, json: { ...envelope(null), code: 404, status: "error", is_success: false, message: "Không tìm thấy yêu cầu của bạn." } });
+    if (path.endsWith("/rental/mine/1")) return route.fulfill({ status: 404, json: { ...envelope(null), code: 404, status: "error", is_success: false, message: "Không tìm thấy yêu cầu của bạn." } });
     return route.fulfill({ json: envelope(path.endsWith("/account/profile") ? { email: "customer@test.local", roles: ["Customer"] } : { items: [], totalCount: 0, page: 1, pageSize: 20 }) });
   });
   await page.goto("/my-rentals?rentalId=1");

@@ -17,14 +17,14 @@ test.beforeEach(async ({ page }) => {
     let data: unknown = { items: [], totalCount: 0, page: 1, pageSize: 20 };
     if (path.endsWith("/account/profile")) data = profile;
     else if (path.endsWith("/vehicles")) data = { items: [vehicle], totalCount: 1, page: 1, pageSize: 8 };
-    else if (path.endsWith("/vehicles/8")) data = vehicle;
+    else if (path.endsWith("/vehicle/8")) data = vehicle;
     else if (path.endsWith("/inspections")) {
       const type = url.searchParams.get("inspectionType");
       const all = [inspection, { ...inspection, id: 502, rentalId: 102, inspectionType: "post_rental", inspectorEmail: "post@example.test" }];
       const items = all.filter((item) => !type || item.inspectionType === type);
       data = { items, totalCount: items.length, page: 1, pageSize: 20 };
     } else if (path.endsWith("/rentals")) data = { items: [{ id: 101, vehicleId: 8, vehicleModel: "Hyundai Accent", licensePlate: vehicle.licensePlate, customerEmail: "customer@example.test", status: url.searchParams.get("status") || "pre_inspection" }], totalCount: 1, page: 1, pageSize: 10 };
-    else if (path.endsWith("/rentals/101")) data = { id: 101, vehicleId: 8, customerId: 1, status: "pre_inspection", rentalType: "hourly", isSubscription: false, vatPrice: 0, depositPrice: 1000000, totalPrice: 1000000, overtimePrice: 0, hasPassingPreInspection: false };
+    else if (path.endsWith("/rental/101")) data = { id: 101, vehicleId: 8, customerId: 1, status: "pre_inspection", rentalType: "hourly", isSubscription: false, vatPrice: 0, depositPrice: 1000000, totalPrice: 1000000, overtimePrice: 0, hasPassingPreInspection: false };
     else if (path.endsWith("/staff")) data = { items: [{ id: 9, userId: 29, email: "tech@example.test", staffRole: "Maintenance", isActive: true }], totalCount: 1, page: 1, pageSize: 100 };
     else if (path.endsWith("/inspection-assignment")) return route.fulfill({ status: 404, json: envelope(null, 404) });
     return route.fulfill({ json: envelope(data) });

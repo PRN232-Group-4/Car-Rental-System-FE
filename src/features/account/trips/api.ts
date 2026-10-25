@@ -41,11 +41,11 @@ export async function fetchMyTripDetail(id: number): Promise<TripDetail> {
   };
 }
 export async function fetchCancellationPreview(rentalId: number): Promise<CancellationPreview> {
-  const result = await backendApiClient.get<{ allowed: boolean; feeAmount: number; refundAmount: number; freeUntil: string | null }>(`rentals/${rentalId}/cancellation-preview`);
+  const result = await backendApiClient.get<{ allowed: boolean; feeAmount: number; refundAmount: number; freeUntil: string | null }>(`rental/${rentalId}/cancellation-preview`);
   const total = result.refundAmount + result.feeAmount;
   return { rentalId, canCancel: result.allowed, cancellationFee: result.feeAmount, refundAmount: result.refundAmount, refundPercentage: total ? Math.round(result.refundAmount / total * 100) : 0, freeUntil: result.freeUntil ?? undefined };
 }
 export async function cancelTrip({ rentalId, reason }: CancelTripInput): Promise<TripDetail> {
-  await backendApiClient.post<unknown>(`rentals/${rentalId}/cancel`, { reason, initiator: "customer", waiveFee: false });
+  await backendApiClient.post<unknown>(`rental/${rentalId}/cancel`, { reason, initiator: "customer", waiveFee: false });
   return fetchMyTripDetail(rentalId);
 }

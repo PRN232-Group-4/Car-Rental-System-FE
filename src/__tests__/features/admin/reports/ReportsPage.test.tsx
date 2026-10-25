@@ -39,7 +39,7 @@ describe("Reports use the deployed incident API", () => {
     await expect(updateReportStatus(901, "rejected")).rejects.toMatchObject({ status: 501 });
     expect(post).not.toHaveBeenCalled();
     await createMaintenanceFromReport({ reportId: 901, assignedStaffId: 17, facilityId: 5, scheduledDate: "2027-01-01" });
-    expect(post).toHaveBeenCalledWith("reports/901/maintenance", { assignedStaffId: 17, facilityId: 5, scheduledDate: "2027-01-01" });
+    expect(post).toHaveBeenCalledWith("report/901/maintenance", { assignedStaffId: 17, facilityId: 5, scheduledDate: "2027-01-01" });
   });
   it("renders XSS as plain text and omits unsupported rejection", () => {
     const { container } = renderDetail();
