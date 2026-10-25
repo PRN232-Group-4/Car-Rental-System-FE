@@ -188,7 +188,7 @@ export default function ProfileManager() {
           index="09"
           tag="KH"
           kicker="KHÁCH HÀNG · HỒ SƠ CÁ NHÂN"
-          title={<>Quản lý <em className="italic text-td-teal">hồ sơ.</em></>}
+          title={<>Quản lý <span className="text-td-teal">hồ sơ.</span></>}
           description="Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo."
         >
           <StatusBadge

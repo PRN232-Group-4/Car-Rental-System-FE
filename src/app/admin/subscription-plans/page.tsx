@@ -210,7 +210,7 @@ export default function SubscriptionPlansPage() {
             index="06"
             tag="PLC"
             kicker="CHÍNH SÁCH · GÓI THUÊ BAO"
-            title={<>Gói thuê bao <em className="italic text-td-teal">di chuyển.</em></>}
+            title={<>Gói thuê bao <span className="text-td-teal">di chuyển.</span></>}
             description="Quản lý danh mục các gói thuê bao giờ linh hoạt, thiết lập thời hạn và đơn giá quy đổi cho khách hàng toàn hệ thống."
           >
             <TransitFolioMetric label="DANH MỤC · TỔNG SỐ GÓI" value={isLoading ? <Skeleton className="h-8 w-16" /> : String(plans.length).padStart(2, "0")} />

@@ -77,7 +77,7 @@ export default function LichSuThanhToanPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · SỔ CÁI TÀI CHÍNH"
-        title={<>Lịch sử thanh toán & <em className="italic text-td-teal">hoàn cọc.</em></>}
+        title={<>Lịch sử thanh toán & <span className="text-td-teal">hoàn cọc.</span></>}
         description="Minh bạch toàn bộ dòng tiền: tiền thuê, tiền cọc đã nộp và trạng thái hoàn cọc sau khi kết thúc chuyến xe."
       >
         <div className="border-l border-td-rule pl-4 text-right">

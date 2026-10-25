@@ -26,7 +26,7 @@ export default function MySubscriptionsPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · GÓI THUÊ BAO"
-        title={<>Gói thuê bao <em className="italic text-td-teal">của tôi.</em></>}
+        title={<>Gói thuê bao <span className="text-td-teal">của tôi.</span></>}
         description="Theo dõi số giờ di chuyển khả dụng, thời hạn sử dụng và lịch sử trừ giờ theo từng chuyến đi."
       >
         <div className="border-l border-td-rule pl-4 text-right">

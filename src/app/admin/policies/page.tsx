@@ -125,7 +125,7 @@ export default function PoliciesPage() {
             index="06"
             tag="PLC"
             kicker="CHÍNH SÁCH · ĐIỀU KHOẢN & PHÁP LÝ"
-            title={<>Chính sách thuê & <em className="italic text-td-teal">đặt cọc.</em></>}
+            title={<>Chính sách thuê & <span className="text-td-teal">đặt cọc.</span></>}
             description="Chính sách thuê là bất biến theo phiên bản nhằm bảo vệ tính toàn vẹn của hợp đồng đã ký. Để điều chỉnh điều khoản, vui lòng tạo một phiên bản mới."
           >
             <TransitFolioMetric label="PHIÊN BẢN · ĐANG HIỂN THỊ" value={String(filteredPolicies.length).padStart(2, "0")} />

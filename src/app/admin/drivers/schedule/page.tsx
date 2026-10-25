@@ -93,7 +93,7 @@ function DriverScheduleContent() {
           <div>
             <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · LỊCH TRÌNH VẬN HÀNH</span>
             <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Bảng lịch trình <em className="italic text-td-teal">tài xế.</em>
+              Bảng lịch trình <span className="text-td-teal">tài xế.</span>
             </h1>
             <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">
               Theo dõi phân bổ chuyến đi, vùng đệm theo từng xe và chỉ định / thay đổi tài xế.
@@ -356,7 +356,7 @@ function DriverScheduleContent() {
                     </span>
                   </div>
 
-                  {s.note && <p className="text-xs text-td-muted italic">{s.note}</p>}
+                  {s.note && <p className="text-xs text-td-muted">{s.note}</p>}
                 </div>
 
                 <div className="flex items-center gap-2">

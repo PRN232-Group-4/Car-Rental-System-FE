@@ -49,10 +49,10 @@ type Row = {
 type FormValues = Record<string, string>;
 
 const pageInfo: Record<Directory, { title: string; description: string; kicker: string; folio: React.ReactNode; columns: string[] }> = {
-  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", kicker: "TỔ CHỨC · PHÒNG BAN", folio: <>Phòng <em className="italic text-td-teal">ban.</em></>, columns: ["Phòng ban"] },
-  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", kicker: "TỔ CHỨC · CHI NHÁNH", folio: <>Chi <em className="italic text-td-teal">nhánh.</em></>, columns: ["Chi nhánh", "Địa chỉ"] },
-  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", kicker: "TỔ CHỨC · NHÂN SỰ", folio: <>Nhân <em className="italic text-td-teal">viên.</em></>, columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"] },
-  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", kicker: "TỔ CHỨC · PHÂN QUYỀN", folio: <>Vai <em className="italic text-td-teal">trò.</em></>, columns: ["Vai trò", "Nguồn", "Số nhân viên"] },
+  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", kicker: "TỔ CHỨC · PHÒNG BAN", folio: <>Phòng <span className="text-td-teal">ban.</span></>, columns: ["Phòng ban"] },
+  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", kicker: "TỔ CHỨC · CHI NHÁNH", folio: <>Chi <span className="text-td-teal">nhánh.</span></>, columns: ["Chi nhánh", "Địa chỉ"] },
+  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", kicker: "TỔ CHỨC · NHÂN SỰ", folio: <>Nhân <span className="text-td-teal">viên.</span></>, columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"] },
+  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", kicker: "TỔ CHỨC · PHÂN QUYỀN", folio: <>Vai <span className="text-td-teal">trò.</span></>, columns: ["Vai trò", "Nguồn", "Số nhân viên"] },
 };
 
 export default function DirectoryPage({ directory }: { directory: Directory }) {
@@ -341,7 +341,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
               <tr key={row.id}>
                 <td className="font-semibold text-td-ink">{row.name}</td>
                 {info.columns.slice(1).map((column, index) => (
-                  <td key={column} className="text-td-muted">{[row.description, row.detail][index] || "—"}</td>
+                  <td key={column} className="text-td-muted"><span className="block max-w-[320px] truncate" title={[row.description, row.detail][index] || undefined}>{[row.description, row.detail][index] || "—"}</span></td>
                 ))}
                 <td><AdminStatusBadge domain="activity" status={row.active ? "active" : "inactive"}>{row.active ? "Đang hoạt động" : "Tạm ngưng"}</AdminStatusBadge></td>
                 {canModify && (

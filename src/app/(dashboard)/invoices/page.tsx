@@ -48,7 +48,7 @@ export default function HoaDonPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · TÀI CHÍNH & HOÁ ĐƠN"
-        title={<>Danh sách <em className="italic text-td-teal">hóa đơn.</em></>}
+        title={<>Danh sách <span className="text-td-teal">hóa đơn.</span></>}
         description="Tra cứu hóa đơn tiền thuê xe trực tiếp, tiền đặt cọc và thanh toán trực tuyến qua cổng PayOS."
       >
         <div className="border-l border-td-rule pl-4 text-right">

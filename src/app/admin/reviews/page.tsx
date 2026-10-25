@@ -156,7 +156,7 @@ export default function AdminReviewsPage() {
             index="03"
             tag="TRI"
             kicker="CHĂM SÓC & SỰ CỐ · CHẤT LƯỢNG DỊCH VỤ"
-            title={<>Đánh giá <em className="italic text-td-teal">nhân sự & tài xế.</em></>}
+            title={<>Đánh giá <span className="text-td-teal">nhân sự & tài xế.</span></>}
             description="Đọc đánh giá thực từ API nhân viên. API hiện chưa hỗ trợ kiểm duyệt hoặc phản hồi."
           >
             <TransitFolioMetric

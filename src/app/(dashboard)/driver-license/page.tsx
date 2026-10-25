@@ -44,7 +44,7 @@ export default function GPLXPage() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · HỒ SƠ LÁI XE"
-        title={<>Giấy phép <em className="italic text-td-teal">lái xe.</em></>}
+        title={<>Giấy phép <span className="text-td-teal">lái xe.</span></>}
         description="Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp."
       >
         {getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}
