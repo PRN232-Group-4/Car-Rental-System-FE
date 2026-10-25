@@ -59,7 +59,7 @@ export default function DispatchManager() {
         <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">05<br />DSP</span>
         <div>
           <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · CA LÀM & PHÂN CHUYẾN</span>
-          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Điều phối <em className="italic text-td-teal">tài xế.</em></h1>
+          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Điều phối <span className="text-td-teal">tài xế.</span></h1>
           <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Tra cứu tài xế và phân công cho xe theo từng đơn thuê.</p>
         </div>
       </div>

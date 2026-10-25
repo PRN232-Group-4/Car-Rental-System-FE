@@ -78,7 +78,7 @@ export default function CustomerDirectory({ initialLicenseStatus = "" }: { initi
       index="07"
       tag="ORG"
       kicker="TỔ CHỨC · KHÁCH HÀNG"
-      title={<>Khách <em className="italic text-td-teal">hàng.</em></>}
+      title={<>Khách <span className="text-td-teal">hàng.</span></>}
       description="Tra cứu toàn bộ khách hàng và theo dõi giấy phép lái xe đang chờ phê duyệt."
     >
       <TransitFolioMetric

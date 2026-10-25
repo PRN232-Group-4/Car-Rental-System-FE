@@ -101,7 +101,7 @@ export default function DriverRevenueDashboard() {
         index="10"
         tag="NV"
         kicker="NHÂN VIÊN · DOANH THU CHUYẾN"
-        title={<>Doanh thu <em className="italic text-td-teal">chuyến xe.</em></>}
+        title={<>Doanh thu <span className="text-td-teal">chuyến xe.</span></>}
         description="Tổng giá trị thuê của các chuyến đã hoàn thành và được phân công cho bạn."
       >
         <div className="border-l border-td-rule pl-4 text-right">

@@ -298,7 +298,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
           index="02"
           tag="FLT"
           kicker="TÀI SẢN · HỒ SƠ PHƯƠNG TIỆN"
-          title={loading ? <>Hồ sơ <em className="italic text-td-teal">phương tiện.</em></> : isEditing ? <>Chỉnh sửa <em className="italic text-td-teal">phương tiện.</em></> : <>Thêm <em className="italic text-td-teal">phương tiện mới.</em></>}
+          title={loading ? <>Hồ sơ <span className="text-td-teal">phương tiện.</span></> : isEditing ? <>Chỉnh sửa <span className="text-td-teal">phương tiện.</span></> : <>Thêm <span className="text-td-teal">phương tiện mới.</span></>}
           description="Cập nhật hồ sơ, giá thuê và thông số kỹ thuật theo từng loại xe."
         />
       </>}

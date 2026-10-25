@@ -74,7 +74,7 @@ export default function PaymentManagement() {
 
   return <div className="space-y-6">
     <TransitFolio index="04" tag="OPS" kicker="VẬN HÀNH · SỔ THANH TOÁN"
-      title={<>Thanh toán <em className="italic text-td-teal">đơn thuê.</em></>}
+      title={<>Thanh toán <span className="text-td-teal">đơn thuê.</span></>}
       description="Tra cứu giao dịch tiền thuê, tiền cọc, phí quá giờ, gói đăng ký và hoàn tiền theo hóa đơn.">
       <TransitFolioMetric label="GIAO DỊCH PHÙ HỢP" value={query.isPending || query.isError ? "—" : filtered.length.toLocaleString("vi-VN")} />
     </TransitFolio>

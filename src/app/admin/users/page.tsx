@@ -251,7 +251,7 @@ function AdminUsersContent() {
         index="07"
         tag="ORG"
         kicker="TỔ CHỨC · TÀI KHOẢN & PHÂN QUYỀN"
-        title={<>Người dùng & <em className="italic text-td-teal">phân quyền.</em></>}
+        title={<>Người dùng & <span className="text-td-teal">phân quyền.</span></>}
         description="Tra cứu tài khoản người dùng, phân quyền vai trò và kiểm soát an toàn bảo mật hệ thống."
       >
         <TransitFolioMetric

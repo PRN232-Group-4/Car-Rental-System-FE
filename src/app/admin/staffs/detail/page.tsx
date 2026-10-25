@@ -151,7 +151,7 @@ function StaffDetailView({
         index="07"
         tag="ORG"
         kicker="TỔ CHỨC · HỒ SƠ NHÂN SỰ"
-        title={<>Hồ sơ <em className="italic text-td-teal">nhân sự.</em></>}
+        title={<>Hồ sơ <span className="text-td-teal">nhân sự.</span></>}
         description="Thông tin công tác, giấy phép lái xe và lịch sử hoạt động của nhân viên tại trạm."
       />
 
@@ -527,7 +527,7 @@ function StaffDetailView({
                         Đệm: {s.bufferMinutes || 60}p
                       </span>
                     </div>
-                    {s.note && <p className="text-xs text-td-ink italic">{s.note}</p>}
+                    {s.note && <p className="text-xs text-td-ink">{s.note}</p>}
                   </div>
 
                   <Link href={`/admin/rentals?id=${s.rentalId}`}>

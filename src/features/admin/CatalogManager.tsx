@@ -46,7 +46,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; inde
     index: "02",
     tag: "FLT",
     kicker: "TÀI SẢN · PHÂN LOẠI XE",
-    folio: <>Loại <em className="italic text-td-teal">phương tiện.</em></>,
+    folio: <>Loại <span className="text-td-teal">phương tiện.</span></>,
   },
   policies: {
     title: "Chính sách thuê xe",
@@ -54,7 +54,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; inde
     index: "06",
     tag: "PLC",
     kicker: "CHÍNH SÁCH · ĐIỀU KHOẢN THUÊ",
-    folio: <>Chính sách <em className="italic text-td-teal">thuê xe.</em></>,
+    folio: <>Chính sách <span className="text-td-teal">thuê xe.</span></>,
   },
   "subscription-plans": {
     title: "Gói đăng ký",
@@ -62,7 +62,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string; inde
     index: "06",
     tag: "PLC",
     kicker: "CHÍNH SÁCH · GÓI THUÊ BAO",
-    folio: <>Gói <em className="italic text-td-teal">đăng ký.</em></>,
+    folio: <>Gói <span className="text-td-teal">đăng ký.</span></>,
   },
 };
 

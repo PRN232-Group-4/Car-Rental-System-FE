@@ -23,7 +23,7 @@ export default function RentalInspections() {
   return (
     <div className="space-y-6">
       <TransitFolio index="04" tag="INS" kicker="VẬN HÀNH · BIÊN BẢN TRẠM"
-        title={<>Kiểm tra xe <em className="italic text-td-teal">trước / sau thuê.</em></>}
+        title={<>Kiểm tra xe <span className="text-td-teal">trước / sau thuê.</span></>}
         description="Xem toàn bộ biên bản đã lập, các đơn cần kiểm tra và mở đơn để phân công kỹ thuật viên." />
       <InspectionDirectory />
       <InspectionWorkQueue />

@@ -201,7 +201,7 @@ export default function StaffProfileForm() {
         index="08"
         tag="ME"
         kicker="CÁ NHÂN · HỒ SƠ NHÂN VIÊN"
-        title={<>Hồ sơ <em className="italic text-td-teal">của tôi.</em></>}
+        title={<>Hồ sơ <span className="text-td-teal">của tôi.</span></>}
         description="Xem và cập nhật thông tin liên hệ của bạn."
       >
         <div className="border-l border-td-rule pl-4 text-right">

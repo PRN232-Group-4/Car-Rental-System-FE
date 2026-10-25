@@ -183,7 +183,7 @@ function UserDetailContent() {
         index="07"
         tag="ORG"
         kicker="TỔ CHỨC · HỒ SƠ NGƯỜI DÙNG"
-        title={<>Hồ sơ <em className="italic text-td-teal">người dùng.</em></>}
+        title={<>Hồ sơ <span className="text-td-teal">người dùng.</span></>}
         description="Tài khoản, vai trò, hồ sơ khách hàng / nhân viên và lịch sử bảo mật của một người dùng."
       />
 

@@ -63,7 +63,7 @@ export default function MaintenanceManager() {
         <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">04<br />OPS</span>
         <div>
           <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">VẬN HÀNH · KỸ THUẬT</span>
-          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Quản lý <em className="italic text-td-teal">bảo trì.</em></h1>
+          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Quản lý <span className="text-td-teal">bảo trì.</span></h1>
           <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Mỗi phiếu là một mốc thời gian của xe: ngày dự kiến, tình trạng an toàn và chi phí thực tế.</p>
         </div>
       </div>

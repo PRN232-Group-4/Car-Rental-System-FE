@@ -16,7 +16,7 @@ export default function IncidentReporter() {
         index="09"
         tag="KH"
         kicker="KHÁCH HÀNG · HỖ TRỢ SỰ CỐ"
-        title={<>Báo cáo <em className="italic text-td-teal">sự cố.</em></>}
+        title={<>Báo cáo <span className="text-td-teal">sự cố.</span></>}
         description="Gửi mô tả và ảnh hiện trạng để trạm tiếp nhận và xử lý theo SLA."
       />
       <RentalLookup title="Tra cứu đơn thuê" staffLinks={false}>

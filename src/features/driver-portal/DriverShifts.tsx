@@ -148,7 +148,7 @@ export default function DriverShifts() {
         index="10"
         tag="NV"
         kicker="NHÂN VIÊN · LỊCH PHÂN CÔNG"
-        title={<>Ca <em className="italic text-td-teal">làm việc.</em></>}
+        title={<>Ca <span className="text-td-teal">làm việc.</span></>}
         description="Xem các chuyến xe được phân công cho bạn trong khoảng thời gian đã chọn."
       >
         <div className="border-l border-td-rule pl-4 text-right">
