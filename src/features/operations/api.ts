@@ -40,7 +40,7 @@ export interface InspectionRequest {
 
 export function getOperationalRental(id: number): Promise<OperationalRental> {
   // Luôn fail closed: không trả dữ liệu mẫu cho hồ sơ đơn thuê.
-  return backendApiClient.get<OperationalRental>(`rentals/${id}`);
+  return backendApiClient.get<OperationalRental>(`rental/${id}`);
 }
 
 export async function getOperationalDrivers(): Promise<StaffDto[]> {
@@ -72,35 +72,35 @@ export interface OperationalRentalDetail {
   settlement?: { returnedAt: string; overtimeMinutes: number; overtimeHours: number; overtimeAmount: number; overtimeVat: number; depositDeducted: number; shortfallInvoiceId: number | null } | null;
 }
 
-export const getOperationalRentalDetail = (id: number | string) => backendApiClient.get<OperationalRentalDetail>(`rentals/${id}/detail`);
-export const confirmHandover = (id: number | string) => backendApiClient.post<unknown>(`handovers/${id}/confirm`);
+export const getOperationalRentalDetail = (id: number | string) => backendApiClient.get<OperationalRentalDetail>(`rental/${id}/detail`);
+export const confirmHandover = (id: number | string) => backendApiClient.post<unknown>(`handover/${id}/confirm`);
 export interface RentalUpdate { vehicleId: number; startTime: string; endTime: string; hasDriver: boolean }
-export const updateRental = (id: number | string, body: RentalUpdate) => backendApiClient.put<unknown>(`rentals/${id}`, body);
+export const updateRental = (id: number | string, body: RentalUpdate) => backendApiClient.put<unknown>(`rental/${id}`, body);
 
 export function assignRental(id: number, driverStaffId: number | null) {
   // CustomerService policy: Admin/Manager/CustomerService; the legacy `/assignments` alias is Manager-only.
-  return backendApiClient.post<unknown>(`rentals/${id}/assignments/driver`, { driverStaffId, reason: "initial" });
+  return backendApiClient.post<unknown>(`rental/${id}/assignments/driver`, { driverStaffId, reason: "initial" });
 }
 
 export const cancelOperationalRental = (id: number | string, reason: string, initiator: "customer" | null = null) =>
-  backendApiClient.post<unknown>(`rentals/${id}/cancel`, { reason: reason.trim(), initiator, waiveFee: false });
+  backendApiClient.post<unknown>(`rental/${id}/cancel`, { reason: reason.trim(), initiator, waiveFee: false });
 
 export const getRentalCancellationPreview = (id: number | string) => backendApiClient.get<{
   allowed: boolean; feeAmount: number; refundAmount: number; reasons?: string[]; freeUntil: string | null;
-}>(`rentals/${id}/cancellation-preview`);
+}>(`rental/${id}/cancellation-preview`);
 
 export async function changeRentalStatus(id: number, status: string) {
   const action = ({ pre_inspection: "confirm", renting: "start", post_inspection: "return", completed: "complete" } as Record<string, string>)[status];
   if (action) {
-    if (action === "return") await backendApiClient.post(`rentals/${id}/return`, {});
-    else await backendApiClient.post(`rentals/${id}/${action}`);
+    if (action === "return") await backendApiClient.post(`rental/${id}/return`, {});
+    else await backendApiClient.post(`rental/${id}/${action}`);
     return getOperationalRental(id);
   }
-  return backendApiClient.post<OperationalRental>(`rentals/${id}/status/${encodeURIComponent(status)}`);
+  return backendApiClient.post<OperationalRental>(`rental/${id}/status/${encodeURIComponent(status)}`);
 }
 
 export function saveInspection(id: number, type: "pre" | "post", body: InspectionRequest) {
-  return backendApiClient.post<unknown>(`rentals/${id}/inspections/${type}`, body);
+  return backendApiClient.post<unknown>(`rental/${id}/inspections/${type}`, body);
 }
 
 export async function uploadInspectionImage(file: File) {

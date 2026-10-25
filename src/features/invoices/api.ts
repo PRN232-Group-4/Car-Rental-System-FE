@@ -38,11 +38,11 @@ export async function getInvoices(): Promise<Invoice[]> {
   }
 }
 export async function getInvoiceById(id: number | string): Promise<Invoice | null> {
-  const raw = await defaultApiClient.get<Record<string, unknown>>(`invoices/${id}`);
+  const raw = await defaultApiClient.get<Record<string, unknown>>(`invoice/${id}`);
   return raw ? mapInvoiceFromBE(raw) : null;
 }
-export const checkoutInvoice = (id: number | string) => defaultApiClient.post<CheckoutResult>(`invoices/${id}/checkout`);
-export const checkoutOvertimeForStaff = (id: number | string) => defaultApiClient.post<CheckoutResult>(`invoices/${id}/staff-checkout`);
+export const checkoutInvoice = (id: number | string) => defaultApiClient.post<CheckoutResult>(`invoice/${id}/checkout`);
+export const checkoutOvertimeForStaff = (id: number | string) => defaultApiClient.post<CheckoutResult>(`invoice/${id}/staff-checkout`);
 export function confirmCashReceipt(id: number | string) {
-  return defaultApiClient.post<{ paymentId: number; invoiceId: number; status: string; orderId: number | null }>(`invoices/${encodeURIComponent(id)}/cash-confirmation`);
+  return defaultApiClient.post<{ paymentId: number; invoiceId: number; status: string; orderId: number | null }>(`invoice/${encodeURIComponent(id)}/cash-confirmation`);
 }

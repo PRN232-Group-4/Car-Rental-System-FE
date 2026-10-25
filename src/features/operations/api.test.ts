@@ -17,7 +17,7 @@ describe("operational rental prerequisites and drivers", () => {
 
   it("cancels through the lifecycle API with the entered reason and server policy", async () => {
     await cancelOperationalRental(77,"  Khách đổi lịch  ");
-    expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("rentals/77/cancel",{reason:"Khách đổi lịch",initiator:null,waiveFee:false});
+    expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("rental/77/cancel",{reason:"Khách đổi lịch",initiator:null,waiveFee:false});
   });
 
   it.each(["pending","pre_inspection","renting","post_inspection","completed","cancelled"])("allows cancellation only before renting (%s)", status => {
@@ -29,9 +29,9 @@ describe("operational rental prerequisites and drivers", () => {
     const flat = { id: 77, status };
     vi.mocked(backendApiClient.get).mockResolvedValue(flat);
     expect(await changeRentalStatus(77, status)).toBe(flat);
-    if (action === "return") expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("rentals/77/return", {});
-    else expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith(`rentals/77/${action}`);
-    expect(backendApiClient.get).toHaveBeenCalledExactlyOnceWith("rentals/77");
+    if (action === "return") expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("rental/77/return", {});
+    else expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith(`rental/77/${action}`);
+    expect(backendApiClient.get).toHaveBeenCalledExactlyOnceWith("rental/77");
   });
 
   it("does not claim a status update when the lifecycle endpoint fails", async () => {
@@ -44,16 +44,16 @@ describe("operational rental prerequisites and drivers", () => {
   it("keeps handover confirmation and rental editing on their dedicated endpoints", async () => {
     const input = { vehicleId: 8, startTime: "2027-01-01T02:00:00Z", endTime: "2027-01-02T02:00:00Z", hasDriver: false };
     await confirmHandover(77);
-    expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("handovers/77/confirm");
+    expect(backendApiClient.post).toHaveBeenCalledExactlyOnceWith("handover/77/confirm");
     await updateRental(77, input);
-    expect(backendApiClient.put).toHaveBeenCalledExactlyOnceWith("rentals/77", input);
+    expect(backendApiClient.put).toHaveBeenCalledExactlyOnceWith("rental/77", input);
   });
 
   it("loads invoice and inspection metadata without changing the flat rental contract", async () => {
     const detail = { invoice: { id: 42 }, hasPassingPreInspection: true };
     vi.mocked(backendApiClient.get).mockResolvedValue(detail);
     expect(await getOperationalRentalDetail(77)).toBe(detail);
-    expect(backendApiClient.get).toHaveBeenCalledExactlyOnceWith("rentals/77/detail");
+    expect(backendApiClient.get).toHaveBeenCalledExactlyOnceWith("rental/77/detail");
   });
 
   it("reads every driver page using the driver-only endpoint", async () => {

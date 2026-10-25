@@ -14,13 +14,13 @@ describe("Trạng thái người dùng tồn tại sau khi tải lại ứng d�
     server.fetch.mockImplementation(async (url: string, init: RequestInit) => {
       const path = new URL(url, "https://app.example.test").pathname;
       let data: unknown;
-      if (path === "/api/users/7/status" && init.method === "PATCH") {
+      if (path === "/api/user/7/status" && init.method === "PATCH") {
         const body = JSON.parse(String(init.body));
         expect(typeof body.isActive).toBe("boolean");
         expect(body.reason).toBeTruthy();
         stored = { ...stored, isActive: body.isActive };
         data = stored;
-      } else if (path === "/api/users/7") data = stored;
+      } else if (path === "/api/user/7") data = stored;
       else if (path === "/api/users") data = usersPage([stored]);
       else throw new Error(`Unexpected HTTP request ${init.method} ${url}`);
       return new Response(JSON.stringify({ code: 200, status: "success", is_success: true, data, message: "OK", error: null }), { status: 200, headers: { "Content-Type": "application/json" } });

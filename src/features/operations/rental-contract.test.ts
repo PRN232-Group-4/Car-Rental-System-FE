@@ -10,7 +10,7 @@ vi.mock("@/api/backend-api-client", async () => {
 describe("flat operational rental HTTP contract", () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it.each([false, true])("reads authoritative readiness=%s from GET /rentals/{id} without a nested detail adapter", async (hasPassingPreInspection) => {
+  it.each([false, true])("reads authoritative readiness=%s from GET /rental/{id} without a nested detail adapter", async (hasPassingPreInspection) => {
     transport.mockResolvedValue(new Response(JSON.stringify({
       code: 200,
       status: "success",
@@ -21,7 +21,7 @@ describe("flat operational rental HTTP contract", () => {
     }), { status: 200, headers: { "Content-Type": "application/json" } }));
 
     const rental = await getOperationalRental(101);
-    expect(transport).toHaveBeenCalledExactlyOnceWith("/api/rentals/101", expect.objectContaining({ method: "GET", credentials: "include" }));
+    expect(transport).toHaveBeenCalledExactlyOnceWith("/api/rental/101", expect.objectContaining({ method: "GET", credentials: "include" }));
     expect(rental.id).toBe(101);
     expect(rental.hasPassingPreInspection).toBe(hasPassingPreInspection);
     expect(rental.hasPostInspection).toBe(false);

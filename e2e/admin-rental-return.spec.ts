@@ -16,17 +16,17 @@ test(`admin return and policy settlement ${fails ? "keeps state on failure" : "s
     const path = new URL(request.url()).pathname;
     if (request.method() === "POST") {
       mutations.push(path);
-      if (fails && path === "/api/rentals/111/return") return route.fulfill({ status: 503, json: { ...envelope(null), code: 503, status: "error", is_success: false, message: "Không thể xác nhận trả xe. Vui lòng thử lại." } });
-      if (path === "/api/rentals/111/return") { returnedAt = "2020-01-01T14:00:00Z"; status = "post_inspection"; }
-      else if (path === "/api/rentals/111/complete" && postInspection) status = "completed";
+      if (fails && path === "/api/rental/111/return") return route.fulfill({ status: 503, json: { ...envelope(null), code: 503, status: "error", is_success: false, message: "Không thể xác nhận trả xe. Vui lòng thử lại." } });
+      if (path === "/api/rental/111/return") { returnedAt = "2020-01-01T14:00:00Z"; status = "post_inspection"; }
+      else if (path === "/api/rental/111/complete" && postInspection) status = "completed";
       else return route.fulfill({ status: 400, json: { ...envelope(null), code: 400, is_success: false, status: "error", message: "Unexpected mutation" } });
       return route.fulfill({ json: envelope({ rentalId: 111, toStatus: status }) });
     }
     const data = path.endsWith("/account/profile") ? { fullName: "Quản lý", email: "manager@test.local", roles: ["Manager"] } :
       path === "/api/rentals" ? { items: [flat()], page: 1, pageSize: 30, totalCount: 1 } :
-      path === "/api/rentals/111" ? flat() :
-      path === "/api/rentals/111/detail" ? { rental: { ...flat(), scheduledStart: flat().startTime, scheduledEnd: flat().endTime, returnedAt }, settlement: status === "completed" ? { returnedAt, overtimeHours: 2, overtimeMinutes: 120, overtimeAmount: 240000, overtimeVat: 24000, depositDeducted: 100000, shortfallInvoiceId: 99 } : null } :
-      path === "/api/vehicles/8" ? { id: 8, brand: "Toyota", model: "Vios" } :
+      path === "/api/rental/111" ? flat() :
+      path === "/api/rental/111/detail" ? { rental: { ...flat(), scheduledStart: flat().startTime, scheduledEnd: flat().endTime, returnedAt }, settlement: status === "completed" ? { returnedAt, overtimeHours: 2, overtimeMinutes: 120, overtimeAmount: 240000, overtimeVat: 24000, depositDeducted: 100000, shortfallInvoiceId: 99 } : null } :
+      path === "/api/vehicle/8" ? { id: 8, brand: "Toyota", model: "Vios" } :
       path.endsWith("/staff/drivers") ? { items: [], totalCount: 0 } : [];
     return route.fulfill({ json: envelope(data) });
   });
@@ -40,7 +40,7 @@ test(`admin return and policy settlement ${fails ? "keeps state on failure" : "s
     await expect(page.getByRole("complementary", { name: "Bảng lệnh điều phối" }).getByText("Không thể xác nhận trả xe. Vui lòng thử lại.", { exact: true })).toBeVisible();
     await expect(returns.getByText("Chưa xác nhận nhận lại xe", { exact: true })).toBeVisible();
     await expect(returns.getByText("Phí quá giờ", { exact: true })).toHaveCount(0);
-    expect(mutations).toEqual(["/api/rentals/111/return"]);
+    expect(mutations).toEqual(["/api/rental/111/return"]);
     return;
   }
   await expect(returns.getByText("Đã nhận lại xe:", { exact: false })).toBeVisible();
@@ -56,6 +56,6 @@ test(`admin return and policy settlement ${fails ? "keeps state on failure" : "s
   await expect(returns.getByText("240.000 đ", { exact: true })).toBeVisible();
   await expect(returns.getByText("24.000 đ", { exact: true })).toBeVisible();
   await expect(returns.getByRole("link", { name: "Xem hóa đơn phí quá giờ còn thiếu" })).toHaveAttribute("href", "/invoices/99");
-  expect(mutations).toEqual(["/api/rentals/111/return", "/api/rentals/111/complete"]);
+  expect(mutations).toEqual(["/api/rental/111/return", "/api/rental/111/complete"]);
 });
 }

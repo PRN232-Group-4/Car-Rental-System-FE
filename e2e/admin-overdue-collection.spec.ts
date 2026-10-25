@@ -17,26 +17,26 @@ for (const width of [1440, 390]) {
         const failure = (message: string) => route.fulfill({ status: 503, json: { ...envelope(null), code: 503, status: "error", is_success: false, message, error: { detail: message } } });
         if (route.request().method() === "POST") {
           posts.push(path);
-          if (path === "/api/invoices/99/cash-confirmation") {
+          if (path === "/api/invoice/99/cash-confirmation") {
             expect(route.request().postData()).toBeNull();
             if (cashError) return failure("Chưa ghi nhận tiền mặt. Vui lòng thử lại.");
             paid = true;
             return route.fulfill({ json: envelope({ paymentId: 20, invoiceId: 99, status: "paid", orderId: null }) });
           }
-          if (path === "/api/invoices/99/staff-checkout") {
+          if (path === "/api/invoice/99/staff-checkout") {
             reserved = true;
             if (mode === "online-error") return failure("Không thể tạo link PayOS. Vui lòng thử lại.");
             return route.fulfill({ json: envelope({ orderCode: 99, paymentLinkId: "test", checkoutUrl: "https://pay.payos.vn/web/test" }) });
           }
           return failure("Unexpected mutation");
         }
-        if (path === "/api/invoices/99" && invoiceError) return failure("Không đọc được hóa đơn phụ phí.");
+        if (path === "/api/invoice/99" && invoiceError) return failure("Không đọc được hóa đơn phụ phí.");
         const data = path.endsWith("/account/profile") ? { fullName: "Quản trị", email: "admin@test.local", roles: ["Admin"] } :
           path === "/api/rentals" ? { items: [flat], totalCount: 1, page: 1, pageSize: 30 } :
-          path === "/api/rentals/111" ? flat :
-          path === "/api/rentals/111/detail" ? { rental: { ...flat, scheduledStart: flat.startTime, scheduledEnd: flat.endTime, returnedAt: "2020-01-01T14:00:00Z" }, settlement: { returnedAt: "2020-01-01T14:00:00Z", overtimeHours: 2, overtimeMinutes: 120, overtimeAmount: 240000, overtimeVat: 24000, depositDeducted: 100000, shortfallInvoiceId: mode === "no-shortfall" ? null : 99 } } :
-          path === "/api/invoices/99" ? { id: 99, rentalId: 111, invoiceNumber: "INV-OT-99", amount: 164000, vatAmount: 24000, kind: "overtime", status: paid ? "paid" : "unpaid", paymentMethod: paid && !reserved ? "cash" : "payos", canPay: !paid, canConfirmCash: !paid && !reserved, canCreateStaffCheckout: !paid } :
-          path === "/api/vehicles/8" ? { id: 8, brand: "Toyota", model: "Vios" } : [];
+          path === "/api/rental/111" ? flat :
+          path === "/api/rental/111/detail" ? { rental: { ...flat, scheduledStart: flat.startTime, scheduledEnd: flat.endTime, returnedAt: "2020-01-01T14:00:00Z" }, settlement: { returnedAt: "2020-01-01T14:00:00Z", overtimeHours: 2, overtimeMinutes: 120, overtimeAmount: 240000, overtimeVat: 24000, depositDeducted: 100000, shortfallInvoiceId: mode === "no-shortfall" ? null : 99 } } :
+          path === "/api/invoice/99" ? { id: 99, rentalId: 111, invoiceNumber: "INV-OT-99", amount: 164000, vatAmount: 24000, kind: "overtime", status: paid ? "paid" : "unpaid", paymentMethod: paid && !reserved ? "cash" : "payos", canPay: !paid, canConfirmCash: !paid && !reserved, canCreateStaffCheckout: !paid } :
+          path === "/api/vehicle/8" ? { id: 8, brand: "Toyota", model: "Vios" } : [];
         return route.fulfill({ json: envelope(data) });
       });
       await page.goto("/admin/rentals?rentalId=111");
@@ -69,7 +69,7 @@ for (const width of [1440, 390]) {
         }
         await expect(dialog).toHaveCount(0);
         await expect(panel.getByRole("status")).toHaveText("Đã thu phí · Tiền mặt");
-        expect(posts).toEqual(Array(mode === "cash-error" ? 2 : 1).fill("/api/invoices/99/cash-confirmation"));
+        expect(posts).toEqual(Array(mode === "cash-error" ? 2 : 1).fill("/api/invoice/99/cash-confirmation"));
       } else if (mode === "online" || mode === "online-error") {
         await panel.getByRole("button", { name: "Tạo link thanh toán online" }).click();
         await expect(cash).toBeDisabled();
@@ -83,7 +83,7 @@ for (const width of [1440, 390]) {
           await panel.getByRole("button", { name: "Cập nhật trạng thái thu phí" }).click();
           await expect(panel.getByRole("status")).toHaveText("Đã thu phí · Online qua PayOS");
         }
-        expect(posts).toEqual(["/api/invoices/99/staff-checkout"]);
+        expect(posts).toEqual(["/api/invoice/99/staff-checkout"]);
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     });
@@ -98,7 +98,7 @@ test("overdue queue filters on the server and keeps the return action", async ({
     if (url.pathname === "/api/rentals") statuses.push(url.searchParams.get("status"));
     const data = url.pathname.endsWith("/account/profile") ? { email: "admin@test.local", roles: ["Admin"] } :
       url.pathname === "/api/rentals" ? { items: [flat], totalCount: 1, page: 1, pageSize: 30 } :
-      url.pathname === "/api/rentals/111" ? flat : [];
+      url.pathname === "/api/rental/111" ? flat : [];
     return route.fulfill({ json: envelope(data) });
   });
   await page.goto("/admin/rentals?rentalId=111");

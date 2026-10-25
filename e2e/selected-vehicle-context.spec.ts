@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
     else if (path.endsWith("/facilities")) data = [{ id: 5, name: "Quận 1" }];
     else if (path.endsWith("/customer/license")) data = { number: "B123456", type: "B", expiryDate: "2099-01-01", status: "approved" };
     else if (path.endsWith("/vehicles/search")) data = { items: [{ ...vehicle, vehicleType: { id: 6, type: "car", name: "Ô tô" }, facility: { id: 5, name: "Quận 1" }, priceHourly: 120000, priceLongterm: 18500000 }], totalCount: 1, page: 1, pageSize: 100 };
-    else if (path.endsWith("/vehicles/8")) data = { ...vehicle, vehicleTypeId: 6, vehicleType: "car", facilityId: 5, facility: "Quận 1", hourlyPrice: 120000, longtermPrice: 18500000 };
+    else if (path.endsWith("/vehicle/8")) data = { ...vehicle, vehicleTypeId: 6, vehicleType: "car", facilityId: 5, facility: "Quận 1", hourlyPrice: 120000, longtermPrice: 18500000 };
     else if (path.endsWith("/availability")) data = { vehicleId: 8, available: true };
     else if (path.endsWith("/active-policy")) data = null;
     await route.fulfill({ json: envelope(data) });

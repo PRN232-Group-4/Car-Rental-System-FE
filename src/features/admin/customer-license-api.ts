@@ -34,11 +34,11 @@ export function getCustomerLicenses(search = "", licenseStatus = "pending", page
 }
 
 export function getCustomerLicenseDetail(customerId: number) {
-  return backendApiClient.get<CustomerLicenseDetail>(`customers/${customerId}`);
+  return backendApiClient.get<CustomerLicenseDetail>(`customer/${customerId}`);
 }
 
 export function reviewCustomerLicense(customerId: number, status: string, licenseId?: number) {
-  return backendApiClient.put<ReviewableLicense>(`customers/${customerId}/license-status`, { status, ...(licenseId === undefined ? {} : { licenseId }) });
+  return backendApiClient.put<ReviewableLicense>(`customer/${customerId}/license-status`, { status, ...(licenseId === undefined ? {} : { licenseId }) });
 }
 
 export const licenseStatusLabels: Record<string, string> = {

@@ -36,7 +36,7 @@ export async function getDriverSchedule(
 }
 
 export function getDriverRental(rentalId: number) {
-  return backendApiClient.get<DriverRentalDto>(`rentals/${rentalId}`);
+  return backendApiClient.get<DriverRentalDto>(`rental/${rentalId}`);
 }
 
 export type DriverPortalAccount = Omit<AccountProfile, "staffId"> & {

@@ -166,11 +166,11 @@ export function createVehicleType(body: { name: string; fuelType: string; type: 
 }
 
 export function updateVehicleType(id: number, body: { name: string; fuelType: string; type: string }) {
-  return backendApiClient.put<VehicleTypeDto>(`vehicle-types/${id}`, body);
+  return backendApiClient.put<VehicleTypeDto>(`vehicle-type/${id}`, body);
 }
 
 export function deleteVehicleType(id: number) {
-  return backendApiClient.delete<void>(`vehicle-types/${id}`);
+  return backendApiClient.delete<void>(`vehicle-type/${id}`);
 }
 
 export async function getDepartments() {
@@ -182,11 +182,11 @@ export function createDepartment(name: string) {
 }
 
 export function updateDepartment(id: number, name: string) {
-  return backendApiClient.put<OrganizationUnitDto>(`departments/${id}`, { name });
+  return backendApiClient.put<OrganizationUnitDto>(`department/${id}`, { name });
 }
 
 export function deleteDepartment(id: number) {
-  return backendApiClient.delete<void>(`departments/${id}`);
+  return backendApiClient.delete<void>(`department/${id}`);
 }
 
 export async function getFacilities(): Promise<OrganizationUnitDto[]> {
@@ -210,11 +210,11 @@ export function createFacility(body: { name: string; address: string }) {
 }
 
 export function updateFacility(id: number, body: { name: string; address: string }) {
-  return backendApiClient.put<OrganizationUnitDto>(`facilities/${id}`, body);
+  return backendApiClient.put<OrganizationUnitDto>(`facility/${id}`, body);
 }
 
 export function deleteFacility(id: number) {
-  return backendApiClient.delete<void>(`facilities/${id}`);
+  return backendApiClient.delete<void>(`facility/${id}`);
 }
 
 export async function getRentalPolicies(page = 1, pageSize = 20): Promise<PagedResult<RentalPolicyDto>> {
@@ -229,7 +229,7 @@ export function createRentalPolicy(body: RentalPolicyRequest) {
 }
 
 export function setRentalPolicyStatus(id: number, isActive: boolean) {
-  return backendApiClient.patch<RentalPolicyDto>(`rental-policies/${id}/status`, { isActive });
+  return backendApiClient.patch<RentalPolicyDto>(`rental-policy/${id}/status`, { isActive });
 }
 
 export async function getSubscriptionPlans(all = true) {
@@ -241,11 +241,11 @@ export function createSubscriptionPlan(body: SubscriptionPlanRequest) {
 }
 
 export function updateSubscriptionPlan(id: number, body: SubscriptionPlanRequest) {
-  return backendApiClient.put<SubscriptionPlanDto>(`subscription-plans/${id}`, body);
+  return backendApiClient.put<SubscriptionPlanDto>(`subscription-plan/${id}`, body);
 }
 
 export function deleteSubscriptionPlan(id: number) {
-  return backendApiClient.delete<void>(`subscription-plans/${id}`);
+  return backendApiClient.delete<void>(`subscription-plan/${id}`);
 }
 
 export function getVehicles(params: {
@@ -259,7 +259,7 @@ export function getVehicles(params: {
 }
 
 export function getVehicle(id: number) {
-  return backendApiClient.get<VehicleDto>(`vehicles/${id}`);
+  return backendApiClient.get<VehicleDto>(`vehicle/${id}`);
 }
 
 export function createVehicle(body: VehicleRequest) {
@@ -267,7 +267,7 @@ export function createVehicle(body: VehicleRequest) {
 }
 
 export function updateVehicle(id: number, body: VehicleRequest) {
-  return backendApiClient.put<VehicleDto>(`vehicles/${id}`, body);
+  return backendApiClient.put<VehicleDto>(`vehicle/${id}`, body);
 }
 
 export function uploadVehicleImage(file: File): Promise<unknown> {
@@ -301,5 +301,5 @@ export function getDashboardData(params: { from?: string; to?: string } = {}) {
 }
 
 export function deleteVehicle(id: number) {
-  return backendApiClient.delete<void>(`vehicles/${id}`);
+  return backendApiClient.delete<void>(`vehicle/${id}`);
 }

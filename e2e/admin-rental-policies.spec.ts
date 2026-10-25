@@ -43,7 +43,7 @@ for (const width of [1280, 390]) {
     const requests: { id: string; body: unknown }[] = [];
     let finish!: () => void;
     const pending = new Promise<void>((resolve) => { finish = resolve; });
-    await page.route("**/api/rental-policies/1/status", async (route) => {
+    await page.route("**/api/rental-policy/1/status", async (route) => {
       expect(route.request().method()).toBe("PATCH");
       const body = route.request().postDataJSON();
       requests.push({ id: new URL(route.request().url()).pathname, body });
@@ -63,7 +63,7 @@ for (const width of [1280, 390]) {
     await expect(deactivate).toHaveAttribute("aria-busy", "true");
     await expect(row.getByText("Đang hoạt động", { exact: true })).toBeVisible();
     await expect.poll(() => requests.length).toBe(1);
-    expect(requests[0]).toEqual({ id: "/api/rental-policies/1/status", body: { isActive: false } });
+    expect(requests[0]).toEqual({ id: "/api/rental-policy/1/status", body: { isActive: false } });
     finish();
     const activate = page.getByRole("button", { name: "Kích hoạt Chính sách chung", exact: true });
     await expect(activate).toBeEnabled();
@@ -82,7 +82,7 @@ for (const width of [1280, 390]) {
 
 test("failed status update keeps current badge and permits retry", async ({ page }) => {
   let requests = 0;
-  await page.route("**/api/rental-policies/1/status", async (route) => {
+  await page.route("**/api/rental-policy/1/status", async (route) => {
     requests++;
     return requests === 1
       ? route.fulfill({ status: 500, json: { code: 500, status: "error", is_success: false, data: null, message: "Không thể đổi trạng thái. Vui lòng thử lại.", error: null } })

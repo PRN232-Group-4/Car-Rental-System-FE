@@ -14,8 +14,8 @@ describe("FE-23 Admin Users — Security & Data Adapter", () => {
     vi.resetAllMocks();
     client.get.mockImplementation(async (path: string, params?: { search?: string; role?: string }) => {
       if (path === "users") return usersPage([adminUser].filter((user) => (!params?.search || `${user.fullName} ${user.email}`.toLowerCase().includes(params.search.toLowerCase())) && (!params?.role || user.roles.includes(params.role))));
-      if (path === "users/1") return adminUser;
-      if (path === "users/99999") throw new ApiProblemError(404, "Not Found");
+      if (path === "user/1") return adminUser;
+      if (path === "user/99999") throw new ApiProblemError(404, "Not Found");
       if (path === "staff/27") return { id: 27, departmentName: "Vận hành", facilityName: "Trạm thật", rating: null };
       throw new Error(`Unexpected ${path}`);
     });

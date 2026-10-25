@@ -78,8 +78,8 @@ export async function fetchRatingSummary(staffId?: number): Promise<RatingSummar
 }
 
 export async function hideReview(payload: { id: number; reason: string }): Promise<ReviewDetail> {
-  void payload; return unsupportedApi("ẩn đánh giá (cần PATCH /api/ratings/{id})"); }
+  void payload; return unsupportedApi("ẩn đánh giá (cần PATCH /api/rating/{id})"); }
 export async function unhideReview(id: number): Promise<ReviewDetail> {
-  void id; return unsupportedApi("hiện lại đánh giá (cần PATCH /api/ratings/{id})"); }
+  void id; return unsupportedApi("hiện lại đánh giá (cần PATCH /api/rating/{id})"); }
 export async function replyReview(payload: { id: number; replyText: string }): Promise<ReviewDetail> {
-  void payload; return unsupportedApi("trả lời đánh giá (cần POST /api/ratings/{id}/reply)"); }
+  void payload; return unsupportedApi("trả lời đánh giá (cần POST /api/rating/{id}/reply)"); }

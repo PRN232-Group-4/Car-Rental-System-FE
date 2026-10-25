@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
     const path = new URL(route.request().url()).pathname;
     const json = path.endsWith("/account/profile") ? { email: "admin@test.local", fullName: "Quản trị viên", roles: ["Admin"] }
       : path.endsWith("/vehicles") ? { items: [vehicle], totalCount: 1 }
-        : path.endsWith("/vehicles/10") ? vehicle
+        : path.endsWith("/vehicle/10") ? vehicle
           : path.endsWith("/vehicle-types") ? [{ id: 1, name: "Ô tô xăng", type: "car", fuelType: "gasoline" }]
             : [];
     return route.fulfill({ status: 200, json });
@@ -48,7 +48,7 @@ test("directory skeleton clears on API error instead of loading forever", async 
 test("vehicle editing shows a form skeleton until its saved values arrive", async ({ page }) => {
   let release!: () => void;
   const gate = new Promise<void>((resolve) => { release = resolve; });
-  await page.route("**/api/vehicles/10", async (route) => { await gate; await route.fulfill({ json: vehicle }); });
+  await page.route("**/api/vehicle/10", async (route) => { await gate; await route.fulfill({ json: vehicle }); });
   await page.goto("/admin/vehicles");
   await page.getByRole("button", { name: "Chỉnh sửa Toyota Vios", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Chỉnh sửa phương tiện", exact: true });

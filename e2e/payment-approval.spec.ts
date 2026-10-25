@@ -8,12 +8,12 @@ test("customer waits for staff approval before payment becomes available", async
   let checkouts = 0;
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/invoices/55/checkout")) {
+    if (path.endsWith("/invoice/55/checkout")) {
       checkouts++;
       return route.fulfill({ status: 409, json: { ...envelope(null), code: 409, status: "error", is_success: false, message: "Đơn đã thay đổi. Vui lòng tải lại hóa đơn." } });
     }
     const data = path.endsWith("/account/profile") ? { fullName: "Customer", email: "customer@test.local", roles: ["Customer"] }
-      : path.endsWith("/invoices/55") ? { ...invoice, canPay: approved, paymentBlockedReason: approved ? null : "RENTAL_CONFIRMATION_REQUIRED" }
+      : path.endsWith("/invoice/55") ? { ...invoice, canPay: approved, paymentBlockedReason: approved ? null : "RENTAL_CONFIRMATION_REQUIRED" }
       : path.endsWith("/invoices") ? [invoice] : [];
     return route.fulfill({ json: envelope(data) });
   });
@@ -35,14 +35,14 @@ test("staff confirms an unpaid rental through the confirmation endpoint", async 
   let confirmations = 0;
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/rentals/42/confirm")) {
+    if (path.endsWith("/rental/42/confirm")) {
       confirmations++;
       status = "pre_inspection";
       return route.fulfill({ json: envelope({ rentalId: 42, fromStatus: "pending", toStatus: status }) });
     }
     const data = path.endsWith("/account/profile") ? { fullName: "Admin", email: "admin@test.local", roles: ["Admin"] }
-      : path.endsWith("/rentals/42") ? { id: 42, vehicleId: 8, customerId: 3, status, rentalType: "hourly", hasDriver: false, isSubscription: false, totalPrice: 3000000 }
-      : path.endsWith("/vehicles/8") ? { id: 8, brand: "Toyota", model: "Vios" }
+      : path.endsWith("/rental/42") ? { id: 42, vehicleId: 8, customerId: 3, status, rentalType: "hourly", hasDriver: false, isSubscription: false, totalPrice: 3000000 }
+      : path.endsWith("/vehicle/8") ? { id: 8, brand: "Toyota", model: "Vios" }
       : path.endsWith("/staff/drivers") ? { items: [], totalCount: 0 } : [];
     return route.fulfill({ json: envelope(data) });
   });
@@ -81,12 +81,12 @@ test("staff cash receipt issues an official order only after explicit confirmati
   let receipts = 0;
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/invoices/55/cash-confirmation")) { paid = true; receipts++; return route.fulfill({ json: envelope({ paymentId: 3, invoiceId: 55, status: "paid", orderId: 88 }) }); }
+    if (path.endsWith("/invoice/55/cash-confirmation")) { paid = true; receipts++; return route.fulfill({ json: envelope({ paymentId: 3, invoiceId: 55, status: "paid", orderId: 88 }) }); }
     const data = path.endsWith("/account/profile") ? { fullName: "Admin", email: "admin@test.local", roles: ["Admin"] }
-      : path.endsWith("/rentals/42") ? { id: 42, vehicleId: 8, customerId: 3, status: "pre_inspection", rentalType: "hourly", isSubscription: false, totalPrice: 3000000, orderId: paid ? 88 : null }
+      : path.endsWith("/rental/42") ? { id: 42, vehicleId: 8, customerId: 3, status: "pre_inspection", rentalType: "hourly", isSubscription: false, totalPrice: 3000000, orderId: paid ? 88 : null }
       : path.endsWith("/invoices") ? [invoice]
-      : path.endsWith("/invoices/55") ? { ...invoice, status: paid ? "paid" : "unpaid", paymentMethod: "cash", canPay: !paid, orderId: paid ? 88 : null }
-      : path.endsWith("/vehicles/8") ? { id: 8, brand: "Toyota", model: "Vios" }
+      : path.endsWith("/invoice/55") ? { ...invoice, status: paid ? "paid" : "unpaid", paymentMethod: "cash", canPay: !paid, orderId: paid ? 88 : null }
+      : path.endsWith("/vehicle/8") ? { id: 8, brand: "Toyota", model: "Vios" }
       : path.endsWith("/staff/drivers") ? { items: [], totalCount: 0 } : [];
     return route.fulfill({ json: envelope(data) });
   });

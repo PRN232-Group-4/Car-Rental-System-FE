@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
           ? [{ id: 42, driverStaffId: 17, startTime: "2026-10-15T03:04:59Z", endTime: "2026-10-15T05:06:59Z", status: "active" }]
           : path.endsWith("/maintenance")
             ? [{ id: 3, vehicleId: 10, scheduledDate: "2026-10-20", status: "scheduled" }]
-            : path.endsWith("/vehicles/10")
+            : path.endsWith("/vehicle/10")
               ? { id: 10, brand: "Toyota", model: "Vios" }
               : [];
     return route.fulfill({ status: 200, json });
@@ -29,7 +29,7 @@ test("dispatch displays minute-precision dates and keeps ISO values when editing
   const dialog = page.getByRole("dialog", { name: "Cập nhật ca làm", exact: true });
   await expect(dialog.locator('input[name="startTime"]')).toHaveValue("2026-10-15T10:04");
   await expect(dialog.getByText("15/10/2026 10:04", { exact: true })).toBeVisible();
-  const saved = page.waitForRequest((request) => request.method() === "PUT" && new URL(request.url()).pathname === "/api/drivers/shifts/42");
+  const saved = page.waitForRequest((request) => request.method() === "PUT" && new URL(request.url()).pathname === "/api/drivers/shift/42");
   await dialog.getByRole("button", { name: "Lưu ca làm", exact: true }).click();
   const request = await saved;
   expect(request.postDataJSON()).toMatchObject({ startTime: "2026-10-15T03:04:00.000Z", endTime: "2026-10-15T05:06:00.000Z" });
