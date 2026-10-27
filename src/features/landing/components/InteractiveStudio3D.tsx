@@ -6,6 +6,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Button } from "@/components/ui/Button";
 import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
+import { useGSAP } from "@gsap/react";
+import { gsap, ScrollTrigger } from "@/lib/motion/register";
 import { 
   Rotate3d, 
   Gauge, 
@@ -16,10 +18,10 @@ import {
   Compass,
   ArrowUpRight,
   Palette,
-  Sparkles,
   X,
   Layers,
-  Crosshair
+  Crosshair,
+  Box
 } from "lucide-react";
 import { playTactileClick } from "@/lib/audio/haptic-audio";
 
@@ -123,6 +125,7 @@ export default function InteractiveStudio3D() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isMobileActive, setIsMobileActive] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -135,6 +138,8 @@ export default function InteractiveStudio3D() {
   const isScrollingRef = useRef<boolean>(false);
   const isAutoRotateRef = useRef<boolean>(isAutoRotate);
   const hotspotElementsRef = useRef<Record<string, HTMLDivElement | null>>({});
+  const selectedColorRef = useRef<string>(selectedColor);
+  selectedColorRef.current = selectedColor;
 
   useEffect(() => {
     isAutoRotateRef.current = isAutoRotate;
@@ -467,38 +472,60 @@ export default function InteractiveStudio3D() {
     }
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Tạo cảm giác bước vào không gian phòng trưng bày công nghệ chuyên biệt.
+  useGSAP(
+    () => {
+      const el = sectionRef.current;
+      if (!el || typeof window === "undefined") return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(el, { autoAlpha: 1, scale: 1 });
+      });
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          el,
+          { autoAlpha: 0.85, scale: 0.98 },
+          {
+            autoAlpha: 1,
+            scale: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      });
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <section id="showroom-3d" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
-      {/* Background Automotive Blueprint & Calibration Vectors */}
-      <div 
-        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
-        aria-hidden="true"
-      >
-        <svg className="w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-          <line x1="0" y1="48" x2="100%" y2="48" stroke="#0f172a" strokeWidth="1" strokeDasharray="8 8" />
-          <line x1="0" y1="180" x2="100%" y2="180" stroke="#b45309" strokeWidth="0.8" />
-          <path d="M 80 320 C 350 280, 600 360, 950 310 C 1150 280, 1300 340, 1400 360" stroke="#0f172a" strokeWidth="1" strokeDasharray="4 6" />
-          <circle cx="92%" cy="180" r="32" stroke="#b45309" strokeWidth="1" strokeDasharray="3 3" />
-          <text x="92%" y="184" fill="#b45309" fontSize="9" fontFamily="monospace" textAnchor="middle">STUDIO-Z0</text>
-        </svg>
-      </div>
+    <section id="showroom-3d" ref={sectionRef} className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
+      
 
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-widest text-primary font-bold">
-            <Sparkles className="w-4 h-4" />
-            <span>Interactive 3D WebGL Studio</span>
-          </div>
+          
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
-            Khu Trưng Bày Xe 3D Tương Tác
+            Không gian mô phỏng 3D tương tác
           </h2>
           <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-td-muted">
-            Mô hình minh họa theo thiết kế · Không thuộc đội xe đang cho thuê
+            Mô hình 3D mô phỏng theo tỷ lệ gốc, không thuộc danh mục xe cho thuê thực tế.
           </p>
         </div>
         <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
-          Tương tác 360° theo thời gian thực, phối màu sơn xe độc bản, giải phẫu từng chi tiết kỹ thuật cơ khí chính xác với 3D Hotspots.
+          Xoay góc nhìn 360°, đổi màu sơn và khám phá thông số cơ khí của từng dòng xe thể thao.
         </p>
       </div>
 
@@ -565,6 +592,50 @@ export default function InteractiveStudio3D() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         {/* Main 3D Canvas Box (8 cols) */}
         <div className="lg:col-span-8 rounded-3xl bg-sunken border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[560px] flex items-center justify-center">
+          {/* Mobile Editorial Card Fallback (DESIGN.md A8) */}
+          {!isMobileActive && (
+            <div className="lg:hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-surface/95 backdrop-blur-md">
+              <div className="w-12 h-12 rounded-2xl bg-primary-tint text-primary flex items-center justify-center mb-3">
+                <Box className="w-6 h-6 stroke-[2]" aria-hidden="true" />
+              </div>
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">
+                Không gian mô phỏng 3D
+              </span>
+              <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-2">
+                Khám phá Porsche 911 thời gian thực
+              </h3>
+              <p className="text-xs text-ink-2 max-w-xs mb-5 leading-relaxed">
+                Tương tác góc xoay 360°, đối chiếu kết cấu khung gầm và thay đổi màu sơn theo ý muốn.
+              </p>
+              <Button
+                type="button"
+                variant="marketing-cta"
+                size="sm"
+                onClick={() => {
+                  setIsMobileActive(true);
+                  playTactileClick();
+                }}
+                className="font-semibold px-5 shadow-sm"
+              >
+                <span>Xem xe 3D</span>
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile active close button */}
+          {isMobileActive && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileActive(false);
+                playTactileClick();
+              }}
+              className="lg:hidden absolute top-4 left-4 z-30 px-3 py-1.5 rounded-xl bg-stage-ink/80 text-white text-xs font-medium backdrop-blur-sm shadow flex items-center gap-1.5 cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Thu nhỏ 3D</span>
+            </button>
+          )}
           {/* Canvas Mount Target */}
           <div ref={containerRef} className="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing" />
 
@@ -600,7 +671,7 @@ export default function InteractiveStudio3D() {
 
           {/* Active Hotspot Glass Popover Card */}
           {activeHotspot && (
-            <div className="absolute top-4 left-4 right-4 sm:right-auto sm:max-w-sm z-20 p-5 rounded-2xl glass-2 border border-line-strong shadow-e3 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute top-4 left-4 right-4 sm:right-auto sm:max-w-sm z-20 p-5 rounded-2xl bg-surface border border-line-strong shadow-md animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-bold px-2 py-0.5 rounded bg-primary-tint">
@@ -765,7 +836,7 @@ export default function InteractiveStudio3D() {
                 playTactileClick();
                 router.push("/find");
               }}
-              variant="amber-hero"
+              variant="marketing-cta"
               className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider cursor-pointer"
             >
               <span>Xem xe thực tế</span>

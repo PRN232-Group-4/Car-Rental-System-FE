@@ -105,6 +105,81 @@
   --td-teal-hover: #63470D;
   --td-cobalt: var(--primary-graphic);
   --td-chalk: #F0ECE6;
+
+  /* Marketing Scoped Base Variables */
+  --canvas-marketing: #F2F3F5;
+  --accent-500: #FF5A1F;
+  --accent-700: #B45309;
+  --color-accent-500: var(--accent-500);
+  --color-accent-700: var(--accent-700);
+  --color-accent-500-hover: #E04810;
+}
+
+/* Marketing Landing Surface Scope (Applied to html:has([data-surface="marketing"]) and [data-surface="marketing"]) */
+html:has([data-surface="marketing"]),
+[data-surface="marketing"] {
+  --canvas: #F2F3F5;
+  --sunken: #E5E7EB;
+  --surface: #FFFFFF;
+  --surface-raised: #F8F9FA;
+  --ink: #0F172A;
+  --ink-2: #334155;
+  --ink-3: #54637A;
+  --line: rgba(15, 23, 42, 0.08);
+  --line-strong: rgba(15, 23, 42, 0.16);
+
+  --accent-500: #FF5A1F;
+  --accent-700: #B45309;
+  --color-accent-500: var(--accent-500);
+  --color-accent-700: var(--accent-700);
+
+  /* Primary token decoupling: keep Warm Amber 700 for text/links/borders to guarantee WCAG AA 4.5:1+ */
+  --primary: var(--accent-700);
+  --primary-hover: #92400E;
+  --primary-press: #78350F;
+  --primary-tint: #FEF3C7;
+  --on-primary: #FFFFFF;
+
+  /* Typography mapping for marketing */
+  --font-sans: var(--font-marketing-sans, var(--font-be-vietnam)), system-ui, sans-serif;
+  --font-display: var(--font-bricolage, var(--font-be-vietnam)), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono, var(--font-geist-mono)), monospace;
+}
+
+html[data-theme="dark"]:has([data-surface="marketing"]),
+html[data-theme="dark"] [data-surface="marketing"] {
+  color-scheme: dark;
+  --canvas: #090D14;
+  --sunken: #05070B;
+  --surface: #111726;
+  --surface-raised: #1A2234;
+  --ink: #F1F5F9;
+  --ink-2: #CBD5E1;
+  --ink-3: #94A3B8;
+  --line: rgba(241, 245, 249, 0.12);
+  --line-strong: rgba(241, 245, 249, 0.22);
+
+  --accent-500: #FF5A1F;
+  --accent-700: #D97706;
+  --color-accent-500: var(--accent-500);
+  --color-accent-700: var(--accent-700);
+
+  --primary: var(--accent-700);
+  --primary-hover: #F59E0B;
+  --primary-press: #B45309;
+  --primary-tint: #2E150A;
+  --on-primary: #0F172A;
+}
+
+/* Overscroll and html/body background scoped purely via :has */
+html:has([data-surface="marketing"]) {
+  background-color: var(--canvas-marketing);
+}
+html:has([data-surface="marketing"]) body {
+  background-color: var(--canvas-marketing);
+}
+html[data-theme="dark"] {
+  --canvas-marketing: #090D14;
 }
 
 /* Scoped Admin Light Mode Palette A Neutrals */
@@ -222,10 +297,13 @@ html[data-admin-theme="dark"] a.bg-danger:not(:disabled),
 }
 
 @theme inline {
-  --font-sans: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-marketing-sans, var(--font-be-vietnam)), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-bricolage, var(--font-be-vietnam)), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-mono: var(--font-jetbrains-mono, var(--font-geist-mono)), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-accent-500: var(--accent-500);
+  --color-accent-700: var(--accent-700);
 
   --color-canvas: var(--canvas);
   --color-sunken: var(--sunken);
@@ -255,6 +333,8 @@ html[data-admin-theme="dark"] a.bg-danger:not(:disabled),
 
   --color-stage-ink: var(--stage-ink);
   --color-scrim: var(--scrim);
+  --color-accent-500: var(--color-accent-500, #FF5A1F);
+  --color-accent-700: var(--color-accent-700, #B45309);
 
   /* Transit Desk v3 Themes */
   --color-td-paper: var(--td-paper);
@@ -556,4 +636,10 @@ html[data-theme-transitioning="true"]::view-transition-new(root) {
   animation: none !important;
   z-index: 999998 !important;
   mix-blend-mode: normal !important;
+}
+
+/* Empirical Vietnamese Diacritic Safe Mask (0.22em based on Blink ink measurement) */
+[data-surface="marketing"] .mask-reveal-safe {
+  padding-block: 0.22em;
+  margin-block: -0.22em;
 }

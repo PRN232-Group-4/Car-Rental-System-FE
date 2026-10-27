@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import VehicleImage from "@/components/ui/VehicleImage";
 import { 
   Car, 
@@ -20,6 +20,8 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { CardGridSkeleton } from "@/components/ui/Skeleton";
 import type { Vehicle, VehicleCategory } from "@/features/vehicles/types";
 import { VehicleLicenseRequirement } from "@/features/vehicles/components/VehicleLicenseRequirement";
+import { useGSAP } from "@gsap/react";
+import { gsap, ScrollTrigger } from "@/lib/motion/register";
 
 interface FleetVehicle {
   vehicle: Vehicle;
@@ -57,12 +59,56 @@ export default function MultiFleetCatalog() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("all");
   const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<Vehicle | null>(null);
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
   const filteredVehicles = fleetData.filter((v) => selectedCategory === "all" || v.category === selectedCategory);
 
   const handleBookVehicle = (entry: FleetVehicle) => setSelectedVehicleForBooking(entry.vehicle);
 
+  // Cho phép duyệt qua toàn bộ dải sản phẩm theo chiều ngang mà không làm dài trang.
+  useGSAP(
+    () => {
+      const section = sectionRef.current;
+      const track = trackRef.current;
+      if (!section || !track || typeof window === "undefined") return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(track, { x: 0 });
+      });
+
+      mm.add("(prefers-reduced-motion: no-preference) and (min-width: 1024px)", () => {
+        const getScrollDistance = () => track.scrollWidth - track.clientWidth;
+        if (getScrollDistance() <= 0) return;
+
+        gsap.to(track, {
+          x: () => -getScrollDistance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 80px",
+            end: () => `+=${getScrollDistance() + 300}`,
+            pin: true,
+            scrub: 1,
+            invalidateOnRefresh: true,
+            anticipatePin: 1,
+          },
+        });
+      });
+
+      mm.add("(max-width: 1023px)", () => {
+        gsap.set(track, { x: 0 });
+      });
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef, dependencies: [filteredVehicles.length] }
+  );
+
   return (
-    <section id="doi-xe" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
+    <section id="doi-xe" ref={sectionRef} className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
       {/* Background Automotive Blueprint Vectors (Flat Chassis Cutaway & Wind-Tunnel Streamlines) */}
       <div 
         className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
@@ -83,9 +129,7 @@ export default function MultiFleetCatalog() {
           <g stroke="#0f172a" strokeWidth="0.8">
             <line x1="40" y1="110" x2="40" y2="130" />
             <line x1="280" y1="110" x2="280" y2="130" />
-            <text x="160" y="116" fill="#0f172a" fontSize="10" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
-              FLEET PLATFORM: SKATEBOARD CHASSIS 1:1
-            </text>
+            
           </g>
 
           {/* Wind-Tunnel Aerodynamic Streamlines */}
@@ -124,21 +168,17 @@ export default function MultiFleetCatalog() {
             <path d="M 230 440 L 110 480 M 370 440 L 490 480" stroke="#0f172a" strokeWidth="1.2" />
 
             {/* Chassis Telemetry Spec Label */}
-            <text x="300" y="255" fill="#0f172a" fontSize="11" fontFamily="monospace" textAnchor="middle" letterSpacing="1.5">
-              800V HIGH-VOLTAGE ARCHITECTURE // CATL CELL-TO-PACK
-            </text>
-            <text x="300" y="275" fill="#b45309" fontSize="9" fontFamily="monospace" textAnchor="middle" letterSpacing="1">
-              MAX TORQUE DUAL-MOTOR TORQUE VECTORING
-            </text>
+            
+            
           </g>
 
           {/* Precision Alignment Crosshairs */}
           <g stroke="#0f172a" strokeWidth="0.8">
             <line x1="80" y1="560" x2="100" y2="560" /><line x1="90" y1="550" x2="90" y2="570" />
-            <text x="110" y="564" fill="#0f172a" fontSize="9" fontFamily="monospace">DATUM: F-AXLE</text>
+            
 
             <line x1="1180" y1="560" x2="1200" y2="560" /><line x1="1190" y1="550" x2="1190" y2="570" />
-            <text x="1090" y="564" fill="#0f172a" fontSize="9" fontFamily="monospace">TRACK 1,640 MM</text>
+            
           </g>
         </svg>
       </div>
@@ -229,13 +269,17 @@ export default function MultiFleetCatalog() {
       {fleet.isPending && <CardGridSkeleton label="Đang tải danh mục xe" className="grid gap-8 md:grid-cols-2 lg:grid-cols-3" count={3} mediaClassName="h-56 w-full rounded-none" lines={4} containerClassName="rounded-3xl border border-line-strong bg-surface" />}
       {fleet.isError && <ErrorState message={fleet.error.message} onRetry={() => { void fleet.refetch(); }} />}
       {!fleet.isPending && !fleet.isError && !filteredVehicles.length && <p role="status" className="py-8 text-center text-sm text-ink-2">Không có phương tiện phù hợp trong danh sách gợi ý.</p>}
-      {/* Vehicles Grid */}
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredVehicles.map((vehicle) => (
-          <div
-            key={vehicle.id}
-            className="group rounded-3xl bg-surface border border-line-strong overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300"
-          >
+      {/* Vehicles Grid / Desktop Horizontal Reel */}
+      <div className="relative z-10 w-full overflow-hidden">
+        <div
+          ref={trackRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-nowrap gap-8 will-change-transform"
+        >
+          {filteredVehicles.map((vehicle) => (
+            <div
+              key={vehicle.id}
+              className="group rounded-3xl bg-surface border border-line-strong overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 lg:w-[380px] lg:shrink-0"
+            >
             {/* Image Container (>= 60% visually balanced) */}
             <div className="relative w-full h-56 overflow-hidden bg-sunken">
               <VehicleImage
@@ -246,12 +290,12 @@ export default function MultiFleetCatalog() {
               />
               {/* Badges Overlay */}
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                <span className="px-2.5 py-1 rounded-lg bg-stage-ink text-white text-xs font-mono font-bold tracking-wider">
+                <span className="px-2.5 py-1 rounded-lg bg-stage-ink text-white text-xs font-semibold">
                   {vehicle.categoryName}
                 </span>
 
                 {vehicle.hasDriverOption && (
-                  <span className="px-2.5 py-1 rounded-lg bg-primary text-white text-xs font-mono font-bold tracking-wider shadow-sm">
+                  <span className="px-2.5 py-1 rounded-lg bg-primary text-white text-xs font-semibold shadow-sm">
                     KÈM TÀI XẾ
                   </span>
                 )}
@@ -318,7 +362,7 @@ export default function MultiFleetCatalog() {
                 <Button
                   onClick={() => handleBookVehicle(vehicle)}
                   disabled={!vehicle.vehicle.isAvailable}
-                  variant="amber-hero"
+                  variant="marketing-cta"
                   size="sm"
                   className="px-4 py-2 font-bold flex items-center gap-1.5"
                 >
@@ -329,6 +373,7 @@ export default function MultiFleetCatalog() {
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       {/* Booking Modal Integration */}

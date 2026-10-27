@@ -10,6 +10,7 @@ export interface SplitRevealOptions {
   ease?: string;
   delay?: number;
   triggerStart?: string;
+  linesClass?: string;
 }
 
 /**
@@ -30,6 +31,7 @@ export function useSplitReveal(
     ease = "power4.out",
     delay = 0,
     triggerStart = "top 85%",
+    linesClass = "mask-reveal-safe overflow-hidden inline-block",
   } = options;
 
   useGSAP(
@@ -49,7 +51,7 @@ export function useSplitReveal(
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const split = new SplitText(el, {
           type,
-          linesClass: "overflow-hidden inline-block",
+          linesClass,
           wordsClass: "inline-block will-change-transform",
         });
 

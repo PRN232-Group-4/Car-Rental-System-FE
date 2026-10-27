@@ -12,7 +12,7 @@ import { getNavigation } from "@/config/navigation";
 import { useMounted } from "@/hooks/use-mounted";
 import { Button } from "@/components/ui/Button";
 import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/motion/register";
+import { gsap, ScrollTrigger, Flip } from "@/lib/motion/register";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
@@ -38,36 +38,47 @@ export default function Navbar() {
 
   const navRef = useRef<HTMLElement>(null);
 
-  // GSAP scroll-driven subtle contraction
+  // Giữ ngữ cảnh và thương hiệu mà không che khuất nội dung đọc khi người dùng cuộn xuống.
   useGSAP(
     () => {
-      if (typeof window === "undefined" || !navRef.current) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
       const navEl = navRef.current;
-      const scrollTrigger = {
-        start: "top -30",
-        end: "+=150",
-        scrub: 0.4,
-        onUpdate: (self: { progress: number }) => {
-          const p = self.progress;
-          gsap.to(navEl, {
-            paddingTop: `${Math.max(8, 12 - p * 4)}px`,
-            paddingBottom: `${Math.max(8, 12 - p * 4)}px`,
-            duration: 0.1,
-            overwrite: "auto",
-          });
-        },
-      };
+      if (!navEl || typeof window === "undefined") return;
 
-      const trigger = gsap.timeline({
-        scrollTrigger,
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(navEl, { yPercent: 0, scale: 1 });
       });
 
-      return () => {
-        trigger.scrollTrigger?.kill();
-        trigger.kill();
-      };
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const trigger = ScrollTrigger.create({
+          start: "top -40",
+          onUpdate: (self) => {
+            const currentScrollY = self.scroll();
+            const scrollingDown = self.direction === 1;
+            // Ẩn thanh bar khi cuộn xuống quá 100px, hiện lại ngay khi cuộn ngược lên
+            if (scrollingDown && currentScrollY > 100) {
+              gsap.to(navEl, {
+                yPercent: -120,
+                duration: 0.32,
+                ease: "power2.inOut",
+                overwrite: "auto",
+              });
+            } else if (!scrollingDown) {
+              gsap.to(navEl, {
+                yPercent: 0,
+                duration: 0.32,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+            }
+          },
+        });
+
+        return () => trigger.kill();
+      });
+
+      return () => mm.revert();
     },
     { scope: navRef }
   );
@@ -151,7 +162,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Action buttons */}
-          <div className="ml-auto hidden sm:flex items-center gap-2 whitespace-nowrap">
+          <div className="ml-auto hidden lg:flex items-center gap-2 whitespace-nowrap">
             {/* Global Theme Toggle with Liquid Wave */}
             <button
               type="button"
@@ -194,7 +205,7 @@ export default function Navbar() {
                   {user.avatarUrl ? (
                     <Image
                       src={user.avatarUrl}
-                      alt={user.fullName}
+                      alt={user?.fullName || "Tài khoản"}
                       width={24}
                       height={24}
                       unoptimized
@@ -202,7 +213,7 @@ export default function Navbar() {
                     />
                   ) : (
                     <div className="w-6 h-6 rounded-full bg-primary-tint text-primary flex items-center justify-center text-xs font-bold">
-                      {user.fullName.charAt(0)}
+                      {user?.fullName?.charAt(0) || "U"}
                     </div>
                   )}
                   <span className="max-w-[120px] truncate font-semibold text-xs sm:text-sm">
@@ -314,26 +325,45 @@ export default function Navbar() {
                 >
                   Đăng nhập
                 </Link>
-                <Button as={Link} href="/register" variant="sticky-morph" size="sm">
+                <Button as={Link} href="/register" variant="marketing-cta" size="sm" className="font-bold px-4 shadow-sm">
                   Đăng ký
                 </Button>
               </>
             )}
           </div>
 
-          {/* Mobile menu toggle button */}
-          <div className="flex lg:hidden items-center gap-2">
+          {/* Mobile secondary controls & menu toggle */}
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
             <button
               type="button"
+              id="mobile-theme-toggle"
+              data-testid="mobile-theme-toggle"
               onClick={toggleTheme}
               className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 text-ink hover:text-primary transition-colors cursor-pointer"
-              aria-label="Chuyển đổi giao diện"
+              aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
+              title={theme === "dark" ? "Giao diện: Tối" : "Giao diện: Sáng"}
             >
               {theme === "dark" ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-ink-3" />}
             </button>
             <button
+              type="button"
+              id="mobile-audio-toggle"
+              data-testid="mobile-audio-toggle"
+              onClick={() => {
+                const next = !isAudioEnabled;
+                setHapticAudioEnabled(next);
+                setIsAudioEnabled(next);
+                if (next) playTactileClick();
+              }}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 text-ink hover:text-primary transition-colors cursor-pointer"
+              aria-label={isAudioEnabled ? "Tắt âm thanh haptic" : "Bật âm thanh haptic"}
+              title={isAudioEnabled ? "Âm thanh: Đang bật" : "Âm thanh: Đang tắt"}
+            >
+              {isAudioEnabled ? <Volume2 className="w-4 h-4 text-primary" /> : <VolumeX className="w-4 h-4 text-ink-3" />}
+            </button>
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer ml-0.5"
               aria-label="Mở menu điều hướng"
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav-menu"
@@ -392,7 +422,7 @@ export default function Navbar() {
                     {user.avatarUrl ? (
                       <Image
                         src={user.avatarUrl}
-                        alt={user.fullName}
+                        alt={user?.fullName || "Tài khoản"}
                         width={32}
                         height={32}
                         unoptimized
@@ -400,7 +430,7 @@ export default function Navbar() {
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
-                        {user.fullName.charAt(0)}
+                        {user?.fullName?.charAt(0) || "U"}
                       </div>
                     )}
                     <div>

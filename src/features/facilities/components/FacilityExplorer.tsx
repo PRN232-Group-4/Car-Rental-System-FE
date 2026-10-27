@@ -9,6 +9,7 @@ import { getFacilities, getInitialFacilities } from "../api";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import MapboxMap from "@/components/maps/MapboxMap";
+import { Flip } from "@/lib/motion/register";
 
 interface FacilityExplorerProps {
   selectedFacilityId?: string;
@@ -23,6 +24,25 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
   const current = facilities.find((facility) => facility.id === activeId) ?? facilities[0];
   const address = current ? [current.address, current.district, current.city].filter(Boolean).join(", ") : "";
 
+  // Phản hồi tức thì thay đổi trạng thái lọc của người dùng mà không bị giật khung hình.
+  const handleSelectFacility = (facilityId: string) => {
+    if (typeof window !== "undefined" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const state = Flip.getState("[data-facility-card], [data-facility-preview]");
+      setActiveId(facilityId);
+      onSelectFacility?.(facilityId);
+      requestAnimationFrame(() => {
+        Flip.from(state, {
+          duration: 0.35,
+          ease: "power2.out",
+          fade: true,
+        });
+      });
+    } else {
+      setActiveId(facilityId);
+      onSelectFacility?.(facilityId);
+    }
+  };
+
   return <section id="chi-nhanh" className="mx-auto w-full max-w-7xl scroll-mt-28 px-4 py-16 sm:px-6 md:py-24">
     <SectionHeading title="Chi nhánh & điểm nhận xe" subtitle="Xem địa chỉ và chọn chỉ đường đến chi nhánh phù hợp với hành trình của bạn." />
     {query.isPending && <SkeletonBlock label="Đang tải chi nhánh..." className="grid gap-6 lg:grid-cols-[2fr_3fr]">
@@ -36,7 +56,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
       <div className="flex min-w-0 flex-col gap-3" aria-label="Danh sách chi nhánh">
         {facilities.map((facility) => {
           const selected = facility.id === current.id;
-          return <button key={facility.id} type="button" aria-pressed={selected} onClick={() => { setActiveId(facility.id); onSelectFacility?.(facility.id); }} className={`group flex w-full items-start justify-between gap-4 rounded border bg-td-white p-5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${selected ? "border-primary" : "border-td-rule hover:border-primary/50"}`}>
+          return <button key={facility.id} data-facility-card type="button" aria-pressed={selected} onClick={() => handleSelectFacility(facility.id)} className={`group flex w-full items-start justify-between gap-4 rounded border bg-td-white p-5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${selected ? "border-primary" : "border-td-rule hover:border-primary/50"}`}>
             <span className="min-w-0 space-y-2">
               <span className={`block text-base font-bold ${selected ? "text-primary" : "text-td-ink"}`}>{facility.shortName || facility.name}</span>
               <span className="flex items-start gap-1.5 text-xs leading-5 text-td-muted"><MapPin aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />{facility.address || "Chưa cập nhật địa chỉ"}</span>
@@ -46,7 +66,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
           </button>;
         })}
       </div>
-      <article className="min-w-0 overflow-hidden rounded border border-td-rule bg-td-white">
+      <article data-facility-preview className="min-w-0 overflow-hidden rounded border border-td-rule bg-td-white">
         {current.imageUrl && <div className="relative h-52 w-full overflow-hidden bg-td-chalk sm:h-64"><Image src={current.imageUrl} alt={current.name} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" /></div>}
         <div className="space-y-5 p-5 sm:p-6">
           <div><h2 className="text-xl font-bold tracking-tight text-td-ink">{current.name}</h2><p className="mt-2 text-sm text-td-ink">{address || "Chi nhánh chưa cập nhật địa chỉ."}</p></div>
