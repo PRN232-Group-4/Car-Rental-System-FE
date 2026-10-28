@@ -1,6 +1,7 @@
 export { default as Hero } from "./components/Hero";
 export { default as Marquee } from "./components/Marquee";
 export { default as InteractiveStudio3D } from "./components/InteractiveStudio3D";
+export { default as InteractiveStudioGate } from "./components/InteractiveStudioGate";
 export { default as MultiFleetCatalog } from "./components/MultiFleetCatalog";
 export { default as InspectionSection } from "./components/InspectionSection";
 export { default as PinnedJourney } from "./components/PinnedJourney";

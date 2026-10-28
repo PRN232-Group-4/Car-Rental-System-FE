@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import dynamic from "next/dynamic";
 import Navbar from "@/components/layout/Navbar";
 import ChapterRail from "@/components/layout/ChapterRail";
 import Footer from "@/components/layout/Footer";
@@ -13,30 +12,11 @@ import {
   PinnedJourney,
   MembershipPasses,
   ContinuousBlueprint,
+  InteractiveStudioGate,
 } from "@/features/landing";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger, ScrollSmoother } from "@/lib/motion/register";
 import { bricolage, manrope, jetbrainsMono } from "./fonts";
-
-// Lazy-load Three.js InteractiveStudio3D on client-side with a branded stable height skeleton to avoid CLS
-const InteractiveStudio3D = dynamic(
-  () => import("@/features/landing/components/InteractiveStudio3D"),
-  {
-    ssr: false,
-    loading: () => (
-      <section
-        id="showroom-3d"
-        aria-label="Đang tải không gian mô phỏng 3D"
-        className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden min-h-[560px] flex items-center justify-center"
-      >
-        <div className="w-full max-w-4xl h-[480px] rounded-3xl bg-surface border border-line-strong flex flex-col items-center justify-center gap-4">
-          <div className="w-10 h-10 rounded-full border-2 border-line border-t-primary animate-spin" />
-          <p className="text-xs font-mono text-ink-3">Đang khởi tạo không gian mô phỏng 3D...</p>
-        </div>
-      </section>
-    ),
-  }
-);
 
 // Phase 1b/2/3 gate: Disable ScrollSmoother until Phase 4 Pinning integration
 const ENABLE_SMOOTHER = false;
@@ -105,8 +85,8 @@ export default function Home() {
               <Hero onSearchCriteriaChange={handleSearchCriteria} />
             </div>
 
-            {/* 2. Dedicated Interactive 3D WebGL Studio (Porsche 1975 Classic vs 2026 Carrera 4S) - Dynamic Import */}
-            <InteractiveStudio3D />
+            {/* 2. Dedicated Interactive 3D WebGL Studio (Porsche 1975 Classic vs 2026 Carrera 4S) - Dynamic Import with Intent Gate */}
+            <InteractiveStudioGate />
 
             {/* 3. Multi-Category Vehicle Catalog (4 Groups: Electric/Petrol, Cars/Bikes, Chauffeur/Self-Drive) */}
             <div id="danh-muc-xe" className="scroll-mt-24">
@@ -115,7 +95,7 @@ export default function Home() {
 
             <FacilityExplorer />
 
-            {/* 5. Dual Inspection & Automated PayOS Refund Terminal */}
+            {/* 5. Dual Inspection & Settlement Section */}
             <div id="cong-nghe" className="scroll-mt-24">
               <InspectionSection />
             </div>

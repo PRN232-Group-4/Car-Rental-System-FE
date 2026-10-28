@@ -51,7 +51,7 @@ const MODELS: ModelInfo[] = [
     modelPath: "/models/porsche_911_carrera_4s.glb",
     scale: 1.0,
     initialY: 0,
-    tag: "MODERN PERFORMANCE",
+    tag: "Dòng xe thể thao đương đại",
   },
   {
     id: "porsche-1975-turbo",
@@ -64,7 +64,7 @@ const MODELS: ModelInfo[] = [
     modelPath: "/models/1975_porsche_911_930_turbo.glb",
     scale: 0.95,
     initialY: 0,
-    tag: "HERITAGE CLASSIC",
+    tag: "Dòng xe thể thao cổ điển",
   },
 ];
 
@@ -594,18 +594,18 @@ export default function InteractiveStudio3D() {
         <div className="lg:col-span-8 rounded-3xl bg-sunken border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[560px] flex items-center justify-center">
           {/* Mobile Editorial Card Fallback (DESIGN.md A8) */}
           {!isMobileActive && (
-            <div className="lg:hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-surface/95 backdrop-blur-md">
-              <div className="w-12 h-12 rounded-2xl bg-primary-tint text-primary flex items-center justify-center mb-3">
+            <div className="lg:hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-surface border border-line-strong">
+              <div className="w-12 h-12 rounded-2xl bg-surface border border-line-strong text-primary flex items-center justify-center mb-3">
                 <Box className="w-6 h-6 stroke-[2]" aria-hidden="true" />
               </div>
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">
+              <span className="text-[13px] font-medium text-ink-2 mb-1">
                 Không gian mô phỏng 3D
               </span>
               <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-2">
                 Khám phá Porsche 911 thời gian thực
               </h3>
               <p className="text-xs text-ink-2 max-w-xs mb-5 leading-relaxed">
-                Tương tác góc xoay 360°, đối chiếu kết cấu khung gầm và thay đổi màu sơn theo ý muốn.
+                Tương tác góc xoay 360°, quan sát ngoại thất và thay đổi màu sơn theo ý muốn.
               </p>
               <Button
                 type="button"
@@ -772,7 +772,7 @@ export default function InteractiveStudio3D() {
         <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold px-2.5 py-1 rounded-lg bg-primary-tint border border-primary/20">
+              <span className="text-[13px] font-medium text-ink-2 px-2.5 py-1 rounded-lg bg-surface border border-line-strong">
                 {activeModel.tag}
               </span>
               <span className="text-xs font-mono text-ink-3 flex items-center gap-1">

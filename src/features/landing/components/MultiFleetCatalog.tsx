@@ -102,7 +102,22 @@ export default function MultiFleetCatalog() {
         gsap.set(track, { x: 0 });
       });
 
-      return () => mm.revert();
+      let resizeTimer: NodeJS.Timeout;
+      const ro = new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 120);
+      });
+
+      ro.observe(track);
+      if (section) ro.observe(section);
+
+      return () => {
+        ro.disconnect();
+        clearTimeout(resizeTimer);
+        mm.revert();
+      };
     },
     { scope: sectionRef, dependencies: [filteredVehicles.length] }
   );

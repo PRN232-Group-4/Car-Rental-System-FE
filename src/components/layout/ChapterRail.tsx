@@ -85,10 +85,10 @@ export default function ChapterRail() {
           >
             {/* Label Tooltip */}
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded-md transition-all duration-200 pointer-events-none opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 ${
+              className={`text-xs font-semibold px-2 py-0.5 rounded-md transition-all duration-200 pointer-events-none group-hover:opacity-100 group-focus-visible:opacity-100 -translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0 ${
                 isActive
-                  ? "bg-stage-ink text-white shadow-sm opacity-90"
-                  : "bg-surface border border-line-strong text-ink-2 shadow-sm"
+                  ? "bg-stage-ink text-white shadow-sm opacity-100 translate-x-0"
+                  : "bg-surface border border-line-strong text-ink-2 shadow-sm opacity-0"
               }`}
             >
               {ch.name}

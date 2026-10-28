@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   MapPin,
   Calendar,
@@ -74,6 +74,7 @@ export default function SearchWidget({
   const [showStationPicker, setShowStationPicker] = useState<boolean>(false);
 
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const widgetRef = useRef<HTMLDivElement>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -83,14 +84,19 @@ export default function SearchWidget({
 
     const mql = window.matchMedia("(max-width: 639px)");
     const syncState = () => {
-      const container = document.querySelector('[data-surface="marketing"]') as HTMLElement | null;
-      setPortalContainer(container || (typeof document !== "undefined" ? document.body : null));
+      const container =
+        (widgetRef.current?.closest('main[data-surface="marketing"]') as HTMLElement | null) ||
+        (document.querySelector('main[data-surface="marketing"]') as HTMLElement | null) ||
+        document.getElementById("main-content");
+      if (container) {
+        setPortalContainer(container);
+      }
       setIsMobile(mql.matches);
     };
-    const rafId = requestAnimationFrame(syncState);
+
+    syncState();
     mql.addEventListener("change", syncState);
     return () => {
-      cancelAnimationFrame(rafId);
       mql.removeEventListener("change", syncState);
     };
   }, []);
@@ -328,7 +334,7 @@ export default function SearchWidget({
   );
 
   return (
-    <div className="w-full max-w-5xl mx-auto relative">
+    <div ref={widgetRef} className="w-full max-w-5xl mx-auto relative">
       {/* 2 Rental Mode Segmented Switchers */}
       <div className="flex items-center gap-2 mb-2.5 pl-1">
         <button
