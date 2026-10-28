@@ -1,13 +1,14 @@
 "use client";
 
-import { useRef } from "react";
-import { KeyRound, BatteryCharging, RefreshCw, ChevronRight, CheckCircle2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { KeyRound, BatteryCharging, RefreshCw, ChevronRight, CheckCircle2, Sparkles } from "lucide-react";
 import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/motion/register";
+import { gsap, ScrollTrigger } from "@/lib/motion/register";
 
 export default function PinnedJourney() {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const [activePhaseIndex, setActivePhaseIndex] = useState(0);
 
   const phases = [
     {
@@ -49,15 +50,16 @@ export default function PinnedJourney() {
       mm.add("(min-width: 1024px)", () => {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-        // Scrubbed card reveals
+        // Scrubbed card reveals and active phase tracking
         if (cardsRef.current) {
-          const cards = cardsRef.current.querySelectorAll(".phase-card");
-          cards.forEach((card) => {
+          const cards = cardsRef.current.querySelectorAll<HTMLElement>(".phase-card");
+          cards.forEach((card, idx) => {
             gsap.fromTo(
               card,
-              { y: 24 },
+              { y: 28, opacity: 0.8 },
               {
                 y: 0,
+                opacity: 1,
                 duration: 0.7,
                 ease: "power2.out",
                 scrollTrigger: {
@@ -68,6 +70,14 @@ export default function PinnedJourney() {
                 },
               }
             );
+
+            ScrollTrigger.create({
+              trigger: card,
+              start: "top 65%",
+              end: "bottom 65%",
+              onEnter: () => setActivePhaseIndex(idx),
+              onEnterBack: () => setActivePhaseIndex(idx),
+            });
           });
         }
       });
@@ -123,20 +133,16 @@ export default function PinnedJourney() {
 
           {/* Geodetic Waypoint Nodes (SGN -> DL -> CR) */}
           <g stroke="#b45309" strokeWidth="1">
-            {/* Waypoint 1: SGN */}
             <circle cx="220" cy="820" r="14" strokeDasharray="3 3" />
             <circle cx="220" cy="820" r="4" fill="#b45309" />
             <text x="245" y="824" fill="#0f172a" fontSize="10" fontFamily="monospace" fontWeight="bold">WP-01: SGN HUB [000 KM]</text>
 
-            {/* Connecting Route Line */}
             <path d="M 220 820 L 480 620 L 820 480 L 1080 340" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="6 6" />
 
-            {/* Waypoint 2: DL */}
             <circle cx="820" cy="480" r="14" strokeDasharray="3 3" />
             <circle cx="820" cy="480" r="4" fill="#b45309" />
             <text x="845" y="484" fill="#0f172a" fontSize="10" fontFamily="monospace" fontWeight="bold">WP-02: DL PLATEAU [305 KM]</text>
 
-            {/* Waypoint 3: CAM RANH */}
             <circle cx="1080" cy="340" r="14" strokeDasharray="3 3" />
             <circle cx="1080" cy="340" r="4" fill="#b45309" />
             <text x="1105" y="344" fill="#0f172a" fontSize="10" fontFamily="monospace" fontWeight="bold">WP-03: CR COAST [440 KM]</text>
@@ -145,8 +151,12 @@ export default function PinnedJourney() {
       </div>
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Left Column: Pinned Narrative on Desktop (Slim ~260px height to prevent any viewport clipping) */}
+        {/* Left Column: Pinned Narrative on Desktop */}
         <div className="lg:col-span-5 space-y-6 lg:motion-safe:sticky lg:top-[120px]">
+          <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-primary font-bold">
+            <Sparkles className="w-4 h-4" />
+            <span>Workflow Engineering</span>
+          </div>
 
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08]">
             Hành Trình 3 Pha Thuê Xe Tối Giản
@@ -156,38 +166,64 @@ export default function PinnedJourney() {
             Chúng tôi định nghĩa lại trải nghiệm thuê phương tiện: Nhanh hơn, minh bạch hơn và triệt tiêu hoàn toàn rào cản thủ tục truyền thống.
           </p>
 
-          {/* Interactive Vertical Progress Rail (Slim ~130px, 0% clipping on any laptop screen) */}
+          {/* Interactive Vertical Progress Rail with Active Telemetry Beam */}
           <div className="pt-2 hidden sm:block">
             <div className="relative pl-6 space-y-4 border-l-2 border-line">
-              {phases.map((phase) => (
-                <div key={phase.index} className="relative group cursor-default">
-                  {/* Rail Node Dot */}
-                  <div className="absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full bg-surface border-2 border-line group-hover:border-primary group-hover:bg-primary transition-colors flex items-center justify-center">
-                    <span className="w-1 h-1 rounded-full bg-stage-ink" />
+              {phases.map((phase, idx) => {
+                const isActive = idx === activePhaseIndex;
+                return (
+                  <div key={phase.index} className="relative group cursor-default transition-all duration-300">
+                    {/* Rail Node Dot */}
+                    <div
+                      className={`absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
+                        isActive
+                          ? "border-primary bg-primary ring-4 ring-primary/20 scale-125"
+                          : "border-line bg-surface group-hover:border-primary/50"
+                      }`}
+                    >
+                      <span
+                        className={`w-1 h-1 rounded-full ${
+                          isActive ? "bg-white" : "bg-stage-ink"
+                        }`}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className={`font-mono text-xs font-black transition-colors ${
+                          isActive ? "text-primary" : "text-ink group-hover:text-primary"
+                        }`}
+                      >
+                        PHA {phase.index}
+                      </span>
+                      <span className="text-ink-3 text-xs">/</span>
+                      <span
+                        className={`text-xs truncate transition-colors ${
+                          isActive ? "text-ink font-bold" : "text-ink-2 font-semibold"
+                        }`}
+                      >
+                        {phase.title}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-xs font-black text-ink group-hover:text-primary transition-colors">
-                      PHA {phase.index}
-                    </span>
-                    <span className="text-ink-3 text-xs">/</span>
-                    <span className="text-xs font-semibold text-ink-2 truncate">
-                      {phase.title}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Detailed Scrolling Phase Cards with Subtle Avant-Garde Watermark */}
+        {/* Right Column: Detailed Scrolling Phase Cards */}
         <div ref={cardsRef} className="lg:col-span-7 space-y-8">
           {phases.map((phase, idx) => {
             const Icon = phase.icon;
+            const isActive = idx === activePhaseIndex;
             return (
               <div
                 key={phase.index}
-                className="phase-card relative overflow-hidden rounded-[var(--r-panel)] p-8 sm:p-10 bg-surface border border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between"
+                className={`phase-card relative overflow-hidden rounded-[var(--r-panel)] p-8 sm:p-10 bg-surface border transition-all duration-300 flex flex-col justify-between ${
+                  isActive
+                    ? "border-primary/60 shadow-[0_12px_36px_rgba(200,169,107,0.12)] ring-1 ring-primary/30"
+                    : "border-line-strong shadow-[0_4px_24px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgb(0,0,0,0.08)]"
+                }`}
               >
                 {/* Subtle Editorial Watermark Number */}
                 <div

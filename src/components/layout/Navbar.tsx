@@ -3,7 +3,10 @@
 import { useState, useRef } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, FileCheck, KeyRound } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, Car, FileCheck, KeyRound, Sun, Moon, Volume2, VolumeX } from "lucide-react";
+import { useTheme } from "@/lib/use-theme";
+import { isHapticAudioEnabled, setHapticAudioEnabled, playTactileClick } from "@/lib/audio/haptic-audio";
+import { useEffect } from "react";
 import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
 import { getNavigation } from "@/config/navigation";
 import { useMounted } from "@/hooks/use-mounted";
@@ -17,6 +20,16 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const mounted = useMounted();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsAudioEnabled(isHapticAudioEnabled());
+    const handleAudioChange = () => setIsAudioEnabled(isHapticAudioEnabled());
+    window.addEventListener("thong_dong_haptic_audio_change", handleAudioChange);
+    return () => window.removeEventListener("thong_dong_haptic_audio_change", handleAudioChange);
+  }, []);
+
   const passwordProfile = hasRole("admin") || hasRole("manager")
     ? "/admin/profile"
     : hasRole("driver") ? "/staff/profile"
@@ -138,7 +151,37 @@ export default function Navbar() {
           </div>
 
           {/* Right Action buttons */}
-          <div className="ml-auto hidden sm:flex items-center gap-2.5 whitespace-nowrap">
+          <div className="ml-auto hidden sm:flex items-center gap-2 whitespace-nowrap">
+            {/* Global Theme Toggle with Liquid Wave */}
+            <button
+              type="button"
+              id="theme-toggle"
+              data-testid="global-theme-toggle"
+              onClick={toggleTheme}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 hover:bg-surface text-ink hover:text-primary hover:border-primary/40 transition-colors cursor-pointer shadow-e1"
+              aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
+              title={theme === "dark" ? "Giao diện: Tối" : "Giao diện: Sáng"}
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-ink-3" />}
+            </button>
+
+            {/* Global Web Audio Haptic Toggle */}
+            <button
+              type="button"
+              id="global-audio-toggle"
+              data-testid="global-audio-toggle"
+              onClick={() => {
+                const next = !isAudioEnabled;
+                setHapticAudioEnabled(next);
+                setIsAudioEnabled(next);
+                if (next) playTactileClick();
+              }}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 hover:bg-surface text-ink hover:text-primary hover:border-primary/40 transition-colors cursor-pointer shadow-e1"
+              aria-label={isAudioEnabled ? "Tắt âm thanh haptic (Đang bật)" : "Bật âm thanh haptic (Đang tắt)"}
+              title={isAudioEnabled ? "Âm thanh: Đang bật" : "Âm thanh: Đang tắt"}
+            >
+              {isAudioEnabled ? <Volume2 className="w-4 h-4 text-primary" /> : <VolumeX className="w-4 h-4 text-ink-3" />}
+            </button>
             {mounted && isAuthenticated && user ? (
               <div>
                 <button
@@ -280,6 +323,14 @@ export default function Navbar() {
 
           {/* Mobile menu toggle button */}
           <div className="flex lg:hidden items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 text-ink hover:text-primary transition-colors cursor-pointer"
+              aria-label="Chuyển đổi giao diện"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-ink-3" />}
+            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer"

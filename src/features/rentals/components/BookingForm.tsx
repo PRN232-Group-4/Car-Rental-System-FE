@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { playRollingTick } from "@/lib/audio/haptic-audio";
 import { useSearchParams } from "next/navigation";
 import Link from "@/components/navigation/NavigationLink";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -92,6 +93,15 @@ export default function BookingForm() {
   const subscriptions = (subscriptionsQuery.data ?? []).filter((item) => item.status === "active" && new Date(item.endDate).getTime() > sessionStartedAt);
   const subscription = subscriptions.find((item) => String(item.id) === subscriptionId);
   const estimate = vehicle && policy && rentalType === "hourly" ? calculateHourlyEstimate(vehicle.hourlyPrice, hours, policy) : null;
+  const prevTotalRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (estimate?.total !== undefined && estimate.total !== prevTotalRef.current) {
+      if (prevTotalRef.current !== null) {
+        playRollingTick();
+      }
+      prevTotalRef.current = estimate.total;
+    }
+  }, [estimate?.total]);
 
   const validate = () => ({
     facilityId: !facility ? "Vui lòng chọn cơ sở nhận xe trong danh sách." : undefined,
@@ -189,7 +199,7 @@ export default function BookingForm() {
         {paymentMode === "direct" && <div><label htmlFor="paymentMethod" className="text-sm font-semibold">Phương thức thanh toán</label><InlineSelect id="paymentMethod" name="paymentMethod" required className={inputClass} value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as "payos" | "cash")}><option value="payos">Online qua PayOS</option><option value="cash">Tiền mặt tại cơ sở</option></InlineSelect><p className="mt-2 text-sm text-td-muted">Thanh toán sau khi nhân viên duyệt yêu cầu. Đơn thuê chính thức được cấp sau khi xác nhận đã nhận tiền.</p></div>}
         {paymentMode === "subscription" && <div><label htmlFor="subscriptionId" className="text-sm font-semibold">Gói thuê bao</label><InlineSelect id="subscriptionId" name="subscriptionId" required className={inputClass} value={subscriptionId} onChange={(event) => setSubscriptionId(event.target.value)}><option value="">Chọn gói còn hiệu lực</option>{subscriptions.map((item) => <option key={item.id} value={item.id}>{item.planName} — còn {item.remainingHours} giờ</option>)}</InlineSelect>{subscriptionsQuery.error && <p role="alert" className="mt-2 text-sm text-danger">{errorText(subscriptionsQuery.error)}</p>}<Link href="/my-subscriptions" className="mt-2 inline-block text-sm text-primary underline">Quản lý gói của tôi</Link></div>}
       </section>
-      <aside className="h-fit space-y-4 rounded border border-td-rule bg-td-white p-5 sm:p-6">
+      <aside className="h-fit space-y-4 rounded-3xl border border-line-strong bg-surface p-5 sm:p-6 shadow-e2 lg:sticky lg:top-24 transition-all">
         <h2 className="text-lg font-bold">Tóm tắt đặt xe</h2>
         {vehiclesQuery.isFetching ? <SkeletonBlock label="Đang tải thông tin xe đã chọn"><Skeleton className="h-40 w-full rounded" /></SkeletonBlock> : vehicle && <VehicleImage src={vehicle.imageUrl} alt={vehicle.name} className="h-40 w-full rounded" />}
         {facility && <><p className="text-sm text-td-muted">Nhận xe: {facility.name}</p><p className="text-sm text-td-muted">{hasDriver ? "Tài xế: Chưa phân công" : "Hình thức: Tự lái"}</p></>}
@@ -198,8 +208,8 @@ export default function BookingForm() {
         {vehicle && <p className="text-sm">Đơn giá: {formatVnd(rentalType === "longterm" ? vehicle.monthlyPrice : vehicle.hourlyPrice)} / {rentalType === "longterm" ? "tháng" : "giờ"}</p>}
         {paymentMode === "subscription" ? <p className="text-sm">Sử dụng giờ trong gói thuê bao, không tạo hóa đơn thuê trực tiếp.</p> : <>
           {policy && <p className="text-sm">Chính sách: {policy.name ?? `#${policy.id}`}<br />VAT {policy.vatRate}% · Cọc {policy.depositPercentage}%</p>}
-          {estimate && <dl className="space-y-2 text-sm"><div className="flex justify-between"><dt>Tiền thuê dự kiến</dt><dd>{formatVnd(estimate.rentalFee)}</dd></div><div className="flex justify-between"><dt>VAT</dt><dd>{formatVnd(estimate.vat)}</dd></div><div className="flex justify-between"><dt>Tiền cọc</dt><dd>{formatVnd(estimate.deposit)}</dd></div><div className="flex justify-between border-t border-td-rule pt-3 font-bold"><dt>Tạm tính gồm cọc</dt><dd>{formatVnd(estimate.total)}</dd></div></dl>}
-          <p className="text-xs text-td-muted">{rentalType === "longterm" ? "Tiền thuê dài hạn được máy chủ xác định theo khoảng thời gian và giá tháng." : "Số tiền chính thức được xác nhận trên đơn thuê và hóa đơn."}</p>
+          {estimate && <dl className="space-y-2 text-sm"><div className="flex justify-between"><dt>Tiền thuê dự kiến</dt><dd>{formatVnd(estimate.rentalFee)}</dd></div><div className="flex justify-between"><dt>VAT</dt><dd>{formatVnd(estimate.vat)}</dd></div><div className="flex justify-between"><dt>Tiền cọc</dt><dd>{formatVnd(estimate.deposit)}</dd></div><div className="flex justify-between items-baseline border-t border-line pt-3 font-bold"><dt className="text-sm text-ink">Tạm tính gồm cọc</dt><dd className="font-mono text-xl font-black text-primary tabular-nums tracking-tight animate-in fade-in duration-300">{formatVnd(estimate.total)}</dd></div></dl>}
+          <p className="text-xs text-td-muted">{rentalType === "longterm" ? "Tiền thuê dài hạn được máy chủ xác định theo khoảng thời gian và giá tháng." : "Bảng giá là dự toán. Số tiền chính thức được xác nhận trên đơn thuê và hóa đơn."}{hasDriver ? " Chi phí có tài xế được xác nhận bởi máy chủ." : ""}</p>
           {policyQuery.error && <p className="text-sm text-td-muted">Chưa tải được chính sách. Máy chủ sẽ áp dụng chính sách khi tạo đơn. <button type="button" className="underline" onClick={() => void policyQuery.refetch()}>Tải lại</button></p>}
         </>}
         {generalError && <p role="alert" className="text-sm text-danger">{generalError}</p>}

@@ -25,5 +25,6 @@ export default function BookingLicenseGate({ children, requireLicense = false }:
     return <FormSkeleton label="Đang kiểm tra tài khoản trước khi đặt xe..." />;
   }
   // GPLX is checked only after the customer chooses self-drive in BookingForm.
+
   return children;
 }
