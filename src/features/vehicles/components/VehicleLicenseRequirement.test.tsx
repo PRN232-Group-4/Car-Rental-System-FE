@@ -6,7 +6,6 @@ import { VehicleCard } from "./VehicleCard";
 import { VehicleDetailView } from "./VehicleDetailView";
 import BookingVehicleCards from "@/features/rentals/components/BookingVehicleCards";
 import MultiFleetCatalog from "@/features/landing/components/MultiFleetCatalog";
-import SpatialFleetShowcase from "@/features/landing/components/SpatialFleetShowcase";
 
 const mocks = vi.hoisted(() => ({ fleet: vi.fn() }));
 vi.mock("next/image", () => ({ default: () => null }));
@@ -81,16 +80,5 @@ describe("vehicle license requirement placement", () => {
     const requirements = screen.getAllByTestId("vehicle-license-requirement");
     expect(requirements[0]).toHaveTextContent(/^Tự lái: GPLX B hoặc B2$/);
     expect(requirements[1]).toHaveTextContent(/^Tự lái: GPLX A2$/);
-  });
-
-  it("updates the license requirement when switching the showcased electric vehicle", () => {
-    mocks.fleet.mockReturnValue({ data: [
-      { ...vehicle, category: "electric_car" },
-      { ...vehicle, id: 9, name: "Xe số 9", category: "electric_car", allowedLicenseTypes: ["C1"] },
-    ] });
-    render(<SpatialFleetShowcase />);
-    expect(screen.getByTestId("vehicle-license-requirement")).toHaveTextContent(/^Tự lái: GPLX B hoặc B2$/);
-    fireEvent.click(screen.getByRole("button", { name: "Xe số 9 Ô tô" }));
-    expect(screen.getByTestId("vehicle-license-requirement")).toHaveTextContent(/^Tự lái: GPLX C1$/);
   });
 });

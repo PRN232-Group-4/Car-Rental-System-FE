@@ -130,7 +130,7 @@ export default function InspectionSection() {
         </div>
 
         {/* Ô 3: Ô nhịp tương phản - Minh bạch tài chính (4 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-[#1E293B] bg-[#0F172A] text-[#F1F5F9] dark:border-[#334155] dark:bg-[#1A2234] p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
+        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-stage-ink text-white p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
           <div>
             <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
               Minh bạch tài chính
@@ -139,12 +139,12 @@ export default function InspectionSection() {
             <h3 className="font-display mt-3 mb-2 text-lg font-bold text-white">
               Không phí ẩn. Không tranh chấp biên bản.
             </h3>
-            <p className="text-xs leading-relaxed text-slate-300 dark:text-ink-2 mb-4">
+            <p className="text-xs leading-relaxed text-white/70 mb-4">
               Ảnh chụp hiện trường và dữ liệu đo đạc được lưu trữ bất biến vào hồ sơ điện tử, bảo đảm quyền lợi đôi bên.
             </p>
           </div>
 
-          <div className="border-t border-slate-800 dark:border-line pt-4 text-xs text-slate-400 dark:text-ink-3">
+          <div className="border-t border-white/10 pt-4 text-xs text-white/60">
             Đối soát biên bản trước khi phê duyệt hoàn cọc
           </div>
         </div>

@@ -17,7 +17,7 @@ const CHAPTERS: ChapterItem[] = [
   { id: "danh-muc-xe", name: "Đội xe", shortLabel: "03", href: "#danh-muc-xe" },
   { id: "chi-nhanh", name: "Mạng lưới trạm", shortLabel: "04", href: "#chi-nhanh" },
   { id: "cong-nghe", name: "Kiểm định 2 chiều", shortLabel: "05", href: "#cong-nghe" },
-  { id: "quy-trinh", name: "Hành trình 3 bước", shortLabel: "06", href: "#quy-trinh" },
+  { id: "quy-trinh", name: "Quy trình 4 bước", shortLabel: "06", href: "#quy-trinh" },
   { id: "goi-thue-bao", name: "Gói thuê bao", shortLabel: "07", href: "#goi-thue-bao" },
 ];
 
@@ -44,6 +44,7 @@ export default function ChapterRail() {
           trigger: target,
           start: "top center",
           end: "bottom center",
+          refreshPriority: -1, // Tính toán sau khi các section ghim (pinned) hoàn tất
           onEnter: () => setActiveIndex(idx),
           onEnterBack: () => setActiveIndex(idx),
         });
@@ -98,8 +99,8 @@ export default function ChapterRail() {
             <span
               className={`block rounded-full transition-all duration-300 ${
                 isActive
-                  ? "w-3 h-3 bg-primary ring-4 ring-primary/20 scale-110"
-                  : "w-2 h-2 bg-line-strong hover:bg-primary/50 group-hover:scale-125"
+                  ? "w-3 h-3 bg-primary ring-4 ring-primary/20"
+                  : "w-2 h-2 bg-line-strong hover:bg-primary/50"
               }`}
             />
           </a>

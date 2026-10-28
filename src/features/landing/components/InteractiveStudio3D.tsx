@@ -4,22 +4,21 @@ import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { Button } from "@/components/ui/Button";
 import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { gsap } from "@/lib/motion/register";
 import { 
   Rotate3d, 
   Gauge, 
   Cpu, 
-  Calendar, 
   Loader2, 
   RefreshCw,
   Compass,
   ArrowUpRight,
   Palette,
   X,
-  Layers,
   Crosshair,
   Box
 } from "lucide-react";
@@ -94,25 +93,32 @@ interface Hotspot {
 
 const HOTSPOTS: Hotspot[] = [
   {
-    id: "brakes",
-    title: "Phanh Gốm Carbon PCCB",
-    subtitle: "Hệ Thống Phanh Đua",
-    description: "Đĩa phanh composite gốm carbon 10-piston chịu nhiệt trên 800°C, giảm 50% trọng lượng không treo.",
-    pos: new THREE.Vector3(-1.3, 0.45, 1.1),
-  },
-  {
-    id: "headlights",
-    title: "Đèn Matrix LED 84 Điểm",
-    subtitle: "Chiếu Sáng Ma Trận",
-    description: "84 diode LED điều khiển vi tính tự động nhận diện chùm tia, chống chói xe đối diện với tầm chiếu 600m.",
+    id: "exterior-ai",
+    title: "BIÊN BẢN NGOẠI QUAN 360°",
+    subtitle: "AI Tự Động Ghi Nhận Xước Xát",
+    description: "Chụp ảnh 8 góc trước khi nhận xe. AI tự động lập biên bản số đối soát vết xước, bảo vệ 100% tiền cọc.",
     pos: new THREE.Vector3(-1.8, 0.65, 0.65),
   },
   {
-    id: "aero",
-    title: "Active Aero Wing",
-    subtitle: "Khí Động Học Chủ Động",
-    description: "Cánh gió đuôi điều khiển điện 3 cấp độ tự động thay đổi góc nghiêng, tạo lực ép mặt đường tối đa khi tăng tốc.",
+    id: "brakes-tires",
+    title: "KIỂM ĐỊNH ĐỘ BÁM & PHANH",
+    subtitle: "Cảm Biến Áp Suất & Độ Mòn Lốp",
+    description: "Độ mòn gai lốp và cảm biến áp suất TPMS được chứng thực kỹ thuật số đạt chuẩn an toàn cao tốc trước giờ giao xe.",
+    pos: new THREE.Vector3(-1.3, 0.45, 1.1),
+  },
+  {
+    id: "telematics",
+    title: "ĐỐI SOÁT TELEMATICS TỰ ĐỘNG",
+    subtitle: "Mức Nhiên Liệu & Odometer Số",
+    description: "Telematics tự động chốt km và lượng nhiên liệu/pin khi trả xe. Không phụ thuộc kiểm tra thủ công, minh bạch tuyệt đối.",
     pos: new THREE.Vector3(1.6, 0.95, 0.0),
+  },
+  {
+    id: "smart-lock",
+    title: "MỞ KHÓA SỐ & HOÀN CỌC PAYOS",
+    subtitle: "Không Cần Chìa Khóa Cơ",
+    description: "Nhận xe không tiếp xúc qua ứng dụng Thong Dong. Hệ thống tự động giải phóng cọc PayOS trong 15 phút sau biên bản trả xe.",
+    pos: new THREE.Vector3(-0.2, 0.85, 1.0),
   },
 ];
 
@@ -138,8 +144,8 @@ export default function InteractiveStudio3D() {
   const isScrollingRef = useRef<boolean>(false);
   const isAutoRotateRef = useRef<boolean>(isAutoRotate);
   const hotspotElementsRef = useRef<Record<string, HTMLDivElement | null>>({});
-  const selectedColorRef = useRef<string>(selectedColor);
-  selectedColorRef.current = selectedColor;
+  const lastInteractionTimeRef = useRef<number>(Date.now());
+  const isIdleRef = useRef<boolean>(false);
 
   useEffect(() => {
     isAutoRotateRef.current = isAutoRotate;
@@ -183,7 +189,16 @@ export default function InteractiveStudio3D() {
     });
   };
 
+  const notifyUserActivity = () => {
+    lastInteractionTimeRef.current = Date.now();
+    if (isIdleRef.current) {
+      isIdleRef.current = false;
+      startLoop();
+    }
+  };
+
   const handleSelectColor = (hex: string) => {
+    notifyUserActivity();
     setSelectedColor(hex);
     playTactileClick();
     if (currentObjectRef.current) {
@@ -192,6 +207,7 @@ export default function InteractiveStudio3D() {
   };
 
   const handleHotspotClick = (hotspot: Hotspot) => {
+    notifyUserActivity();
     playTactileClick();
     if (activeHotspotId === hotspot.id) {
       setActiveHotspotId(null);
@@ -204,92 +220,27 @@ export default function InteractiveStudio3D() {
     }
   };
 
-  // 1. Initialize Three.js Scene, Camera, Lights, and Render Loop
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight || 540;
-
-    // Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf6f6f2); // Studio light warm gray
-    sceneRef.current = scene;
-
-    // Camera
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(4.5, 2.0, 5.0);
-    cameraRef.current = camera;
-
-    // Renderer (capped at 1.5 pixel ratio for optimal GPU fillrate)
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
-
-    container.innerHTML = "";
-    container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-
-    const handleContextLost = (event: Event) => {
-      event.preventDefault();
-      setLoadError("Ngữ cảnh đồ họa WebGL bị gián đoạn. Vui lòng tải lại trang.");
-    };
-    renderer.domElement.addEventListener("webglcontextlost", handleContextLost, false);
-
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Do not go under the ground
-    controls.minDistance = 3.2;
-    controls.maxDistance = 9.0;
-    controls.autoRotate = isAutoRotateRef.current;
-    controls.autoRotateSpeed = 1.2;
-    controlsRef.current = controls;
-
-    // Lights (Studio 3-Point Lighting)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0xfffbf0, 2.4);
-    keyLight.position.set(5, 8, 5);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
-    keyLight.shadow.bias = -0.0001;
-    scene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0xe8f0fe, 1.2);
-    fillLight.position.set(-5, 4, -4);
-    scene.add(fillLight);
-
-    const rimLight = new THREE.DirectionalLight(0xfff2d6, 1.8);
-    rimLight.position.set(0, 6, -6);
-    scene.add(rimLight);
-
-    // Studio Circular Floor Shadow
-    const shadowGeo = new THREE.PlaneGeometry(16, 16);
-    const shadowMat = new THREE.ShadowMaterial({ opacity: 0.18 });
-    const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
-    shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.y = -0.02;
-    shadowPlane.receiveShadow = true;
-    scene.add(shadowPlane);
-
-    // Performance-Optimized Animation Loop (Only runs when visible in viewport)
-    let isLoopRunning = false;
-    const animate = () => {
+  const startLoop = () => {
+    if (animFrameIdRef.current) return;
+    const tick = () => {
       if (!isVisibleRef.current) {
-        isLoopRunning = false;
+        animFrameIdRef.current = null;
         return;
       }
-      animFrameIdRef.current = requestAnimationFrame(animate);
-      controls.update();
+
+      // DESIGN.md A8: Demand Rendering - Idle sleep after 20s of no interaction
+      const elapsed = Date.now() - lastInteractionTimeRef.current;
+      if (elapsed > 20000 && !isAutoRotateRef.current) {
+        isIdleRef.current = true;
+        animFrameIdRef.current = null;
+        return;
+      }
+
+      animFrameIdRef.current = requestAnimationFrame(tick);
+
+      if (controlsRef.current) {
+        controlsRef.current.update();
+      }
 
       // Project 3D Hotspots into 2D DOM screen space (direct DOM updates, zero React re-render)
       if (cameraRef.current && containerRef.current) {
@@ -315,29 +266,121 @@ export default function InteractiveStudio3D() {
         });
       }
 
-      renderer.render(scene, camera);
-    };
-
-    const startLoop = () => {
-      if (!isLoopRunning && isVisibleRef.current) {
-        isLoopRunning = true;
-        animate();
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
     };
+    animFrameIdRef.current = requestAnimationFrame(tick);
+  };
 
-    const stopLoop = () => {
-      isLoopRunning = false;
-      if (animFrameIdRef.current) {
-        cancelAnimationFrame(animFrameIdRef.current);
-        animFrameIdRef.current = null;
-      }
+  const stopLoop = () => {
+    if (animFrameIdRef.current) {
+      cancelAnimationFrame(animFrameIdRef.current);
+      animFrameIdRef.current = null;
+    }
+  };
+
+  // 1. Initialize Three.js Scene, Camera, Lights, and Render Loop
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+    const width = container.clientWidth;
+    const height = container.clientHeight || 540;
+
+    // Scene with transparent background to eliminate dark-mode white box
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+    camera.position.set(4.5, 2.0, 5.0);
+    cameraRef.current = camera;
+
+    // Renderer: transparent canvas seamlessly blending with light & dark mode surfaces
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: true, 
+      powerPreference: "high-performance" 
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setClearColor(0x000000, 0);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+
+    container.innerHTML = "";
+    container.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      setLoadError("Ngữ cảnh đồ họa WebGL bị gián đoạn. Vui lòng tải lại trang.");
     };
+    renderer.domElement.addEventListener("webglcontextlost", handleContextLost, false);
 
-    // IntersectionObserver to pause loop when scrolled out of view
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Do not go under the ground
+    controls.minDistance = 3.2;
+    controls.maxDistance = 9.0;
+    controls.autoRotate = isAutoRotateRef.current;
+    controls.autoRotateSpeed = 1.2;
+    controlsRef.current = controls;
+
+    controls.addEventListener("start", notifyUserActivity);
+    controls.addEventListener("change", notifyUserActivity);
+
+    // Lights (Studio 3-Point Lighting)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xfffbf0, 2.4);
+    keyLight.position.set(5, 8, 5);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0xe8f0fe, 1.2);
+    fillLight.position.set(-5, 4, -4);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xfff2d6, 1.8);
+    rimLight.position.set(0, 6, -6);
+    scene.add(rimLight);
+
+    // Soft Contact Shadow Plane: Radial gradient fading smoothly to zero (0 draw call shadow map)
+    const shadowCanvas = document.createElement("canvas");
+    shadowCanvas.width = 512;
+    shadowCanvas.height = 512;
+    const shadowCtx = shadowCanvas.getContext("2d");
+    if (shadowCtx) {
+      const gradient = shadowCtx.createRadialGradient(256, 256, 40, 256, 256, 250);
+      gradient.addColorStop(0, "rgba(0, 0, 0, 0.48)");
+      gradient.addColorStop(0.35, "rgba(0, 0, 0, 0.25)");
+      gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.06)");
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      shadowCtx.fillStyle = gradient;
+      shadowCtx.fillRect(0, 0, 512, 512);
+    }
+    const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
+    const shadowGeo = new THREE.PlaneGeometry(10, 10);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      map: shadowTexture,
+      transparent: true,
+      depthWrite: false,
+    });
+    const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -0.01;
+    scene.add(shadowPlane);
+
+    // IntersectionObserver: Pause WebGL render loop when section is outside viewport
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting) {
+          notifyUserActivity();
           startLoop();
         } else {
           stopLoop();
@@ -347,9 +390,10 @@ export default function InteractiveStudio3D() {
     );
     observer.observe(container);
 
-    // Scroll listener: pause autoRotate during active page scroll to free GPU compositor
+    // Scroll listener: pause autoRotate during active scroll
     let scrollDebounceTimer: NodeJS.Timeout | null = null;
     const handleScroll = () => {
+      notifyUserActivity();
       if (!controlsRef.current) return;
       if (!isScrollingRef.current) {
         isScrollingRef.current = true;
@@ -375,6 +419,7 @@ export default function InteractiveStudio3D() {
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       rendererRef.current.setSize(newW, newH);
+      notifyUserActivity();
     };
     window.addEventListener("resize", handleResize);
 
@@ -392,7 +437,7 @@ export default function InteractiveStudio3D() {
     };
   }, []);
 
-  // 2. Load Selected GLB Model with Progress Tracking
+  // 2. Load Selected GLB Model with Progress Tracking and Meshopt Decoder
   useEffect(() => {
     if (!sceneRef.current) return;
 
@@ -408,6 +453,8 @@ export default function InteractiveStudio3D() {
     }
 
     const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+
     loader.load(
       activeModel.modelPath,
       (gltf) => {
@@ -422,14 +469,6 @@ export default function InteractiveStudio3D() {
         object.position.y = -bbox.min.y;
         object.position.z = -center.z;
 
-        // Enable shadows for all meshes
-        object.traverse((node) => {
-          if ((node as THREE.Mesh).isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-
         const rootGroup = new THREE.Group();
         rootGroup.add(object);
         rootGroup.scale.setScalar(activeModel.scale);
@@ -440,6 +479,7 @@ export default function InteractiveStudio3D() {
         scene.add(rootGroup);
         currentObjectRef.current = rootGroup;
         setIsLoading(false);
+        notifyUserActivity();
       },
       (xhr) => {
         if (xhr.total > 0) {
@@ -461,10 +501,12 @@ export default function InteractiveStudio3D() {
   useEffect(() => {
     if (controlsRef.current) {
       controlsRef.current.autoRotate = isAutoRotate;
+      if (isAutoRotate) notifyUserActivity();
     }
   }, [isAutoRotate]);
 
   const handleResetCamera = () => {
+    notifyUserActivity();
     if (controlsRef.current) {
       controlsRef.current.reset();
       controlsRef.current.autoRotate = isAutoRotate;
@@ -474,7 +516,6 @@ export default function InteractiveStudio3D() {
 
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Tạo cảm giác bước vào không gian phòng trưng bày công nghệ chuyên biệt.
   useGSAP(
     () => {
       const el = sectionRef.current;
@@ -511,21 +552,18 @@ export default function InteractiveStudio3D() {
 
   return (
     <section id="showroom-3d" ref={sectionRef} className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
-      
-
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
-            Không gian mô phỏng 3D tương tác
+          <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
+            TRẠM MÔ PHỎNG KIỂM ĐỊNH KỸ THUẬT SỐ // TỶ LỆ NGUYÊN BẢN 1:1
+          </span>
+          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight text-balance">
+            Trạm mô&#160;phỏng kiểm&#160;định xe kỹ&#160;thuật&#160;số
           </h2>
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-td-muted">
-            Mô hình 3D mô phỏng theo tỷ lệ gốc, không thuộc danh mục xe cho thuê thực tế.
-          </p>
         </div>
-        <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
-          Xoay góc nhìn 360°, đổi màu sơn và khám phá thông số cơ khí của từng dòng xe thể thao.
+        <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed text-balance">
+          Xoay góc nhìn 360°, đổi màu sơn và khám phá 4 điểm kiểm định an toàn kỹ thuật số hai chiều được chứng thực tự động.
         </p>
       </div>
 
@@ -591,31 +629,26 @@ export default function InteractiveStudio3D() {
       {/* 3D Canvas & Telemetry HUD Grid */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         {/* Main 3D Canvas Box (8 cols) */}
-        <div className="lg:col-span-8 rounded-3xl bg-sunken border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[560px] flex items-center justify-center">
+        <div className="lg:col-span-8 rounded-3xl bg-sunken/40 border border-line-strong overflow-hidden relative shadow-sm min-h-[460px] sm:min-h-[560px] flex items-center justify-center">
           {/* Mobile Editorial Card Fallback (DESIGN.md A8) */}
           {!isMobileActive && (
             <div className="lg:hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-surface border border-line-strong">
               <div className="w-12 h-12 rounded-2xl bg-surface border border-line-strong text-primary flex items-center justify-center mb-3">
                 <Box className="w-6 h-6 stroke-[2]" aria-hidden="true" />
               </div>
-              <span className="text-[13px] font-medium text-ink-2 mb-1">
-                Không gian mô phỏng 3D
-              </span>
-              <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-2">
-                Khám phá Porsche 911 thời gian thực
+              <h3 className="font-display text-lg font-bold text-ink mb-1">
+                {activeModel.name} ({activeModel.year})
               </h3>
-              <p className="text-xs text-ink-2 max-w-xs mb-5 leading-relaxed">
-                Tương tác góc xoay 360°, quan sát ngoại thất và thay đổi màu sơn theo ý muốn.
+              <p className="text-xs text-ink-3 max-w-xs mb-4">
+                Trải nghiệm xoay 360° tương tác vật lý 3D. Nhấp để kích hoạt bộ giải mã đồ họa trực tiếp.
               </p>
               <Button
-                type="button"
-                variant="marketing-cta"
+                variant="primary"
                 size="sm"
                 onClick={() => {
                   setIsMobileActive(true);
                   playTactileClick();
                 }}
-                className="font-semibold px-5 shadow-sm"
               >
                 <span>Xem xe 3D</span>
               </Button>
@@ -630,12 +663,13 @@ export default function InteractiveStudio3D() {
                 setIsMobileActive(false);
                 playTactileClick();
               }}
-              className="lg:hidden absolute top-4 left-4 z-30 px-3 py-1.5 rounded-xl bg-stage-ink/80 text-white text-xs font-medium backdrop-blur-sm shadow flex items-center gap-1.5 cursor-pointer"
+              className="lg:hidden absolute top-4 left-4 z-30 px-3 py-1.5 rounded-xl text-white text-xs font-medium glass-ink shadow flex items-center gap-1.5 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Thu nhỏ 3D</span>
             </button>
           )}
+
           {/* Canvas Mount Target */}
           <div ref={containerRef} className="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing" />
 
@@ -748,56 +782,48 @@ export default function InteractiveStudio3D() {
                 }}
                 className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm border ${
                   isAutoRotate
-                    ? "bg-stage-ink text-white border-white/20"
-                    : "bg-surface text-ink border-line-strong hover:bg-sunken"
+                    ? "bg-primary text-white border-primary"
+                    : "glass-1 text-ink-2 hover:text-ink border-line"
                 }`}
               >
                 <Rotate3d className="w-3.5 h-3.5" />
-                <span>{isAutoRotate ? "Tắt tự xoay" : "Bật tự xoay"}</span>
+                <span>{isAutoRotate ? "Tự xoay: Bật" : "Tự xoay: Tắt"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleResetCamera}
-                className="w-8 h-8 rounded-full bg-surface text-ink border border-line-strong hover:bg-sunken flex items-center justify-center transition-all cursor-pointer shadow-sm"
-                title="Đặt lại góc nhìn"
+                className="glass-1 p-2 rounded-full text-ink-2 hover:text-ink transition-colors border border-line shadow-sm cursor-pointer"
+                title="Đặt lại góc nhìn ban đầu"
+                aria-label="Đặt lại góc nhìn"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-ink-3" />
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Telemetry & Specifications Card (4 cols) */}
-        <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        {/* Telemetry & Specifications HUD Sidebar (4 cols) */}
+        <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-sm">
           <div>
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[13px] font-medium text-ink-2 px-2.5 py-1 rounded-lg bg-surface border border-line-strong">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <span className="text-xs font-mono uppercase px-3 py-1 rounded-full bg-primary-tint text-primary font-bold">
                 {activeModel.tag}
               </span>
-              <span className="text-xs font-mono text-ink-3 flex items-center gap-1">
-                <Layers className="w-3.5 h-3.5" />
-                {activeColor.name}
+              <span className="text-xs font-mono text-ink-3">
+                Mã khung: TD-3D-{activeModel.year}
               </span>
             </div>
 
             <h3 className="font-display text-2xl font-black text-ink mb-2">
               {activeModel.name}
             </h3>
-            <p className="text-xs sm:text-sm text-ink-2 leading-relaxed mb-6">
+            <p className="text-xs text-ink-2 leading-relaxed mb-6">
               {activeModel.subtitle}
             </p>
 
-            {/* Specifications Matrix */}
-            <div className="space-y-3.5 pb-6 border-b border-line">
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-raised">
-                <div className="flex items-center gap-2.5 text-xs text-ink-3">
-                  <Calendar className="w-4 h-4 text-primary" />
-                  <span>Năm sản xuất</span>
-                </div>
-                <span className="font-mono text-sm font-bold text-ink">{activeModel.year}</span>
-              </div>
-
+            {/* Spec Readout Table */}
+            <div className="space-y-3 pt-2 border-t border-line">
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface-raised">
                 <div className="flex items-center gap-2.5 text-xs text-ink-3">
                   <Cpu className="w-4 h-4 text-primary" />

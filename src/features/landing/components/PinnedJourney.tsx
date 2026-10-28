@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { KeyRound, BatteryCharging, RefreshCw, CheckCircle2 } from "lucide-react";
+import { KeyRound, ShieldCheck, RefreshCw, CheckCircle2, FileText, Smartphone } from "lucide-react";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger, DrawSVGPlugin } from "@/lib/motion/register";
+import { gsap, ScrollTrigger } from "@/lib/motion/register";
 
 interface JourneyPhase {
   step: string;
   title: string;
+  subtitle: string;
   description: string;
   icon: typeof KeyRound;
   highlight: string;
@@ -16,24 +17,35 @@ interface JourneyPhase {
 const PHASES: JourneyPhase[] = [
   {
     step: "1",
-    title: "Kiểm tra và nhận xe",
-    description: "Nhận xe tại chi nhánh đã chọn, kiểm tra đối chiếu chỉ số và ký xác nhận biên bản bàn giao điện tử.",
-    icon: KeyRound,
-    highlight: "Ký nhận biên bản số",
+    title: "Xác thực eKYC & Ký hợp đồng số (60s)",
+    subtitle: "Thủ tục số hóa 100% không thế chấp",
+    description: "Xác thực danh tính công dân số qua VNeID/CCCD gắn chip. Hợp đồng điện tử ký số bảo mật OTP, đối soát tự động theo quy chuẩn pháp lý.",
+    icon: FileText,
+    highlight: "Hợp đồng số hóa pháp lý 100%",
   },
   {
     step: "2",
-    title: "Chủ động hành trình",
-    description: "Tự do trải nghiệm theo thời gian hợp đồng, theo dõi lịch trình và nhận hỗ trợ điều phối trực tiếp.",
-    icon: BatteryCharging,
-    highlight: "Hỗ trợ điều phối trực tiếp",
+    title: "Biên bản bàn giao 360° & Mở khóa số",
+    subtitle: "Khởi hành tại trạm hoặc giao tận nơi",
+    description: "AI tự động lập biên bản số đối soát 8 góc chụp ngoại quan thân vỏ, công-tơ-mét và mức pin/nhiên liệu trước khi chìa khóa số được mở trên điện thoại.",
+    icon: Smartphone,
+    highlight: "Kiểm định hình ảnh AI 8 góc",
   },
   {
     step: "3",
-    title: "Trả xe và quyết toán",
-    description: "Bàn giao xe tại trạm, đối chiếu biên bản kiểm tra hai chiều và kích hoạt hoàn trả tiền cọc.",
+    title: "Hành trình tự do & Giám sát an toàn 24/7",
+    subtitle: "Bảo hiểm vật chất 2 chiều cao cấp",
+    description: "Toàn bộ chuyến đi được bảo vệ bởi gói bảo hiểm toàn diện. Cảm biến áp suất lốp, cảnh báo an toàn và tổng đài điều phối hỗ trợ cứu hộ khẩn cấp 24/7.",
+    icon: ShieldCheck,
+    highlight: "Bảo hiểm hai chiều & Cứu hộ 24/7",
+  },
+  {
+    step: "4",
+    title: "Trả xe tự động & Giải phóng cọc PayOS",
+    subtitle: "Hoàn cọc tức thì trong 15 phút",
+    description: "Telematics tự động chốt quãng đường và năng lượng tiêu hao. Hệ thống tự động kích hoạt hoàn cọc tức thì về tài khoản ngân hàng liên kết, không phí ẩn.",
     icon: RefreshCw,
-    highlight: "Quyết toán cọc minh bạch",
+    highlight: "Hoàn cọc PayOS tự động 15 phút",
   },
 ];
 
@@ -51,7 +63,7 @@ export default function PinnedJourney() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        if (railPathRef.current) gsap.set(railPathRef.current, { drawSVG: "100%" });
+        if (railPathRef.current) gsap.set(railPathRef.current, { strokeDashoffset: 0 });
         if (cardsRef.current) {
           const cards = cardsRef.current.querySelectorAll<HTMLElement>("[data-journey-card]");
           gsap.set(cards, { opacity: 1, y: 0 });
@@ -59,23 +71,6 @@ export default function PinnedJourney() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        if (railPathRef.current && cardsRef.current) {
-          gsap.fromTo(
-            railPathRef.current,
-            { drawSVG: "0%" },
-            {
-              drawSVG: "100%",
-              ease: "none",
-              scrollTrigger: {
-                trigger: cardsRef.current,
-                start: "top 70%",
-                end: "bottom 70%",
-                scrub: 0.5,
-              },
-            }
-          );
-        }
-
         if (cardsRef.current) {
           const cards = cardsRef.current.querySelectorAll<HTMLElement>("[data-journey-card]");
           cards.forEach((card, idx) => {
@@ -114,7 +109,7 @@ export default function PinnedJourney() {
 
   return (
     <section
-      id="hanh-trinh"
+      id="quy-trinh"
       ref={containerRef}
       data-journey-container="true"
       className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative overflow-clip"
@@ -122,12 +117,17 @@ export default function PinnedJourney() {
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
         {/* Left Column: Pinned Narrative on Desktop */}
         <div className="lg:col-span-5 space-y-6 lg:motion-safe:sticky lg:top-[120px]">
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08]">
-            Hành trình ba bước nhận và trả xe
-          </h2>
+          <div>
+            <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
+              QUY TRÌNH THUÊ XE MINH BẠCH // VẬN HÀNH TỰ ĐỘNG
+            </span>
+            <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08] text-balance">
+              Quy trình 4&#160;bước trải&#160;nghiệm xe cao&#160;cấp
+            </h2>
+          </div>
 
-          <p className="text-sm sm:text-base text-ink-2 font-normal leading-relaxed">
-            Quy trình tinh gọn, minh bạch từ lúc nhận chìa khóa đến khi quyết toán và hoàn cọc.
+          <p className="text-sm sm:text-base text-ink-2 font-normal leading-relaxed text-balance">
+            Quy trình hoàn toàn tự động hóa từ xác thực eKYC trực tuyến, mở khóa thông minh cho đến đối soát hoàn cọc minh bạch.
           </p>
 
           {/* Vertical Progress Rail */}
@@ -203,8 +203,8 @@ export default function PinnedJourney() {
               >
                 <div>
                   <div className="flex items-center justify-between mb-5 pb-4 border-b border-line">
-                    <span className="text-xs font-semibold tracking-wide text-primary">
-                      Bước {phase.step}
+                    <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase">
+                      Bước {phase.step} // {phase.subtitle}
                     </span>
 
                     <div className="w-10 h-10 rounded-xl bg-surface-raised border border-line text-primary flex items-center justify-center">
@@ -222,14 +222,14 @@ export default function PinnedJourney() {
                 </div>
 
                 <div className="pt-4 border-t border-line flex items-center justify-between text-xs">
-                  <span className="font-medium text-xs text-primary">
+                  <span className="font-semibold text-xs text-primary">
                     {phase.highlight}
                   </span>
 
                   {idx === PHASES.length - 1 && (
                     <span className="font-semibold text-primary flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-                      Hoàn tất lượt thuê
+                      Hoàn tất tự động
                     </span>
                   )}
                 </div>

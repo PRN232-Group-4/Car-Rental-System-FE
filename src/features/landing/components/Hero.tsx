@@ -1,12 +1,39 @@
 "use client";
 
 import { useRef } from "react";
+import dynamic from "next/dynamic";
 import { SearchWidget } from "@/features/rentals";
 import type { RentalMode } from "@/features/rentals/components/SearchWidget";
 import { ArrowUpRight } from "lucide-react";
 import { useSplitReveal } from "@/lib/motion/text";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
+
+const Hero3DCanvas = dynamic(() => import("./Hero3DCanvas"), {
+  ssr: false,
+  loading: () => (
+    <picture className="w-full flex justify-center pointer-events-none">
+      <source
+        type="image/avif"
+        srcSet="/assets/hero-car/hero-car-composite-1920.avif 1920w, /assets/hero-car/hero-car-composite-1280.avif 1280w, /assets/hero-car/hero-car-composite-960.avif 960w, /assets/hero-car/hero-car-composite-640.avif 640w"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
+      />
+      <source
+        type="image/webp"
+        srcSet="/assets/hero-car/hero-car-composite-1920.webp 1920w, /assets/hero-car/hero-car-composite-1280.webp 1280w, /assets/hero-car/hero-car-composite-960.webp 960w, /assets/hero-car/hero-car-composite-640.webp 640w"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
+      />
+      <img
+        src="/assets/hero-car/hero-car-composite-1280.webp"
+        alt="Porsche Carrera 4S Thong Dong"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        className="w-full h-auto max-h-[220px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain drop-shadow-[0_28px_40px_rgba(0,0,0,0.20)]"
+      />
+    </picture>
+  ),
+});
 
 interface HeroProps {
   onSearchCriteriaChange?: (criteria: {
@@ -36,7 +63,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
     linesClass: "mask-reveal-safe overflow-hidden inline-block",
   });
 
-  // Dẫn dắt nhịp đọc trơn tru từ tiêu đề xuống khu vực hành động chính và làm nổi bật hành động cốt lõi.
+  // Dẫn dắt nhịp đọc trơn tru từ tiêu đề xuống khu vực hành động chính.
   useGSAP(
     () => {
       if (typeof window === "undefined" || !containerRef.current) return;
@@ -51,25 +78,27 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        const tl = gsap.timeline({
+          defaults: { ease: "power2.out" },
+        });
 
-        // Tạo cảm giác chiều sâu thị giác phân tầng giữa lớp hình ảnh và lớp nội dung.
+        // 1. Vehicle stage expands forward
         if (stageRef.current) {
           tl.fromTo(
             stageRef.current,
-            { opacity: 0, scale: 0.96, clipPath: "inset(4% 4% 4% 4% round 16px)" },
-            { opacity: 1, scale: 1, clipPath: "inset(0% 0% 0% 0% round 16px)", duration: 0.8 },
+            { opacity: 0, scale: 0.94, y: 20 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.95 },
             0.15
           );
         }
 
-        // Dẫn dắt nhịp đọc trơn tru từ tiêu đề xuống khu vực hành động chính.
+        // 2. Sub-Headline and Sub-action reveal smoothly
         if (subtitleRef.current) {
           tl.fromTo(
             subtitleRef.current,
-            { opacity: 0, y: 16 },
-            { opacity: 1, y: 0, duration: 0.6 },
-            0.3
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: 0.7 },
+            0.45
           );
         }
 
@@ -77,18 +106,18 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           tl.fromTo(
             subActionRef.current,
             { opacity: 0, y: 12 },
-            { opacity: 1, y: 0, duration: 0.5 },
-            0.45
+            { opacity: 1, y: 0, duration: 0.65 },
+            0.55
           );
         }
 
-        // Làm nổi bật hành động quan trọng nhất trên màn hình đầu tiên (Above The Fold).
+        // 3. Search console floats smoothly into place
         if (searchConsoleRef.current) {
           tl.fromTo(
             searchConsoleRef.current,
-            { opacity: 0, y: 24 },
-            { opacity: 1, y: 0, duration: 0.75 },
-            0.35
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.8 },
+            0.6
           );
         }
       });
@@ -103,7 +132,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
       ref={containerRef}
       className="relative w-full min-h-[100dvh] pt-20 md:pt-24 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-between overflow-visible"
     >
-      {/* 1. Architectural CAD Hairline Grid Background (Pure 1px lines, absolutely NO decorative text) */}
+      {/* 1. Architectural CAD Hairline Grid Background */}
       <div
         className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
         aria-hidden="true"
@@ -128,55 +157,36 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         </svg>
       </div>
 
-      {/* Main Asymmetrical Stage Container (V3b Layout: Huge Typography Backdrop + Foreground Vehicle + Docked Console) */}
+      {/* Main Asymmetrical Stage Container */}
       <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-between relative z-10">
         {/* Stage Area */}
         <div className="relative w-full flex flex-col items-center pt-2 sm:pt-4">
-          {/* Layer 1 (z-10): Huge Monumental Backdrop H1 Heading */}
+          {/* Layer 1 (z-10): Monumental Backdrop H1 Heading with non-breaking space */}
           <h1
             ref={headingRef}
-            className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(2.75rem,8.5vw,9.5rem)] text-center w-full select-none opacity-95 relative z-10 pt-2"
+            className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(2.75rem,8.5vw,9.5rem)] text-center w-full select-none opacity-95 relative z-10 pt-2 text-balance"
           >
-            Thuê xe thong dong.
+            Thuê xe thong&#160;dong.
           </h1>
 
-          {/* Layer 2 (z-20): Vehicle Foreground Stage (Porsche 911 Carrera 4S Amber Gold) */}
+          {/* Layer 2 (z-20): Vehicle Foreground Stage (Interactive 3D on Desktop + Fallback Picture) */}
           <div
             ref={stageRef}
-            className="relative w-full max-w-[1220px] mx-auto -mt-10 sm:-mt-20 md:-mt-28 lg:-mt-36 z-20 flex justify-center pointer-events-none"
+            className="relative w-full max-w-[1220px] mx-auto -mt-8 sm:-mt-16 md:-mt-24 lg:-mt-32 z-20 flex justify-center"
           >
-            <picture className="w-full flex justify-center">
-              <source
-                type="image/avif"
-                srcSet="/assets/hero-car/hero-car-composite-1920.avif 1920w, /assets/hero-car/hero-car-composite-1280.avif 1280w, /assets/hero-car/hero-car-composite-960.avif 960w, /assets/hero-car/hero-car-composite-640.avif 640w"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
-              />
-              <source
-                type="image/webp"
-                srcSet="/assets/hero-car/hero-car-composite-1920.webp 1920w, /assets/hero-car/hero-car-composite-1280.webp 1280w, /assets/hero-car/hero-car-composite-960.webp 960w, /assets/hero-car/hero-car-composite-640.webp 640w"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
-              />
-              <img
-                src="/assets/hero-car/hero-car-composite-1280.webp"
-                alt="Porsche Carrera 4S Thong Dong"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                className="w-full h-auto max-h-[220px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain drop-shadow-[0_28px_40px_rgba(0,0,0,0.20)]"
-              />
-            </picture>
+            <Hero3DCanvas />
           </div>
         </div>
 
-        {/* Layer 3 (z-30): Sub-Headline Row (Neutral Copy based on SRS/BE truth matrix) */}
+        {/* Layer 3 (z-30): Sub-Headline Row */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end relative z-30 mb-4 sm:mb-6">
           <div className="md:col-span-8 flex flex-col items-start text-left">
-            <h2 className="font-sans font-bold text-ink tracking-tight text-lg sm:text-2xl md:text-[1.65rem] leading-snug">
-              Sẵn sàng lăn bánh tại mọi trạm.
+            <h2 className="font-sans font-bold text-ink tracking-tight text-lg sm:text-2xl md:text-[1.65rem] leading-snug text-balance">
+              Sẵn sàng lăn&#160;bánh tại mọi trạm.
             </h2>
             <p
               ref={subtitleRef}
-              className="font-sans text-ink-2 text-sm sm:text-base font-normal leading-relaxed max-w-2xl mt-1 text-pretty"
+              className="font-sans text-ink-2 text-sm sm:text-base font-normal leading-relaxed max-w-2xl mt-1 text-balance"
             >
               Thuần điện và xăng cao cấp, tự lái hoặc có tài xế. Bàn giao số hóa, hoàn cọc minh bạch.
             </p>
@@ -187,7 +197,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
               href="#showroom-3d"
               className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer group py-1"
             >
-              <span>Xem xe 3D tương tác</span>
+              <span>Trạm mô phỏng 3D</span>
               <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           </div>

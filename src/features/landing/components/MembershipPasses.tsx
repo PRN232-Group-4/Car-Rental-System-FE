@@ -120,11 +120,14 @@ export default function MembershipPasses() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink max-w-2xl leading-[1.15]">
-              Gói thuê bao linh hoạt theo nhu cầu
+            <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
+              ĐẶC QUYỀN HỘI VIÊN &amp; GÓI THUÊ BAO
+            </span>
+            <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink max-w-2xl leading-[1.15] text-balance">
+              Gói thuê&#160;bao linh&#160;hoạt theo nhu&#160;cầu
             </h2>
           </div>
-          <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
+          <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed text-balance">
             Tiết kiệm chi phí với các gói thuê theo giờ, quản lý trực tuyến và thanh toán minh bạch qua PayOS.
           </p>
         </div>
@@ -161,10 +164,10 @@ export default function MembershipPasses() {
           </p>
         )}
 
-        {/* Bento bất đối xứng 2 cột (Cột chính: 7 cols, Cột phụ: 5 cols = 12 cols, 0 ô trống) */}
+        {/* Bento bất đối xứng 2 cột */}
         {!loading && !loadError && plans.length > 0 && featuredPlan && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Cột chính: Thẻ tiêu điểm khổ lớn (7 cột trên Desktop) */}
+            {/* Cột chính: Thẻ tiêu điểm khổ lớn */}
             <div data-membership-bento className={`rounded-3xl p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 bg-surface border-2 border-primary/60 shadow-md text-ink ${
               otherPlans.length > 0 ? "lg:col-span-7" : "lg:col-span-12"
             }`}>
@@ -228,7 +231,7 @@ export default function MembershipPasses() {
                   onClick={() => handlePurchase(featuredPlan)}
                   disabled={purchasingId === featuredPlan.id}
                   variant="marketing-cta"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider rounded-xl"
                 >
                   {purchasingId === featuredPlan.id ? (
                     <>
@@ -245,7 +248,7 @@ export default function MembershipPasses() {
               </div>
             </div>
 
-            {/* Cột phụ: Các gói còn lại xếp dọc (5 cột trên Desktop) */}
+            {/* Cột phụ: Các gói còn lại xếp dọc */}
             {otherPlans.length > 0 && (
               <div className="lg:col-span-5 flex flex-col gap-6 justify-between">
                 {otherPlans.map((plan) => {
@@ -279,7 +282,7 @@ export default function MembershipPasses() {
                           Hạn dùng {plan.validityDays} ngày
                         </p>
 
-                        {/* Quyền lợi rút gọn (tối đa 2) */}
+                        {/* Quyền lợi rút gọn */}
                         {plan.features && plan.features.length > 0 && (
                           <div className="space-y-2 mb-6">
                             {plan.features.slice(0, 2).map((feat, fIdx) => (
@@ -297,7 +300,7 @@ export default function MembershipPasses() {
                           onClick={() => handlePurchase(plan)}
                           disabled={isPurchasing}
                           variant="secondary"
-                          className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold uppercase tracking-wider"
+                          className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl"
                         >
                           {isPurchasing ? (
                             <>
