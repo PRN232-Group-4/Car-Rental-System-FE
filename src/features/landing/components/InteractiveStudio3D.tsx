@@ -349,6 +349,27 @@ export default function InteractiveStudio3D() {
     rimLight.position.set(0, 6, -6);
     scene.add(rimLight);
 
+    // Dynamic zero-jitter theme lighting adjustment without re-creating WebGL
+    const updateStudioThemeLighting = (isDark: boolean) => {
+      gsap.to(ambientLight, { intensity: isDark ? 1.25 : 1.5, duration: 0.4 });
+      gsap.to(rimLight, { intensity: isDark ? 2.3 : 1.8, duration: 0.4 });
+      gsap.to(renderer, { toneMappingExposure: isDark ? 1.25 : 1.15, duration: 0.4 });
+    };
+
+    const isStudioInitialDark = typeof document !== "undefined" && 
+      (document.documentElement.classList.contains("dark") || document.documentElement.dataset.theme === "dark");
+    if (isStudioInitialDark) updateStudioThemeLighting(true);
+
+    const studioThemeObserver = new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains("dark") || 
+                     document.documentElement.dataset.theme === "dark";
+      updateStudioThemeLighting(isDark);
+    });
+    studioThemeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "class"],
+    });
+
     // Soft Contact Shadow Plane: Radial gradient fading smoothly to zero (0 draw call shadow map)
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 512;
@@ -424,6 +445,7 @@ export default function InteractiveStudio3D() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      studioThemeObserver.disconnect();
       observer.disconnect();
       renderer.domElement.removeEventListener("webglcontextlost", handleContextLost);
       window.removeEventListener("scroll", handleScroll);
@@ -566,14 +588,22 @@ export default function InteractiveStudio3D() {
   );
 
   return (
-    <section id="showroom-3d" ref={sectionRef} className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
+    <section id="showroom-3d" ref={sectionRef} className="relative py-24 px-4 sm:px-6 lg:px-12 w-full max-w-[1480px] xl:max-w-[1600px] mx-auto scroll-mt-24 overflow-hidden">
+      {/* Monumental Chapter Numeral */}
+      <span 
+        aria-hidden="true" 
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+      >
+        02
+      </span>
+
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
             TRẠM MÔ PHỎNG KIỂM ĐỊNH KỸ THUẬT SỐ // TỶ LỆ NGUYÊN BẢN 1:1
           </span>
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight text-balance">
+          <h2 data-kinetic-skew="true" className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight text-balance">
             Trạm mô&#160;phỏng kiểm&#160;định xe kỹ&#160;thuật&#160;số
           </h2>
         </div>

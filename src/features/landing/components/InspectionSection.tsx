@@ -48,14 +48,22 @@ export default function InspectionSection() {
   );
 
   return (
-    <section id="cong-nghe" ref={containerRef} className="relative mx-auto max-w-7xl scroll-mt-24 px-4 py-24 sm:px-6 lg:px-8">
+    <section id="cong-nghe" ref={containerRef} className="relative mx-auto w-full max-w-[1480px] xl:max-w-[1600px] scroll-mt-24 px-4 sm:px-6 lg:px-12 py-20 sm:py-24 overflow-hidden">
+      {/* Monumental Chapter Numeral */}
+      <span 
+        aria-hidden="true" 
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+      >
+        05
+      </span>
+
       {/* Header */}
       <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
           <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
             TELEMETICS &amp; BIÊN BẢN SỐ HÓA // SRS §3.8 &amp; §4.4
           </span>
-          <h2 className="font-display text-3xl font-black tracking-tight text-ink sm:text-5xl text-balance">
+          <h2 data-kinetic-skew="true" className="font-display text-3xl font-black tracking-tight text-ink sm:text-5xl text-balance">
             Kiểm định hai chiều và quyết toán
           </h2>
         </div>
@@ -67,7 +75,13 @@ export default function InspectionSection() {
       {/* Bento Grid 5 ô không ô trống: Hàng 1 (8 + 4 = 12 cols); Hàng 2 (4 + 4 + 4 = 12 cols) */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-12">
         {/* Ô 1: Tiêu điểm Biên bản 2 chiều kèm Telemetry Ledger (8 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-2 lg:col-span-8">
+        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-2 lg:col-span-8 overflow-hidden">
+          {/* Corner CAD Reticles */}
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+
           <div>
             <div className="mb-6 flex items-center justify-between border-b border-line pb-4">
               <div className="flex items-center gap-2.5">
@@ -142,7 +156,12 @@ export default function InspectionSection() {
         </div>
 
         {/* Ô 2: Ô số liệu lớn - 2 lượt kiểm định mỗi chuyến (4 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
+        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+
           <div>
             <div className="font-display text-5xl sm:text-6xl font-black text-primary tracking-tight leading-none mb-3">
               2
@@ -162,7 +181,12 @@ export default function InspectionSection() {
         </div>
 
         {/* Ô 3: Ô nhịp tương phản - Minh bạch tài chính (4 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-stage-ink text-white p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
+        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-stage-ink text-white p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
+
           <div>
             <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
               Minh bạch tài chính
@@ -182,7 +206,12 @@ export default function InspectionSection() {
         </div>
 
         {/* Ô 4: Kiểm tra kỹ thuật và chỉ số thực tế (4 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
+        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+
           <div>
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
               <Cpu className="h-5 w-5" aria-hidden="true" />
@@ -223,7 +252,12 @@ export default function InspectionSection() {
         </div>
 
         {/* Ô 5: Quyết toán và hoàn cọc minh bạch (4 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
+        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+
           <div>
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
               <FileCheck2 className="h-5 w-5" aria-hidden="true" />

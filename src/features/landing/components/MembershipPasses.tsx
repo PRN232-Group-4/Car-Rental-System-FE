@@ -139,9 +139,17 @@ export default function MembershipPasses() {
     <section 
       id="goi-thue-bao"
       ref={containerRef}
-      className="relative py-28 px-4 sm:px-6 lg:px-8 bg-surface-raised text-ink border-t border-line overflow-hidden scroll-mt-24"
+      className="relative py-24 sm:py-28 px-4 sm:px-6 lg:px-12 bg-canvas text-ink border-t border-line-strong overflow-hidden scroll-mt-24"
     >
-      <div className="max-w-7xl mx-auto relative z-10">
+      {/* Monumental Chapter Numeral */}
+      <span 
+        aria-hidden="true" 
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+      >
+        07
+      </span>
+
+      <div className="max-w-[1480px] xl:max-w-[1600px] mx-auto relative z-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
@@ -196,10 +204,15 @@ export default function MembershipPasses() {
             <div 
               data-pass-card
               data-membership-bento 
-              className={`rounded-3xl p-7 sm:p-9 flex flex-col justify-between bg-surface border-2 border-primary/60 shadow-md text-ink opacity-100 ${
+              className={`group relative rounded-xl p-7 sm:p-9 flex flex-col justify-between bg-surface border-2 border-primary/60 shadow-md text-ink opacity-100 overflow-hidden ${
                 otherPlans.length > 0 ? "lg:col-span-7" : "lg:col-span-12"
               }`}
             >
+              {/* Corner CAD Reticles */}
+              <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-primary" />
+              <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-primary" />
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-primary" />
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-primary" />
               <div>
                 <div className="flex items-center justify-between pb-4 mb-6 border-b border-line">
                   <div className="flex items-center gap-2">
@@ -287,8 +300,13 @@ export default function MembershipPasses() {
                       key={plan.id}
                       data-pass-card
                       data-membership-bento
-                      className="rounded-3xl p-6 sm:p-7 flex flex-col justify-between bg-surface border border-line-strong hover:border-line shadow-sm text-ink flex-1 opacity-100"
+                      className="group relative rounded-xl p-6 sm:p-7 flex flex-col justify-between bg-surface border border-line-strong hover:border-primary/50 shadow-sm text-ink flex-1 opacity-100 overflow-hidden transition-colors"
                     >
+                      {/* Corner CAD Reticles */}
+                      <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+                      <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+                      <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
+                      <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
                       <div>
                         <div className="flex items-center justify-between pb-3 mb-4 border-b border-line">
                           <span className="font-mono text-xs font-bold text-ink-3">

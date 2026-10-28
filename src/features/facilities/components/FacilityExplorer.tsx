@@ -77,11 +77,21 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
   };
 
   return (
-    <section id="chi-nhanh" className="mx-auto w-full max-w-7xl scroll-mt-28 px-4 py-16 sm:px-6 md:py-24">
-      <SectionHeading 
-        title="Chi nhánh & điểm nhận xe" 
-        subtitle="Mạng lưới trạm bàn giao kỹ thuật số 24/7 tại các vị trí trọng điểm TP. Hồ Chí Minh." 
-      />
+    <section id="chi-nhanh" className="mx-auto w-full max-w-[1480px] xl:max-w-[1600px] scroll-mt-28 px-4 sm:px-6 lg:px-12 py-20 sm:py-24 relative overflow-hidden">
+      {/* Monumental Chapter Numeral */}
+      <span 
+        aria-hidden="true" 
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+      >
+        04
+      </span>
+
+      <div data-kinetic-skew="true">
+        <SectionHeading 
+          title="Chi nhánh & điểm nhận xe" 
+          subtitle="Mạng lưới trạm bàn giao kỹ thuật số 24/7 tại các vị trí trọng điểm TP. Hồ Chí Minh." 
+        />
+      </div>
 
       {current && (
         <div className="grid items-start gap-6 lg:grid-cols-[2fr_3fr]">

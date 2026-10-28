@@ -59,6 +59,27 @@ export default function Hero3DCanvas() {
     rimLight.position.set(0, 5, -5);
     scene.add(rimLight);
 
+    // Dynamic zero-jitter theme lighting adjustment without re-creating WebGL
+    const updateThemeLighting = (isDark: boolean) => {
+      gsap.to(ambientLight, { intensity: isDark ? 1.15 : 1.4, duration: 0.4 });
+      gsap.to(rimLight, { intensity: isDark ? 2.1 : 1.6, duration: 0.4 });
+      gsap.to(renderer, { toneMappingExposure: isDark ? 1.25 : 1.15, duration: 0.4 });
+    };
+
+    const isInitialDark = typeof document !== "undefined" && 
+      (document.documentElement.classList.contains("dark") || document.documentElement.dataset.theme === "dark");
+    if (isInitialDark) updateThemeLighting(true);
+
+    const themeObserver = new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains("dark") || 
+                     document.documentElement.dataset.theme === "dark";
+      updateThemeLighting(isDark);
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "class"],
+    });
+
     // 3. Radial Soft Contact Shadow with explicit clearRect and zero-alpha fade
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 512;
@@ -181,6 +202,7 @@ export default function Hero3DCanvas() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      themeObserver.disconnect();
       observer.disconnect();
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("resize", handleResize);

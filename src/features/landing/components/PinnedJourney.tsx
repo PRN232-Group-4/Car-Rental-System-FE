@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { KeyRound, ShieldCheck, RefreshCw, CheckCircle2, FileText, Smartphone } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { CadCard } from "@/components/ui/CadCard";
 
 interface JourneyPhase {
   step: string;
@@ -49,13 +50,18 @@ const PHASES: JourneyPhase[] = [
   },
 ];
 
+/**
+ * PinnedJourney (Awwwards SOTD v4.0):
+ * Khắc phục triệt để lỗi lệch tâm trục dọc bằng cơ cấu cột cố định 24px (w-6),
+ * khóa tuyệt đối tâm toán học x = 12px qua cả 4 bước hành trình.
+ * Tích hợp hệ thống thẻ CadCard chuẩn khí cụ kỹ thuật.
+ */
 export default function PinnedJourney() {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
-  const railPathRef = useRef<SVGLineElement>(null);
+  const railProgressRef = useRef<HTMLDivElement>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
 
-  // Minh hoạ trực quan quy trình giao nhận xe như một dòng chảy liên tục.
   useGSAP(
     () => {
       if (typeof window === "undefined" || !containerRef.current) return;
@@ -63,7 +69,7 @@ export default function PinnedJourney() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        if (railPathRef.current) gsap.set(railPathRef.current, { strokeDashoffset: 0 });
+        if (railProgressRef.current) gsap.set(railProgressRef.current, { scaleY: 1 });
         if (cardsRef.current) {
           const cards = cardsRef.current.querySelectorAll<HTMLElement>("[data-journey-card]");
           gsap.set(cards, { opacity: 1, y: 0 });
@@ -99,6 +105,24 @@ export default function PinnedJourney() {
               onEnterBack: () => setActivePhaseIndex(idx),
             });
           });
+
+          // Sync vertical rail progress line
+          if (railProgressRef.current && containerRef.current) {
+            gsap.fromTo(
+              railProgressRef.current,
+              { scaleY: 0 },
+              {
+                scaleY: 1,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: containerRef.current,
+                  start: "top 70%",
+                  end: "bottom 70%",
+                  scrub: true,
+                },
+              }
+            );
+          }
         }
       });
 
@@ -112,16 +136,24 @@ export default function PinnedJourney() {
       id="quy-trinh"
       ref={containerRef}
       data-journey-container="true"
-      className="py-24 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-28 relative overflow-clip"
+      className="py-20 sm:py-24 md:py-28 px-4 sm:px-6 lg:px-12 w-full max-w-[1480px] xl:max-w-[1600px] mx-auto scroll-mt-28 relative overflow-hidden"
     >
+      {/* Monumental Chapter Numeral */}
+      <span 
+        aria-hidden="true" 
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+      >
+        06
+      </span>
+
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
         {/* Left Column: Pinned Narrative on Desktop */}
-        <div className="lg:col-span-5 space-y-6 lg:motion-safe:sticky lg:top-[120px]">
+        <div className="lg:col-span-5 space-y-8 lg:motion-safe:sticky lg:top-28">
           <div>
             <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
               QUY TRÌNH THUÊ XE MINH BẠCH // VẬN HÀNH TỰ ĐỘNG
             </span>
-            <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08] text-balance">
+            <h2 data-kinetic-skew="true" className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight leading-[1.08] text-balance">
               Quy trình 4&#160;bước trải&#160;nghiệm xe cao&#160;cấp
             </h2>
           </div>
@@ -130,50 +162,61 @@ export default function PinnedJourney() {
             Quy trình hoàn toàn tự động hóa từ xác thực eKYC trực tuyến, mở khóa thông minh cho đến đối soát hoàn cọc minh bạch.
           </p>
 
-          {/* Vertical Progress Rail */}
-          <div data-journey-rail="true" className="pt-2 hidden sm:block relative">
-            <svg
-              className="absolute left-[7px] top-3 bottom-3 w-[2px] h-[calc(100%-24px)] overflow-visible pointer-events-none"
+          {/* Vertical Progress Rail (Strict Mathematical Center Alignment at x = 12px) */}
+          <div data-journey-rail="true" className="hidden sm:block relative pt-2">
+            {/* Background continuous track line centered at 11.25px (middle of w-6) */}
+            <div 
               aria-hidden="true"
-            >
-              <line x1="0" y1="0" x2="0" y2="100%" stroke="currentColor" strokeWidth="2" className="text-line" />
-              <line ref={railPathRef} x1="0" y1="0" x2="0" y2="100%" stroke="currentColor" strokeWidth="2" className="text-primary" />
-            </svg>
-            <div className="relative pl-6 space-y-4">
+              className="absolute left-[11.25px] top-3 bottom-3 w-[1.5px] bg-line-strong pointer-events-none"
+            />
+            {/* Animated GSAP progress bar track line */}
+            <div 
+              ref={railProgressRef}
+              aria-hidden="true"
+              className="absolute left-[11.25px] top-3 bottom-3 w-[1.5px] bg-primary origin-top pointer-events-none"
+            />
+
+            {/* Steps Axis Stack */}
+            <div className="relative space-y-6">
               {PHASES.map((phase, idx) => {
                 const isActive = idx === activePhaseIndex;
                 return (
                   <div
                     key={phase.step}
                     data-journey-step={phase.step}
-                    className="relative group cursor-default transition-all duration-300"
+                    className="flex items-center gap-4 relative group cursor-default"
                   >
-                    {/* Rail Node Dot */}
-                    <div
-                      className={`absolute -left-[31px] top-1 w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
-                        isActive
-                          ? "border-primary bg-primary ring-4 ring-primary/20 scale-125"
-                          : "border-line bg-surface group-hover:border-primary/50"
-                      }`}
-                    >
+                    {/* Strict Fixed-Width Axis Container (w-6 h-6, Center at x = 12px) */}
+                    <div className="relative flex h-6 w-6 shrink-0 items-center justify-center">
+                      {/* Active Concentric Pulse Ring (Does not shift center) */}
+                      {isActive && (
+                        <span 
+                          aria-hidden="true"
+                          className="absolute inset-0.5 rounded-full border border-primary animate-pulse" 
+                        />
+                      )}
+                      {/* Center Dot Locked to Exact Center */}
                       <span
-                        className={`w-1 h-1 rounded-full ${
-                          isActive ? "bg-white" : "bg-stage-ink"
+                        className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                          isActive 
+                            ? "bg-primary shadow-sm" 
+                            : "bg-line-strong group-hover:bg-primary/60"
                         }`}
                       />
                     </div>
-                    <div className="flex items-center gap-2.5">
+
+                    {/* Step Title & Subtitle */}
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <span
-                        className={`text-xs font-semibold transition-colors ${
-                          isActive ? "text-primary" : "text-ink group-hover:text-primary"
+                        className={`font-mono text-xs font-bold transition-colors ${
+                          isActive ? "text-primary" : "text-ink-3 group-hover:text-ink"
                         }`}
                       >
-                        Bước {phase.step}
+                        0{phase.step} //
                       </span>
-                      <span className="text-ink-3 text-xs">/</span>
                       <span
                         className={`text-xs truncate transition-colors ${
-                          isActive ? "text-ink font-bold" : "text-ink-2 font-semibold"
+                          isActive ? "text-ink font-bold" : "text-ink-2 font-medium"
                         }`}
                       >
                         {phase.title}
@@ -192,48 +235,45 @@ export default function PinnedJourney() {
             const Icon = phase.icon;
             const isActive = idx === activePhaseIndex;
             return (
-              <div
+              <CadCard
                 key={phase.step}
                 data-journey-card={phase.step}
-                className={`relative overflow-hidden rounded-3xl p-7 sm:p-9 bg-surface border transition-all duration-300 flex flex-col justify-between ${
-                  isActive
-                    ? "border-primary/60 shadow-[0_12px_36px_rgba(180,83,9,0.1)] ring-1 ring-primary/20"
-                    : "border-line-strong shadow-sm hover:shadow-md"
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-line">
-                    <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase">
-                      Bước {phase.step} // {phase.subtitle}
-                    </span>
-
-                    <div className="w-10 h-10 rounded-xl bg-surface-raised border border-line text-primary flex items-center justify-center">
-                      <Icon className="w-5 h-5 stroke-[2]" aria-hidden="true" />
-                    </div>
+                active={isActive}
+                headerLeft={
+                  <span>
+                    BƯỚC {phase.step} // {phase.subtitle}
+                  </span>
+                }
+                headerRight={
+                  <div className="w-7 h-7 rounded-lg bg-surface border border-line text-primary flex items-center justify-center">
+                    <Icon className="w-3.5 h-3.5 stroke-[2]" aria-hidden="true" />
                   </div>
-
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-ink mb-2 tracking-tight">
+                }
+                className="p-6 sm:p-8"
+              >
+                <div className="space-y-4">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-ink tracking-tight">
                     {phase.title}
                   </h3>
 
-                  <p className="text-sm text-ink-2 font-normal leading-relaxed mb-6">
+                  <p className="text-sm text-ink-2 font-normal leading-relaxed">
                     {phase.description}
                   </p>
-                </div>
 
-                <div className="pt-4 border-t border-line flex items-center justify-between text-xs">
-                  <span className="font-semibold text-xs text-primary">
-                    {phase.highlight}
-                  </span>
-
-                  {idx === PHASES.length - 1 && (
-                    <span className="font-semibold text-primary flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-                      Hoàn tất tự động
+                  <div className="pt-4 border-t border-line flex items-center justify-between text-xs">
+                    <span className="font-semibold text-xs text-primary font-mono">
+                      {phase.highlight}
                     </span>
-                  )}
+
+                    {idx === PHASES.length - 1 && (
+                      <span className="font-semibold text-primary flex items-center gap-1.5 font-mono text-xs">
+                        <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
+                        HOÀN TẤT TỰ ĐỘNG
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </CadCard>
             );
           })}
         </div>

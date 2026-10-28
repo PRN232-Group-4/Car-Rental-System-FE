@@ -157,13 +157,22 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         </svg>
       </div>
 
+      {/* Monumental Chapter Numeral */}
+      <span 
+        aria-hidden="true" 
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+      >
+        01
+      </span>
+
       {/* Main Asymmetrical Stage Container */}
-      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-between relative z-10">
+      <div className="w-full mx-auto flex-1 flex flex-col justify-between relative z-10">
         {/* Stage Area */}
         <div className="relative w-full flex flex-col items-center pt-2 sm:pt-4">
           {/* Layer 1 (z-10): Monumental Backdrop H1 Heading with non-breaking space */}
           <h1
             ref={headingRef}
+            data-kinetic-skew="true"
             className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(2.75rem,8.5vw,9.5rem)] text-center w-full select-none opacity-95 relative z-10 pt-2 text-balance"
           >
             Thuê xe thong&#160;dong.

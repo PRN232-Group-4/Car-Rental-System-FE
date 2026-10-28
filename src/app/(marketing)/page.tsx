@@ -13,9 +13,15 @@ import {
   MembershipPasses,
   ContinuousBlueprint,
   InteractiveStudioGate,
+  TelemetryBridgeBar,
 } from "@/features/landing";
 import { bricolage, manrope, jetbrainsMono } from "./fonts";
 
+/**
+ * Landing Page Thong Dong Luxury Mobility Platform (Awwwards SOTD v4.0).
+ * Cấu trúc Khung Monolith Kiến Trúc Liên Tục (Architectural Swiss Grid Frame) 1600px
+ * kết hợp nền Kinetic Blueprint tương tác và dải Telemetry Bridge triệt tiêu khoảng trắng chết.
+ */
 export default function Home() {
   return (
     <SmoothScrollProvider>
@@ -33,42 +39,51 @@ export default function Home() {
           {/* Background Architectural Canvas & Subtle Depth */}
           <div className="absolute inset-0 pointer-events-none z-0 bg-canvas" />
 
-          {/* Full Page Engineering Continuous Blueprint Dossier Background */}
+          {/* Full Page Engineering Continuous Blueprint Kinetic Background */}
           <ContinuousBlueprint />
 
-          <div className="relative z-10 flex flex-col w-full">
+          {/* Continuous Architectural Monolith Grid Frame (1600px) */}
+          <div className="relative z-10 w-full max-w-[1480px] xl:max-w-[1600px] mx-auto border-x border-line-strong flex flex-col bg-canvas/30">
             {/* 1. Warm Editorial Hero with Single-Deck Search Console */}
-            <div id="gioi-thieu">
+            <div id="gioi-thieu" className="relative">
               <Hero />
             </div>
 
-            {/* 2. Dedicated Interactive 3D WebGL Studio (Porsche 1975 Classic vs 2026 Carrera 4S) - Dynamic Import with Intent Gate */}
-            <InteractiveStudioGate />
+            {/* 2. Dedicated Interactive 3D WebGL Studio */}
+            <div id="showroom-3d" className="relative border-t border-line-strong">
+              <InteractiveStudioGate />
+            </div>
 
-            {/* 3. Multi-Category Vehicle Catalog (4 Groups: Electric/Petrol, Cars/Bikes, Chauffeur/Self-Drive) */}
-            <div id="danh-muc-xe" className="scroll-mt-24">
+            {/* Technical Telemetry Bridge Bar: Kết nối liền mạch Studio 3D sang Danh mục hạm đội */}
+            <TelemetryBridgeBar />
+
+            {/* 3. Multi-Category Vehicle Catalog (Asymmetric Interactive Fleet Exhibition Matrix) */}
+            <div id="danh-muc-xe" className="relative scroll-mt-24 border-t border-line-strong">
               <MultiFleetCatalog />
             </div>
 
-            <FacilityExplorer />
+            {/* 4. Facility Network Explorer */}
+            <div id="chi-nhanh" className="relative scroll-mt-24 border-t border-line-strong">
+              <FacilityExplorer />
+            </div>
 
             {/* 5. Dual Inspection & Settlement Section */}
-            <div id="cong-nghe" className="scroll-mt-24">
+            <div id="cong-nghe" className="relative scroll-mt-24 border-t border-line-strong">
               <InspectionSection />
             </div>
 
             {/* 6. Sticky Journey Narrative with GSAP Card Reveals */}
-            <div id="quy-trinh" className="scroll-mt-24">
+            <div id="quy-trinh" className="relative scroll-mt-24 border-t border-line-strong">
               <PinnedJourney />
             </div>
 
             {/* 7. Digital Membership Passes */}
-            <div id="goi-thue-bao" className="scroll-mt-24">
+            <div id="goi-thue-bao" className="relative scroll-mt-24 border-t border-line-strong">
               <MembershipPasses />
             </div>
 
             {/* 8. Comprehensive Legal & Network Footer */}
-            <div id="lien-he">
+            <div id="lien-he" className="relative border-t border-line-strong">
               <Footer />
             </div>
           </div>

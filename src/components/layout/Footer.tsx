@@ -25,7 +25,7 @@ export default function Footer() {
       id="lien-he" 
       className="bg-stage-ink border-t border-white/10 text-white/80 pt-16 pb-12 px-4 sm:px-6 pr-14 md:pr-16 lg:pr-24 xl:pr-28 relative z-10 scroll-mt-24"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1480px] xl:max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 pb-12 border-b border-white/10">
           {/* Brand & Introduction */}
           <div className="lg:col-span-2 space-y-4">
