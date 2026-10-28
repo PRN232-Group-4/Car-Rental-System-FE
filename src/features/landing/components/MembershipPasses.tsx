@@ -48,7 +48,7 @@ export default function MembershipPasses() {
     };
   });
 
-  // Tối ưu hiệu năng reveal animation: tất cả card animate mượt mà khi section vào tầm mắt
+  // Tối ưu hiệu năng: Tuyệt đối không can thiệp opacity (luôn opacity: 1), chỉ trượt nhẹ trục Y và clearProps
   useGSAP(
     () => {
       const el = containerRef.current;
@@ -57,21 +57,22 @@ export default function MembershipPasses() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        const cards = el.querySelectorAll("[data-membership-bento]");
-        gsap.set(cards, { opacity: 1, y: 0 });
+        const cards = el.querySelectorAll("[data-pass-card], [data-membership-bento]");
+        gsap.set(cards, { y: 0, opacity: 1 });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const cards = el.querySelectorAll("[data-membership-bento]");
+        const cards = el.querySelectorAll("[data-pass-card], [data-membership-bento]");
+        gsap.set(cards, { opacity: 1 });
         gsap.fromTo(
           cards,
-          { opacity: 0, y: 24 },
+          { y: 18 },
           {
-            opacity: 1,
             y: 0,
-            duration: 0.65,
+            duration: 0.5,
+            stagger: 0.06,
             ease: "power2.out",
-            stagger: 0.1,
+            clearProps: "transform",
             scrollTrigger: {
               trigger: el,
               start: "top 88%",
@@ -192,9 +193,13 @@ export default function MembershipPasses() {
         {!loading && !loadError && normalizedPlans.length > 0 && featuredPlan && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Cột chính: Thẻ tiêu điểm khổ lớn */}
-            <div data-membership-bento className={`rounded-3xl p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 bg-surface border-2 border-primary/60 shadow-md text-ink ${
-              otherPlans.length > 0 ? "lg:col-span-7" : "lg:col-span-12"
-            }`}>
+            <div 
+              data-pass-card
+              data-membership-bento 
+              className={`rounded-3xl p-7 sm:p-9 flex flex-col justify-between bg-surface border-2 border-primary/60 shadow-md text-ink opacity-100 ${
+                otherPlans.length > 0 ? "lg:col-span-7" : "lg:col-span-12"
+              }`}
+            >
               <div>
                 <div className="flex items-center justify-between pb-4 mb-6 border-b border-line">
                   <div className="flex items-center gap-2">
@@ -280,8 +285,9 @@ export default function MembershipPasses() {
                   return (
                     <div
                       key={plan.id}
+                      data-pass-card
                       data-membership-bento
-                      className="rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 bg-surface border border-line-strong hover:border-line shadow-sm text-ink flex-1"
+                      className="rounded-3xl p-6 sm:p-7 flex flex-col justify-between bg-surface border border-line-strong hover:border-line shadow-sm text-ink flex-1 opacity-100"
                     >
                       <div>
                         <div className="flex items-center justify-between pb-3 mb-4 border-b border-line">
