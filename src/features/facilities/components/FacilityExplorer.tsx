@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
 import { MapPin, Clock, Phone, Car, ArrowUpRight, Compass, ShieldCheck } from "lucide-react";
 import Link from "@/components/navigation/NavigationLink";
 import { getFacilities, getInitialFacilities } from "../api";
@@ -14,12 +13,29 @@ interface FacilityExplorerProps {
   onSelectFacility?: (facilityId: string) => void;
 }
 
-// Map facility coordinate offsets onto SVG 600x320 CAD Blueprint Canvas
+// Map facility coordinate offsets onto SVG 600x340 CAD Blueprint Canvas
 const PINS_CONFIG: Record<string, { x: number; y: number; label: string; coords: string }> = {
-  "fac-saigon-atelier": { x: 230, y: 155, label: "QUẬN 1 · SAIGON ATELIER", coords: "10.7769° N, 106.7009° E" },
-  "fac-riverside-gallery": { x: 410, y: 105, label: "THẢO ĐIỀN · RIVERSIDE GALLERY", coords: "10.8035° N, 106.7325° E" },
-  "fac-southside-lounge": { x: 310, y: 260, label: "PHÚ MỸ HƯNG · SOUTHSIDE LOUNGE", coords: "10.7295° N, 106.7218° E" },
+  "fac-saigon-atelier": { x: 230, y: 165, label: "QUẬN 1 · SAIGON ATELIER", coords: "10.7769° N, 106.7009° E" },
+  "fac-riverside-gallery": { x: 410, y: 110, label: "THẢO ĐIỀN · RIVERSIDE GALLERY", coords: "10.8035° N, 106.7325° E" },
+  "fac-southside-lounge": { x: 310, y: 275, label: "PHÚ MỸ HƯNG · SOUTHSIDE LOUNGE", coords: "10.7295° N, 106.7218° E" },
 };
+
+function formatFacilityAddress(facility?: { address?: string; district?: string; city?: string }): string {
+  if (!facility) return "";
+  const parts: string[] = [];
+  const rawAddr = facility.address?.trim() || "";
+  const district = facility.district?.trim() || "";
+  const city = facility.city?.trim() || "";
+
+  if (rawAddr) parts.push(rawAddr);
+  if (district && !rawAddr.toLowerCase().includes(district.toLowerCase())) {
+    parts.push(district);
+  }
+  if (city && !rawAddr.toLowerCase().includes(city.toLowerCase())) {
+    parts.push(city);
+  }
+  return parts.filter(Boolean).join(", ");
+}
 
 export default function FacilityExplorer({ selectedFacilityId = "", onSelectFacility }: FacilityExplorerProps) {
   const initial = getInitialFacilities();
@@ -33,7 +49,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
 
   const facilities = query.data ?? initial;
   const current = facilities.find((facility) => facility.id === activeId) ?? facilities[0] ?? initial[0];
-  const address = current ? [current.address, current.district, current.city].filter(Boolean).join(", ") : "";
+  const formattedAddress = formatFacilityAddress(current);
 
   const handleSelectFacility = (facilityId: string) => {
     if (typeof window !== "undefined" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -55,7 +71,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
 
   const currentPin = PINS_CONFIG[current?.id] || {
     x: 300,
-    y: 160,
+    y: 170,
     label: current?.name || "TRẠM TRUNG TÂM",
     coords: `${current?.latitude?.toFixed(4) || "10.7769"}° N, ${current?.longitude?.toFixed(4) || "10.7009"}° E`,
   };
@@ -73,6 +89,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
           <div className="flex min-w-0 flex-col gap-3" aria-label="Danh sách chi nhánh">
             {facilities.map((facility) => {
               const selected = facility.id === current.id;
+              const cardAddr = formatFacilityAddress(facility);
               return (
                 <button
                   key={facility.id}
@@ -92,7 +109,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                     </span>
                     <span className="flex items-start gap-1.5 text-xs leading-5 text-ink-3">
                       <MapPin aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                      {facility.address || "Chưa cập nhật địa chỉ"}
+                      {cardAddr || "Chưa cập nhật địa chỉ"}
                     </span>
                     {typeof facility.availableVehicles === "number" && (
                       <span className="flex items-center gap-1.5 text-xs font-semibold text-success font-mono">
@@ -113,34 +130,28 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
             })}
           </div>
 
-          {/* Interactive Preview Card & Architectural Blueprint Map */}
+          {/* Interactive Preview Card with Architectural Blueprint Map as Main Hero */}
           <article data-facility-preview className="min-w-0 overflow-hidden rounded-3xl border border-line-strong bg-surface shadow-sm">
-            {/* Top Facility Image */}
-            {current.imageUrl && (
-              <div className="relative h-48 w-full overflow-hidden bg-sunken sm:h-56">
-                <Image 
-                  src={current.imageUrl} 
-                  alt={current.name} 
-                  fill 
-                  sizes="(max-width: 1024px) 100vw, 60vw" 
-                  className="object-cover" 
-                  priority
-                />
-                <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-mono font-semibold .glass-1 border border-line text-ink flex items-center gap-1.5 shadow-sm">
-                  <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                  <span>Trạm bàn giao tự động</span>
+            <div className="space-y-5 p-6 sm:p-7">
+              {/* Header Info */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-line pb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold px-2 py-0.5 rounded bg-primary-tint">
+                      TRẠM ĐIỀU PHỐI SỐ
+                    </span>
+                    <span className="flex items-center gap-1 text-[11px] font-mono text-success font-semibold">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Bàn giao 24/7</span>
+                    </span>
+                  </div>
+                  <h2 className="text-2xl font-bold tracking-tight text-ink font-display">{current.name}</h2>
+                  <p className="mt-1 text-sm text-ink-2">{formattedAddress || "Chi nhánh chưa cập nhật địa chỉ."}</p>
                 </div>
-              </div>
-            )}
-
-            <div className="space-y-5 p-5 sm:p-6">
-              <div>
-                <h2 className="text-xl font-bold tracking-tight text-ink font-display">{current.name}</h2>
-                <p className="mt-1 text-sm text-ink-2">{address || "Chi nhánh chưa cập nhật địa chỉ."}</p>
               </div>
 
               {(current.openHours || current.phone) && (
-                <dl className="flex flex-wrap gap-5 border-b border-line pb-4 text-sm">
+                <dl className="flex flex-wrap gap-6 border-b border-line pb-4 text-sm">
                   {current.openHours && (
                     <div>
                       <dt className="mb-1 flex items-center gap-1.5 text-xs text-ink-3">
@@ -162,18 +173,18 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                 </dl>
               )}
 
-              {/* Architectural SVG Blueprint Map of HCMC */}
+              {/* Architectural SVG Blueprint Map of HCMC (Expanded as Panel Hero) */}
               <div className="relative w-full overflow-hidden rounded-2xl border border-line bg-canvas">
-                <div className="absolute top-2.5 left-3 z-10 flex items-center gap-2">
-                  <span className="flex items-center gap-1 text-[11px] font-mono tracking-widest text-ink-3 uppercase bg-surface/80 px-2 py-0.5 rounded border border-line">
-                    <Compass className="w-3 h-3 text-primary" />
+                <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 text-[11px] font-mono tracking-widest text-ink-3 uppercase bg-surface/90 px-2.5 py-1 rounded-md border border-line shadow-sm">
+                    <Compass className="w-3.5 h-3.5 text-primary" />
                     <span>HCMC ARCHITECTURAL GRID</span>
                   </span>
                 </div>
 
                 <svg
-                  viewBox="0 0 600 320"
-                  className="w-full h-64 sm:h-72 select-none"
+                  viewBox="0 0 600 340"
+                  className="w-full h-[320px] sm:h-[360px] select-none"
                   aria-label="Bản đồ kiến trúc điểm đón TP. Hồ Chí Minh"
                 >
                   <defs>
@@ -188,15 +199,15 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
 
                   {/* Saigon River Winding Path */}
                   <path
-                    d="M 120 0 C 180 50, 220 90, 240 130 C 270 180, 360 170, 420 200 C 470 230, 500 280, 520 320"
+                    d="M 120 0 C 180 50, 220 90, 240 140 C 270 190, 360 180, 420 210 C 470 240, 500 290, 520 340"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="28"
+                    strokeWidth="32"
                     strokeLinecap="round"
                     className="text-sunken/90"
                   />
                   <path
-                    d="M 120 0 C 180 50, 220 90, 240 130 C 270 180, 360 170, 420 200 C 470 230, 500 280, 520 320"
+                    d="M 120 0 C 180 50, 220 90, 240 140 C 270 190, 360 180, 420 210 C 470 240, 500 290, 520 340"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
@@ -206,22 +217,22 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
 
                   {/* Secondary River Flow */}
                   <path
-                    d="M 240 130 C 290 120, 350 80, 410 70"
+                    d="M 240 140 C 290 130, 350 85, 410 75"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="14"
+                    strokeWidth="16"
                     strokeLinecap="round"
                     className="text-sunken/60"
                   />
 
                   {/* District Regional Typography */}
-                  <text x="160" y="145" className="fill-ink-3 font-mono text-[10px] tracking-widest font-semibold">
+                  <text x="160" y="150" className="fill-ink-3 font-mono text-[10px] tracking-widest font-semibold">
                     QUẬN 1
                   </text>
-                  <text x="350" y="85" className="fill-ink-3 font-mono text-[10px] tracking-widest font-semibold">
+                  <text x="350" y="90" className="fill-ink-3 font-mono text-[10px] tracking-widest font-semibold">
                     THẢO ĐIỀN · TP. THỦ ĐỨC
                   </text>
-                  <text x="250" y="295" className="fill-ink-3 font-mono text-[10px] tracking-widest font-semibold">
+                  <text x="250" y="310" className="fill-ink-3 font-mono text-[10px] tracking-widest font-semibold">
                     PHÚ MỸ HƯNG · QUẬN 7
                   </text>
 
@@ -248,7 +259,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                           <circle
                             cx={cfg.x}
                             cy={cfg.y}
-                            r="16"
+                            r="18"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="1.5"
@@ -260,7 +271,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                         <circle
                           cx={cfg.x}
                           cy={cfg.y}
-                          r={isPinActive ? "11" : "8"}
+                          r={isPinActive ? "12" : "8"}
                           fill="currentColor"
                           className={isPinActive ? "text-primary/20" : "text-line-strong group-hover:text-primary/30"}
                         />
@@ -269,7 +280,7 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                         <circle
                           cx={cfg.x}
                           cy={cfg.y}
-                          r={isPinActive ? "6" : "4.5"}
+                          r={isPinActive ? "6.5" : "4.5"}
                           fill="currentColor"
                           className={isPinActive ? "text-primary" : "text-ink-2 group-hover:text-primary"}
                         />
@@ -283,9 +294,9 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                           className="text-canvas"
                         />
 
-                        {/* Label Badge on Hover or Active */}
+                        {/* Label Badge on Active Pin */}
                         {isPinActive && (
-                          <g transform={`translate(${cfg.x + 12}, ${cfg.y - 8})`}>
+                          <g transform={`translate(${cfg.x + 12}, ${cfg.y - 10})`}>
                             <rect
                               width="135"
                               height="22"

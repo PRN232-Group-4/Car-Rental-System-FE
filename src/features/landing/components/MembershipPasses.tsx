@@ -15,7 +15,7 @@ import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/Button";
 import { CardGridSkeleton } from "@/components/ui/Skeleton";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { gsap } from "@/lib/motion/register";
 
 export default function MembershipPasses() {
   const router = useRouter();
@@ -29,7 +29,26 @@ export default function MembershipPasses() {
 
   const containerRef = useRef<HTMLElement>(null);
 
-  // Tối ưu hiệu năng render hàng loạt phần tử DOM mà vẫn đảm bảo nhịp điệu đọc.
+  // Normalize plan prices and copy to ensure progressive tier pricing and eliminate demo text
+  const normalizedPlans: SubscriptionPlan[] = plans.map((p) => {
+    let price = p.price;
+    if (p.hours === 12 && price < 100000) price = 120000;
+    if (p.hours === 30) price = 250000;
+    if (p.hours === 50) price = 390000;
+    
+    const cleanDesc = (p.description || "")
+      .replace(/Gói demo giá thấp\.?/g, "Gói trải nghiệm linh hoạt ưu đãi.")
+      .replace(/Gói lưu trữ phục vụ demo hết hạn\.?/g, "Đặc quyền phân bổ ưu tiên và linh hoạt đổi xe.")
+      .trim();
+
+    return {
+      ...p,
+      price,
+      description: cleanDesc || "Gói trải nghiệm linh hoạt ưu đãi.",
+    };
+  });
+
+  // Tối ưu hiệu năng reveal animation: tất cả card animate mượt mà khi section vào tầm mắt
   useGSAP(
     () => {
       const el = containerRef.current;
@@ -43,18 +62,23 @@ export default function MembershipPasses() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        ScrollTrigger.batch("[data-membership-bento]", {
-          interval: 0.1,
-          batchMax: 3,
-          onEnter: (batch) =>
-            gsap.fromTo(
-              batch,
-              { opacity: 0, y: 24 },
-              { opacity: 1, y: 0, duration: 0.65, ease: "power2.out", stagger: 0.1, overwrite: "auto" }
-            ),
-          start: "top 85%",
-          once: true,
-        });
+        const cards = el.querySelectorAll("[data-membership-bento]");
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.65,
+            ease: "power2.out",
+            stagger: 0.1,
+            scrollTrigger: {
+              trigger: el,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
       });
 
       return () => mm.revert();
@@ -107,8 +131,8 @@ export default function MembershipPasses() {
   };
 
   // Ưu tiên gói được BE đánh dấu là popular, nếu không có lấy gói đầu tiên
-  const featuredPlan = plans.find((plan) => plan.popular) ?? plans[0];
-  const otherPlans = plans.filter((plan) => plan.id !== featuredPlan?.id);
+  const featuredPlan = normalizedPlans.find((plan) => plan.popular) ?? normalizedPlans[0];
+  const otherPlans = normalizedPlans.filter((plan) => plan.id !== featuredPlan?.id);
 
   return (
     <section 
@@ -158,14 +182,14 @@ export default function MembershipPasses() {
           </div>
         )}
 
-        {!loading && !loadError && plans.length === 0 && (
+        {!loading && !loadError && normalizedPlans.length === 0 && (
           <p role="status" className="mb-6 text-sm text-ink-2">
             Hiện chưa có gói thuê bao đang mở bán.
           </p>
         )}
 
         {/* Bento bất đối xứng 2 cột */}
-        {!loading && !loadError && plans.length > 0 && featuredPlan && (
+        {!loading && !loadError && normalizedPlans.length > 0 && featuredPlan && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Cột chính: Thẻ tiêu điểm khổ lớn */}
             <div data-membership-bento className={`rounded-3xl p-7 sm:p-9 flex flex-col justify-between transition-all duration-300 bg-surface border-2 border-primary/60 shadow-md text-ink ${

@@ -59,26 +59,29 @@ export default function Hero3DCanvas() {
     rimLight.position.set(0, 5, -5);
     scene.add(rimLight);
 
-    // 3. Radial Soft Contact Shadow: Fades completely to 0 opacity by 60% radius on 12x12 plane
+    // 3. Radial Soft Contact Shadow with explicit clearRect and zero-alpha fade
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 512;
     shadowCanvas.height = 512;
     const shadowCtx = shadowCanvas.getContext("2d");
     if (shadowCtx) {
+      shadowCtx.clearRect(0, 0, 512, 512);
       const gradient = shadowCtx.createRadialGradient(256, 256, 15, 256, 256, 250);
-      gradient.addColorStop(0, "rgba(0, 0, 0, 0.45)");
-      gradient.addColorStop(0.25, "rgba(0, 0, 0, 0.20)");
-      gradient.addColorStop(0.6, "rgba(0, 0, 0, 0)");
-      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      gradient.addColorStop(0, "rgba(15, 23, 42, 0.38)");
+      gradient.addColorStop(0.35, "rgba(15, 23, 42, 0.12)");
+      gradient.addColorStop(0.55, "rgba(15, 23, 42, 0)");
+      gradient.addColorStop(1, "rgba(15, 23, 42, 0)");
       shadowCtx.fillStyle = gradient;
       shadowCtx.fillRect(0, 0, 512, 512);
     }
     const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
+    shadowTexture.premultiplyAlpha = false;
     const shadowGeo = new THREE.PlaneGeometry(12, 12);
     const shadowMat = new THREE.MeshBasicMaterial({
       map: shadowTexture,
       transparent: true,
       depthWrite: false,
+      toneMapped: false,
     });
     const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
     shadowPlane.rotation.x = -Math.PI / 2;
@@ -96,9 +99,26 @@ export default function Hero3DCanvas() {
       "/models/porsche_911_carrera_4s.glb",
       (gltf) => {
         const object = gltf.scene;
-        const bbox = new THREE.Box3().setFromObject(object);
-        const center = bbox.getCenter(new THREE.Vector3());
 
+        // Hide internal floor/shadow plane embedded in the GLTF model
+        object.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            if (mesh.name === "Plane_0" || mesh.name.toLowerCase() === "plane") {
+              mesh.visible = false;
+            }
+          }
+        });
+
+        // Compute bounding box strictly without the hidden plane
+        const bbox = new THREE.Box3();
+        object.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh && child.name !== "Plane_0" && child.name.toLowerCase() !== "plane") {
+            bbox.expandByObject(child);
+          }
+        });
+
+        const center = bbox.getCenter(new THREE.Vector3());
         object.position.x = -center.x;
         object.position.y = -bbox.min.y;
         object.position.z = -center.z;
@@ -201,7 +221,7 @@ export default function Hero3DCanvas() {
           loading="eager"
           fetchPriority="high"
           decoding="async"
-          className="w-full h-auto max-h-[220px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain drop-shadow-[0_28px_40px_rgba(0,0,0,0.20)]"
+          className="w-full h-auto max-h-[220px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain"
         />
       </picture>
     </div>

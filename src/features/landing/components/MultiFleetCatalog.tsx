@@ -10,7 +10,9 @@ import {
   ArrowUpRight, 
   Sparkles, 
   Compass, 
-  ShieldCheck 
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import BookingModal from "@/features/rentals/components/BookingModal";
@@ -21,7 +23,7 @@ import { CardGridSkeleton } from "@/components/ui/Skeleton";
 import type { Vehicle, VehicleCategory } from "@/features/vehicles/types";
 import { VehicleLicenseRequirement } from "@/features/vehicles/components/VehicleLicenseRequirement";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { gsap } from "@/lib/motion/register";
 
 interface FleetVehicle {
   vehicle: Vehicle;
@@ -132,7 +134,7 @@ export default function MultiFleetCatalog() {
 
   const handleBookVehicle = (entry: FleetVehicle) => setSelectedVehicleForBooking(entry.vehicle);
 
-  // Cho phép duyệt qua toàn bộ dải sản phẩm theo chiều ngang mà không làm dài trang
+  // Non-pinned scrubbed horizontal glide: ZERO blank vertical gap between catalog and facility!
   useGSAP(
     () => {
       const section = sectionRef.current;
@@ -149,18 +151,16 @@ export default function MultiFleetCatalog() {
         const getScrollDistance = () => track.scrollWidth - track.clientWidth;
         if (getScrollDistance() <= 0) return;
 
+        // Non-pinned scrubbed glide (pin: false)
         gsap.to(track, {
-          x: () => -getScrollDistance(),
+          x: () => -Math.min(getScrollDistance(), 480),
           ease: "none",
           scrollTrigger: {
             trigger: section,
-            start: "top 80px",
-            // Capped pinned scroll distance per Safeguard 2 to eliminate pin-spacer void in full-page captures
-            end: () => "+=" + Math.min(Math.max(0, track.scrollWidth - track.clientWidth), window.innerHeight * 0.9),
-            pin: true,
-            scrub: 1,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.8,
             invalidateOnRefresh: true,
-            anticipatePin: 1,
           },
         });
       });
@@ -169,24 +169,7 @@ export default function MultiFleetCatalog() {
         gsap.set(track, { x: 0 });
       });
 
-      let resizeTimer: NodeJS.Timeout | null = null;
-      let ro: ResizeObserver | null = null;
-
-      if (typeof ResizeObserver !== "undefined") {
-        ro = new ResizeObserver(() => {
-          if (resizeTimer) clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(() => {
-            ScrollTrigger.refresh();
-          }, 120);
-        });
-
-        ro.observe(track);
-        if (section) ro.observe(section);
-      }
-
       return () => {
-        if (ro) ro.disconnect();
-        if (resizeTimer) clearTimeout(resizeTimer);
         mm.revert();
       };
     },
@@ -197,7 +180,7 @@ export default function MultiFleetCatalog() {
     <section 
       id="danh-muc-xe" 
       ref={sectionRef} 
-      className="relative min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 pr-14 md:pr-16 lg:pr-24 xl:pr-28 max-w-7xl mx-auto scroll-mt-24 overflow-hidden"
+      className="relative py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 pr-14 md:pr-16 lg:pr-24 xl:pr-28 max-w-7xl mx-auto scroll-mt-24 overflow-hidden"
     >
       {/* Background Automotive Blueprint Vectors */}
       <div 
@@ -306,10 +289,40 @@ export default function MultiFleetCatalog() {
           </button>
         </div>
 
-        <Button as="a" href="/find" variant="secondary" size="sm" className="min-h-11 shrink-0 self-start sm:self-auto rounded-xl">
-          <span>Xem tất cả chi tiết</span>
-          <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Subtle scroll nudge buttons for desktop */}
+          <div className="hidden lg:flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="Cuộn sang trái"
+              onClick={() => {
+                if (trackRef.current) {
+                  gsap.to(trackRef.current, { x: "+=380", duration: 0.35, ease: "power2.out" });
+                }
+              }}
+              className="w-9 h-9 rounded-xl bg-surface border border-line-strong hover:border-primary flex items-center justify-center text-ink-2 hover:text-ink transition-colors cursor-pointer shadow-sm"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Cuộn sang phải"
+              onClick={() => {
+                if (trackRef.current) {
+                  gsap.to(trackRef.current, { x: "-=380", duration: 0.35, ease: "power2.out" });
+                }
+              }}
+              className="w-9 h-9 rounded-xl bg-surface border border-line-strong hover:border-primary flex items-center justify-center text-ink-2 hover:text-ink transition-colors cursor-pointer shadow-sm"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <Button as="a" href="/find" variant="secondary" size="sm" className="min-h-11 shrink-0 self-start sm:self-auto rounded-xl">
+            <span>Xem tất cả chi tiết</span>
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {fleet.isPending && (

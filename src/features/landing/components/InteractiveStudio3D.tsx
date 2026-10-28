@@ -460,8 +460,23 @@ export default function InteractiveStudio3D() {
       (gltf) => {
         const object = gltf.scene;
 
+        // Hide internal floor/shadow plane embedded in the GLTF model
+        object.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            if (mesh.name === "Plane_0" || mesh.name.toLowerCase() === "plane") {
+              mesh.visible = false;
+            }
+          }
+        });
+
         // Auto-center and normalize bounding box
-        const bbox = new THREE.Box3().setFromObject(object);
+        const bbox = new THREE.Box3();
+        object.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh && child.name !== "Plane_0" && child.name.toLowerCase() !== "plane") {
+            bbox.expandByObject(child);
+          }
+        });
         const center = bbox.getCenter(new THREE.Vector3());
 
         // Place car on floor
