@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { FileCheck2, Camera, Gauge, ClipboardCheck, ArrowRight, ShieldCheck, ArrowLeftRight } from "lucide-react";
+import { FileCheck2, ClipboardCheck, ArrowRight, ShieldCheck, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/motion/register";
@@ -109,63 +109,47 @@ export default function InspectionSection() {
           </div>
         </div>
 
-        {/* Ô 2: Chỉ số đo đạc thực tế (4 cột trên Desktop) */}
+        {/* Ô 2: Ô số liệu lớn - 2 lượt kiểm định mỗi chuyến (4 cột trên Desktop) */}
         <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
           <div>
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
-              <Gauge className="h-5 w-5" aria-hidden="true" />
+            <div className="font-display text-5xl sm:text-6xl font-black text-primary tracking-tight leading-none mb-3">
+              2
             </div>
 
             <h3 className="font-display mb-2 text-lg font-bold text-ink">
-              Chỉ số đo đạc thực tế
-            </h3>
-            <p className="text-xs leading-relaxed text-ink-2 mb-6">
-              Công-tơ-mét và dung lượng pin hoặc xăng được ghi nhận chính xác tại thời điểm giao xe.
-            </p>
-
-            <div className="space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between border-b border-line pb-2">
-                <span className="text-ink-3">Công-tơ-mét (ODO)</span>
-                <span className="font-bold text-ink">Km hành trình</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-line pb-2">
-                <span className="text-ink-3">Mức năng lượng</span>
-                <span className="font-bold text-ink">Xăng hoặc % Pin</span>
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-6 text-xs text-ink-3">
-            Căn cứ tính phụ phí tiêu hao theo chính sách thuê
-          </p>
-        </div>
-
-        {/* Ô 3: Hình ảnh và ghi chú hư hại (4 cột trên Desktop) */}
-        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
-          <div>
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
-              <Camera className="h-5 w-5" aria-hidden="true" />
-            </div>
-
-            <h3 className="font-display mb-2 text-lg font-bold text-ink">
-              Hình ảnh và biên bản hư hại
+              Lượt kiểm định mỗi chuyến
             </h3>
             <p className="text-xs leading-relaxed text-ink-2 mb-4">
-              Kỹ thuật viên tải ảnh chụp thực tế và ghi chú hư hỏng vào đơn thuê ở cả hai đầu giao nhận.
+              Bắt buộc khi nhận xe (pre_rental) và khi trả xe (post_rental). Đối soát hai chiều bằng hình ảnh thực tế và chỉ số đo đạc minh bạch.
             </p>
           </div>
 
-          <div className="border-t border-line pt-4">
-            <span className="text-xs font-semibold text-primary">
-              Bằng chứng số minh bạch
-            </span>
-            <p className="mt-1 text-xs text-ink-3">
-              Xem trực tiếp trong chi tiết đơn thuê mọi lúc
-            </p>
+          <div className="border-t border-line pt-4 text-xs font-mono text-ink-3">
+            Quy trình chuẩn SRS FR-015 &amp; FR-016
           </div>
         </div>
 
-        {/* Ô 4: Kiểm tra kỹ thuật và bảo dưỡng (4 cột trên Desktop) */}
+        {/* Ô 3: Ô nhịp tương phản - Minh bạch tài chính (4 cột trên Desktop) */}
+        <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-[#1E293B] bg-[#0F172A] text-[#F1F5F9] dark:border-[#334155] dark:bg-[#1A2234] p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
+          <div>
+            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
+              Minh bạch tài chính
+            </span>
+
+            <h3 className="font-display mt-3 mb-2 text-lg font-bold text-white">
+              Không phí ẩn. Không tranh chấp biên bản.
+            </h3>
+            <p className="text-xs leading-relaxed text-slate-300 dark:text-ink-2 mb-4">
+              Ảnh chụp hiện trường và dữ liệu đo đạc được lưu trữ bất biến vào hồ sơ điện tử, bảo đảm quyền lợi đôi bên.
+            </p>
+          </div>
+
+          <div className="border-t border-slate-800 dark:border-line pt-4 text-xs text-slate-400 dark:text-ink-3">
+            Đối soát biên bản trước khi phê duyệt hoàn cọc
+          </div>
+        </div>
+
+        {/* Ô 4: Kiểm tra kỹ thuật và chỉ số thực tế (4 cột trên Desktop) */}
         <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
           <div>
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
@@ -173,10 +157,10 @@ export default function InspectionSection() {
             </div>
 
             <h3 className="font-display mb-2 text-lg font-bold text-ink">
-              Kiểm tra kỹ thuật & bảo dưỡng
+              Kiểm tra kỹ thuật &amp; bảo dưỡng
             </h3>
             <p className="text-xs leading-relaxed text-ink-2 mb-4">
-              Nếu xe không đạt chuẩn an toàn, xe được chuyển sang trạng thái bảo trì trước khi cho thuê tiếp.
+              Nếu xe không đạt chuẩn an toàn, hệ thống ngắt vận hành để chuyển sang bảo trì trước khi tiếp nhận chuyến mới.
             </p>
           </div>
 
@@ -190,7 +174,7 @@ export default function InspectionSection() {
           </div>
         </div>
 
-        {/* Ô 5: Quyết toán và hoàn cọc PayOS (4 cột trên Desktop) */}
+        {/* Ô 5: Quyết toán và hoàn cọc minh bạch (4 cột trên Desktop) */}
         <div data-inspection-card className="flex flex-col justify-between rounded-3xl border border-line-strong bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4">
           <div>
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
@@ -201,7 +185,7 @@ export default function InspectionSection() {
               Quyết toán và hoàn cọc
             </h3>
             <p className="text-xs leading-relaxed text-ink-2 mb-4">
-              Khấu trừ phụ phí trễ giờ (nếu có) vào tiền cọc và duyệt hoàn tiền qua PayOS ngay sau khi nhận xe.
+              Khấu trừ phụ phí (nếu có) theo đúng biên bản đối chiếu và thực hiện phê duyệt hoàn cọc minh bạch qua tài khoản liên kết.
             </p>
           </div>
 
