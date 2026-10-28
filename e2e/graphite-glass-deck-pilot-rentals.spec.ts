@@ -133,10 +133,10 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
       if (p.endsWith("/account/profile")) {
         return route.fulfill({ status: 200, json: MOCK_PROFILE });
       }
-      if (p.endsWith("/rental/101/detail")) {
+      if (p.endsWith("/rental/101/detail") || p.endsWith("/rentals/101/detail")) {
         return route.fulfill({ status: 200, json: MOCK_RENTAL_101_DETAIL });
       }
-      if (p.includes("/rental/101/assignable-drivers") || p.endsWith("/assignable-drivers")) {
+      if (p.includes("/rental/101/assignable-drivers") || p.includes("/rentals/101/assignable-drivers") || p.endsWith("/assignable-drivers")) {
         return route.fulfill({
           status: 200,
           json: [
@@ -145,13 +145,13 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
           ],
         });
       }
-      if (p.endsWith("/rental/9999/detail")) {
+      if (p.endsWith("/rental/9999/detail") || p.endsWith("/rentals/9999/detail")) {
         return route.fulfill({
           status: 404,
           json: { title: "Not Found", status: 404, detail: "Không tìm thấy hồ sơ đơn thuê #9999 trong cơ sở dữ liệu." },
         });
       }
-      if (p.endsWith("/rental/101")) {
+      if (p.endsWith("/rental/101") || p.endsWith("/rentals/101")) {
         return route.fulfill({ status: 200, json: MOCK_RENTAL_101 });
       }
       if (p.endsWith("/rental/9999")) {

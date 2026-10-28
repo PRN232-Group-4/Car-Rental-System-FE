@@ -14,8 +14,14 @@ import {
   Loader2, 
   RefreshCw,
   Compass,
-  ArrowUpRight
+  ArrowUpRight,
+  Palette,
+  Sparkles,
+  X,
+  Layers,
+  Crosshair
 } from "lucide-react";
+import { playTactileClick } from "@/lib/audio/haptic-audio";
 
 interface ModelInfo {
   id: string;
@@ -60,9 +66,59 @@ const MODELS: ModelInfo[] = [
   },
 ];
 
+interface Colorway {
+  id: string;
+  name: string;
+  hex: string;
+  label: string;
+}
+
+const COLORWAYS: Colorway[] = [
+  { id: "carrera-white", name: "Trắng Carrera", hex: "#f8fafc", label: "Carrera White" },
+  { id: "guards-red", name: "Đỏ Guards", hex: "#dc2626", label: "Guards Red" },
+  { id: "gentian-blue", name: "Xanh Gentian", hex: "#1d4ed8", label: "Gentian Blue" },
+  { id: "jet-black", name: "Đen Ánh Kim", hex: "#18181b", label: "Jet Black Metallic" },
+  { id: "crayon-grey", name: "Xám Crayon", hex: "#94a3b8", label: "Crayon Grey" },
+  { id: "racing-yellow", name: "Vàng Racing", hex: "#eab308", label: "Racing Yellow" },
+];
+
+interface Hotspot {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  pos: THREE.Vector3;
+}
+
+const HOTSPOTS: Hotspot[] = [
+  {
+    id: "brakes",
+    title: "Phanh Gốm Carbon PCCB",
+    subtitle: "Hệ Thống Phanh Đua",
+    description: "Đĩa phanh composite gốm carbon 10-piston chịu nhiệt trên 800°C, giảm 50% trọng lượng không treo.",
+    pos: new THREE.Vector3(-1.3, 0.45, 1.1),
+  },
+  {
+    id: "headlights",
+    title: "Đèn Matrix LED 84 Điểm",
+    subtitle: "Chiếu Sáng Ma Trận",
+    description: "84 diode LED điều khiển vi tính tự động nhận diện chùm tia, chống chói xe đối diện với tầm chiếu 600m.",
+    pos: new THREE.Vector3(-1.8, 0.65, 0.65),
+  },
+  {
+    id: "aero",
+    title: "Active Aero Wing",
+    subtitle: "Khí Động Học Chủ Động",
+    description: "Cánh gió đuôi điều khiển điện 3 cấp độ tự động thay đổi góc nghiêng, tạo lực ép mặt đường tối đa khi tăng tốc.",
+    pos: new THREE.Vector3(1.6, 0.95, 0.0),
+  },
+];
+
 export default function InteractiveStudio3D() {
   const router = useNavigationRouter();
   const [selectedModelId, setSelectedModelId] = useState<string>("porsche-carrera-4s");
+  const [selectedColor, setSelectedColor] = useState<string>("#f8fafc");
+  const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
@@ -70,6 +126,7 @@ export default function InteractiveStudio3D() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const currentObjectRef = useRef<THREE.Group | null>(null);
@@ -77,6 +134,7 @@ export default function InteractiveStudio3D() {
   const isVisibleRef = useRef<boolean>(false);
   const isScrollingRef = useRef<boolean>(false);
   const isAutoRotateRef = useRef<boolean>(isAutoRotate);
+  const hotspotElementsRef = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     isAutoRotateRef.current = isAutoRotate;
@@ -86,6 +144,60 @@ export default function InteractiveStudio3D() {
   }, [isAutoRotate]);
 
   const activeModel = MODELS.find((m) => m.id === selectedModelId) || MODELS[0];
+  const activeColor = COLORWAYS.find((c) => c.hex === selectedColor) || COLORWAYS[0];
+  const activeHotspot = HOTSPOTS.find((h) => h.id === activeHotspotId) || null;
+
+  // Function to apply paint color to 3D meshes
+  const applyPaintColorToMeshes = (group: THREE.Group, hex: string) => {
+    const threeColor = new THREE.Color(hex);
+    group.traverse((node) => {
+      if ((node as THREE.Mesh).isMesh) {
+        const mesh = node as THREE.Mesh;
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        materials.forEach((mat) => {
+          if (!mat) return;
+          const name = (mat.name || "").toLowerCase();
+          if (
+            name.includes("paint") ||
+            name.includes("body") ||
+            name.includes("car") ||
+            name.includes("exterior") ||
+            name.includes("color") ||
+            name.includes("shell") ||
+            name.includes("hood") ||
+            name.includes("door") ||
+            name.includes("metal")
+          ) {
+            if ("color" in mat && mat.color instanceof THREE.Color) {
+              mat.color.set(threeColor);
+              mat.needsUpdate = true;
+            }
+          }
+        });
+      }
+    });
+  };
+
+  const handleSelectColor = (hex: string) => {
+    setSelectedColor(hex);
+    playTactileClick();
+    if (currentObjectRef.current) {
+      applyPaintColorToMeshes(currentObjectRef.current, hex);
+    }
+  };
+
+  const handleHotspotClick = (hotspot: Hotspot) => {
+    playTactileClick();
+    if (activeHotspotId === hotspot.id) {
+      setActiveHotspotId(null);
+    } else {
+      setActiveHotspotId(hotspot.id);
+      if (controlsRef.current) {
+        controlsRef.current.target.lerp(hotspot.pos, 0.35);
+        controlsRef.current.update();
+      }
+    }
+  };
 
   // 1. Initialize Three.js Scene, Camera, Lights, and Render Loop
   useEffect(() => {
@@ -103,6 +215,7 @@ export default function InteractiveStudio3D() {
     // Camera
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
     camera.position.set(4.5, 2.0, 5.0);
+    cameraRef.current = camera;
 
     // Renderer (capped at 1.5 pixel ratio for optimal GPU fillrate)
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
@@ -172,6 +285,31 @@ export default function InteractiveStudio3D() {
       }
       animFrameIdRef.current = requestAnimationFrame(animate);
       controls.update();
+
+      // Project 3D Hotspots into 2D DOM screen space (direct DOM updates, zero React re-render)
+      if (cameraRef.current && containerRef.current) {
+        const w = containerRef.current.clientWidth;
+        const h = containerRef.current.clientHeight || 540;
+
+        HOTSPOTS.forEach((spot) => {
+          const el = hotspotElementsRef.current[spot.id];
+          if (!el) return;
+          const projected = spot.pos.clone().project(cameraRef.current!);
+          const isBehind = projected.z > 1;
+          const x = ((projected.x + 1) * w) / 2;
+          const y = ((-projected.y + 1) * h) / 2;
+
+          if (isBehind || x < 20 || x > w - 20 || y < 20 || y > h - 20) {
+            el.style.opacity = "0";
+            el.style.pointerEvents = "none";
+          } else {
+            el.style.opacity = "1";
+            el.style.pointerEvents = "auto";
+            el.style.transform = `translate3d(${x - 16}px, ${y - 16}px, 0)`;
+          }
+        });
+      }
+
       renderer.render(scene, camera);
     };
 
@@ -291,6 +429,9 @@ export default function InteractiveStudio3D() {
         rootGroup.add(object);
         rootGroup.scale.setScalar(activeModel.scale);
 
+        // Apply current paint colorway
+        applyPaintColorToMeshes(rootGroup, selectedColor);
+
         scene.add(rootGroup);
         currentObjectRef.current = rootGroup;
         setIsLoading(false);
@@ -300,7 +441,6 @@ export default function InteractiveStudio3D() {
           const percent = Math.min(100, Math.round((xhr.loaded / xhr.total) * 100));
           setLoadingProgress(percent);
         } else {
-          // If total size header is missing, estimate based on loaded bytes
           setLoadingProgress((prev) => Math.min(95, prev + 8));
         }
       },
@@ -323,9 +463,9 @@ export default function InteractiveStudio3D() {
     if (controlsRef.current) {
       controlsRef.current.reset();
       controlsRef.current.autoRotate = isAutoRotate;
+      setActiveHotspotId(null);
     }
   };
-
 
   return (
     <section id="showroom-3d" className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24 overflow-hidden">
@@ -346,6 +486,10 @@ export default function InteractiveStudio3D() {
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
+          <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-widest text-primary font-bold">
+            <Sparkles className="w-4 h-4" />
+            <span>Interactive 3D WebGL Studio</span>
+          </div>
           <h2 className="font-display text-3xl sm:text-5xl font-black text-ink tracking-tight">
             Khu Trưng Bày Xe 3D Tương Tác
           </h2>
@@ -354,43 +498,132 @@ export default function InteractiveStudio3D() {
           </p>
         </div>
         <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed">
-          Tương tác trực quan 360°, chiêm ngưỡng từng chi tiết thiết kế khí động học và cảm nhận vẻ đẹp di sản của các dòng xe hàng đầu.
+          Tương tác 360° theo thời gian thực, phối màu sơn xe độc bản, giải phẫu từng chi tiết kỹ thuật cơ khí chính xác với 3D Hotspots.
         </p>
       </div>
 
-      {/* Model Switcher Buttons */}
-      <div className="relative z-10 flex flex-wrap items-center gap-3 mb-8">
-        {MODELS.map((model) => (
-          <button
-            key={model.id}
-            type="button"
-            onClick={() => setSelectedModelId(model.id)}
-            className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2.5 select-none active:scale-[0.98] ${
-              selectedModelId === model.id
-                ? "bg-stage-ink text-white shadow-e2 border border-white/20"
-                : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
-            }`}
-          >
-            <span>{model.name}</span>
-            <span
-              className={`text-xs font-mono uppercase px-2 py-0.5 rounded-full ${
+      {/* Controls Bar: Model Switcher + Colorway Palette */}
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+        {/* Model Switcher Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
+          {MODELS.map((model) => (
+            <button
+              key={model.id}
+              type="button"
+              onClick={() => {
+                setSelectedModelId(model.id);
+                playTactileClick();
+              }}
+              className={`px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2.5 select-none active:scale-[0.98] ${
                 selectedModelId === model.id
-                  ? "bg-surface/20 text-white"
-                  : "bg-sunken text-ink-3"
+                  ? "bg-stage-ink text-white shadow-e2 border border-white/20"
+                  : "bg-surface hover:bg-sunken text-ink-2 hover:text-ink border border-line-strong"
               }`}
             >
-              {model.year}
-            </span>
-          </button>
-        ))}
+              <span>{model.name}</span>
+              <span
+                className={`text-xs font-mono uppercase px-2 py-0.5 rounded-full ${
+                  selectedModelId === model.id
+                    ? "bg-surface/20 text-white"
+                    : "bg-sunken text-ink-3"
+                }`}
+              >
+                {model.year}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Real-time Colorway Selector */}
+        <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-surface border border-line-strong shadow-sm self-start lg:self-auto">
+          <Palette className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-xs font-bold text-ink-2 mr-1 hidden sm:inline">Màu sơn:</span>
+          <div className="flex items-center gap-2">
+            {COLORWAYS.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => handleSelectColor(c.hex)}
+                className={`w-6 h-6 rounded-full border-2 transition-transform cursor-pointer relative ${
+                  selectedColor === c.hex
+                    ? "border-primary scale-125 shadow-sm ring-2 ring-primary/30"
+                    : "border-stage-ink/20 hover:scale-110"
+                }`}
+                style={{ backgroundColor: c.hex }}
+                title={`${c.name} (${c.label})`}
+                aria-label={`Chọn màu ${c.name}`}
+              />
+            ))}
+          </div>
+          <span className="font-mono text-xs font-semibold text-ink ml-1 hidden md:inline">
+            {activeColor.name}
+          </span>
+        </div>
       </div>
 
-      {/* 3D Canvas & Telemetry HUD Grid — relative z-10 để panel nằm trên nền blueprint SVG (absolute z-0) */}
+      {/* 3D Canvas & Telemetry HUD Grid */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        {/* Main 3D Canvas Box (7 cols) */}
-        <div className="lg:col-span-8 rounded-3xl bg-sunken border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[540px] flex items-center justify-center">
+        {/* Main 3D Canvas Box (8 cols) */}
+        <div className="lg:col-span-8 rounded-3xl bg-sunken border border-line-strong overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] min-h-[460px] sm:min-h-[560px] flex items-center justify-center">
           {/* Canvas Mount Target */}
           <div ref={containerRef} className="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing" />
+
+          {/* 3D Spatial Hotspot Anchors (DOM overlay with 60fps GPU transforms) */}
+          <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+            {HOTSPOTS.map((spot) => (
+              <div
+                key={spot.id}
+                ref={(el) => {
+                  hotspotElementsRef.current[spot.id] = el;
+                }}
+                className="absolute top-0 left-0 transition-opacity duration-200 pointer-events-auto"
+                style={{ opacity: 0 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleHotspotClick(spot)}
+                  className={`relative group w-8 h-8 rounded-full flex items-center justify-center transition-transform cursor-pointer ${
+                    activeHotspotId === spot.id ? "scale-125" : "hover:scale-110"
+                  }`}
+                  aria-label={`Chi tiết: ${spot.title}`}
+                >
+                  {/* Pulsing Sonar Ring */}
+                  <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-75" />
+                  {/* Solid Center Crosshair Badge */}
+                  <span className="relative w-7 h-7 rounded-full bg-stage-ink border border-white/40 text-primary-graphic flex items-center justify-center shadow-lg">
+                    <Crosshair className="w-4 h-4 stroke-[2.5]" />
+                  </span>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Active Hotspot Glass Popover Card */}
+          {activeHotspot && (
+            <div className="absolute top-4 left-4 right-4 sm:right-auto sm:max-w-sm z-20 p-5 rounded-2xl glass-2 border border-line-strong shadow-e3 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-bold px-2 py-0.5 rounded bg-primary-tint">
+                    {activeHotspot.subtitle}
+                  </span>
+                  <h4 className="font-display text-base font-bold text-ink mt-1">
+                    {activeHotspot.title}
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveHotspotId(null)}
+                  className="p-1 rounded-lg text-ink-3 hover:text-ink hover:bg-sunken transition-colors cursor-pointer"
+                  aria-label="Đóng bảng thông tin"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs text-ink-2 leading-relaxed">
+                {activeHotspot.description}
+              </p>
+            </div>
+          )}
 
           {/* Loading Overlay with Progress Counter */}
           {isLoading && (
@@ -431,14 +664,17 @@ export default function InteractiveStudio3D() {
           <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between pointer-events-none">
             <div className="glass-1 px-3.5 py-1.5 rounded-full pointer-events-auto flex items-center gap-2 text-xs font-mono text-ink-2 shadow-sm border border-line">
               <Compass className="w-3.5 h-3.5 text-primary" />
-              <span className="hidden sm:inline">Kéo chuột để xoay 360° · Cuộn để thu phóng</span>
+              <span className="hidden sm:inline">Kéo chuột xoay 360° · Cuộn thu phóng · Nhấp vào điểm tiêu cự</span>
               <span className="sm:hidden">Vuốt để xoay xe</span>
             </div>
 
             <div className="flex items-center gap-2 pointer-events-auto">
               <button
                 type="button"
-                onClick={() => setIsAutoRotate(!isAutoRotate)}
+                onClick={() => {
+                  setIsAutoRotate(!isAutoRotate);
+                  playTactileClick();
+                }}
                 className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm border ${
                   isAutoRotate
                     ? "bg-stage-ink text-white border-white/20"
@@ -464,6 +700,16 @@ export default function InteractiveStudio3D() {
         {/* Telemetry & Specifications Card (4 cols) */}
         <div className="lg:col-span-4 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold px-2.5 py-1 rounded-lg bg-primary-tint border border-primary/20">
+                {activeModel.tag}
+              </span>
+              <span className="text-xs font-mono text-ink-3 flex items-center gap-1">
+                <Layers className="w-3.5 h-3.5" />
+                {activeColor.name}
+              </span>
+            </div>
+
             <h3 className="font-display text-2xl font-black text-ink mb-2">
               {activeModel.name}
             </h3>
@@ -509,11 +755,16 @@ export default function InteractiveStudio3D() {
 
           {/* Pricing & Booking Action */}
           <div className="pt-6">
-            <p className="mb-4 text-sm text-ink-2">Mô hình trưng bày minh họa, không đại diện cho xe đang có sẵn. Xem giá và tình trạng thực tế trong danh mục xe.</p>
+            <p className="mb-4 text-xs text-ink-3 leading-relaxed">
+              Mô hình 3D vật lý nguyên bản tỷ lệ 1:1. Khám phá thêm hàng chục mẫu xe cao cấp trong danh mục thực tế.
+            </p>
 
             <Button
               type="button"
-              onClick={() => router.push("/find")}
+              onClick={() => {
+                playTactileClick();
+                router.push("/find");
+              }}
               variant="amber-hero"
               className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider cursor-pointer"
             >
@@ -523,8 +774,6 @@ export default function InteractiveStudio3D() {
           </div>
         </div>
       </div>
-
-
     </section>
   );
 }

@@ -23,6 +23,7 @@ import { TripInspections } from "@/features/account/trips/components/TripInspect
 import { TripTimeline } from "@/features/account/trips/components/TripTimeline";
 import { CancelDialog } from "@/features/account/trips/components/CancelDialog";
 import { Button } from "@/components/ui/Button";
+import { DigitalSmartKeycard } from "@/features/account/trips/components/DigitalSmartKeycard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/time";
 import CancellationReason from "@/features/rentals/components/CancellationReason";
@@ -168,6 +169,8 @@ function TripDetailContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cột chính (2 cột) */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Apple Wallet Style Digital Smart Keycard & Live Telemetry Gauge */}
+          <DigitalSmartKeycard vehicle={trip.vehicle} rentalStatus={trip.status} />
           {/* Thông tin nhận - trả xe */}
           <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">

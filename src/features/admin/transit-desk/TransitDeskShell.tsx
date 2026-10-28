@@ -16,8 +16,13 @@ import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import { operatorContext } from "./operator-context";
 import AccountAvatar from "@/components/ui/AccountAvatar";
-import { House, Moon, Sun, LogOut, User, KeyRound } from "lucide-react";
+import { House, Moon, Sun, LogOut, User, KeyRound, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
+import {
+  isHapticAudioEnabled,
+  setHapticAudioEnabled,
+  playTactileClick,
+} from "@/lib/audio/haptic-audio";
 import { useNavigationCounts } from "@/features/admin/use-navigation-counts";
 import { navigationCount } from "@/features/admin/navigation-counts";
 import { NavigationCount, NavigationDot } from "./NavigationIndicator";
@@ -39,11 +44,38 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
 
   const [isRouteIndexOpen, setIsRouteIndexOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsAudioEnabled(isHapticAudioEnabled());
+    const handleAudioChange = () => setIsAudioEnabled(isHapticAudioEnabled());
+    window.addEventListener("thong_dong_haptic_audio_change", handleAudioChange);
+    return () =>
+      window.removeEventListener("thong_dong_haptic_audio_change", handleAudioChange);
+  }, []);
+
+  const handleToggleAudio = () => {
+    const next = !isAudioEnabled;
+    setHapticAudioEnabled(next);
+    setIsAudioEnabled(next);
+    if (next) {
+      playTactileClick();
+    }
+  };
 
   const userRoles = useMemo<Role[]>(() => {
     return (account?.roles ?? user?.roles ?? []) as Role[];
   }, [account?.roles, user?.roles]);
 
+  // Clean up data-admin-theme when navigating away from Admin portal
+  useEffect(() => {
+    return () => {
+      if (typeof document !== "undefined") {
+        delete document.documentElement.dataset.adminTheme;
+        document.documentElement.removeAttribute("data-admin-theme");
+      }
+    };
+  }, []);
   // Global hotkey for Ctrl+K / Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -152,7 +184,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   if (checkingAccess) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-td-paper p-6">
-        <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-8 shadow-md">
+        <div className="w-full max-w-md rounded-lg border border-td-rule bg-td-white p-8 shadow-md">
           <FormSkeleton
             label="Đang kiểm tra quyền truy cập hệ thống..."
             fields={3}
@@ -165,7 +197,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   if (accessError) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-td-paper p-6">
-        <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-8 shadow-md text-center space-y-4">
+        <div className="w-full max-w-md rounded-lg border border-td-rule bg-td-white p-8 shadow-md text-center space-y-4">
           <p className="text-sm font-semibold text-td-oxide">{accessError}</p>
           <button
             type="button"
@@ -220,6 +252,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
               <Link
                 key={chapter}
                 href={primaryHref}
+                onClick={() => playTactileClick()}
                 className={styles.chapterBtn}
                 aria-current={isActive ? "true" : undefined}
               >
@@ -245,7 +278,10 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
             type="button"
             id="admin-theme-toggle"
             data-testid="admin-theme-toggle"
-            onClick={toggleTheme}
+            onClick={() => {
+              playTactileClick();
+              toggleTheme();
+            }}
             className={styles.themeToggle}
             aria-label={
               theme === "dark"
@@ -257,6 +293,27 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
               <Sun className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
+            )}
+          </button>
+
+          {/* Micro-Haptic Audio Toggle */}
+          <button
+            type="button"
+            id="admin-audio-toggle"
+            data-testid="admin-audio-toggle"
+            onClick={handleToggleAudio}
+            className={styles.themeToggle}
+            aria-label={
+              isAudioEnabled
+                ? "Tắt âm thanh haptic (Đang bật)"
+                : "Bật âm thanh haptic (Đang tắt)"
+            }
+            title={isAudioEnabled ? "Âm thanh haptic: Đang bật" : "Âm thanh haptic: Đang tắt"}
+          >
+            {isAudioEnabled ? (
+              <Volume2 className="h-4 w-4 text-td-oxide" />
+            ) : (
+              <VolumeX className="h-4 w-4 text-td-muted" />
             )}
           </button>
 
@@ -340,6 +397,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
               <Link
                 key={route.href}
                 href={route.href + (route.defaultQuery ?? "")}
+                onClick={() => playTactileClick()}
                 className={styles.contextLink}
                 aria-current={isCurrent ? "page" : undefined}
               >

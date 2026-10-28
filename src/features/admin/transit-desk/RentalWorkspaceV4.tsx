@@ -21,6 +21,9 @@ import {
   Calendar,
   DollarSign,
   Navigation,
+  XCircle,
+  Eye,
+  Loader2,
 } from "lucide-react";
 import {
   getOperationalRental,
@@ -52,6 +55,8 @@ import { useInlineValidation, ValidatedForm } from "@/components/forms/inline-va
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useOptionalSession } from "@/features/auth/AuthContext";
+import { gsap, Flip } from "@/lib/motion/register";
+import { playSuccessChime, playTactileClick } from "@/lib/audio/haptic-audio";
 import styles from "./rental-workspace-v4.module.css";
 
 export type RentalDetailState =
@@ -149,6 +154,90 @@ export function RentalWorkspaceV4() {
       setLookupId(q);
     }
   }, [params, lookupId]);
+
+  // Audit 3: Central Dossier Stage 3D Micro-Tilt & Specular Sheen
+  const stageRef = useRef<HTMLDivElement>(null);
+  const dossierRef = useRef<HTMLElement>(null);
+  const quickToX = useRef<gsap.QuickToFunc | null>(null);
+  const quickToY = useRef<gsap.QuickToFunc | null>(null);
+
+  useEffect(() => {
+    if (!stageRef.current) return;
+
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+    if (prefersReduced) return;
+
+    gsap.set(stageRef.current, {
+      transformPerspective: 1200,
+      transformStyle: "preserve-3d",
+    });
+
+    quickToX.current = gsap.quickTo(stageRef.current, "rotationX", {
+      duration: 0.5,
+      ease: "power2.out",
+    });
+    quickToY.current = gsap.quickTo(stageRef.current, "rotationY", {
+      duration: 0.5,
+      ease: "power2.out",
+    });
+  }, []);
+
+  const handleStagePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!stageRef.current) return;
+    const rect = stageRef.current.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width - 0.5;
+    const relY = (e.clientY - rect.top) / rect.height - 0.5;
+
+    // Subtle micro-tilt capped at +/-0.75 deg
+    const targetRotY = relX * 1.5;
+    const targetRotX = -relY * 1.5;
+
+    quickToX.current?.(targetRotX);
+    quickToY.current?.(targetRotY);
+
+    if (dossierRef.current) {
+      const dRect = dossierRef.current.getBoundingClientRect();
+      const dx = e.clientX - dRect.left;
+      const dy = e.clientY - dRect.top;
+      dossierRef.current.style.setProperty("--dossier-mouse-x", `${dx}px`);
+      dossierRef.current.style.setProperty("--dossier-mouse-y", `${dy}px`);
+      dossierRef.current.style.setProperty("--dossier-sheen-opacity", "1");
+    }
+  };
+
+  const handleStagePointerLeave = () => {
+    quickToX.current?.(0);
+    quickToY.current?.(0);
+    if (dossierRef.current) {
+      dossierRef.current.style.setProperty("--dossier-sheen-opacity", "0");
+    }
+  };
+
+  // Audit 5: Work Queue List Item Morph via GSAP Flip
+  const queueListRef = useRef<HTMLDivElement>(null);
+  const flipStateRef = useRef<Flip.FlipState | null>(null);
+
+  const handleQueueFilterChange = (val: string) => {
+    if (queueListRef.current) {
+      flipStateRef.current = Flip.getState(
+        queueListRef.current.querySelectorAll(`.${styles.queueItem}`)
+      );
+    }
+    setQueueFilter(val);
+  };
+
+  const handleQueueSearchChange = (val: string) => {
+    if (queueListRef.current) {
+      flipStateRef.current = Flip.getState(
+        queueListRef.current.querySelectorAll(`.${styles.queueItem}`)
+      );
+    }
+    setQueueSearch(val);
+  };
+
 
   const validation = useInlineValidation();
   const session = useOptionalSession();
@@ -288,6 +377,7 @@ export function RentalWorkspaceV4() {
 
   // Select rental from queue
   const selectRentalFromQueue = (id: number) => {
+    playTactileClick();
     validation.clear("lookupId");
     setIdInput(String(id));
     setLookupId(String(id));
@@ -366,6 +456,15 @@ export function RentalWorkspaceV4() {
     return OPERATIONAL_STEPS.findIndex((s) => s.key === activeRental.status);
   }, [activeRental]);
 
+  // Trigger haptic success chime on step advancement
+  const prevStepRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevStepRef.current !== null && currentStepIndex > prevStepRef.current) {
+      playSuccessChime();
+    }
+    prevStepRef.current = currentStepIndex;
+  }, [currentStepIndex]);
+
   // Filtered queue items
   const queueItems = useMemo(() => {
     const items = queueData?.items ?? [];
@@ -378,6 +477,21 @@ export function RentalWorkspaceV4() {
         (item.status && (rentalStatuses[item.status] || item.status).toLowerCase().includes(lower))
     );
   }, [queueData, queueSearch]);
+
+  // Audit 5: GSAP Flip animation on queue item reordering/filtering
+  React.useLayoutEffect(() => {
+    if (flipStateRef.current && queueListRef.current) {
+      Flip.from(flipStateRef.current, {
+        duration: 0.28,
+        ease: "power2.out",
+        stagger: 0.02,
+        absolute: false,
+        onComplete: () => {
+          flipStateRef.current = null;
+        },
+      });
+    }
+  }, [queueItems]);
 
   // Next recommended contextual action
   const nextRecommendedAction = useMemo(() => {
@@ -459,7 +573,7 @@ export function RentalWorkspaceV4() {
                   value={idInput}
                   onChange={(e) => {
                     setIdInput(e.target.value);
-                    setQueueSearch(e.target.value);
+                    handleQueueSearchChange(e.target.value);
                   }}
                   className={`${styles.inputField} pl-8 text-xs font-mono`}
                   aria-label="Nhập mã đơn thuê"
@@ -468,7 +582,7 @@ export function RentalWorkspaceV4() {
               <div className="flex items-center gap-2">
                 <select
                   value={queueFilter}
-                  onChange={(e) => setQueueFilter(e.target.value)}
+                  onChange={(e) => handleQueueFilterChange(e.target.value)}
                   className={`${styles.inputField} text-xs py-1`}
                   aria-label="Lọc trạng thái hàng đợi"
                 >
@@ -497,7 +611,7 @@ export function RentalWorkspaceV4() {
           </div>
 
           {/* Queue List / Ledger Items */}
-          <div className={styles.queueList}>
+          <div ref={queueListRef} className={styles.queueList}>
             {/* Pinned Card when active lookup is not in current queue page */}
             {activeRental && !queueItems.some((item) => String(item.id) === String(activeRental.id)) && (
               <div className={styles.pinnedCard} data-testid="pinned-lookup-card">

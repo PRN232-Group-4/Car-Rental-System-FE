@@ -45,6 +45,16 @@ export function EmptyState({
           </ul>
         </div>
       )}
+      {suggestions && suggestions.length > 0 && (
+        <div className="mt-4 rounded-xl border border-line bg-canvas p-3.5 text-left text-xs text-ink-2">
+          <p className="font-semibold text-ink">Hãy thử:</p>
+          <ul className="mt-1.5 list-disc list-inside space-y-1 text-ink-3">
+            {suggestions.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
