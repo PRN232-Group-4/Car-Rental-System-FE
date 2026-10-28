@@ -128,80 +128,76 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         </svg>
       </div>
 
-      {/* Main Asymmetrical Stage Container (3-Layer Sandwich Structure) */}
+      {/* Main Asymmetrical Stage Container (V3b Layout: Huge Typography Backdrop + Foreground Vehicle + Docked Console) */}
       <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-between relative z-10">
-        {/* Top Horizon Section: Asymmetrical Split between H1 Typography and Vehicle Stage */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end relative pt-2 sm:pt-4">
-          {/* Layer 1 (z-10): Left-aligned Headline, Subtitle, and Secondary Link (Behind car stage) */}
-          <div className="lg:col-span-10 lg:row-start-1 lg:col-start-1 flex flex-col items-start text-left relative z-10">
-            <h1
-              ref={headingRef}
-              className="font-display font-extrabold text-ink tracking-tight leading-[1.14] text-[clamp(2rem,6.5vw,2.5rem)] sm:text-[clamp(2.5rem,4.5vw,4.5rem)] mb-4 text-balance"
-            >
-              <span className="block">Thuê xe thong dong.</span>
-              <span className="block text-ink-2 dark:text-ink/90">Nhận xe trong 3 phút.</span>
-            </h1>
+        {/* Stage Area */}
+        <div className="relative w-full flex flex-col items-center pt-2 sm:pt-4">
+          {/* Layer 1 (z-10): Huge Monumental Backdrop H1 Heading */}
+          <h1
+            ref={headingRef}
+            className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(2.75rem,8.5vw,9.5rem)] text-center w-full select-none opacity-95 relative z-10 pt-2"
+          >
+            Thuê xe thong dong.
+          </h1>
 
-            <p
-              ref={subtitleRef}
-              className="font-sans text-ink-2 text-base sm:text-lg md:text-xl font-normal leading-relaxed max-w-2xl mb-4 text-pretty"
-            >
-              Thuần điện và xăng cao cấp, tự lái hoặc có tài xế. Bàn giao số hóa, hoàn cọc tự động.
-            </p>
-
-            <div ref={subActionRef} className="pt-1">
-              <a
-                href="#showroom-3d"
-                className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-ink-2 hover:text-primary transition-colors cursor-pointer group py-1"
-              >
-                <span>Xem xe 3D</span>
-                <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </a>
-            </div>
-          </div>
-
-          {/* Layer 2 (z-20): Vehicle Stage Container (Reserved for Phase 5 3D Showroom Turntable) */}
+          {/* Layer 2 (z-20): Vehicle Foreground Stage (Porsche 911 Carrera 4S Amber Gold) */}
           <div
             ref={stageRef}
-            className="lg:col-span-4 lg:col-start-9 lg:row-start-1 relative z-20 w-full flex items-center justify-center lg:justify-end"
+            className="relative w-full max-w-[1220px] mx-auto -mt-10 sm:-mt-20 md:-mt-28 lg:-mt-36 z-20 flex justify-center pointer-events-none"
           >
-            <div className="relative w-full max-w-md lg:max-w-none aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] rounded-2xl overflow-hidden border border-line-strong bg-surface shadow-[0_16px_36px_-12px_rgba(15,23,42,0.14)]">
-              {/* Responsive multi-resolution Hero Image (640w, 960w, 1280w in AVIF, WebP, JPEG) */}
-              <picture>
-                <source
-                  type="image/avif"
-                  srcSet="/assets/hero/hero-hai-van-640w.avif 640w, /assets/hero/hero-hai-van-960w.avif 960w, /assets/hero/hero-hai-van-1280w.avif 1280w"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 403px"
-                />
-                <source
-                  type="image/webp"
-                  srcSet="/assets/hero/hero-hai-van-640w.webp 640w, /assets/hero/hero-hai-van-960w.webp 960w, /assets/hero/hero-hai-van-1280w.webp 1280w"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 403px"
-                />
-                <img
-                  src="/assets/hero/hero-hai-van-1280w.jpg"
-                  srcSet="/assets/hero/hero-hai-van-640w.jpg 640w, /assets/hero/hero-hai-van-960w.jpg 960w, /assets/hero/hero-hai-van-1280w.jpg 1280w"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 403px"
-                  alt="Cung đường đèo Hải Vân - Trải nghiệm thong dong"
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                  className="w-full h-full object-cover object-center"
-                />
-              </picture>
-              <div
-                className="absolute inset-0 bg-stage-ink/15 pointer-events-none"
-                aria-hidden="true"
+            <picture className="w-full flex justify-center">
+              <source
+                type="image/avif"
+                srcSet="/assets/hero-car/hero-car-composite-1920.avif 1920w, /assets/hero-car/hero-car-composite-1280.avif 1280w, /assets/hero-car/hero-car-composite-960.avif 960w, /assets/hero-car/hero-car-composite-640.avif 640w"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
               />
-            </div>
+              <source
+                type="image/webp"
+                srcSet="/assets/hero-car/hero-car-composite-1920.webp 1920w, /assets/hero-car/hero-car-composite-1280.webp 1280w, /assets/hero-car/hero-car-composite-960.webp 960w, /assets/hero-car/hero-car-composite-640.webp 640w"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
+              />
+              <img
+                src="/assets/hero-car/hero-car-composite-1280.webp"
+                alt="Porsche Carrera 4S Thong Dong"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="w-full h-auto max-h-[220px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain drop-shadow-[0_28px_40px_rgba(0,0,0,0.20)]"
+              />
+            </picture>
           </div>
         </div>
 
-        {/* Layer 3 (z-30): SearchWidget Console (.glass-2) docked gracefully above fold */}
+        {/* Layer 3 (z-30): Sub-Headline Row (Neutral Copy based on SRS/BE truth matrix) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end relative z-30 mb-4 sm:mb-6">
+          <div className="md:col-span-8 flex flex-col items-start text-left">
+            <h2 className="font-sans font-bold text-ink tracking-tight text-lg sm:text-2xl md:text-[1.65rem] leading-snug">
+              Sẵn sàng lăn bánh tại mọi trạm.
+            </h2>
+            <p
+              ref={subtitleRef}
+              className="font-sans text-ink-2 text-sm sm:text-base font-normal leading-relaxed max-w-2xl mt-1 text-pretty"
+            >
+              Thuần điện và xăng cao cấp, tự lái hoặc có tài xế. Bàn giao số hóa, hoàn cọc minh bạch.
+            </p>
+          </div>
+
+          <div ref={subActionRef} className="md:col-span-4 flex md:justify-end items-center">
+            <a
+              href="#showroom-3d"
+              className="inline-flex items-center gap-1.5 text-sm sm:text-base font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer group py-1"
+            >
+              <span>Xem xe 3D tương tác</span>
+              <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+          </div>
+        </div>
+
+        {/* Layer 4 (z-40): SearchWidget Console (.glass-2) docked gracefully above fold */}
         <div
           ref={searchConsoleRef}
           id="tim-xe"
-          className="relative z-30 w-full mt-6 lg:mt-8 scroll-mt-28"
+          className="relative z-40 w-full scroll-mt-28"
         >
           <SearchWidget onSearch={onSearchCriteriaChange} />
         </div>
