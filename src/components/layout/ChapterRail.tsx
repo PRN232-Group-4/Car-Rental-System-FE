@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "@/lib/motion/register";
+import { gsap, ScrollTrigger } from "@/lib/motion/register";
 
 interface ChapterItem {
   id: string;
@@ -24,12 +24,12 @@ const CHAPTERS: ChapterItem[] = [
 /**
  * Clean floating chapter rail on desktop viewport margin.
  * Strictly hidden on mobile (<1024px) to preserve view space.
+ * Auto-hides on footer (#lien-he) to avoid overlapping links.
  */
 export default function ChapterRail() {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Cung cấp định hướng không gian trang cho người dùng trên màn hình lớn.
   useGSAP(
     () => {
       if (typeof window === "undefined" || !containerRef.current) return;
@@ -44,13 +44,27 @@ export default function ChapterRail() {
           trigger: target,
           start: "top center",
           end: "bottom center",
-          refreshPriority: -1, // Tính toán sau khi các section ghim (pinned) hoàn tất
+          refreshPriority: -1, // Calculate after pinned sections settle
           onEnter: () => setActiveIndex(idx),
           onEnterBack: () => setActiveIndex(idx),
         });
 
         triggers.push(st);
       });
+
+      // Auto-hide ChapterRail when scrolling into footer (#lien-he)
+      const footer = document.querySelector("#lien-he");
+      if (footer) {
+        const footerSt = ScrollTrigger.create({
+          trigger: footer,
+          start: "top 85%",
+          end: "bottom bottom",
+          refreshPriority: -1,
+          onEnter: () => gsap.to(containerRef.current, { autoAlpha: 0, duration: 0.25 }),
+          onLeaveBack: () => gsap.to(containerRef.current, { autoAlpha: 1, duration: 0.25 }),
+        });
+        triggers.push(footerSt);
+      }
 
       return () => {
         triggers.forEach((st) => st.kill());
@@ -71,7 +85,7 @@ export default function ChapterRail() {
     <nav
       ref={containerRef}
       aria-label="Điều hướng theo chương mục"
-      className="hidden lg:flex fixed right-5 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-2.5 pointer-events-auto select-none"
+      className="hidden lg:flex fixed right-5 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-3 pointer-events-auto select-none"
     >
       {CHAPTERS.map((ch, idx) => {
         const isActive = idx === activeIndex;
@@ -84,23 +98,23 @@ export default function ChapterRail() {
             aria-current={isActive ? "true" : undefined}
             className="group flex items-center gap-2.5 py-1 px-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full"
           >
-            {/* Label Tooltip */}
+            {/* Label Tooltip: Only visible on hover / focus */}
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded-md transition-all duration-200 pointer-events-none group-hover:opacity-100 group-focus-visible:opacity-100 -translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0 ${
+              className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all duration-200 pointer-events-none opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 -translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0 shadow-sm whitespace-nowrap ${
                 isActive
-                  ? "bg-stage-ink text-white shadow-sm opacity-100 translate-x-0"
-                  : "bg-surface border border-line-strong text-ink-2 shadow-sm opacity-0"
+                  ? "bg-stage-ink text-white ring-1 ring-white/10"
+                  : "bg-surface border border-line-strong text-ink-2"
               }`}
             >
               {ch.name}
             </span>
 
-            {/* Indicator Dot */}
+            {/* Indicator Dot: Always visible, subtle 2.5x2.5 dot */}
             <span
               className={`block rounded-full transition-all duration-300 ${
                 isActive
-                  ? "w-3 h-3 bg-primary ring-4 ring-primary/20"
-                  : "w-2 h-2 bg-line-strong hover:bg-primary/50"
+                  ? "w-2.5 h-2.5 bg-primary ring-4 ring-primary/25"
+                  : "w-2.5 h-2.5 bg-line-strong group-hover:bg-primary/60"
               }`}
             />
           </a>

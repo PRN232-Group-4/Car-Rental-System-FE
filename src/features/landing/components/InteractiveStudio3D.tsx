@@ -355,16 +355,16 @@ export default function InteractiveStudio3D() {
     shadowCanvas.height = 512;
     const shadowCtx = shadowCanvas.getContext("2d");
     if (shadowCtx) {
-      const gradient = shadowCtx.createRadialGradient(256, 256, 40, 256, 256, 250);
-      gradient.addColorStop(0, "rgba(0, 0, 0, 0.48)");
-      gradient.addColorStop(0.35, "rgba(0, 0, 0, 0.25)");
-      gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.06)");
+      const gradient = shadowCtx.createRadialGradient(256, 256, 15, 256, 256, 250);
+      gradient.addColorStop(0, "rgba(0, 0, 0, 0.45)");
+      gradient.addColorStop(0.25, "rgba(0, 0, 0, 0.20)");
+      gradient.addColorStop(0.6, "rgba(0, 0, 0, 0)");
       gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
       shadowCtx.fillStyle = gradient;
       shadowCtx.fillRect(0, 0, 512, 512);
     }
     const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
-    const shadowGeo = new THREE.PlaneGeometry(10, 10);
+    const shadowGeo = new THREE.PlaneGeometry(12, 12);
     const shadowMat = new THREE.MeshBasicMaterial({
       map: shadowTexture,
       transparent: true,

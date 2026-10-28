@@ -21,12 +21,13 @@ export default function Hero3DCanvas() {
 
     const container = containerRef.current;
     const width = container.clientWidth;
-    const height = container.clientHeight || 380;
+    const height = container.clientHeight || 440;
 
     // 1. Three.js Scene & Transparent Renderer
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 50);
-    camera.position.set(2.8, 1.2, 3.8);
+    const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 50);
+    // Pulled camera back and adjusted angle so the right rear fender/wheel is never clipped
+    camera.position.set(2.4, 1.25, 4.6);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -58,22 +59,22 @@ export default function Hero3DCanvas() {
     rimLight.position.set(0, 5, -5);
     scene.add(rimLight);
 
-    // 3. Radial Soft Contact Shadow
+    // 3. Radial Soft Contact Shadow: Fades completely to 0 opacity by 60% radius on 12x12 plane
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 512;
     shadowCanvas.height = 512;
     const shadowCtx = shadowCanvas.getContext("2d");
     if (shadowCtx) {
-      const gradient = shadowCtx.createRadialGradient(256, 256, 40, 256, 256, 250);
-      gradient.addColorStop(0, "rgba(0, 0, 0, 0.50)");
-      gradient.addColorStop(0.35, "rgba(0, 0, 0, 0.25)");
-      gradient.addColorStop(0.7, "rgba(0, 0, 0, 0.05)");
+      const gradient = shadowCtx.createRadialGradient(256, 256, 15, 256, 256, 250);
+      gradient.addColorStop(0, "rgba(0, 0, 0, 0.45)");
+      gradient.addColorStop(0.25, "rgba(0, 0, 0, 0.20)");
+      gradient.addColorStop(0.6, "rgba(0, 0, 0, 0)");
       gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
       shadowCtx.fillStyle = gradient;
       shadowCtx.fillRect(0, 0, 512, 512);
     }
     const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
-    const shadowGeo = new THREE.PlaneGeometry(9, 9);
+    const shadowGeo = new THREE.PlaneGeometry(12, 12);
     const shadowMat = new THREE.MeshBasicMaterial({
       map: shadowTexture,
       transparent: true,
@@ -121,8 +122,8 @@ export default function Hero3DCanvas() {
     const handlePointerMove = (e: MouseEvent) => {
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
-      setRotY(-Math.PI / 6.5 + normX * 0.15);
-      setRotX(normY * 0.08);
+      setRotY(-Math.PI / 6.5 + normX * 0.12);
+      setRotX(normY * 0.06);
     };
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
 
@@ -135,7 +136,7 @@ export default function Hero3DCanvas() {
       animFrameIdRef.current = requestAnimationFrame(render);
       carGroup.rotation.y = targetRotY.val;
       carGroup.rotation.x = targetRotX.val;
-      camera.lookAt(0, 0.4, 0);
+      camera.lookAt(-0.1, 0.35, 0);
       renderer.render(scene, camera);
     };
 
@@ -152,7 +153,7 @@ export default function Hero3DCanvas() {
 
     const handleResize = () => {
       const newW = container.clientWidth;
-      const newH = container.clientHeight || 380;
+      const newH = container.clientHeight || 440;
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
@@ -171,17 +172,17 @@ export default function Hero3DCanvas() {
   }, []);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <div className="relative w-full h-full flex items-center justify-center bg-transparent overflow-visible">
       {/* 3D Canvas Target */}
       <div 
         ref={containerRef} 
-        className={`w-full h-[260px] sm:h-[340px] md:h-[420px] lg:h-[480px] transition-opacity duration-700 cursor-grab active:cursor-grabbing ${
+        className={`w-full h-[280px] sm:h-[360px] md:h-[440px] lg:h-[500px] overflow-visible bg-transparent transition-opacity duration-700 cursor-grab active:cursor-grabbing ${
           isLoaded ? "opacity-100" : "opacity-0"
         }`} 
       />
 
       {/* Instant Raster Picture Fallback (until 3D model finishes parsing, and always for mobile/noscript) */}
-      <picture className={`absolute inset-0 w-full flex justify-center pointer-events-none transition-opacity duration-700 ${
+      <picture className={`absolute inset-0 w-full flex justify-center pointer-events-none transition-opacity duration-700 bg-transparent ${
         isLoaded ? "opacity-0 hidden" : "opacity-100"
       }`}>
         <source

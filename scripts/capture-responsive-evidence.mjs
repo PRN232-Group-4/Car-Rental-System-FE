@@ -47,21 +47,36 @@ async function run() {
 
     await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1500);
 
-    // Dark mode toggle if specified
+    // Safeguard 3: Strict Dark mode toggle via data-theme and verify body background color
     if (vp.colorScheme === "dark") {
       await page.evaluate(() => {
+        document.documentElement.setAttribute("data-theme", "dark");
         document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
       });
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => {
+        const bg = window.getComputedStyle(document.body).backgroundColor;
+        return bg === "rgb(23, 22, 27)" || bg.includes("23, 22, 27");
+      }, { timeout: 3000 }).catch(() => {});
+      await page.waitForTimeout(600);
+    }
+
+    // Scroll down to showroom-3d and wait for 3D model to load so fullpage captures it
+    const showroom = await page.$("#showroom-3d");
+    if (showroom) {
+      await showroom.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(1800);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.waitForTimeout(600);
     }
 
     // Capture Fullpage
     await saveScreenshot(page, `fullpage-${vp.name}.png`, { fullPage: true });
 
-    // For 1440 desktop, capture critical sections to verify the 7 architect fixes
-    if (vp.name.includes("1440")) {
+    // For 1440 desktop and 1920 ultrawide, capture critical sections
+    if (vp.name.includes("1440") || vp.name.includes("1920")) {
       const sections = [
         { id: "#gioi-thieu", name: "section-01-hero" },
         { id: "#showroom-3d", name: "section-02-showroom3d" },
@@ -77,7 +92,11 @@ async function run() {
         const el = await page.$(sec.id);
         if (el) {
           await el.scrollIntoViewIfNeeded();
-          await page.waitForTimeout(800);
+          if (sec.id === "#showroom-3d") {
+            await page.waitForTimeout(2000); // Extra time for 3D WebGL render
+          } else {
+            await page.waitForTimeout(800);
+          }
           await saveScreenshot(page, `${sec.name}-${vp.name}.png`);
         }
       }

@@ -172,7 +172,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           {/* Layer 2 (z-20): Vehicle Foreground Stage (Interactive 3D on Desktop + Fallback Picture) */}
           <div
             ref={stageRef}
-            className="relative w-full max-w-[1220px] mx-auto -mt-8 sm:-mt-16 md:-mt-24 lg:-mt-32 z-20 flex justify-center"
+            className="relative w-full max-w-none mx-auto -mt-8 sm:-mt-16 md:-mt-24 lg:-mt-32 z-20 flex justify-center bg-transparent overflow-visible"
           >
             <Hero3DCanvas />
           </div>

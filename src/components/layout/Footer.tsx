@@ -21,7 +21,10 @@ export default function Footer() {
   };
 
   return (
-    <footer id="lien-he" className="bg-stage-ink border-t border-white/10 text-white/80 pt-16 pb-12 px-4 sm:px-6 pr-14 md:pr-16 relative z-10 scroll-mt-24">
+    <footer 
+      id="lien-he" 
+      className="bg-stage-ink border-t border-white/10 text-white/80 pt-16 pb-12 px-4 sm:px-6 pr-14 md:pr-16 lg:pr-24 xl:pr-28 relative z-10 scroll-mt-24"
+    >
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 pb-12 border-b border-white/10">
           {/* Brand & Introduction */}
@@ -36,7 +39,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-sm font-normal">
-              Hệ thống cho thuê phương tiện theo giờ và dài hạn, kèm tài xế chuyên nghiệp. Đơn vị sở hữu và vận hành trực tiếp toàn bộ đội xe ô tô, xe máy, xe điện với quy trình kiểm định 2 chiều minh bạch.
+              Hệ thống cho thuê phương tiện theo giờ và dài hạn, kèm tài xế chuyên nghiệp. Đơn vị sở hữu và vận hành trực tiếp toàn bộ đội xe thể thao, SUV hạng sang và xe thuần điện với quy trình kiểm định 2 chiều minh bạch.
             </p>
             <div className="flex items-center gap-2 text-xs text-white/80 pt-2">
               <ShieldCheck className="w-4 h-4 text-primary-tint" aria-hidden="true" />
@@ -86,7 +89,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="#danh-muc-xe" className="hover:text-white transition-colors">
-                  Tìm kiếm & đặt xe
+                  Tìm kiếm &amp; đặt xe
                 </a>
               </li>
               <li>
@@ -110,12 +113,12 @@ export default function Footer() {
             <ul className="space-y-2 text-xs sm:text-sm text-white/70">
               <li>
                 <a href="#cong-nghe" className="hover:text-white transition-colors">
-                  Chính sách thuê & đặt cọc
+                  Chính sách thuê &amp; đặt cọc
                 </a>
               </li>
               <li>
                 <a href="#cong-nghe" className="hover:text-white transition-colors">
-                  Quy trình quyết toán & hoàn cọc
+                  Quy trình quyết toán &amp; hoàn cọc
                 </a>
               </li>
               <li>
@@ -146,7 +149,7 @@ export default function Footer() {
               <div className="flex items-start gap-2 pt-1">
                 <ShieldCheck className="w-4 h-4 text-primary-tint shrink-0 mt-0.5" aria-hidden="true" />
                 <a href="#cong-nghe" className="hover:text-white transition-colors flex items-center gap-1">
-                  <span>Hỗ trợ sự cố & kiểm định</span>
+                  <span>Hỗ trợ sự cố &amp; kiểm định</span>
                   <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
                 </a>
               </div>

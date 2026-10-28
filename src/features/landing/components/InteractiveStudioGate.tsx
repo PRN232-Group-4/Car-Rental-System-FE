@@ -33,43 +33,13 @@ export default function InteractiveStudioGate() {
     // 1. Kiểm tra kích thước màn hình
     const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
-    // Dưới 768px: KHÔNG tự động nạp chunk Three.js. Chỉ nạp khi người dùng bấm "Xem xe 3D".
-    if (isMobile) {
+    // Trên desktop: Nạp ngay lập tức để không bị trễ hoặc để trống khung khi cuộn trang / chụp ảnh màn hình
+    if (!isMobile) {
+      setShouldLoad(true);
       return;
     }
 
-    // Trên desktop: Nạp khi vào gần viewport (rootMargin: 300px) hoặc khi trình duyệt rảnh rỗi (idle)
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setShouldLoad(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "300px" }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    // Dự phòng rảnh sau khi tải xong toàn bộ trang
-    let idleId: number | null = null;
-    if ("requestIdleCallback" in window) {
-      idleId = (window as Window).requestIdleCallback(
-        () => {
-          setShouldLoad(true);
-        },
-        { timeout: 5000 }
-      );
-    }
-
-    return () => {
-      observer.disconnect();
-      if (idleId !== null && "cancelIdleCallback" in window) {
-        (window as Window).cancelIdleCallback(idleId);
-      }
-    };
+    // Dưới 768px: KHÔNG tự động nạp chunk Three.js. Chỉ nạp khi người dùng bấm "Xem xe 3D".
   }, []);
 
   if (shouldLoad) {

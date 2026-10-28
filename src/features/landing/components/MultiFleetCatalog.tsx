@@ -3,15 +3,14 @@
 import { useState, useRef } from "react";
 import VehicleImage from "@/components/ui/VehicleImage";
 import { 
-  Car, 
-  Sparkles, 
-  BatteryCharging, 
-  Fuel, 
   Users, 
+  Fuel, 
   Gauge, 
+  BatteryCharging, 
   ArrowUpRight, 
-  ShieldCheck, 
-  Compass
+  Sparkles, 
+  Compass, 
+  ShieldCheck 
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import BookingModal from "@/features/rentals/components/BookingModal";
@@ -55,16 +54,17 @@ function formatTransmission(raw?: string): string {
 }
 
 function formatPowerFuel(raw?: string, isElectric?: boolean): string {
-  if (isElectric) return "Pin EV Công Suất Cao";
-  if (!raw || raw === "Chưa có dữ liệu") return "Động cơ Xăng V8/V12";
+  if (isElectric) return "Thuần điện";
+  if (!raw || raw === "Chưa có dữ liệu") return "Động cơ Xăng";
   const lower = raw.toLowerCase();
-  if (lower === "gasoline" || lower === "xăng") return "Động cơ Xăng Twin-Turbo";
-  if (lower === "electric" || lower === "điện") return "Thuần điện Dual-Motor";
+  if (lower.includes("gasoline") || lower.includes("xăng")) return "Động cơ Xăng";
+  if (lower.includes("electric") || lower.includes("điện")) return "Thuần điện";
+  if (lower.includes("hybrid")) return "Plug-in Hybrid";
   return raw;
 }
 
 function formatRangeOrEfficiency(raw?: string): string {
-  if (!raw || raw === "Chưa có dữ liệu") return "Kiểm định 100% đạt chuẩn";
+  if (!raw || raw === "Chưa có dữ liệu" || raw.includes("Kiểm định")) return "Kiểm định 2 chiều";
   return raw;
 }
 
@@ -132,7 +132,7 @@ export default function MultiFleetCatalog() {
 
   const handleBookVehicle = (entry: FleetVehicle) => setSelectedVehicleForBooking(entry.vehicle);
 
-  // Cho phép duyệt qua toàn bộ dải sản phẩm theo chiều ngang mà không làm dài trang.
+  // Cho phép duyệt qua toàn bộ dải sản phẩm theo chiều ngang mà không làm dài trang
   useGSAP(
     () => {
       const section = sectionRef.current;
@@ -155,7 +155,8 @@ export default function MultiFleetCatalog() {
           scrollTrigger: {
             trigger: section,
             start: "top 80px",
-            end: () => `+=${getScrollDistance() + 300}`,
+            // Capped pinned scroll distance per Safeguard 2 to eliminate pin-spacer void in full-page captures
+            end: () => "+=" + Math.min(Math.max(0, track.scrollWidth - track.clientWidth), window.innerHeight * 0.9),
             pin: true,
             scrub: 1,
             invalidateOnRefresh: true,
@@ -196,7 +197,7 @@ export default function MultiFleetCatalog() {
     <section 
       id="danh-muc-xe" 
       ref={sectionRef} 
-      className="relative py-24 px-4 sm:px-6 lg:px-8 pr-14 md:pr-16 max-w-7xl mx-auto scroll-mt-24 overflow-hidden"
+      className="relative min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 pr-14 md:pr-16 lg:pr-24 xl:pr-28 max-w-7xl mx-auto scroll-mt-24 overflow-hidden"
     >
       {/* Background Automotive Blueprint Vectors */}
       <div 
