@@ -30,6 +30,8 @@ async function captureLanding(browser, theme) {
     try {
       localStorage.setItem("theme", t);
       localStorage.setItem("vrs-admin-theme", t);
+      sessionStorage.setItem("td_editorial_booted", "1");
+      sessionStorage.setItem("td_monolith_booted", "1");
     } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
     document.documentElement.setAttribute("data-admin-theme", t);
@@ -46,6 +48,15 @@ async function captureLanding(browser, theme) {
   await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(1000);
+
+  // Hide dev overlay badges (Next.js portal and TanStack devtools) for clean screenshot
+  await page.addStyleTag({
+    content: `
+      nextjs-portal, .tsqd-open-btn-container {
+        display: none !important;
+      }
+    `,
+  });
 
   // Re-verify theme in DOM
   await page.evaluate((t) => {
@@ -69,14 +80,15 @@ async function captureLanding(browser, theme) {
   const step = 600;
   for (let y = 0; y < scrollHeight; y += step) {
     await page.evaluate((top) => window.scrollTo(0, top), y);
-    await page.waitForTimeout(120);
+    await page.waitForTimeout(150);
   }
 
   // Scroll to 3D showroom specifically if exists and give it time to load/render WebGL
   const showroom = await page.$("#showroom-3d");
   if (showroom) {
     await showroom.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(2000);
+    console.log("Waiting 3s for 3D showroom WebGL canvas to settle...");
+    await page.waitForTimeout(3000);
   }
 
   // Scroll back to top
@@ -96,6 +108,23 @@ async function captureLanding(browser, theme) {
 
   fs.copyFileSync(localPath, artifactPath);
   console.log(`[SUCCESS] Saved to:\n  - ${localPath}\n  - ${artifactPath}`);
+
+  // Overwrite legacy filenames as requested to replace older files
+  const legacyFilenames = theme === "light" 
+    ? ["landing-1920.png", "fullpage-desktop-light.png"] 
+    : ["landing-dark-1920.png", "fullpage-desktop-dark.png"];
+
+  for (const legacyName of legacyFilenames) {
+    const legacyLocalPath = path.join(localScreenshotsDir, legacyName);
+    const legacyArtifactPath = path.join(artifactDir, legacyName);
+    try {
+      fs.copyFileSync(localPath, legacyLocalPath);
+      fs.copyFileSync(localPath, legacyArtifactPath);
+      console.log(`[OVERWRITTEN] Replaced legacy file: ${legacyName}`);
+    } catch (e) {
+      console.warn(`Could not overwrite ${legacyName}:`, e.message);
+    }
+  }
 
   await context.close();
 }
