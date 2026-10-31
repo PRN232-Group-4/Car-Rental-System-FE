@@ -152,7 +152,7 @@ for (const file of files) {
         file: relPath,
         line: lineNum,
         rule: 'FONT_RULE (A3, A11, A13)',
-        message: 'Font chính là Be Vietnam Pro + Geist Mono. Cấm Inter, Manrope.',
+        message: 'Font chính là Space Grotesk + Cormorant Garamond + Archivo + JetBrains Mono. Cấm Inter, Manrope.',
         detail: trimmed
       });
     }

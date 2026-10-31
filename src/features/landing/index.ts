@@ -1,14 +1,11 @@
 export { default as Hero } from "./components/Hero";
 export { default as Marquee } from "./components/Marquee";
 export { default as InteractiveStudio3D } from "./components/InteractiveStudio3D";
+export { default as InteractiveStudioGate } from "./components/InteractiveStudioGate";
+export { default as TelemetryBridgeBar } from "./components/TelemetryBridgeBar";
 export { default as MultiFleetCatalog } from "./components/MultiFleetCatalog";
 export { default as InspectionSection } from "./components/InspectionSection";
 export { default as PinnedJourney } from "./components/PinnedJourney";
 export { default as MembershipPasses } from "./components/MembershipPasses";
 export { default as ContinuousBlueprint } from "./components/ContinuousBlueprint";
-export { default as SpatialFleetShowcase } from "./components/SpatialFleetShowcase";
-export { default as DiagnosticDeck } from "./components/DiagnosticDeck";
-export { default as WhyChooseUs } from "./components/WhyChooseUs";
-export { default as HowItWorks } from "./components/HowItWorks";
-export { default as MobileAppSection } from "./components/MobileAppSection";
-export { default as HeroShowroom3D } from "./components/HeroShowroom3D";
+export { default as CinematicPreloader } from "./components/CinematicPreloader";

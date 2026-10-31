@@ -70,6 +70,31 @@ function subscribe(onChange: () => void) {
 }
 
 /**
+ * Paco Coursey / Next-Themes zero-flicker pattern:
+ * Vô hiệu hóa tạm thời tất cả transition CSS trong khi thay đổi theme attribute để triệt tiêu
+ * hoàn toàn hiện tượng chớp giật (cascading transition repaints) và layout shifts.
+ */
+export function disableTransitionsTemporarily() {
+  if (typeof document === "undefined") return;
+  let style = document.getElementById("disable-theme-transitions") as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "disable-theme-transitions";
+    style.textContent = "*, *::before, *::after { transition: none !important; }";
+    document.head.appendChild(style);
+  }
+  // Ép reflow đồng bộ
+  void window.getComputedStyle(document.body).opacity;
+
+  setTimeout(() => {
+    const existing = document.getElementById("disable-theme-transitions");
+    if (existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing);
+    }
+  }, 60);
+}
+
+/**
  * Theme dùng chung cho toàn bộ website (Marketing, Khách hàng, Điều hành, Admin):
  * lưu `light|dark` ở localStorage, áp lên `documentElement[data-theme]` và `documentElement[data-admin-theme]`
  * để token màu đồng bộ tức thì, mượt mà và không giật chớp.
@@ -99,6 +124,7 @@ export function useTheme() {
       // Keep the preference in memory if persistence is unavailable.
     }
     if (typeof document !== "undefined") {
+      disableTransitionsTemporarily();
       document.documentElement.dataset.adminTheme = next;
       document.documentElement.dataset.theme = next;
       if (next === "dark") {
@@ -106,6 +132,7 @@ export function useTheme() {
       } else {
         document.documentElement.classList.remove("dark");
       }
+      void window.getComputedStyle(document.body).opacity;
     }
     window.dispatchEvent(new Event(themeEvent));
     window.dispatchEvent(new Event("thong_dong_theme_change"));

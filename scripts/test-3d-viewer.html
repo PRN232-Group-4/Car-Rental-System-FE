@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thong Dong — So Sánh Mô Hình 3D (Gốc vs Tối Ưu)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0D1117;
+      color: #E6EDF3;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #161B22;
+      border-bottom: 1px solid #30363D;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .badge {
+      background: #B45309;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+    }
+    .controls { display: flex; align-items: center; gap: 12px; }
+    select, button {
+      background: #21262D;
+      border: 1px solid #30363D;
+      color: #C9D1D9;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    select:hover, button:hover { background: #30363D; }
+    .color-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+      border: 2px solid #30363D;
+    }
+    .color-dot:hover, .color-dot.active { border-color: #FFF; }
+    #compare-container {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+    .viewport-box {
+      flex: 1;
+      position: relative;
+      border-right: 1px solid #30363D;
+    }
+    .viewport-box:last-child { border-right: none; }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud-overlay {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid #30363D;
+      backdrop-filter: blur(8px);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      pointer-events: none;
+    }
+    .hud-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #58A6FF;
+    }
+    .hud-title.opt { color: #3FB950; }
+    .metric-val { font-weight: 600; color: #FFF; }
+    .hud-savings {
+      color: #3FB950;
+      font-weight: 700;
+      border-top: 1px dashed #30363D;
+      padding-top: 4px;
+      margin-top: 4px;
+    }
+  </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/node_modules/three/build/three.module.js",
+        "three/addons/": "/node_modules/three/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h2>Thong Dong 3D Studio</h2>
+      <span class="badge">A8 SHOWROOM VALIDATION</span>
+      <span>So sánh Bản Gốc vs Bản Tối Ưu</span>
+    </div>
+    <div class="controls">
+      <label>Chọn xe: 
+        <select id="model-select" onchange="switchModel(this.value)">
+          <option value="carrera">Porsche 911 Carrera 4S</option>
+          <option value="turbo930">1975 Porsche 911 930 Turbo</option>
+        </select>
+      </label>
+      <button id="wireframe-btn" onclick="toggleWireframe()">Khung dây (Wireframe): Tắt</button>
+      <div style="display:flex; align-items:center; gap:6px; margin-left:8px;">
+        <span style="font-size:12px; color:#8b949e;">Màu sơn:</span>
+        <span class="color-dot active" style="background:#B45309;" title="Amber Gold" onclick="setCarColor(0xB45309, this)"></span>
+        <span class="color-dot" style="background:#B91C1C;" title="Carmine Red" onclick="setCarColor(0xB91C1C, this)"></span>
+        <span class="color-dot" style="background:#1D4ED8;" title="Gentian Blue" onclick="setCarColor(0x1D4ED8, this)"></span>
+        <span class="color-dot" style="background:#E5E7EB;" title="Carrara White" onclick="setCarColor(0xE5E7EB, this)"></span>
+        <span class="color-dot" style="background:#1F2937;" title="Graphite Grey" onclick="setCarColor(0x1F2937, this)"></span>
+      </div>
+    </div>
+  </header>
+
+  <div id="compare-container">
+    <!-- Cột trái: Bản Gốc -->
+    <div class="viewport-box" id="box-orig">
+      <div class="hud-overlay">
+        <div class="hud-title">BẢN GỐC (ORIGINAL)</div>
+        <div id="orig-stats">Đang nạp mô hình...</div>
+      </div>
+      <canvas id="canvas-orig"></canvas>
+    </div>
+
+    <!-- Cột phải: Bản Tối Ưu -->
+    <div class="viewport-box" id="box-opt">
+      <div class="hud-overlay">
+        <div class="hud-title opt">BẢN TỐI ƯU (MESHOPT + WEBP)</div>
+        <div id="opt-stats">Đang nạp mô hình...</div>
+      </div>
+      <canvas id="canvas-opt"></canvas>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { MeshoptDecoder } from '/public/libs/meshopt/meshopt_decoder.module.js';
+
+    const canvasOrig = document.getElementById('canvas-orig');
+    const canvasOpt = document.getElementById('canvas-opt');
+
+    function createStudioView(canvas, isOptimized) {
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: false,
+        powerPreference: 'high-performance'
+      });
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+      renderer.setClearColor(0x12161F, 1);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(34, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+      camera.position.set(3.8, 1.15, 3.4);
+      const target = new THREE.Vector3(0, 0.38, 0);
+      camera.lookAt(target);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.target.copy(target);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Lights
+      const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+      scene.add(ambient);
+
+      const keyLight = new THREE.DirectionalLight(0xfffbf0, 2.5);
+      keyLight.position.set(4.5, 7.5, 3.5);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0xdce7ff, 1.3);
+      fillLight.position.set(-5, 4, -3);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      rimLight.position.set(-2, 5, 5);
+      scene.add(rimLight);
+
+      // Grid helper
+      const grid = new THREE.GridHelper(10, 20, 0x30363D, 0x1E242C);
+      scene.add(grid);
+
+      return { renderer, scene, camera, controls, currentModel: null, paintMaterials: [] };
+    }
+
+    const viewOrig = createStudioView(canvasOrig, false);
+    const viewOpt = createStudioView(canvasOpt, true);
+
+    // Sync controls between both views
+    let isSyncing = false;
+    viewOrig.controls.addEventListener('change', () => {
+      if (isSyncing) return;
+      isSyncing = true;
+      viewOpt.camera.position.copy(viewOrig.camera.position);
+      viewOpt.camera.rotation.copy(viewOrig.camera.rotation);
+      viewOpt.controls.target.copy(viewOrig.controls.target);
+      viewOpt.controls.update();
+      isSyncing = false;
+    });
+
+    viewOpt.controls.addEventListener('change', () => {
+      if (isSyncing) return;
+      isSyncing = true;
+      viewOrig.camera.position.copy(viewOpt.camera.position);
+      viewOrig.camera.rotation.copy(viewOpt.camera.rotation);
+      viewOrig.controls.target.copy(viewOpt.controls.target);
+      viewOrig.controls.update();
+      isSyncing = false;
+    });
+
+    const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
+
+    const modelsData = {
+      carrera: {
+        orig: { path: '/public/models/porsche_911_carrera_4s.glb', size: '25.36 MB' },
+        opt: { path: '/public/models/porsche_911_carrera_4s_opt.glb', size: '784 KB' }
+      },
+      turbo930: {
+        orig: { path: '/public/models/1975_porsche_911_930_turbo.glb', size: '21.97 MB' },
+        opt: { path: '/public/models/1975_porsche_911_930_turbo_opt.glb', size: '1.81 MB' }
+      }
+    };
+
+    function countMeshStats(object) {
+      let triangles = 0;
+      let vertices = 0;
+      let meshes = 0;
+      object.traverse(child => {
+        if (child.isMesh && child.geometry) {
+          meshes++;
+          const geo = child.geometry;
+          if (geo.index) {
+            triangles += geo.index.count / 3;
+          } else if (geo.attributes.position) {
+            triangles += geo.attributes.position.count / 3;
+          }
+          if (geo.attributes.position) {
+            vertices += geo.attributes.position.count;
+          }
+        }
+      });
+      return { triangles: Math.round(triangles), vertices, meshes };
+    }
+
+    function loadModelIntoView(view, url, statsElId, sizeText, isOpt, counterpartSize) {
+      const statsEl = document.getElementById(statsElId);
+      statsEl.innerHTML = 'Đang tải tệp ' + sizeText + '...';
+
+      if (view.currentModel) {
+        view.scene.remove(view.currentModel);
+        view.paintMaterials = [];
+      }
+
+      const t0 = performance.now();
+      loader.load(url, (gltf) => {
+        const loadDuration = (performance.now() - t0).toFixed(0);
+        view.currentModel = gltf.scene;
+
+        const bbox = new THREE.Box3().setFromObject(view.currentModel);
+        const center = bbox.getCenter(new THREE.Vector3());
+        view.currentModel.position.x = -center.x;
+        view.currentModel.position.y = -bbox.min.y;
+        view.currentModel.position.z = -center.z;
+
+        view.currentModel.traverse(child => {
+          if (child.isMesh && child.material) {
+            if (child.material.name === 'paint') {
+              view.paintMaterials.push(child.material);
+            }
+          }
+        });
+
+        view.scene.add(view.currentModel);
+        const stats = countMeshStats(view.currentModel);
+
+        let html = `
+          Tệp: <span class="metric-val">${sizeText}</span> (Tải & decode: ${loadDuration}ms)<br>
+          Tam giác: <span class="metric-val">${stats.triangles.toLocaleString()}</span><br>
+          Vertices: <span class="metric-val">${stats.vertices.toLocaleString()}</span><br>
+          Draw Calls (Meshes): <span class="metric-val">${stats.meshes}</span>
+        `;
+        if (isOpt) {
+          html += `<div class="hud-savings">Tiết kiệm: ~96.9% dung lượng | -64% draw calls</div>`;
+        }
+        statsEl.innerHTML = html;
+      });
+    }
+
+    window.switchModel = function(modelKey) {
+      const cfg = modelsData[modelKey];
+      loadModelIntoView(viewOrig, cfg.orig.path, 'orig-stats', cfg.orig.size, false);
+      loadModelIntoView(viewOpt, cfg.opt.path, 'opt-stats', cfg.opt.size, true, cfg.orig.size);
+    };
+
+    let wireframeActive = false;
+    window.toggleWireframe = function() {
+      wireframeActive = !wireframeActive;
+      document.getElementById('wireframe-btn').textContent = 'Khung dây (Wireframe): ' + (wireframeActive ? 'BẬT' : 'TẮT');
+      [viewOrig, viewOpt].forEach(v => {
+        if (v.currentModel) {
+          v.currentModel.traverse(child => {
+            if (child.isMesh && child.material) {
+              child.material.wireframe = wireframeActive;
+            }
+          });
+        }
+      });
+    };
+
+    window.setCarColor = function(colorHex, el) {
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+      if (el) el.classList.add('active');
+      [viewOrig, viewOpt].forEach(v => {
+        v.paintMaterials.forEach(mat => {
+          mat.color.setHex(colorHex);
+        });
+      });
+    };
+
+    function resize() {
+      const w = window.innerWidth / 2;
+      const h = window.innerHeight - 50;
+      [viewOrig, viewOpt].forEach(v => {
+        v.camera.aspect = w / h;
+        v.camera.updateProjectionMatrix();
+        v.renderer.setSize(w, h, false);
+      });
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function renderLoop() {
+      requestAnimationFrame(renderLoop);
+      viewOrig.controls.update();
+      viewOpt.controls.update();
+      viewOrig.renderer.render(viewOrig.scene, viewOrig.camera);
+      viewOpt.renderer.render(viewOpt.scene, viewOpt.camera);
+    }
+    renderLoop();
+
+    // Khởi chạy với Carrera 4S
+    window.switchModel('carrera');
+  </script>
+</body>
+</html>

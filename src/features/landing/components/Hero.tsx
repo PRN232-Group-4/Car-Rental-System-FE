@@ -1,216 +1,283 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/Button";
+import dynamic from "next/dynamic";
 import { SearchWidget } from "@/features/rentals";
 import type { RentalMode } from "@/features/rentals/components/SearchWidget";
-import { ArrowRight, ShieldCheck, Clock, RefreshCw, Car, Gauge, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, Compass } from "lucide-react";
 import { useSplitReveal } from "@/lib/motion/text";
+import { useMagneticHover } from "@/lib/motion/hover";
+import { useCountUp } from "@/lib/motion/number";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "@/lib/motion/register";
+
+const Hero3DCanvas = dynamic(() => import("./Hero3DCanvas"), {
+  ssr: false,
+  loading: () => (
+    <picture className="w-full flex justify-center pointer-events-none">
+      <source
+        type="image/avif"
+        srcSet="/assets/hero-car/hero-car-composite-1920.avif 1920w, /assets/hero-car/hero-car-composite-1280.avif 1280w, /assets/hero-car/hero-car-composite-960.avif 960w, /assets/hero-car/hero-car-composite-640.avif 640w"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
+      />
+      <source
+        type="image/webp"
+        srcSet="/assets/hero-car/hero-car-composite-1920.webp 1920w, /assets/hero-car/hero-car-composite-1280.webp 1280w, /assets/hero-car/hero-car-composite-960.webp 960w, /assets/hero-car/hero-car-composite-640.webp 640w"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1220px"
+      />
+      <img
+        src="/assets/hero-car/hero-car-composite-1280.webp"
+        alt="Porsche Carrera 4S Thong Dong"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        className="w-full h-auto max-h-[260px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain"
+      />
+    </picture>
+  ),
+});
+
+export interface HeroSearchCriteria {
+  mode: RentalMode;
+  facilityId: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+}
 
 interface HeroProps {
-  onSearchCriteriaChange?: (criteria: {
-    mode: RentalMode;
-    facilityId: string;
-    startDate: string;
-    startTime: string;
-    endDate: string;
-    endTime: string;
-  }) => void;
+  onSearchCriteriaChange?: (criteria: HeroSearchCriteria) => void;
 }
 
 export default function Hero({ onSearchCriteriaChange }: HeroProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headingWrapRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const leftWordRef = useRef<HTMLSpanElement>(null);
+  const rightWordRef = useRef<HTMLSpanElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const searchConsoleRef = useRef<HTMLDivElement>(null);
+  const ctaLinkRef = useRef<HTMLAnchorElement>(null);
+  const powerCounterRef = useRef<HTMLSpanElement>(null);
 
-  // Masked Horizon Split Reveal with Be Vietnam Pro
-  useSplitReveal(headingRef, {
-    type: "lines,words",
-    duration: 0.95,
-    stagger: 0.04,
-    ease: "power4.out",
-  });
+  useMagneticHover(ctaLinkRef);
+  useCountUp(powerCounterRef, 443, { duration: 1.4, formatter: (val) => `${val} HP` });
+
+  useGSAP(
+    () => {
+      if (typeof window === "undefined" || !containerRef.current) return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        if (stageRef.current) gsap.set(stageRef.current, { opacity: 1, scale: 1, yPercent: 0 });
+        if (headingWrapRef.current) gsap.set(headingWrapRef.current, { yPercent: 0 });
+        if (leftWordRef.current) gsap.set(leftWordRef.current, { xPercent: 0, opacity: 1, y: 0 });
+        if (rightWordRef.current) gsap.set(rightWordRef.current, { xPercent: 0, opacity: 1, y: 0 });
+        if (searchConsoleRef.current) gsap.set(searchConsoleRef.current, { opacity: 1, y: 0 });
+      });
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+        if (leftWordRef.current && rightWordRef.current) {
+          tl.fromTo(
+            [leftWordRef.current, rightWordRef.current],
+            { opacity: 0, y: 35 },
+            { opacity: 1, y: 0, duration: 0.85, stagger: 0.12, ease: "power3.out" },
+            0.05
+          );
+        }
+
+        if (stageRef.current) {
+          tl.fromTo(
+            stageRef.current,
+            { opacity: 0, scale: 0.95, y: 20 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.95 },
+            0.15
+          );
+        }
+
+        if (searchConsoleRef.current) {
+          tl.fromTo(
+            searchConsoleRef.current,
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 0.75 },
+            0.4
+          );
+        }
+
+        if (headingWrapRef.current) {
+          gsap.to(headingWrapRef.current, {
+            yPercent: -14,
+            ease: "none",
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+            },
+          });
+        }
+
+        // Kinematic Portal Split Effect: Khi cuộn xuống, 2 chữ tách ngang sang 2 bên
+        if (leftWordRef.current && rightWordRef.current) {
+          gsap.to(leftWordRef.current, {
+            xPercent: -22,
+            ease: "none",
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+            },
+          });
+          gsap.to(rightWordRef.current, {
+            xPercent: 22,
+            ease: "none",
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+            },
+          });
+        }
+      });
+
+      return () => mm.revert();
+    },
+    { scope: containerRef }
+  );
 
   return (
-    <section className="relative w-full pt-28 pb-16 px-4 sm:px-6 flex flex-col items-center overflow-visible">
-      {/* 1. Automotive Blueprint & Aero Vector Background SVGs */}
-      <div 
-        className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none"
-        aria-hidden="true"
-      >
-        {/* Engineering Coordinate Grid Pattern */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="hero-cad-grid" width="64" height="64" patternUnits="userSpaceOnUse">
-              <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#0f172a" strokeWidth="1" />
-              <path d="M 32 0 L 32 64 M 0 32 L 64 32" fill="none" stroke="#0f172a" strokeWidth="0.5" strokeDasharray="2,4" />
-              <circle cx="32" cy="32" r="1" fill="#b45309" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#hero-cad-grid)" />
-        </svg>
-
-        {/* Aerodynamic Streamlines & Chassis Contour Sketch Lines */}
-        <svg 
-          className="absolute top-12 left-1/2 -translate-x-1/2 w-[1400px] h-[720px] max-w-none opacity-[0.14]" 
-          viewBox="0 0 1400 720" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Aero Flow Curves */}
-          <path d="M 50 180 C 350 140, 650 90, 950 160 C 1150 210, 1300 240, 1380 260" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="8 6" />
-          <path d="M 80 230 C 400 190, 700 130, 1000 200 C 1180 240, 1280 280, 1360 310" stroke="#b45309" strokeWidth="1.5" />
-          <path d="M 120 280 C 450 250, 750 180, 1050 250 C 1220 290, 1320 340, 1350 370" stroke="#0f172a" strokeWidth="1" strokeDasharray="4 4" />
-          
-          {/* Chassis Reference Silhouette Sketch Lines */}
-          <path d="M 220 450 C 260 380, 340 330, 480 320 C 600 310, 720 260, 860 270 C 980 280, 1080 340, 1140 400 C 1170 430, 1180 470, 1170 510 L 220 510 Z" stroke="#0f172a" strokeWidth="1" strokeDasharray="6 6" />
-          
-          {/* Front & Rear Wheel Center Alignment Marks */}
-          <circle cx="360" cy="480" r="42" stroke="#b45309" strokeWidth="1" strokeDasharray="3 3" />
-          <circle cx="360" cy="480" r="4" fill="#b45309" />
-          <circle cx="1020" cy="480" r="42" stroke="#b45309" strokeWidth="1" strokeDasharray="3 3" />
-          <circle cx="1020" cy="480" r="4" fill="#b45309" />
-          
-          {/* Wheelbase Dimension Line */}
-          <line x1="360" y1="540" x2="1020" y2="540" stroke="#0f172a" strokeWidth="1.2" />
-          <path d="M 360 534 L 360 546 M 1020 534 L 1020 546" stroke="#0f172a" strokeWidth="1.2" />
-          <text x="690" y="558" fill="#0f172a" fontSize="11" fontFamily="monospace" textAnchor="middle" letterSpacing="1.5">WHEELBASE: 2,900 MM</text>
-
-          {/* CAD Precision Crosshairs & Coordinates */}
-          <g stroke="#0f172a" strokeWidth="1">
-            <line x1="160" y1="90" x2="180" y2="90" /><line x1="170" y1="80" x2="170" y2="100" />
-            <text x="190" y="94" fill="#0f172a" fontSize="10" fontFamily="monospace">REF: VN-SGN-01</text>
-
-            <line x1="1240" y1="90" x2="1260" y2="90" /><line x1="1250" y1="80" x2="1250" y2="100" />
-            <text x="1150" y="94" fill="#0f172a" fontSize="10" fontFamily="monospace">SCALE 1:1 [METRIC]</text>
-          </g>
-        </svg>
+    <section
+      ref={containerRef}
+      className="relative w-full min-h-[100dvh] pt-16 md:pt-20 pb-8 sm:pb-10 px-4 sm:px-6 lg:px-12 flex flex-col justify-between overflow-visible"
+    >
+      {/* Top Editorial Bar */}
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-3.5 mb-6 text-xs text-ink-2">
+        <div className="flex items-center gap-3">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+          <span className="font-sans font-semibold text-ink">
+            Hệ thống thuê xe tự lái &amp; có tài xế cao cấp
+          </span>
+        </div>
+        <div className="flex items-center gap-6">
+          <span className="hidden sm:flex items-center gap-1.5 text-ink-3">
+            <Compass aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
+            <span>Nhận xe tại trạm hoặc giao tận nơi</span>
+          </span>
+          <span className="flex items-center gap-1.5 font-medium text-ink">
+            <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
+            <span>Hoàn cọc tự động qua PayOS</span>
+          </span>
+        </div>
       </div>
 
-      {/* z-30: giữ console + dropdown của SearchWidget trên các section sau (z-10/z-20) nhưng dưới navbar/modal (z-50). */}
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center relative z-30">
-        {/* 3. H1 Display: Be Vietnam Pro Ultra-Bold with clean typographic flow */}
-        <h1
-          ref={headingRef}
-          className="text-4xl sm:text-6xl lg:text-7xl font-black text-ink text-center tracking-tight leading-[1.04] mb-5 max-w-5xl"
-        >
-          <span className="block">Hành Trình Tự Do,</span>
-          <span className="block text-ink-2 dark:text-ink/90">Trải Nghiệm Tối Thượng</span>
-        </h1>
+      {/* 1920px Edge Micro-Typography Columns */}
+      <div aria-hidden="true" className="hidden 2xl:flex flex-col justify-between absolute left-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none">
+        <div className="space-y-1.5">
+          <div className="w-8 h-[2px] bg-primary" />
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-ink-3 font-semibold block max-w-[150px] leading-relaxed">
+            CHỈ SỐ AN TOÀN // 100% BẢO HIỂM HAI CHIỀU
+          </span>
+        </div>
+      </div>
+      <div aria-hidden="true" className="hidden 2xl:flex flex-col justify-between absolute right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none text-right items-end">
+        <div className="space-y-1.5 flex flex-col items-end">
+          <div className="w-8 h-[2px] bg-primary" />
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-ink-3 font-semibold block max-w-[160px] leading-relaxed">
+            QUY CHUẨN SỐ HÓA // BÀN GIAO 60S &amp; HOÀN CỌC PAYOS 15P
+          </span>
+        </div>
+      </div>
 
-        {/* 4. Subtitle: Single concise, high-contrast narrative statement */}
-        <p
-          ref={subtitleRef}
-          className="text-ink-2 text-base sm:text-lg md:text-xl max-w-3xl text-center font-normal leading-relaxed mb-8 text-pretty"
-        >
-          Hệ thống quản lý 4 nhóm phương tiện thuần điện & xăng cao cấp. Tùy chọn tự lái linh hoạt hoặc có tài xế riêng. Theo dõi đặt xe, kiểm tra xe và thanh toán trong tài khoản.
-        </p>
-
-        {/* 5. Direct Action CTA Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-          <Button
-            as="a"
-            href="#tim-xe"
-            variant="amber-hero"
-            size="lg"
-            className="group text-sm sm:text-base font-bold px-8 py-4 rounded-xl shadow-md"
+      {/* Main Architectural Stage */}
+      <div className="w-full mx-auto flex flex-col relative z-10">
+        {/* Typographic Focal Point */}
+        <div ref={headingWrapRef} className="w-full will-change-transform relative z-10 text-center">
+          <h1
+            ref={headingRef}
+            className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(4.5rem,8.8vw,9.75rem)] w-full select-none flex flex-wrap items-baseline justify-center gap-x-6 sm:gap-x-8"
           >
-            <span>Tìm và đặt xe ngay</span>
-            <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
-          </Button>
-
-          <Button
-            as="a"
-            href="#showroom-3d"
-            variant="secondary"
-            size="lg"
-            className="text-sm sm:text-base font-bold px-7 py-4 rounded-xl bg-surface border border-line-strong text-ink hover:bg-sunken"
-          >
-            <Car className="w-4 h-4 mr-2 text-primary" />
-            <span>Khám phá 3D Showroom</span>
-          </Button>
+            <span ref={leftWordRef} className="inline-block will-change-transform">
+              Thuê xe
+            </span>
+            <span
+              ref={rightWordRef}
+              className="font-display font-extrabold tracking-tight text-ink inline-block will-change-transform"
+            >
+              thong dong<span className="text-primary">.</span>
+            </span>
+          </h1>
         </div>
 
-        {/* 6. Central Cinematic Vehicle Stage with Automotive Blueprint Overlay */}
-        <div className="relative w-full max-w-5xl my-4">
-          {/* Architectural Blueprint CAD Frame */}
-          <div className="relative rounded-3xl overflow-hidden border border-line-strong bg-surface shadow-[0_12px_40px_-15px_rgba(15,23,42,0.12)]">
-            {/* Aspect ratio frame for high-res vehicle imagery */}
-            <div className="relative w-full aspect-[21/9] sm:aspect-[24/9] min-h-[260px] sm:min-h-[340px]">
-              <Image
-                src="/assets/hero-ev.jpg"
-                alt="Thong Dong Fleet - Xe Sang Thể Thao Đương Đại"
-                fill
-                priority
-                className="object-cover object-center"
-                sizes="(max-width: 1280px) 100vw, 1280px"
-              />
-              
-              {/* Flat architectural scrim to ground vehicle and display CAD telemetry (Strict A13 compliance: No gradients) */}
-              <div 
-                className="absolute inset-0 bg-stage-ink/25 pointer-events-none"
-                aria-hidden="true"
-              />
-
-              {/* Technical Blueprint Corner Dimension Brackets */}
-              <div className="absolute top-4 left-4 font-mono text-xs text-white/90 glass-ink px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
-                <SlidersHorizontal className="w-3 h-3 text-primary-graphic" />
-                <span>CHASSIS REF: 911-EV-SPECS</span>
-              </div>
-
-              <div className="absolute top-4 right-4 font-mono text-xs text-white/90 glass-ink px-2.5 py-1 rounded border border-white/20 flex items-center gap-1.5">
-                <Gauge className="w-3 h-3 text-primary-graphic" />
-                <span>AERO Cd: 0.22 · AWD</span>
-              </div>
-
-              {/* Bottom Telemetry Strip across vehicle visual */}
-              <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 text-white text-xs font-mono">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="font-bold tracking-wide">100% SẴN SÀNG KHỞI HÀNH</span>
-                </div>
-                <div className="hidden sm:flex items-center gap-4 text-white/80 text-xs">
-                  <span>DÀI: 4,963 MM</span>
-                  <span>·</span>
-                  <span>RỘNG: 1,966 MM</span>
-                  <span>·</span>
-                  <span>PIN 800V ULTRA-CHARGE</span>
-                </div>
-              </div>
+        {/* 3D Porsche Carrera 4S Stage — Căn tâm chuẩn xác trên mặt phẳng bóng đổ & Monolith Disc */}
+        <div
+          ref={stageRef}
+          className="relative w-full max-w-6xl mx-auto -mt-4 sm:-mt-6 md:-mt-8 z-20 flex justify-center bg-transparent overflow-visible will-change-transform h-[480px] xl:h-[520px]"
+        >
+          {/* Monolith Architectural Circle & Vertical Axis Background */}
+          <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-visible">
+            {/* Vertical Axis Ribbon */}
+            <div className="absolute top-[-40px] bottom-[-40px] w-10 bg-primary/10 dark:bg-primary/15 border-x border-primary/25 pointer-events-none" />
+            {/* Monolith Circle Disc */}
+            <div className="relative w-[340px] h-[340px] sm:w-[420px] sm:h-[420px] lg:w-[460px] lg:h-[460px] rounded-full bg-sunken/80 dark:bg-surface-raised/60 border border-line-strong shadow-inner flex items-center justify-center">
+              {/* Inner Hairline Concentric Ring */}
+              <div className="w-[82%] h-[82%] rounded-full border border-dashed border-line/60" />
             </div>
           </div>
+
+          <div className="relative z-10 w-full h-full flex justify-center">
+            <Hero3DCanvas />
+          </div>
         </div>
 
-        {/* 7. Minimal Inline Trust Strip (Pure typographic elegance, no nested card boxes) */}
-        <div 
-          className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-4 mb-10 text-xs sm:text-sm text-ink-2"
-          suppressHydrationWarning
+        {/* Value Proposition & Specs Counterbalance Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end relative z-30 mt-2 mb-6 pt-5 border-t border-line">
+          <div className="lg:col-span-7 flex flex-col items-start text-left">
+            <h2 className="font-display font-bold text-ink tracking-tight text-xl sm:text-2xl leading-snug text-balance">
+              Trải nghiệm những dòng xe biểu tượng với quy trình bàn giao số hóa trong 60 giây.
+            </h2>
+            <p className="font-sans text-ink-2 text-sm sm:text-base font-normal leading-relaxed max-w-2xl mt-1.5 text-balance">
+              Đội xe thuần điện và thể thao hiệu năng cao được kiểm định đa điểm trước mỗi hành trình. Minh bạch chi phí, không phí ẩn.
+            </p>
+          </div>
+
+          <div className="lg:col-span-5 flex flex-wrap sm:flex-nowrap items-center justify-between lg:justify-end gap-5">
+            <div className="flex items-center gap-5 px-4 py-2.5 rounded-xl bg-surface border border-line-strong">
+              <div>
+                <span className="text-[11px] font-sans text-ink-3 block">Tiêu điểm hôm nay</span>
+                <span className="font-display font-bold text-sm text-ink">Porsche 911 Carrera 4S</span>
+              </div>
+              <div className="h-7 w-[1px] bg-line" />
+              <div>
+                <span className="text-[11px] font-sans text-ink-3 block">Công suất</span>
+                <span ref={powerCounterRef} className="font-mono font-bold text-sm text-primary tabular-nums">
+                  443 HP
+                </span>
+              </div>
+            </div>
+
+            <a
+              ref={ctaLinkRef}
+              href="#showroom-3d"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-stage-ink text-white font-sans text-xs sm:text-sm font-semibold hover:bg-primary transition-colors cursor-pointer group shrink-0"
+            >
+              <span>Khám phá ngoại thất 3D</span>
+              <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+          </div>
+        </div>
+
+        {/* Live Search Console */}
+        <div
+          ref={searchConsoleRef}
+          id="tim-xe"
+          className="relative z-40 w-full scroll-mt-28"
         >
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-bold text-ink">100% Xe Chính Chủ</span>
-            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Đội xe vận hành)</span>
-          </div>
-
-          <div className="hidden sm:inline-block text-line-strong font-light">/</div>
-
-          <div className="flex items-center gap-2.5">
-            <Clock className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-bold text-ink">Biên Bản Bàn Giao</span>
-            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Biên bản số)</span>
-          </div>
-
-          <div className="hidden sm:inline-block text-line-strong font-light">/</div>
-
-          <div className="flex items-center gap-2.5">
-            <RefreshCw className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-bold text-ink">Theo Dõi Quyết Toán</span>
-            <span className="text-ink-3 font-mono text-xs hidden sm:inline">(Theo đơn thuê)</span>
-          </div>
-        </div>
-
-        {/* 8. Overlapping Floating Search Console (.glass-2) */}
-        <div id="tim-xe" className="relative z-20 w-full max-w-5xl px-2 sm:px-4 scroll-mt-28">
           <SearchWidget onSearch={onSearchCriteriaChange} />
         </div>
       </div>

@@ -4,25 +4,26 @@
  */
 export const motionTokens = {
   durations: {
-    fast: 0.16, // 160ms
-    base: 0.32, // 320ms
-    slow: 0.64, // 640ms
-    cine: 1.1,  // 1100ms
+    fast: 0.16,
+    base: 0.32,
+    slow: 0.64,
+    cine: 1.1,
   },
   eases: {
-    out: "expo.out",
+    out: "power2.out",
     inOut: "power3.inOut",
-    press: "power2.out",
-    pop: "back.out(1.4)",
-    bounce: "back.out(1.2)",
-    spring: "elastic.out(1, 0.75)",
-    pulse: "sine.inOut",
-    linear: "none",
+    editorial: "cubic-bezier(0.16, 1, 0.3, 1)",
+    cinematic: "cubic-bezier(0.25, 1, 0.5, 1)",
+  },
+  stagger: {
+    tight: 0.04,
+    base: 0.08,
+    relaxed: 0.12,
   },
   distances: {
     sm: 12,
-    md: 24,
+    md: 20,
     lg: 32,
     xl: 48,
   },
-} as const;
+};
