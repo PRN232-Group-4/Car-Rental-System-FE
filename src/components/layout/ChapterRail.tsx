@@ -13,12 +13,12 @@ interface ChapterItem {
 
 const CHAPTERS: ChapterItem[] = [
   { id: "gioi-thieu", name: "Giới thiệu", shortLabel: "01", href: "#gioi-thieu" },
-  { id: "showroom-3d", name: "Showroom 3D", shortLabel: "02", href: "#showroom-3d" },
-  { id: "danh-muc-xe", name: "Đội xe", shortLabel: "03", href: "#danh-muc-xe" },
-  { id: "chi-nhanh", name: "Mạng lưới trạm", shortLabel: "04", href: "#chi-nhanh" },
+  { id: "danh-muc-xe", name: "Bộ sưu tập xe", shortLabel: "02", href: "#danh-muc-xe" },
+  { id: "chi-nhanh", name: "Mạng lưới trạm", shortLabel: "03", href: "#chi-nhanh" },
+  { id: "showroom-3d", name: "Trạm trải nghiệm 3D", shortLabel: "04", href: "#showroom-3d" },
   { id: "cong-nghe", name: "Kiểm định 2 chiều", shortLabel: "05", href: "#cong-nghe" },
   { id: "quy-trinh", name: "Quy trình 4 bước", shortLabel: "06", href: "#quy-trinh" },
-  { id: "goi-thue-bao", name: "Gói thuê bao", shortLabel: "07", href: "#goi-thue-bao" },
+  { id: "goi-thue-bao", name: "Gói hội viên", shortLabel: "07", href: "#goi-thue-bao" },
 ];
 
 /**

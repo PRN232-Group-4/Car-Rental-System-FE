@@ -142,7 +142,7 @@ export default function Navbar() {
               Chi nhánh
             </Link>
             <Link
-              href="/#kiem-dinh"
+              href="/#cong-nghe"
               className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
             >
               Kiểm định

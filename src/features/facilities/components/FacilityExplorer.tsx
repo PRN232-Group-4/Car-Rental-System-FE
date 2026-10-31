@@ -8,9 +8,10 @@ import { getFacilities, getInitialFacilities } from "../api";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Flip } from "@/lib/motion/register";
 
-interface FacilityExplorerProps {
+export interface FacilityExplorerProps {
   selectedFacilityId?: string;
   onSelectFacility?: (facilityId: string) => void;
+  onSelectFacilityForRental?: (facilityId: string, facilityName: string) => void;
 }
 
 // Map facility coordinate offsets onto SVG 600x340 CAD Blueprint Canvas
@@ -37,7 +38,11 @@ function formatFacilityAddress(facility?: { address?: string; district?: string;
   return parts.filter(Boolean).join(", ");
 }
 
-export default function FacilityExplorer({ selectedFacilityId = "", onSelectFacility }: FacilityExplorerProps) {
+export default function FacilityExplorer({
+  selectedFacilityId = "",
+  onSelectFacility,
+  onSelectFacilityForRental,
+}: FacilityExplorerProps = {}) {
   const initial = getInitialFacilities();
   const [activeId, setActiveId] = useState(selectedFacilityId || initial[0]?.id || "fac-saigon-atelier");
   const query = useQuery({ 
@@ -77,13 +82,13 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
   };
 
   return (
-    <section id="chi-nhanh" className="mx-auto w-full max-w-[1480px] xl:max-w-[1600px] scroll-mt-28 px-4 sm:px-6 lg:px-12 py-20 sm:py-24 relative overflow-hidden">
+    <section id="chi-nhanh" className="mx-auto w-full max-w-[1480px] xl:max-w-[1600px] scroll-mt-28 px-4 sm:px-6 lg:px-12 py-14 sm:py-16 relative overflow-hidden">
       {/* Monumental Chapter Numeral */}
       <span 
         aria-hidden="true" 
-        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-8 top-2 z-0 opacity-40"
       >
-        04
+        03
       </span>
 
       <div data-kinetic-skew="true">
@@ -335,20 +340,38 @@ export default function FacilityExplorer({ selectedFacilityId = "", onSelectFaci
                     <span className="text-ink font-semibold">{currentPin.coords}</span>
                   </div>
                   <span className="text-[11px] text-ink-3 hidden sm:inline">
-                    ĐỐI SOÁT TELEMATICS TỰ ĐỘNG
+                    TRẠM GIAO NHẬN 24/7
                   </span>
                 </div>
               </div>
 
-              {/* Action Link */}
-              <div className="pt-2">
-                <Link
-                  href={`/find?facilityId=${encodeURIComponent(current.id)}`}
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm"
-                >
-                  <span>Xem xe khả dụng tại chi nhánh này</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
+              {/* Prominent Bottom Action Bar */}
+              <div className="pt-4 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="hidden sm:block">
+                  <span className="text-xs font-mono text-ink-3">Bàn giao xe tại {current.name} · Hỗ trợ 24/7</span>
+                </div>
+                {onSelectFacilityForRental ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectFacilityForRental(current.id, current.name);
+                      const cat = document.getElementById("danh-muc-xe");
+                      if (cat) cat.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary-hover active:bg-primary-press transition-colors shadow-sm cursor-pointer"
+                  >
+                    <span>Chọn nhận xe tại trạm này</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <Link
+                    href={`/find?facilityId=${encodeURIComponent(current.id)}`}
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary-hover active:bg-primary-press transition-colors shadow-sm"
+                  >
+                    <span>Xem xe khả dụng tại chi nhánh này</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                )}
               </div>
             </div>
           </article>
