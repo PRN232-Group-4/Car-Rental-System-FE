@@ -3,8 +3,11 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { CustomEase } from "gsap/CustomEase";
 import { Flip } from "gsap/Flip";
 import { SplitText } from "gsap/SplitText";
+import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 
 let isRegistered = false;
 
@@ -17,21 +20,7 @@ export function registerMotion(): void {
     return;
   }
 
-  // Headless test environments (e.g. jsdom) do not implement window.matchMedia
-  if (typeof window.matchMedia !== "function") {
-    window.matchMedia = (query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => false,
-    } as unknown as MediaQueryList);
-  }
-
-  gsap.registerPlugin(useGSAP, ScrollTrigger, Flip, SplitText);
+  gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother, CustomEase, Flip, SplitText, DrawSVGPlugin);
   isRegistered = true;
 }
 
@@ -40,4 +29,4 @@ if (typeof window !== "undefined") {
   registerMotion();
 }
 
-export { gsap, useGSAP, ScrollTrigger, Flip, SplitText };
+export { gsap, useGSAP, ScrollTrigger, ScrollSmoother, CustomEase, Flip, SplitText, DrawSVGPlugin };

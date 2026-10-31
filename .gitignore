@@ -68,3 +68,9 @@ node_modules/
 .github/skills/
 .mcp.json
 .pi/
+
+# Test and visual measurement artifacts
+screenshots/
+scratch/
+tmp/
+scripts/typography-test.html

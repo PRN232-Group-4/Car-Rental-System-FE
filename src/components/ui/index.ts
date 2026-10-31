@@ -13,3 +13,4 @@ export * from "./ChartCard";
 export * from "./StatusBadge";
 export * from "./FilterBar";
 export * from "./DateTimeRangePicker";
+export * from "./CadCard";

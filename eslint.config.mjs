@@ -18,6 +18,8 @@ const eslintConfig = defineConfig([
     ".cursor/**",
     ".codex/**",
     ".github/**",
+    "scratch/**",
+    "tmp/**",
   ]),
 ]);
 

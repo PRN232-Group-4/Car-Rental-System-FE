@@ -1,7 +1,8 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import React, { forwardRef, useRef, useImperativeHandle } from "react";
 import { Loader2 } from "lucide-react";
+import { useMagneticHover } from "@/lib/motion/hover";
 
 export type ButtonVariant =
   | "primary"
@@ -11,6 +12,7 @@ export type ButtonVariant =
   | "danger"
   | "sticky-morph"
   | "amber-hero"
+  | "marketing-cta"
   | "filter-pill";
 export type ButtonSize = "sm" | "md" | "lg";
 
@@ -58,6 +60,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       "bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "amber-hero":
       "bg-primary text-white shadow-[0_10px_24px_-8px_rgba(180,83,9,0.45)] hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
+    "marketing-cta":
+      "relative overflow-hidden bg-accent-500 text-stage-ink hover:bg-accent-700 hover:text-white active:translate-y-[1px] transition-all cursor-pointer font-bold disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "sticky-morph":
       "bg-stage-ink text-white hover:bg-primary transition-colors cursor-pointer",
     "filter-pill":
@@ -75,9 +79,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   const isDisabled = disabled || isLoading;
   const isButton = Component === "button";
 
+  const internalRef = useRef<HTMLButtonElement | null>(null);
+  useImperativeHandle(ref, () => internalRef.current as HTMLButtonElement);
+
+  // Cung cấp phản hồi xúc giác vật lý cao cấp, kích thích hành vi nhấp chuột.
+  const isMagnetic = variant === "marketing-cta" && !isDisabled;
+  useMagneticHover(internalRef, isMagnetic);
+
   return (
     <Component
-      ref={ref}
+      ref={internalRef}
       disabled={isButton ? isDisabled : undefined}
       aria-disabled={isDisabled}
       className={`inline-flex select-none items-center justify-center whitespace-nowrap font-sans outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${sizeClasses} ${variantClasses} ${className}`.trim()}

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { playTactileClick } from "@/lib/audio/haptic-audio";
+import { disableTransitionsTemporarily } from "@/lib/use-theme";
 
 declare global {
   interface Window {
@@ -388,8 +389,10 @@ export function GlobalLiquidThemeTransition() {
 
         if (hasViewTransition) {
           document.documentElement.dataset.themeTransitioning = "true";
+          disableTransitionsTemporarily();
 
           const transition = (document as DocumentWithViewTransition).startViewTransition(async () => {
+            disableTransitionsTemporarily();
             document.documentElement.dataset.adminTheme = targetTheme;
             document.documentElement.dataset.theme = targetTheme;
             if (targetTheme === "dark") {
@@ -397,6 +400,7 @@ export function GlobalLiquidThemeTransition() {
             } else {
               document.documentElement.classList.remove("dark");
             }
+            void window.getComputedStyle(document.body).opacity;
             try {
               window.localStorage.setItem("vrs-admin-theme", targetTheme);
               window.localStorage.setItem("theme", targetTheme);
@@ -424,9 +428,11 @@ export function GlobalLiquidThemeTransition() {
 
           await Promise.all([runWaveAnimation(), clipAnim.finished.catch(() => {})]);
 
+          disableTransitionsTemporarily();
           document.documentElement.removeAttribute("data-theme-transitioning");
           delete document.documentElement.dataset.themeTransitioning;
         } else if (typeof document !== "undefined") {
+          disableTransitionsTemporarily();
           document.documentElement.dataset.adminTheme = targetTheme;
           document.documentElement.dataset.theme = targetTheme;
           if (targetTheme === "dark") {
@@ -434,6 +440,7 @@ export function GlobalLiquidThemeTransition() {
           } else {
             document.documentElement.classList.remove("dark");
           }
+          void window.getComputedStyle(document.body).opacity;
           try {
             window.localStorage.setItem("vrs-admin-theme", targetTheme);
             window.localStorage.setItem("theme", targetTheme);
@@ -441,6 +448,7 @@ export function GlobalLiquidThemeTransition() {
           window.dispatchEvent(new Event("vrs-admin-theme-change"));
           window.dispatchEvent(new Event("thong_dong_theme_change"));
           await runWaveAnimation();
+          disableTransitionsTemporarily();
         }
       } catch (err) {
         console.error("Liquid theme transition error:", err);

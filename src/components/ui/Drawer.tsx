@@ -14,6 +14,7 @@ export interface DrawerProps {
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
+  container?: HTMLElement | null;
 }
 
 export function Drawer({
@@ -25,6 +26,7 @@ export function Drawer({
   children,
   className,
   bodyClassName,
+  container,
 }: DrawerProps) {
   const isBottom = side === "bottom";
   const isLeft = side === "left";
@@ -37,7 +39,7 @@ export function Drawer({
       direction={side}
       dismissible
     >
-      <VaulDrawer.Portal>
+      <VaulDrawer.Portal container={container}>
         <VaulDrawer.Overlay className="fixed inset-0 z-50 bg-scrim transition-opacity" />
         <VaulDrawer.Content
           aria-describedby={description ? "drawer-desc" : undefined}
