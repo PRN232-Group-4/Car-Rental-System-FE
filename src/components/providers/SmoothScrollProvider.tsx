@@ -18,11 +18,12 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    // Respect prefers-reduced-motion
+    // Respect prefers-reduced-motion and static capture mode
     if (typeof window === "undefined") return;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isStaticCapture = window.location.search.includes("capture=static");
 
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || isStaticCapture) {
       return;
     }
 

@@ -84,24 +84,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 
   // Cung cấp phản hồi xúc giác vật lý cao cấp, kích thích hành vi nhấp chuột.
   const isMagnetic = variant === "marketing-cta" && !isDisabled;
-  const { onMouseMove: magneticMouseMove, onMouseLeave: magneticMouseLeave } = useMagneticHover(
-    internalRef,
-    isMagnetic
-  );
+  useMagneticHover(internalRef, isMagnetic);
 
   return (
     <Component
       ref={internalRef}
       disabled={isButton ? isDisabled : undefined}
       aria-disabled={isDisabled}
-      onMouseMove={(e: React.MouseEvent<HTMLButtonElement>) => {
-        if (isMagnetic) magneticMouseMove(e);
-        props.onMouseMove?.(e as any);
-      }}
-      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-        if (isMagnetic) magneticMouseLeave();
-        props.onMouseLeave?.(e as any);
-      }}
       className={`inline-flex select-none items-center justify-center whitespace-nowrap font-sans outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${sizeClasses} ${variantClasses} ${className}`.trim()}
       {...props}
     >

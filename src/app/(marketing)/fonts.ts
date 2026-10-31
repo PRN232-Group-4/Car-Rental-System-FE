@@ -1,13 +1,26 @@
-import { Bricolage_Grotesque, Manrope, JetBrains_Mono } from "next/font/google";
+import {
+  Space_Grotesk,
+  Cormorant_Garamond,
+  Archivo,
+  JetBrains_Mono,
+} from "next/font/google";
 
-export const bricolage = Bricolage_Grotesque({
+export const spaceGrotesk = Space_Grotesk({
   variable: "--font-bricolage",
   subsets: ["latin", "vietnamese"],
-  weight: ["400", "600", "700", "800"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
-export const manrope = Manrope({
+export const cormorant = Cormorant_Garamond({
+  variable: "--font-editorial",
+  subsets: ["latin", "vietnamese"],
+  style: ["normal", "italic"],
+  weight: ["600", "700"],
+  display: "swap",
+});
+
+export const archivo = Archivo({
   variable: "--font-marketing-sans",
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
@@ -20,3 +33,7 @@ export const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "600"],
   display: "swap",
 });
+
+// Giữ alias tương thích ngược với các import hiện hữu
+export const bricolage = spaceGrotesk;
+export const manrope = archivo;
