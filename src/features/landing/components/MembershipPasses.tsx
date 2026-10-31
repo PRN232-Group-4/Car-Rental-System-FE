@@ -2,80 +2,189 @@
 
 import { useCallback, useState, useEffect, useRef } from "react";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
-import { 
-  Clock, 
-  CheckCircle2, 
-  ArrowUpRight, 
-  ShieldCheck, 
-  Loader2
+import {
+  CheckCircle2,
+  ArrowUpRight,
+  ShieldCheck,
+  Loader2,
+  Sparkles,
+  Clock,
 } from "lucide-react";
-import { getSubscriptionPlans, purchaseSubscriptionPlan } from "@/features/subscriptions/api";
+import {
+  getSubscriptionPlans,
+  purchaseSubscriptionPlan,
+} from "@/features/subscriptions/api";
 import type { SubscriptionPlan } from "@/features/subscriptions/types";
 import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/Button";
-import { CardGridSkeleton } from "@/components/ui/Skeleton";
+import { playTactileClick } from "@/lib/audio/haptic-audio";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
+
+const FALLBACK_PLANS: SubscriptionPlan[] = [
+  {
+    id: "pass-urban-12",
+    name: "Urban Mobility 12",
+    hours: 12,
+    price: 120000,
+    validityDays: 30,
+    popular: false,
+    description:
+      "Quỹ giờ di chuyển linh hoạt nội đô, phù hợp cho các cuộc gặp gỡ đối tác và công tác ngắn ngày.",
+    features: [
+      "12 giờ cầm lái dòng xe Sedan & EV tiêu chuẩn",
+      "Mở khóa xe số hóa qua ứng dụng trong 60 giây",
+      "Bảo hiểm vật chất hai chiều toàn diện PVI",
+      "Đối soát và hoàn cọc tự động qua cổng PayOS",
+    ],
+  },
+  {
+    id: "pass-gt-30",
+    name: "Grand Tourer 30",
+    hours: 30,
+    price: 250000,
+    validityDays: 60,
+    popular: true,
+    description:
+      "Đặc quyền cầm lái hạm đội Porsche & SUV hạng sang cho những chuyến hành trình dài ngày.",
+    features: [
+      "30 giờ sử dụng linh hoạt trên toàn bộ hạm đội xe",
+      "Ưu tiên giữ xe Porsche 911, Taycan & AMG G63",
+      "Miễn phí giao nhận xe tận nơi trong bán kính 15km",
+      "Giải phóng cọc tự động trong 15 phút sau khi trả xe",
+    ],
+  },
+  {
+    id: "pass-exec-50",
+    name: "Executive Vault 50",
+    hours: 50,
+    price: 390000,
+    validityDays: 90,
+    popular: false,
+    description:
+      "Giải pháp di chuyển thượng lưu dài hạn dành cho doanh nhân với quyền ưu tiên điều phối cao nhất.",
+    features: [
+      "50 giờ đặc quyền bao gồm tùy chọn tài xế riêng",
+      "Chuyển đổi không giới hạn dòng xe tại 3 miền",
+      "Bảo hiểm miễn thường 100% & Hỗ trợ kỹ thuật 24/7",
+      "Cộng dồn số giờ dư sang chu kỳ đăng ký tiếp theo",
+    ],
+  },
+];
 
 export default function MembershipPasses() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [purchasingId, setPurchasingId] = useState<number | string | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>(FALLBACK_PLANS);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | string>(
+    FALLBACK_PLANS[1].id
+  );
+  const [purchasingId, setPurchasingId] = useState<number | string | null>(
+    null
+  );
   const [notice, setNotice] = useState<string | null>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
   const containerRef = useRef<HTMLElement>(null);
+  const monolithVaultRef = useRef<HTMLDivElement>(null);
 
-  // Normalize plan prices and copy to ensure progressive tier pricing and eliminate demo text
-  const normalizedPlans: SubscriptionPlan[] = plans.map((p) => {
+  const normalizedPlans: SubscriptionPlan[] = (
+    plans.length > 0 ? plans : FALLBACK_PLANS
+  ).map((p, idx) => {
     let price = p.price;
     if (p.hours === 12 && price < 100000) price = 120000;
     if (p.hours === 30) price = 250000;
     if (p.hours === 50) price = 390000;
-    
+
     const cleanDesc = (p.description || "")
-      .replace(/Gói demo giá thấp\.?/g, "Gói trải nghiệm linh hoạt ưu đãi.")
-      .replace(/Gói lưu trữ phục vụ demo hết hạn\.?/g, "Đặc quyền phân bổ ưu tiên và linh hoạt đổi xe.")
+      .replace(/Gói demo giá thấp\.?/g, "Quỹ giờ di chuyển linh hoạt nội đô.")
+      .replace(
+        /Gói lưu trữ phục vụ demo hết hạn\.?/g,
+        "Đặc quyền phân bổ ưu tiên và linh hoạt đổi dòng xe."
+      )
       .trim();
 
     return {
       ...p,
       price,
-      description: cleanDesc || "Gói trải nghiệm linh hoạt ưu đãi.",
+      description:
+        cleanDesc ||
+        FALLBACK_PLANS[idx % FALLBACK_PLANS.length].description,
+      features:
+        p.features && p.features.length > 0
+          ? p.features
+          : FALLBACK_PLANS[idx % FALLBACK_PLANS.length].features,
     };
   });
 
-  // Tối ưu hiệu năng: Tuyệt đối không can thiệp opacity (luôn opacity: 1), chỉ trượt nhẹ trục Y và clearProps
+  useEffect(() => {
+    let active = true;
+    getSubscriptionPlans()
+      .then((data) => {
+        if (active && Array.isArray(data) && data.length > 0) {
+          setPlans(data);
+          const pop = data.find((d) => d.popular) ?? data[0];
+          if (pop) setSelectedPlanId(pop.id);
+        }
+      })
+      .catch(() => {
+        // Giữ nguyên FALLBACK_PLANS khi offline
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const activePlan =
+    normalizedPlans.find((p) => String(p.id) === String(selectedPlanId)) ??
+    normalizedPlans.find((p) => p.popular) ??
+    normalizedPlans[0];
+
+  const activeTierIndex = Math.max(
+    0,
+    normalizedPlans.findIndex((p) => String(p.id) === String(activePlan.id))
+  );
+
+  const handleSelectTier = useCallback(
+    (planId: number | string) => {
+      if (String(planId) === String(selectedPlanId)) return;
+      playTactileClick();
+      setSelectedPlanId(planId);
+
+      if (
+        monolithVaultRef.current &&
+        typeof window !== "undefined" &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        gsap.fromTo(
+          monolithVaultRef.current,
+          { opacity: 0.75, y: 10 },
+          { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" }
+        );
+      }
+    },
+    [selectedPlanId]
+  );
+
   useGSAP(
     () => {
       const el = containerRef.current;
       if (!el || typeof window === "undefined") return;
-
       const mm = gsap.matchMedia();
 
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        const cards = el.querySelectorAll("[data-pass-card], [data-membership-bento]");
-        gsap.set(cards, { y: 0, opacity: 1 });
-      });
-
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const cards = el.querySelectorAll("[data-pass-card], [data-membership-bento]");
-        gsap.set(cards, { opacity: 1 });
+        const blocks = el.querySelectorAll("[data-monolith-anim]");
         gsap.fromTo(
-          cards,
-          { y: 18 },
+          blocks,
+          { y: 20 },
           {
             y: 0,
-            duration: 0.5,
-            stagger: 0.06,
+            duration: 0.55,
+            stagger: 0.08,
             ease: "power2.out",
             clearProps: "transform",
             scrollTrigger: {
               trigger: el,
-              start: "top 88%",
+              start: "top 86%",
               once: true,
             },
           }
@@ -84,26 +193,8 @@ export default function MembershipPasses() {
 
       return () => mm.revert();
     },
-    { scope: containerRef, dependencies: [plans.length] }
+    { scope: containerRef }
   );
-
-  const loadPlans = useCallback(() => {
-    setLoading(true);
-    setLoadError(null);
-    return getSubscriptionPlans()
-      .then(setPlans)
-      .catch(() => { setLoadError("Không tải được các gói thuê bao. Vui lòng thử lại."); })
-      .finally(() => { setLoading(false); });
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    getSubscriptionPlans()
-      .then((data) => { if (active) setPlans(data); })
-      .catch(() => { if (active) setLoadError("Không tải được các gói thuê bao. Vui lòng thử lại."); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, []);
 
   const handlePurchase = async (plan: SubscriptionPlan) => {
     if (!isAuthenticated) {
@@ -121,265 +212,298 @@ export default function MembershipPasses() {
       setNotice(`Đang kết nối cổng PayOS cho gói [${plan.name}]...`);
       window.location.assign(checkout.checkoutUrl);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Đăng ký gói không thành công. Vui lòng thử lại.";
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Đăng ký gói không thành công. Vui lòng thử lại.";
       setNotice(msg);
       setPurchasingId(null);
     }
   };
 
-  const formatVND = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN").format(amount) + " ₫";
-  };
-
-  // Ưu tiên gói được BE đánh dấu là popular, nếu không có lấy gói đầu tiên
-  const featuredPlan = normalizedPlans.find((plan) => plan.popular) ?? normalizedPlans[0];
-  const otherPlans = normalizedPlans.filter((plan) => plan.id !== featuredPlan?.id);
+  const formatVND = (amount: number) =>
+    new Intl.NumberFormat("vi-VN").format(amount) + " ₫";
 
   return (
-    <section 
+    <section
       id="goi-thue-bao"
       ref={containerRef}
-      className="relative py-24 sm:py-28 px-4 sm:px-6 lg:px-12 bg-canvas text-ink border-t border-line-strong overflow-hidden scroll-mt-24"
+      className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-12 bg-canvas text-ink border-t border-line-strong overflow-hidden scroll-mt-24"
     >
-      {/* Monumental Chapter Numeral */}
-      <span 
-        aria-hidden="true" 
-        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
-      >
-        07
-      </span>
-
-      <div className="max-w-[1480px] xl:max-w-[1600px] mx-auto relative z-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
-          <div>
-            <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
-              ĐẶC QUYỀN HỘI VIÊN &amp; GÓI THUÊ BAO
-            </span>
-            <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink max-w-2xl leading-[1.15] text-balance">
-              Gói thuê&#160;bao linh&#160;hoạt theo nhu&#160;cầu
+      <div className="max-w-[1600px] mx-auto relative z-10">
+        {/* Architectural Header — Bold Asymmetric Typography */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pb-12 border-b-2 border-ink dark:border-line-strong">
+          <div className="lg:col-span-8">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary">
+                07 // QUỸ GIỜ DI CHUYỂN ĐẶC QUYỀN
+              </span>
+              <span className="h-[1px] w-12 bg-line-strong" />
+              <span className="font-mono text-xs text-ink-3 uppercase">
+                PAYOS INSTANT SETTLEMENT
+              </span>
+            </div>
+            <h2 className="font-display text-4xl sm:text-6xl font-extrabold tracking-tight text-ink leading-[0.95]">
+              Sở hữu trải nghiệm lái
+              <span className="text-primary">.</span>
             </h2>
           </div>
-          <p className="text-ink-2 text-sm sm:text-base max-w-md leading-relaxed text-balance">
-            Tiết kiệm chi phí với các gói thuê theo giờ, quản lý trực tuyến và thanh toán minh bạch qua PayOS.
-          </p>
+
+          <div className="lg:col-span-4 lg:text-right">
+            <p className="text-ink-2 text-sm sm:text-base leading-relaxed">
+              Đăng ký trước quỹ giờ với biểu phí ưu đãi. Trừ giờ tự động theo
+              phút thực tế lăn bánh, kích hoạt tức thì tại mọi trạm Thong Dong.
+            </p>
+          </div>
         </div>
 
         {notice && (
-          <div className="mb-10 p-4 rounded-2xl bg-primary-tint border border-primary/30 text-primary text-sm font-medium flex items-center gap-3">
-            <Loader2 className="w-4 h-4 animate-spin shrink-0 text-primary" aria-hidden="true" />
+          <div className="mt-8 p-4 bg-surface border-l-4 border-primary text-ink text-sm font-medium flex items-center gap-3">
+            <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin shrink-0 text-primary" />
             <span>{notice}</span>
           </div>
         )}
 
-        {loading && (
-          <CardGridSkeleton 
-            label="Đang tải các gói thuê bao" 
-            className="mb-6 grid grid-cols-1 items-stretch gap-8 md:grid-cols-2" 
-            count={2} 
-            mediaClassName="hidden" 
-            lines={4} 
-          />
-        )}
+        {/* BOLD MONOLITH COMPOSITION: 5-Col Obsidian Vault + 7-Col Architectural Ledger */}
+        {activePlan && (
+          <div
+            data-monolith-anim
+            className="mt-10 grid grid-cols-1 lg:grid-cols-12 border-2 border-ink dark:border-line-strong bg-surface shadow-xl"
+          >
+            {/* LEFT COLUMN (5 Cols): THE OBSIDIAN PASS MONOLITH */}
+            <div className="lg:col-span-5 bg-stage-ink text-white p-8 sm:p-10 lg:p-12 flex flex-col justify-between relative overflow-hidden border-b-2 lg:border-b-0 lg:border-r-2 border-ink dark:border-line-strong">
+              {/* Structural Geometric Accent (Zero-Gradient, Pure Architectural Lines) */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-16 -top-16 w-64 h-64 rounded-full border border-white/10"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute right-12 top-0 bottom-0 w-[1px] bg-white/10"
+              />
 
-        {loadError && (
-          <div role="alert" className="mb-6 space-y-3">
-            <p className="text-sm text-danger">{loadError}</p>
-            <Button type="button" variant="secondary" onClick={() => { void loadPlans(); }}>
-              Tải lại gói
-            </Button>
-          </div>
-        )}
-
-        {!loading && !loadError && normalizedPlans.length === 0 && (
-          <p role="status" className="mb-6 text-sm text-ink-2">
-            Hiện chưa có gói thuê bao đang mở bán.
-          </p>
-        )}
-
-        {/* Bento bất đối xứng 2 cột */}
-        {!loading && !loadError && normalizedPlans.length > 0 && featuredPlan && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Cột chính: Thẻ tiêu điểm khổ lớn */}
-            <div 
-              data-pass-card
-              data-membership-bento 
-              className={`group relative rounded-xl p-7 sm:p-9 flex flex-col justify-between bg-surface border-2 border-primary/60 shadow-md text-ink opacity-100 overflow-hidden ${
-                otherPlans.length > 0 ? "lg:col-span-7" : "lg:col-span-12"
-              }`}
-            >
-              {/* Corner CAD Reticles */}
-              <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-primary" />
-              <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-primary" />
-              <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-primary" />
-              <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-primary" />
-              <div>
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-line">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-primary">
-                      GÓI TIÊU BIỂU
+              <div ref={monolithVaultRef} className="relative z-10 flex-1 flex flex-col justify-between">
+                {/* Top Pass Metadata */}
+                <div>
+                  <div className="flex items-center justify-between gap-4 pb-6 border-b border-white/15">
+                    <span className="font-mono text-xs font-bold tracking-[0.2em] uppercase text-primary">
+                      THONG DONG PASS // TIER 0{activeTierIndex + 1}
                     </span>
-                    {featuredPlan.popular && (
-                      <span className="px-2.5 py-0.5 rounded-lg bg-primary-tint text-primary font-mono text-xs font-bold border border-primary/20">
-                        Khuyên dùng
+                    <span className="px-2.5 py-1 bg-white/10 font-mono text-[11px] font-semibold text-white uppercase tracking-wider">
+                      Hiệu lực {activePlan.validityDays} ngày
+                    </span>
+                  </div>
+
+                  {/* Monumental Hours Display (The Focal Anchor) */}
+                  <div className="my-8">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60 block mb-2">
+                      QUỸ GIỜ ĐẶC QUYỀN ĐANG CHỌN
+                    </span>
+                    <div className="flex items-baseline gap-3">
+                      <span className="font-display font-black text-[clamp(5.25rem,8.5vw,9rem)] leading-[0.82] tracking-tighter text-white tabular-nums">
+                        {activePlan.hours}
                       </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-primary font-semibold">
-                    <Clock className="w-4 h-4" aria-hidden="true" />
-                    <span>{featuredPlan.hours} giờ thuê</span>
-                  </div>
-                </div>
-
-                <h3 className="font-display text-2xl sm:text-3xl font-black mb-2 text-ink">
-                  {featuredPlan.name}
-                </h3>
-                
-                {featuredPlan.description && (
-                  <p className="text-xs sm:text-sm mb-6 leading-relaxed text-ink-2">
-                    {featuredPlan.description}
-                  </p>
-                )}
-
-                {/* Khối giá và hạn dùng */}
-                <div className="mb-6 p-5 rounded-2xl border bg-surface-raised border-line">
-                  <div className="font-mono text-3xl sm:text-4xl font-black tracking-tight text-ink tabular-nums">
-                    {formatVND(featuredPlan.price)}
-                  </div>
-                  <div className="mt-2 text-xs font-mono text-ink-3">
-                    Hạn sử dụng trong {featuredPlan.validityDays} ngày kể từ ngày kích hoạt
-                  </div>
-                </div>
-
-                {/* Danh sách quyền lợi thực tế (tối đa 4) */}
-                {featuredPlan.features && featuredPlan.features.length > 0 && (
-                  <div className="space-y-3 mb-8">
-                    <div className="text-xs font-mono uppercase tracking-wider text-ink-3">
-                      QUYỀN LỢI GÓI
-                    </div>
-                    {featuredPlan.features.slice(0, 4).map((feat, fIdx) => (
-                      <div key={fIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-ink-2">
-                        <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
-                        <span>{feat}</span>
+                      <div className="flex flex-col">
+                        <span className="font-display text-2xl sm:text-3xl font-extrabold text-primary uppercase tracking-tight">
+                          GIỜ LÁI
+                        </span>
+                        <span className="font-mono text-xs text-white/60">
+                          Trừ theo số phút thực tế
+                        </span>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* CTA Action */}
-              <div className="pt-6 border-t border-line">
-                <Button
-                  onClick={() => handlePurchase(featuredPlan)}
-                  disabled={purchasingId === featuredPlan.id}
-                  variant="marketing-cta"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-bold uppercase tracking-wider rounded-xl"
-                >
-                  {purchasingId === featuredPlan.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
-                      <span>Đang kết nối PayOS...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Đăng ký gói này</span>
-                      <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
-                    </>
-                  )}
-                </Button>
+                  <div className="h-[2px] w-16 bg-primary mb-6" />
+
+                  <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+                    {activePlan.name}
+                  </h3>
+                  <p className="text-sm text-white/75 leading-relaxed mb-8">
+                    {activePlan.description}
+                  </p>
+                </div>
+
+                {/* Bottom Valuation & Direct PayOS Activation */}
+                <div className="pt-6 border-t border-white/15">
+                  <div className="flex items-baseline justify-between gap-4 mb-6">
+                    <div>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60 block">
+                        BIỂU PHÍ NIÊM YẾT TRỌN GÓI
+                      </span>
+                      <div className="font-mono text-3xl sm:text-4xl font-black text-white tabular-nums mt-1">
+                        {formatVND(activePlan.price)}
+                      </div>
+                    </div>
+                    <div className="text-right font-mono text-xs text-primary font-semibold">
+                      ~{formatVND(Math.round(activePlan.price / Math.max(1, activePlan.hours)))} / giờ
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => handlePurchase(activePlan)}
+                    disabled={purchasingId === activePlan.id}
+                    variant="marketing-cta"
+                    className="w-full flex items-center justify-center gap-2 py-4 text-sm font-bold uppercase tracking-wider rounded-none cursor-pointer"
+                  >
+                    {purchasingId === activePlan.id ? (
+                      <>
+                        <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
+                        <span>Đang khởi tạo giao dịch PayOS...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Kích hoạt gói {activePlan.name}</span>
+                        <ArrowUpRight aria-hidden="true" className="w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Cột phụ: Các gói còn lại xếp dọc */}
-            {otherPlans.length > 0 && (
-              <div className="lg:col-span-5 flex flex-col gap-6 justify-between">
-                {otherPlans.map((plan) => {
-                  const isPurchasing = purchasingId === plan.id;
-                  return (
+            {/* RIGHT COLUMN (7 Cols): ARCHITECTURAL TIER MATRIX */}
+            <div className="lg:col-span-7 flex flex-col divide-y-2 divide-ink/15 dark:divide-line-strong bg-surface">
+              {normalizedPlans.map((plan, idx) => {
+                const isSelected = String(plan.id) === String(activePlan.id);
+                const isPurchasing = purchasingId === plan.id;
+
+                return (
+                  <div
+                    key={plan.id}
+                    onClick={() => handleSelectTier(plan.id)}
+                    className={`group relative p-7 sm:p-9 transition-colors cursor-pointer flex flex-col justify-between flex-1 ${
+                      isSelected
+                        ? "bg-surface-raised"
+                        : "bg-surface hover:bg-sunken/50"
+                    }`}
+                  >
+                    {/* Left Active Structural Bar */}
                     <div
-                      key={plan.id}
-                      data-pass-card
-                      data-membership-bento
-                      className="group relative rounded-xl p-6 sm:p-7 flex flex-col justify-between bg-surface border border-line-strong hover:border-primary/50 shadow-sm text-ink flex-1 opacity-100 overflow-hidden transition-colors"
-                    >
-                      {/* Corner CAD Reticles */}
-                      <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-                      <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-                      <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-                      <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-                      <div>
-                        <div className="flex items-center justify-between pb-3 mb-4 border-b border-line">
-                          <span className="font-mono text-xs font-bold text-ink-3">
-                            GÓI THUÊ BAO
+                      aria-hidden="true"
+                      className={`absolute top-0 bottom-0 left-0 w-2 transition-colors ${
+                        isSelected
+                          ? "bg-primary"
+                          : "bg-transparent group-hover:bg-line-strong"
+                      }`}
+                    />
+
+                    <div className="pl-2">
+                      {/* Row Top: Index + Popular Badge + Price */}
+                      <div className="flex flex-wrap items-baseline justify-between gap-4 mb-4">
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`font-mono text-xs font-bold uppercase tracking-widest ${
+                              isSelected ? "text-primary" : "text-ink-3"
+                            }`}
+                          >
+                            0{idx + 1} // {plan.hours} GIỜ
                           </span>
-                          <span className="font-mono text-xs font-semibold text-primary">
-                            {plan.hours} giờ thuê
-                          </span>
+                          {plan.popular && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider">
+                              <Sparkles aria-hidden="true" className="w-3 h-3" />
+                              <span>Khuyên dùng</span>
+                            </span>
+                          )}
                         </div>
 
-                        <div className="flex items-baseline justify-between gap-2 mb-2">
-                          <h4 className="font-display text-xl font-bold text-ink">
-                            {plan.name}
-                          </h4>
-                          <span className="font-mono text-lg font-black text-ink tabular-nums">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-mono text-2xl sm:text-3xl font-black text-ink tabular-nums">
                             {formatVND(plan.price)}
                           </span>
+                          <span className="font-mono text-xs text-ink-3">
+                            / {plan.validityDays} ngày
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Row Middle: Title & 2x2 Feature Grid */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-line">
+                        <div>
+                          <h3 className="font-display text-2xl font-extrabold text-ink tracking-tight">
+                            {plan.name}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-ink-2 mt-1 max-w-xl">
+                            {plan.description}
+                          </p>
                         </div>
 
-                        <p className="text-xs text-ink-3 font-mono mb-4">
-                          Hạn dùng {plan.validityDays} ngày
-                        </p>
-
-                        {/* Quyền lợi rút gọn */}
-                        {plan.features && plan.features.length > 0 && (
-                          <div className="space-y-2 mb-6">
-                            {plan.features.slice(0, 2).map((feat, fIdx) => (
-                              <div key={fIdx} className="flex items-start gap-2 text-xs text-ink-2">
-                                <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 text-primary" aria-hidden="true" />
-                                <span className="line-clamp-1">{feat}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <div className="shrink-0">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-mono font-bold uppercase tracking-wider border transition-colors ${
+                              isSelected
+                                ? "bg-stage-ink text-white border-stage-ink"
+                                : "bg-canvas text-ink-2 border-line-strong group-hover:border-ink"
+                            }`}
+                          >
+                            <Clock aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
+                            <span>{isSelected ? "Đang chọn" : "Xem gói này"}</span>
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="pt-4 border-t border-line">
-                        <Button
-                          onClick={() => handlePurchase(plan)}
+                      {/* Feature Matrix */}
+                      {plan.features && plan.features.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-4">
+                          {plan.features.slice(0, 4).map((feat, fIdx) => (
+                            <div
+                              key={fIdx}
+                              className="flex items-start gap-2 text-xs text-ink-2"
+                            >
+                              <CheckCircle2
+                                aria-hidden="true"
+                                className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${
+                                  isSelected ? "text-primary" : "text-ink-3"
+                                }`}
+                              />
+                              <span className="leading-snug">{feat}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Direct Row Action for Quick Checkout */}
+                      <div className="mt-5 flex items-center justify-between pt-3 border-t border-line/60">
+                        <span className="font-mono text-[11px] text-ink-3">
+                          Mã gói: {String(plan.id).toUpperCase()} · Khấu trừ tự động
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handlePurchase(plan);
+                          }}
                           disabled={isPurchasing}
-                          variant="secondary"
-                          className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline cursor-pointer"
                         >
-                          {isPurchasing ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
-                              <span>Đang xử lý...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Chọn gói</span>
-                              <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
-                            </>
-                          )}
-                        </Button>
+                          <span>
+                            {isPurchasing ? "Đang xử lý..." : "Đăng ký nhanh gói này"}
+                          </span>
+                          <ArrowUpRight aria-hidden="true" className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Thanh bảo chứng thanh toán an toàn */}
-        <div className="mt-12 p-5 rounded-2xl bg-surface border border-line flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink-2 shadow-sm">
+        {/* Institutional Trust Ledger Bar */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 border border-line-strong bg-surface p-5 text-xs text-ink-2">
           <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
-            <span>Thanh toán an toàn tích hợp trực tiếp qua cổng thanh toán PayOS</span>
+            <ShieldCheck aria-hidden="true" className="w-4 h-4 text-primary shrink-0" />
+            <span className="font-semibold text-ink">
+              Bảo chứng thanh toán tự động qua cổng PayOS
+            </span>
           </div>
-          <span className="font-mono text-xs text-ink-3">
-            Số giờ được cộng tự động vào tài khoản ngay sau khi thanh toán
-          </span>
+          <div className="font-mono text-ink-3 md:text-center">
+            Cộng giờ tức thì vào tài khoản ngay sau khi quét mã QR
+          </div>
+          <div className="font-mono text-ink-3 md:text-right">
+            Hoàn tiền 100% nếu hủy gói trong 24h chưa sử dụng
+          </div>
         </div>
       </div>
     </section>

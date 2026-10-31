@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Navbar from "@/components/layout/Navbar";
 import ChapterRail from "@/components/layout/ChapterRail";
 import Footer from "@/components/layout/Footer";
@@ -13,77 +14,95 @@ import {
   MembershipPasses,
   ContinuousBlueprint,
   InteractiveStudioGate,
-  TelemetryBridgeBar,
+  CinematicPreloader,
 } from "@/features/landing";
-import { bricolage, manrope, jetbrainsMono } from "./fonts";
+import type { HeroSearchCriteria } from "@/features/landing/components/Hero";
+import { spaceGrotesk, cormorant, archivo, jetbrainsMono } from "./fonts";
 
-/**
- * Landing Page Thong Dong Luxury Mobility Platform (Awwwards SOTD v4.0).
- * Cấu trúc Khung Monolith Kiến Trúc Liên Tục (Architectural Swiss Grid Frame) 1600px
- * kết hợp nền Kinetic Blueprint tương tác và dải Telemetry Bridge triệt tiêu khoảng trắng chết.
- */
 export default function Home() {
+  const [searchCriteria, setSearchCriteria] = useState<HeroSearchCriteria | null>(null);
+
+  const handleHeroSearch = useCallback((criteria: HeroSearchCriteria) => {
+    setSearchCriteria(criteria);
+    const catalogEl = document.getElementById("danh-muc-xe");
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
+  const handleFacilitySelectForRental = useCallback((facilityId: string) => {
+    setSearchCriteria((prev) => ({
+      mode: prev?.mode ?? "hourly",
+      facilityId,
+      startDate: prev?.startDate ?? "",
+      startTime: prev?.startTime ?? "09:00",
+      endDate: prev?.endDate ?? "",
+      endTime: prev?.endTime ?? "09:00",
+    }));
+    const catalogEl = document.getElementById("danh-muc-xe");
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
   return (
     <SmoothScrollProvider>
       <main
         id="main-content"
         tabIndex={-1}
         data-surface="marketing"
-        className={`${bricolage.variable} ${manrope.variable} ${jetbrainsMono.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-primary/20 selection:text-warning bg-canvas focus:outline-none`}
+        className={`${spaceGrotesk.variable} ${cormorant.variable} ${archivo.variable} ${jetbrainsMono.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-primary/20 selection:text-warning bg-canvas focus:outline-none`}
       >
-        {/* Navigation: Fixed positioning stays top */}
+        <CinematicPreloader />
+
         <Navbar />
         <ChapterRail />
 
         <div className="w-full min-h-[100dvh] flex flex-col">
-          {/* Background Architectural Canvas & Subtle Depth */}
           <div className="absolute inset-0 pointer-events-none z-0 bg-canvas" />
-
-          {/* Full Page Engineering Continuous Blueprint Kinetic Background */}
           <ContinuousBlueprint />
 
-          {/* Continuous Architectural Monolith Grid Frame (1600px) */}
-          <div className="relative z-10 w-full max-w-[1480px] xl:max-w-[1600px] mx-auto border-x border-line-strong flex flex-col bg-canvas/30">
-            {/* 1. Warm Editorial Hero with Single-Deck Search Console */}
-            <div id="gioi-thieu" className="relative">
-              <Hero />
+          <div className="relative z-10 w-full flex flex-col bg-canvas/40">
+            {/* 01. Hero & Live Search Console */}
+            <div id="gioi-thieu" className="relative w-full">
+              <Hero onSearchCriteriaChange={handleHeroSearch} />
             </div>
 
-            {/* 2. Dedicated Interactive 3D WebGL Studio */}
-            <div id="showroom-3d" className="relative border-t border-line-strong">
+            {/* 02. Multi-Category Vehicle Showroom Configurator */}
+            <div id="danh-muc-xe" className="relative w-full scroll-mt-24 border-t border-line">
+              <MultiFleetCatalog
+                activeSearchCriteria={searchCriteria}
+                onClearSearchCriteria={() => setSearchCriteria(null)}
+              />
+            </div>
+
+            {/* 03. Facility Network Explorer */}
+            <div id="chi-nhanh" className="relative w-full scroll-mt-24 border-t border-line">
+              <FacilityExplorer onSelectFacilityForRental={handleFacilitySelectForRental} />
+            </div>
+
+            {/* 04. Interactive 360° 3D Studio */}
+            <div id="showroom-3d" className="relative w-full scroll-mt-24 border-t border-line">
               <InteractiveStudioGate />
             </div>
 
-            {/* Technical Telemetry Bridge Bar: Kết nối liền mạch Studio 3D sang Danh mục hạm đội */}
-            <TelemetryBridgeBar />
-
-            {/* 3. Multi-Category Vehicle Catalog (Asymmetric Interactive Fleet Exhibition Matrix) */}
-            <div id="danh-muc-xe" className="relative scroll-mt-24 border-t border-line-strong">
-              <MultiFleetCatalog />
-            </div>
-
-            {/* 4. Facility Network Explorer */}
-            <div id="chi-nhanh" className="relative scroll-mt-24 border-t border-line-strong">
-              <FacilityExplorer />
-            </div>
-
-            {/* 5. Dual Inspection & Settlement Section */}
-            <div id="cong-nghe" className="relative scroll-mt-24 border-t border-line-strong">
+            {/* 05. Dual Inspection & Settlement Ledger */}
+            <div id="cong-nghe" className="relative w-full scroll-mt-24 border-t border-line">
               <InspectionSection />
             </div>
 
-            {/* 6. Sticky Journey Narrative with GSAP Card Reveals */}
-            <div id="quy-trinh" className="relative scroll-mt-24 border-t border-line-strong">
+            {/* 06. 4-Step Autonomous Rental Journey (Matrix Process) */}
+            <div id="quy-trinh" className="relative w-full scroll-mt-24 border-t border-line">
               <PinnedJourney />
             </div>
 
-            {/* 7. Digital Membership Passes */}
-            <div id="goi-thue-bao" className="relative scroll-mt-24 border-t border-line-strong">
+            {/* 07. Membership Passes */}
+            <div id="goi-thue-bao" className="relative w-full scroll-mt-24 border-t border-line">
               <MembershipPasses />
             </div>
 
-            {/* 8. Comprehensive Legal & Network Footer */}
-            <div id="lien-he" className="relative border-t border-line-strong">
+            {/* 08. Footer */}
+            <div id="lien-he" className="relative w-full border-t border-line">
               <Footer />
             </div>
           </div>

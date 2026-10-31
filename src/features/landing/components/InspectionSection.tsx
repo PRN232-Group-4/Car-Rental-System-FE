@@ -1,44 +1,64 @@
 "use client";
 
-import { useRef } from "react";
-import { FileCheck2, ClipboardCheck, ArrowRight, ShieldCheck, ArrowLeftRight, CheckCircle2, Cpu } from "lucide-react";
+import { useState, useRef } from "react";
+import { 
+  ArrowLeftRight, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Cpu, 
+  Gauge, 
+  BatteryCharging, 
+  Camera, 
+  ArrowRight,
+  Lock
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { playTactileClick } from "@/lib/audio/haptic-audio";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { gsap } from "@/lib/motion/register";
 
-/**
- * InspectionSection: Bento Grid 5 ô chuẩn mực không có ô trống (Hàng 1: 8 + 4; Hàng 2: 4 + 4 + 4 = 12 cột).
- * Dựa 100% trên dữ liệu kiểm định 2 chiều thực tế của hệ thống (SRS §3.8, §4.4 và InspectionRequest schema).
- * Bổ sung Telemetry Ledger thực tế giữa Pre-Rental và Post-Rental minh bạch.
- */
+type InspectionPhase = "pre" | "post";
+
 export default function InspectionSection() {
+  const [phase, setPhase] = useState<InspectionPhase>("pre");
   const containerRef = useRef<HTMLElement>(null);
+  const scanContentRef = useRef<HTMLDivElement>(null);
 
-  // Tối ưu hiệu năng render hàng loạt phần tử DOM mà vẫn đảm bảo nhịp điệu đọc.
+  const handlePhaseSwitch = (newPhase: InspectionPhase) => {
+    if (newPhase === phase) return;
+    playTactileClick();
+    setPhase(newPhase);
+
+    if (
+      scanContentRef.current &&
+      typeof window !== "undefined" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      gsap.fromTo(
+        scanContentRef.current,
+        { y: 8 },
+        { y: 0, clearProps: "transform", duration: 0.35, ease: "power2.out" }
+      );
+    }
+  };
+
   useGSAP(
     () => {
-      const el = containerRef.current;
-      if (!el || typeof window === "undefined") return;
+      if (typeof window === "undefined" || !containerRef.current) return;
 
       const mm = gsap.matchMedia();
-
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        const cards = el.querySelectorAll("[data-inspection-card]");
-        gsap.set(cards, { opacity: 1, y: 0 });
-      });
-
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        ScrollTrigger.batch("[data-inspection-card]", {
-          interval: 0.1,
-          batchMax: 5,
-          onEnter: (batch) =>
-            gsap.fromTo(
-              batch,
-              { opacity: 0, y: 24 },
-              { opacity: 1, y: 0, duration: 0.65, ease: "power2.out", stagger: 0.08, overwrite: "auto" }
-            ),
-          start: "top 85%",
-          once: true,
+        gsap.from("[data-scanner-panel]", {
+          y: 16,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power3.out",
+          clearProps: "transform",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
         });
       });
 
@@ -48,253 +68,227 @@ export default function InspectionSection() {
   );
 
   return (
-    <section id="cong-nghe" ref={containerRef} className="relative mx-auto w-full max-w-[1480px] xl:max-w-[1600px] scroll-mt-24 px-4 sm:px-6 lg:px-12 py-20 sm:py-24 overflow-hidden">
+    <section 
+      id="cong-nghe" 
+      ref={containerRef} 
+      className="relative mx-auto w-full max-w-[1720px] scroll-mt-24 px-4 sm:px-6 lg:px-12 py-14 sm:py-16 overflow-hidden"
+    >
       {/* Monumental Chapter Numeral */}
       <span 
         aria-hidden="true" 
-        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-6 top-8"
+        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-8 top-2 z-0 opacity-40"
       >
         05
       </span>
 
-      {/* Header */}
-      <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      {/* Section Header */}
+      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
         <div>
-          <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
-            TELEMETICS &amp; BIÊN BẢN SỐ HÓA // SRS §3.8 &amp; §4.4
-          </span>
-          <h2 data-kinetic-skew="true" className="font-display text-3xl font-black tracking-tight text-ink sm:text-5xl text-balance">
-            Kiểm định hai chiều và quyết toán
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase">
+              HỆ THỐNG ĐỐI SOÁT KỸ THUẬT SỐ HAI CHIỀU // TELEMETRY SCANNER
+            </span>
+          </div>
+          <h2 data-kinetic-skew="true" className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink text-balance">
+            Kiểm định minh bạch &amp; Quyết toán tức thì
           </h2>
         </div>
-        <p className="max-w-md text-sm leading-relaxed text-ink-2 sm:text-base text-balance">
-          Biên bản minh bạch trước và sau chuyến đi, làm căn cứ đối chiếu tình trạng xe và hoàn cọc tự động qua PayOS.
+        <p className="max-w-md text-xs sm:text-sm leading-relaxed text-ink-2 text-balance">
+          Biên bản số hóa bất biến trước và sau chuyến đi, làm căn cứ đối soát minh bạch và giải phóng tiền cọc qua PayOS trong 15 phút.
         </p>
       </div>
 
-      {/* Bento Grid 5 ô không ô trống: Hàng 1 (8 + 4 = 12 cols); Hàng 2 (4 + 4 + 4 = 12 cols) */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-12">
-        {/* Ô 1: Tiêu điểm Biên bản 2 chiều kèm Telemetry Ledger (8 cột trên Desktop) */}
-        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-2 lg:col-span-8 overflow-hidden">
-          {/* Corner CAD Reticles */}
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+      {/* Interactive Phase Toggle Tabs */}
+      <div className="relative z-10 flex items-center justify-start mb-8">
+        <div className="p-1 rounded-2xl bg-surface border border-line-strong shadow-sm flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => handlePhaseSwitch("pre")}
+            className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              phase === "pre"
+                ? "bg-stage-ink text-white shadow-sm"
+                : "text-ink-2 hover:text-ink hover:bg-sunken"
+            }`}
+          >
+            <span className="font-mono text-xs text-primary font-bold">01.</span>
+            <span>Bàn giao nhận xe (Pre-Rental)</span>
+          </button>
 
+          <button
+            type="button"
+            onClick={() => handlePhaseSwitch("post")}
+            className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              phase === "post"
+                ? "bg-stage-ink text-white shadow-sm"
+                : "text-ink-2 hover:text-ink hover:bg-sunken"
+            }`}
+          >
+            <span className="font-mono text-xs text-primary font-bold">02.</span>
+            <span>Đối soát hoàn trả &amp; Hoàn cọc (Post-Rental)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Interactive Split Scanner Grid */}
+      <div ref={scanContentRef} className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        
+        {/* Left Telemetry Visual Scanner Bay (7 cols) */}
+        <div data-scanner-panel className="lg:col-span-7 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-sm relative overflow-hidden">
           <div>
-            <div className="mb-6 flex items-center justify-between border-b border-line pb-4">
-              <div className="flex items-center gap-2.5">
-                <ArrowLeftRight className="h-5 w-5 text-primary" aria-hidden="true" />
-                <span className="text-sm font-semibold text-ink">
-                  Đối soát dữ liệu hành trình hai chiều
+            <div className="flex items-center justify-between pb-4 border-b border-line mb-6">
+              <div className="flex items-center gap-2.5 text-xs font-mono font-bold text-ink">
+                <ArrowLeftRight className="w-4 h-4 text-primary" />
+                <span>
+                  {phase === "pre" 
+                    ? "BIÊN BẢN GIAO XE SỐ HÓA TẠI ĐIỂM NHẬN" 
+                    : "BIÊN BẢN HOÀN TRẢ & ĐỐI SOÁT DỮ LIỆU TELEMATICS"}
                 </span>
               </div>
-              <span className="text-xs font-mono font-bold text-primary px-2.5 py-1 rounded-md bg-primary/10">
-                LIVE TELEMETRY
+              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-primary-tint text-primary font-bold">
+                {phase === "pre" ? "Trạng thái: Đã niêm phong" : "Trạng thái: Hoàn cọc tự động"}
               </span>
             </div>
 
-            <h3 className="font-display mb-2 text-xl font-bold text-ink sm:text-2xl">
-              Biên bản bàn giao và đối soát số hóa
+            <h3 className="font-display text-xl sm:text-2xl font-black text-ink mb-2">
+              {phase === "pre"
+                ? "Kiểm định đa điểm trước giờ lăn bánh"
+                : "Đối chiếu tự động giữa hai đầu hành trình"}
             </h3>
-            <p className="mb-6 max-w-xl text-xs leading-relaxed text-ink-2 sm:text-sm">
-              Kỹ thuật viên cùng cảm biến xe ghi nhận tự động tại hai đầu hành trình: lúc giao xe và lúc nhận hoàn trả.
+            <p className="text-xs sm:text-sm text-ink-2 leading-relaxed mb-6">
+              {phase === "pre"
+                ? "Hệ thống chụp 8 góc ngoại quan độ phân giải cao và ghi nhận tự động chỉ số Odometer, mức pin/nhiên liệu từ cảm biến xe."
+                : "Hệ thống đối chiếu từng megapixel ảnh chụp cùng dữ liệu telematics gửi về máy chủ, bảo đảm 100% không phát sinh tranh chấp."}
             </p>
 
-            {/* Structured 3-column comparison ledger */}
-            <div className="rounded-2xl border border-line bg-canvas p-4 sm:p-5 font-mono text-xs">
-              <div className="grid grid-cols-12 pb-3 mb-3 border-b border-line text-[11px] font-bold text-ink-3 uppercase tracking-wider">
-                <div className="col-span-4">Hạng mục kiểm tra</div>
-                <div className="col-span-4 text-center">Lúc nhận (Pre-Rental)</div>
-                <div className="col-span-4 text-right">Lúc trả (Post-Rental)</div>
-              </div>
-
-              {/* Row 1: Odometer */}
-              <div className="grid grid-cols-12 items-center py-2.5 border-b border-line/60 tabular-nums">
-                <div className="col-span-4 font-semibold text-ink flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Odometer</span>
+            {/* Telemetry Sensor Inspection List */}
+            <div className="space-y-3 font-mono text-xs">
+              <div className="p-3.5 rounded-2xl bg-canvas border border-line flex items-center justify-between">
+                <div className="flex items-center gap-3 text-ink">
+                  <Gauge className="w-4 h-4 text-primary" />
+                  <span className="font-semibold">Chỉ số Odometer</span>
                 </div>
-                <div className="col-span-4 text-center text-ink-2">14.210 km</div>
-                <div className="col-span-4 text-right text-success font-semibold">
-                  14.485 km <span className="text-[10px] text-ink-3">(+275 km · Chuẩn)</span>
+                <div className="text-right">
+                  <span className="font-bold text-ink block">
+                    {phase === "pre" ? "14.210 km (Khóa ban đầu)" : "14.485 km (+275 km)"}
+                  </span>
+                  <span className="text-[10px] text-ink-3">
+                    {phase === "pre" ? "Ghi nhận bởi Telematics" : "Đúng định mức lộ trình"}
+                  </span>
                 </div>
               </div>
 
-              {/* Row 2: Mức Năng Lượng */}
-              <div className="grid grid-cols-12 items-center py-2.5 border-b border-line/60 tabular-nums">
-                <div className="col-span-4 font-semibold text-ink flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Mức Năng Lượng</span>
+              <div className="p-3.5 rounded-2xl bg-canvas border border-line flex items-center justify-between">
+                <div className="flex items-center gap-3 text-ink">
+                  <BatteryCharging className="w-4 h-4 text-primary" />
+                  <span className="font-semibold">Mức Năng lượng / Pin</span>
                 </div>
-                <div className="col-span-4 text-center text-ink-2">Pin 94%</div>
-                <div className="col-span-4 text-right text-success font-semibold">
-                  Pin 94% <span className="text-[10px] text-ink-3">(Khớp chuẩn)</span>
+                <div className="text-right">
+                  <span className="font-bold text-success block">
+                    {phase === "pre" ? "Pin 94% (Sẵn sàng cao tốc)" : "Pin 94% (Khớp 100%)"}
+                  </span>
+                  <span className="text-[10px] text-ink-3">
+                    {phase === "pre" ? "Chứng thực cảm biến BMS" : "0đ phụ phí sạc hoàn trả"}
+                  </span>
                 </div>
               </div>
 
-              {/* Row 3: Ngoại quan 8 góc */}
-              <div className="grid grid-cols-12 items-center pt-2.5 tabular-nums">
-                <div className="col-span-4 font-semibold text-ink flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Ngoại quan 8 góc</span>
+              <div className="p-3.5 rounded-2xl bg-canvas border border-line flex items-center justify-between">
+                <div className="flex items-center gap-3 text-ink">
+                  <Camera className="w-4 h-4 text-primary" />
+                  <span className="font-semibold">Ngoại quan 8 góc</span>
                 </div>
-                <div className="col-span-4 text-center text-ink-2">8 ảnh HDR gốc</div>
-                <div className="col-span-4 text-right text-success font-semibold flex items-center justify-end gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>0 vết xước mới [ĐẠT 100%]</span>
+                <div className="text-right">
+                  <span className="font-bold text-success block">
+                    {phase === "pre" ? "8 Ảnh HDR nguyên bản" : "0 Vết xước phát sinh"}
+                  </span>
+                  <span className="text-[10px] text-ink-3">
+                    {phase === "pre" ? "Ký số hai bên trong 60 giây" : "Đối soát ảnh AI trùng khớp"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-canvas border border-line flex items-center justify-between">
+                <div className="flex items-center gap-3 text-ink">
+                  <Cpu className="w-4 h-4 text-primary" />
+                  <span className="font-semibold">Cảm biến an toàn TPMS &amp; Phanh</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold text-success block">
+                    {phase === "pre" ? "Áp suất 2.4 Bar [CHUẨN]" : "Má phanh 92% [AN TOÀN]"}
+                  </span>
+                  <span className="text-[10px] text-ink-3">Đạt chứng chỉ kỹ thuật Thong Dong</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-2 border-t border-line pt-4 text-xs text-ink-3">
-            <ShieldCheck className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
-            <span>Biên bản số ký mã hóa SHA-256 lưu trữ đồng thời trên tài khoản khách hàng và máy chủ</span>
+          <div className="mt-6 pt-4 border-t border-line flex items-center gap-2 text-xs text-ink-3">
+            <Lock className="w-4 h-4 text-primary shrink-0" />
+            <span>Biên bản mã hóa SHA-256 lưu trữ đồng thời trên ứng dụng khách hàng và máy chủ độc lập</span>
           </div>
         </div>
 
-        {/* Ô 2: Ô số liệu lớn - 2 lượt kiểm định mỗi chuyến (4 cột trên Desktop) */}
-        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
+        {/* Right Telemetry Big-Number HUD & Financial Settlement (5 cols) */}
+        <div data-scanner-panel className="lg:col-span-5 flex flex-col justify-between gap-6">
+          
+          {/* Top Big Metric Card */}
+          <div className="rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 shadow-sm flex flex-col justify-between flex-1">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-ink-3 mb-2">
+                <span>CHỈ SỐ ĐỐI SOÁT CỐT LÕI</span>
+                <span className="text-primary font-bold">2 LƯỢT / CHUYẾN</span>
+              </div>
 
-          <div>
-            <div className="font-display text-5xl sm:text-6xl font-black text-primary tracking-tight leading-none mb-3">
-              2
+              <div className="font-mono text-4xl sm:text-6xl font-black text-primary tracking-tight tabular-nums mb-3">
+                {phase === "pre" ? "60s" : "15m"}
+              </div>
+
+              <h4 className="font-display text-xl font-bold text-ink mb-1">
+                {phase === "pre" ? "Quy trình bàn giao số hóa" : "Giải phóng hoàn cọc PayOS"}
+              </h4>
+              <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">
+                {phase === "pre"
+                  ? "Ký biên bản điện tử trực tiếp trên điện thoại, mở khóa xe qua ứng dụng không cần chờ đợi thủ tục giấy tờ rườm rà."
+                  : "Hệ thống tự động kích hoạt lệnh hoàn cọc trực tiếp về tài khoản ngân hàng của bạn ngay khi biên bản trả xe được ký."}
+              </p>
             </div>
 
-            <h3 className="font-display mb-2 text-lg font-bold text-ink">
-              Lượt kiểm định mỗi chuyến
-            </h3>
-            <p className="text-xs leading-relaxed text-ink-2 mb-4">
-              Bắt buộc khi nhận xe (pre_rental) và khi trả xe (post_rental). Đối soát hai chiều bằng hình ảnh thực tế và chỉ số đo đạc minh bạch.
-            </p>
-          </div>
-
-          <div className="border-t border-line pt-4 text-xs font-mono text-ink-3">
-            Quy trình chuẩn SRS FR-015 &amp; FR-016
-          </div>
-        </div>
-
-        {/* Ô 3: Ô nhịp tương phản - Minh bạch tài chính (4 cột trên Desktop) */}
-        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-stage-ink text-white p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-white/20 group-hover:border-primary transition-colors" />
-
-          <div>
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
-              Minh bạch tài chính
-            </span>
-
-            <h3 className="font-display mt-3 mb-2 text-lg font-bold text-white">
-              Không phí ẩn. Không tranh chấp biên bản.
-            </h3>
-            <p className="text-xs leading-relaxed text-white/70 mb-4">
-              Ảnh chụp hiện trường và dữ liệu đo đạc được lưu trữ bất biến vào hồ sơ điện tử, bảo đảm quyền lợi đôi bên.
-            </p>
-          </div>
-
-          <div className="border-t border-white/10 pt-4 text-xs text-white/60">
-            Đối soát biên bản trước khi phê duyệt hoàn cọc
-          </div>
-        </div>
-
-        {/* Ô 4: Kiểm tra kỹ thuật và chỉ số thực tế (4 cột trên Desktop) */}
-        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-
-          <div>
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
-              <Cpu className="h-5 w-5" aria-hidden="true" />
-            </div>
-
-            <h3 className="font-display mb-2 text-lg font-bold text-ink">
-              Cảm biến kỹ thuật &amp; Telematics
-            </h3>
-            <p className="text-xs leading-relaxed text-ink-2 mb-4">
-              Hệ thống đọc dữ liệu cảm biến thời gian thực trước mỗi lần giao xe:
-            </p>
-
-            {/* 3-row technical sensor readout */}
-            <div className="space-y-2.5 font-mono text-xs">
-              <div className="flex items-center justify-between p-2 rounded-xl bg-canvas border border-line">
-                <span className="text-ink-2">Áp suất lốp TPMS</span>
-                <span className="font-bold text-success">2.4 Bar [CHUẨN]</span>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-xl bg-canvas border border-line">
-                <span className="text-ink-2">Độ dày má phanh</span>
-                <span className="font-bold text-success">92% [AN TOÀN]</span>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-xl bg-canvas border border-line">
-                <span className="text-ink-2">Điện áp Pin / Ắc quy</span>
-                <span className="font-bold text-success">100% [SẴN SÀNG]</span>
-              </div>
+            <div className="mt-6 pt-4 border-t border-line flex items-center justify-between text-xs font-mono">
+              <span className="text-ink-3">Chi phí phát sinh ẩn</span>
+              <span className="font-bold text-success">0 VNĐ tuyệt đối</span>
             </div>
           </div>
 
-          <div className="border-t border-line pt-4">
-            <span className="text-xs font-semibold text-primary">
-              Ngắt vận hành an toàn
-            </span>
-            <p className="mt-1 text-xs text-ink-3">
-              Chỉ xe đạt 100% tiêu chí cảm biến mới được hệ thống mở khóa bàn giao
-            </p>
-          </div>
-        </div>
-
-        {/* Ô 5: Quyết toán và hoàn cọc minh bạch (4 cột trên Desktop) */}
-        <div data-inspection-card className="group relative flex flex-col justify-between rounded-xl border border-line-strong hover:border-primary/50 bg-surface p-7 shadow-sm transition-all sm:col-span-1 lg:col-span-4 overflow-hidden">
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-line group-hover:border-primary transition-colors" />
-          <span aria-hidden="true" className="pointer-events-none absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-line group-hover:border-primary transition-colors" />
-
-          <div>
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised border border-line text-primary">
-              <FileCheck2 className="h-5 w-5" aria-hidden="true" />
+          {/* Bottom Financial Security Box */}
+          <div className="rounded-3xl bg-stage-ink text-white p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-primary text-xs font-mono font-bold mb-3">
+                <ShieldCheck className="w-4 h-4" />
+                <span>BẢO HÀNH MINH BẠCH TÀI CHÍNH</span>
+              </div>
+              <h4 className="font-display text-xl font-bold text-white mb-2">
+                Không phí ẩn. Không tranh chấp biên bản.
+              </h4>
+              <p className="text-xs text-white/70 leading-relaxed mb-6">
+                Mọi hình ảnh vết trầy và dữ liệu km được niêm phong vào hợp đồng. Quyền lợi tiền cọc của khách hàng được pháp lý bảo hộ 100%.
+              </p>
             </div>
 
-            <h3 className="font-display mb-2 text-lg font-bold text-ink">
-              Quyết toán và hoàn cọc
-            </h3>
-            <p className="text-xs leading-relaxed text-ink-2 mb-4">
-              Khấu trừ phụ phí (nếu có) theo đúng biên bản đối chiếu và thực hiện phê duyệt hoàn cọc tự động qua cổng PayOS.
-            </p>
-
-            {/* 2-step settlement status pill */}
-            <div className="space-y-2 mb-4 font-mono text-[11px]">
-              <div className="p-2.5 rounded-xl bg-canvas border border-line flex items-center justify-between">
-                <span className="text-ink-2">[01] Đối soát tự động</span>
-                <span className="font-bold text-primary">0đ phụ phí</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-canvas border border-line flex items-center justify-between">
-                <span className="text-ink-2">[02] Hoàn cọc PayOS</span>
-                <span className="font-bold text-success">&lt; 15 phút</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-line pt-4">
             <Button
               as="a"
               href="/my-rentals"
               variant="marketing-cta"
-              className="flex w-full items-center justify-center gap-2 py-3 text-sm font-semibold"
+              size="md"
+              className="w-full flex items-center justify-center gap-2 py-3 font-bold rounded-xl text-xs sm:text-sm cursor-pointer"
             >
               <span>Xem đơn thuê của bạn</span>
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
+
         </div>
+
       </div>
     </section>
   );

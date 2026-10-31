@@ -4,75 +4,113 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
-import { gsap } from "@/lib/motion/register";
+import { gsap, ScrollTrigger } from "@/lib/motion/register";
+
+function isArtifactFloorMesh(mesh: THREE.Mesh): boolean {
+  const name = (mesh.name || "").toLowerCase();
+  if (
+    name.includes("plane") ||
+    name === "object_140" ||
+    name.includes("floor") ||
+    name.includes("shadow") ||
+    name.includes("ground")
+  ) {
+    return true;
+  }
+  mesh.geometry?.computeBoundingBox();
+  const gBox = mesh.geometry?.boundingBox;
+  if (gBox) {
+    const size = gBox.getSize(new THREE.Vector3());
+    if (size.y < 0.02 && (size.x > 2.2 || size.z > 2.2)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export default function Hero3DCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const animFrameIdRef = useRef<number | null>(null);
-  const isVisibleRef = useRef(false);
+  const isVisibleRef = useRef(true);
 
   useEffect(() => {
     if (typeof window === "undefined" || !containerRef.current) return;
-    // Don't mount heavy 3D on small screens or reduced-motion
-    if (window.matchMedia("(max-width: 767px)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      window.matchMedia("(max-width: 767px)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       return;
     }
 
     const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight || 440;
+    const width = container.clientWidth || 960;
+    const height = container.clientHeight || 420;
 
-    // 1. Three.js Scene & Transparent Renderer
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 50);
-    // Pulled camera back and adjusted angle so the right rear fender/wheel is never clipped
-    camera.position.set(2.4, 1.25, 4.6);
+    const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 50);
+    camera.position.set(2.85, 1.15, 4.75);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
+      preserveDrawingBuffer: true,
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.25;
 
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
 
-    // 2. Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xfffbf0, 2.2);
+    const keyLight = new THREE.DirectionalLight(0xfffbf2, 2.6);
     keyLight.position.set(4, 6, 4);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xe8f0fe, 1.2);
+    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.4);
     fillLight.position.set(-4, 3, -3);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xfff2d6, 1.6);
+    const rimLight = new THREE.DirectionalLight(0xffedd5, 2.0);
     rimLight.position.set(0, 5, -5);
     scene.add(rimLight);
 
-    // Dynamic zero-jitter theme lighting adjustment without re-creating WebGL
-    const updateThemeLighting = (isDark: boolean) => {
-      gsap.to(ambientLight, { intensity: isDark ? 1.15 : 1.4, duration: 0.4 });
-      gsap.to(rimLight, { intensity: isDark ? 2.1 : 1.6, duration: 0.4 });
-      gsap.to(renderer, { toneMappingExposure: isDark ? 1.25 : 1.15, duration: 0.4 });
+    const renderOnce = () => {
+      camera.lookAt(0, 0.42, 0);
+      renderer.render(scene, camera);
     };
 
-    const isInitialDark = typeof document !== "undefined" && 
-      (document.documentElement.classList.contains("dark") || document.documentElement.dataset.theme === "dark");
+    const updateThemeLighting = (isDark: boolean) => {
+      gsap.to(ambientLight, {
+        intensity: isDark ? 1.85 : 1.6,
+        duration: 0.35,
+        onUpdate: renderOnce,
+      });
+      gsap.to(rimLight, {
+        intensity: isDark ? 2.8 : 2.0,
+        duration: 0.35,
+      });
+      gsap.to(renderer, {
+        toneMappingExposure: isDark ? 1.4 : 1.25,
+        duration: 0.35,
+      });
+    };
+
+    const isInitialDark =
+      document.documentElement.classList.contains("dark") ||
+      document.documentElement.dataset.theme === "dark";
     if (isInitialDark) updateThemeLighting(true);
 
     const themeObserver = new MutationObserver(() => {
-      const isDark = document.documentElement.classList.contains("dark") || 
-                     document.documentElement.dataset.theme === "dark";
+      const isDark =
+        document.documentElement.classList.contains("dark") ||
+        document.documentElement.dataset.theme === "dark";
       updateThemeLighting(isDark);
     });
     themeObserver.observe(document.documentElement, {
@@ -80,72 +118,80 @@ export default function Hero3DCanvas() {
       attributeFilter: ["data-theme", "class"],
     });
 
-    // 3. Radial Soft Contact Shadow with explicit clearRect and zero-alpha fade
+    // Soft Ground Shadow Plane tại y = -0.01
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 512;
     shadowCanvas.height = 512;
     const shadowCtx = shadowCanvas.getContext("2d");
     if (shadowCtx) {
       shadowCtx.clearRect(0, 0, 512, 512);
-      const gradient = shadowCtx.createRadialGradient(256, 256, 15, 256, 256, 250);
-      gradient.addColorStop(0, "rgba(15, 23, 42, 0.38)");
-      gradient.addColorStop(0.35, "rgba(15, 23, 42, 0.12)");
-      gradient.addColorStop(0.55, "rgba(15, 23, 42, 0)");
-      gradient.addColorStop(1, "rgba(15, 23, 42, 0)");
+      const gradient = shadowCtx.createRadialGradient(256, 256, 15, 256, 256, 240);
+      gradient.addColorStop(0, "rgba(9, 13, 22, 0.42)");
+      gradient.addColorStop(0.4, "rgba(9, 13, 22, 0.14)");
+      gradient.addColorStop(0.75, "rgba(9, 13, 22, 0)");
+      gradient.addColorStop(1, "rgba(9, 13, 22, 0)");
       shadowCtx.fillStyle = gradient;
       shadowCtx.fillRect(0, 0, 512, 512);
     }
     const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
-    shadowTexture.premultiplyAlpha = false;
-    const shadowGeo = new THREE.PlaneGeometry(12, 12);
-    const shadowMat = new THREE.MeshBasicMaterial({
-      map: shadowTexture,
-      transparent: true,
-      depthWrite: false,
-      toneMapped: false,
-    });
-    const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
+    const shadowPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(7.2, 7.2),
+      new THREE.MeshBasicMaterial({
+        map: shadowTexture,
+        transparent: true,
+        depthWrite: false,
+        toneMapped: false,
+      })
+    );
     shadowPlane.rotation.x = -Math.PI / 2;
     shadowPlane.position.y = -0.01;
     scene.add(shadowPlane);
 
-    // 4. Car Group & Pointer Parallax
     const carGroup = new THREE.Group();
     scene.add(carGroup);
+
+    const baseRotY = -Math.PI / 6.2;
+    const scrollOffset = { rotY: 0, camZ: 4.75 };
+    const pointerOffset = { rotY: 0, rotX: 0 };
 
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
 
     loader.load(
-      "/models/porsche_911_carrera_4s.glb",
+      "/models/porsche_911_carrera_4s_opt.glb",
       (gltf) => {
         const object = gltf.scene;
+        object.updateMatrixWorld(true);
 
-        // Hide internal floor/shadow plane embedded in the GLTF model
+        const cleanBbox = new THREE.Box3();
         object.traverse((child) => {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
-            if (mesh.name === "Plane_0" || mesh.name.toLowerCase() === "plane") {
+            if (isArtifactFloorMesh(mesh)) {
               mesh.visible = false;
+            } else {
+              cleanBbox.expandByObject(mesh);
             }
           }
         });
 
-        // Compute bounding box strictly without the hidden plane
-        const bbox = new THREE.Box3();
-        object.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh && child.name !== "Plane_0" && child.name.toLowerCase() !== "plane") {
-            bbox.expandByObject(child);
-          }
-        });
+        if (!cleanBbox.isEmpty()) {
+          const center = cleanBbox.getCenter(new THREE.Vector3());
+          const size = cleanBbox.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.z, 0.001);
+          const scaleFactor = 4.7 / maxDim;
 
-        const center = bbox.getCenter(new THREE.Vector3());
-        object.position.x = -center.x;
-        object.position.y = -bbox.min.y;
-        object.position.z = -center.z;
+          object.position.set(-center.x, -cleanBbox.min.y, -center.z);
+          const normalizedWrapper = new THREE.Group();
+          normalizedWrapper.add(object);
+          normalizedWrapper.scale.setScalar(scaleFactor);
+          carGroup.add(normalizedWrapper);
+        } else {
+          carGroup.add(object);
+        }
 
-        carGroup.add(object);
-        carGroup.rotation.y = -Math.PI / 6.5; // Elegant three-quarter hero pose
+        carGroup.rotation.y = baseRotY;
+        renderOnce();
         setIsLoaded(true);
       },
       undefined,
@@ -154,54 +200,66 @@ export default function Hero3DCanvas() {
       }
     );
 
-    // High frequency pointer parallax using gsap.quickTo
-    const targetRotY = { val: -Math.PI / 6.5 };
-    const targetRotX = { val: 0 };
-    const setRotY = gsap.quickTo(targetRotY, "val", { duration: 0.8, ease: "power2.out" });
-    const setRotX = gsap.quickTo(targetRotX, "val", { duration: 0.8, ease: "power2.out" });
+    // ScrollTrigger Scrub: Xoay nhẹ xe khi người dùng cuộn từ Hero xuống Showroom
+    const st = ScrollTrigger.create({
+      trigger: container,
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 0.6,
+      onUpdate: (self) => {
+        scrollOffset.rotY = (self.progress - 0.35) * 0.52;
+        scrollOffset.camZ = 4.75 - (self.progress - 0.35) * 0.45;
+      },
+    });
+
+    const setPointerRotY = gsap.quickTo(pointerOffset, "rotY", { duration: 0.7, ease: "power2.out" });
+    const setPointerRotX = gsap.quickTo(pointerOffset, "rotX", { duration: 0.7, ease: "power2.out" });
 
     const handlePointerMove = (e: MouseEvent) => {
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
-      setRotY(-Math.PI / 6.5 + normX * 0.12);
-      setRotX(normY * 0.06);
+      setPointerRotY(normX * 0.12);
+      setPointerRotX(normY * 0.04);
     };
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
 
-    // 5. Demand Render Loop with IntersectionObserver
-    const render = () => {
+    const renderLoop = () => {
       if (!isVisibleRef.current) {
         animFrameIdRef.current = null;
         return;
       }
-      animFrameIdRef.current = requestAnimationFrame(render);
-      carGroup.rotation.y = targetRotY.val;
-      carGroup.rotation.x = targetRotX.val;
-      camera.lookAt(-0.1, 0.35, 0);
-      renderer.render(scene, camera);
+      animFrameIdRef.current = requestAnimationFrame(renderLoop);
+      carGroup.rotation.y = baseRotY + scrollOffset.rotY + pointerOffset.rotY;
+      carGroup.rotation.x = pointerOffset.rotX;
+      camera.position.z = scrollOffset.camZ;
+      renderOnce();
     };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting && !animFrameIdRef.current) {
-          animFrameIdRef.current = requestAnimationFrame(render);
+          animFrameIdRef.current = requestAnimationFrame(renderLoop);
+        } else if (!entry.isIntersecting) {
+          renderOnce();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.02 }
     );
     observer.observe(container);
 
     const handleResize = () => {
-      const newW = container.clientWidth;
-      const newH = container.clientHeight || 440;
+      const newW = container.clientWidth || 960;
+      const newH = container.clientHeight || 420;
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
+      renderOnce();
     };
     window.addEventListener("resize", handleResize);
 
     return () => {
+      st.kill();
       themeObserver.disconnect();
       observer.disconnect();
       window.removeEventListener("pointermove", handlePointerMove);
@@ -215,18 +273,18 @@ export default function Hero3DCanvas() {
 
   return (
     <div className="relative w-full h-full flex items-center justify-center bg-transparent overflow-visible">
-      {/* 3D Canvas Target */}
-      <div 
-        ref={containerRef} 
-        className={`w-full h-[280px] sm:h-[360px] md:h-[440px] lg:h-[500px] overflow-visible bg-transparent transition-opacity duration-700 cursor-grab active:cursor-grabbing ${
+      <div
+        ref={containerRef}
+        className={`w-full h-[300px] sm:h-[380px] md:h-[460px] lg:h-[520px] overflow-visible bg-transparent transition-opacity duration-500 cursor-grab active:cursor-grabbing ${
           isLoaded ? "opacity-100" : "opacity-0"
-        }`} 
+        }`}
       />
 
-      {/* Instant Raster Picture Fallback (until 3D model finishes parsing, and always for mobile/noscript) */}
-      <picture className={`absolute inset-0 w-full flex justify-center pointer-events-none transition-opacity duration-700 bg-transparent ${
-        isLoaded ? "opacity-0 hidden" : "opacity-100"
-      }`}>
+      <picture
+        className={`absolute inset-0 w-full flex items-center justify-center pointer-events-none transition-opacity duration-500 bg-transparent ${
+          isLoaded ? "opacity-0 hidden" : "opacity-100"
+        }`}
+      >
         <source
           type="image/avif"
           srcSet="/assets/hero-car/hero-car-composite-1920.avif 1920w, /assets/hero-car/hero-car-composite-1280.avif 1280w, /assets/hero-car/hero-car-composite-960.avif 960w, /assets/hero-car/hero-car-composite-640.avif 640w"
@@ -243,7 +301,7 @@ export default function Hero3DCanvas() {
           loading="eager"
           fetchPriority="high"
           decoding="async"
-          className="w-full h-auto max-h-[220px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain"
+          className="w-full h-auto max-h-[260px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain"
         />
       </picture>
     </div>

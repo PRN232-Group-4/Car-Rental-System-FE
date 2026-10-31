@@ -49,7 +49,7 @@ export default function TelemetryBridgeBar() {
               className="flex items-center gap-3 font-mono text-xs text-ink-2"
             >
               <span className="text-primary font-bold tracking-widest text-[11px]">
-                {item.id} //
+                {item.id} {"//"}
               </span>
               <Icon className="w-3.5 h-3.5 text-primary stroke-[2.2] shrink-0" aria-hidden="true" />
               <span className="uppercase tracking-widest font-semibold text-ink">

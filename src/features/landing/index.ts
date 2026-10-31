@@ -8,3 +8,4 @@ export { default as InspectionSection } from "./components/InspectionSection";
 export { default as PinnedJourney } from "./components/PinnedJourney";
 export { default as MembershipPasses } from "./components/MembershipPasses";
 export { default as ContinuousBlueprint } from "./components/ContinuousBlueprint";
+export { default as CinematicPreloader } from "./components/CinematicPreloader";
