@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { 
   ArrowLeftRight, 
   ShieldCheck, 
-  CheckCircle2, 
   Cpu, 
   Gauge, 
   BatteryCharging, 
@@ -185,6 +184,7 @@ export default function InspectionSection() {
                 </div>
                 <div className="text-right">
                   <span className="font-bold text-success block">
+                    {/* TODO-DATA (InspectionSection.tsx:188): Hiển thị nhãn Pin 94% và cảm biến BMS cho xe tiêu điểm Carrera 4S (động cơ xăng) */}
                     {phase === "pre" ? "Pin 94% (Sẵn sàng cao tốc)" : "Pin 94% (Khớp 100%)"}
                   </span>
                   <span className="text-[10px] text-ink-3">
