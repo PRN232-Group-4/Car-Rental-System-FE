@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import type { Material, MeshStandardMaterial, MeshPhysicalMaterial } from "three";
 
 /**
  * Lithograph Shader for Riso Grand Tour.
@@ -9,17 +9,17 @@ import * as THREE from "three";
  * - Avoids toon ramp, Sobel outlines, or chromatic aberration.
  */
 export function applyLithographShader(
-  material: THREE.Material,
+  material: Material,
   isHeadlight = false
 ): void {
   if (!("isMeshStandardMaterial" in material) && !("isMeshPhysicalMaterial" in material)) {
     return;
   }
 
-  const mat = material as THREE.MeshStandardMaterial;
+  const mat = material as MeshStandardMaterial | MeshPhysicalMaterial;
 
-  if (isHeadlight) {
-    mat.emissive = new THREE.Color(0xe0662f);
+  if (isHeadlight && mat.emissive) {
+    mat.emissive.setHex(0xe0662f);
     mat.emissiveIntensity = 2.8;
   }
 

@@ -1,18 +1,15 @@
 "use client";
 
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
-import {
-  CinematicPreloader,
-  LandingNav,
-  BookingDock,
-  CursorDisc,
-  ScrollDiscTransition,
-  HeroChapter,
-  RoadChapter,
-  EffortlessChapter,
-  TrustChapter,
-  BookingChapter,
-} from "@/features/landing";
+import LandingNav from "@/features/landing/components/LandingNav";
+import BookingDock from "@/features/landing/components/BookingDock";
+import CursorDisc from "@/features/landing/components/CursorDisc";
+import ScrollDiscTransition from "@/features/landing/components/ScrollDiscTransition";
+import HeroChapter from "@/features/landing/components/chapters/HeroChapter";
+import RoadChapter from "@/features/landing/components/chapters/RoadChapter";
+import EffortlessChapter from "@/features/landing/components/chapters/EffortlessChapter";
+import TrustChapter from "@/features/landing/components/chapters/TrustChapter";
+import BookingChapter from "@/features/landing/components/chapters/BookingChapter";
 import { cormorant, archivo } from "./fonts";
 
 export default function Home() {
@@ -24,8 +21,6 @@ export default function Home() {
         data-surface="marketing"
         className={`${cormorant.variable} ${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink-950 flex flex-col selection:bg-sun-600/20 selection:text-sun-400 bg-ink-950 focus:outline-none pb-24 sm:pb-32 cursor-default`}
       >
-        <CinematicPreloader />
-
         <CursorDisc />
 
         <LandingNav />

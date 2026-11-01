@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
@@ -8,9 +8,24 @@ import { gsap } from "@/lib/motion/register";
 const Hero3DCanvas = dynamic(() => import("../Hero3DCanvas"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center text-bone-100/40 font-mono text-xs">
-      LOADING 3D SCENE...
-    </div>
+    <picture className="w-full flex items-center justify-center pointer-events-none">
+      <source
+        type="image/avif"
+        srcSet="/assets/hero-car/hero-car-composite-1280.avif"
+      />
+      <source
+        type="image/webp"
+        srcSet="/assets/hero-car/hero-car-composite-1280.webp"
+      />
+      <img
+        src="/assets/hero-car/hero-car-composite-1280.webp"
+        alt="Porsche Carrera 4S Thong Dong"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        className="w-full h-auto max-h-[260px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain"
+      />
+    </picture>
   ),
 });
 
@@ -19,6 +34,22 @@ export default function HeroChapter() {
   const headingLine1Ref = useRef<HTMLSpanElement>(null);
   const headingLine2Ref = useRef<HTMLSpanElement>(null);
   const sunDiscRef = useRef<HTMLDivElement>(null);
+  const [load3D, setLoad3D] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (
+      window.matchMedia("(max-width: 767px)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+    // Defer 3D canvas until after H1 paint to prioritize LCP and Core Web Vitals
+    const timer = setTimeout(() => {
+      setLoad3D(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   useGSAP(
     () => {
@@ -113,9 +144,30 @@ export default function HeroChapter() {
           </h1>
         </div>
 
-        {/* 3D Porsche resting on the horizon */}
+        {/* 3D Porsche resting on the horizon (with instant LCP fallback image) */}
         <div className="relative z-20 w-full h-[360px] sm:h-[440px] md:h-[500px] flex items-center justify-center overflow-visible pointer-events-auto">
-          <Hero3DCanvas />
+          {load3D ? (
+            <Hero3DCanvas />
+          ) : (
+            <picture className="w-full flex items-center justify-center pointer-events-none">
+              <source
+                type="image/avif"
+                srcSet="/assets/hero-car/hero-car-composite-1280.avif"
+              />
+              <source
+                type="image/webp"
+                srcSet="/assets/hero-car/hero-car-composite-1280.webp"
+              />
+              <img
+                src="/assets/hero-car/hero-car-composite-1280.webp"
+                alt="Porsche Carrera 4S Thong Dong"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="w-full h-auto max-h-[260px] sm:max-h-[340px] md:max-h-[420px] lg:max-h-[480px] object-contain"
+              />
+            </picture>
+          )}
         </div>
       </div>
 

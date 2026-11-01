@@ -3,16 +3,13 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
-import { CustomEase } from "gsap/CustomEase";
 import { Flip } from "gsap/Flip";
 import { SplitText } from "gsap/SplitText";
-import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 
 let isRegistered = false;
 
 /**
- * Register GSAP plugins once on the client side.
+ * Register essential GSAP plugins once on the client side.
  * Never runs during SSR / static export build.
  */
 export function registerMotion(): void {
@@ -20,7 +17,7 @@ export function registerMotion(): void {
     return;
   }
 
-  gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother, CustomEase, Flip, SplitText, DrawSVGPlugin);
+  gsap.registerPlugin(useGSAP, ScrollTrigger, Flip, SplitText);
   isRegistered = true;
 }
 
@@ -29,4 +26,4 @@ if (typeof window !== "undefined") {
   registerMotion();
 }
 
-export { gsap, useGSAP, ScrollTrigger, ScrollSmoother, CustomEase, Flip, SplitText, DrawSVGPlugin };
+export { gsap, useGSAP, ScrollTrigger, Flip, SplitText };
