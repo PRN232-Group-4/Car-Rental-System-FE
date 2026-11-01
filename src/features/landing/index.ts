@@ -19,3 +19,5 @@ export { default as BookingChapter } from "./components/chapters/BookingChapter"
 export { default as BookingDock } from "./components/BookingDock";
 export { default as LandingNav } from "./components/LandingNav";
 export { default as HalftoneImage } from "./components/HalftoneImage";
+export { default as CursorDisc } from "./components/CursorDisc";
+export { default as ScrollDiscTransition } from "./components/ScrollDiscTransition";

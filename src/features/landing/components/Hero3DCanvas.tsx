@@ -219,8 +219,9 @@ export default function Hero3DCanvas() {
     const handlePointerMove = (e: MouseEvent) => {
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
-      setPointerRotY(normX * 0.12);
-      setPointerRotX(normY * 0.04);
+      // ±8 degrees yaw range (8 * PI / 180 ≈ 0.14 rad) spring interpolation
+      setPointerRotY(normX * 0.14);
+      setPointerRotX(normY * 0.045);
     };
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
 
