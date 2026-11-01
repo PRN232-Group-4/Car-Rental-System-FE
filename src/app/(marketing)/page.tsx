@@ -1,9 +1,10 @@
 "use client";
 
-import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import { Hero, CinematicPreloader } from "@/features/landing";
+import LandingNav from "@/features/landing/components/LandingNav";
+import BookingDock from "@/features/landing/components/BookingDock";
 import { cormorant, archivo } from "./fonts";
 
 export default function Home() {
@@ -13,17 +14,17 @@ export default function Home() {
         id="main-content"
         tabIndex={-1}
         data-surface="marketing"
-        className={`${cormorant.variable} ${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-sun-600/20 selection:text-sun-400 bg-canvas focus:outline-none`}
+        className={`${cormorant.variable} ${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-sun-600/20 selection:text-sun-400 bg-canvas focus:outline-none pb-24 sm:pb-32`}
       >
         <CinematicPreloader />
 
-        <Navbar />
+        <LandingNav />
 
         <div className="w-full min-h-[100dvh] flex flex-col">
           <div className="absolute inset-0 pointer-events-none z-0 bg-canvas" />
 
           <div className="relative z-10 w-full flex flex-col">
-            {/* 01. Hero & Live Search Console */}
+            {/* 01. Hero */}
             <div id="gioi-thieu" className="relative w-full">
               <Hero />
             </div>
@@ -34,6 +35,9 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Single Action CTA: Booking Dock */}
+        <BookingDock />
       </main>
     </SmoothScrollProvider>
   );
