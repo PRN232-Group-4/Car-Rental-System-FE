@@ -1,10 +1,20 @@
-import { Cormorant_Garamond, Archivo } from "next/font/google";
+import localFont from "next/font/local";
+import { Archivo } from "next/font/google";
 
-export const cormorant = Cormorant_Garamond({
+export const cormorant = localFont({
+  src: [
+    {
+      path: "../../../public/fonts/cormorant-garamond-italic-vietnamese.woff2",
+      style: "italic",
+      weight: "400 700",
+    },
+    {
+      path: "../../../public/fonts/cormorant-garamond-italic-latin.woff2",
+      style: "italic",
+      weight: "400 700",
+    },
+  ],
   variable: "--font-editorial",
-  subsets: ["latin", "vietnamese"],
-  style: ["italic"],
-  weight: ["600", "700"],
   display: "swap",
 });
 
