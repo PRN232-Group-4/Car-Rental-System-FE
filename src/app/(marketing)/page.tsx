@@ -1,10 +1,16 @@
 "use client";
 
-import Footer from "@/components/layout/Footer";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
-import { Hero, CinematicPreloader } from "@/features/landing";
-import LandingNav from "@/features/landing/components/LandingNav";
-import BookingDock from "@/features/landing/components/BookingDock";
+import {
+  CinematicPreloader,
+  LandingNav,
+  BookingDock,
+  HeroChapter,
+  RoadChapter,
+  EffortlessChapter,
+  TrustChapter,
+  BookingChapter,
+} from "@/features/landing";
 import { cormorant, archivo } from "./fonts";
 
 export default function Home() {
@@ -14,27 +20,26 @@ export default function Home() {
         id="main-content"
         tabIndex={-1}
         data-surface="marketing"
-        className={`${cormorant.variable} ${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-sun-600/20 selection:text-sun-400 bg-canvas focus:outline-none pb-24 sm:pb-32`}
+        className={`${cormorant.variable} ${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink-950 flex flex-col selection:bg-sun-600/20 selection:text-sun-400 bg-ink-950 focus:outline-none pb-24 sm:pb-32`}
       >
         <CinematicPreloader />
 
         <LandingNav />
 
-        <div className="w-full min-h-[100dvh] flex flex-col">
-          <div className="absolute inset-0 pointer-events-none z-0 bg-canvas" />
+        {/* 01. Chương I: Hero — Siêu xe. Không vội. */}
+        <HeroChapter />
 
-          <div className="relative z-10 w-full flex flex-col">
-            {/* 01. Hero */}
-            <div id="gioi-thieu" className="relative w-full">
-              <Hero />
-            </div>
+        {/* 02. Chương II: Cung đường — Đường dài là để đi chậm. */}
+        <RoadChapter />
 
-            {/* 08. Footer */}
-            <div id="lien-he" className="relative w-full border-t border-line">
-              <Footer />
-            </div>
-          </div>
-        </div>
+        {/* 03. Chương III: Trải nghiệm — Nhẹ như không. */}
+        <EffortlessChapter />
+
+        {/* 04. Chương IV: Cam kết — Tin cậy bằng dữ kiện. */}
+        <TrustChapter />
+
+        {/* 05. Chương V: Khởi hành — Chọn xe. Chọn ngày. Lên đường. */}
+        <BookingChapter />
 
         {/* Single Action CTA: Booking Dock */}
         <BookingDock />
