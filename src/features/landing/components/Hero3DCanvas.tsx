@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { applyLithographShader } from "./lithograph-shader";
 
 function isArtifactFloorMesh(mesh: THREE.Mesh): boolean {
   const name = (mesh.name || "").toLowerCase();
@@ -51,91 +52,73 @@ export default function Hero3DCanvas() {
     const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 50);
     camera.position.set(2.85, 1.15, 4.75);
 
+    // preserveDrawingBuffer: false resolves 4 ReadPixels GPU stalls
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.15;
 
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0xfffbf2, 2.6);
-    keyLight.position.set(4, 6, 4);
+    // Hard Key Light on Sun side
+    const keyLight = new THREE.DirectionalLight(0xfff5ea, 3.2);
+    keyLight.position.set(3.8, 5.2, 3.2);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.4);
-    fillLight.position.set(-4, 3, -3);
-    scene.add(fillLight);
-
-    const rimLight = new THREE.DirectionalLight(0xffedd5, 2.0);
-    rimLight.position.set(0, 5, -5);
+    // Rim Light Lake-400 (#3DA5D9) on opposite side for continuous car silhouette definition
+    const rimLight = new THREE.DirectionalLight(0x3da5d9, 3.6);
+    rimLight.position.set(-4.5, 3.0, -3.5);
     scene.add(rimLight);
+
+    // Ambient light (low ink fill)
+    const ambientLight = new THREE.AmbientLight(0x0f1215, 0.4);
+    scene.add(ambientLight);
+
+    // Small monochrome environment map
+    const envCanvas = document.createElement("canvas");
+    envCanvas.width = 64;
+    envCanvas.height = 32;
+    const envCtx = envCanvas.getContext("2d");
+    if (envCtx) {
+      const envGrad = envCtx.createLinearGradient(0, 0, 0, 32);
+      envGrad.addColorStop(0, "#E9E4D8");
+      envGrad.addColorStop(0.5, "#3DA5D9");
+      envGrad.addColorStop(1, "#0F1215");
+      envCtx.fillStyle = envGrad;
+      envCtx.fillRect(0, 0, 64, 32);
+    }
+    const envTexture = new THREE.CanvasTexture(envCanvas);
+    envTexture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = envTexture;
 
     const renderOnce = () => {
       camera.lookAt(0, 0.42, 0);
       renderer.render(scene, camera);
     };
 
-    const updateThemeLighting = (isDark: boolean) => {
-      gsap.to(ambientLight, {
-        intensity: isDark ? 1.85 : 1.6,
-        duration: 0.35,
-        onUpdate: renderOnce,
-      });
-      gsap.to(rimLight, {
-        intensity: isDark ? 2.8 : 2.0,
-        duration: 0.35,
-      });
-      gsap.to(renderer, {
-        toneMappingExposure: isDark ? 1.4 : 1.25,
-        duration: 0.35,
-      });
-    };
-
-    const isInitialDark =
-      document.documentElement.classList.contains("dark") ||
-      document.documentElement.dataset.theme === "dark";
-    if (isInitialDark) updateThemeLighting(true);
-
-    const themeObserver = new MutationObserver(() => {
-      const isDark =
-        document.documentElement.classList.contains("dark") ||
-        document.documentElement.dataset.theme === "dark";
-      updateThemeLighting(isDark);
-    });
-    themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme", "class"],
-    });
-
-    // Soft Ground Shadow Plane tại y = -0.01
+    // Flat hard-edged blob shadow plane at y = 0.005
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 512;
     shadowCanvas.height = 512;
     const shadowCtx = shadowCanvas.getContext("2d");
     if (shadowCtx) {
       shadowCtx.clearRect(0, 0, 512, 512);
-      const gradient = shadowCtx.createRadialGradient(256, 256, 15, 256, 256, 240);
-      gradient.addColorStop(0, "rgba(9, 13, 22, 0.42)");
-      gradient.addColorStop(0.4, "rgba(9, 13, 22, 0.14)");
-      gradient.addColorStop(0.75, "rgba(9, 13, 22, 0)");
-      gradient.addColorStop(1, "rgba(9, 13, 22, 0)");
-      shadowCtx.fillStyle = gradient;
-      shadowCtx.fillRect(0, 0, 512, 512);
+      shadowCtx.fillStyle = "#0F1215";
+      shadowCtx.beginPath();
+      shadowCtx.ellipse(256, 256, 215, 115, 0, 0, Math.PI * 2);
+      shadowCtx.fill();
     }
     const shadowTexture = new THREE.CanvasTexture(shadowCanvas);
     const shadowPlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(7.2, 7.2),
+      new THREE.PlaneGeometry(6.6, 3.4),
       new THREE.MeshBasicMaterial({
         map: shadowTexture,
         transparent: true,
@@ -144,7 +127,7 @@ export default function Hero3DCanvas() {
       })
     );
     shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.y = -0.01;
+    shadowPlane.position.y = 0.005;
     scene.add(shadowPlane);
 
     const carGroup = new THREE.Group();
@@ -171,6 +154,24 @@ export default function Hero3DCanvas() {
               mesh.visible = false;
             } else {
               cleanBbox.expandByObject(mesh);
+
+              // Apply Lithograph Shader to car materials
+              const mat = mesh.material;
+              const matName = Array.isArray(mat)
+                ? mat.map((m) => m.name.toLowerCase()).join(" ")
+                : (mat?.name || "").toLowerCase();
+              const meshName = (mesh.name || "").toLowerCase();
+              const isHeadlight =
+                matName.includes("light") ||
+                matName.includes("lamp") ||
+                meshName.includes("light") ||
+                meshName.includes("headlight");
+
+              if (Array.isArray(mat)) {
+                mat.forEach((m) => applyLithographShader(m, isHeadlight));
+              } else if (mat) {
+                applyLithographShader(mat, isHeadlight);
+              }
             }
           }
         });
@@ -200,7 +201,7 @@ export default function Hero3DCanvas() {
       }
     );
 
-    // ScrollTrigger Scrub: Xoay nhẹ xe khi người dùng cuộn từ Hero xuống Showroom
+    // ScrollTrigger Scrub: Xoay nhẹ xe khi người dùng cuộn
     const st = ScrollTrigger.create({
       trigger: container,
       start: "top bottom",
@@ -260,7 +261,6 @@ export default function Hero3DCanvas() {
 
     return () => {
       st.kill();
-      themeObserver.disconnect();
       observer.disconnect();
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("resize", handleResize);
