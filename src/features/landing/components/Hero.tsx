@@ -200,7 +200,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         <div ref={headingWrapRef} className="w-full will-change-transform relative z-10 text-center">
           <h1
             ref={headingRef}
-            className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(4.5rem,8.8vw,9.75rem)] w-full select-none flex flex-wrap items-baseline justify-center gap-x-6 sm:gap-x-8"
+            className="font-display font-extrabold text-ink tracking-tight leading-[1.05] pt-[0.15em] text-[clamp(4.5rem,8.8vw,9.75rem)] w-full select-none flex flex-wrap items-baseline justify-center gap-x-6 sm:gap-x-8"
           >
             <span ref={leftWordRef} className="inline-block will-change-transform">
               Thuê xe

@@ -17,7 +17,7 @@ import {
   CinematicPreloader,
 } from "@/features/landing";
 import type { HeroSearchCriteria } from "@/features/landing/components/Hero";
-import { spaceGrotesk, cormorant, archivo, jetbrainsMono } from "./fonts";
+import { cormorant, archivo } from "./fonts";
 
 export default function Home() {
   const [searchCriteria, setSearchCriteria] = useState<HeroSearchCriteria | null>(null);
@@ -51,7 +51,7 @@ export default function Home() {
         id="main-content"
         tabIndex={-1}
         data-surface="marketing"
-        className={`${spaceGrotesk.variable} ${cormorant.variable} ${archivo.variable} ${jetbrainsMono.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-primary/20 selection:text-warning bg-canvas focus:outline-none`}
+        className={`${cormorant.variable} ${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100dvh] relative text-ink flex flex-col selection:bg-sun-600/20 selection:text-sun-400 bg-canvas focus:outline-none`}
       >
         <CinematicPreloader />
 

@@ -113,55 +113,69 @@
   --color-accent-500: var(--accent-500);
   --color-accent-700: var(--accent-700);
   --color-accent-500-hover: #E04810;
+
+  /* Riso Grand Tour Marketing Tokens (v3.2) */
+  --ink-950: #0F1215;
+  --ink-800: #181D22;
+  --bone-100: #E9E4D8;
+  --sun-600: #C84B20;
+  --sun-400: #E0662F;
+  --lake-600: #1177A8;
+  --lake-400: #3DA5D9;
+  --dur-120: 120ms;
+  --dur-240: 240ms;
+  --dur-480: 480ms;
+  --dur-900: 900ms;
+  --dur-1400: 1400ms;
+  --ease-riso-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-riso-in-out: cubic-bezier(0.83, 0, 0.17, 1);
 }
 
-/* Marketing Landing Surface Scope — Monolith Kinetic Telemetry (Editorial Obsidian & Titanium) */
+/* Marketing Landing Surface Scope — Riso Grand Tour */
 html:has([data-surface="marketing"]),
 [data-surface="marketing"] {
-  --canvas: #F3F4F6;
-  --sunken: #E5E8EC;
-  --surface: #FFFFFF;
-  --surface-raised: #F9FAFB;
-  --ink: #090D16;
-  --ink-2: #263042;
-  --ink-3: #526077;
-  --line: rgba(9, 13, 22, 0.09);
-  --line-strong: rgba(9, 13, 22, 0.18);
-  --primary: #E03500;
-  --primary-hover: #BD2B00;
-  --primary-press: #9A2300;
-  --on-primary: #FFFFFF;
-  --stage-ink: #0B101B;
-}
-
-html[data-theme="dark"]:has([data-surface="marketing"]),
-html[data-theme="dark"] [data-surface="marketing"] {
-  color-scheme: dark;
-  --canvas: #06090F;
-  --sunken: #0B101B;
-  --surface: #101726;
-  --surface-raised: #172136;
-  --ink: #F4F6FA;
+  --canvas: var(--ink-950);
+  --sunken: var(--ink-800);
+  --surface: var(--ink-800);
+  --surface-raised: var(--ink-800);
+  --ink: var(--bone-100);
   --ink-2: #C7D2E2;
   --ink-3: #8393A8;
-  --line: rgba(244, 246, 250, 0.10);
-  --line-strong: rgba(244, 246, 250, 0.20);
-  --primary: #FF4800;
-  --primary-hover: #FF6224;
-  --primary-press: #E03E00;
+  --line: rgba(233, 228, 216, 0.12);
+  --line-strong: rgba(233, 228, 216, 0.24);
+  --primary: var(--sun-600);
+  --primary-hover: var(--sun-400);
+  --primary-press: #A53B17;
   --on-primary: #FFFFFF;
-  --stage-ink: #131C2E;
+  --stage-ink: var(--ink-950);
+  background-color: var(--ink-950);
+  color: var(--bone-100);
 }
 
-/* Overscroll and html/body background scoped purely via :has */
-html:has([data-surface="marketing"]) {
-  background-color: var(--canvas-marketing);
-}
+/* Landing page is permanently on ink background (zero light/dark toggle on landing) */
 html:has([data-surface="marketing"]) body {
-  background-color: var(--canvas-marketing);
+  background-color: var(--ink-950);
 }
-html[data-theme="dark"] {
-  --canvas-marketing: #06090F;
+
+/* Chapter Theming */
+[data-surface="marketing"] [data-chapter="lake"],
+[data-surface="marketing"][data-chapter="lake"] {
+  background-color: var(--lake-600);
+  color: #ffffff;
+}
+
+[data-surface="marketing"] [data-chapter="lake"] :is(h1, h2, h3, h4, p, span, a, button) {
+  color: #ffffff;
+}
+
+[data-surface="marketing"] [data-chapter="sun"],
+[data-surface="marketing"][data-chapter="sun"] {
+  background-color: var(--sun-600);
+  color: #ffffff;
+}
+
+[data-surface="marketing"] [data-chapter="sun"] :is(h1, h2, h3, h4, p, span, a, button) {
+  color: #ffffff;
 }
 
 /* Scoped Admin Light Mode Palette A Neutrals */
@@ -280,7 +294,7 @@ html[data-admin-theme="dark"] a.bg-danger:not(:disabled),
 
 @theme inline {
   --font-sans: var(--font-marketing-sans, var(--font-be-vietnam)), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-bricolage, var(--font-be-vietnam)), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-archivo, var(--font-bricolage, var(--font-be-vietnam))), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: var(--font-editorial), Georgia, serif;
   --font-mono: var(--font-jetbrains-mono, var(--font-geist-mono)), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
@@ -340,6 +354,24 @@ html[data-admin-theme="dark"] a.bg-danger:not(:disabled),
   --shadow-e2: var(--e2);
   --shadow-e3: var(--e3);
   --ease-out: var(--ease-out);
+  /* Riso Grand Tour Color & Motion Tokens */
+  --color-ink-950: var(--ink-950);
+  --color-ink-800: var(--ink-800);
+  --color-bone-100: var(--bone-100);
+  --color-sun-600: var(--sun-600);
+  --color-sun-400: var(--sun-400);
+  --color-lake-600: var(--lake-600);
+  --color-lake-400: var(--lake-400);
+  --color-white: #ffffff;
+
+  --duration-120: var(--dur-120);
+  --duration-240: var(--dur-240);
+  --duration-480: var(--dur-480);
+  --duration-900: var(--dur-900);
+  --duration-1400: var(--dur-1400);
+  --ease-riso-out: var(--ease-riso-out);
+  --ease-riso-in-out: var(--ease-riso-in-out);
+
 }
 
 html {

@@ -628,6 +628,43 @@ main {
 - Ngân sách: LCP < 2.5s (4G trung bình), CLS < 0.1, INP < 200ms; số phần tử `backdrop-filter` đúng A4.4; JS mỗi route công khai ≤ 180 KB gzip (không tính chunk 3D tải lười).
 - Mọi chuyển động phải có bản `reduce`: test Playwright với `reducedMotion: "reduce"` xác nhận phần tử hiển thị ngay và không có `transform` còn dở.
 
+
+---
+
+## A14. Phân vùng Marketing Landing Surface (Riso Grand Tour — Siêu xe. Không vội.)
+
+> **Áp dụng riêng cho:** Tuyến `/` thuộc nhóm `(marketing)`, được cô lập bằng `[data-surface="marketing"]` trong `globals.css`. Khu vực Dashboard, Staff và Transit Desk Admin (`[data-portal="admin"]`) giữ nguyên 100% quy chuẩn các phần A1–A13 trước đó.
+
+### A14.1 Bầu không khí & Màu sắc (Riso Print)
+- **Nền trang:** Cố định nền mực tối `ink-950 #0F1215` và `ink-800 #181D22` (không có toggle light/dark trên landing).
+- **Màu giấy:** `bone-100 #E9E4D8` dùng cho chữ chính và bề mặt các plate in.
+- **Mực in Riso:**
+  - `sun-600 #C84B20` (và `sun-400 #E0662F`) — mực cam mặt trời, CTA Booking Dock, theming Chương 3, 5.
+  - `lake-600 #1177A8` (và `lake-400 #3DA5D9`) — mực xanh hồ núi, rim light xe 3D, theming Chương 2.
+- **Chương Theming:** `data-chapter="lake"` và `data-chapter="sun"`. Văn bản trên hai nền này bắt buộc là chữ trắng (`#FFFFFF`) đạt chuẩn WCAG AA tương phản ≥ 4.5:1. Chữ thân không dùng màu sun-600.
+
+### A14.2 Hình học & Bố cục
+- **Hình khối duy nhất:** Chỉ gồm đĩa tròn (`border-radius: 50%`) và hình chữ nhật góc vuông (`border-radius: 0px`).
+- **Cấm tuyệt đối trên landing:**
+  - Cấm card, cấm viền 1px bo góc.
+  - Cấm pill nav, pill tab, pill badge, chips.
+  - Cấm số ghost mờ sau tiêu đề.
+  - Cấm nhãn mono dạng HUD ("SECTION 01", "// TELEMETRY"). Tối đa 4 nhãn micro mỗi viewport.
+  - Cấm gradient mượt, cấm dấu chấm cam trang trí sau tiêu đề.
+  - Cấm cuộn ngang bị pin khóa màn hình.
+
+### A14.3 Typography & Tỷ lệ
+- **Display Hero:** `Archivo` cỡ `clamp(4rem, 18vw, 22rem)`, `line-height ≥ 1.0` (chừa `padding-top: 0.15em` cho line-mask reveal).
+- **Từ nhấn:** `Cormorant Garamond italic` cho từ khóa nghệ thuật ("Không vội").
+- **Body & Micro:** `Be Vietnam Pro`.
+- Gỡ `Space Grotesk`, `JetBrains Mono`, `Geist Mono` khỏi bundle trang chủ.
+
+### A14.4 Động lực học & Chuyển đổi
+- **Hành động duy nhất:** Booking Dock (nút đĩa tròn `sun-600` 72px) cố định ở đáy màn hình sau hero; submit trực tiếp về `/find?...' (chuẩn `findFilterSchema`).
+- **Cảnh 3D duy nhất:** Porsche 911 Carrera 4S xử lý qua Lithograph Shader (`onBeforeCompile` trên MeshStandardMaterial, LUT 5–6 bậc + dither stipple 3–4px, blob shadow đen mép cứng, `preserveDrawingBuffer: false`).
+- **Chuyển chương:** Scroll Disc (đĩa tròn vector nở dần theo tiến độ cuộn).
+- **Trợ năng:** Tôn trọng `prefers-reduced-motion` (tắt camera move, parallax, hero thành poster tĩnh) và `prefers-reduced-transparency`.
+
 ---
 
 # B. PRODUCT & UX SPECIFICATION
