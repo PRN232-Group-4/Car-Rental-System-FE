@@ -60,6 +60,12 @@ export default function BookingDock({
       .then(setFacilities)
       .catch(() => setFacilities([]));
 
+    const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 1600);
@@ -164,15 +170,8 @@ export default function BookingDock({
                 aria-label="Chọn trạm nhận xe"
                 className="absolute bottom-full left-0 mb-2 w-full sm:w-80 bg-ink-950 border border-bone-100/20 text-bone-100 shadow-2xl p-2 z-50 rounded-none max-h-72 overflow-y-auto"
               >
-                <div className="p-2 border-b border-bone-100/10 mb-1 flex items-center justify-between">
+                <div className="p-2 border-b border-bone-100/10 mb-1">
                   <span className="text-xs font-mono uppercase text-sun-400">Trạm tiếp nhận</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowStationPicker(false)}
-                    className="text-bone-100/40 hover:text-bone-100"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
                 </div>
                 <button
                   type="button"

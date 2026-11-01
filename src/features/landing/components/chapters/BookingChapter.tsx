@@ -45,7 +45,7 @@ export default function BookingChapter() {
 
         {/* 1-Line Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px]">
-          <span>© 2026 HỆ THỐNG THUÊ XE THÔNG DONG. RISO GRAND TOUR.</span>
+          <span>© 2026 Hệ thống cho thuê xe Thong Dong. Toàn bộ quyền được bảo lưu. · Liên hệ: support@vrs.vn</span>
           <div className="flex items-center gap-6">
             <Link href="/find" className="hover:text-sun-400 transition-colors">
               ĐỘI XE
