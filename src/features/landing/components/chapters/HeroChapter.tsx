@@ -18,6 +18,7 @@ export default function HeroChapter() {
   const mistRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const branchRef = useRef<HTMLDivElement>(null);
+  const bridgeBarRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -36,13 +37,14 @@ export default function HeroChapter() {
             leadBlockRef.current,
             carRef.current,
             branchRef.current,
+            bridgeBarRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. High-Impact Constructivist Entrance Choreography
+        // 1. Constructivist Entrance Choreography on Load
         const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
         if (bgImgRef.current) {
@@ -108,7 +110,7 @@ export default function HeroChapter() {
           );
         }
 
-        // 2. 1:1 Scroll-Linked Multi-Plane Compression as Chapter 2 Curtain Slides Over Hero (`scrub: true` = Zero Lag)
+        // 2. 1:1 Scroll-Scrubbed Multi-Plane Transform (`scrub: true` = Zero Lag)
         const scrollTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -119,31 +121,39 @@ export default function HeroChapter() {
         });
 
         if (bgImgRef.current) {
-          scrollTl.to(bgImgRef.current, { yPercent: 16, scale: 1.15, ease: "none" }, 0);
+          scrollTl.to(bgImgRef.current, { yPercent: 18, scale: 1.16, ease: "none" }, 0);
         }
         if (line1WrapRef.current) {
-          scrollTl.to(line1WrapRef.current, { xPercent: -8, yPercent: -20, ease: "none" }, 0);
+          scrollTl.to(line1WrapRef.current, { xPercent: -10, yPercent: -22, ease: "none" }, 0);
         }
         if (line2WrapRef.current) {
-          scrollTl.to(line2WrapRef.current, { xPercent: 10, yPercent: -12, ease: "none" }, 0);
+          scrollTl.to(line2WrapRef.current, { xPercent: 12, yPercent: -14, ease: "none" }, 0);
         }
         if (leadBlockRef.current) {
-          scrollTl.to(leadBlockRef.current, { yPercent: -25, opacity: 0.1, ease: "none" }, 0);
+          scrollTl.to(leadBlockRef.current, { yPercent: -28, opacity: 0.1, ease: "none" }, 0);
         }
         if (mistRef.current) {
-          scrollTl.to(mistRef.current, { xPercent: -15, yPercent: -8, opacity: 0.75, ease: "none" }, 0);
+          scrollTl.to(mistRef.current, { xPercent: -16, yPercent: -8, opacity: 0.75, ease: "none" }, 0);
         }
         if (carRef.current) {
           scrollTl.to(
             carRef.current,
-            { xPercent: -14, yPercent: -10, scale: 1.12, ease: "none" },
+            { xPercent: -16, yPercent: -12, scale: 1.12, ease: "none" },
             0
           );
         }
         if (branchRef.current) {
           scrollTl.to(
             branchRef.current,
-            { xPercent: 10, yPercent: -36, scale: 1.16, ease: "none" },
+            { xPercent: 12, yPercent: -38, scale: 1.16, ease: "none" },
+            0
+          );
+        }
+        if (bridgeBarRef.current) {
+          scrollTl.fromTo(
+            bridgeBarRef.current,
+            { scaleX: 0.15 },
+            { scaleX: 1, ease: "none" },
             0
           );
         }
@@ -183,10 +193,9 @@ export default function HeroChapter() {
     <section
       ref={containerRef}
       id="gioi-thieu"
-      style={{ zIndex: 10 }}
-      className="sticky top-0 w-full h-[100svh] min-h-[760px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 pb-20"
+      className="relative w-full h-[100svh] min-h-[760px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 pb-16"
     >
-      {/* Layer 1 (z-10): 100% Full-Bleed Edge-to-Edge Da Lat Dawn Woodcut (Zero Cream Border Bleed!) */}
+      {/* Layer 1 (z-10): 100% Full-Bleed Da Lat Dawn Woodcut Painting (Relative positioning guarantees 100% visibility in all screenshots!) */}
       <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
         <source
           type="image/avif"
@@ -207,7 +216,7 @@ export default function HeroChapter() {
         />
       </picture>
 
-      {/* Layer 2 (z-14): Constructivist Vertical Racing Spine & Horizon Axis Hairline (Poster 1 & 2 DNA) */}
+      {/* Layer 2 (z-14): Constructivist Vertical Spine & Horizon Axis Hairline */}
       <div
         ref={spineRef}
         aria-hidden="true"
@@ -236,13 +245,13 @@ export default function HeroChapter() {
         />
       </div>
 
-      {/* Layer 4 (z-20): Monumental Stepped Typography + Poster-Style Micro Cadence */}
+      {/* Layer 4 (z-20): Monumental Stepped Typography */}
       <div
         style={{ zIndex: 20 }}
         className="relative w-full max-w-[1640px] mx-auto pt-2 pointer-events-none"
       >
         <div className="flex items-center justify-between text-[10px] sm:text-xs tracking-[0.28em] uppercase font-sans font-bold text-bone-100/75 mb-4 pb-3 border-b border-bone-100/20">
-          <span>THONG DONG // GRAND TOURING MONOGRAPH</span>
+          <span>01 // GRAND TOURING MONOGRAPH</span>
           <span className="hidden sm:inline text-sun-400">POWER · PRECISION · FREEDOM</span>
         </div>
 
@@ -365,6 +374,19 @@ export default function HeroChapter() {
             decoding="async"
           />
         </picture>
+      </div>
+
+      {/* Layer 8 (z-40): Bottom Constructivist Horizon Bridge into Chapter 2 */}
+      <div
+        aria-hidden="true"
+        style={{ zIndex: 40 }}
+        className="absolute inset-x-0 bottom-0 h-3 bg-bone-100 pointer-events-none overflow-hidden"
+      >
+        <div
+          ref={bridgeBarRef}
+          style={{ transformOrigin: "left center" }}
+          className="w-full h-full bg-sun-600 will-change-transform"
+        />
       </div>
     </section>
   );

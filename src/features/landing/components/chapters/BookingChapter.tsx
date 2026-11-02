@@ -39,13 +39,14 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Instantaneous 1:1 Section Curtain-Iris Transition (`clipPath` expands from Warm Paper into Full-Screen Dark Night Sky as soon as Chapter 5 enters!)
+        // 1. Instantaneous 1:1 Section Curtain-Iris Transition (`clipPath` expands from Warm Paper into Full-Screen Dark Night Sky!)
         if (stageRef.current) {
           gsap.fromTo(
             stageRef.current,
-            { clipPath: "inset(8% 4% 0% 4%)" },
+            { clipPath: "inset(10% 5% 0% 5%)", scale: 0.94 },
             {
               clipPath: "inset(0% 0% 0% 0%)",
+              scale: 1,
               ease: "none",
               scrollTrigger: {
                 trigger: containerRef.current,
@@ -81,7 +82,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (headlineRef.current) {
           tl.fromTo(
             headlineRef.current,
-            { xPercent: 12, opacity: 0.2 },
+            { xPercent: 10, opacity: 0.2 },
             { xPercent: 0, opacity: 1, ease: "none" },
             0
           );
@@ -124,12 +125,12 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
     <section
       ref={containerRef}
       id="dat-xe"
-      style={{ zIndex: 30 }}
       className="relative w-full min-h-[105svh] bg-bone-100 select-none overflow-hidden"
     >
       {/* Expanding Cinema Curtain Stage */}
       <div
         ref={stageRef}
+        style={{ transformOrigin: "center top" }}
         className="relative w-full min-h-[105svh] bg-ink-950 text-bone-100 flex flex-col justify-between pt-20 overflow-hidden will-change-transform"
       >
         {/* 1. Full-Bleed Hai Van Sunset Woodcut (`b0-backdrop` — Orange Sun on Left, Dark Night Sky on Right) */}
