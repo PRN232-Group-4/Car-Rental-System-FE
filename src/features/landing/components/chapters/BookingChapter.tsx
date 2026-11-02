@@ -14,6 +14,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
   const stageRef = useRef<HTMLDivElement>(null);
   const bgImgRef = useRef<HTMLImageElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
+  const ruleRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const mistRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +30,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
             stageRef.current,
             bgImgRef.current,
             headlineRef.current,
+            ruleRef.current,
             carRef.current,
             mistRef.current,
           ],
@@ -37,18 +39,18 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Instantaneous 1:1 Section Curtain-Iris Transition (`clipPath` expands from Warm Paper into Full-Screen Dark Night Sky as soon as Chapter 5 enters the viewport!)
+        // 1. Instantaneous 1:1 Section Curtain-Iris Transition (`clipPath` expands from Warm Paper into Full-Screen Dark Night Sky as soon as Chapter 5 enters!)
         if (stageRef.current) {
           gsap.fromTo(
             stageRef.current,
-            { clipPath: "inset(12% 6% 12% 6%)" },
+            { clipPath: "inset(8% 4% 0% 4%)" },
             {
               clipPath: "inset(0% 0% 0% 0%)",
               ease: "none",
               scrollTrigger: {
                 trigger: containerRef.current,
                 start: "top 96%",
-                end: "top 18%",
+                end: "top 20%",
                 scrub: true,
               },
             }
@@ -59,7 +61,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
-            start: "top 90%",
+            start: "top 92%",
             end: "bottom bottom",
             scrub: true,
             onEnter: () => onEnterChapter5?.(true),
@@ -79,16 +81,25 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (headlineRef.current) {
           tl.fromTo(
             headlineRef.current,
-            { xPercent: 18, opacity: 0.2 },
+            { xPercent: 12, opacity: 0.2 },
             { xPercent: 0, opacity: 1, ease: "none" },
             0
+          );
+        }
+
+        if (ruleRef.current) {
+          tl.fromTo(
+            ruleRef.current,
+            { scaleX: 0 },
+            { scaleX: 1, ease: "none" },
+            0.05
           );
         }
 
         if (carRef.current) {
           tl.fromTo(
             carRef.current,
-            { xPercent: 20, yPercent: 8, scale: 0.86 },
+            { xPercent: 18, yPercent: 8, scale: 0.86 },
             { xPercent: -4, yPercent: -2, scale: 1.06, ease: "none" },
             0
           );
@@ -113,9 +124,10 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
     <section
       ref={containerRef}
       id="dat-xe"
+      style={{ zIndex: 30 }}
       className="relative w-full min-h-[105svh] bg-bone-100 select-none overflow-hidden"
     >
-      {/* Expanding Cinema Curtain Stage (Transforms from framed window on bg-bone-100 to 100% full-screen bg-ink-950) */}
+      {/* Expanding Cinema Curtain Stage */}
       <div
         ref={stageRef}
         className="relative w-full min-h-[105svh] bg-ink-950 text-bone-100 flex flex-col justify-between pt-20 overflow-hidden will-change-transform"
@@ -156,31 +168,37 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
           />
         </div>
 
-        {/* 3. Right-Anchored Monumental Departure Headline (Locked in the Right 55% Dark Sky Zone so it NEVER touches the Left Sun!) */}
+        {/* 3. Unbroken Single-Line Monumental Departure Headline (Full-Width Flex End so "«ĐI THÔI.»" NEVER wraps onto 2 lines!) */}
         <div
           ref={headlineRef}
           style={{ zIndex: 30 }}
           className="relative w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 pt-4 sm:pt-8 flex flex-col items-end text-right pointer-events-none will-change-transform"
         >
-          <div className="w-full lg:w-[55%] flex flex-col items-end">
-            <h2
-              style={{
-                fontFamily: "var(--font-archivo, sans-serif)",
-                fontSize: "clamp(3.25rem, 7.8vw, 9.5rem)",
-                lineHeight: 1.15,
-                fontVariationSettings: "'wdth' 110",
-              }}
-              className="font-black uppercase tracking-tight text-bone-100 whitespace-nowrap pt-[0.16em] drop-shadow-2xl"
-            >
-              «ĐI THÔI.»
-            </h2>
+          <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-2">
+            05 // KHỞI HÀNH NGAY HÔM NAY
+          </span>
 
-            <div className="w-32 sm:w-48 h-[3px] bg-sun-600 my-4" />
+          <h2
+            style={{
+              fontFamily: "var(--font-archivo, sans-serif)",
+              fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
+              lineHeight: 1.15,
+              fontVariationSettings: "'wdth' 108",
+            }}
+            className="font-black uppercase tracking-tight text-bone-100 whitespace-nowrap pt-[0.16em] drop-shadow-2xl"
+          >
+            «ĐI THÔI.»
+          </h2>
 
-            <p className="font-sans text-base sm:text-lg text-bone-100/95 max-w-md leading-relaxed font-medium drop-shadow-lg">
-              Chọn trạm nhận xe và khung giờ khởi hành ngay tại thanh điều khiển phía dưới.
-            </p>
-          </div>
+          <div
+            ref={ruleRef}
+            style={{ transformOrigin: "right center" }}
+            className="w-36 sm:w-56 h-[3px] bg-sun-600 my-4 will-change-transform"
+          />
+
+          <p className="font-sans text-base sm:text-lg text-bone-100/95 max-w-md leading-relaxed font-medium drop-shadow-lg">
+            Chọn trạm nhận xe và khung giờ khởi hành ngay tại thanh điều khiển phía dưới.
+          </p>
         </div>
 
         {/* 4. Cornering Lithograph Car (`b4-car`) + Solid Dark Ink Horizon Plinth & Footer */}
