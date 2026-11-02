@@ -1,0 +1,278 @@
+{
+  "generatedAt": "2026-11-02T07:11:30.059Z",
+  "totalLayers": 15,
+  "missingCount": 15,
+  "layers": [
+    {
+      "id": "a0-sky",
+      "file": "a0-sky.png",
+      "scene": "A",
+      "z": 10,
+      "speed": 0.02,
+      "blend": "normal",
+      "loading": "eager",
+      "fetchPriority": "high",
+      "maxWidth": 2880,
+      "placement": {
+        "topPct": 0,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 100
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a1-sun",
+      "file": "a1-sun.png",
+      "scene": "A",
+      "z": 15,
+      "speed": 0.05,
+      "blend": "normal",
+      "loading": "eager",
+      "maxWidth": 1800,
+      "placement": {
+        "topPct": 18,
+        "leftPct": 35,
+        "widthPct": 30,
+        "heightPct": 30
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a2-far-mountains",
+      "file": "a2-far-mountains.png",
+      "scene": "A",
+      "z": 18,
+      "speed": 0.08,
+      "blend": "normal",
+      "loading": "eager",
+      "maxWidth": 3840,
+      "placement": {
+        "topPct": 36,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 28
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a3-mid-pines",
+      "file": "a3-mid-pines.png",
+      "scene": "A",
+      "z": 20,
+      "speed": 0.2,
+      "blend": "normal",
+      "loading": "eager",
+      "maxWidth": 3840,
+      "placement": {
+        "topPct": 44,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 30
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a4-road",
+      "file": "a4-road.png",
+      "scene": "A",
+      "z": 40,
+      "speed": 0.3,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 3840,
+      "placement": {
+        "topPct": 58,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 42
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a4-car",
+      "file": "a4-car.png",
+      "scene": "A",
+      "z": 41,
+      "speed": 0.35,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 2000,
+      "placement": {
+        "topPct": 50,
+        "leftPct": 30,
+        "widthPct": 40,
+        "heightPct": 28
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a5-mist",
+      "file": "a5-mist.png",
+      "scene": "A",
+      "z": 45,
+      "speed": 0.4,
+      "blend": "screen",
+      "loading": "lazy",
+      "maxWidth": 2880,
+      "placement": {
+        "topPct": 60,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 30
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a6-fg-branch",
+      "file": "a6-fg-branch.png",
+      "scene": "A",
+      "z": 50,
+      "speed": 0.45,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 1600,
+      "placement": {
+        "topPct": 65,
+        "leftPct": 65,
+        "widthPct": 35,
+        "heightPct": 35
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "a7-dust",
+      "file": "a7-dust.png",
+      "scene": "A",
+      "z": 55,
+      "speed": 0.05,
+      "blend": "screen",
+      "loading": "lazy",
+      "maxWidth": 2880,
+      "placement": {
+        "topPct": 0,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 100
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "b0-backdrop",
+      "file": "b0-backdrop.png",
+      "scene": "B",
+      "z": 10,
+      "speed": 0.08,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 3840,
+      "placement": {
+        "topPct": 0,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 100
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "b3-cliff-road",
+      "file": "b3-cliff-road.png",
+      "scene": "B",
+      "z": 20,
+      "speed": 0.25,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 3840,
+      "placement": {
+        "topPct": 40,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 60
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "b4-car",
+      "file": "b4-car.png",
+      "scene": "B",
+      "z": 40,
+      "speed": 0.3,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 2000,
+      "placement": {
+        "topPct": 52,
+        "leftPct": 32,
+        "widthPct": 36,
+        "heightPct": 26
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "b5-mist",
+      "file": "b5-mist.png",
+      "scene": "B",
+      "z": 45,
+      "speed": 0.35,
+      "blend": "screen",
+      "loading": "lazy",
+      "maxWidth": 2880,
+      "placement": {
+        "topPct": 50,
+        "leftPct": 0,
+        "widthPct": 100,
+        "heightPct": 40
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "b6-fg-rocks",
+      "file": "b6-fg-rocks.png",
+      "scene": "B",
+      "z": 50,
+      "speed": 0.45,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 2400,
+      "placement": {
+        "topPct": 60,
+        "leftPct": 0,
+        "widthPct": 40,
+        "heightPct": 40
+      },
+      "isPlaceholder": true,
+      "variants": []
+    },
+    {
+      "id": "c4-trust-car",
+      "file": "c4-trust-car.png",
+      "scene": "C",
+      "z": 20,
+      "speed": 0,
+      "blend": "normal",
+      "loading": "lazy",
+      "maxWidth": 2000,
+      "placement": {
+        "topPct": 15,
+        "leftPct": 10,
+        "widthPct": 80,
+        "heightPct": 70
+      },
+      "isPlaceholder": true,
+      "variants": []
+    }
+  ]
+}

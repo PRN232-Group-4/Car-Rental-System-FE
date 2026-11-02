@@ -21,3 +21,6 @@ export { default as LandingNav } from "./components/LandingNav";
 export { default as HalftoneImage } from "./components/HalftoneImage";
 export { default as CursorDisc } from "./components/CursorDisc";
 export { default as ScrollDiscTransition } from "./components/ScrollDiscTransition";
+export { default as SceneLayerStack } from "./components/SceneLayerStack";
+export { default as SceneBSection } from "./components/chapters/SceneBSection";
+export { default as DisplayLine } from "./components/DisplayLine";

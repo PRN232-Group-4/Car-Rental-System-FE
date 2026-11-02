@@ -28,6 +28,7 @@ interface BookingDockProps {
   initialStartTime?: string;
   initialEndDate?: string;
   initialEndTime?: string;
+  isExpanded?: boolean;
 }
 
 export default function BookingDock({
@@ -37,6 +38,7 @@ export default function BookingDock({
   initialStartTime = "21:00",
   initialEndDate,
   initialEndTime = "20:00",
+  isExpanded = false,
 }: BookingDockProps) {
   const router = useRouter();
   const [facilities, setFacilities] = useState<Facility[]>(getInitialFacilities());
