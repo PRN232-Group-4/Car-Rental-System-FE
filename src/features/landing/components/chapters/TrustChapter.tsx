@@ -4,8 +4,6 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 
-const TRUST_HEADING_WORDS = ["TIN", "CẬY", "BẰNG", "DỮ", "KIỆN."];
-
 const TRUST_DATA_ROWS = [
   {
     index: "01",
@@ -35,12 +33,11 @@ const TRUST_DATA_ROWS = [
 
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
-  const posterWrapRef = useRef<HTMLDivElement>(null);
+  const topBannerRef = useRef<HTMLDivElement>(null);
+  const bottomBannerRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
-  const headingWordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const ruleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const portalDiscRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -49,117 +46,81 @@ export default function TrustChapter() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set(posterImgRef.current, { clearProps: "all", opacity: 1 });
-        headingWordRefs.current.forEach((w) => {
-          if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
-        });
+        gsap.set(
+          [topBannerRef.current, bottomBannerRef.current, posterImgRef.current],
+          { clearProps: "all", opacity: 1 }
+        );
         ruleRefs.current.forEach((r) => {
           if (r) gsap.set(r, { scaleX: 1 });
         });
         rowRefs.current.forEach((row) => {
-          if (row) gsap.set(row, { opacity: 1, y: 0 });
+          if (row) gsap.set(row, { clearProps: "all", opacity: 1 });
         });
-        if (portalDiscRef.current) gsap.set(portalDiscRef.current, { scale: 0 });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Poster 1 (`poster-bugatti-heritage.webp`) Scroll Scale & Parallax
-        if (posterImgRef.current && posterWrapRef.current) {
-          gsap.fromTo(
+        // 1. Instantaneous 1:1 Scroll-Scrubbed Kinetic Title Banner & Poster Zoom (`scrub: true`)
+        const headerTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 95%",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+
+        if (topBannerRef.current) {
+          headerTl.fromTo(
+            topBannerRef.current,
+            { xPercent: -12 },
+            { xPercent: 8, ease: "none" },
+            0
+          );
+        }
+
+        if (bottomBannerRef.current) {
+          headerTl.fromTo(
+            bottomBannerRef.current,
+            { xPercent: 12 },
+            { xPercent: -8, ease: "none" },
+            0
+          );
+        }
+
+        if (posterImgRef.current) {
+          headerTl.fromTo(
             posterImgRef.current,
-            { scale: 0.9, yPercent: 6 },
-            {
-              scale: 1.03,
-              yPercent: -5,
-              ease: "none",
-              scrollTrigger: {
-                trigger: posterWrapRef.current,
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 0.5,
-              },
-            }
+            { scale: 1.12 },
+            { scale: 1.0, ease: "none" },
+            0
           );
         }
 
-        // 2. Diacritic-Safe Kinetic Per-Word Heading Reveal
-        const validWords = headingWordRefs.current.filter(Boolean);
-        if (validWords.length > 0) {
-          gsap.fromTo(
-            validWords,
-            { yPercent: 115, rotateZ: 3, opacity: 0 },
-            {
-              yPercent: 0,
-              rotateZ: 0,
-              opacity: 1,
-              duration: 0.95,
-              stagger: 0.06,
-              ease: "expo.out",
-              scrollTrigger: {
-                trigger: validWords[0],
-                start: "top 88%",
-                toggleActions: "play none none reverse",
-              },
-            }
-          );
-        }
-
-        // 3. Proof Ledger Self-Drawing Rules
+        // 2. 1:1 Scroll-Scrubbed Verification Rows (Zero Delay, Zero Black Circle Covering Text!)
         rowRefs.current.forEach((row, idx) => {
           const rule = ruleRefs.current[idx];
           if (!row) return;
 
+          const rowTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: row,
+              start: "top 95%",
+              end: "top 40%",
+              scrub: true,
+            },
+          });
+
           if (rule) {
-            gsap.fromTo(
-              rule,
-              { scaleX: 0 },
-              {
-                scaleX: 1,
-                duration: 0.95,
-                ease: "expo.out",
-                scrollTrigger: {
-                  trigger: row,
-                  start: "top 88%",
-                  toggleActions: "play none none reverse",
-                },
-              }
-            );
+            rowTl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0);
           }
 
-          gsap.fromTo(
+          rowTl.fromTo(
             row,
-            { opacity: 0.2, y: 26 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.75,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: row,
-                start: "top 86%",
-                toggleActions: "play none none reverse",
-              },
-            }
+            { y: 28, opacity: 0.2 },
+            { y: 0, opacity: 1, ease: "none" },
+            0
           );
         });
-
-        // 4. Expanding Constructivist Eclipse Portal Transition into Chapter 5 (Dark Ink Finale)
-        if (portalDiscRef.current) {
-          gsap.fromTo(
-            portalDiscRef.current,
-            { scale: 0.05 },
-            {
-              scale: 2.8,
-              ease: "power2.in",
-              scrollTrigger: {
-                trigger: portalDiscRef.current,
-                start: "top 95%",
-                end: "bottom top",
-                scrub: 0.5,
-              },
-            }
-          );
-        }
       });
 
       return () => mm.revert();
@@ -171,141 +132,139 @@ export default function TrustChapter() {
     <section
       ref={containerRef}
       id="tin-cay"
-      className="relative w-full bg-bone-100 text-ink-950 pt-16 sm:pt-24 pb-32 sm:pb-44 px-6 sm:px-12 lg:px-20 select-none overflow-hidden"
+      className="relative w-full bg-bone-100 text-ink-950 py-24 sm:py-36 px-6 sm:px-12 lg:px-20 select-none overflow-hidden border-t-4 border-lake-600"
     >
-      <div className="relative z-10 max-w-7xl mx-auto space-y-24">
-        {/* 1. Full-Scale Poster 1 Masterpiece (`brightness(1.07) contrast(1.08)` + `multiply` dissolves the beige box 100% into `bg-bone-100`) */}
-        <div
-          ref={posterWrapRef}
-          className="relative w-full max-w-[1480px] mx-auto overflow-hidden"
-        >
-          <img
-            ref={posterImgRef}
-            src="/assets/posters/poster-bugatti-heritage.webp"
-            alt="Constructivist Hypercar Heritage Lithograph"
-            style={{
-              mixBlendMode: "multiply",
-              filter: "brightness(1.07) contrast(1.08)",
-            }}
-            className="w-full h-auto object-contain pointer-events-none will-change-transform"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-
-        {/* 2. Wide Horizontal Editorial Header (Prevents 4-line narrow stacking & diacritic collisions!) */}
-        <div className="border-t-2 border-ink-950 pt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-8">
+      <div className="relative z-10 max-w-[1640px] mx-auto space-y-16 sm:space-y-24">
+        {/* 1. Monumental Counter-Sliding Kinetic Header (Diacritic-Safe, 100% Unbroken) */}
+        <div className="space-y-2 pointer-events-none">
+          <div ref={topBannerRef} className="will-change-transform">
             <h2
               style={{
                 fontFamily: "var(--font-archivo, sans-serif)",
-                fontSize: "clamp(2.5rem, 6.2vw, 7.0rem)",
-                lineHeight: 1.16,
-                fontVariationSettings: "'wdth' 96",
+                fontSize: "clamp(2.75rem, 8.2vw, 10.2rem)",
+                lineHeight: 1.15,
+                fontVariationSettings: "'wdth' 80",
               }}
-              className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.24em] gap-y-1"
+              className="font-black uppercase tracking-tight text-ink-950 whitespace-nowrap pt-[0.16em]"
             >
-              {TRUST_HEADING_WORDS.map((word, wIdx) => (
-                <span
-                  key={word}
-                  className="inline-block overflow-hidden pt-[0.22em] pb-[0.08em] -mt-[0.18em]"
-                >
-                  <span
-                    ref={(el) => {
-                      headingWordRefs.current[wIdx] = el;
-                    }}
-                    className="inline-block will-change-transform"
-                  >
-                    {word}
-                  </span>
-                </span>
-              ))}
+              TIN CẬY BẰNG
             </h2>
           </div>
 
-          <div className="lg:col-span-4">
-            <p className="font-sans text-sm sm:text-base text-ink-950/85 leading-relaxed font-medium border-l-2 border-lake-600 pl-4">
-              Không dùng lời hứa quảng cáo. Mọi chuyến đi đều được bảo chứng bằng pháp nhân rõ ràng, bảo hiểm vật chất toàn diện và cơ chế hoàn cọc tự động.
-            </p>
+          <div
+            ref={bottomBannerRef}
+            className="flex items-center justify-end gap-6 -mt-[1vw] will-change-transform"
+          >
+            <span className="hidden md:block flex-1 max-w-xs h-[3px] bg-lake-600" />
+            <span
+              style={{
+                fontFamily: "var(--font-archivo, sans-serif)",
+                fontSize: "clamp(2.75rem, 8.2vw, 10.2rem)",
+                lineHeight: 1.15,
+                fontVariationSettings: "'wdth' 114",
+              }}
+              className="font-black uppercase tracking-tight text-lake-600 whitespace-nowrap pt-[0.16em]"
+            >
+              DỮ KIỆN.
+            </span>
           </div>
         </div>
 
-        {/* 3. 4 Full-Width Architectural Proof Ledgers */}
-        <div>
-          {TRUST_DATA_ROWS.map((row, idx) => (
-            <div
-              key={row.key}
-              ref={(el) => {
-                rowRefs.current[idx] = el;
-              }}
-              className="group relative w-full py-10 sm:py-12 transition-colors duration-300 hover:bg-ink-950 hover:text-bone-100 px-4 sm:px-8 -mx-4 sm:-mx-8 will-change-transform"
-            >
-              {/* Self-Drawing Woodblock Ink Rule */}
-              <div
-                ref={(el) => {
-                  ruleRefs.current[idx] = el;
-                }}
-                style={{ transformOrigin: "left center" }}
-                className="absolute top-0 left-0 right-0 h-[2px] bg-ink-950 will-change-transform"
-              />
+        {/* 2. Bold 12-Column Asymmetric Split: Left Sticky Framed Poster 1 Mount (Cols 1-6) + Right Verification Ledger (Cols 7-12) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+          {/* Left 6 Columns: Sticky Architectural Passe-Partout Mount for Poster 1 (`poster-bugatti-heritage.webp`) */}
+          <div className="lg:col-span-6 lg:sticky lg:top-24">
+            <div className="bg-ink-950 p-2 sm:p-4 border-2 border-ink-950">
+              <div className="relative w-full overflow-hidden bg-bone-100">
+                <img
+                  ref={posterImgRef}
+                  src="/assets/posters/poster-bugatti-heritage.webp"
+                  alt="Engineering Heritage Constructivist Lithograph"
+                  className="w-full h-auto object-cover pointer-events-none will-change-transform"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-baseline">
-                <div className="lg:col-span-4 flex items-baseline gap-4">
-                  <span
-                    style={{
-                      fontFamily: "var(--font-archivo, sans-serif)",
-                      fontVariationSettings: "'wdth' 70",
-                    }}
-                    className="font-black text-2xl sm:text-3xl text-lake-600 group-hover:text-lake-400 transition-colors"
-                  >
-                    {row.index}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "var(--fs-micro)",
-                      letterSpacing: "var(--ls-micro)",
-                    }}
-                    className="font-sans font-bold text-ink-950/75 group-hover:text-bone-100/75 uppercase block transition-colors"
-                  >
-                    {row.key}
+              {/* Architectural Caption Strip */}
+              <div className="pt-4 pb-2 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-bone-100">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-1.5 bg-lake-400 inline-block" />
+                  <span className="w-3 h-1.5 bg-lake-400 inline-block" />
+                  <span className="w-3 h-1.5 bg-lake-400 inline-block" />
+                  <span className="text-[11px] tracking-[0.22em] uppercase font-bold text-bone-100/90 ml-2">
+                    ENGINEERING HERITAGE
                   </span>
                 </div>
+                <span className="text-[11px] tracking-[0.22em] uppercase font-bold text-lake-400">
+                  100% ĐỘI XE SỞ HỮU TRỰC TIẾP
+                </span>
+              </div>
+            </div>
+          </div>
 
-                <div className="lg:col-span-5">
+          {/* Right 6 Columns: 4 High-Contrast Verification Rows (100% Visible, Zero Covering Circle!) */}
+          <div className="lg:col-span-6">
+            {TRUST_DATA_ROWS.map((row, idx) => (
+              <div
+                key={row.key}
+                ref={(el) => {
+                  rowRefs.current[idx] = el;
+                }}
+                className="group relative w-full py-9 sm:py-10 transition-colors duration-300 hover:bg-ink-950 hover:text-bone-100 px-6 -mx-6 will-change-transform"
+              >
+                {/* 1:1 Scroll-Scrubbed 2px Ink Rule */}
+                <div
+                  ref={(el) => {
+                    ruleRefs.current[idx] = el;
+                  }}
+                  style={{ transformOrigin: "left center" }}
+                  className="absolute top-0 left-0 right-0 h-[2px] bg-ink-950 will-change-transform"
+                />
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span
+                      style={{
+                        fontSize: "var(--fs-micro)",
+                        letterSpacing: "var(--ls-micro)",
+                      }}
+                      className="font-sans font-bold text-lake-600 group-hover:text-lake-400 uppercase transition-colors"
+                    >
+                      {row.key}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-archivo, sans-serif)",
+                        fontVariationSettings: "'wdth' 68",
+                      }}
+                      className="font-black text-3xl text-ink-950 group-hover:text-bone-100 transition-colors"
+                    >
+                      {row.index}
+                    </span>
+                  </div>
+
                   <h3
                     style={{
                       fontFamily: "var(--font-archivo, sans-serif)",
-                      fontSize: "clamp(1.5rem, 2.6vw, 2.5rem)",
-                      lineHeight: 1.15,
-                      fontVariationSettings: "'wdth' 96",
+                      fontSize: "clamp(1.65rem, 2.8vw, 2.75rem)",
+                      lineHeight: 1.14,
+                      fontVariationSettings: "'wdth' 98",
                     }}
                     className="font-black uppercase tracking-tight text-ink-950 group-hover:text-bone-100 transition-colors"
                   >
                     {row.statement}
                   </h3>
-                </div>
 
-                <div className="lg:col-span-3">
-                  <p className="font-sans text-sm text-ink-950/80 group-hover:text-bone-100/80 leading-relaxed transition-colors">
+                  <p className="font-sans text-sm sm:text-base text-ink-950/85 group-hover:text-bone-100/85 leading-relaxed transition-colors">
                     {row.source}
                   </p>
                 </div>
               </div>
-            </div>
-          ))}
-          <div className="w-full h-[2px] bg-ink-950" />
+            ))}
+            <div className="w-full h-[2px] bg-ink-950" />
+          </div>
         </div>
-      </div>
-
-      {/* 4. Expanding Constructivist Eclipse Portal (Seamless Circular Transition into Chapter 5's Dark Ink Night Sky) */}
-      <div
-        aria-hidden="true"
-        className="relative w-full h-24 flex items-center justify-center pointer-events-none mt-12"
-      >
-        <div
-          ref={portalDiscRef}
-          className="w-[45vw] aspect-square rounded-full bg-ink-950 will-change-transform"
-        />
       </div>
     </section>
   );

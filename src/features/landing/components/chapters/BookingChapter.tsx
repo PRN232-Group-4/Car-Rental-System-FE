@@ -9,13 +9,11 @@ interface BookingChapterProps {
   onEnterChapter5?: (isInView: boolean) => void;
 }
 
-const DEPARTURE_WORDS = ["«ĐI", "THÔI.»"];
-
 export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps) {
   const containerRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const bgImgRef = useRef<HTMLImageElement>(null);
-  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const subRef = useRef<HTMLParagraphElement>(null);
+  const headlineRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const mistRef = useRef<HTMLDivElement>(null);
 
@@ -26,22 +24,44 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set([bgImgRef.current, subRef.current, carRef.current, mistRef.current], {
-          clearProps: "all",
-          opacity: 1,
-        });
-        wordRefs.current.forEach((w) => {
-          if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
-        });
+        gsap.set(
+          [
+            stageRef.current,
+            bgImgRef.current,
+            headlineRef.current,
+            carRef.current,
+            mistRef.current,
+          ],
+          { clearProps: "all", opacity: 1 }
+        );
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // 1. Instantaneous 1:1 Section Curtain-Iris Transition (`clipPath` expands from Warm Paper into Full-Screen Dark Night Sky as soon as Chapter 5 enters the viewport!)
+        if (stageRef.current) {
+          gsap.fromTo(
+            stageRef.current,
+            { clipPath: "inset(12% 6% 12% 6%)" },
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top 96%",
+                end: "top 18%",
+                scrub: true,
+              },
+            }
+          );
+        }
+
+        // 2. 1:1 Scroll-Scrubbed Finale Choreography (`scrub: true` = Zero Delay)
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
-            start: "top 80%",
+            start: "top 90%",
             end: "bottom bottom",
-            scrub: 0.5,
+            scrub: true,
             onEnter: () => onEnterChapter5?.(true),
             onLeaveBack: () => onEnterChapter5?.(false),
           },
@@ -50,36 +70,26 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (bgImgRef.current) {
           tl.fromTo(
             bgImgRef.current,
-            { scale: 1.16, yPercent: -10 },
+            { scale: 1.16, yPercent: -8 },
             { scale: 1.0, yPercent: 6, ease: "none" },
             0
           );
         }
 
-        const validWords = wordRefs.current.filter(Boolean);
-        if (validWords.length > 0) {
+        if (headlineRef.current) {
           tl.fromTo(
-            validWords,
-            { yPercent: 110, rotateZ: 4, opacity: 0.2 },
-            { yPercent: 0, rotateZ: 0, opacity: 1, stagger: 0.08, ease: "power2.out" },
+            headlineRef.current,
+            { xPercent: 18, opacity: 0.2 },
+            { xPercent: 0, opacity: 1, ease: "none" },
             0
-          );
-        }
-
-        if (subRef.current) {
-          tl.fromTo(
-            subRef.current,
-            { y: 24, opacity: 0.2 },
-            { y: 0, opacity: 1, ease: "none" },
-            0.1
           );
         }
 
         if (carRef.current) {
           tl.fromTo(
             carRef.current,
-            { xPercent: 18, yPercent: 6, scale: 0.88 },
-            { xPercent: -4, yPercent: -4, scale: 1.06, ease: "none" },
+            { xPercent: 20, yPercent: 8, scale: 0.86 },
+            { xPercent: -4, yPercent: -2, scale: 1.06, ease: "none" },
             0
           );
         }
@@ -87,7 +97,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (mistRef.current) {
           tl.fromTo(
             mistRef.current,
-            { xPercent: -14, opacity: 0.3 },
+            { xPercent: -15, opacity: 0.3 },
             { xPercent: 12, opacity: 0.65, ease: "none" },
             0
           );
@@ -103,139 +113,133 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
     <section
       ref={containerRef}
       id="dat-xe"
-      className="relative w-full min-h-[105svh] bg-ink-950 text-bone-100 flex flex-col justify-between pt-24 select-none overflow-hidden"
+      className="relative w-full min-h-[105svh] bg-bone-100 select-none overflow-hidden"
     >
-      {/* 1. Full-Bleed Hai Van Sunset Woodcut (`b0-backdrop` — Orange Sun on Left, Calm Dark Sky on Top-Right) */}
-      <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 5 }}>
-        <source
-          type="image/avif"
-          srcSet="/assets/landing/b0-backdrop-3840.avif 3840w, /assets/landing/b0-backdrop-2880.avif 2880w, /assets/landing/b0-backdrop-1920.avif 1920w, /assets/landing/b0-backdrop-1280.avif 1280w"
-        />
-        <source
-          type="image/webp"
-          srcSet="/assets/landing/b0-backdrop-3840.webp 3840w, /assets/landing/b0-backdrop-2880.webp 2880w, /assets/landing/b0-backdrop-1920.webp 1920w, /assets/landing/b0-backdrop-1280.webp 1280w"
-        />
-        <img
-          ref={bgImgRef}
-          src="/assets/landing/b0-backdrop-1920.webp"
-          alt="Hoàng hôn Đèo Hải Vân"
-          className="w-full h-full object-cover object-center pointer-events-none will-change-transform"
-          loading="lazy"
-          decoding="async"
-        />
-      </picture>
-
-      {/* 2. Drifting Coastal Mist */}
+      {/* Expanding Cinema Curtain Stage (Transforms from framed window on bg-bone-100 to 100% full-screen bg-ink-950) */}
       <div
-        ref={mistRef}
-        aria-hidden="true"
-        style={{ zIndex: 12, mixBlendMode: "screen", opacity: 0.45 }}
-        className="absolute inset-0 pointer-events-none will-change-transform"
+        ref={stageRef}
+        className="relative w-full min-h-[105svh] bg-ink-950 text-bone-100 flex flex-col justify-between pt-20 overflow-hidden will-change-transform"
       >
-        <img
-          src="/assets/landing/b5-mist-1920.webp"
-          alt=""
-          className="w-full h-full object-cover pointer-events-none"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
+        {/* 1. Full-Bleed Hai Van Sunset Woodcut (`b0-backdrop` — Orange Sun on Left, Dark Night Sky on Right) */}
+        <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 5 }}>
+          <source
+            type="image/avif"
+            srcSet="/assets/landing/b0-backdrop-3840.avif 3840w, /assets/landing/b0-backdrop-2880.avif 2880w, /assets/landing/b0-backdrop-1920.avif 1920w, /assets/landing/b0-backdrop-1280.avif 1280w"
+          />
+          <source
+            type="image/webp"
+            srcSet="/assets/landing/b0-backdrop-3840.webp 3840w, /assets/landing/b0-backdrop-2880.webp 2880w, /assets/landing/b0-backdrop-1920.webp 1920w, /assets/landing/b0-backdrop-1280.webp 1280w"
+          />
+          <img
+            ref={bgImgRef}
+            src="/assets/landing/b0-backdrop-1920.webp"
+            alt="Hoàng hôn Đèo Hải Vân"
+            className="w-full h-full object-cover object-center pointer-events-none will-change-transform"
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
 
-      {/* 3. Right-Aligned Kinetic Departure Headline (Placed in the Dark Night Sky on the Right so it NEVER touches the Left Sun!) */}
-      <div
-        style={{ zIndex: 30 }}
-        className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-6 sm:pt-12 flex flex-col items-end text-right pointer-events-none"
-      >
-        <h2
-          style={{
-            fontFamily: "var(--font-archivo, sans-serif)",
-            fontSize: "clamp(3.25rem, 8.2vw, 9.8rem)",
-            lineHeight: 1.15,
-            fontVariationSettings: "'wdth' 112",
-          }}
-          className="font-black uppercase tracking-tight text-bone-100 flex flex-wrap justify-end items-baseline gap-x-[0.24em] drop-shadow-2xl"
-        >
-          {DEPARTURE_WORDS.map((word, wIdx) => (
-            <span
-              key={word}
-              className="inline-block overflow-hidden pt-[0.22em] pb-[0.08em] -mt-[0.18em]"
-            >
-              <span
-                ref={(el) => {
-                  wordRefs.current[wIdx] = el;
-                }}
-                className="inline-block will-change-transform"
-              >
-                {word}
-              </span>
-            </span>
-          ))}
-        </h2>
-
-        <p
-          ref={subRef}
-          className="font-sans text-base sm:text-lg text-bone-100/95 max-w-md mt-3 leading-relaxed font-medium drop-shadow-lg will-change-transform"
-        >
-          Chọn trạm nhận xe và khung giờ khởi hành ngay tại thanh điều khiển phía dưới.
-        </p>
-      </div>
-
-      {/* 4. Cornering Lithograph Car (`b4-car`) + Solid Dark Ink Horizon Plinth & Footer */}
-      <div style={{ zIndex: 35 }} className="relative w-full mt-auto pt-20">
+        {/* 2. Drifting Coastal Mist */}
         <div
-          ref={carRef}
-          style={{
-            width: "clamp(300px, 44vw, 720px)",
-          }}
-          className="relative ml-auto mr-[6%] sm:mr-[10%] -mb-10 sm:-mb-14 z-20 pointer-events-none will-change-transform"
+          ref={mistRef}
+          aria-hidden="true"
+          style={{ zIndex: 12, mixBlendMode: "screen", opacity: 0.45 }}
+          className="absolute inset-0 pointer-events-none will-change-transform"
         >
-          <picture className="w-full block">
-            <source
-              type="image/avif"
-              srcSet="/assets/landing/b4-car-2000.avif 2000w, /assets/landing/b4-car-1920.avif 1920w, /assets/landing/b4-car-1280.avif 1280w, /assets/landing/b4-car-960.avif 960w"
-            />
-            <source
-              type="image/webp"
-              srcSet="/assets/landing/b4-car-2000.webp 2000w, /assets/landing/b4-car-1920.webp 1920w, /assets/landing/b4-car-1280.webp 1280w, /assets/landing/b4-car-960.webp 960w"
-            />
-            <img
-              src="/assets/landing/b4-car-1280.webp"
-              alt="Porsche 911 trên cung đường biển"
-              className="w-full h-auto object-contain pointer-events-none contrast-125 brightness-95"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
+          <img
+            src="/assets/landing/b5-mist-1920.webp"
+            alt=""
+            className="w-full h-full object-cover pointer-events-none"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
 
-        {/* Solid Dark Ink Horizon Plinth & Minimalist Footer matching E2E assertions */}
-        <footer className="relative z-10 w-full bg-ink-950 border-t-2 border-sun-600 px-6 sm:px-12 lg:px-20 pb-28 pt-14">
-          <div className="max-w-7xl mx-auto space-y-4 text-xs text-bone-100/60">
-            <div className="leading-relaxed border-b border-rule pb-3 text-[11px] text-bone-100/50">
-              <strong className="text-bone-100 font-medium">
-                Ghi nhận bản quyền mô hình 3D (CC BY 4.0):
-              </strong>{" "}
-              1975 Porsche 911 (930) Turbo tác quyền bởi Karol Miklas; Porsche 911 Carrera 4S (2026 Edition) tác quyền bởi Martin Trafas / 3D Automotive Design Lab. Được tích hợp và tối ưu hoá hiển thị theo giấy phép Creative Commons Attribution 4.0 International.
-            </div>
+        {/* 3. Right-Anchored Monumental Departure Headline (Locked in the Right 55% Dark Sky Zone so it NEVER touches the Left Sun!) */}
+        <div
+          ref={headlineRef}
+          style={{ zIndex: 30 }}
+          className="relative w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 pt-4 sm:pt-8 flex flex-col items-end text-right pointer-events-none will-change-transform"
+        >
+          <div className="w-full lg:w-[55%] flex flex-col items-end">
+            <h2
+              style={{
+                fontFamily: "var(--font-archivo, sans-serif)",
+                fontSize: "clamp(3.25rem, 7.8vw, 9.5rem)",
+                lineHeight: 1.15,
+                fontVariationSettings: "'wdth' 110",
+              }}
+              className="font-black uppercase tracking-tight text-bone-100 whitespace-nowrap pt-[0.16em] drop-shadow-2xl"
+            >
+              «ĐI THÔI.»
+            </h2>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-sans text-[11px] tracking-wider">
-              <span>
-                © 2026 Hệ thống cho thuê xe Thong Dong. Toàn bộ quyền được bảo lưu. · Liên hệ: support@vrs.vn
-              </span>
-              <div className="flex items-center gap-6 font-semibold">
-                <Link href="/find" className="hover:text-sun-400 transition-colors">
-                  ĐỘI XE
-                </Link>
-                <Link href="/facilities" className="hover:text-sun-400 transition-colors">
-                  CHI NHÁNH
-                </Link>
-                <Link href="/inspection" className="hover:text-sun-400 transition-colors">
-                  KIỂM ĐỊNH 3D
-                </Link>
+            <div className="w-32 sm:w-48 h-[3px] bg-sun-600 my-4" />
+
+            <p className="font-sans text-base sm:text-lg text-bone-100/95 max-w-md leading-relaxed font-medium drop-shadow-lg">
+              Chọn trạm nhận xe và khung giờ khởi hành ngay tại thanh điều khiển phía dưới.
+            </p>
+          </div>
+        </div>
+
+        {/* 4. Cornering Lithograph Car (`b4-car`) + Solid Dark Ink Horizon Plinth & Footer */}
+        <div style={{ zIndex: 35 }} className="relative w-full mt-auto pt-20">
+          <div
+            ref={carRef}
+            style={{
+              width: "clamp(320px, 46vw, 760px)",
+            }}
+            className="relative ml-auto mr-[6%] sm:mr-[10%] -mb-10 sm:-mb-14 z-20 pointer-events-none will-change-transform"
+          >
+            <picture className="w-full block">
+              <source
+                type="image/avif"
+                srcSet="/assets/landing/b4-car-2000.avif 2000w, /assets/landing/b4-car-1920.avif 1920w, /assets/landing/b4-car-1280.avif 1280w, /assets/landing/b4-car-960.avif 960w"
+              />
+              <source
+                type="image/webp"
+                srcSet="/assets/landing/b4-car-2000.webp 2000w, /assets/landing/b4-car-1920.webp 1920w, /assets/landing/b4-car-1280.webp 1280w, /assets/landing/b4-car-960.webp 960w"
+              />
+              <img
+                src="/assets/landing/b4-car-1280.webp"
+                alt="Porsche 911 trên cung đường biển"
+                className="w-full h-auto object-contain pointer-events-none contrast-125 brightness-95 drop-shadow-2xl"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          </div>
+
+          {/* Solid Dark Ink Horizon Plinth & Minimalist Footer matching E2E assertions */}
+          <footer className="relative z-10 w-full bg-ink-950 border-t-4 border-sun-600 px-6 sm:px-12 lg:px-20 pb-28 pt-14">
+            <div className="max-w-[1640px] mx-auto space-y-4 text-xs text-bone-100/60">
+              <div className="leading-relaxed border-b border-rule pb-3 text-[11px] text-bone-100/50">
+                <strong className="text-bone-100 font-medium">
+                  Ghi nhận bản quyền mô hình 3D (CC BY 4.0):
+                </strong>{" "}
+                1975 Porsche 911 (930) Turbo tác quyền bởi Karol Miklas; Porsche 911 Carrera 4S (2026 Edition) tác quyền bởi Martin Trafas / 3D Automotive Design Lab. Được tích hợp và tối ưu hoá hiển thị theo giấy phép Creative Commons Attribution 4.0 International.
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-sans text-[11px] tracking-wider">
+                <span>
+                  © 2026 Hệ thống cho thuê xe Thong Dong. Toàn bộ quyền được bảo lưu. · Liên hệ: support@vrs.vn
+                </span>
+                <div className="flex items-center gap-6 font-semibold">
+                  <Link href="/find" className="hover:text-sun-400 transition-colors">
+                    ĐỘI XE
+                  </Link>
+                  <Link href="/facilities" className="hover:text-sun-400 transition-colors">
+                    CHI NHÁNH
+                  </Link>
+                  <Link href="/inspection" className="hover:text-sun-400 transition-colors">
+                    KIỂM ĐỊNH 3D
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
     </section>
   );
