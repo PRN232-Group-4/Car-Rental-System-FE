@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-02T07:11:30.059Z",
+  "generatedAt": "2026-11-02T15:02:06.207Z",
   "totalLayers": 15,
-  "missingCount": 15,
+  "missingCount": 3,
   "layers": [
     {
       "id": "a0-sky",
@@ -19,8 +19,34 @@
         "widthPct": 100,
         "heightPct": 100
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a0-sky-640.webp",
+          "avif": "/assets/landing/a0-sky-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a0-sky-960.webp",
+          "avif": "/assets/landing/a0-sky-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a0-sky-1280.webp",
+          "avif": "/assets/landing/a0-sky-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a0-sky-1920.webp",
+          "avif": "/assets/landing/a0-sky-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/a0-sky-2880.webp",
+          "avif": "/assets/landing/a0-sky-2880.avif"
+        }
+      ]
     },
     {
       "id": "a1-sun",
@@ -32,13 +58,34 @@
       "loading": "eager",
       "maxWidth": 1800,
       "placement": {
-        "topPct": 18,
-        "leftPct": 35,
-        "widthPct": 30,
-        "heightPct": 30
+        "leftPct": 48.85,
+        "topPct": 3.84,
+        "widthPct": 43.44,
+        "heightPct": 38.52
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a1-sun-640.webp",
+          "avif": "/assets/landing/a1-sun-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a1-sun-960.webp",
+          "avif": "/assets/landing/a1-sun-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a1-sun-1280.webp",
+          "avif": "/assets/landing/a1-sun-1280.avif"
+        },
+        {
+          "width": 1668,
+          "webp": "/assets/landing/a1-sun-1668.webp",
+          "avif": "/assets/landing/a1-sun-1668.avif"
+        }
+      ]
     },
     {
       "id": "a2-far-mountains",
@@ -50,13 +97,44 @@
       "loading": "eager",
       "maxWidth": 3840,
       "placement": {
-        "topPct": 36,
-        "leftPct": 0,
-        "widthPct": 100,
-        "heightPct": 28
+        "leftPct": 0.44,
+        "topPct": 33.6,
+        "widthPct": 99.27,
+        "heightPct": 36.93
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a2-far-mountains-640.webp",
+          "avif": "/assets/landing/a2-far-mountains-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a2-far-mountains-960.webp",
+          "avif": "/assets/landing/a2-far-mountains-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a2-far-mountains-1280.webp",
+          "avif": "/assets/landing/a2-far-mountains-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a2-far-mountains-1920.webp",
+          "avif": "/assets/landing/a2-far-mountains-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/a2-far-mountains-2880.webp",
+          "avif": "/assets/landing/a2-far-mountains-2880.avif"
+        },
+        {
+          "width": 3812,
+          "webp": "/assets/landing/a2-far-mountains-3812.webp",
+          "avif": "/assets/landing/a2-far-mountains-3812.avif"
+        }
+      ]
     },
     {
       "id": "a3-mid-pines",
@@ -68,13 +146,44 @@
       "loading": "eager",
       "maxWidth": 3840,
       "placement": {
-        "topPct": 44,
         "leftPct": 0,
+        "topPct": 26.7,
         "widthPct": 100,
-        "heightPct": 30
+        "heightPct": 57.57
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a3-mid-pines-640.webp",
+          "avif": "/assets/landing/a3-mid-pines-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a3-mid-pines-960.webp",
+          "avif": "/assets/landing/a3-mid-pines-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a3-mid-pines-1280.webp",
+          "avif": "/assets/landing/a3-mid-pines-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a3-mid-pines-1920.webp",
+          "avif": "/assets/landing/a3-mid-pines-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/a3-mid-pines-2880.webp",
+          "avif": "/assets/landing/a3-mid-pines-2880.avif"
+        },
+        {
+          "width": 3840,
+          "webp": "/assets/landing/a3-mid-pines-3840.webp",
+          "avif": "/assets/landing/a3-mid-pines-3840.avif"
+        }
+      ]
     },
     {
       "id": "a4-road",
@@ -86,13 +195,39 @@
       "loading": "lazy",
       "maxWidth": 3840,
       "placement": {
-        "topPct": 58,
-        "leftPct": 0,
-        "widthPct": 100,
-        "heightPct": 42
+        "leftPct": 8.72,
+        "topPct": 75.56,
+        "widthPct": 73.65,
+        "heightPct": 24.4
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a4-road-640.webp",
+          "avif": "/assets/landing/a4-road-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a4-road-960.webp",
+          "avif": "/assets/landing/a4-road-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a4-road-1280.webp",
+          "avif": "/assets/landing/a4-road-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a4-road-1920.webp",
+          "avif": "/assets/landing/a4-road-1920.avif"
+        },
+        {
+          "width": 2828,
+          "webp": "/assets/landing/a4-road-2828.webp",
+          "avif": "/assets/landing/a4-road-2828.avif"
+        }
+      ]
     },
     {
       "id": "a4-car",
@@ -104,13 +239,39 @@
       "loading": "lazy",
       "maxWidth": 2000,
       "placement": {
-        "topPct": 50,
-        "leftPct": 30,
-        "widthPct": 40,
-        "heightPct": 28
+        "leftPct": 2.92,
+        "topPct": 17.95,
+        "widthPct": 91.22,
+        "heightPct": 70.38
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a4-car-640.webp",
+          "avif": "/assets/landing/a4-car-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a4-car-960.webp",
+          "avif": "/assets/landing/a4-car-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a4-car-1280.webp",
+          "avif": "/assets/landing/a4-car-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a4-car-1920.webp",
+          "avif": "/assets/landing/a4-car-1920.avif"
+        },
+        {
+          "width": 2000,
+          "webp": "/assets/landing/a4-car-2000.webp",
+          "avif": "/assets/landing/a4-car-2000.avif"
+        }
+      ]
     },
     {
       "id": "a5-mist",
@@ -122,13 +283,39 @@
       "loading": "lazy",
       "maxWidth": 2880,
       "placement": {
-        "topPct": 60,
         "leftPct": 0,
+        "topPct": 24.99,
         "widthPct": 100,
-        "heightPct": 30
+        "heightPct": 50.02
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a5-mist-640.webp",
+          "avif": "/assets/landing/a5-mist-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a5-mist-960.webp",
+          "avif": "/assets/landing/a5-mist-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a5-mist-1280.webp",
+          "avif": "/assets/landing/a5-mist-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a5-mist-1920.webp",
+          "avif": "/assets/landing/a5-mist-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/a5-mist-2880.webp",
+          "avif": "/assets/landing/a5-mist-2880.avif"
+        }
+      ]
     },
     {
       "id": "a6-fg-branch",
@@ -140,13 +327,34 @@
       "loading": "lazy",
       "maxWidth": 1600,
       "placement": {
-        "topPct": 65,
-        "leftPct": 65,
-        "widthPct": 35,
-        "heightPct": 35
+        "leftPct": 14.61,
+        "topPct": 35.35,
+        "widthPct": 85.39,
+        "heightPct": 60.02
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a6-fg-branch-640.webp",
+          "avif": "/assets/landing/a6-fg-branch-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a6-fg-branch-960.webp",
+          "avif": "/assets/landing/a6-fg-branch-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a6-fg-branch-1280.webp",
+          "avif": "/assets/landing/a6-fg-branch-1280.avif"
+        },
+        {
+          "width": 1600,
+          "webp": "/assets/landing/a6-fg-branch-1600.webp",
+          "avif": "/assets/landing/a6-fg-branch-1600.avif"
+        }
+      ]
     },
     {
       "id": "a7-dust",
@@ -158,13 +366,39 @@
       "loading": "lazy",
       "maxWidth": 2880,
       "placement": {
-        "topPct": 0,
-        "leftPct": 0,
-        "widthPct": 100,
-        "heightPct": 100
+        "leftPct": 0.47,
+        "topPct": 0.23,
+        "widthPct": 99.51,
+        "heightPct": 98.94
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/a7-dust-640.webp",
+          "avif": "/assets/landing/a7-dust-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/a7-dust-960.webp",
+          "avif": "/assets/landing/a7-dust-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/a7-dust-1280.webp",
+          "avif": "/assets/landing/a7-dust-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/a7-dust-1920.webp",
+          "avif": "/assets/landing/a7-dust-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/a7-dust-2880.webp",
+          "avif": "/assets/landing/a7-dust-2880.avif"
+        }
+      ]
     },
     {
       "id": "b0-backdrop",
@@ -181,8 +415,39 @@
         "widthPct": 100,
         "heightPct": 100
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/b0-backdrop-640.webp",
+          "avif": "/assets/landing/b0-backdrop-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/b0-backdrop-960.webp",
+          "avif": "/assets/landing/b0-backdrop-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/b0-backdrop-1280.webp",
+          "avif": "/assets/landing/b0-backdrop-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/b0-backdrop-1920.webp",
+          "avif": "/assets/landing/b0-backdrop-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/b0-backdrop-2880.webp",
+          "avif": "/assets/landing/b0-backdrop-2880.avif"
+        },
+        {
+          "width": 3840,
+          "webp": "/assets/landing/b0-backdrop-3840.webp",
+          "avif": "/assets/landing/b0-backdrop-3840.avif"
+        }
+      ]
     },
     {
       "id": "b3-cliff-road",
@@ -212,13 +477,39 @@
       "loading": "lazy",
       "maxWidth": 2000,
       "placement": {
-        "topPct": 52,
-        "leftPct": 32,
-        "widthPct": 36,
-        "heightPct": 26
+        "leftPct": 4.82,
+        "topPct": 19.76,
+        "widthPct": 90.34,
+        "heightPct": 64.88
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/b4-car-640.webp",
+          "avif": "/assets/landing/b4-car-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/b4-car-960.webp",
+          "avif": "/assets/landing/b4-car-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/b4-car-1280.webp",
+          "avif": "/assets/landing/b4-car-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/b4-car-1920.webp",
+          "avif": "/assets/landing/b4-car-1920.avif"
+        },
+        {
+          "width": 2000,
+          "webp": "/assets/landing/b4-car-2000.webp",
+          "avif": "/assets/landing/b4-car-2000.avif"
+        }
+      ]
     },
     {
       "id": "b5-mist",
@@ -230,13 +521,39 @@
       "loading": "lazy",
       "maxWidth": 2880,
       "placement": {
-        "topPct": 50,
         "leftPct": 0,
+        "topPct": 24.99,
         "widthPct": 100,
-        "heightPct": 40
+        "heightPct": 50.02
       },
-      "isPlaceholder": true,
-      "variants": []
+      "isPlaceholder": false,
+      "variants": [
+        {
+          "width": 640,
+          "webp": "/assets/landing/b5-mist-640.webp",
+          "avif": "/assets/landing/b5-mist-640.avif"
+        },
+        {
+          "width": 960,
+          "webp": "/assets/landing/b5-mist-960.webp",
+          "avif": "/assets/landing/b5-mist-960.avif"
+        },
+        {
+          "width": 1280,
+          "webp": "/assets/landing/b5-mist-1280.webp",
+          "avif": "/assets/landing/b5-mist-1280.avif"
+        },
+        {
+          "width": 1920,
+          "webp": "/assets/landing/b5-mist-1920.webp",
+          "avif": "/assets/landing/b5-mist-1920.avif"
+        },
+        {
+          "width": 2880,
+          "webp": "/assets/landing/b5-mist-2880.webp",
+          "avif": "/assets/landing/b5-mist-2880.avif"
+        }
+      ]
     },
     {
       "id": "b6-fg-rocks",

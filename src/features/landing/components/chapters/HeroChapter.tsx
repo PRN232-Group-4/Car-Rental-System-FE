@@ -107,7 +107,7 @@ export default function HeroChapter() {
     <section
       ref={containerRef}
       id="gioi-thieu"
-      className="relative w-full min-h-[100svh] bg-ink-950 text-bone-100 overflow-hidden flex flex-col justify-between select-none"
+      className="relative w-full h-[100svh] min-h-[100svh] bg-ink-950 text-bone-100 overflow-hidden flex flex-col justify-between select-none"
     >
       {/* Multi-plane Layered Illustration Stack (Bản 3.2 Cảnh A) */}
       <SceneLayerStack

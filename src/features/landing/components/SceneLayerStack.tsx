@@ -51,10 +51,12 @@ export default function SceneLayerStack({
     (l) => l.scene === scene
   );
 
+  const containerClasses = className
+    ? `overflow-hidden select-none ${className}`
+    : "relative w-full h-full overflow-hidden select-none";
+
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden select-none ${className}`}
-    >
+    <div className={containerClasses}>
       {layers.map((layer) => {
         const customRef = layerRefs ? layerRefs[layer.id] : undefined;
         const { topPct, leftPct, widthPct, heightPct } = layer.placement;

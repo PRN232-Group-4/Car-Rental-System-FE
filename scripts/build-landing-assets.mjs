@@ -35,7 +35,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'eager',
     maxWidth: 1800,
-    placement: { topPct: 18, leftPct: 35, widthPct: 30, heightPct: 30 },
+    placement: { topPct: 3.84, leftPct: 48.85, widthPct: 43.44, heightPct: 38.52 },
   },
   {
     id: 'a2-far-mountains',
@@ -46,7 +46,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'eager',
     maxWidth: 3840,
-    placement: { topPct: 36, leftPct: 0, widthPct: 100, heightPct: 28 },
+    placement: { topPct: 33.6, leftPct: 0.44, widthPct: 99.27, heightPct: 36.93 },
   },
   {
     id: 'a3-mid-pines',
@@ -57,7 +57,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'eager',
     maxWidth: 3840,
-    placement: { topPct: 44, leftPct: 0, widthPct: 100, heightPct: 30 },
+    placement: { topPct: 26.7, leftPct: 0, widthPct: 100, heightPct: 57.57 },
   },
   {
     id: 'a4-road',
@@ -68,7 +68,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'lazy',
     maxWidth: 3840,
-    placement: { topPct: 58, leftPct: 0, widthPct: 100, heightPct: 42 },
+    placement: { topPct: 75.56, leftPct: 8.72, widthPct: 73.65, heightPct: 24.40 },
   },
   {
     id: 'a4-car',
@@ -79,7 +79,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'lazy',
     maxWidth: 2000,
-    placement: { topPct: 50, leftPct: 30, widthPct: 40, heightPct: 28 },
+    placement: { topPct: 17.95, leftPct: 2.92, widthPct: 91.22, heightPct: 70.38 },
   },
   {
     id: 'a5-mist',
@@ -90,7 +90,7 @@ export const LAYER_SPECS = [
     blend: 'screen',
     loading: 'lazy',
     maxWidth: 2880,
-    placement: { topPct: 60, leftPct: 0, widthPct: 100, heightPct: 30 },
+    placement: { topPct: 24.99, leftPct: 0, widthPct: 100, heightPct: 50.02 },
   },
   {
     id: 'a6-fg-branch',
@@ -101,7 +101,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'lazy',
     maxWidth: 1600,
-    placement: { topPct: 65, leftPct: 65, widthPct: 35, heightPct: 35 },
+    placement: { topPct: 35.35, leftPct: 14.61, widthPct: 85.39, heightPct: 60.02 },
   },
   {
     id: 'a7-dust',
@@ -112,7 +112,7 @@ export const LAYER_SPECS = [
     blend: 'screen',
     loading: 'lazy',
     maxWidth: 2880,
-    placement: { topPct: 0, leftPct: 0, widthPct: 100, heightPct: 100 },
+    placement: { topPct: 0.23, leftPct: 0.47, widthPct: 99.51, heightPct: 98.94 },
   },
 
   // Scene B (Chapters 2 & 3)
@@ -147,7 +147,7 @@ export const LAYER_SPECS = [
     blend: 'normal',
     loading: 'lazy',
     maxWidth: 2000,
-    placement: { topPct: 52, leftPct: 32, widthPct: 36, heightPct: 26 },
+    placement: { topPct: 19.76, leftPct: 4.82, widthPct: 90.34, heightPct: 64.88 },
   },
   {
     id: 'b5-mist',
@@ -158,7 +158,7 @@ export const LAYER_SPECS = [
     blend: 'screen',
     loading: 'lazy',
     maxWidth: 2880,
-    placement: { topPct: 50, leftPct: 0, widthPct: 100, heightPct: 40 },
+    placement: { topPct: 24.99, leftPct: 0, widthPct: 100, heightPct: 50.02 },
   },
   {
     id: 'b6-fg-rocks',
@@ -186,7 +186,7 @@ export const LAYER_SPECS = [
   },
 ];
 
-const TARGET_WIDTHS = [1280, 1920, 2880, 3840];
+const STANDARD_WIDTHS = [640, 960, 1280, 1920, 2880, 3840];
 
 async function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -212,15 +212,17 @@ async function processLayer(spec) {
   const origH = metadata.height || 2160;
 
   let placement = { ...spec.placement };
+  let sourceBuffer = masterFile;
+  let sourceWidth = origW;
 
-  // For alpha layers, compute bounding box to trim and record placement
-  if (spec.blend !== 'screen' && spec.id !== 'a0-sky' && spec.id !== 'b0-backdrop') {
+  // For alpha layers, trim transparent padding and compute precise bounding box
+  if (spec.id !== 'a0-sky' && spec.id !== 'b0-backdrop') {
     try {
       const trimmedInfo = await sharp(masterFile)
         .trim()
         .toBuffer({ resolveWithObject: true });
 
-      if (trimmedInfo.info.trimOffsetLeft !== undefined) {
+      if (trimmedInfo.info.trimOffsetLeft !== undefined && trimmedInfo.info.width > 0) {
         const left = -trimmedInfo.info.trimOffsetLeft;
         const top = -trimmedInfo.info.trimOffsetTop;
         const width = trimmedInfo.info.width;
@@ -232,6 +234,9 @@ async function processLayer(spec) {
           widthPct: Number(((width / origW) * 100).toFixed(2)),
           heightPct: Number(((height / origH) * 100).toFixed(2)),
         };
+
+        sourceBuffer = trimmedInfo.data;
+        sourceWidth = width;
       }
     } catch {
       // Fallback to spec.placement if trim info fails
@@ -239,21 +244,28 @@ async function processLayer(spec) {
   }
 
   // Generate responsive variants up to spec.maxWidth
-  const variants = [];
-  const validWidths = TARGET_WIDTHS.filter((w) => w <= spec.maxWidth || w === 1280);
+  const targetMax = Math.min(sourceWidth, spec.maxWidth);
+  const variantWidths = Array.from(
+    new Set([
+      ...STANDARD_WIDTHS.filter((w) => w < targetMax),
+      targetMax,
+    ])
+  ).sort((a, b) => a - b);
 
-  for (const w of validWidths) {
+  const variants = [];
+
+  for (const w of variantWidths) {
     const webpName = `${spec.id}-${w}.webp`;
     const avifName = `${spec.id}-${w}.avif`;
     const webpPath = path.join(outDir, webpName);
     const avifPath = path.join(outDir, avifName);
 
-    await sharp(masterFile)
+    await sharp(sourceBuffer)
       .resize({ width: w, withoutEnlargement: true })
       .webp({ quality: 82, effort: 4 })
       .toFile(webpPath);
 
-    await sharp(masterFile)
+    await sharp(sourceBuffer)
       .resize({ width: w, withoutEnlargement: true })
       .avif({ quality: 75, effort: 4 })
       .toFile(avifPath);
@@ -287,6 +299,14 @@ async function buildCompositeBackdrop() {
     await sharp(compositeBuffer).webp({ quality: 80 }).toFile(path.join(outDir, 'a0m-backdrop-1920.webp'));
     await sharp(compositeBuffer).avif({ quality: 75 }).toFile(path.join(outDir, 'a0m-backdrop-1920.avif'));
   }
+
+  const b0 = path.join(srcDir, 'b0-backdrop.png');
+  if (fs.existsSync(b0)) {
+    console.log('Generating b0m-backdrop.webp/avif (1920x1080) for mobile/reduced-motion...');
+    const b0Buffer = await sharp(b0).resize(1920, 1080).toBuffer();
+    await sharp(b0Buffer).webp({ quality: 80 }).toFile(path.join(outDir, 'b0m-backdrop-1920.webp'));
+    await sharp(b0Buffer).avif({ quality: 75 }).toFile(path.join(outDir, 'b0m-backdrop-1920.avif'));
+  }
 }
 
 async function main() {
@@ -307,7 +327,9 @@ async function main() {
       missingCount += 1;
       console.log(`- [CHƯA CÓ MASTER] ${spec.file} -> Ghi nhận Placeholder: [THIẾU ASSET: ${spec.file}]`);
     } else {
-      console.log(`- [ĐÃ XỬ LÝ] ${spec.file} -> Sinh ${result.variants.length} biến thể AVIF/WebP`);
+      console.log(
+        `- [ĐÃ XỬ LÝ] ${spec.file} -> BoundingBox: ${result.placement.widthPct}%×${result.placement.heightPct}% @ (${result.placement.leftPct}%, ${result.placement.topPct}%) | Sinh ${result.variants.length} biến thể`
+      );
     }
   }
 
