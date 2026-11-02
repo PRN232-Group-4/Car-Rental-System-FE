@@ -9,10 +9,13 @@ interface BookingChapterProps {
   onEnterChapter5?: (isInView: boolean) => void;
 }
 
+const DEPARTURE_WORDS = ["«ĐI", "THÔI.»"];
+
 export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps) {
   const containerRef = useRef<HTMLElement>(null);
   const bgImgRef = useRef<HTMLImageElement>(null);
-  const headlineRef = useRef<HTMLDivElement>(null);
+  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const subRef = useRef<HTMLParagraphElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const mistRef = useRef<HTMLDivElement>(null);
 
@@ -23,10 +26,13 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set(
-          [bgImgRef.current, headlineRef.current, carRef.current, mistRef.current],
-          { clearProps: "all", opacity: 1 }
-        );
+        gsap.set([bgImgRef.current, subRef.current, carRef.current, mistRef.current], {
+          clearProps: "all",
+          opacity: 1,
+        });
+        wordRefs.current.forEach((w) => {
+          if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
+        });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -44,26 +50,36 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (bgImgRef.current) {
           tl.fromTo(
             bgImgRef.current,
-            { scale: 1.15, yPercent: -10 },
+            { scale: 1.16, yPercent: -10 },
             { scale: 1.0, yPercent: 6, ease: "none" },
             0
           );
         }
 
-        if (headlineRef.current) {
+        const validWords = wordRefs.current.filter(Boolean);
+        if (validWords.length > 0) {
           tl.fromTo(
-            headlineRef.current,
-            { xPercent: 10, yPercent: 20, opacity: 0.3 },
-            { xPercent: 0, yPercent: 0, opacity: 1, ease: "none" },
+            validWords,
+            { yPercent: 110, rotateZ: 4, opacity: 0.2 },
+            { yPercent: 0, rotateZ: 0, opacity: 1, stagger: 0.08, ease: "power2.out" },
             0
+          );
+        }
+
+        if (subRef.current) {
+          tl.fromTo(
+            subRef.current,
+            { y: 24, opacity: 0.2 },
+            { y: 0, opacity: 1, ease: "none" },
+            0.1
           );
         }
 
         if (carRef.current) {
           tl.fromTo(
             carRef.current,
-            { xPercent: 16, yPercent: 6, scale: 0.88 },
-            { xPercent: -4, yPercent: -4, scale: 1.05, ease: "none" },
+            { xPercent: 18, yPercent: 6, scale: 0.88 },
+            { xPercent: -4, yPercent: -4, scale: 1.06, ease: "none" },
             0
           );
         }
@@ -71,7 +87,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (mistRef.current) {
           tl.fromTo(
             mistRef.current,
-            { xPercent: -12, opacity: 0.3 },
+            { xPercent: -14, opacity: 0.3 },
             { xPercent: 12, opacity: 0.65, ease: "none" },
             0
           );
@@ -89,7 +105,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       id="dat-xe"
       className="relative w-full min-h-[105svh] bg-ink-950 text-bone-100 flex flex-col justify-between pt-24 select-none overflow-hidden"
     >
-      {/* 1. Full-Bleed Hai Van Sunset Woodcut (`b0-backdrop` at 100% rich opacity — Uses ONLY the authentic woodcut sun on the left, ZERO duplicate CSS sun!) */}
+      {/* 1. Full-Bleed Hai Van Sunset Woodcut (`b0-backdrop` — Orange Sun on Left, Calm Dark Sky on Top-Right) */}
       <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 5 }}>
         <source
           type="image/avif"
@@ -125,31 +141,47 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         />
       </div>
 
-      {/* 3. Unboxed Single-Line Departure Headline in the Calm Upper-Right Night Sky (Counter-balancing the Orange Sun on the Left) */}
+      {/* 3. Right-Aligned Kinetic Departure Headline (Placed in the Dark Night Sky on the Right so it NEVER touches the Left Sun!) */}
       <div
-        ref={headlineRef}
         style={{ zIndex: 30 }}
-        className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-8 sm:pt-14 flex flex-col items-start lg:items-end text-left lg:text-right pointer-events-none will-change-transform"
+        className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 pt-6 sm:pt-12 flex flex-col items-end text-right pointer-events-none"
       >
         <h2
           style={{
             fontFamily: "var(--font-archivo, sans-serif)",
-            fontSize: "clamp(3.25rem, 8.5vw, 10rem)",
-            lineHeight: 0.92,
-            fontVariationSettings: "'wdth' 115",
+            fontSize: "clamp(3.25rem, 8.2vw, 9.8rem)",
+            lineHeight: 1.15,
+            fontVariationSettings: "'wdth' 112",
           }}
-          className="font-black uppercase tracking-tight text-bone-100 whitespace-nowrap drop-shadow-2xl"
+          className="font-black uppercase tracking-tight text-bone-100 flex flex-wrap justify-end items-baseline gap-x-[0.24em] drop-shadow-2xl"
         >
-          «ĐI THÔI.»
+          {DEPARTURE_WORDS.map((word, wIdx) => (
+            <span
+              key={word}
+              className="inline-block overflow-hidden pt-[0.22em] pb-[0.08em] -mt-[0.18em]"
+            >
+              <span
+                ref={(el) => {
+                  wordRefs.current[wIdx] = el;
+                }}
+                className="inline-block will-change-transform"
+              >
+                {word}
+              </span>
+            </span>
+          ))}
         </h2>
 
-        <p className="font-sans text-base sm:text-lg text-bone-100/90 max-w-md mt-4 leading-relaxed font-medium drop-shadow-lg">
+        <p
+          ref={subRef}
+          className="font-sans text-base sm:text-lg text-bone-100/95 max-w-md mt-3 leading-relaxed font-medium drop-shadow-lg will-change-transform"
+        >
           Chọn trạm nhận xe và khung giờ khởi hành ngay tại thanh điều khiển phía dưới.
         </p>
       </div>
 
-      {/* 4. Cornering Lithograph Car (`b4-car`) + Minimalist Footer Plinth */}
-      <div style={{ zIndex: 35 }} className="relative w-full mt-auto pt-24">
+      {/* 4. Cornering Lithograph Car (`b4-car`) + Solid Dark Ink Horizon Plinth & Footer */}
+      <div style={{ zIndex: 35 }} className="relative w-full mt-auto pt-20">
         <div
           ref={carRef}
           style={{
@@ -177,7 +209,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         </div>
 
         {/* Solid Dark Ink Horizon Plinth & Minimalist Footer matching E2E assertions */}
-        <footer className="relative z-10 w-full bg-ink-950 border-t border-bone-100/20 px-6 sm:px-12 lg:px-20 pb-28 pt-14">
+        <footer className="relative z-10 w-full bg-ink-950 border-t-2 border-sun-600 px-6 sm:px-12 lg:px-20 pb-28 pt-14">
           <div className="max-w-7xl mx-auto space-y-4 text-xs text-bone-100/60">
             <div className="leading-relaxed border-b border-rule pb-3 text-[11px] text-bone-100/50">
               <strong className="text-bone-100 font-medium">
