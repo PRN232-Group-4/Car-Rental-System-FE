@@ -12,10 +12,10 @@ export default function HeroChapter() {
   const line2WrapRef = useRef<HTMLDivElement>(null);
   const headingLine1Ref = useRef<HTMLSpanElement>(null);
   const headingLine2Ref = useRef<HTMLSpanElement>(null);
-  const stripeRef = useRef<HTMLDivElement>(null);
+  const leadRef = useRef<HTMLParagraphElement>(null);
   const mistRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
-  const manifestoCardRef = useRef<HTMLDivElement>(null);
+  const branchRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -28,64 +28,65 @@ export default function HeroChapter() {
           [
             headingLine1Ref.current,
             headingLine2Ref.current,
+            leadRef.current,
             carRef.current,
+            branchRef.current,
             bgImgRef.current,
-            manifestoCardRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Entrance Choreography
-        const introTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        // 1. Multi-Plane Entrance Choreography
+        const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
         if (bgImgRef.current) {
           introTl.fromTo(
             bgImgRef.current,
-            { scale: 1.12, opacity: 0 },
-            { scale: 1.02, opacity: 1, duration: 1.4, ease: "power2.out" },
+            { scale: 1.15, opacity: 0 },
+            { scale: 1.02, opacity: 1, duration: 1.6, ease: "power3.out" },
             0
-          );
-        }
-
-        if (stripeRef.current) {
-          introTl.fromTo(
-            stripeRef.current,
-            { scaleY: 0 },
-            { scaleY: 1, duration: 1.1, ease: "expo.inOut" },
-            0.1
           );
         }
 
         if (headingLine1Ref.current && headingLine2Ref.current) {
           introTl.fromTo(
             [headingLine1Ref.current, headingLine2Ref.current],
-            { yPercent: 105, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 1.1, stagger: 0.14, ease: "expo.out" },
-            0.2
+            { yPercent: 110, opacity: 0 },
+            { yPercent: 0, opacity: 1, duration: 1.25, stagger: 0.14 },
+            0.15
+          );
+        }
+
+        if (leadRef.current) {
+          introTl.fromTo(
+            leadRef.current,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1.0 },
+            0.4
           );
         }
 
         if (carRef.current) {
           introTl.fromTo(
             carRef.current,
-            { xPercent: 12, yPercent: 6, scale: 0.92, opacity: 0 },
-            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.25, ease: "expo.out" },
-            0.3
+            { xPercent: 14, yPercent: 8, scale: 0.9, opacity: 0 },
+            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.4 },
+            0.25
           );
         }
 
-        if (manifestoCardRef.current) {
+        if (branchRef.current) {
           introTl.fromTo(
-            manifestoCardRef.current,
-            { y: 24, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.9 },
-            0.45
+            branchRef.current,
+            { xPercent: 18, yPercent: 12, opacity: 0 },
+            { xPercent: 0, yPercent: 0, opacity: 1, duration: 1.5 },
+            0.35
           );
         }
 
-        // 2. Continuous Scroll-Driven Parallax (Zero Empty Black Spacer Gap)
+        // 2. Deep Multi-Layer Scroll Parallax Scrub (5 distinct depth speeds)
         const scrollTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -96,40 +97,54 @@ export default function HeroChapter() {
         });
 
         if (bgImgRef.current) {
-          scrollTl.to(bgImgRef.current, { yPercent: 18, scale: 1.14, ease: "none" }, 0);
+          scrollTl.to(bgImgRef.current, { yPercent: 20, scale: 1.16, ease: "none" }, 0);
         }
         if (line1WrapRef.current) {
-          scrollTl.to(line1WrapRef.current, { xPercent: -10, yPercent: -25, ease: "none" }, 0);
+          scrollTl.to(line1WrapRef.current, { xPercent: -14, yPercent: -28, ease: "none" }, 0);
         }
         if (line2WrapRef.current) {
-          scrollTl.to(line2WrapRef.current, { xPercent: 10, yPercent: -15, ease: "none" }, 0);
+          scrollTl.to(line2WrapRef.current, { xPercent: 14, yPercent: -18, ease: "none" }, 0);
+        }
+        if (leadRef.current) {
+          scrollTl.to(leadRef.current, { yPercent: -35, opacity: 0, ease: "none" }, 0);
         }
         if (mistRef.current) {
-          scrollTl.to(mistRef.current, { xPercent: -12, yPercent: 8, opacity: 0.7, ease: "none" }, 0);
+          scrollTl.to(mistRef.current, { xPercent: -16, yPercent: -10, opacity: 0.75, ease: "none" }, 0);
         }
         if (carRef.current) {
           scrollTl.to(
             carRef.current,
-            { xPercent: -8, yPercent: -12, scale: 1.08, ease: "none" },
+            { xPercent: -10, yPercent: -16, scale: 1.1, ease: "none" },
+            0
+          );
+        }
+        if (branchRef.current) {
+          scrollTl.to(
+            branchRef.current,
+            { xPercent: 8, yPercent: -34, scale: 1.14, ease: "none" },
             0
           );
         }
 
-        // 3. Interactive Mouse Depth Parallax
+        // 3. Interactive Pointer Parallax (3D Depth Response on Mouse Move)
         const el = containerRef.current;
         if (el && window.matchMedia("(pointer: fine)").matches) {
+          const xBg = gsap.quickTo(bgImgRef.current, "x", { duration: 1.2, ease: "power3.out" });
+          const yBg = gsap.quickTo(bgImgRef.current, "y", { duration: 1.2, ease: "power3.out" });
           const xCar = gsap.quickTo(carRef.current, "x", { duration: 0.8, ease: "power3.out" });
           const yCar = gsap.quickTo(carRef.current, "y", { duration: 0.8, ease: "power3.out" });
-          const xBg = gsap.quickTo(bgImgRef.current, "x", { duration: 1.2, ease: "power3.out" });
-          const xMist = gsap.quickTo(mistRef.current, "x", { duration: 1.0, ease: "power3.out" });
+          const xBranch = gsap.quickTo(branchRef.current, "x", { duration: 0.6, ease: "power3.out" });
+          const yBranch = gsap.quickTo(branchRef.current, "y", { duration: 0.6, ease: "power3.out" });
 
           const onMove = (e: MouseEvent) => {
             const nx = (e.clientX / window.innerWidth - 0.5) * 2;
             const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-            xCar(nx * -24);
+            xBg(nx * 10);
+            yBg(ny * 6);
+            xCar(nx * -22);
             yCar(ny * -10);
-            xBg(nx * 12);
-            xMist(nx * -16);
+            xBranch(nx * -38);
+            yBranch(ny * -18);
           };
 
           el.addEventListener("mousemove", onMove, { passive: true });
@@ -146,9 +161,9 @@ export default function HeroChapter() {
     <section
       ref={containerRef}
       id="gioi-thieu"
-      className="relative w-full h-[100svh] min-h-[760px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-4 sm:px-8 lg:px-14 pt-20 pb-24 border-b border-bone-100/20"
+      className="relative w-full h-[105svh] min-h-[760px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-24 pb-24"
     >
-      {/* 1. Full-Viewport Woodcut Da Lat Landscape (Uses the authentic woodcut sun inside the artwork — NO duplicate CSS sun) */}
+      {/* Layer 1 (z-10): Full-Bleed Da Lat Dawn Woodcut Painting */}
       <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
         <source
           type="image/avif"
@@ -161,7 +176,7 @@ export default function HeroChapter() {
         <img
           ref={bgImgRef}
           src="/assets/landing/scene-a-dalat-full-1920.webp"
-          alt="Cao nguyên Đà Lạt lúc bình minh"
+          alt="Bình minh cao nguyên Đà Lạt"
           className="w-full h-full object-cover object-center pointer-events-none will-change-transform"
           fetchPriority="high"
           loading="eager"
@@ -169,29 +184,10 @@ export default function HeroChapter() {
         />
       </picture>
 
-      {/* 2. Architectural Constructivist Grid Hairlines & Racing Blue Vertical Spine */}
+      {/* Layer 2 (z-15): Lithograph Dust Texture */}
       <div
         aria-hidden="true"
-        style={{ zIndex: 12 }}
-        className="absolute inset-0 pointer-events-none grid grid-cols-4 lg:grid-cols-12 px-4 sm:px-8 lg:px-14"
-      >
-        <div className="border-l border-bone-100/10 h-full" />
-        <div className="hidden lg:block lg:col-start-5 border-l border-bone-100/10 h-full" />
-        <div className="hidden lg:block lg:col-start-9 border-l border-bone-100/10 h-full" />
-        <div className="col-start-4 lg:col-start-12 border-r border-bone-100/10 h-full" />
-      </div>
-
-      <div
-        ref={stripeRef}
-        aria-hidden="true"
-        style={{ zIndex: 14, transformOrigin: "top center" }}
-        className="hidden sm:block absolute top-0 bottom-0 right-[8%] w-3 bg-lake-600/85 pointer-events-none"
-      />
-
-      {/* 3. Tactile Lithograph Dust & Drifting Low Mist */}
-      <div
-        aria-hidden="true"
-        style={{ zIndex: 16, mixBlendMode: "screen", opacity: 0.45 }}
+        style={{ zIndex: 15, mixBlendMode: "screen", opacity: 0.4 }}
         className="absolute inset-0 pointer-events-none"
       >
         <img
@@ -203,10 +199,50 @@ export default function HeroChapter() {
         />
       </div>
 
+      {/* Layer 3 (z-20): Unboxed Monumental Typography in the Calm Upper Sky */}
+      <div
+        style={{ zIndex: 20 }}
+        className="relative w-full max-w-7xl mx-auto pt-2 sm:pt-4 pointer-events-none"
+      >
+        <h1 className="font-display font-black uppercase text-bone-100 flex flex-col items-start leading-none">
+          <div ref={line1WrapRef} className="will-change-transform">
+            <DisplayLine
+              ref={headingLine1Ref}
+              wdth={74}
+              style={{ fontSize: "clamp(3.5rem, 9.5vw, 11.5rem)" }}
+              className="tracking-tight text-bone-100 whitespace-nowrap"
+            >
+              SIÊU XE.
+            </DisplayLine>
+          </div>
+          <div
+            ref={line2WrapRef}
+            className="sm:ml-[4vw] -mt-[0.9vw] will-change-transform"
+          >
+            <DisplayLine
+              ref={headingLine2Ref}
+              wdth={118}
+              style={{ fontSize: "clamp(2.2rem, 6.2vw, 7.5rem)" }}
+              className="tracking-tight text-bone-100 whitespace-nowrap"
+            >
+              KHÔNG VỘI.
+            </DisplayLine>
+          </div>
+        </h1>
+
+        <p
+          ref={leadRef}
+          className="font-sans text-sm sm:text-lg text-bone-100/90 max-w-md mt-6 sm:ml-[4vw] leading-relaxed font-medium will-change-transform"
+        >
+          Porsche, Mercedes-AMG, Lamborghini. Chọn trạm nhận xe, kích hoạt chìa khóa số và tự do cầm lái trên mọi cung đường.
+        </p>
+      </div>
+
+      {/* Layer 4 (z-25): Drifting Valley Mist weaving between Typography and Car */}
       <div
         ref={mistRef}
         aria-hidden="true"
-        style={{ zIndex: 22, mixBlendMode: "screen", opacity: 0.48 }}
+        style={{ zIndex: 25, mixBlendMode: "screen", opacity: 0.45 }}
         className="absolute inset-0 pointer-events-none will-change-transform"
       >
         <img
@@ -218,106 +254,61 @@ export default function HeroChapter() {
         />
       </div>
 
-      {/* 4. Top Constructivist Monograph Strip */}
+      {/* Layer 5 (z-30): Foreground Lithograph Porsche 911 on the Mountain Curve */}
       <div
-        style={{ zIndex: 35 }}
-        className="relative w-full border-y border-bone-100/25 bg-ink-950/80 py-2 px-3 flex items-center justify-between text-[10px] sm:text-[11px] tracking-[0.24em] uppercase font-sans font-semibold text-bone-100/80"
+        ref={carRef}
+        style={{
+          zIndex: 30,
+          width: "clamp(310px, 48vw, 780px)",
+        }}
+        className="relative ml-auto mr-[4%] sm:mr-[10%] -mb-4 sm:-mb-8 pointer-events-none will-change-transform"
       >
-        <div className="flex items-center gap-3">
-          <span className="inline-block w-2 h-2 rounded-full bg-sun-600" />
-          <span>ACT I // DA LAT HIGHLANDS</span>
-        </div>
-        <span className="hidden md:inline text-bone-100/60">
-          POWER / PRECISION / FREEDOM
-        </span>
-        <span className="text-bone-100/90">PORSCHE · AMG · LAMBORGHINI</span>
+        <picture className="w-full block">
+          <source
+            type="image/avif"
+            srcSet="/assets/landing/a4-car-2000.avif 2000w, /assets/landing/a4-car-1920.avif 1920w, /assets/landing/a4-car-1280.avif 1280w, /assets/landing/a4-car-960.avif 960w"
+          />
+          <source
+            type="image/webp"
+            srcSet="/assets/landing/a4-car-2000.webp 2000w, /assets/landing/a4-car-1920.webp 1920w, /assets/landing/a4-car-1280.webp 1280w, /assets/landing/a4-car-960.webp 960w"
+          />
+          <img
+            src="/assets/landing/a4-car-1280.webp"
+            alt="Porsche 911 Carrera 4S"
+            className="w-full h-auto object-contain pointer-events-none contrast-125 brightness-95"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
       </div>
 
-      {/* 5. Monumental 2-Line Masthead (Kept strictly in the upper dark charcoal sky zone above the clouds) */}
+      {/* Layer 6 (z-35): Foreground Pine Branch Cutout framing the right edge (Kigo-style Foreground Depth Plane) */}
       <div
-        style={{ zIndex: 35 }}
-        className="relative w-full my-auto pb-[22svh] sm:pb-[26svh] pointer-events-none"
+        ref={branchRef}
+        aria-hidden="true"
+        style={{
+          zIndex: 35,
+          width: "clamp(180px, 24vw, 420px)",
+        }}
+        className="hidden sm:block absolute -right-[2%] bottom-[8%] pointer-events-none will-change-transform"
       >
-        <h1 className="font-display font-black uppercase text-bone-100 flex flex-col items-start leading-none">
-          <div ref={line1WrapRef} className="will-change-transform">
-            <DisplayLine
-              ref={headingLine1Ref}
-              wdth={75}
-              style={{ fontSize: "clamp(3.2rem, 8.8vw, 10.5rem)" }}
-              className="tracking-tight text-bone-100 whitespace-nowrap drop-shadow-2xl"
-            >
-              SIÊU XE.
-            </DisplayLine>
-          </div>
-          <div
-            ref={line2WrapRef}
-            className="sm:ml-[3.5vw] -mt-[0.8vw] will-change-transform"
-          >
-            <DisplayLine
-              ref={headingLine2Ref}
-              wdth={115}
-              style={{ fontSize: "clamp(2.1rem, 5.8vw, 7.0rem)" }}
-              className="tracking-tight text-bone-100 whitespace-nowrap drop-shadow-2xl"
-            >
-              KHÔNG VỘI.
-            </DisplayLine>
-          </div>
-        </h1>
-      </div>
-
-      {/* 6. Bottom-Left Constructivist Spec Plate + Foreground High-Contrast Lithograph Car */}
-      <div style={{ zIndex: 32 }} className="relative w-full flex items-end justify-between">
-        <div
-          ref={manifestoCardRef}
-          className="hidden md:flex flex-col justify-between max-w-sm bg-ink-950/95 border border-bone-100/25 p-5 rounded-none"
-        >
-          <div className="flex items-center justify-between text-[10px] tracking-[0.24em] uppercase font-semibold text-sun-400 pb-2.5 mb-2.5 border-b border-bone-100/15">
-            <span>GRAND TOURING MONOGRAPH</span>
-            <span>443 HP · FLAT-6</span>
-          </div>
-          <p className="font-sans text-xs sm:text-sm text-bone-100/85 leading-relaxed">
-            Trải nghiệm cầm lái những cỗ máy cơ khí tuyển chọn. Chọn trạm nhận xe, kích hoạt khóa số và lên đường.
-          </p>
-          <div className="mt-4 pt-3 border-t border-bone-100/15 flex items-center justify-between">
-            <div className="flex items-center gap-1.5" aria-hidden="true">
-              <span className="w-3 h-1.5 bg-lake-400 inline-block" />
-              <span className="w-3 h-1.5 bg-lake-400 inline-block" />
-              <span className="w-3 h-1.5 bg-lake-400 inline-block" />
-              <span className="w-3 h-1.5 bg-lake-400 inline-block" />
-              <span className="w-3 h-1.5 bg-lake-400 inline-block" />
-            </div>
-            <span className="text-[10px] tracking-[0.22em] uppercase text-bone-100/60">
-              11.9404° N, 108.4583° E
-            </span>
-          </div>
-        </div>
-
-        {/* Foreground Porsche 911 Carrera 4S anchored on the winding mountain road */}
-        <div
-          ref={carRef}
-          style={{
-            width: "clamp(300px, 46vw, 760px)",
-          }}
-          className="ml-auto mr-[2%] sm:mr-[5%] -mb-4 sm:-mb-6 pointer-events-none will-change-transform"
-        >
-          <picture className="w-full block">
-            <source
-              type="image/avif"
-              srcSet="/assets/landing/a4-car-2000.avif 2000w, /assets/landing/a4-car-1920.avif 1920w, /assets/landing/a4-car-1280.avif 1280w, /assets/landing/a4-car-960.avif 960w"
-            />
-            <source
-              type="image/webp"
-              srcSet="/assets/landing/a4-car-2000.webp 2000w, /assets/landing/a4-car-1920.webp 1920w, /assets/landing/a4-car-1280.webp 1280w, /assets/landing/a4-car-960.webp 960w"
-            />
-            <img
-              src="/assets/landing/a4-car-1280.webp"
-              alt="Porsche 911 Carrera 4S"
-              className="w-full h-auto object-contain pointer-events-none contrast-125 brightness-95 drop-shadow-2xl"
-              loading="eager"
-              decoding="async"
-            />
-          </picture>
-        </div>
+        <picture className="w-full block">
+          <source
+            type="image/avif"
+            srcSet="/assets/landing/a6-fg-branch-1600.avif 1600w, /assets/landing/a6-fg-branch-1280.avif 1280w, /assets/landing/a6-fg-branch-960.avif 960w"
+          />
+          <source
+            type="image/webp"
+            srcSet="/assets/landing/a6-fg-branch-1600.webp 1600w, /assets/landing/a6-fg-branch-1280.webp 1280w, /assets/landing/a6-fg-branch-960.webp 960w"
+          />
+          <img
+            src="/assets/landing/a6-fg-branch-1280.webp"
+            alt=""
+            className="w-full h-auto object-contain pointer-events-none"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
       </div>
     </section>
   );
