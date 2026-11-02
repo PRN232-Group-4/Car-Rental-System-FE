@@ -3,24 +3,14 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
-import SceneLayerStack from "../SceneLayerStack";
 import DisplayLine from "../DisplayLine";
 
 export default function HeroChapter() {
   const containerRef = useRef<HTMLElement>(null);
   const headingLine1Ref = useRef<HTMLSpanElement>(null);
   const headingLine2Ref = useRef<HTMLSpanElement>(null);
-  const h1ContainerRef = useRef<HTMLDivElement>(null);
-
-  // Layer Refs for Parallax and Intro
-  const sunRef = useRef<HTMLDivElement>(null);
-  const farRef = useRef<HTMLDivElement>(null);
-  const midRef = useRef<HTMLDivElement>(null);
-  const roadRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const mistRef = useRef<HTMLDivElement>(null);
-  const branchRef = useRef<HTMLDivElement>(null);
-  const dustRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -31,53 +21,28 @@ export default function HeroChapter() {
       mm.add("(prefers-reduced-motion: reduce)", () => {
         if (headingLine1Ref.current) gsap.set(headingLine1Ref.current, { yPercent: 0, opacity: 1 });
         if (headingLine2Ref.current) gsap.set(headingLine2Ref.current, { yPercent: 0, opacity: 1 });
-        if (sunRef.current) gsap.set(sunRef.current, { yPercent: 0, opacity: 1 });
+        if (carRef.current) gsap.set(carRef.current, { opacity: 1 });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-        // 1. Sun disc rises from behind a2-far-mountains (translateY +18% -> 0, 1.6s)
-        if (sunRef.current) {
-          tl.fromTo(
-            sunRef.current,
-            { yPercent: 18, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 1.6, ease: "power2.out" },
-            0.1
-          );
-        }
-
-        // 2. Layers fade in from far to near with stagger 120ms
-        const orderedLayers = [
-          farRef.current,
-          midRef.current,
-          roadRef.current,
-          carRef.current,
-          mistRef.current,
-          branchRef.current,
-          dustRef.current,
-        ].filter(Boolean);
-
-        if (orderedLayers.length > 0) {
-          tl.fromTo(
-            orderedLayers,
-            { opacity: 0, y: 16 },
-            { opacity: 1, y: 0, duration: 1.2, stagger: 0.12, ease: "power3.out" },
-            0.3
-          );
-        }
-
-        // 3. Line-mask reveal for H1 typography
+        // 1. Reveal H1 typography cleanly from offset
         if (headingLine1Ref.current && headingLine2Ref.current) {
           tl.fromTo(
             [headingLine1Ref.current, headingLine2Ref.current],
-            { yPercent: 110, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power4.out" },
-            0.4
+            { yPercent: 30, opacity: 0 },
+            { yPercent: 0, opacity: 1, duration: 1.0, stagger: 0.12, ease: "power4.out" },
+            0.15
           );
         }
 
-        // 4. Parallax scroll (scrub, NO pin)
+        // 2. Subtle car entrance
+        if (carRef.current) {
+          tl.fromTo(carRef.current, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 1.1 }, 0.3);
+        }
+
+        // 3. Parallax scroll (scrub, NO pin)
         const scrollTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -87,15 +52,8 @@ export default function HeroChapter() {
           },
         });
 
-        if (sunRef.current) scrollTl.to(sunRef.current, { yPercent: -15, ease: "none" }, 0);
-        if (farRef.current) scrollTl.to(farRef.current, { yPercent: -25, ease: "none" }, 0);
-        if (midRef.current) scrollTl.to(midRef.current, { yPercent: -45, ease: "none" }, 0);
-        if (h1ContainerRef.current) {
-          scrollTl.to(h1ContainerRef.current, { yPercent: -35, ease: "none" }, 0);
-        }
-        if (roadRef.current) scrollTl.to(roadRef.current, { yPercent: -60, ease: "none" }, 0);
-        if (carRef.current) scrollTl.to(carRef.current, { yPercent: -55, ease: "none" }, 0);
-        if (branchRef.current) scrollTl.to(branchRef.current, { yPercent: -75, ease: "none" }, 0);
+        if (carRef.current) scrollTl.to(carRef.current, { yPercent: -12, ease: "none" }, 0);
+        if (mistRef.current) scrollTl.to(mistRef.current, { opacity: 0.55, ease: "none" }, 0);
       });
 
       return () => mm.revert();
@@ -107,54 +65,110 @@ export default function HeroChapter() {
     <section
       ref={containerRef}
       id="gioi-thieu"
-      className="relative w-full h-[100svh] min-h-[100svh] bg-ink-950 text-bone-100 overflow-hidden flex flex-col justify-between select-none"
+      className="relative w-full h-[100svh] min-h-[100svh] bg-ink-950 text-bone-100 overflow-hidden select-none"
     >
-      {/* Multi-plane Layered Illustration Stack (Bản 3.2 Cảnh A) */}
-      <SceneLayerStack
-        scene="A"
-        className="absolute inset-0 w-full h-full"
-        layerRefs={{
-          "a1-sun": sunRef,
-          "a2-far-mountains": farRef,
-          "a3-mid-pines": midRef,
-          "a4-road": roadRef,
-          "a4-car": carRef,
-          "a5-mist": mistRef,
-          "a6-fg-branch": branchRef,
-          "a7-dust": dustRef,
+      {/* 1. Nền tranh Cảnh A nguyên bản liền mạch (object-cover object-center, z-10) */}
+      <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
+        <source
+          type="image/avif"
+          srcSet="/assets/landing/scene-a-dalat-full-3840.avif 3840w, /assets/landing/scene-a-dalat-full-2880.avif 2880w, /assets/landing/scene-a-dalat-full-1920.avif 1920w, /assets/landing/scene-a-dalat-full-1280.avif 1280w, /assets/landing/scene-a-dalat-full-960.avif 960w, /assets/landing/scene-a-dalat-full-640.avif 640w"
+        />
+        <source
+          type="image/webp"
+          srcSet="/assets/landing/scene-a-dalat-full-3840.webp 3840w, /assets/landing/scene-a-dalat-full-2880.webp 2880w, /assets/landing/scene-a-dalat-full-1920.webp 1920w, /assets/landing/scene-a-dalat-full-1280.webp 1280w, /assets/landing/scene-a-dalat-full-960.webp 960w, /assets/landing/scene-a-dalat-full-640.webp 640w"
+        />
+        <img
+          src="/assets/landing/scene-a-dalat-full-1920.webp"
+          alt="Hoàng hôn Đà Lạt"
+          className="w-full h-full object-cover object-center pointer-events-none"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+        />
+      </picture>
+
+      {/* 2. Lớp xe a4-car (z-20, đặt dưới H1): khóa kích thước clamp(260px, 32vw, 540px), đỗ đúng trên mặt đường nhựa */}
+      <div
+        ref={carRef}
+        style={{
+          position: "absolute",
+          bottom: "14%",
+          left: "35%",
+          width: "clamp(260px, 32vw, 540px)",
+          zIndex: 20,
         }}
+        className="pointer-events-none will-change-transform"
       >
-        {/*
-          DOM H1 Headline (z-index 30, strictly between a3-mid-pines z-20 and a4-road z-40)
-          Optical block width balance (~65–70vw) with static Archivo wdth 70 and 125
-        */}
-        <div
-          ref={h1ContainerRef}
-          style={{ zIndex: 30 }}
-          className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-4 pt-12 pb-24"
-        >
-          <div className="w-full max-w-[85vw] mx-auto">
-            <h1 className="font-display font-black uppercase text-bone-100 flex flex-col items-center justify-center">
-              <DisplayLine
-                ref={headingLine1Ref}
-                wdth={70}
-                style={{ fontSize: "var(--fs-h1-top)" }}
-                className="tracking-tight"
-              >
-                SIÊU XE.
-              </DisplayLine>
-              <DisplayLine
-                ref={headingLine2Ref}
-                wdth={125}
-                style={{ fontSize: "var(--fs-h1-bottom)" }}
-                className="tracking-tight -mt-[1.5vw]"
-              >
-                KHÔNG VỘI.
-              </DisplayLine>
-            </h1>
-          </div>
-        </div>
-      </SceneLayerStack>
+        <picture className="w-full block">
+          <source
+            type="image/avif"
+            srcSet="/assets/landing/a4-car-2000.avif 2000w, /assets/landing/a4-car-1920.avif 1920w, /assets/landing/a4-car-1280.avif 1280w, /assets/landing/a4-car-960.avif 960w, /assets/landing/a4-car-640.avif 640w"
+          />
+          <source
+            type="image/webp"
+            srcSet="/assets/landing/a4-car-2000.webp 2000w, /assets/landing/a4-car-1920.webp 1920w, /assets/landing/a4-car-1280.webp 1280w, /assets/landing/a4-car-960.webp 960w, /assets/landing/a4-car-640.webp 640w"
+          />
+          <img
+            src="/assets/landing/a4-car-1280.webp"
+            alt="Porsche"
+            className="w-full h-auto object-contain pointer-events-none drop-shadow-2xl"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+      </div>
+
+      {/* 3. Lớp sương a5-mist (z-25, screen, opacity 0.35) */}
+      <div
+        ref={mistRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 25,
+          mixBlendMode: "screen",
+          opacity: 0.35,
+        }}
+        className="w-full h-full pointer-events-none"
+      >
+        <img
+          src="/assets/landing/a5-mist-1920.webp"
+          alt=""
+          className="w-full h-full object-cover pointer-events-none"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      {/* 4. Lớp chữ H1 (z-30): GÓC TRÊN BÊN TRÁI (top: 14%, left: 6%, max-width: 55vw) trên vùng bầu trời tối */}
+      <div
+        style={{
+          position: "absolute",
+          top: "14%",
+          left: "6%",
+          maxWidth: "55vw",
+          zIndex: 30,
+        }}
+        className="pointer-events-none text-left"
+      >
+        <h1 className="font-display font-black uppercase text-bone-100 flex flex-col items-start leading-none">
+          <DisplayLine
+            ref={headingLine1Ref}
+            wdth={70}
+            style={{ fontSize: "var(--fs-h1-top)" }}
+            className="tracking-tight text-bone-100 drop-shadow-lg"
+          >
+            SIÊU XE.
+          </DisplayLine>
+          <DisplayLine
+            ref={headingLine2Ref}
+            wdth={125}
+            style={{ fontSize: "var(--fs-h1-bottom)" }}
+            className="tracking-tight text-bone-100 drop-shadow-lg -mt-[1vw]"
+          >
+            KHÔNG VỘI.
+          </DisplayLine>
+        </h1>
+      </div>
     </section>
   );
 }
