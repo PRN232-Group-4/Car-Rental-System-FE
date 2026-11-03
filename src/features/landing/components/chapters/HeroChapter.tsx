@@ -18,7 +18,6 @@ export default function HeroChapter() {
   const mistRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const branchRef = useRef<HTMLDivElement>(null);
-  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
@@ -40,9 +39,6 @@ export default function HeroChapter() {
           ],
           { clearProps: "all", opacity: 1 }
         );
-        shutterRefs.current.forEach((col) => {
-          if (col) gsap.set(col, { scaleY: 0 });
-        });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -112,7 +108,7 @@ export default function HeroChapter() {
           );
         }
 
-        // 2. 1:1 Scroll-Linked Multi-Plane Parallax + 5-Column Rising Venetian Shutter Transition into Section 2!
+        // 2. 1:1 Scroll-Linked Multi-Plane Parallax (`scrub: true`)
         const scrollTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -123,16 +119,16 @@ export default function HeroChapter() {
         });
 
         if (bgImgRef.current) {
-          scrollTl.to(bgImgRef.current, { yPercent: 18, scale: 1.15, ease: "none" }, 0);
+          scrollTl.to(bgImgRef.current, { yPercent: 16, scale: 1.14, ease: "none" }, 0);
         }
         if (line1WrapRef.current) {
-          scrollTl.to(line1WrapRef.current, { xPercent: -10, yPercent: -20, ease: "none" }, 0);
+          scrollTl.to(line1WrapRef.current, { xPercent: -10, yPercent: -18, ease: "none" }, 0);
         }
         if (line2WrapRef.current) {
           scrollTl.to(line2WrapRef.current, { xPercent: 12, yPercent: -12, ease: "none" }, 0);
         }
         if (leadBlockRef.current) {
-          scrollTl.to(leadBlockRef.current, { yPercent: -24, opacity: 0.1, ease: "none" }, 0);
+          scrollTl.to(leadBlockRef.current, { yPercent: -22, opacity: 0.15, ease: "none" }, 0);
         }
         if (mistRef.current) {
           scrollTl.to(mistRef.current, { xPercent: -16, yPercent: -8, opacity: 0.7, ease: "none" }, 0);
@@ -140,31 +136,15 @@ export default function HeroChapter() {
         if (carRef.current) {
           scrollTl.to(
             carRef.current,
-            { xPercent: -14, yPercent: -14, scale: 1.1, ease: "none" },
+            { xPercent: -14, yPercent: -10, scale: 1.08, ease: "none" },
             0
           );
         }
         if (branchRef.current) {
           scrollTl.to(
             branchRef.current,
-            { xPercent: 10, yPercent: -35, scale: 1.15, ease: "none" },
+            { xPercent: 10, yPercent: -32, scale: 1.14, ease: "none" },
             0
-          );
-        }
-
-        // 5-Column Staggered Venetian Shutters: Strictly scaleY(0) at scrollY=0 (never cuts car at rest!), then shoots up as user scrolls into Section 2!
-        const validShutters = shutterRefs.current.filter(Boolean);
-        if (validShutters.length > 0) {
-          scrollTl.fromTo(
-            validShutters,
-            { scaleY: 0 },
-            {
-              scaleY: 1,
-              stagger: 0.05,
-              ease: "none",
-              duration: 0.55,
-            },
-            0.35
           );
         }
 
@@ -203,7 +183,7 @@ export default function HeroChapter() {
     <section
       ref={containerRef}
       id="gioi-thieu"
-      className="relative w-full h-[108svh] min-h-[820px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-28 sm:pt-32 pb-24"
+      className="relative w-full h-[105svh] min-h-[820px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-28 sm:pt-32 pb-20"
     >
       {/* Layer 1 (z-10): Full-Bleed Da Lat Dawn Woodcut Painting */}
       <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
@@ -255,7 +235,7 @@ export default function HeroChapter() {
         />
       </div>
 
-      {/* Layer 4 (z-20): Monumental Stepped Typography (Protected with pt-28/32 so it NEVER collides with Navbar Logo!) */}
+      {/* Layer 4 (z-20): Monumental Stepped Typography (Protected with pt-28/32 so it NEVER touches Navbar Logo!) */}
       <div
         style={{ zIndex: 20 }}
         className="relative w-full max-w-[1640px] mx-auto pointer-events-none"
@@ -292,7 +272,7 @@ export default function HeroChapter() {
           </div>
         </h1>
 
-        {/* High-Contrast Architectural Caption Strip (Guarantees 100% Readability over the White Mountain Mist!) */}
+        {/* High-Contrast Architectural Caption Plate (100% Readable over White Mountain Mist!) */}
         <div
           ref={leadBlockRef}
           className="mt-5 sm:ml-[4.5vw] max-w-md bg-ink-950/90 border-l-4 border-sun-600 p-4 sm:p-5 will-change-transform"
@@ -378,24 +358,6 @@ export default function HeroChapter() {
             decoding="async"
           />
         </picture>
-      </div>
-
-      {/* Layer 8 (z-40): 5-Column Rising Venetian Shutter Transition into Section 2 (`scaleY: 0` at rest, rises on scroll!) */}
-      <div
-        aria-hidden="true"
-        style={{ zIndex: 40 }}
-        className="absolute inset-x-0 bottom-0 h-[42svh] grid grid-cols-5 pointer-events-none"
-      >
-        {[0, 1, 2, 3, 4].map((colIdx) => (
-          <div
-            key={colIdx}
-            ref={(el) => {
-              shutterRefs.current[colIdx] = el;
-            }}
-            style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
-            className="w-full h-full bg-bone-100 border-t-4 border-sun-600 will-change-transform"
-          />
-        ))}
       </div>
     </section>
   );

@@ -4,20 +4,22 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 
-const TRUST_DATA_ROWS = [
+const TRUST_VAULTS = [
   {
     index: "01",
     key: "PHÁP NHÂN VẬN TẢI",
     metric: "100% HỢP ĐỒNG SỐ",
     statement: "DOANH NGHIỆP VẬN TẢI ĐƯỢC CẤP PHÉP",
     source: "Hợp đồng thuê xe điện tử có giá trị pháp lý toàn diện · Hồ sơ pháp nhân minh bạch.",
+    dark: true,
   },
   {
     index: "02",
     key: "BẢO HIỂM TOÀN DIỆN",
-    metric: "BẢO LÃNH 24/7",
+    metric: "BẢO LÃNH HIỆN TRƯỜNG 24/7",
     statement: "BẢO HIỂM VẬT CHẤT VÀ THÂN VỎ 100%",
     source: "Mọi chuyến đi đều đi kèm gói bảo hiểm vật chất xe và hỗ trợ kỹ thuật hiện trường.",
+    dark: false,
   },
   {
     index: "03",
@@ -25,6 +27,7 @@ const TRUST_DATA_ROWS = [
     metric: "TỰ ĐỘNG QUA PAYOS",
     statement: "ĐỐI SOÁT TỰ ĐỘNG QUA CỔNG PAYOS",
     source: "Biên bản kiểm định số hóa đối chiếu trước và sau chuyến đi · Không phát sinh phí ẩn.",
+    dark: false,
   },
   {
     index: "04",
@@ -32,17 +35,18 @@ const TRUST_DATA_ROWS = [
     metric: "SỞ HỮU TRỰC TIẾP",
     statement: "PORSCHE · MERCEDES-AMG · LAMBORGHINI",
     source: "100% phương tiện thuộc đội xe chuẩn hóa, bảo dưỡng định kỳ theo tiêu chuẩn hãng.",
+    dark: true,
   },
 ];
 
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
+  const leftDoorRef = useRef<HTMLDivElement>(null);
+  const rightDoorRef = useRef<HTMLDivElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const ruleRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const vaultRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
@@ -51,22 +55,36 @@ export default function TrustChapter() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
+        if (leftDoorRef.current) gsap.set(leftDoorRef.current, { scaleX: 0 });
+        if (rightDoorRef.current) gsap.set(rightDoorRef.current, { scaleX: 0 });
         gsap.set([spineRef.current, posterImgRef.current, headingRef.current], {
           clearProps: "all",
           opacity: 1,
         });
-        ruleRefs.current.forEach((r) => {
-          if (r) gsap.set(r, { scaleX: 1 });
-        });
-        bladeRefs.current.forEach((blade) => {
-          if (blade) gsap.set(blade, { clearProps: "all", opacity: 1 });
-        });
-        shutterRefs.current.forEach((s) => {
-          if (s) gsap.set(s, { scaleY: 0 });
+        vaultRefs.current.forEach((v) => {
+          if (v) gsap.set(v, { clearProps: "all", opacity: 1 });
         });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // 1. UNIQUE Section 3 -> Section 4 Transition: Horizontal Split Barn-Door Reveal (Two dark ink doors slide open to the left and right!)
+        if (leftDoorRef.current && rightDoorRef.current) {
+          gsap.fromTo(
+            [leftDoorRef.current, rightDoorRef.current],
+            { scaleX: 1 },
+            {
+              scaleX: 0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top 95%",
+                end: "top 30%",
+                scrub: true,
+              },
+            }
+          );
+        }
+
         const masterTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -88,7 +106,7 @@ export default function TrustChapter() {
         if (posterImgRef.current) {
           masterTl.fromTo(
             posterImgRef.current,
-            { scale: 0.94 },
+            { scale: 0.93 },
             { scale: 1.03, ease: "none" },
             0
           );
@@ -97,59 +115,35 @@ export default function TrustChapter() {
         if (headingRef.current) {
           masterTl.fromTo(
             headingRef.current,
-            { xPercent: -5 },
+            { xPercent: -6 },
             { xPercent: 4, ease: "none" },
             0
           );
         }
 
-        // Staggered Architectural Monograph Blades (Alternating Horizontal Counter-Scrub!)
-        bladeRefs.current.forEach((blade, idx) => {
-          const rule = ruleRefs.current[idx];
-          if (!blade) return;
+        // 2. 3D Unfolding Constructivist Vault Modules (`rotateX: -55deg -> 0deg` + opposing horizontal slide!)
+        vaultRefs.current.forEach((vault, idx) => {
+          if (!vault) return;
+          const fromX = idx % 2 === 0 ? -40 : 40;
 
-          const dir = idx % 2 === 0 ? -8 : 8;
-
-          const bladeTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: blade,
-              start: "top 95%",
-              end: "top 38%",
-              scrub: true,
-            },
-          });
-
-          if (rule) {
-            bladeTl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0);
-          }
-
-          bladeTl.fromTo(
-            blade,
-            { xPercent: dir, opacity: 0.2 },
-            { xPercent: 0, opacity: 1, ease: "none" },
-            0
-          );
-        });
-
-        // 5-Column Obsidian Shutters Rising at the Bottom of Act IV to Transition into Act V Finale!
-        const validShutters = shutterRefs.current.filter(Boolean);
-        if (validShutters.length > 0) {
           gsap.fromTo(
-            validShutters,
-            { scaleY: 0 },
+            vault,
+            { rotateX: -50, x: fromX, y: 48, opacity: 0.15 },
             {
-              scaleY: 1,
-              stagger: 0.05,
+              rotateX: 0,
+              x: 0,
+              y: 0,
+              opacity: 1,
               ease: "none",
               scrollTrigger: {
-                trigger: containerRef.current,
-                start: "bottom 45%",
-                end: "bottom top",
+                trigger: vault,
+                start: "top 95%",
+                end: "top 42%",
                 scrub: true,
               },
             }
           );
-        }
+        });
       });
 
       return () => mm.revert();
@@ -161,24 +155,46 @@ export default function TrustChapter() {
     <section
       ref={containerRef}
       id="tin-cay"
-      className="relative w-full bg-bone-100 text-ink-950 pt-16 sm:pt-24 pb-40 sm:pb-52 px-8 sm:px-14 lg:px-24 select-none overflow-hidden"
+      className="relative w-full bg-bone-100 text-ink-950 py-24 sm:py-36 px-8 sm:px-14 lg:px-24 select-none overflow-hidden border-t-4 border-lake-600"
     >
-      {/* Architectural Blueprint Grid & Continuous Racing Blue Spine */}
+      {/* UNIQUE Section 3 -> 4 Transition: Horizontal Split Barn-Doors (Zero 5-Column Shutter Repetition!) */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none grid grid-cols-4 lg:grid-cols-12 px-8 sm:px-14 lg:px-24"
+        style={{ zIndex: 40 }}
+        className="absolute inset-x-0 top-0 h-[36svh] grid grid-cols-2 pointer-events-none"
       >
-        <div className="border-l border-ink-950/[0.07] h-full" />
-        <div className="hidden lg:block lg:col-start-4 border-l border-ink-950/[0.07] h-full" />
-        <div className="hidden lg:block lg:col-start-9 border-l border-ink-950/[0.07] h-full" />
-        <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.07] h-full" />
+        <div
+          ref={leftDoorRef}
+          style={{ transformOrigin: "left center" }}
+          className="w-full h-full bg-ink-950 border-r-2 border-lake-400 will-change-transform"
+        />
+        <div
+          ref={rightDoorRef}
+          style={{ transformOrigin: "right center" }}
+          className="w-full h-full bg-ink-950 border-l-2 border-lake-400 will-change-transform"
+        />
+      </div>
+
+      {/* Tactile Inverted Paper Fiber Texture + Continuous Racing Blue Central Spine */}
+      <div
+        aria-hidden="true"
+        style={{ mixBlendMode: "multiply", opacity: 0.14 }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <img
+          src="/assets/landing/a7-dust-1920.webp"
+          alt=""
+          className="w-full h-full object-cover invert pointer-events-none"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
 
       <div
         ref={spineRef}
         aria-hidden="true"
         style={{ transformOrigin: "top center" }}
-        className="hidden lg:block absolute top-0 bottom-0 left-[58.5%] w-4 bg-lake-600/20 pointer-events-none will-change-transform"
+        className="hidden lg:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-3 bg-lake-600/25 pointer-events-none will-change-transform"
       />
 
       {/* CRITICAL: Direct bg-bone-100 without z-index isolation so Poster 1 blends 100.0% into #E9E4D8! */}
@@ -207,7 +223,7 @@ export default function TrustChapter() {
           </p>
         </div>
 
-        {/* 2. Deterministic 16:9 Container + Seamless Poster 1 Masterpiece (`brightness(1.16) contrast(1.14)` + `multiply` on direct `bg-bone-100` parent = ZERO Box Edge & Zero Scroll-Lock!) */}
+        {/* 2. Deterministic 16:9 Container + Seamless Poster 1 Masterpiece (`brightness(1.16) contrast(1.14)` + `multiply` on direct `bg-bone-100` parent = ZERO White Box!) */}
         <div className="w-full max-w-[1520px] mx-auto aspect-[16/9] bg-bone-100 overflow-hidden">
           <img
             ref={posterImgRef}
@@ -222,105 +238,86 @@ export default function TrustChapter() {
           />
         </div>
 
-        {/* 3. Staggered Architectural Monograph Blades (Replaces the clunky 4-box grid!) */}
-        <div className="pt-4">
-          {TRUST_DATA_ROWS.map((row, idx) => (
+        {/* 3. Staggered 3D Unfolding Constructivist Vault Matrix (Completely distinct from Section 3's 3-Card Deck!) */}
+        <div
+          style={{ perspective: "1400px" }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 pt-4"
+        >
+          {TRUST_VAULTS.map((vault, idx) => (
             <div
-              key={row.key}
+              key={vault.key}
               ref={(el) => {
-                bladeRefs.current[idx] = el;
+                vaultRefs.current[idx] = el;
               }}
-              className="group relative w-full py-12 sm:py-14 transition-colors duration-300 hover:bg-ink-950 hover:text-bone-100 px-6 sm:px-10 -mx-6 sm:-mx-10 will-change-transform"
+              style={{ transformOrigin: "top center" }}
+              className={
+                vault.dark
+                  ? "relative p-8 sm:p-12 bg-ink-950 text-bone-100 border-2 border-ink-950 border-t-8 border-t-lake-400 flex flex-col justify-between shadow-xl will-change-transform"
+                  : "relative p-8 sm:p-12 bg-bone-100 text-ink-950 border-2 border-ink-950 border-t-8 border-t-sun-600 flex flex-col justify-between shadow-xl will-change-transform"
+              }
             >
-              {/* Self-Drawing 3px Racing Blue / Ink Rule */}
-              <div
-                ref={(el) => {
-                  ruleRefs.current[idx] = el;
-                }}
-                style={{ transformOrigin: idx % 2 === 0 ? "left center" : "right center" }}
-                className="absolute top-0 left-0 right-0 h-[3px] bg-ink-950 group-hover:bg-lake-400 transition-colors will-change-transform"
-              />
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                {/* Col 1-3: Giant Index + Category Key */}
-                <div className="lg:col-span-3 flex items-baseline gap-6">
+              <div className="flex items-start justify-between border-b border-current/20 pb-6 mb-8">
+                <div className="space-y-1.5">
                   <span
                     style={{
-                      fontFamily: "var(--font-archivo, sans-serif)",
-                      fontSize: "clamp(4rem, 7vw, 7.5rem)",
-                      lineHeight: 0.9,
-                      fontVariationSettings: "'wdth' 64",
+                      fontSize: "var(--fs-micro)",
+                      letterSpacing: "var(--ls-micro)",
                     }}
-                    className="font-black text-lake-600 group-hover:text-lake-400 transition-colors"
+                    className={
+                      vault.dark
+                        ? "font-sans font-bold text-lake-400 uppercase block"
+                        : "font-sans font-bold text-lake-600 uppercase block"
+                    }
                   >
-                    {row.index}
+                    {vault.key}
                   </span>
-
-                  <div className="space-y-1">
-                    <span
-                      style={{
-                        fontSize: "var(--fs-micro)",
-                        letterSpacing: "var(--ls-micro)",
-                      }}
-                      className="font-sans font-bold text-ink-950 group-hover:text-bone-100 uppercase block transition-colors"
-                    >
-                      {row.key}
-                    </span>
-                    <span className="text-[11px] tracking-[0.22em] uppercase font-sans font-bold text-lake-600 group-hover:text-lake-400 block">
-                      {row.metric}
-                    </span>
-                  </div>
+                  <span className="text-[11px] tracking-[0.22em] uppercase font-sans font-bold opacity-70 block">
+                    {vault.metric}
+                  </span>
                 </div>
 
-                {/* Col 4-8: Monumental Proof Statement (Asymmetrically stepped on even rows) */}
-                <div
+                <span
+                  style={{
+                    fontFamily: "var(--font-archivo, sans-serif)",
+                    fontSize: "clamp(3.75rem, 6vw, 6.5rem)",
+                    lineHeight: 0.88,
+                    fontVariationSettings: "'wdth' 64",
+                  }}
                   className={
-                    idx % 2 === 1
-                      ? "lg:col-span-5 lg:col-start-5"
-                      : "lg:col-span-5 lg:col-start-4"
+                    vault.dark
+                      ? "font-black text-lake-400"
+                      : "font-black text-sun-600"
                   }
                 >
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-archivo, sans-serif)",
-                      fontSize: "clamp(1.85rem, 3.4vw, 3.6rem)",
-                      lineHeight: 1.1,
-                      fontVariationSettings: "'wdth' 100",
-                    }}
-                    className="font-black uppercase tracking-tight text-ink-950 group-hover:text-bone-100 transition-colors"
-                  >
-                    {row.statement}
-                  </h3>
-                </div>
+                  {vault.index}
+                </span>
+              </div>
 
-                {/* Col 9-12: Verification Source Copy */}
-                <div className="lg:col-span-4 lg:col-start-9">
-                  <p className="font-sans text-sm sm:text-base text-ink-950/85 group-hover:text-bone-100/85 leading-relaxed border-l-2 border-lake-600 pl-4 transition-colors">
-                    {row.source}
-                  </p>
-                </div>
+              <div className="space-y-3">
+                <h3
+                  style={{
+                    fontFamily: "var(--font-archivo, sans-serif)",
+                    fontSize: "clamp(1.85rem, 3vw, 3.1rem)",
+                    lineHeight: 1.1,
+                    fontVariationSettings: "'wdth' 98",
+                  }}
+                  className="font-black uppercase tracking-tight"
+                >
+                  {vault.statement}
+                </h3>
+
+                <p className="font-sans text-sm sm:text-base opacity-85 leading-relaxed">
+                  {vault.source}
+                </p>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-current/15 flex items-center justify-between text-[10px] tracking-[0.24em] uppercase font-sans font-bold opacity-60">
+                <span>VERIFIED PROTOCOL // {vault.index}</span>
+                <span>/////</span>
               </div>
             </div>
           ))}
-          <div className="w-full h-[3px] bg-ink-950" />
         </div>
-      </div>
-
-      {/* 4. 5-Column Rising Obsidian Shutters at Bottom of Act IV (Wipes Warm Paper into Act V Finale!) */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-[32svh] grid grid-cols-5 pointer-events-none"
-      >
-        {[0, 1, 2, 3, 4].map((colIdx) => (
-          <div
-            key={colIdx}
-            ref={(el) => {
-              shutterRefs.current[colIdx] = el;
-            }}
-            style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
-            className="w-full h-full bg-ink-950 border-t-4 border-sun-600 will-change-transform"
-          />
-        ))}
       </div>
     </section>
   );
