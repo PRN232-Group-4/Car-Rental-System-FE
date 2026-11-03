@@ -7,6 +7,9 @@ import { gsap } from "@/lib/motion/register";
 const ACT2_WORDS_TOP = ["ĐƯỜNG", "DÀI", "LÀ", "ĐỂ"];
 const ACT3_TITLE_CHARS = ["N", "H", "Ẹ", "\u00A0", "N", "H", "Ư", "\u00A0", "K", "H", "Ô", "N", "G", "."];
 
+// Staircase step heights attached directly to the leading top edge of Section 2
+const STEP_HEIGHTS = ["100%", "82%", "64%", "46%", "28%"];
+
 const CHAPTER_3_CARDS = [
   {
     step: "01",
@@ -55,7 +58,10 @@ const CHAPTER_3_CARDS = [
 export default function SceneBSection() {
   const containerRef = useRef<HTMLElement>(null);
 
-  // Act II Refs (Pulled-Up Paper Stage + Variable-Font Width Wave Typography)
+  // 1. Leading-Edge 5-Column Staircase Crest attached to `bottom: 100%` of Section 2
+  const stepShuttersRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  // 2. Act II Refs (Pulled-Up Paper Stage + Variable-Font Width Wave Typography)
   const act2Ref = useRef<HTMLDivElement>(null);
   const act2ContentRef = useRef<HTMLDivElement>(null);
   const marqueeTrackRef = useRef<HTMLDivElement>(null);
@@ -65,12 +71,12 @@ export default function SceneBSection() {
   const posterImgRef = useRef<HTMLImageElement>(null);
   const compassSvgRef = useRef<SVGSVGElement>(null);
 
-  // Unique Section 2 -> Section 3 Transition: Center-Out Horizontal Split Iris Gate!
+  // 3. Unique Section 2 -> Section 3 Transition: Center-Out Horizontal Split Iris Gate!
   const irisGateWrapRef = useRef<HTMLDivElement>(null);
   const irisCoreRef = useRef<HTMLDivElement>(null);
   const irisLaserRef = useRef<HTMLDivElement>(null);
 
-  // Act III Refs (Odometer Cylinder Character Roll + 3D Fanning & Flipping Tarot Card Deck)
+  // 4. Act III Refs (Odometer Cylinder Character Roll + 3D Fanning & Flipping Tarot Card Deck)
   const act3TrackRef = useRef<HTMLDivElement>(null);
   const act3AstrolabeRef = useRef<SVGSVGElement>(null);
   const act3CharRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -84,6 +90,9 @@ export default function SceneBSection() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
+        stepShuttersRef.current.forEach((s) => {
+          if (s) gsap.set(s, { scaleY: 0 });
+        });
         act2WordRefs.current.forEach((w) => {
           if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
         });
@@ -112,8 +121,46 @@ export default function SceneBSection() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNIQUE TYPOGRAPHY MOTION #2 (Act II): Variable-Font Width Elastic Wave (`fontVariationSettings: 'wdth' 58 -> 118`)
-        // Zero overflow clipping so Vietnamese letters are NEVER cut in half like in `image_daf141.jpg`!
+        // 1. EXCLUSIVE SECTION 1 -> 2 TRANSITION: Leading-Edge 5-Column Staircase Crest
+        // Attached to `bottom: 100%` of `act2Ref`:
+        // - At `scrollY = 0` (`top 100%`), `scaleY` is strictly `0` (0% overlap on Section 1!).
+        // - As the user scrolls down (`top 98% -> top 30%`), the 5 stepped columns rise upward right ahead of Section 2's content, physically pulling Section 2 up with ZERO blank screen (`image_da6639.png` impossible!) and then settling down cleanly (`scaleY -> 0`) once Section 2 reaches the top!
+        const validShutters = stepShuttersRef.current.filter(Boolean);
+        if (validShutters.length > 0 && act2Ref.current) {
+          const crestTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: act2Ref.current,
+              start: "top 98%",
+              end: "top 10%",
+              scrub: true,
+            },
+          });
+
+          crestTl
+            .fromTo(
+              validShutters,
+              { scaleY: 0 },
+              {
+                scaleY: 1,
+                stagger: 0.05,
+                ease: "power2.out",
+                duration: 0.55,
+              },
+              0
+            )
+            .to(
+              validShutters,
+              {
+                scaleY: 0,
+                stagger: 0.04,
+                ease: "power2.in",
+                duration: 0.45,
+              },
+              0.55
+            );
+        }
+
+        // 2. UNIQUE TYPOGRAPHY MOTION #2 (Act II): Variable-Font Width Elastic Wave (`fontVariationSettings: 'wdth' 58 -> 108`)
         const validAct2Words = act2WordRefs.current.filter(Boolean);
         if (validAct2Words.length > 0 && act2Ref.current) {
           gsap.fromTo(
@@ -127,12 +174,12 @@ export default function SceneBSection() {
               fontVariationSettings: "'wdth' 108",
               y: 0,
               opacity: 1,
-              stagger: 0.08,
+              stagger: 0.07,
               ease: "none",
               scrollTrigger: {
                 trigger: act2Ref.current,
-                start: "top 92%",
-                end: "top 35%",
+                start: "top 88%",
+                end: "top 32%",
                 scrub: true,
               },
             }
@@ -152,7 +199,7 @@ export default function SceneBSection() {
               ease: "none",
               scrollTrigger: {
                 trigger: act2Ref.current,
-                start: "top 85%",
+                start: "top 84%",
                 end: "top 25%",
                 scrub: true,
               },
@@ -207,8 +254,7 @@ export default function SceneBSection() {
           }
         }
 
-        // 2. UNIQUE SECTION 2 -> SECTION 3 TRANSITION: Center-Out Horizontal Split Iris Gate!
-        // A glowing Vermilion laser line cracks across the center of the screen and expands vertically (`scaleY: 0 -> 1`) to open Section 3's dark stage!
+        // 3. UNIQUE SECTION 2 -> SECTION 3 TRANSITION: Center-Out Horizontal Split Iris Gate!
         if (irisGateWrapRef.current && irisCoreRef.current && irisLaserRef.current) {
           const irisTl = gsap.timeline({
             scrollTrigger: {
@@ -234,7 +280,7 @@ export default function SceneBSection() {
             );
         }
 
-        // 3. UNIQUE TYPOGRAPHY MOTION #3 (Act III): 3D Cylindrical Odometer Character Spin (`rotateX: 110deg/-110deg -> 0deg`)
+        // 4. UNIQUE TYPOGRAPHY MOTION #3 (Act III): 3D Cylindrical Odometer Character Spin
         if (act3AstrolabeRef.current && act3TrackRef.current) {
           gsap.fromTo(
             act3AstrolabeRef.current,
@@ -277,7 +323,7 @@ export default function SceneBSection() {
           );
         }
 
-        // 4. Act III: 3-Card Curved Fan-Out & 180° 3D Flip Choreography!
+        // 5. Act III: 3-Card Curved Fan-Out & 180° 3D Flip Choreography!
         if (act3TrackRef.current && window.innerWidth >= 1024) {
           const c0 = cardSlotRefs.current[0];
           const c1 = cardSlotRefs.current[1];
@@ -380,24 +426,51 @@ export default function SceneBSection() {
       className="relative w-full scene-b bg-bone-100 text-ink-950 select-none"
     >
       {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD ================= */}
+      {/* Note: NO overflow-hidden on `act2Ref` so the `bottom-full` 5-Column Staircase Crest extends cleanly above the top edge without margin collapse! */}
       <div
         ref={act2Ref}
-        className="relative w-full bg-bone-100 pt-14 sm:pt-20 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24 overflow-hidden"
+        className="relative w-full bg-bone-100 pt-10 sm:pt-14 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24"
       >
-        {/* Rich Constructivist SVG Topographic & Clinometer Schematic Background */}
-        <svg
-          ref={compassSvgRef}
+        {/* EXCLUSIVE SECTION 1 -> 2 TRANSITION: 5-Column Stepped Crest attached directly to `bottom-full` (top edge of Section 2) */}
+        <div
           aria-hidden="true"
-          viewBox="0 0 600 600"
-          className="hidden lg:block absolute -right-28 top-12 w-[540px] h-[540px] text-ink-950/[0.08] pointer-events-none will-change-transform"
+          style={{ zIndex: 45 }}
+          className="absolute left-0 right-0 bottom-full h-[36svh] grid grid-cols-5 items-end pointer-events-none"
         >
-          <circle cx="300" cy="300" r="270" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="10 10" />
-          <circle cx="300" cy="300" r="210" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="300" cy="300" r="145" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 6" />
-          <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="1.5" />
-          <polygon points="300,35 290,65 310,65" fill="currentColor" />
-        </svg>
+          {STEP_HEIGHTS.map((hPct, colIdx) => (
+            <div
+              key={colIdx}
+              ref={(el) => {
+                stepShuttersRef.current[colIdx] = el;
+              }}
+              style={{
+                height: hPct,
+                transformOrigin: "bottom center",
+                transform: "scaleY(0)",
+              }}
+              className="w-full bg-bone-100 -mx-[0.5px] will-change-transform"
+            />
+          ))}
+        </div>
+
+        {/* Rich Constructivist SVG Topographic & Clinometer Schematic Background */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+        >
+          <svg
+            ref={compassSvgRef}
+            viewBox="0 0 600 600"
+            className="hidden lg:block absolute -right-28 top-12 w-[540px] h-[540px] text-ink-950/[0.08] pointer-events-none will-change-transform"
+          >
+            <circle cx="300" cy="300" r="270" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="10 10" />
+            <circle cx="300" cy="300" r="210" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="300" cy="300" r="145" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 6" />
+            <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="1.5" />
+            <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="1.5" />
+            <polygon points="300,35 290,65 310,65" fill="currentColor" />
+          </svg>
+        </div>
 
         <div
           aria-hidden="true"
@@ -429,7 +502,7 @@ export default function SceneBSection() {
             </div>
           </div>
 
-          {/* Unclipped Variable-Font Width Wave Headline (NEVER cuts letters horizontally!) */}
+          {/* Unclipped Variable-Font Width Wave Headline */}
           <div className="mb-12 sm:mb-16 pointer-events-none px-2">
             <h2
               style={{
@@ -549,13 +622,11 @@ export default function SceneBSection() {
         aria-hidden="true"
         className="relative w-full h-[24svh] bg-bone-100 flex items-center justify-center overflow-hidden pointer-events-none"
       >
-        {/* Center Horizontal Vermilion Laser Seam */}
         <div
           ref={irisLaserRef}
           style={{ transformOrigin: "center center" }}
           className="w-full h-2 bg-sun-600 z-10 will-change-transform"
         />
-        {/* Expanding Obsidian Iris Gate (Opens simultaneously upward & downward from the center seam!) */}
         <div
           ref={irisCoreRef}
           style={{ transformOrigin: "center center", transform: "scaleY(0)" }}

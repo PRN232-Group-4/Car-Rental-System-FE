@@ -7,8 +7,8 @@ const HERO_LINE1_CHARS = ["S", "I", "Ê", "U", "\u00A0", "X", "E", "."];
 const HERO_LINE2_CHARS = ["K", "H", "Ô", "N", "G", "\u00A0", "V", "Ộ", "I", "."];
 
 export default function HeroChapter() {
-  const trackRef = useRef<HTMLElement>(null);
-  const stickyStageRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const bgImgRef = useRef<HTMLImageElement>(null);
   const svgRingRef = useRef<SVGSVGElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
@@ -21,17 +21,17 @@ export default function HeroChapter() {
   const mistRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const branchRef = useRef<HTMLDivElement>(null);
-  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
-      if (typeof window === "undefined" || !trackRef.current) return;
+      if (typeof window === "undefined" || !containerRef.current) return;
 
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
           [
+            stageRef.current,
             bgImgRef.current,
             svgRingRef.current,
             spineRef.current,
@@ -47,9 +47,6 @@ export default function HeroChapter() {
         });
         char2Refs.current.forEach((c) => {
           if (c) gsap.set(c, { clearProps: "all", opacity: 1 });
-        });
-        shutterRefs.current.forEach((s) => {
-          if (s) gsap.set(s, { scaleY: 0 });
         });
       });
 
@@ -153,20 +150,18 @@ export default function HeroChapter() {
           );
         }
 
-        // 2. SCROLL PARALLAX + EXCLUSIVE SECTION 1 -> 2 TRANSITION: 5-COLUMN RISING STEP-STAIR PILLARS
-        // Because `stickyStageRef` stays pinned for 138svh, at scrollY=0 all 5 columns are strictly `scaleY: 0` (ZERO overlap on the car or caption!).
-        // As the user scrolls down, the 5 full-height columns rise in a dramatic staircase (`stagger: 0.09`) pulling Section 2's paper canvas up to the top!
+        // 2. Continuous Multi-Layer Parallax as Section 2's Stepped Crest Pulls Up Over Hero
         const scrollTl = gsap.timeline({
           scrollTrigger: {
-            trigger: trackRef.current,
+            trigger: containerRef.current,
             start: "top top",
-            end: "bottom bottom",
+            end: "bottom top",
             scrub: true,
           },
         });
 
         if (bgImgRef.current) {
-          scrollTl.to(bgImgRef.current, { yPercent: 12, scale: 1.1, ease: "none" }, 0);
+          scrollTl.to(bgImgRef.current, { yPercent: 16, scale: 1.12, ease: "none" }, 0);
         }
         if (svgRingRef.current) {
           scrollTl.to(svgRingRef.current, { rotate: 95, scale: 1.12, ease: "none" }, 0);
@@ -183,36 +178,20 @@ export default function HeroChapter() {
         if (carRef.current) {
           scrollTl.to(
             carRef.current,
-            { xPercent: -12, yPercent: -8, scale: 1.06, ease: "none" },
+            { xPercent: -12, yPercent: -10, scale: 1.08, ease: "none" },
             0
           );
         }
         if (branchRef.current) {
           scrollTl.to(
             branchRef.current,
-            { xPercent: 8, yPercent: -24, scale: 1.12, ease: "none" },
+            { xPercent: 8, yPercent: -26, scale: 1.12, ease: "none" },
             0
           );
         }
 
-        // 5-Column Step-Stair Pillars (Starts rising at 18% of the Hero scroll track and reaches 100% full-screen right as Section 2 arrives!)
-        const validShutters = shutterRefs.current.filter(Boolean);
-        if (validShutters.length > 0) {
-          scrollTl.fromTo(
-            validShutters,
-            { scaleY: 0 },
-            {
-              scaleY: 1,
-              stagger: 0.09,
-              ease: "none",
-              duration: 0.65,
-            },
-            0.18
-          );
-        }
-
         // 3. Interactive Pointer 3D Depth Parallax
-        const el = stickyStageRef.current;
+        const el = containerRef.current;
         if (el && window.matchMedia("(pointer: fine)").matches) {
           const xBg = gsap.quickTo(bgImgRef.current, "x", { duration: 1.0, ease: "power3.out" });
           const yBg = gsap.quickTo(bgImgRef.current, "y", { duration: 1.0, ease: "power3.out" });
@@ -239,19 +218,18 @@ export default function HeroChapter() {
 
       return () => mm.revert();
     },
-    { scope: trackRef }
+    { scope: containerRef }
   );
 
   return (
     <section
-      ref={trackRef}
+      ref={containerRef}
       id="gioi-thieu"
-      className="relative w-full h-[138svh] bg-ink-950 text-bone-100 select-none"
+      className="relative w-full h-[100svh] min-h-[700px] bg-ink-950 text-bone-100 overflow-hidden select-none"
     >
-      {/* Sticky 100svh Viewport Stage: Guarantees 100% of the Porsche & Caption are visible at scrollY=0 with ZERO cream bar overlap! */}
       <div
-        ref={stickyStageRef}
-        className="sticky top-0 w-full h-[100svh] min-h-[700px] overflow-hidden flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 sm:pt-24 pb-8"
+        ref={stageRef}
+        className="relative w-full h-full flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 sm:pt-24 pb-8"
       >
         {/* Layer 1 (z-10): Full-Bleed Da Lat Dawn Woodcut Painting */}
         <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
@@ -453,7 +431,7 @@ export default function HeroChapter() {
             />
             <source
               type="image/webp"
-              srcSet="/assets/landing/a6-fg-branch-1600.webp 1600w, /assets/landing/a6-fg-branch-1280.webp 1280w, /assets/landing/a6-fg-branch-960.webp 960w"
+              srcSet="/assets/landing/a6-fg-branch-1600.webp 1600w, /assets/landing/a6-fg-branch-1280.webp 1600w, /assets/landing/a6-fg-branch-960.webp 960w"
             />
             <img
               src="/assets/landing/a6-fg-branch-1280.webp"
@@ -463,24 +441,6 @@ export default function HeroChapter() {
               decoding="async"
             />
           </picture>
-        </div>
-
-        {/* Layer 8 (z-40): EXCLUSIVE SECTION 1 -> 2 TRANSITION: 5-Column Rising Step-Stair Pillars (NO orange top border, subtle vertical architectural seam so the 5 columns are clearly visible as they pull Section 2 up!) */}
-        <div
-          aria-hidden="true"
-          style={{ zIndex: 40 }}
-          className="absolute inset-0 w-full h-full grid grid-cols-5 pointer-events-none"
-        >
-          {[0, 1, 2, 3, 4].map((colIdx) => (
-            <div
-              key={colIdx}
-              ref={(el) => {
-                shutterRefs.current[colIdx] = el;
-              }}
-              style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
-              className="w-full h-full bg-bone-100 border-r border-ink-950/[0.06] will-change-transform"
-            />
-          ))}
         </div>
       </div>
     </section>

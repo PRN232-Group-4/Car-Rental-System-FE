@@ -40,13 +40,17 @@ const TRUST_BLADES = [
 
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
-  const deckStageRef = useRef<HTMLDivElement>(null);
+  const foldBridgeRef = useRef<HTMLDivElement>(null);
   const blockShutter1Ref = useRef<HTMLDivElement>(null);
   const blockShutter2Ref = useRef<HTMLDivElement>(null);
   const blueprintSvgRef = useRef<SVGSVGElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
+
+  // 4 Card Vault Refs (Fixed bounding-box coordinates so Cards 01 & 02 animate identically to 03 & 04 right in the user's line of sight!)
   const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cardShutterRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cardNumRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useGSAP(
     () => {
@@ -57,7 +61,7 @@ export default function TrustChapter() {
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
           [
-            deckStageRef.current,
+            foldBridgeRef.current,
             blueprintSvgRef.current,
             spineRef.current,
             posterImgRef.current,
@@ -69,24 +73,29 @@ export default function TrustChapter() {
         bladeRefs.current.forEach((b) => {
           if (b) gsap.set(b, { clearProps: "all", opacity: 1 });
         });
+        cardShutterRefs.current.forEach((s) => {
+          if (s) gsap.set(s, { scaleX: 0 });
+        });
+        cardNumRefs.current.forEach((n) => {
+          if (n) gsap.set(n, { clearProps: "all", opacity: 1 });
+        });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNIQUE SECTION 3 -> SECTION 4 TRANSITION: 3D Isometric Blueprint Sheet Unfold (`rotateX: 28deg, rotateZ: -2.5deg, scale: 0.86 -> 0`)
-        if (deckStageRef.current) {
+        // 1. UNIQUE SECTION 3 -> SECTION 4 TRANSITION: Dedicated 3D Isometric Origami Bridge
+        // Kept on `foldBridgeRef` ONLY (NOT on the parent of the cards!) so ScrollTrigger calculates 100% exact bounding boxes for Cards 01, 02, 03, and 04!
+        if (foldBridgeRef.current) {
           gsap.fromTo(
-            deckStageRef.current,
-            { rotateX: 28, rotateZ: -2.5, scale: 0.86, y: 80 },
+            foldBridgeRef.current,
+            { rotateX: -85, scaleY: 0.2 },
             {
               rotateX: 0,
-              rotateZ: 0,
-              scale: 1,
-              y: 0,
+              scaleY: 1,
               ease: "none",
               scrollTrigger: {
                 trigger: containerRef.current,
                 start: "top 95%",
-                end: "top 22%",
+                end: "top 35%",
                 scrub: true,
               },
             }
@@ -104,8 +113,8 @@ export default function TrustChapter() {
               ease: "none",
               scrollTrigger: {
                 trigger: containerRef.current,
-                start: "top 78%",
-                end: "top 28%",
+                start: "top 75%",
+                end: "top 25%",
                 scrub: true,
               },
             }
@@ -142,33 +151,71 @@ export default function TrustChapter() {
         if (posterImgRef.current) {
           masterTl.fromTo(
             posterImgRef.current,
-            { scale: 0.94 },
+            { scale: 0.93 },
             { scale: 1.03, ease: "none" },
             0
           );
         }
 
-        // 3. Asymmetric Cantilever Spine Blades
+        // 3. FIXED 4-CARD VAULT CHOREOGRAPHY (Cards 01, 02, 03, 04 ALL execute a dramatic 3D Unfold + Armor Shutter Wipe right in the active viewport `top 82% -> top 36%`!)
         bladeRefs.current.forEach((blade, idx) => {
+          const shutter = cardShutterRefs.current[idx];
+          const num = cardNumRefs.current[idx];
           if (!blade) return;
+
           const isLeft = idx % 2 === 0;
 
-          gsap.fromTo(
+          const cardTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: blade,
+              start: "top 82%",
+              end: "top 36%",
+              scrub: true,
+            },
+          });
+
+          // 3D Perspective Swing & Cantilever Lock onto the Central Blue Spine
+          cardTl.fromTo(
             blade,
-            { xPercent: isLeft ? 16 : -16, y: 40, opacity: 0.15 },
+            {
+              xPercent: isLeft ? -26 : 26,
+              y: 64,
+              rotateY: isLeft ? -28 : 28,
+              rotateX: 18,
+              scale: 0.88,
+              opacity: 0.1,
+            },
             {
               xPercent: 0,
               y: 0,
+              rotateY: 0,
+              rotateX: 0,
+              scale: 1,
               opacity: 1,
-              ease: "none",
-              scrollTrigger: {
-                trigger: blade,
-                start: "top 95%",
-                end: "top 40%",
-                scrub: true,
-              },
-            }
+              ease: "power2.out",
+            },
+            0
           );
+
+          // Internal Armor Shutter Wipes Open (`scaleX: 1 -> 0`)
+          if (shutter) {
+            cardTl.fromTo(
+              shutter,
+              { scaleX: 1 },
+              { scaleX: 0, ease: "power2.inOut" },
+              0.08
+            );
+          }
+
+          // Giant Index Number (`01` - `04`) Rises from Mask
+          if (num) {
+            cardTl.fromTo(
+              num,
+              { yPercent: 100 },
+              { yPercent: 0, ease: "power2.out" },
+              0.12
+            );
+          }
         });
       });
 
@@ -181,15 +228,23 @@ export default function TrustChapter() {
     <section
       ref={containerRef}
       id="tin-cay"
-      style={{ perspective: "1600px" }}
-      className="relative w-full bg-ink-950 select-none overflow-hidden pt-8"
+      className="relative w-full bg-bone-100 text-ink-950 select-none overflow-hidden"
     >
-      {/* 3D Unfolding Archival Blueprint Sheet */}
+      {/* UNIQUE SECTION 3 -> SECTION 4 TRANSITION: 3D Isometric Origami Bridge */}
       <div
-        ref={deckStageRef}
-        style={{ transformOrigin: "center top" }}
-        className="relative w-full bg-bone-100 text-ink-950 border-t-8 border-lake-600 py-24 sm:py-36 px-8 sm:px-14 lg:px-24 overflow-hidden will-change-transform"
+        aria-hidden="true"
+        style={{ perspective: "1200px" }}
+        className="w-full bg-ink-950 pt-6"
       >
+        <div
+          ref={foldBridgeRef}
+          style={{ transformOrigin: "bottom center" }}
+          className="w-full h-16 sm:h-20 bg-bone-100 border-t-8 border-lake-600 will-change-transform"
+        />
+      </div>
+
+      {/* Main Archival Blueprint Stage (Unscaled 1:1 coordinate system so ScrollTrigger triggers Cards 01 & 02 with 100% precision!) */}
+      <div className="relative w-full bg-bone-100 text-ink-950 pt-10 sm:pt-16 pb-24 sm:pb-36 px-8 sm:px-14 lg:px-24 overflow-hidden">
         {/* Rich Constructivist SVG Blueprint Schematic & Architectural Grid */}
         <svg
           ref={blueprintSvgRef}
@@ -271,8 +326,11 @@ export default function TrustChapter() {
             />
           </div>
 
-          {/* 3. Asymmetric Central-Spine Cantilever Architecture */}
-          <div className="relative pt-8 pb-4">
+          {/* 3. Asymmetric Central-Spine Cantilever Architecture (All 4 Cards 01, 02, 03, 04 unfold in 3D + wipe open their armor shutter right when scrolled into view!) */}
+          <div
+            style={{ perspective: "1400px" }}
+            className="relative pt-8 pb-4"
+          >
             <div
               ref={spineRef}
               aria-hidden="true"
@@ -280,7 +338,7 @@ export default function TrustChapter() {
               className="hidden lg:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-3 bg-lake-600 will-change-transform"
             />
 
-            <div className="space-y-10 lg:space-y-0">
+            <div className="space-y-10 lg:space-y-6">
               {TRUST_BLADES.map((blade, idx) => {
                 const isLeft = blade.side === "left";
                 return (
@@ -289,9 +347,7 @@ export default function TrustChapter() {
                     ref={(el) => {
                       bladeRefs.current[idx] = el;
                     }}
-                    className={`relative grid grid-cols-1 lg:grid-cols-12 items-center ${
-                      idx > 0 ? "lg:-mt-12" : ""
-                    } will-change-transform`}
+                    className="relative grid grid-cols-1 lg:grid-cols-12 items-center will-change-transform"
                   >
                     <div
                       className={
@@ -303,10 +359,27 @@ export default function TrustChapter() {
                       <div
                         className={
                           idx % 2 === 0
-                            ? "bg-ink-950 text-bone-100 p-8 sm:p-10 border-t-4 border-lake-400 shadow-2xl"
-                            : "bg-bone-100 text-ink-950 p-8 sm:p-10 border-2 border-ink-950 border-t-8 border-t-sun-600 shadow-2xl"
+                            ? "relative overflow-hidden bg-ink-950 text-bone-100 p-8 sm:p-10 border-t-4 border-lake-400 shadow-2xl"
+                            : "relative overflow-hidden bg-bone-100 text-ink-950 p-8 sm:p-10 border-2 border-ink-950 border-t-8 border-t-sun-600 shadow-2xl"
                         }
                       >
+                        {/* Sliding Mechanical Armor Shutter (`scaleX: 1 -> 0` on scroll!) */}
+                        <div
+                          ref={(el) => {
+                            cardShutterRefs.current[idx] = el;
+                          }}
+                          aria-hidden="true"
+                          style={{
+                            transformOrigin: isLeft ? "right center" : "left center",
+                            zIndex: 20,
+                          }}
+                          className={
+                            idx % 2 === 0
+                              ? "absolute inset-0 bg-lake-600 pointer-events-none will-change-transform"
+                              : "absolute inset-0 bg-ink-950 pointer-events-none will-change-transform"
+                          }
+                        />
+
                         <div className="flex items-baseline justify-between border-b border-current/20 pb-4 mb-6">
                           <div>
                             <span
@@ -327,21 +400,26 @@ export default function TrustChapter() {
                             </span>
                           </div>
 
-                          <span
-                            style={{
-                              fontFamily: "var(--font-archivo, sans-serif)",
-                              fontSize: "clamp(3.25rem, 5vw, 5.25rem)",
-                              lineHeight: 0.88,
-                              fontVariationSettings: "'wdth' 64",
-                            }}
-                            className={
-                              idx % 2 === 0
-                                ? "font-black text-lake-400"
-                                : "font-black text-sun-600"
-                            }
-                          >
-                            {blade.index}
-                          </span>
+                          <div className="overflow-hidden pt-1">
+                            <span
+                              ref={(el) => {
+                                cardNumRefs.current[idx] = el;
+                              }}
+                              style={{
+                                fontFamily: "var(--font-archivo, sans-serif)",
+                                fontSize: "clamp(3.25rem, 5vw, 5.25rem)",
+                                lineHeight: 0.88,
+                                fontVariationSettings: "'wdth' 64",
+                              }}
+                              className={
+                                idx % 2 === 0
+                                  ? "font-black text-lake-400 inline-block will-change-transform"
+                                  : "font-black text-sun-600 inline-block will-change-transform"
+                              }
+                            >
+                              {blade.index}
+                            </span>
+                          </div>
                         </div>
 
                         <h3
