@@ -13,3 +13,4 @@ export const jetbrainsMono = { variable: "" };
 export const cormorant = { variable: "" };
 export const bricolage = spaceGrotesk;
 export const manrope = archivo;
+export const beVietnamPro = { variable: "" };

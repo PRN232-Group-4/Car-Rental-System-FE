@@ -18,7 +18,7 @@ export default function HeroChapter() {
   const mistRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const branchRef = useRef<HTMLDivElement>(null);
-  const bridgeBarRef = useRef<HTMLDivElement>(null);
+  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
@@ -37,21 +37,23 @@ export default function HeroChapter() {
             leadBlockRef.current,
             carRef.current,
             branchRef.current,
-            bridgeBarRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
+        shutterRefs.current.forEach((col) => {
+          if (col) gsap.set(col, { scaleY: 0 });
+        });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Constructivist Entrance Choreography on Load
+        // 1. High-Impact Constructivist Entrance Choreography
         const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
         if (bgImgRef.current) {
           introTl.fromTo(
             bgImgRef.current,
-            { scale: 1.18, opacity: 0 },
-            { scale: 1.03, opacity: 1, duration: 1.5, ease: "power3.out" },
+            { scale: 1.16, opacity: 0 },
+            { scale: 1.02, opacity: 1, duration: 1.4, ease: "power3.out" },
             0
           );
         }
@@ -60,7 +62,7 @@ export default function HeroChapter() {
           introTl.fromTo(
             spineRef.current,
             { scaleY: 0 },
-            { scaleY: 1, duration: 1.2, ease: "expo.inOut" },
+            { scaleY: 1, duration: 1.1, ease: "expo.inOut" },
             0.05
           );
         }
@@ -69,7 +71,7 @@ export default function HeroChapter() {
           introTl.fromTo(
             horizonRuleRef.current,
             { scaleX: 0 },
-            { scaleX: 1, duration: 1.2, ease: "expo.inOut" },
+            { scaleX: 1, duration: 1.1, ease: "expo.inOut" },
             0.15
           );
         }
@@ -78,7 +80,7 @@ export default function HeroChapter() {
           introTl.fromTo(
             [headingLine1Ref.current, headingLine2Ref.current],
             { yPercent: 115, rotateZ: 2, opacity: 0 },
-            { yPercent: 0, rotateZ: 0, opacity: 1, duration: 1.2, stagger: 0.12 },
+            { yPercent: 0, rotateZ: 0, opacity: 1, duration: 1.15, stagger: 0.12 },
             0.12
           );
         }
@@ -86,8 +88,8 @@ export default function HeroChapter() {
         if (leadBlockRef.current) {
           introTl.fromTo(
             leadBlockRef.current,
-            { y: 28, opacity: 0 },
-            { y: 0, opacity: 1, duration: 1.0 },
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.95 },
             0.35
           );
         }
@@ -95,8 +97,8 @@ export default function HeroChapter() {
         if (carRef.current) {
           introTl.fromTo(
             carRef.current,
-            { xPercent: 16, yPercent: 8, scale: 0.88, opacity: 0 },
-            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.4 },
+            { xPercent: 16, yPercent: 6, scale: 0.9, opacity: 0 },
+            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.35 },
             0.2
           );
         }
@@ -104,13 +106,13 @@ export default function HeroChapter() {
         if (branchRef.current) {
           introTl.fromTo(
             branchRef.current,
-            { xPercent: 22, yPercent: 14, opacity: 0 },
-            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.45 },
+            { xPercent: 20, yPercent: 12, opacity: 0 },
+            { xPercent: 0, yPercent: 0, opacity: 1, duration: 1.4 },
             0.3
           );
         }
 
-        // 2. 1:1 Scroll-Scrubbed Multi-Plane Transform (`scrub: true` = Zero Lag)
+        // 2. 1:1 Scroll-Linked Multi-Plane Parallax + 5-Column Rising Venetian Shutter Transition into Section 2!
         const scrollTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -121,40 +123,48 @@ export default function HeroChapter() {
         });
 
         if (bgImgRef.current) {
-          scrollTl.to(bgImgRef.current, { yPercent: 18, scale: 1.16, ease: "none" }, 0);
+          scrollTl.to(bgImgRef.current, { yPercent: 18, scale: 1.15, ease: "none" }, 0);
         }
         if (line1WrapRef.current) {
-          scrollTl.to(line1WrapRef.current, { xPercent: -10, yPercent: -22, ease: "none" }, 0);
+          scrollTl.to(line1WrapRef.current, { xPercent: -10, yPercent: -20, ease: "none" }, 0);
         }
         if (line2WrapRef.current) {
-          scrollTl.to(line2WrapRef.current, { xPercent: 12, yPercent: -14, ease: "none" }, 0);
+          scrollTl.to(line2WrapRef.current, { xPercent: 12, yPercent: -12, ease: "none" }, 0);
         }
         if (leadBlockRef.current) {
-          scrollTl.to(leadBlockRef.current, { yPercent: -28, opacity: 0.1, ease: "none" }, 0);
+          scrollTl.to(leadBlockRef.current, { yPercent: -24, opacity: 0.1, ease: "none" }, 0);
         }
         if (mistRef.current) {
-          scrollTl.to(mistRef.current, { xPercent: -16, yPercent: -8, opacity: 0.75, ease: "none" }, 0);
+          scrollTl.to(mistRef.current, { xPercent: -16, yPercent: -8, opacity: 0.7, ease: "none" }, 0);
         }
         if (carRef.current) {
           scrollTl.to(
             carRef.current,
-            { xPercent: -16, yPercent: -12, scale: 1.12, ease: "none" },
+            { xPercent: -14, yPercent: -14, scale: 1.1, ease: "none" },
             0
           );
         }
         if (branchRef.current) {
           scrollTl.to(
             branchRef.current,
-            { xPercent: 12, yPercent: -38, scale: 1.16, ease: "none" },
+            { xPercent: 10, yPercent: -35, scale: 1.15, ease: "none" },
             0
           );
         }
-        if (bridgeBarRef.current) {
+
+        // 5-Column Staggered Venetian Shutters: Strictly scaleY(0) at scrollY=0 (never cuts car at rest!), then shoots up as user scrolls into Section 2!
+        const validShutters = shutterRefs.current.filter(Boolean);
+        if (validShutters.length > 0) {
           scrollTl.fromTo(
-            bridgeBarRef.current,
-            { scaleX: 0.15 },
-            { scaleX: 1, ease: "none" },
-            0
+            validShutters,
+            { scaleY: 0 },
+            {
+              scaleY: 1,
+              stagger: 0.05,
+              ease: "none",
+              duration: 0.55,
+            },
+            0.35
           );
         }
 
@@ -193,9 +203,9 @@ export default function HeroChapter() {
     <section
       ref={containerRef}
       id="gioi-thieu"
-      className="relative w-full h-[100svh] min-h-[760px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 pb-16"
+      className="relative w-full h-[108svh] min-h-[820px] bg-ink-950 text-bone-100 overflow-hidden select-none flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-28 sm:pt-32 pb-24"
     >
-      {/* Layer 1 (z-10): 100% Full-Bleed Da Lat Dawn Woodcut Painting (Relative positioning guarantees 100% visibility in all screenshots!) */}
+      {/* Layer 1 (z-10): Full-Bleed Da Lat Dawn Woodcut Painting */}
       <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
         <source
           type="image/avif"
@@ -227,7 +237,7 @@ export default function HeroChapter() {
         ref={horizonRuleRef}
         aria-hidden="true"
         style={{ zIndex: 14, transformOrigin: "left center" }}
-        className="absolute left-0 right-0 bottom-[22%] h-[1px] bg-bone-100/25 pointer-events-none will-change-transform"
+        className="absolute left-0 right-0 bottom-[20%] h-[1px] bg-bone-100/25 pointer-events-none will-change-transform"
       />
 
       {/* Layer 3 (z-15): Lithograph Dust Texture */}
@@ -245,23 +255,18 @@ export default function HeroChapter() {
         />
       </div>
 
-      {/* Layer 4 (z-20): Monumental Stepped Typography */}
+      {/* Layer 4 (z-20): Monumental Stepped Typography (Protected with pt-28/32 so it NEVER collides with Navbar Logo!) */}
       <div
         style={{ zIndex: 20 }}
-        className="relative w-full max-w-[1640px] mx-auto pt-2 pointer-events-none"
+        className="relative w-full max-w-[1640px] mx-auto pointer-events-none"
       >
-        <div className="flex items-center justify-between text-[10px] sm:text-xs tracking-[0.28em] uppercase font-sans font-bold text-bone-100/75 mb-4 pb-3 border-b border-bone-100/20">
-          <span>01 // GRAND TOURING MONOGRAPH</span>
-          <span className="hidden sm:inline text-sun-400">POWER · PRECISION · FREEDOM</span>
-        </div>
-
         <h1 className="font-display font-black uppercase text-bone-100 flex flex-col items-start">
           <div ref={line1WrapRef} className="will-change-transform">
             <DisplayLine
               ref={headingLine1Ref}
               wdth={74}
               style={{
-                fontSize: "clamp(3.75rem, 10vw, 12.5rem)",
+                fontSize: "clamp(3.5rem, 9.2vw, 11.5rem)",
                 lineHeight: 1.08,
               }}
               className="tracking-tight text-bone-100 whitespace-nowrap drop-shadow-2xl"
@@ -271,13 +276,13 @@ export default function HeroChapter() {
           </div>
           <div
             ref={line2WrapRef}
-            className="sm:ml-[5vw] -mt-[0.5vw] will-change-transform"
+            className="sm:ml-[4.5vw] -mt-[0.5vw] will-change-transform"
           >
             <DisplayLine
               ref={headingLine2Ref}
               wdth={114}
               style={{
-                fontSize: "clamp(2.4rem, 6.2vw, 7.8rem)",
+                fontSize: "clamp(2.25rem, 5.8vw, 7.2rem)",
                 lineHeight: 1.12,
               }}
               className="tracking-tight text-bone-100 whitespace-nowrap drop-shadow-2xl"
@@ -287,18 +292,17 @@ export default function HeroChapter() {
           </div>
         </h1>
 
+        {/* High-Contrast Architectural Caption Strip (Guarantees 100% Readability over the White Mountain Mist!) */}
         <div
           ref={leadBlockRef}
-          className="mt-5 sm:ml-[5vw] max-w-md space-y-3 will-change-transform"
+          className="mt-5 sm:ml-[4.5vw] max-w-md bg-ink-950/90 border-l-4 border-sun-600 p-4 sm:p-5 will-change-transform"
         >
-          <div className="flex items-center gap-1.5" aria-hidden="true">
-            <span className="w-4 h-1.5 bg-sun-600 inline-block" />
-            <span className="w-4 h-1.5 bg-sun-600 inline-block" />
-            <span className="w-4 h-1.5 bg-sun-600 inline-block" />
-            <span className="w-16 h-[2px] bg-bone-100/60 inline-block ml-2" />
+          <div className="flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans font-bold text-sun-400 mb-2">
+            <span>PORSCHE · MERCEDES-AMG · LAMBORGHINI</span>
+            <span>////</span>
           </div>
-          <p className="font-sans text-sm sm:text-base text-bone-100/95 leading-relaxed font-medium drop-shadow-lg">
-            Porsche, Mercedes-AMG, Lamborghini. Chọn trạm nhận xe, kích hoạt chìa khóa số và tự do cầm lái trên mọi cung đường.
+          <p className="font-sans text-xs sm:text-sm text-bone-100/95 leading-relaxed font-medium">
+            Chọn trạm nhận xe, kích hoạt chìa khóa số và tự do cầm lái trên mọi cung đường.
           </p>
         </div>
       </div>
@@ -307,7 +311,7 @@ export default function HeroChapter() {
       <div
         ref={mistRef}
         aria-hidden="true"
-        style={{ zIndex: 25, mixBlendMode: "screen", opacity: 0.45 }}
+        style={{ zIndex: 25, mixBlendMode: "screen", opacity: 0.42 }}
         className="absolute inset-0 pointer-events-none will-change-transform"
       >
         <img
@@ -324,9 +328,9 @@ export default function HeroChapter() {
         ref={carRef}
         style={{
           zIndex: 30,
-          width: "clamp(320px, 50vw, 840px)",
+          width: "clamp(310px, 46vw, 780px)",
         }}
-        className="relative ml-auto mr-[4%] sm:mr-[8%] -mb-2 sm:-mb-4 pointer-events-none will-change-transform"
+        className="relative ml-auto mr-[4%] sm:mr-[8%] -mb-2 pointer-events-none will-change-transform"
       >
         <picture className="w-full block">
           <source
@@ -355,7 +359,7 @@ export default function HeroChapter() {
           zIndex: 35,
           width: "clamp(190px, 25vw, 440px)",
         }}
-        className="hidden sm:block absolute -right-[2%] bottom-[6%] pointer-events-none will-change-transform"
+        className="hidden sm:block absolute -right-[2%] bottom-[8%] pointer-events-none will-change-transform"
       >
         <picture className="w-full block">
           <source
@@ -376,17 +380,22 @@ export default function HeroChapter() {
         </picture>
       </div>
 
-      {/* Layer 8 (z-40): Bottom Constructivist Horizon Bridge into Chapter 2 */}
+      {/* Layer 8 (z-40): 5-Column Rising Venetian Shutter Transition into Section 2 (`scaleY: 0` at rest, rises on scroll!) */}
       <div
         aria-hidden="true"
         style={{ zIndex: 40 }}
-        className="absolute inset-x-0 bottom-0 h-3 bg-bone-100 pointer-events-none overflow-hidden"
+        className="absolute inset-x-0 bottom-0 h-[42svh] grid grid-cols-5 pointer-events-none"
       >
-        <div
-          ref={bridgeBarRef}
-          style={{ transformOrigin: "left center" }}
-          className="w-full h-full bg-sun-600 will-change-transform"
-        />
+        {[0, 1, 2, 3, 4].map((colIdx) => (
+          <div
+            key={colIdx}
+            ref={(el) => {
+              shutterRefs.current[colIdx] = el;
+            }}
+            style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
+            className="w-full h-full bg-bone-100 border-t-4 border-sun-600 will-change-transform"
+          />
+        ))}
       </div>
     </section>
   );

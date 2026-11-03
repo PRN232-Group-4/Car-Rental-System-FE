@@ -29,6 +29,7 @@ interface BookingDockProps {
   initialEndDate?: string;
   initialEndTime?: string;
   isExpanded?: boolean;
+  isExpandedInFooter?: boolean;
 }
 
 export default function BookingDock({
@@ -38,8 +39,10 @@ export default function BookingDock({
   initialStartTime = "21:00",
   initialEndDate,
   initialEndTime = "20:00",
-  isExpanded = false,
+  isExpanded: isExpandedProp = false,
+  isExpandedInFooter,
 }: BookingDockProps) {
+  const isExpanded = isExpandedInFooter ?? isExpandedProp;
   const router = useRouter();
   const [facilities, setFacilities] = useState<Facility[]>(getInitialFacilities());
   const [mode] = useState<RentalMode>(initialMode);

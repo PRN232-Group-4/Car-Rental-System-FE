@@ -1,48 +1,70 @@
 "use client";
 
-import { useState } from "react";
-import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import { useState, useEffect } from "react";
+import { archivo, beVietnamPro } from "./fonts";
 import LandingNav from "@/features/landing/components/LandingNav";
-import BookingDock from "@/features/landing/components/BookingDock";
-import CursorDisc from "@/features/landing/components/CursorDisc";
+import CinematicPreloader from "@/features/landing/components/CinematicPreloader";
 import HeroChapter from "@/features/landing/components/chapters/HeroChapter";
 import SceneBSection from "@/features/landing/components/chapters/SceneBSection";
 import TrustChapter from "@/features/landing/components/chapters/TrustChapter";
 import BookingChapter from "@/features/landing/components/chapters/BookingChapter";
-import { archivo } from "./fonts";
+import BookingDock from "@/features/landing/components/BookingDock";
+import CursorDisc from "@/features/landing/components/CursorDisc";
+import { ScrollTrigger } from "@/lib/motion/register";
 
-export default function Home() {
-  const [isChapter5Active, setIsChapter5Active] = useState(false);
+export default function LandingPage() {
+  const [isDockExpanded, setIsDockExpanded] = useState(false);
+
+  // Permanent Fix for Scroll-Stuck at Section 4: Automatically refresh ScrollTrigger & Lenis bounds whenever layout or images settle!
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const refreshBounds = () => {
+      ScrollTrigger.refresh();
+      window.dispatchEvent(new Event("resize"));
+    };
+
+    const t1 = window.setTimeout(refreshBounds, 300);
+    const t2 = window.setTimeout(refreshBounds, 1200);
+
+    const ro = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    ro.observe(document.body);
+
+    window.addEventListener("load", refreshBounds);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      ro.disconnect();
+      window.removeEventListener("load", refreshBounds);
+    };
+  }, []);
 
   return (
-    <SmoothScrollProvider>
-      <main
-        id="main-content"
-        tabIndex={-1}
-        data-surface="marketing"
-        className={`${archivo.variable} overflow-x-clip w-full max-w-full min-h-[100svh] relative text-bone-100 flex flex-col selection:bg-sun-600/30 selection:text-white bg-ink-950 focus:outline-none cursor-default`}
-      >
-        {/* Subtle Cursor Disc (14px difference, hidden on touch/reduced-motion) */}
-        <CursorDisc />
+    <div
+      data-surface="marketing"
+      className={`${archivo.variable} ${beVietnamPro.variable} relative min-h-[100dvh] bg-ink-950 text-bone-100 font-sans antialiased selection:bg-sun-600 selection:text-white overflow-x-clip`}
+    >
+      {/* Mechanical Constructivist Preloader (Auto-bypasses in E2E WebDriver, plays 1.35s for human visitors) */}
+      <CinematicPreloader />
 
-        {/* Minimalist Landing Navigation (Logo + Menu text link) */}
-        <LandingNav />
+      {/* Custom Blend-Mode Cursor Disc */}
+      <CursorDisc />
 
-        {/* Chương 1: Hero (Cảnh A - Đà Lạt bình minh, đan xen z-index đa bình diện) */}
+      {/* Minimalist Top Bar + Full-Screen Constructivist Gallery Menu */}
+      <LandingNav />
+
+      {/* Main 5-Chapter Narrative Monograph */}
+      <main id="main-content" className="relative w-full">
         <HeroChapter />
-
-        {/* Chương 2 & 3: Cung đường & Nhẹ như không (Cảnh B - Sticky Stage, Typography Handoff) */}
         <SceneBSection />
-
-        {/* Chương 4: Tin cậy (Hairline Grid 12 cột, micro caps keys, c4-trust-car) */}
         <TrustChapter />
-
-        {/* Chương 5: Đặt xe (Cảnh A Outro - Mặt trời hạ, Dock mở rộng, CC-BY Footer) */}
-        <BookingChapter onEnterChapter5={setIsChapter5Active} />
-
-        {/* Single Action CTA: Booking Dock (Nút đĩa sun-600 72px duy nhất) */}
-        <BookingDock isExpanded={isChapter5Active} />
+        <BookingChapter onEnterChapter5={setIsDockExpanded} />
       </main>
-    </SmoothScrollProvider>
+
+      {/* Single Persistent Action Dock */}
+      <BookingDock isExpandedInFooter={isDockExpanded} />
+    </div>
   );
 }

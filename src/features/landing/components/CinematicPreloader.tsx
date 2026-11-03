@@ -1,211 +1,169 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ShieldCheck, Compass } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 
-const BOOT_PHASES = [
-  "Khởi tạo không gian trưng bày 3D",
-  "Đồng bộ danh mục xe sẵn sàng vận hành",
-  "Xác thực tiêu chuẩn kiểm định hai chiều",
-  "Sẵn sàng lăn bánh cùng Thong Dong",
-];
-
 export default function CinematicPreloader() {
+  const [isDone, setIsDone] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const topShutterRef = useRef<HTMLDivElement>(null);
-  const bottomShutterRef = useRef<HTMLDivElement>(null);
-  const centerHudRef = useRef<HTMLDivElement>(null);
-  const laserLineRef = useRef<HTMLDivElement>(null);
-  const counterNodeRef = useRef<HTMLSpanElement>(null);
-  const stepTextRef = useRef<HTMLSpanElement>(null);
-
-  const [isDismissed, setIsDismissed] = useState(false);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const ringRef = useRef<SVGCircleElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      fetch("/models/porsche_911_carrera_4s_opt.glb", { priority: "low" as RequestPriority }).catch(() => {});
+    if (typeof window === "undefined") return;
+    // Bypass immediately for automated E2E Playwright runs or reduced-motion users
+    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isWebDriver = navigator.webdriver;
+    const hasSeen = sessionStorage.getItem("td_preloader_seen") === "1";
+
+    if (isReduced || isWebDriver || hasSeen) {
+      setIsDone(true);
     }
   }, []);
 
   useGSAP(
     () => {
-      if (typeof window === "undefined" || !rootRef.current) return;
+      if (isDone || typeof window === "undefined" || !rootRef.current) return;
 
-      const params = new URLSearchParams(window.location.search);
-      const holdForInspect = params.get("preloader") === "hold";
-      const forceFull = params.get("preloader") === "1" || holdForInspect;
-      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const isAutomatedBot = navigator.webdriver === true && !forceFull;
-      const alreadyBooted = sessionStorage.getItem("td_editorial_booted") === "1" && !forceFull;
-
-      if (prefersReduced || isAutomatedBot || alreadyBooted) {
-        setIsDismissed(true);
-        return;
-      }
-
-      const progressObj = { value: 0 };
+      const counterObj = { val: 0 };
       const tl = gsap.timeline({
         onComplete: () => {
-          if (!holdForInspect) {
-            sessionStorage.setItem("td_editorial_booted", "1");
-            setIsDismissed(true);
-          }
+          sessionStorage.setItem("td_preloader_seen", "1");
+          setIsDone(true);
         },
       });
 
+      // 1. Tachometer Counter 00 -> 100 & SVG Ring Sweep
       tl.to(
-        progressObj,
+        counterObj,
         {
-          value: holdForInspect ? 88 : 100,
-          duration: holdForInspect ? 0.6 : 1.1,
+          val: 100,
+          duration: 1.05,
           ease: "power3.inOut",
           onUpdate: () => {
-            const current = Math.round(progressObj.value);
-            if (counterNodeRef.current) {
-              counterNodeRef.current.textContent = String(current).padStart(2, "0");
-            }
-            if (stepTextRef.current) {
-              const stepIdx = Math.min(
-                BOOT_PHASES.length - 1,
-                Math.floor((current / 100) * BOOT_PHASES.length)
-              );
-              stepTextRef.current.textContent = BOOT_PHASES[stepIdx];
+            if (counterRef.current) {
+              counterRef.current.textContent = String(Math.round(counterObj.val)).padStart(2, "0");
             }
           },
         },
         0
       );
 
-      if (laserLineRef.current) {
+      if (ringRef.current) {
         tl.fromTo(
-          laserLineRef.current,
-          { scaleX: 0.02 },
-          {
-            scaleX: holdForInspect ? 0.88 : 1,
-            duration: holdForInspect ? 0.6 : 1.1,
-            ease: "power3.inOut",
-          },
+          ringRef.current,
+          { strokeDashoffset: 565 },
+          { strokeDashoffset: 0, duration: 1.05, ease: "power3.inOut" },
           0
         );
       }
 
-      if (holdForInspect) return;
-
-      if (centerHudRef.current) {
+      // 2. Collapse Center Telemetry & Open 5 Constructivist Venetian Shutters
+      if (contentRef.current) {
         tl.to(
-          centerHudRef.current,
-          {
-            opacity: 0,
-            y: -12,
-            duration: 0.25,
-            ease: "power2.in",
-          },
-          1.12
+          contentRef.current,
+          { scale: 0.92, opacity: 0, duration: 0.3, ease: "power2.in" },
+          1.0
         );
       }
 
-      if (topShutterRef.current && bottomShutterRef.current) {
+      const validShutters = shutterRefs.current.filter(Boolean);
+      if (validShutters.length > 0) {
         tl.to(
-          topShutterRef.current,
+          validShutters,
           {
-            yPercent: -100,
-            duration: 0.75,
-            ease: "power4.inOut",
+            scaleY: 0,
+            duration: 0.65,
+            stagger: 0.05,
+            ease: "expo.inOut",
           },
-          1.22
-        ).to(
-          bottomShutterRef.current,
-          {
-            yPercent: 100,
-            duration: 0.75,
-            ease: "power4.inOut",
-          },
-          1.22
+          1.05
         );
       }
     },
-    { scope: rootRef }
+    { dependencies: [isDone], scope: rootRef }
   );
 
-  if (isDismissed) return null;
+  if (isDone) return null;
 
   return (
     <div
       ref={rootRef}
-      role="status"
-      aria-live="polite"
-      aria-label="Đang tải trải nghiệm Thong Dong"
-      className="fixed inset-0 z-[120] min-h-[100dvh] w-full pointer-events-auto overflow-hidden select-none"
+      aria-hidden="true"
+      style={{ zIndex: 95 }}
+      className="fixed inset-0 w-full h-[100svh] pointer-events-none select-none overflow-hidden flex items-center justify-center"
     >
-      <div
-        ref={topShutterRef}
-        className="absolute top-0 left-0 right-0 h-1/2 bg-stage-ink border-b border-white/10 will-change-transform"
-      >
-        <div className="max-w-[1600px] mx-auto h-full px-6 sm:px-12 py-8 flex flex-col justify-between text-white">
-          <div className="flex items-center justify-between text-xs tracking-wider uppercase text-white/70">
-            <span className="font-display font-bold tracking-widest text-white">
-              THONG DONG
-            </span>
-            <span className="font-sans text-white/60">
-              Dịch vụ thuê xe cao cấp
-            </span>
-          </div>
-        </div>
+      {/* 5 Constructivist Venetian Shutter Columns */}
+      <div className="absolute inset-0 grid grid-cols-5 w-full h-full">
+        {[0, 1, 2, 3, 4].map((idx) => (
+          <div
+            key={idx}
+            ref={(el) => {
+              shutterRefs.current[idx] = el;
+            }}
+            style={{ transformOrigin: idx % 2 === 0 ? "top center" : "bottom center" }}
+            className="w-full h-full bg-ink-950 border-r border-bone-100/10 will-change-transform"
+          />
+        ))}
       </div>
 
+      {/* Center Mechanical Tachometer & Lithograph Ignition Stamp */}
       <div
-        ref={bottomShutterRef}
-        className="absolute bottom-0 left-0 right-0 h-1/2 bg-stage-ink border-t border-white/10 will-change-transform"
+        ref={contentRef}
+        className="relative z-10 flex flex-col items-center justify-center text-bone-100 px-6 will-change-transform"
       >
-        <div className="max-w-[1600px] mx-auto h-full px-6 sm:px-12 py-8 flex flex-col justify-end text-white">
-          <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-white/70">
-            <span ref={stepTextRef} className="font-sans font-medium text-white">
-              {BOOT_PHASES[0]}
-            </span>
-            <div className="flex items-center gap-6 text-white/50">
-              <span className="hidden sm:flex items-center gap-1.5">
-                <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
-                <span>Biên bản đối soát minh bạch</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Compass aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
-                <span>Hà Nội · Đà Nẵng · TP.HCM</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        ref={centerHudRef}
-        className="relative z-10 min-h-[100dvh] w-full flex flex-col items-center justify-center px-6 pointer-events-none"
-      >
-        <div className="w-full max-w-3xl flex flex-col items-center text-center">
-          <p className="text-white/60 text-xs sm:text-sm uppercase tracking-[0.25em] mb-3 font-sans">
-            Trải nghiệm di chuyển tự chủ
-          </p>
-          <div className="flex items-baseline gap-3 mb-6">
-            <span className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-              Thuê xe
-            </span>
-            <span className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-              thong dong<span className="text-primary">.</span>
-            </span>
-          </div>
-
-          <div className="w-full max-w-md h-[1.5px] bg-white/15 overflow-hidden relative mb-4">
-            <div
-              ref={laserLineRef}
-              className="h-full w-full bg-primary origin-left will-change-transform"
+        <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
+            <circle
+              cx="100"
+              cy="100"
+              r="90"
+              fill="none"
+              stroke="rgba(233, 228, 216, 0.14)"
+              strokeWidth="2"
             />
-          </div>
+            <circle
+              ref={ringRef}
+              cx="100"
+              cy="100"
+              r="90"
+              fill="none"
+              stroke="var(--sun-600)"
+              strokeWidth="4"
+              strokeDasharray="565"
+              strokeDashoffset="565"
+            />
+          </svg>
 
-          <div className="flex items-baseline gap-1 font-mono text-2xl sm:text-3xl font-bold text-white tabular-nums">
-            <span ref={counterNodeRef}>00</span>
-            <span className="text-sm text-primary">%</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[10px] tracking-[0.28em] uppercase font-sans font-bold text-bone-100/60 mb-1">
+              IGNITION
+            </span>
+            <span
+              ref={counterRef}
+              style={{
+                fontFamily: "var(--font-archivo, sans-serif)",
+                fontVariationSettings: "'wdth' 72",
+              }}
+              className="font-black text-5xl sm:text-6xl text-bone-100 tracking-tight"
+            >
+              00
+            </span>
           </div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <span className="w-3 h-1.5 bg-sun-600 inline-block" />
+            <span className="w-3 h-1.5 bg-sun-600 inline-block" />
+            <span className="w-3 h-1.5 bg-sun-600 inline-block" />
+          </div>
+          <span className="font-display font-black uppercase tracking-[0.26em] text-xs text-bone-100">
+            THONG DONG · GRAND TOURING
+          </span>
         </div>
       </div>
     </div>

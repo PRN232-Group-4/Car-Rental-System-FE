@@ -11,7 +11,6 @@ const TRUST_DATA_ROWS = [
     metric: "100% HỢP ĐỒNG SỐ",
     statement: "DOANH NGHIỆP VẬN TẢI ĐƯỢC CẤP PHÉP",
     source: "Hợp đồng thuê xe điện tử có giá trị pháp lý toàn diện · Hồ sơ pháp nhân minh bạch.",
-    inverted: false,
   },
   {
     index: "02",
@@ -19,7 +18,6 @@ const TRUST_DATA_ROWS = [
     metric: "BẢO LÃNH 24/7",
     statement: "BẢO HIỂM VẬT CHẤT VÀ THÂN VỎ 100%",
     source: "Mọi chuyến đi đều đi kèm gói bảo hiểm vật chất xe và hỗ trợ kỹ thuật hiện trường.",
-    inverted: true,
   },
   {
     index: "03",
@@ -27,7 +25,6 @@ const TRUST_DATA_ROWS = [
     metric: "TỰ ĐỘNG QUA PAYOS",
     statement: "ĐỐI SOÁT TỰ ĐỘNG QUA CỔNG PAYOS",
     source: "Biên bản kiểm định số hóa đối chiếu trước và sau chuyến đi · Không phát sinh phí ẩn.",
-    inverted: true,
   },
   {
     index: "04",
@@ -35,17 +32,17 @@ const TRUST_DATA_ROWS = [
     metric: "SỞ HỮU TRỰC TIẾP",
     statement: "PORSCHE · MERCEDES-AMG · LAMBORGHINI",
     source: "100% phương tiện thuộc đội xe chuẩn hóa, bảo dưỡng định kỳ theo tiêu chuẩn hãng.",
-    inverted: false,
   },
 ];
 
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const posterWrapRef = useRef<HTMLDivElement>(null);
+  const spineRef = useRef<HTMLDivElement>(null);
+  const posterImgRef = useRef<HTMLImageElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const ruleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
@@ -54,38 +51,22 @@ export default function TrustChapter() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set([stageRef.current, posterWrapRef.current, headingRef.current], {
+        gsap.set([spineRef.current, posterImgRef.current, headingRef.current], {
           clearProps: "all",
           opacity: 1,
         });
         ruleRefs.current.forEach((r) => {
           if (r) gsap.set(r, { scaleX: 1 });
         });
-        cardRefs.current.forEach((card) => {
-          if (card) gsap.set(card, { clearProps: "all", opacity: 1 });
+        bladeRefs.current.forEach((blade) => {
+          if (blade) gsap.set(blade, { clearProps: "all", opacity: 1 });
+        });
+        shutterRefs.current.forEach((s) => {
+          if (s) gsap.set(s, { scaleY: 0 });
         });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Section-to-Section Entry Transform (Act III Dark Ink -> Act IV Archival Paper)
-        if (stageRef.current) {
-          gsap.fromTo(
-            stageRef.current,
-            { y: 60, scale: 0.94 },
-            {
-              y: 0,
-              scale: 1,
-              ease: "none",
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top 96%",
-                end: "top 22%",
-                scrub: true,
-              },
-            }
-          );
-        }
-
         const masterTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -95,12 +76,20 @@ export default function TrustChapter() {
           },
         });
 
-        // Animate wrapper (NOT img) so mix-blend-mode: multiply stays 100% blended into bg-bone-100!
-        if (posterWrapRef.current) {
+        if (spineRef.current) {
           masterTl.fromTo(
-            posterWrapRef.current,
-            { scale: 0.93, y: 24 },
-            { scale: 1.02, y: -16, ease: "none" },
+            spineRef.current,
+            { scaleY: 0 },
+            { scaleY: 1, ease: "none" },
+            0
+          );
+        }
+
+        if (posterImgRef.current) {
+          masterTl.fromTo(
+            posterImgRef.current,
+            { scale: 0.94 },
+            { scale: 1.03, ease: "none" },
             0
           );
         }
@@ -109,36 +98,58 @@ export default function TrustChapter() {
           masterTl.fromTo(
             headingRef.current,
             { xPercent: -5 },
-            { xPercent: 3, ease: "none" },
+            { xPercent: 4, ease: "none" },
             0
           );
         }
 
-        // 2. High-Contrast 2x2 Constructivist Matrix 1:1 Scroll-Scrubbed Reveal
-        cardRefs.current.forEach((card, idx) => {
+        // Staggered Architectural Monograph Blades (Alternating Horizontal Counter-Scrub!)
+        bladeRefs.current.forEach((blade, idx) => {
           const rule = ruleRefs.current[idx];
-          if (!card) return;
+          if (!blade) return;
 
-          const cardTl = gsap.timeline({
+          const dir = idx % 2 === 0 ? -8 : 8;
+
+          const bladeTl = gsap.timeline({
             scrollTrigger: {
-              trigger: card,
+              trigger: blade,
               start: "top 95%",
-              end: "top 40%",
+              end: "top 38%",
               scrub: true,
             },
           });
 
           if (rule) {
-            cardTl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0);
+            bladeTl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0);
           }
 
-          cardTl.fromTo(
-            card,
-            { y: 40, opacity: 0.2 },
-            { y: 0, opacity: 1, ease: "none" },
+          bladeTl.fromTo(
+            blade,
+            { xPercent: dir, opacity: 0.2 },
+            { xPercent: 0, opacity: 1, ease: "none" },
             0
           );
         });
+
+        // 5-Column Obsidian Shutters Rising at the Bottom of Act IV to Transition into Act V Finale!
+        const validShutters = shutterRefs.current.filter(Boolean);
+        if (validShutters.length > 0) {
+          gsap.fromTo(
+            validShutters,
+            { scaleY: 0 },
+            {
+              scaleY: 1,
+              stagger: 0.05,
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: "bottom 45%",
+                end: "bottom top",
+                scrub: true,
+              },
+            }
+          );
+        }
       });
 
       return () => mm.revert();
@@ -150,14 +161,28 @@ export default function TrustChapter() {
     <section
       ref={containerRef}
       id="tin-cay"
-      className="relative w-full bg-bone-100 text-ink-950 py-24 sm:py-36 px-8 sm:px-14 lg:px-24 select-none overflow-hidden border-t-4 border-lake-600"
+      className="relative w-full bg-bone-100 text-ink-950 pt-16 sm:pt-24 pb-40 sm:pb-52 px-8 sm:px-14 lg:px-24 select-none overflow-hidden"
     >
-      {/* CRITICAL FIX: Direct bg-bone-100 on stageRef without z-index isolation so Poster 1 blends 100% into #E9E4D8 with ZERO white box! */}
+      {/* Architectural Blueprint Grid & Continuous Racing Blue Spine */}
       <div
-        ref={stageRef}
-        style={{ transformOrigin: "center top" }}
-        className="max-w-[1600px] mx-auto bg-bone-100 space-y-16 sm:space-y-20 will-change-transform"
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none grid grid-cols-4 lg:grid-cols-12 px-8 sm:px-14 lg:px-24"
       >
+        <div className="border-l border-ink-950/[0.07] h-full" />
+        <div className="hidden lg:block lg:col-start-4 border-l border-ink-950/[0.07] h-full" />
+        <div className="hidden lg:block lg:col-start-9 border-l border-ink-950/[0.07] h-full" />
+        <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.07] h-full" />
+      </div>
+
+      <div
+        ref={spineRef}
+        aria-hidden="true"
+        style={{ transformOrigin: "top center" }}
+        className="hidden lg:block absolute top-0 bottom-0 left-[58.5%] w-4 bg-lake-600/20 pointer-events-none will-change-transform"
+      />
+
+      {/* CRITICAL: Direct bg-bone-100 without z-index isolation so Poster 1 blends 100.0% into #E9E4D8! */}
+      <div className="max-w-[1600px] mx-auto bg-bone-100 space-y-16 sm:space-y-20">
         {/* 1. Editorial Exhibition Header */}
         <div className="border-b-2 border-ink-950 pb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div ref={headingRef} className="will-change-transform">
@@ -182,120 +207,120 @@ export default function TrustChapter() {
           </p>
         </div>
 
-        {/* 2. Seamless Poster 1 Masterpiece (Direct bg-bone-100 parent + multiply on unisolated img = ZERO white box!) */}
-        <div
-          ref={posterWrapRef}
-          className="w-full max-w-[1520px] mx-auto bg-bone-100 will-change-transform"
-        >
+        {/* 2. Deterministic 16:9 Container + Seamless Poster 1 Masterpiece (`brightness(1.16) contrast(1.14)` + `multiply` on direct `bg-bone-100` parent = ZERO Box Edge & Zero Scroll-Lock!) */}
+        <div className="w-full max-w-[1520px] mx-auto aspect-[16/9] bg-bone-100 overflow-hidden">
           <img
+            ref={posterImgRef}
             src="/assets/posters/poster-bugatti-heritage.webp"
             alt="Engineering Heritage Constructivist Lithograph"
             style={{
               mixBlendMode: "multiply",
-              filter: "brightness(1.06) contrast(1.08)",
+              filter: "brightness(1.16) contrast(1.14)",
             }}
-            className="w-full h-auto block object-contain pointer-events-none"
-            loading="lazy"
+            className="w-full h-full block object-contain pointer-events-none"
             decoding="async"
           />
         </div>
 
-        {/* 3. High-Contrast 2x2 Swiss Constructivist Checkerboard Matrix (Replaces the weak floating text rows!) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 border-2 border-ink-950">
+        {/* 3. Staggered Architectural Monograph Blades (Replaces the clunky 4-box grid!) */}
+        <div className="pt-4">
           {TRUST_DATA_ROWS.map((row, idx) => (
             <div
               key={row.key}
               ref={(el) => {
-                cardRefs.current[idx] = el;
+                bladeRefs.current[idx] = el;
               }}
-              className={
-                row.inverted
-                  ? "relative p-8 sm:p-12 bg-ink-950 text-bone-100 border border-ink-950 flex flex-col justify-between will-change-transform"
-                  : "relative p-8 sm:p-12 bg-bone-100 text-ink-950 border border-ink-950 flex flex-col justify-between will-change-transform"
-              }
+              className="group relative w-full py-12 sm:py-14 transition-colors duration-300 hover:bg-ink-950 hover:text-bone-100 px-6 sm:px-10 -mx-6 sm:-mx-10 will-change-transform"
             >
-              {/* 1:1 Scroll-Scrubbed 4px Top Accent Bar */}
+              {/* Self-Drawing 3px Racing Blue / Ink Rule */}
               <div
                 ref={(el) => {
                   ruleRefs.current[idx] = el;
                 }}
-                style={{ transformOrigin: "left center" }}
-                className={
-                  row.inverted
-                    ? "absolute top-0 left-0 right-0 h-[4px] bg-lake-400 will-change-transform"
-                    : "absolute top-0 left-0 right-0 h-[4px] bg-sun-600 will-change-transform"
-                }
+                style={{ transformOrigin: idx % 2 === 0 ? "left center" : "right center" }}
+                className="absolute top-0 left-0 right-0 h-[3px] bg-ink-950 group-hover:bg-lake-400 transition-colors will-change-transform"
               />
 
-              <div className="flex items-baseline justify-between mb-8">
-                <div className="space-y-1.5">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                {/* Col 1-3: Giant Index + Category Key */}
+                <div className="lg:col-span-3 flex items-baseline gap-6">
                   <span
                     style={{
-                      fontSize: "var(--fs-micro)",
-                      letterSpacing: "var(--ls-micro)",
+                      fontFamily: "var(--font-archivo, sans-serif)",
+                      fontSize: "clamp(4rem, 7vw, 7.5rem)",
+                      lineHeight: 0.9,
+                      fontVariationSettings: "'wdth' 64",
                     }}
-                    className={
-                      row.inverted
-                        ? "font-sans font-bold text-lake-400 uppercase block"
-                        : "font-sans font-bold text-lake-600 uppercase block"
-                    }
+                    className="font-black text-lake-600 group-hover:text-lake-400 transition-colors"
                   >
-                    {row.key}
+                    {row.index}
                   </span>
-                  <span
-                    className={
-                      row.inverted
-                        ? "text-[11px] tracking-[0.22em] uppercase font-sans font-bold text-bone-100/60 block"
-                        : "text-[11px] tracking-[0.22em] uppercase font-sans font-bold text-ink-950/60 block"
-                    }
-                  >
-                    {row.metric}
-                  </span>
+
+                  <div className="space-y-1">
+                    <span
+                      style={{
+                        fontSize: "var(--fs-micro)",
+                        letterSpacing: "var(--ls-micro)",
+                      }}
+                      className="font-sans font-bold text-ink-950 group-hover:text-bone-100 uppercase block transition-colors"
+                    >
+                      {row.key}
+                    </span>
+                    <span className="text-[11px] tracking-[0.22em] uppercase font-sans font-bold text-lake-600 group-hover:text-lake-400 block">
+                      {row.metric}
+                    </span>
+                  </div>
                 </div>
 
-                <span
-                  style={{
-                    fontFamily: "var(--font-archivo, sans-serif)",
-                    fontSize: "clamp(3.5rem, 5.5vw, 6rem)",
-                    lineHeight: 0.9,
-                    fontVariationSettings: "'wdth' 66",
-                  }}
+                {/* Col 4-8: Monumental Proof Statement (Asymmetrically stepped on even rows) */}
+                <div
                   className={
-                    row.inverted
-                      ? "font-black text-lake-400"
-                      : "font-black text-ink-950"
+                    idx % 2 === 1
+                      ? "lg:col-span-5 lg:col-start-5"
+                      : "lg:col-span-5 lg:col-start-4"
                   }
                 >
-                  {row.index}
-                </span>
-              </div>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-archivo, sans-serif)",
+                      fontSize: "clamp(1.85rem, 3.4vw, 3.6rem)",
+                      lineHeight: 1.1,
+                      fontVariationSettings: "'wdth' 100",
+                    }}
+                    className="font-black uppercase tracking-tight text-ink-950 group-hover:text-bone-100 transition-colors"
+                  >
+                    {row.statement}
+                  </h3>
+                </div>
 
-              <div>
-                <h3
-                  style={{
-                    fontFamily: "var(--font-archivo, sans-serif)",
-                    fontSize: "clamp(1.75rem, 2.8vw, 2.85rem)",
-                    lineHeight: 1.14,
-                    fontVariationSettings: "'wdth' 98",
-                  }}
-                  className="font-black uppercase tracking-tight mb-3"
-                >
-                  {row.statement}
-                </h3>
-
-                <p
-                  className={
-                    row.inverted
-                      ? "font-sans text-sm sm:text-base text-bone-100/85 leading-relaxed"
-                      : "font-sans text-sm sm:text-base text-ink-950/85 leading-relaxed"
-                  }
-                >
-                  {row.source}
-                </p>
+                {/* Col 9-12: Verification Source Copy */}
+                <div className="lg:col-span-4 lg:col-start-9">
+                  <p className="font-sans text-sm sm:text-base text-ink-950/85 group-hover:text-bone-100/85 leading-relaxed border-l-2 border-lake-600 pl-4 transition-colors">
+                    {row.source}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
+          <div className="w-full h-[3px] bg-ink-950" />
         </div>
+      </div>
+
+      {/* 4. 5-Column Rising Obsidian Shutters at Bottom of Act IV (Wipes Warm Paper into Act V Finale!) */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 h-[32svh] grid grid-cols-5 pointer-events-none"
+      >
+        {[0, 1, 2, 3, 4].map((colIdx) => (
+          <div
+            key={colIdx}
+            ref={(el) => {
+              shutterRefs.current[colIdx] = el;
+            }}
+            style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
+            className="w-full h-full bg-ink-950 border-t-4 border-sun-600 will-change-transform"
+          />
+        ))}
       </div>
     </section>
   );
