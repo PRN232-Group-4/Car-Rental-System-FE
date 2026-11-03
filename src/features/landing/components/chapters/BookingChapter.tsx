@@ -16,6 +16,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
   const sunsetStageRef = useRef<HTMLDivElement>(null);
 
   // Unique Section 4 -> Section 5 Transition: 7-Louver Horizontal Venetian Blind Flip
+  // Triggered at `top 62%` (NOT `top 95%`) so it stays 100% closed while the user is reading Section 4, and only flips open when the user actually scrolls into Section 5!
   const louverRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Section 5 Uncut Full-Viewport Hai Van Stage & 3D Perspective Character Lock-In Refs
@@ -54,7 +55,9 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNIQUE SECTION 4 -> SECTION 5 TRANSITION: 7-Louver Horizontal Venetian Blind 3D Flip!
+        // 1. FIXED SECTION 4 -> SECTION 5 TRANSITION TIMING (`start: "top 62%", end: "top 10%"`)
+        // Stays 100% closed (`scaleY: 1`) while Section 5 is at the bottom of the screen (`100% -> 62%`), preventing the premature orange sun strip in `image_d9f15c.jpg`!
+        // Once Section 5 enters the main viewing zone (`top 62%`), the 7 horizontal slats flip open in 3D right in front of the user's eyes!
         const validLouvers = louverRefs.current.filter(Boolean);
         if (validLouvers.length > 0) {
           gsap.fromTo(
@@ -63,26 +66,25 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
             {
               scaleY: 0,
               rotateX: 85,
-              stagger: 0.04,
+              stagger: 0.045,
               ease: "none",
               scrollTrigger: {
                 trigger: sunsetStageRef.current,
-                start: "top 95%",
-                end: "top 30%",
+                start: "top 62%",
+                end: "top 8%",
                 scrub: true,
               },
             }
           );
         }
 
-        // 2. FIXED SECTION 5 TYPOGRAPHY MOTION: Bound strictly to `sunsetStageRef` (`start: "top 78%", end: "top 12%"`)
-        // Completes 100% as soon as Section 5 reaches the viewport (NEVER stuck halfway waiting for the Footer!)
+        // 2. SECTION 5 TYPOGRAPHY MOTION: Bound to `top 55% -> top 5%` so it animates right after the top louvers flip open and finishes 100% as Section 5 locks in!
         const validChars = charRefs.current.filter(Boolean);
         const stageTl = gsap.timeline({
           scrollTrigger: {
             trigger: sunsetStageRef.current,
-            start: "top 78%",
-            end: "top 12%",
+            start: "top 55%",
+            end: "top 5%",
             scrub: true,
             onEnter: () => onEnterChapter5?.(true),
             onLeaveBack: () => onEnterChapter5?.(false),
@@ -131,7 +133,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         const driveTl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
-            start: "top 85%",
+            start: "top 65%",
             end: "bottom bottom",
             scrub: true,
           },
@@ -208,7 +210,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
           ))}
         </div>
 
-        {/* 1. Full-Viewport Uninterrupted Hai Van Sunset Woodcut (`b0-backdrop` — Zero rectangular gradient artifact over the sea!) */}
+        {/* 1. Full-Viewport Uninterrupted Hai Van Sunset Woodcut (`b0-backdrop`) */}
         <picture className="absolute inset-0 w-full h-full block pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
           <source
             type="image/avif"
@@ -258,7 +260,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
           />
         </div>
 
-        {/* 3. UNIQUE TYPOGRAPHY MOTION #5: 3D Perspective Character Cascade in the Top-Right Night Sky (Finishes 100% upon arrival & NEVER touches the Left Sun!) */}
+        {/* 3. UNIQUE TYPOGRAPHY MOTION #5: 3D Perspective Character Cascade in the Top-Right Night Sky */}
         <div
           style={{ zIndex: 30, perspective: "1000px" }}
           className="relative w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 flex flex-col items-end text-right pointer-events-none"

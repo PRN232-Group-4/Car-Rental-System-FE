@@ -7,9 +7,6 @@ import { gsap } from "@/lib/motion/register";
 const ACT2_WORDS_TOP = ["ĐƯỜNG", "DÀI", "LÀ", "ĐỂ"];
 const ACT3_TITLE_CHARS = ["N", "H", "Ẹ", "\u00A0", "N", "H", "Ư", "\u00A0", "K", "H", "Ô", "N", "G", "."];
 
-// Staircase step heights attached directly to the leading top edge of Section 2
-const STEP_HEIGHTS = ["100%", "82%", "64%", "46%", "28%"];
-
 const CHAPTER_3_CARDS = [
   {
     step: "01",
@@ -58,7 +55,7 @@ const CHAPTER_3_CARDS = [
 export default function SceneBSection() {
   const containerRef = useRef<HTMLElement>(null);
 
-  // 1. Leading-Edge 5-Column Staircase Crest attached to `bottom: 100%` of Section 2
+  // 1. Non-Retracting 5-Column Staircase Pull-Up Transition (Section 1 -> Section 2)
   const stepShuttersRef = useRef<(HTMLDivElement | null)[]>([]);
 
   // 2. Act II Refs (Pulled-Up Paper Stage + Variable-Font Width Wave Typography)
@@ -91,7 +88,7 @@ export default function SceneBSection() {
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
         stepShuttersRef.current.forEach((s) => {
-          if (s) gsap.set(s, { scaleY: 0 });
+          if (s) gsap.set(s, { scaleY: 1 });
         });
         act2WordRefs.current.forEach((w) => {
           if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
@@ -121,42 +118,42 @@ export default function SceneBSection() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. EXCLUSIVE SECTION 1 -> 2 TRANSITION: Leading-Edge 5-Column Staircase Crest
-        // Attached to `bottom: 100%` of `act2Ref`:
-        // - At `scrollY = 0` (`top 100%`), `scaleY` is strictly `0` (0% overlap on Section 1!).
-        // - As the user scrolls down (`top 98% -> top 30%`), the 5 stepped columns rise upward right ahead of Section 2's content, physically pulling Section 2 up with ZERO blank screen (`image_da6639.png` impossible!) and then settling down cleanly (`scaleY -> 0`) once Section 2 reaches the top!
+        // 1. EXCLUSIVE SECTION 1 -> 2 TRANSITION: Non-Retracting 5-Column Staircase Pull-Up!
+        // - At `scrollY = 0` (`top 100%`), all 5 columns are `scaleY: 0` (0% overlap on Section 1).
+        // - As the user scrolls from `top 98%` to `top 25%`, the 5 columns shoot upward in a staggered staircase (`stagger: 0.09`) to `scaleY: 1` and STAY at `scaleY: 1` (NEVER retracting back down!).
+        // - Simultaneously, `act2ContentRef` (Section 2's content) is pulled upward by `-32svh` right into the newly formed `bg-bone-100` column space so the columns physically pull Section 2 up to the top of the screen with ZERO blank space!
         const validShutters = stepShuttersRef.current.filter(Boolean);
-        if (validShutters.length > 0 && act2Ref.current) {
-          const crestTl = gsap.timeline({
+        if (validShutters.length > 0 && act2Ref.current && act2ContentRef.current) {
+          const pullTl = gsap.timeline({
             scrollTrigger: {
               trigger: act2Ref.current,
               start: "top 98%",
-              end: "top 10%",
+              end: "top 25%",
               scrub: true,
             },
           });
 
-          crestTl
+          pullTl
             .fromTo(
               validShutters,
               { scaleY: 0 },
               {
                 scaleY: 1,
-                stagger: 0.05,
-                ease: "power2.out",
-                duration: 0.55,
+                stagger: 0.09,
+                ease: "none",
+                duration: 0.65,
               },
               0
             )
-            .to(
-              validShutters,
+            .fromTo(
+              act2ContentRef.current,
+              { y: "8svh" },
               {
-                scaleY: 0,
-                stagger: 0.04,
-                ease: "power2.in",
-                duration: 0.45,
+                y: "-30svh",
+                ease: "none",
+                duration: 0.85,
               },
-              0.55
+              0.15
             );
         }
 
@@ -353,8 +350,8 @@ export default function SceneBSection() {
                 c0,
                 {
                   xPercent: 0,
-                  y: 64,
-                  rotateZ: -13,
+                  y: 52,
+                  rotateZ: -12,
                   scale: 0.98,
                   ease: "power2.out",
                   duration: 0.42,
@@ -365,7 +362,7 @@ export default function SceneBSection() {
                 c1,
                 {
                   xPercent: 0,
-                  y: -18,
+                  y: -14,
                   rotateZ: 0,
                   scale: 1,
                   ease: "power2.out",
@@ -377,8 +374,8 @@ export default function SceneBSection() {
                 c2,
                 {
                   xPercent: 0,
-                  y: 64,
-                  rotateZ: 13,
+                  y: 52,
+                  rotateZ: 12,
                   scale: 0.98,
                   ease: "power2.out",
                   duration: 0.42,
@@ -426,29 +423,28 @@ export default function SceneBSection() {
       className="relative w-full scene-b bg-bone-100 text-ink-950 select-none"
     >
       {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD ================= */}
-      {/* Note: NO overflow-hidden on `act2Ref` so the `bottom-full` 5-Column Staircase Crest extends cleanly above the top edge without margin collapse! */}
       <div
         ref={act2Ref}
-        className="relative w-full bg-bone-100 pt-10 sm:pt-14 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24"
+        className="relative w-full bg-bone-100 pt-6 sm:pt-8 pb-12 sm:pb-16 px-8 sm:px-14 lg:px-24"
       >
-        {/* EXCLUSIVE SECTION 1 -> 2 TRANSITION: 5-Column Stepped Crest attached directly to `bottom-full` (top edge of Section 2) */}
+        {/* EXCLUSIVE SECTION 1 -> 2 TRANSITION: Non-Retracting 5-Column Staircase Crest (`bottom-full h-[40svh]`).
+            Each column rises from `scaleY(0)` to `scaleY(1)` with `stagger: 0.09` and NEVER shrinks back, while pulling `act2ContentRef` up into it! */}
         <div
           aria-hidden="true"
           style={{ zIndex: 45 }}
-          className="absolute left-0 right-0 bottom-full h-[36svh] grid grid-cols-5 items-end pointer-events-none"
+          className="absolute left-0 right-0 bottom-full h-[40svh] grid grid-cols-5 items-end pointer-events-none"
         >
-          {STEP_HEIGHTS.map((hPct, colIdx) => (
+          {[0, 1, 2, 3, 4].map((colIdx) => (
             <div
               key={colIdx}
               ref={(el) => {
                 stepShuttersRef.current[colIdx] = el;
               }}
               style={{
-                height: hPct,
                 transformOrigin: "bottom center",
                 transform: "scaleY(0)",
               }}
-              className="w-full bg-bone-100 -mx-[0.5px] will-change-transform"
+              className="w-full h-full bg-bone-100 -mx-[0.5px] will-change-transform"
             />
           ))}
         </div>
@@ -482,8 +478,12 @@ export default function SceneBSection() {
           <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.08] h-full" />
         </div>
 
-        {/* Direct bg-bone-100 without z-index isolation so Poster 2's multiply blend is 100% seamless! */}
-        <div ref={act2ContentRef} className="max-w-[1600px] mx-auto bg-bone-100">
+        {/* Pulled-Up Content Stage (`z-50` so it rides directly inside the rising 5-column paper surface!) */}
+        <div
+          ref={act2ContentRef}
+          style={{ zIndex: 50 }}
+          className="relative max-w-[1600px] mx-auto bg-bone-100 pt-4"
+        >
           {/* Scroll-Scrubbed Kinetic Telemetry Marquee Ribbon */}
           <div className="w-full overflow-hidden border-y-2 border-ink-950 py-2.5 mb-10 bg-bone-100">
             <div
@@ -638,9 +638,9 @@ export default function SceneBSection() {
       <div
         ref={act3TrackRef}
         id="quy-trinh"
-        className="relative w-full lg:h-[225svh] bg-ink-950"
+        className="relative w-full lg:h-[220svh] bg-ink-950"
       >
-        <div className="lg:sticky lg:top-0 w-full min-h-[100svh] bg-ink-950 text-bone-100 py-14 sm:py-16 px-6 sm:px-12 lg:px-20 flex flex-col justify-between overflow-hidden">
+        <div className="lg:sticky lg:top-0 w-full min-h-[100svh] bg-ink-950 text-bone-100 pt-20 sm:pt-24 pb-12 px-6 sm:px-12 lg:px-20 flex flex-col justify-between overflow-hidden">
           {/* Rich Constructivist Rotating SVG Astrolabe & Radial Grid Background */}
           <svg
             ref={act3AstrolabeRef}
@@ -675,17 +675,17 @@ export default function SceneBSection() {
           {/* Stage Header with 3D Cylindrical Odometer Character Roll */}
           <div
             style={{ perspective: "1000px" }}
-            className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-bone-100/20 pb-5"
+            className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-bone-100/20 pb-4"
           >
             <div>
-              <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-1.5">
+              <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-1">
                 03 // BỘ BA THẺ BÀI QUY TRÌNH SỐ HÓA
               </span>
               <h2
                 aria-label="NHẸ NHƯ KHÔNG."
                 style={{
                   fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(2.5rem, 5.8vw, 6.8rem)",
+                  fontSize: "clamp(2.25rem, 5.2vw, 6.0rem)",
                   lineHeight: 1.12,
                   fontVariationSettings: "'wdth' 108",
                 }}
@@ -710,10 +710,10 @@ export default function SceneBSection() {
             </p>
           </div>
 
-          {/* 3-Card Fanning & 3D Flipping Stage */}
+          {/* 3-Card Fanning & 3D Flipping Stage (Compact h-[345px] sm:h-[360px] with pt-20 top clearance so cards NEVER clip at top like `image_d9f1bd.png`!) */}
           <div
             style={{ perspective: "1600px" }}
-            className="relative z-20 w-full max-w-[1440px] mx-auto my-auto py-4 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
+            className="relative z-20 w-full max-w-[1440px] mx-auto my-auto py-2 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
           >
             {CHAPTER_3_CARDS.map((card, idx) => {
               const Icon = card.icon;
@@ -724,7 +724,7 @@ export default function SceneBSection() {
                     cardSlotRefs.current[idx] = el;
                   }}
                   style={{ perspective: "1500px" }}
-                  className="w-full h-[375px] sm:h-[395px] will-change-transform"
+                  className="w-full h-[345px] sm:h-[360px] will-change-transform"
                 >
                   <div
                     ref={(el) => {
@@ -736,13 +736,13 @@ export default function SceneBSection() {
                     {/* CARD FRONT FACE */}
                     <div
                       style={{ backfaceVisibility: "hidden" }}
-                      className="absolute inset-0 w-full h-full bg-bone-100 text-ink-950 border-2 border-bone-100 p-6 sm:p-7 flex flex-col justify-between shadow-2xl"
+                      className="absolute inset-0 w-full h-full bg-bone-100 text-ink-950 border-2 border-bone-100 p-6 flex flex-col justify-between shadow-2xl"
                     >
-                      <div className="flex items-center justify-between border-b-2 border-ink-950 pb-3">
+                      <div className="flex items-center justify-between border-b-2 border-ink-950 pb-2.5">
                         <span
                           style={{
                             fontFamily: "var(--font-archivo, sans-serif)",
-                            fontSize: "clamp(2.75rem, 3.8vw, 4.2rem)",
+                            fontSize: "clamp(2.5rem, 3.4vw, 3.75rem)",
                             lineHeight: 0.88,
                             fontVariationSettings: "'wdth' 66",
                           }}
@@ -761,7 +761,7 @@ export default function SceneBSection() {
                         </div>
                       </div>
 
-                      <div className="my-auto py-3 space-y-2.5">
+                      <div className="my-auto py-2 space-y-2">
                         <div className="inline-flex items-center gap-2 bg-ink-950 text-bone-100 px-3 py-1 text-[10px] tracking-[0.22em] uppercase font-sans font-bold">
                           <Icon className="w-3.5 h-3.5 text-sun-400" />
                           <span>{card.metric}</span>
@@ -770,7 +770,7 @@ export default function SceneBSection() {
                         <h3
                           style={{
                             fontFamily: "var(--font-archivo, sans-serif)",
-                            fontSize: "clamp(1.6rem, 2.2vw, 2.3rem)",
+                            fontSize: "clamp(1.5rem, 2vw, 2.15rem)",
                             lineHeight: 1.1,
                             fontVariationSettings: "'wdth' 100",
                           }}
@@ -784,7 +784,7 @@ export default function SceneBSection() {
                         </p>
                       </div>
 
-                      <div className="pt-3 border-t-2 border-ink-950 grid grid-cols-2 gap-3">
+                      <div className="pt-2.5 border-t-2 border-ink-950 grid grid-cols-2 gap-3">
                         {card.specs.map((sp) => (
                           <div key={sp.label}>
                             <span className="text-[9px] tracking-[0.22em] uppercase font-sans font-bold text-ink-950/55 block">
@@ -812,14 +812,14 @@ export default function SceneBSection() {
                           <span>PLATE {card.roman}</span>
                         </div>
 
-                        <div className="relative w-32 h-32 rounded-full border-2 border-sun-600 flex items-center justify-center bg-ink-800">
-                          <div className="w-20 h-20 rounded-full bg-sun-600 flex items-center justify-center">
+                        <div className="relative w-28 h-28 rounded-full border-2 border-sun-600 flex items-center justify-center bg-ink-800">
+                          <div className="w-18 h-18 rounded-full bg-sun-600 flex items-center justify-center px-4 py-2">
                             <span
                               style={{
                                 fontFamily: "var(--font-archivo, sans-serif)",
                                 fontVariationSettings: "'wdth' 68",
                               }}
-                              className="font-black text-3xl text-bone-100"
+                              className="font-black text-2xl text-bone-100"
                             >
                               {card.roman}
                             </span>
@@ -844,7 +844,7 @@ export default function SceneBSection() {
             })}
           </div>
 
-          <div className="relative z-10 w-full max-w-[1600px] mx-auto pt-3 border-t border-bone-100/15 flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans text-bone-100/60">
+          <div className="relative z-10 w-full max-w-[1600px] mx-auto pt-2 border-t border-bone-100/15 flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans text-bone-100/60">
             <span>GỘP 1 TỤ → XÒE CONG HÌNH QUẠT → DÀN NGANG & LẬT 3D</span>
             <span className="text-sun-400">01 / 02 / 03</span>
           </div>

@@ -3,6 +3,8 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 
+const TRUST_WORDS = ["TIN", "CẬY", "BẰNG", "DỮ", "KIỆN."];
+
 const TRUST_BLADES = [
   {
     index: "01",
@@ -40,14 +42,18 @@ const TRUST_BLADES = [
 
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
-  const foldBridgeRef = useRef<HTMLDivElement>(null);
-  const blockShutter1Ref = useRef<HTMLDivElement>(null);
-  const blockShutter2Ref = useRef<HTMLDivElement>(null);
+
+  // Unique Section 3 -> Section 4 Transition: 3D Interlocking Diagonal Vault Gate (`vaultGateWrapRef`)
+  const vaultGateWrapRef = useRef<HTMLDivElement>(null);
+  const leftVaultDoorRef = useRef<HTMLDivElement>(null);
+  const rightVaultDoorRef = useRef<HTMLDivElement>(null);
+
+  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const blueprintSvgRef = useRef<SVGSVGElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
 
-  // 4 Card Vault Refs (Fixed bounding-box coordinates so Cards 01 & 02 animate identically to 03 & 04 right in the user's line of sight!)
+  // 4 Card Vault Refs
   const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cardShutterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cardNumRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -61,15 +67,17 @@ export default function TrustChapter() {
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
           [
-            foldBridgeRef.current,
+            leftVaultDoorRef.current,
+            rightVaultDoorRef.current,
             blueprintSvgRef.current,
             spineRef.current,
             posterImgRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
-        if (blockShutter1Ref.current) gsap.set(blockShutter1Ref.current, { scaleX: 0 });
-        if (blockShutter2Ref.current) gsap.set(blockShutter2Ref.current, { scaleX: 0 });
+        wordRefs.current.forEach((w) => {
+          if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
+        });
         bladeRefs.current.forEach((b) => {
           if (b) gsap.set(b, { clearProps: "all", opacity: 1 });
         });
@@ -82,39 +90,55 @@ export default function TrustChapter() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNIQUE SECTION 3 -> SECTION 4 TRANSITION: Dedicated 3D Isometric Origami Bridge
-        // Kept on `foldBridgeRef` ONLY (NOT on the parent of the cards!) so ScrollTrigger calculates 100% exact bounding boxes for Cards 01, 02, 03, and 04!
-        if (foldBridgeRef.current) {
-          gsap.fromTo(
-            foldBridgeRef.current,
-            { rotateX: -85, scaleY: 0.2 },
-            {
-              rotateX: 0,
-              scaleY: 1,
-              ease: "none",
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top 95%",
-                end: "top 35%",
-                scrub: true,
-              },
-            }
-          );
+        // 1. UNMISTAKABLE SECTION 3 -> SECTION 4 TRANSITION: 3D Interlocking Diagonal Vault Doors!
+        // Two massive interlocking geometric doors (Left Racing Blue `#1177A8` + Right Obsidian `#0F1215`) shear apart diagonally (`xPercent: 0 -> -105% / +105%`) right as the user scrolls from Section 3 into Section 4!
+        if (vaultGateWrapRef.current && leftVaultDoorRef.current && rightVaultDoorRef.current) {
+          const gateTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: vaultGateWrapRef.current,
+              start: "top 92%",
+              end: "bottom 25%",
+              scrub: true,
+            },
+          });
+
+          gateTl
+            .fromTo(
+              leftVaultDoorRef.current,
+              { xPercent: 0 },
+              { xPercent: -105, ease: "power2.inOut" },
+              0
+            )
+            .fromTo(
+              rightVaultDoorRef.current,
+              { xPercent: 0 },
+              { xPercent: 105, ease: "power2.inOut" },
+              0
+            );
         }
 
-        // 2. UNIQUE TYPOGRAPHY MOTION #4: Dual-Color Lithograph Ink-Roller Block Stamp
-        if (blockShutter1Ref.current && blockShutter2Ref.current) {
+        // 2. UNIQUE TYPOGRAPHY MOTION #4: 3D Perspective Word Cascade (Zero black box bug on `TIN CẬY BẰNG`!)
+        const validWords = wordRefs.current.filter(Boolean);
+        if (validWords.length > 0) {
           gsap.fromTo(
-            [blockShutter1Ref.current, blockShutter2Ref.current],
-            { scaleX: 1 },
+            validWords,
             {
-              scaleX: 0,
-              stagger: 0.14,
+              yPercent: 110,
+              rotateX: -80,
+              skewX: 12,
+              opacity: 0,
+            },
+            {
+              yPercent: 0,
+              rotateX: 0,
+              skewX: 0,
+              opacity: 1,
+              stagger: 0.07,
               ease: "none",
               scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top 75%",
-                end: "top 25%",
+                trigger: validWords[0],
+                start: "top 88%",
+                end: "top 35%",
                 scrub: true,
               },
             }
@@ -157,7 +181,7 @@ export default function TrustChapter() {
           );
         }
 
-        // 3. FIXED 4-CARD VAULT CHOREOGRAPHY (Cards 01, 02, 03, 04 ALL execute a dramatic 3D Unfold + Armor Shutter Wipe right in the active viewport `top 82% -> top 36%`!)
+        // 3. 4-CARD VAULT CHOREOGRAPHY (Cards 01, 02, 03, 04 ALL execute a dramatic 3D Unfold + Armor Shutter Wipe right in the active viewport!)
         bladeRefs.current.forEach((blade, idx) => {
           const shutter = cardShutterRefs.current[idx];
           const num = cardNumRefs.current[idx];
@@ -169,12 +193,11 @@ export default function TrustChapter() {
             scrollTrigger: {
               trigger: blade,
               start: "top 82%",
-              end: "top 36%",
+              end: "top 34%",
               scrub: true,
             },
           });
 
-          // 3D Perspective Swing & Cantilever Lock onto the Central Blue Spine
           cardTl.fromTo(
             blade,
             {
@@ -197,7 +220,6 @@ export default function TrustChapter() {
             0
           );
 
-          // Internal Armor Shutter Wipes Open (`scaleX: 1 -> 0`)
           if (shutter) {
             cardTl.fromTo(
               shutter,
@@ -207,7 +229,6 @@ export default function TrustChapter() {
             );
           }
 
-          // Giant Index Number (`01` - `04`) Rises from Mask
           if (num) {
             cardTl.fromTo(
               num,
@@ -230,21 +251,37 @@ export default function TrustChapter() {
       id="tin-cay"
       className="relative w-full bg-bone-100 text-ink-950 select-none overflow-hidden"
     >
-      {/* UNIQUE SECTION 3 -> SECTION 4 TRANSITION: 3D Isometric Origami Bridge */}
+      {/* ================= UNIQUE SECTION 3 -> SECTION 4 TRANSITION: 3D INTERLOCKING DIAGONAL VAult GATE ================= */}
       <div
+        ref={vaultGateWrapRef}
         aria-hidden="true"
-        style={{ perspective: "1200px" }}
-        className="w-full bg-ink-950 pt-6"
+        className="relative w-full h-[32svh] bg-bone-100 overflow-hidden pointer-events-none flex items-center justify-center"
       >
+        {/* Underlying Archival Blueprint Seal revealed as the Vault Doors shear open */}
+        <div className="text-center space-y-1">
+          <span className="text-[10px] tracking-[0.32em] uppercase font-sans font-black text-lake-600 block">
+            SECTION 04 // VERIFIED TELEMETRY
+          </span>
+          <div className="w-32 h-[3px] bg-ink-950 mx-auto" />
+        </div>
+
+        {/* Left Racing Blue Diagonal Vault Door */}
         <div
-          ref={foldBridgeRef}
-          style={{ transformOrigin: "bottom center" }}
-          className="w-full h-16 sm:h-20 bg-bone-100 border-t-8 border-lake-600 will-change-transform"
+          ref={leftVaultDoorRef}
+          style={{ clipPath: "polygon(0% 0%, 62% 0%, 42% 100%, 0% 100%)" }}
+          className="absolute inset-0 w-full h-full bg-lake-600 will-change-transform"
+        />
+
+        {/* Right Obsidian Ink Diagonal Vault Door */}
+        <div
+          ref={rightVaultDoorRef}
+          style={{ clipPath: "polygon(58% 0%, 100% 0%, 100% 100%, 38% 100%)" }}
+          className="absolute inset-0 w-full h-full bg-ink-950 border-b-4 border-lake-400 will-change-transform"
         />
       </div>
 
-      {/* Main Archival Blueprint Stage (Unscaled 1:1 coordinate system so ScrollTrigger triggers Cards 01 & 02 with 100% precision!) */}
-      <div className="relative w-full bg-bone-100 text-ink-950 pt-10 sm:pt-16 pb-24 sm:pb-36 px-8 sm:px-14 lg:px-24 overflow-hidden">
+      {/* Main Archival Blueprint Stage */}
+      <div className="relative w-full bg-bone-100 text-ink-950 pt-8 sm:pt-12 pb-24 sm:pb-36 px-8 sm:px-14 lg:px-24 overflow-hidden">
         {/* Rich Constructivist SVG Blueprint Schematic & Architectural Grid */}
         <svg
           ref={blueprintSvgRef}
@@ -270,8 +307,11 @@ export default function TrustChapter() {
 
         {/* Direct bg-bone-100 without z-index isolation so Poster 1 blends 100.0% into #E9E4D8! */}
         <div className="max-w-[1600px] mx-auto bg-bone-100 space-y-16 sm:space-y-24">
-          {/* 1. Editorial Exhibition Header with Dual-Color Lithograph Ink-Roller Stamp */}
-          <div className="border-b-2 border-ink-950 pb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          {/* 1. Editorial Exhibition Header with Clean 3D Perspective Word Cascade (Zero Black Box Bug!) */}
+          <div
+            style={{ perspective: "1000px" }}
+            className="border-b-2 border-ink-950 pb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-8"
+          >
             <div className="space-y-2">
               <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-lake-600 block mb-3">
                 04 // ENGINEERING HERITAGE & VERIFIED TRUST
@@ -286,23 +326,25 @@ export default function TrustChapter() {
                 }}
                 className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.24em]"
               >
-                <span className="relative inline-block overflow-hidden pt-[0.14em] pb-[0.04em]">
-                  <span>TIN CẬY BẰNG</span>
+                {TRUST_WORDS.map((word, wIdx) => (
                   <span
-                    ref={blockShutter1Ref}
-                    style={{ transformOrigin: "right center" }}
-                    className="absolute inset-0 bg-ink-950 pointer-events-none will-change-transform"
-                  />
-                </span>
-
-                <span className="relative inline-block overflow-hidden pt-[0.14em] pb-[0.04em]">
-                  <span className="text-lake-600">DỮ KIỆN.</span>
-                  <span
-                    ref={blockShutter2Ref}
-                    style={{ transformOrigin: "right center" }}
-                    className="absolute inset-0 bg-lake-600 pointer-events-none will-change-transform"
-                  />
-                </span>
+                    key={word}
+                    className="inline-block overflow-hidden pt-[0.2em] pb-[0.06em] -mt-[0.16em]"
+                  >
+                    <span
+                      ref={(el) => {
+                        wordRefs.current[wIdx] = el;
+                      }}
+                      className={
+                        wIdx >= 3
+                          ? "inline-block text-lake-600 will-change-transform"
+                          : "inline-block text-ink-950 will-change-transform"
+                      }
+                    >
+                      {word}
+                    </span>
+                  </span>
+                ))}
               </h2>
             </div>
 
@@ -326,7 +368,7 @@ export default function TrustChapter() {
             />
           </div>
 
-          {/* 3. Asymmetric Central-Spine Cantilever Architecture (All 4 Cards 01, 02, 03, 04 unfold in 3D + wipe open their armor shutter right when scrolled into view!) */}
+          {/* 3. Asymmetric Central-Spine Cantilever Architecture (Index numbers 01-04 placed on the LEFT so `04` NEVER collides with the fixed top-right MENU button!) */}
           <div
             style={{ perspective: "1400px" }}
             className="relative pt-8 pb-4"
@@ -380,46 +422,53 @@ export default function TrustChapter() {
                           }
                         />
 
-                        <div className="flex items-baseline justify-between border-b border-current/20 pb-4 mb-6">
-                          <div>
-                            <span
-                              style={{
-                                fontSize: "var(--fs-micro)",
-                                letterSpacing: "var(--ls-micro)",
-                              }}
-                              className={
-                                idx % 2 === 0
-                                  ? "font-sans font-bold text-lake-400 uppercase block"
-                                  : "font-sans font-bold text-lake-600 uppercase block"
-                              }
-                            >
-                              {blade.key}
-                            </span>
-                            <span className="text-[10px] tracking-[0.24em] uppercase font-sans font-bold opacity-65 mt-1 block">
-                              {blade.metric}
-                            </span>
+                        {/* Left-Anchored Index Number + Right Category Badge (Never collides with top-right MENU button!) */}
+                        <div className="flex items-center justify-between border-b border-current/20 pb-4 mb-6">
+                          <div className="flex items-baseline gap-4">
+                            <div className="overflow-hidden pt-1">
+                              <span
+                                ref={(el) => {
+                                  cardNumRefs.current[idx] = el;
+                                }}
+                                style={{
+                                  fontFamily: "var(--font-archivo, sans-serif)",
+                                  fontSize: "clamp(3.25rem, 5vw, 5.25rem)",
+                                  lineHeight: 0.88,
+                                  fontVariationSettings: "'wdth' 64",
+                                }}
+                                className={
+                                  idx % 2 === 0
+                                    ? "font-black text-lake-400 inline-block will-change-transform"
+                                    : "font-black text-sun-600 inline-block will-change-transform"
+                                }
+                              >
+                                {blade.index}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span
+                                style={{
+                                  fontSize: "var(--fs-micro)",
+                                  letterSpacing: "var(--ls-micro)",
+                                }}
+                                className={
+                                  idx % 2 === 0
+                                    ? "font-sans font-bold text-lake-400 uppercase block"
+                                    : "font-sans font-bold text-lake-600 uppercase block"
+                                }
+                              >
+                                {blade.key}
+                              </span>
+                              <span className="text-[10px] tracking-[0.24em] uppercase font-sans font-bold opacity-65 mt-1 block">
+                                {blade.metric}
+                              </span>
+                            </div>
                           </div>
 
-                          <div className="overflow-hidden pt-1">
-                            <span
-                              ref={(el) => {
-                                cardNumRefs.current[idx] = el;
-                              }}
-                              style={{
-                                fontFamily: "var(--font-archivo, sans-serif)",
-                                fontSize: "clamp(3.25rem, 5vw, 5.25rem)",
-                                lineHeight: 0.88,
-                                fontVariationSettings: "'wdth' 64",
-                              }}
-                              className={
-                                idx % 2 === 0
-                                  ? "font-black text-lake-400 inline-block will-change-transform"
-                                  : "font-black text-sun-600 inline-block will-change-transform"
-                              }
-                            >
-                              {blade.index}
-                            </span>
-                          </div>
+                          <span className="text-xs tracking-[0.22em] font-sans font-bold opacity-40">
+                            ////
+                          </span>
                         </div>
 
                         <h3
