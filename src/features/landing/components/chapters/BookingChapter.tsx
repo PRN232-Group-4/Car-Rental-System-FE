@@ -1,4 +1,3 @@
-"use client";
 
 import { useRef } from "react";
 import Link from "@/components/navigation/NavigationLink";
@@ -12,12 +11,20 @@ interface BookingChapterProps {
 
 export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps) {
   const containerRef = useRef<HTMLElement>(null);
-  const sunsetViewportRef = useRef<HTMLDivElement>(null);
+
+  // Unique Section 4 -> Section 5 Transition: Full-Bleed Triple-Blade Diagonal Speed Wipe (Zero cream borders!)
+  const transitionBridgeRef = useRef<HTMLDivElement>(null);
+  const slashVermilionRef = useRef<HTMLDivElement>(null);
+  const slashBlueRef = useRef<HTMLDivElement>(null);
+  const slashInkRef = useRef<HTMLDivElement>(null);
+
+  // Section 5 Stage & Editorial Typography Refs
   const bgImgRef = useRef<HTMLImageElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
-  const subBoxRef = useRef<HTMLDivElement>(null);
-  const carRef = useRef<HTMLDivElement>(null);
   const mistRef = useRef<HTMLDivElement>(null);
+  const svgDialRef = useRef<SVGSVGElement>(null);
+  const leftTitleFillRef = useRef<HTMLDivElement>(null);
+  const rightTitleRef = useRef<HTMLHeadingElement>(null);
+  const carRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -28,42 +35,64 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
           [
-            sunsetViewportRef.current,
+            slashVermilionRef.current,
+            slashBlueRef.current,
+            slashInkRef.current,
             bgImgRef.current,
-            headlineRef.current,
-            subBoxRef.current,
-            carRef.current,
             mistRef.current,
+            svgDialRef.current,
+            leftTitleFillRef.current,
+            rightTitleRef.current,
+            carRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNIQUE Section 4 -> Section 5 Transition: Expanding Widescreen Cinema Horizon Aperture
-        // Applied STRICTLY to `sunsetViewportRef` (the 95svh Sunset Stage), so it NEVER creates an awkward dome cut!
-        if (sunsetViewportRef.current) {
-          gsap.fromTo(
-            sunsetViewportRef.current,
-            { clipPath: "inset(32% 6% 32% 6%)" },
-            {
-              clipPath: "inset(0% 0% 0% 0%)",
-              ease: "none",
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top 95%",
-                end: "top 20%",
-                scrub: true,
-              },
-            }
-          );
+        // 1. UNIQUE Section 4 -> Section 5 Transition: Full-Width Triple-Blade Diagonal Speed Wipe
+        // Sweeps Vermilion -> Racing Blue -> Obsidian Ink across 100vw with ZERO cream side margins!
+        if (
+          transitionBridgeRef.current &&
+          slashVermilionRef.current &&
+          slashBlueRef.current &&
+          slashInkRef.current
+        ) {
+          const bridgeTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: transitionBridgeRef.current,
+              start: "top 96%",
+              end: "bottom 30%",
+              scrub: true,
+            },
+          });
+
+          bridgeTl
+            .fromTo(
+              slashVermilionRef.current,
+              { xPercent: -105 },
+              { xPercent: 0, ease: "none" },
+              0
+            )
+            .fromTo(
+              slashBlueRef.current,
+              { xPercent: 105 },
+              { xPercent: 0, ease: "none" },
+              0.08
+            )
+            .fromTo(
+              slashInkRef.current,
+              { yPercent: 100 },
+              { yPercent: 0, ease: "none" },
+              0.16
+            );
         }
 
-        // 2. Bespoke Section 5 Typography Motion: Radial Scale-Down & Letter-Spacing Compression Lock + Car Over-Footer Drive
+        // 2. Section 5 Editorial Finale Choreography + Car Driving OVER the Footer Layer!
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
-            start: "top 88%",
+            start: "top 85%",
             end: "bottom bottom",
             scrub: true,
             onEnter: () => onEnterChapter5?.(true),
@@ -74,35 +103,54 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
         if (bgImgRef.current) {
           tl.fromTo(
             bgImgRef.current,
-            { scale: 1.18, yPercent: -10 },
+            { scale: 1.16, yPercent: -8 },
             { scale: 1.0, yPercent: 6, ease: "none" },
             0
           );
         }
 
-        if (headlineRef.current) {
+        if (svgDialRef.current) {
           tl.fromTo(
-            headlineRef.current,
-            { scale: 1.28, letterSpacing: "0.18em", opacity: 0.2 },
-            { scale: 1.0, letterSpacing: "-0.02em", opacity: 1, ease: "none" },
+            svgDialRef.current,
+            { rotate: -80 },
+            { rotate: 80, ease: "none" },
             0
           );
         }
 
-        if (subBoxRef.current) {
+        if (leftTitleFillRef.current) {
           tl.fromTo(
-            subBoxRef.current,
-            { y: 36, opacity: 0.2 },
-            { y: 0, opacity: 1, ease: "none" },
-            0.08
+            leftTitleFillRef.current,
+            { clipPath: "inset(0% 100% 0% 0%)" },
+            { clipPath: "inset(0% 0% 0% 0%)", ease: "none" },
+            0
           );
         }
 
+        if (rightTitleRef.current) {
+          tl.fromTo(
+            rightTitleRef.current,
+            {
+              xPercent: 14,
+              fontVariationSettings: "'wdth' 70",
+              opacity: 0.25,
+            },
+            {
+              xPercent: 0,
+              fontVariationSettings: "'wdth' 118",
+              opacity: 1,
+              ease: "none",
+            },
+            0
+          );
+        }
+
+        // Foreground Car (`b4-car` at z-50) physically drives forward & overlaps ON TOP OF the Footer!
         if (carRef.current) {
           tl.fromTo(
             carRef.current,
-            { xPercent: 18, yPercent: 6, scale: 0.88 },
-            { xPercent: -4, yPercent: 0, scale: 1.06, ease: "none" },
+            { xPercent: 24, y: -24, scale: 0.88 },
+            { xPercent: -6, y: 18, scale: 1.08, ease: "none" },
             0
           );
         }
@@ -126,15 +174,114 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
     <section
       ref={containerRef}
       id="dat-xe"
-      className="relative w-full bg-bone-100 select-none overflow-hidden"
+      className="relative w-full bg-ink-950 text-bone-100 select-none overflow-hidden"
     >
-      {/* ================= PART 1: HAI VAN SUNSET DEPARTURE STAGE (Note: NO overflow-hidden at bottom so Car at z-50 stands ON TOP OF Footer!) ================= */}
+      {/* ================= UNIQUE SECTION 4 -> SECTION 5 TRANSITION: FULL-BLEED TRIPLE-BLADE DIAGONAL WIPE ================= */}
       <div
-        ref={sunsetViewportRef}
-        className="relative w-full min-h-[92svh] bg-ink-950 text-bone-100 flex flex-col justify-between pt-28 sm:pt-32 will-change-transform"
+        ref={transitionBridgeRef}
+        aria-hidden="true"
+        className="relative w-full h-[26svh] bg-bone-100 overflow-hidden pointer-events-none"
       >
-        {/* 1. Full-Bleed Hai Van Sunset Woodcut (`b0-backdrop`) */}
-        <picture className="absolute inset-0 w-full h-full block pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
+        <div
+          ref={slashVermilionRef}
+          style={{ clipPath: "polygon(0% 0%, 78% 100%, 0% 100%)" }}
+          className="absolute inset-0 w-full h-full bg-sun-600 will-change-transform"
+        />
+        <div
+          ref={slashBlueRef}
+          style={{ clipPath: "polygon(100% 0%, 100% 100%, 18% 100%)" }}
+          className="absolute inset-0 w-full h-full bg-lake-600 will-change-transform"
+        />
+        <div
+          ref={slashInkRef}
+          style={{ clipPath: "polygon(0% 42%, 100% 0%, 100% 100%, 0% 100%)" }}
+          className="absolute inset-0 w-full h-full bg-ink-950 will-change-transform"
+        />
+      </div>
+
+      {/* ================= PART 1: DEDICATED UPPER CONSTRUCTIVIST TYPOGRAPHY DECK (100% Separated from White Clouds!) ================= */}
+      <div className="relative z-30 w-full bg-ink-950 pt-10 sm:pt-14 pb-10 px-6 sm:px-12 lg:px-20 border-b border-bone-100/20">
+        {/* Constructivist SVG Horizon Compass Dial */}
+        <svg
+          ref={svgDialRef}
+          aria-hidden="true"
+          viewBox="0 0 500 500"
+          className="hidden lg:block absolute right-[8%] -top-24 w-[420px] h-[420px] text-bone-100/[0.07] pointer-events-none will-change-transform"
+        >
+          <circle cx="250" cy="250" r="220" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="8 8" />
+          <circle cx="250" cy="250" r="160" fill="none" stroke="currentColor" strokeWidth="1" />
+          <line x1="20" y1="250" x2="480" y2="250" stroke="currentColor" strokeWidth="1" />
+          <line x1="250" y1="20" x2="250" y2="480" stroke="currentColor" strokeWidth="1" />
+        </svg>
+
+        <div className="max-w-[1640px] mx-auto">
+          {/* Top Telemetry Strip */}
+          <div className="flex items-center justify-between text-[11px] tracking-[0.28em] uppercase font-sans font-bold text-bone-100/70 pb-4 mb-8 border-b border-bone-100/15">
+            <span>05 // THE GRAND DEPARTURE</span>
+            <span className="text-sun-400">CHỌN TRẠM · NHẬN KHÓA SỐ · KHỞI HÀNH</span>
+          </div>
+
+          {/* Monumental Asymmetric Split-Horizon Typography (Zero Cloud Collision, Pure Awwwards Editorial Hierarchy!) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            {/* Left 7 Columns: Hollow Stroke-to-Solid Fill Statement */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="relative inline-block">
+                <div
+                  aria-hidden="true"
+                  style={{
+                    fontFamily: "var(--font-archivo, sans-serif)",
+                    fontSize: "clamp(2.4rem, 5.6vw, 6.8rem)",
+                    lineHeight: 1.08,
+                    fontVariationSettings: "'wdth' 88",
+                    WebkitTextStroke: "1.5px rgba(233, 228, 216, 0.45)",
+                    color: "transparent",
+                  }}
+                  className="font-black uppercase tracking-tight whitespace-nowrap select-none"
+                >
+                  CỖ MÁY ĐÃ SẴN SÀNG.
+                </div>
+
+                <div
+                  ref={leftTitleFillRef}
+                  style={{
+                    fontFamily: "var(--font-archivo, sans-serif)",
+                    fontSize: "clamp(2.4rem, 5.6vw, 6.8rem)",
+                    lineHeight: 1.08,
+                    fontVariationSettings: "'wdth' 88",
+                  }}
+                  className="absolute inset-0 font-black uppercase tracking-tight text-bone-100 whitespace-nowrap will-change-transform"
+                >
+                  CỖ MÁY ĐÃ SẴN SÀNG.
+                </div>
+              </div>
+
+              <p className="font-sans text-sm sm:text-base text-bone-100/80 max-w-xl leading-relaxed border-l-4 border-sun-600 pl-4">
+                Chọn chi nhánh tiếp nhận và khung giờ khởi hành tại thanh điều khiển phía dưới. Hệ thống tự động giữ xe và kích hoạt hợp đồng số tức thì.
+              </p>
+            </div>
+
+            {/* Right 5 Columns: Variable-Width Expanding «ĐI THÔI.» */}
+            <div className="lg:col-span-5 flex lg:justify-end">
+              <h2
+                ref={rightTitleRef}
+                style={{
+                  fontFamily: "var(--font-archivo, sans-serif)",
+                  fontSize: "clamp(3.25rem, 7.2vw, 8.8rem)",
+                  lineHeight: 1.05,
+                  fontVariationSettings: "'wdth' 115",
+                }}
+                className="font-black uppercase tracking-tight text-sun-400 whitespace-nowrap will-change-transform"
+              >
+                «ĐI THÔI.»
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= PART 2: FULL-BLEED HAI VAN SUNSET PANORAMA STAGE ================= */}
+      <div className="relative z-10 w-full h-[64svh] min-h-[480px] overflow-hidden">
+        <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 5 }}>
           <source
             type="image/avif"
             srcSet="/assets/landing/b0-backdrop-3840.avif 3840w, /assets/landing/b0-backdrop-2880.avif 2880w, /assets/landing/b0-backdrop-1920.avif 1920w, /assets/landing/b0-backdrop-1280.avif 1280w"
@@ -153,12 +300,11 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
           />
         </picture>
 
-        {/* 2. Drifting Coastal Mist */}
         <div
           ref={mistRef}
           aria-hidden="true"
           style={{ zIndex: 12, mixBlendMode: "screen", opacity: 0.45 }}
-          className="absolute inset-0 pointer-events-none overflow-hidden will-change-transform"
+          className="absolute inset-0 pointer-events-none will-change-transform"
         >
           <img
             src="/assets/landing/b5-mist-1920.webp"
@@ -168,80 +314,47 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
             decoding="async"
           />
         </div>
+      </div>
 
-        {/* 3. Unbroken Single-Line Monumental Departure Headline (Positioned with pt-28/32 so it NEVER collides with the top-right MENU button!) */}
+      {/* ================= PART 3: UNCLIPPED FOREGROUND CAR (`z-45`) DRIVING DIRECTLY ON TOP OF THE FOOTER (`z-20`)! ================= */}
+      {/* Placed OUTSIDE the overflow-hidden panorama stage so its tires and chassis physically overlap and drive across the Footer's top border! */}
+      <div
+        style={{ zIndex: 45 }}
+        className="relative w-full max-w-[1640px] mx-auto -mt-48 sm:-mt-64 -mb-16 sm:-mb-24 pointer-events-none px-6 sm:px-12"
+      >
         <div
-          style={{ zIndex: 30 }}
-          className="relative w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 flex flex-col items-end text-right pointer-events-none"
+          ref={carRef}
+          style={{
+            width: "clamp(320px, 48vw, 820px)",
+          }}
+          className="ml-auto mr-[2%] sm:mr-[6%] pointer-events-none will-change-transform"
         >
-          <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-2">
-            05 // KHỞI HÀNH NGAY HÔM NAY
-          </span>
-
-          <h2
-            ref={headlineRef}
-            style={{
-              fontFamily: "var(--font-archivo, sans-serif)",
-              fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
-              lineHeight: 1.15,
-              fontVariationSettings: "'wdth' 108",
-              transformOrigin: "right center",
-            }}
-            className="font-black uppercase text-bone-100 whitespace-nowrap pt-[0.16em] drop-shadow-2xl will-change-transform"
-          >
-            «ĐI THÔI.»
-          </h2>
-
-          <div
-            ref={subBoxRef}
-            className="mt-4 bg-ink-950/90 p-4 sm:p-5 border-r-4 border-sun-600 max-w-md will-change-transform"
-          >
-            <p className="font-sans text-sm sm:text-base text-bone-100/95 leading-relaxed font-medium">
-              Chọn trạm nhận xe và khung giờ khởi hành ngay tại thanh điều khiển phía dưới.
-            </p>
-          </div>
-        </div>
-
-        {/* 4. Cornering Lithograph Car (`b4-car`) at z-50 Standing Directly ON TOP OF the Footer Layer! */}
-        <div
-          style={{ zIndex: 50 }}
-          className="relative w-full mt-auto pt-16 pointer-events-none"
-        >
-          <div
-            ref={carRef}
-            style={{
-              width: "clamp(320px, 48vw, 800px)",
-            }}
-            className="relative ml-auto mr-[6%] sm:mr-[10%] -mb-14 sm:-mb-20 pointer-events-none will-change-transform"
-          >
-            <picture className="w-full block">
-              <source
-                type="image/avif"
-                srcSet="/assets/landing/b4-car-2000.avif 2000w, /assets/landing/b4-car-1920.avif 1920w, /assets/landing/b4-car-1280.avif 1280w, /assets/landing/b4-car-960.avif 960w"
-              />
-              <source
-                type="image/webp"
-                srcSet="/assets/landing/b4-car-2000.webp 2000w, /assets/landing/b4-car-1920.webp 1920w, /assets/landing/b4-car-1280.webp 1280w, /assets/landing/b4-car-960.webp 960w"
-              />
-              <img
-                src="/assets/landing/b4-car-1280.webp"
-                alt="Porsche 911 trên cung đường biển"
-                className="w-full h-auto object-contain pointer-events-none contrast-125 brightness-95 drop-shadow-2xl"
-                loading="lazy"
-                decoding="async"
-              />
-            </picture>
-          </div>
+          <picture className="w-full block">
+            <source
+              type="image/avif"
+              srcSet="/assets/landing/b4-car-2000.avif 2000w, /assets/landing/b4-car-1920.avif 1920w, /assets/landing/b4-car-1280.avif 1280w, /assets/landing/b4-car-960.avif 960w"
+            />
+            <source
+              type="image/webp"
+              srcSet="/assets/landing/b4-car-2000.webp 2000w, /assets/landing/b4-car-1920.webp 1920w, /assets/landing/b4-car-1280.webp 1280w, /assets/landing/b4-car-960.webp 960w"
+            />
+            <img
+              src="/assets/landing/b4-car-1280.webp"
+              alt="Porsche 911 trên cung đường biển"
+              className="w-full h-auto object-contain pointer-events-none contrast-125 brightness-95 drop-shadow-2xl"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
         </div>
       </div>
 
-      {/* ================= PART 2: COMPREHENSIVE 4-COLUMN ARCHITECTURAL FOOTER (z-20, Sitting UNDERNEATH the z-50 Car Tires!) ================= */}
+      {/* ================= PART 4: COMPREHENSIVE 4-COLUMN ARCHITECTURAL FOOTER (`z-20`, Sitting UNDERNEATH the `z-45` Car!) ================= */}
       <footer
         style={{ zIndex: 20 }}
         className="relative w-full bg-ink-950 border-t-4 border-sun-600 px-6 sm:px-12 lg:px-20 pt-24 sm:pt-28 pb-32 text-bone-100"
       >
         <div className="max-w-[1640px] mx-auto space-y-12">
-          {/* 4-Column Luxury Editorial Directory */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-bone-100/20">
             {/* Col 1 (4 cols): Brand Identity & Philosophy */}
             <div className="lg:col-span-4 space-y-4">
@@ -345,7 +458,7 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
             </div>
           </div>
 
-          {/* CC BY 4.0 3D Attribution & Copyright Bar (Matches E2E assertions 100%) */}
+          {/* CC BY 4.0 3D Attribution & Copyright Bar */}
           <div className="space-y-4 text-xs text-bone-100/60">
             <div className="leading-relaxed border-b border-bone-100/15 pb-4 text-[11px] text-bone-100/50">
               <strong className="text-bone-100 font-medium">
@@ -376,3 +489,4 @@ export default function BookingChapter({ onEnterChapter5 }: BookingChapterProps)
     </section>
   );
 }
+

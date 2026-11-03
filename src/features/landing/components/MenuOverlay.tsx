@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -70,6 +69,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const svgWheelRef = useRef<SVGSVGElement>(null);
   const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const previewBoxRef = useRef<HTMLDivElement>(null);
   const routeLoaderRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,6 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
     }
   }, [isOpen]);
 
-  // Animated Close Handler (Plays full reverse exit transition before unmounting!)
   const handleAnimatedClose = useCallback(() => {
     if (!stageRef.current) {
       setIsRendered(false);
@@ -111,7 +110,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
     if (previewBoxRef.current) {
       closeTl.to(
         previewBoxRef.current,
-        { x: 40, opacity: 0, duration: 0.3, ease: "power2.in" },
+        { x: 40, opacity: 0, duration: 0.28, ease: "power2.in" },
         0
       );
     }
@@ -121,10 +120,10 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
         validBlades,
         {
           rotateX: 65,
-          y: -20,
+          y: -18,
           opacity: 0,
-          duration: 0.35,
-          stagger: 0.03,
+          duration: 0.32,
+          stagger: 0.025,
           ease: "power2.in",
         },
         0
@@ -135,14 +134,13 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
       stageRef.current,
       {
         clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-        duration: 0.55,
+        duration: 0.5,
         ease: "expo.inOut",
       },
-      0.15
+      0.12
     );
   }, [onClose]);
 
-  // Route Navigation Loading Screen Handler for the 6 Menu Functions
   const handleNavigateRoute = (
     e: React.MouseEvent<HTMLAnchorElement>,
     item: (typeof MENU_ITEMS)[0]
@@ -171,7 +169,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           { clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)" },
           {
             clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-            duration: 0.45,
+            duration: 0.42,
             ease: "expo.out",
           },
           0
@@ -182,8 +180,8 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
         navTl.fromTo(
           routeBarRef.current,
           { scaleX: 0 },
-          { scaleX: 1, duration: 0.55, ease: "power3.inOut" },
-          0.15
+          { scaleX: 1, duration: 0.5, ease: "power3.inOut" },
+          0.12
         );
       }
     });
@@ -207,17 +205,25 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
-        // Diagonal Constructivist Slash Entrance Wipe
         if (stageRef.current) {
           tl.fromTo(
             stageRef.current,
             { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" },
             {
               clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-              duration: 0.7,
+              duration: 0.65,
               ease: "expo.inOut",
             },
             0
+          );
+        }
+
+        if (svgWheelRef.current) {
+          tl.fromTo(
+            svgWheelRef.current,
+            { rotate: -90, scale: 0.8, opacity: 0 },
+            { rotate: 0, scale: 1, opacity: 1, duration: 1.2 },
+            0.15
           );
         }
 
@@ -225,25 +231,25 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
         if (validBlades.length > 0) {
           tl.fromTo(
             validBlades,
-            { rotateX: -75, y: 32, opacity: 0 },
+            { rotateX: -75, y: 24, opacity: 0 },
             {
               rotateX: 0,
               y: 0,
               opacity: 1,
-              duration: 0.7,
-              stagger: 0.055,
+              duration: 0.65,
+              stagger: 0.045,
               ease: "power3.out",
             },
-            0.22
+            0.2
           );
         }
 
         if (previewBoxRef.current) {
           tl.fromTo(
             previewBoxRef.current,
-            { x: 48, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.75 },
-            0.3
+            { x: 40, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.7 },
+            0.28
           );
         }
       });
@@ -268,26 +274,53 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
         ref={stageRef}
         className="relative w-full h-full bg-ink-950 text-bone-100 overflow-y-auto overflow-x-hidden flex flex-col justify-between will-change-transform"
       >
-        {/* Tactile Lithograph Dust & Constructivist Racing Spine */}
+        {/* 1. Rich Constructivist Background Layer: Woodcut Underlay + SVG Schematic Wheel + Giant Dynamic Index Watermark */}
         <div
           aria-hidden="true"
-          style={{ mixBlendMode: "screen", opacity: 0.38 }}
+          style={{ opacity: 0.14 }}
           className="fixed inset-0 pointer-events-none"
         >
           <img
-            src="/assets/landing/a7-dust-1920.webp"
+            src={activeItem.preview}
             alt=""
-            className="w-full h-full object-cover pointer-events-none"
+            className="w-full h-full object-cover grayscale contrast-150 transition-all duration-500"
           />
+        </div>
+
+        <svg
+          ref={svgWheelRef}
+          aria-hidden="true"
+          viewBox="0 0 700 700"
+          className="hidden lg:block fixed right-[15%] top-1/2 -translate-y-1/2 w-[640px] h-[640px] text-bone-100/[0.08] pointer-events-none will-change-transform"
+        >
+          <circle cx="350" cy="350" r="320" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="10 10" />
+          <circle cx="350" cy="350" r="240" fill="none" stroke="currentColor" strokeWidth="1" />
+          <circle cx="350" cy="350" r="160" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 8" />
+          <line x1="20" y1="350" x2="680" y2="350" stroke="currentColor" strokeWidth="1" />
+          <line x1="350" y1="20" x2="350" y2="680" stroke="currentColor" strokeWidth="1" />
+        </svg>
+
+        {/* Giant Dynamic Background Index Watermark (`01` - `06`) */}
+        <div
+          aria-hidden="true"
+          style={{
+            fontFamily: "var(--font-archivo, sans-serif)",
+            fontSize: "clamp(14rem, 32vw, 38rem)",
+            lineHeight: 0.8,
+            fontVariationSettings: "'wdth' 62",
+          }}
+          className="fixed right-6 bottom-6 font-black text-bone-100/[0.04] pointer-events-none select-none"
+        >
+          {activeItem.index}
         </div>
 
         <div
           aria-hidden="true"
-          className="hidden lg:block fixed top-0 bottom-0 left-[58.333%] w-3 bg-sun-600 pointer-events-none"
+          className="hidden lg:block fixed top-0 bottom-0 left-[58.333%] w-2 bg-sun-600 pointer-events-none"
         />
 
-        {/* Top Masthead Bar */}
-        <div className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 pt-7 pb-5 border-b border-bone-100/20 flex items-center justify-between">
+        {/* 2. Top Masthead Bar */}
+        <div className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 pt-5 pb-4 border-b border-bone-100/20 flex items-center justify-between">
           <a
             href="/"
             onClick={(e) => {
@@ -308,20 +341,20 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           <button
             type="button"
             onClick={handleAnimatedClose}
-            className="inline-flex items-center gap-2 border border-bone-100/40 bg-ink-800 hover:bg-sun-600 hover:border-sun-600 hover:text-white px-5 py-2.5 text-xs tracking-[0.22em] uppercase font-sans font-bold transition-colors rounded-none cursor-pointer"
+            className="inline-flex items-center gap-2 border border-bone-100/40 bg-ink-800 hover:bg-sun-600 hover:border-sun-600 hover:text-white px-5 py-2 text-xs tracking-[0.22em] uppercase font-sans font-bold transition-colors rounded-none cursor-pointer"
           >
             <span>ĐÓNG [ESC]</span>
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Center 12-Column Split Constructivist Stage */}
+        {/* 3. Center 12-Column Split Constructivist Stage (Compact vertical rhythm so all 6 items fit 100% inside 100dvh!) */}
         <div
           style={{ perspective: "1200px" }}
-          className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 py-8 my-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center"
+          className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 py-4 my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
         >
-          {/* Left 7 Columns: 3D Split-Flap Typographic Index */}
-          <nav className="lg:col-span-7 divide-y divide-bone-100/15 border-y border-bone-100/15">
+          {/* Left 7 Columns: 6 Single-Line Typographic Blades */}
+          <nav className="lg:col-span-7 divide-y divide-bone-100/15 border-y border-bone-100/15 bg-ink-950/80">
             {MENU_ITEMS.map((item, idx) => {
               const isActive = idx === activeIdx;
               return (
@@ -337,9 +370,9 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                   <a
                     href={item.href}
                     onClick={(e) => handleNavigateRoute(e, item)}
-                    className="group py-5 sm:py-6 px-4 -mx-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 transition-colors duration-200 hover:bg-bone-100 hover:text-ink-950 cursor-pointer"
+                    className="group py-3.5 sm:py-4 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition-colors duration-200 hover:bg-bone-100 hover:text-ink-950 cursor-pointer"
                   >
-                    <div className="flex items-baseline gap-5">
+                    <div className="flex items-baseline gap-4">
                       <span
                         style={{
                           fontFamily: "var(--font-archivo, sans-serif)",
@@ -347,8 +380,8 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                         }}
                         className={
                           isActive
-                            ? "font-black text-2xl sm:text-3xl text-sun-400 group-hover:text-sun-600"
-                            : "font-black text-2xl sm:text-3xl text-bone-100/45 group-hover:text-ink-950"
+                            ? "font-black text-xl sm:text-2xl text-sun-400 group-hover:text-sun-600"
+                            : "font-black text-xl sm:text-2xl text-bone-100/45 group-hover:text-ink-950"
                         }
                       >
                         {item.index}
@@ -357,17 +390,17 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
                       <span
                         style={{
                           fontFamily: "var(--font-archivo, sans-serif)",
-                          fontSize: "clamp(1.75rem, 3.3vw, 3.4rem)",
+                          fontSize: "clamp(1.5rem, 2.6vw, 2.75rem)",
                           lineHeight: 1.08,
-                          fontVariationSettings: isActive ? "'wdth' 108" : "'wdth' 88",
+                          fontVariationSettings: isActive ? "'wdth' 106" : "'wdth' 88",
                         }}
-                        className="font-black uppercase tracking-tight transition-all duration-300 group-hover:translate-x-2"
+                        className="font-black uppercase tracking-tight whitespace-nowrap transition-all duration-300 group-hover:translate-x-2"
                       >
                         {item.label}
                       </span>
                     </div>
 
-                    <span className="font-sans text-xs sm:text-sm text-bone-100/65 group-hover:text-ink-950/80 transition-colors">
+                    <span className="font-sans text-xs text-bone-100/65 group-hover:text-ink-950/80 transition-colors">
                       {item.sub}
                     </span>
                   </a>
@@ -376,21 +409,21 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
             })}
           </nav>
 
-          {/* Right 5 Columns: Live Interactive Lithograph Plate Preview */}
+          {/* Right 5 Columns: Uncropped Lithograph Plate Preview (`object-contain` prevents cutting "BUGATTI" into "3UGATT"!) */}
           <div
             ref={previewBoxRef}
-            className="hidden lg:flex lg:col-span-5 flex-col justify-between bg-bone-100 text-ink-950 p-6 border-2 border-bone-100 will-change-transform"
+            className="hidden lg:flex lg:col-span-5 flex-col justify-between bg-bone-100 text-ink-950 p-6 border-2 border-bone-100 shadow-2xl will-change-transform"
           >
             <div className="flex items-center justify-between border-b-2 border-ink-950 pb-3 mb-4 text-[11px] tracking-[0.24em] uppercase font-sans font-bold">
               <span>ARCHIVAL PLATE // {activeItem.index}</span>
               <span className="text-sun-600">{activeItem.tag}</span>
             </div>
 
-            <div className="relative w-full aspect-[16/10] overflow-hidden bg-bone-100">
+            <div className="relative w-full aspect-[16/9] overflow-hidden bg-bone-100 flex items-center justify-center">
               <img
                 src={activeItem.preview}
                 alt={activeItem.label}
-                className="w-full h-full object-cover object-center transition-transform duration-500 scale-105"
+                className="w-full h-full object-contain pointer-events-none"
               />
             </div>
 
@@ -410,8 +443,8 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           </div>
         </div>
 
-        {/* Bottom Constructivist Footer Strip */}
-        <div className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 py-5 border-t border-bone-100/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] tracking-[0.22em] uppercase font-sans text-bone-100/60">
+        {/* 4. Bottom Constructivist Footer Strip */}
+        <div className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 py-4 border-t border-bone-100/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] tracking-[0.22em] uppercase font-sans text-bone-100/60">
           <div className="flex items-center gap-3">
             <span className="w-3 h-1.5 bg-sun-600 inline-block" />
             <span className="w-3 h-1.5 bg-sun-600 inline-block" />
@@ -421,7 +454,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           <span>TP. HỒ CHÍ MINH · SUPPORT@VRS.VN</span>
         </div>
 
-        {/* Route Transition Loading Screen for the 6 Menu Functions */}
+        {/* 5. Route Transition Loading Screen for the 6 Menu Functions */}
         {navigatingItem && (
           <div
             ref={routeLoaderRef}
@@ -479,3 +512,4 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
     </div>
   );
 }
+

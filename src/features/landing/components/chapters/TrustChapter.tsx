@@ -1,4 +1,3 @@
-"use client";
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
@@ -43,10 +42,8 @@ export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
   const deckStageRef = useRef<HTMLDivElement>(null);
   const horizonBeamRef = useRef<HTMLDivElement>(null);
-  const inkWipeBar1Ref = useRef<HTMLDivElement>(null);
-  const inkWipeBar2Ref = useRef<HTMLDivElement>(null);
-  const titleText1Ref = useRef<HTMLSpanElement>(null);
-  const titleText2Ref = useRef<HTMLSpanElement>(null);
+  const fillOverlayRef = useRef<HTMLDivElement>(null);
+  const blueprintSvgRef = useRef<SVGSVGElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
   const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -62,22 +59,20 @@ export default function TrustChapter() {
           [
             deckStageRef.current,
             horizonBeamRef.current,
+            fillOverlayRef.current,
+            blueprintSvgRef.current,
             spineRef.current,
             posterImgRef.current,
-            titleText1Ref.current,
-            titleText2Ref.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
-        if (inkWipeBar1Ref.current) gsap.set(inkWipeBar1Ref.current, { scaleX: 0 });
-        if (inkWipeBar2Ref.current) gsap.set(inkWipeBar2Ref.current, { scaleX: 0 });
         bladeRefs.current.forEach((b) => {
           if (b) gsap.set(b, { clearProps: "all", opacity: 1 });
         });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNIQUE Section 3 -> Section 4 Transition: 3D Monolith Deck Elevation + Racing Blue Horizon Laser Expand (Replaces the sliced black rectangles!)
+        // 1. Section 3 -> Section 4 Transition: 3D Monolith Deck Elevation + Racing Blue Horizon Laser Expand
         if (deckStageRef.current && horizonBeamRef.current) {
           const entryTl = gsap.timeline({
             scrollTrigger: {
@@ -103,35 +98,22 @@ export default function TrustChapter() {
             );
         }
 
-        // 2. Bespoke Section 4 Typography Animation: Constructivist Ink-Block Wipe Reveal
-        if (
-          inkWipeBar1Ref.current &&
-          inkWipeBar2Ref.current &&
-          titleText1Ref.current &&
-          titleText2Ref.current
-        ) {
-          const wipeTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top 75%",
-              end: "top 25%",
-              scrub: true,
-            },
-          });
-
-          wipeTl
-            .fromTo(
-              [inkWipeBar1Ref.current, inkWipeBar2Ref.current],
-              { scaleX: 1 },
-              { scaleX: 0, stagger: 0.12, ease: "none" },
-              0
-            )
-            .fromTo(
-              [titleText1Ref.current, titleText2Ref.current],
-              { xPercent: -8, opacity: 0.2 },
-              { xPercent: 0, opacity: 1, stagger: 0.12, ease: "none" },
-              0
-            );
+        // 2. motionsites.ai-Inspired Hollow Stroke-to-Solid Fill Typography Scrub (`clipPath: inset(0 100% 0 0) -> inset(0 0% 0 0)`)
+        if (fillOverlayRef.current) {
+          gsap.fromTo(
+            fillOverlayRef.current,
+            { clipPath: "inset(0% 100% 0% 0%)" },
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              ease: "none",
+              scrollTrigger: {
+                trigger: fillOverlayRef.current,
+                start: "top 88%",
+                end: "top 32%",
+                scrub: true,
+              },
+            }
+          );
         }
 
         const masterTl = gsap.timeline({
@@ -142,6 +124,15 @@ export default function TrustChapter() {
             scrub: true,
           },
         });
+
+        if (blueprintSvgRef.current) {
+          masterTl.fromTo(
+            blueprintSvgRef.current,
+            { rotate: -90 },
+            { rotate: 90, ease: "none" },
+            0
+          );
+        }
 
         if (spineRef.current) {
           masterTl.fromTo(
@@ -161,14 +152,14 @@ export default function TrustChapter() {
           );
         }
 
-        // 3. Asymmetric Cantilever Spine Blades (Slide out horizontally from the central Racing Blue Spine!)
+        // 3. Asymmetric Cantilever Spine Blades (Slide & 3D Unfold from Central Racing Blue Spine!)
         bladeRefs.current.forEach((blade, idx) => {
           if (!blade) return;
           const isLeft = idx % 2 === 0;
 
           gsap.fromTo(
             blade,
-            { xPercent: isLeft ? 18 : -18, y: 36, opacity: 0.15 },
+            { xPercent: isLeft ? 16 : -16, y: 40, opacity: 0.15 },
             {
               xPercent: 0,
               y: 0,
@@ -210,20 +201,19 @@ export default function TrustChapter() {
         style={{ transformOrigin: "center top" }}
         className="relative w-full bg-bone-100 text-ink-950 py-24 sm:py-36 px-8 sm:px-14 lg:px-24 overflow-hidden will-change-transform"
       >
-        {/* Tactile Inverted Paper Fiber Texture + Architectural Grid */}
-        <div
+        {/* Rich Constructivist SVG Blueprint Schematic & Architectural Grid */}
+        <svg
+          ref={blueprintSvgRef}
           aria-hidden="true"
-          style={{ mixBlendMode: "multiply", opacity: 0.15 }}
-          className="absolute inset-0 pointer-events-none"
+          viewBox="0 0 600 600"
+          className="hidden lg:block absolute -left-28 top-20 w-[520px] h-[520px] text-lake-600/[0.10] pointer-events-none will-change-transform"
         >
-          <img
-            src="/assets/landing/a7-dust-1920.webp"
-            alt=""
-            className="w-full h-full object-cover invert pointer-events-none"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+          <circle cx="300" cy="300" r="270" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="14 8" />
+          <circle cx="300" cy="300" r="210" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="300" cy="300" r="140" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 6" />
+          <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="1.5" />
+          <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
 
         <div
           aria-hidden="true"
@@ -236,47 +226,44 @@ export default function TrustChapter() {
 
         {/* CRITICAL: Direct bg-bone-100 without z-index isolation so Poster 1 blends 100.0% into #E9E4D8! */}
         <div className="max-w-[1600px] mx-auto bg-bone-100 space-y-16 sm:space-y-24">
-          {/* 1. Editorial Exhibition Header with Ink-Block Wipe Typography */}
+          {/* 1. Editorial Exhibition Header with Hollow Stroke-to-Solid Fill Scroll Typography */}
           <div className="border-b-2 border-ink-950 pb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="space-y-2">
               <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-lake-600 block mb-3">
                 04 // ENGINEERING HERITAGE & VERIFIED TRUST
               </span>
 
-              <h2
-                style={{
-                  fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
-                  lineHeight: 1.12,
-                  fontVariationSettings: "'wdth' 98",
-                }}
-                className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.24em]"
-              >
-                <span className="relative inline-block overflow-hidden pt-[0.14em] pb-[0.04em]">
-                  <span ref={titleText1Ref} className="inline-block will-change-transform">
-                    TIN CẬY BẰNG
-                  </span>
-                  <div
-                    ref={inkWipeBar1Ref}
-                    style={{ transformOrigin: "right center" }}
-                    className="absolute inset-0 bg-ink-950 pointer-events-none will-change-transform"
-                  />
-                </span>
+              <div className="relative inline-block">
+                {/* Base Layer: Hollow Constructivist Stroke Outline */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    fontFamily: "var(--font-archivo, sans-serif)",
+                    fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
+                    lineHeight: 1.14,
+                    fontVariationSettings: "'wdth' 98",
+                    WebkitTextStroke: "2px var(--ink-950)",
+                    color: "transparent",
+                  }}
+                  className="font-black uppercase tracking-tight pt-[0.14em] select-none"
+                >
+                  TIN CẬY BẰNG DỮ KIỆN.
+                </div>
 
-                <span className="relative inline-block overflow-hidden pt-[0.14em] pb-[0.04em]">
-                  <span
-                    ref={titleText2Ref}
-                    className="inline-block text-lake-600 will-change-transform"
-                  >
-                    DỮ KIỆN.
-                  </span>
-                  <div
-                    ref={inkWipeBar2Ref}
-                    style={{ transformOrigin: "right center" }}
-                    className="absolute inset-0 bg-lake-600 pointer-events-none will-change-transform"
-                  />
-                </span>
-              </h2>
+                {/* Foreground Scroll-Scrubbed Solid Fill Layer */}
+                <h2
+                  ref={fillOverlayRef}
+                  style={{
+                    fontFamily: "var(--font-archivo, sans-serif)",
+                    fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
+                    lineHeight: 1.14,
+                    fontVariationSettings: "'wdth' 98",
+                  }}
+                  className="absolute inset-0 font-black uppercase tracking-tight text-ink-950 pt-[0.14em] will-change-transform"
+                >
+                  TIN CẬY BẰNG <span className="text-lake-600">DỮ KIỆN.</span>
+                </h2>
+              </div>
             </div>
 
             <p className="font-sans text-base sm:text-lg text-ink-950/85 max-w-md leading-relaxed font-medium border-l-4 border-lake-600 pl-5">
@@ -299,9 +286,8 @@ export default function TrustChapter() {
             />
           </div>
 
-          {/* 3. Asymmetric Central-Spine Cantilever Architecture (4 Staggered Verification Blades locked onto the Central Racing Blue Spine!) */}
+          {/* 3. Asymmetric Central-Spine Cantilever Architecture */}
           <div className="relative pt-8 pb-4">
-            {/* Central Racing Blue Constructivist Spine extending down from Poster 1's blue stripe */}
             <div
               ref={spineRef}
               aria-hidden="true"
@@ -322,7 +308,6 @@ export default function TrustChapter() {
                       idx > 0 ? "lg:-mt-12" : ""
                     } will-change-transform`}
                   >
-                    {/* Cantilever Blade Box (Alternates Left Cols 1-6 and Right Cols 7-12) */}
                     <div
                       className={
                         isLeft
@@ -401,3 +386,4 @@ export default function TrustChapter() {
     </section>
   );
 }
+

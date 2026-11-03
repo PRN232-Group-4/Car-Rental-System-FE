@@ -1,4 +1,3 @@
-"use client";
 
 import { useRef } from "react";
 import { ScanFace, KeyRound, ShieldCheck } from "lucide-react";
@@ -56,25 +55,27 @@ const CHAPTER_3_CARDS = [
 export default function SceneBSection() {
   const containerRef = useRef<HTMLElement>(null);
 
-  // 1. Exclusive Full-Height 5-Column Venetian Pillar Transition (ONLY between Section 1 & Section 2!)
-  const stepShuttersWrapRef = useRef<HTMLDivElement>(null);
+  // 1. Seamless 5-Column Crest Pull-Up Transition (Zero vertical lines, compact 22svh crest that pulls Section 2 up!)
   const stepShuttersRef = useRef<(HTMLDivElement | null)[]>([]);
+  const act2PullStageRef = useRef<HTMLDivElement>(null);
 
-  // 2. Act II Refs (Asymmetric 4+8 Editorial Spread + Skew-Velocity Word Motion)
+  // 2. Act II Refs (Rich Constructivist SVG Topographic Background + Kinetic Velocity Marquee + 3D Skew Word Reveal)
   const act2Ref = useRef<HTMLDivElement>(null);
+  const marqueeTrackRef = useRef<HTMLDivElement>(null);
   const act2WordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const bottomKineticRef = useRef<HTMLDivElement>(null);
   const leftPillarRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
+  const compassSvgRef = useRef<SVGSVGElement>(null);
 
   // 3. Unique Section 2 -> Section 3 Transition: Constructivist Double-Chevron Aperture Blades
   const chevronWrapRef = useRef<HTMLDivElement>(null);
   const leftChevronRef = useRef<HTMLDivElement>(null);
   const rightChevronRef = useRef<HTMLDivElement>(null);
 
-  // 4. Act III Refs (3D Fanning & Flipping Tarot Card Stage + Slot-Machine Character Roll)
+  // 4. Act III Refs (3D Fanning & Flipping Tarot Card Stage + Rotating SVG Astrolabe Background)
   const act3TrackRef = useRef<HTMLDivElement>(null);
-  const act3StageRef = useRef<HTMLDivElement>(null);
+  const act3AstrolabeRef = useRef<SVGSVGElement>(null);
   const act3CharRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const cardSlotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cardInnerRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -97,10 +98,13 @@ export default function SceneBSection() {
         });
         gsap.set(
           [
+            act2PullStageRef.current,
+            marqueeTrackRef.current,
             bottomKineticRef.current,
             leftPillarRef.current,
             posterImgRef.current,
-            act3StageRef.current,
+            compassSvgRef.current,
+            act3AstrolabeRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
@@ -113,43 +117,57 @@ export default function SceneBSection() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. EXCLUSIVE Section 1 -> Section 2 Transition: Tall 85svh 5-Column Venetian Pillars!
-        // Rises dramatically across 85% of the viewport height with deep staggered steps (`stagger: 0.08`) and finishes right as Section 2's header locks into view!
+        // 1. SEAMLESS 5-COLUMN CREST PULL-UP TRANSITION (Section 1 -> Section 2)
+        // Zero vertical borders between columns, compact 22svh wave crest, AND synchronized with `act2PullStageRef` y-translation so the columns physically PULL Section 2 up!
         const validShutters = stepShuttersRef.current.filter(Boolean);
         if (validShutters.length > 0 && act2Ref.current) {
-          gsap.fromTo(
+          const pullTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: act2Ref.current,
+              start: "top 100%",
+              end: "top 45%",
+              scrub: true,
+            },
+          });
+
+          pullTl.fromTo(
             validShutters,
             { scaleY: 0 },
             {
               scaleY: 1,
-              stagger: 0.08,
+              stagger: 0.04,
               ease: "none",
-              scrollTrigger: {
-                trigger: act2Ref.current,
-                start: "top 105%",
-                end: "top 35%",
-                scrub: true,
-              },
-            }
+            },
+            0
           );
+
+          if (act2PullStageRef.current) {
+            pullTl.fromTo(
+              act2PullStageRef.current,
+              { y: 110 },
+              { y: 0, ease: "none" },
+              0
+            );
+          }
         }
 
-        // 2. Act II: Bespoke Skew-Velocity Word Unclipping (`skewX: -18deg -> 0deg`) + Opposing Horizontal Slide
+        // 2. Act II: 3D Skew-Flip Word Reveal + Kinetic Velocity Marquee + Rotating SVG Compass
         const validAct2Words = act2WordRefs.current.filter(Boolean);
         if (validAct2Words.length > 0 && act2Ref.current) {
           gsap.fromTo(
             validAct2Words,
-            { yPercent: 110, skewX: -18, opacity: 0.1 },
+            { yPercent: 115, rotateX: -75, skewY: 6, opacity: 0 },
             {
               yPercent: 0,
-              skewX: 0,
+              rotateX: 0,
+              skewY: 0,
               opacity: 1,
               stagger: 0.06,
               ease: "none",
               scrollTrigger: {
                 trigger: act2Ref.current,
-                start: "top 92%",
-                end: "top 40%",
+                start: "top 90%",
+                end: "top 38%",
                 scrub: true,
               },
             }
@@ -166,10 +184,19 @@ export default function SceneBSection() {
             },
           });
 
+          if (marqueeTrackRef.current) {
+            act2Tl.fromTo(
+              marqueeTrackRef.current,
+              { xPercent: 0 },
+              { xPercent: -24, ease: "none" },
+              0
+            );
+          }
+
           if (bottomKineticRef.current) {
             act2Tl.fromTo(
               bottomKineticRef.current,
-              { xPercent: -8 },
+              { xPercent: -10 },
               { xPercent: 4, ease: "none" },
               0
             );
@@ -178,8 +205,8 @@ export default function SceneBSection() {
           if (leftPillarRef.current) {
             act2Tl.fromTo(
               leftPillarRef.current,
-              { y: 50 },
-              { y: -25, ease: "none" },
+              { y: 45 },
+              { y: -20, ease: "none" },
               0
             );
           }
@@ -187,15 +214,23 @@ export default function SceneBSection() {
           if (posterImgRef.current) {
             act2Tl.fromTo(
               posterImgRef.current,
-              { scale: 0.92 },
+              { scale: 0.93 },
               { scale: 1.03, ease: "none" },
+              0
+            );
+          }
+
+          if (compassSvgRef.current) {
+            act2Tl.fromTo(
+              compassSvgRef.current,
+              { rotate: -120 },
+              { rotate: 120, ease: "none" },
               0
             );
           }
         }
 
-        // 3. UNIQUE Section 2 -> Section 3 Transition: Constructivist Double-Chevron Diagonal Blades!
-        // Two massive angled plates (Left Vermilion & Right Obsidian) sweep in from opposite sides and lock together!
+        // 3. UNIQUE Section 2 -> Section 3 Transition: Constructivist Double-Chevron Diagonal Blades
         if (chevronWrapRef.current && leftChevronRef.current && rightChevronRef.current) {
           const chevTl = gsap.timeline({
             scrollTrigger: {
@@ -221,13 +256,30 @@ export default function SceneBSection() {
             );
         }
 
-        // 4. Act III: Alternating Vertical Slot-Machine Character Cascade for "NHẸ NHƯ KHÔNG."
+        // 4. Act III: Rotating SVG Astrolabe + Slot-Machine Character Cascade + 3-Card Curved Fan-Out & 3D Flip
+        if (act3AstrolabeRef.current && act3TrackRef.current) {
+          gsap.fromTo(
+            act3AstrolabeRef.current,
+            { rotate: 0 },
+            {
+              rotate: 160,
+              ease: "none",
+              scrollTrigger: {
+                trigger: act3TrackRef.current,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            }
+          );
+        }
+
         const validAct3Chars = act3CharRefs.current.filter(Boolean);
         if (validAct3Chars.length > 0 && act3TrackRef.current) {
           gsap.fromTo(
             validAct3Chars,
             {
-              yPercent: (idx) => (idx % 2 === 0 ? -110 : 110),
+              yPercent: (idx) => (idx % 2 === 0 ? -115 : 115),
               opacity: 0,
             },
             {
@@ -245,7 +297,6 @@ export default function SceneBSection() {
           );
         }
 
-        // 5. Act III: 3-Card Curved Fan-Out & 180° 3D Flip Choreography!
         if (act3TrackRef.current && window.innerWidth >= 1024) {
           const c0 = cardSlotRefs.current[0];
           const c1 = cardSlotRefs.current[1];
@@ -255,7 +306,6 @@ export default function SceneBSection() {
           const in2 = cardInnerRefs.current[2];
 
           if (c0 && c1 && c2 && in0 && in1 && in2) {
-            // Initial State: All 3 cards stacked as 1 deck in the center column (`c1`), face-down (`rotateY: 180`)
             gsap.set(c0, { xPercent: 105, y: 0, rotateZ: 0, scale: 0.94, zIndex: 20 });
             gsap.set(c1, { xPercent: 0, y: 0, rotateZ: 0, scale: 1, zIndex: 30 });
             gsap.set(c2, { xPercent: -105, y: 0, rotateZ: 0, scale: 0.94, zIndex: 10 });
@@ -270,7 +320,7 @@ export default function SceneBSection() {
               },
             });
 
-            // STEP A (0.0 -> 0.42): Emerge from center card & curve downward like fanning a hand of cards!
+            // STEP A: Emerge from center card & curve downward like fanning a deck of cards
             cardTl
               .to(
                 c0,
@@ -309,7 +359,7 @@ export default function SceneBSection() {
                 0
               );
 
-            // STEP B (0.42 -> 0.68): Align horizontally into a level row (`y: 0, rotateZ: 0, scale: 1`)
+            // STEP B: Align horizontally into a level row
             cardTl.to(
               [c0, c1, c2],
               {
@@ -322,7 +372,7 @@ export default function SceneBSection() {
               0.42
             );
 
-            // STEP C (0.60 -> 1.0): 180° 3D Flip (`rotateY: 180 -> 0`) to reveal the front information!
+            // STEP C: 180° 3D Flip (`rotateY: 180 -> 0`)
             cardTl.to(
               [in1, in0, in2],
               {
@@ -348,12 +398,11 @@ export default function SceneBSection() {
       id="cung-duong"
       className="relative w-full scene-b bg-bone-100 text-ink-950 select-none"
     >
-      {/* EXCLUSIVE SECTION 1 -> SECTION 2 TRANSITION: Tall 85svh 5-Column Venetian Pillars */}
+      {/* SEAMLESS 5-COLUMN CREST PULL-UP TRANSITION (Compact 22svh, ZERO vertical borders between columns, pulls Section 2 up seamlessly!) */}
       <div
-        ref={stepShuttersWrapRef}
         aria-hidden="true"
         style={{ zIndex: 38 }}
-        className="relative -mt-[85svh] w-full h-[85svh] grid grid-cols-5 pointer-events-none"
+        className="relative -mt-[22svh] w-full h-[22svh] grid grid-cols-5 pointer-events-none"
       >
         {[0, 1, 2, 3, 4].map((colIdx) => (
           <div
@@ -362,30 +411,30 @@ export default function SceneBSection() {
               stepShuttersRef.current[colIdx] = el;
             }}
             style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
-            className="w-full h-full bg-bone-100 border-t-8 border-sun-600 border-r border-ink-950/10 will-change-transform"
+            className="w-full h-full bg-bone-100 -mx-[1px] will-change-transform"
           />
         ))}
       </div>
 
-      {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD (4-Col Story Pillar + 8-Col Seamless Poster 2) ================= */}
+      {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD (With Rich SVG Schematics & Velocity Marquee) ================= */}
       <div
         ref={act2Ref}
-        className="relative w-full bg-bone-100 pt-16 sm:pt-24 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24 overflow-hidden"
+        className="relative w-full bg-bone-100 pt-8 sm:pt-12 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24 overflow-hidden"
       >
-        {/* Tactile Inverted Paper Fiber Texture + Architectural Grid Lines */}
-        <div
+        {/* Rich Constructivist SVG Topographic & Clinometer Schematic Background */}
+        <svg
+          ref={compassSvgRef}
           aria-hidden="true"
-          style={{ mixBlendMode: "multiply", opacity: 0.15 }}
-          className="absolute inset-0 pointer-events-none"
+          viewBox="0 0 600 600"
+          className="hidden lg:block absolute -right-28 top-12 w-[540px] h-[540px] text-ink-950/[0.08] pointer-events-none will-change-transform"
         >
-          <img
-            src="/assets/landing/a7-dust-1920.webp"
-            alt=""
-            className="w-full h-full object-cover invert pointer-events-none"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+          <circle cx="300" cy="300" r="270" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="10 10" />
+          <circle cx="300" cy="300" r="210" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="300" cy="300" r="145" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 6" />
+          <line x1="20" y1="300" x2="580" y2="300" stroke="currentColor" strokeWidth="1.5" />
+          <line x1="300" y1="20" x2="300" y2="580" stroke="currentColor" strokeWidth="1.5" />
+          <polygon points="300,35 290,65 310,65" fill="currentColor" />
+        </svg>
 
         <div
           aria-hidden="true"
@@ -397,19 +446,31 @@ export default function SceneBSection() {
           <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.08] h-full" />
         </div>
 
-        {/* CRITICAL: Direct bg-bone-100 without z-index isolation so Poster 2's multiply blend is 100% seamless! */}
-        <div className="max-w-[1600px] mx-auto bg-bone-100">
-          {/* Top Constructivist Telemetry Bar */}
-          <div className="flex items-center justify-between border-b-2 border-ink-950 pb-4 mb-10 text-[11px] tracking-[0.26em] uppercase font-sans font-bold text-ink-950">
-            <span>02 // GRAND TOURING MANIFESTO</span>
-            <div className="flex items-center gap-3">
-              <span className="text-sun-600">SPEED · MEETS · NATURE</span>
-              <span className="w-2.5 h-2.5 rounded-full bg-sun-600 inline-block" />
+        {/* Pulled-Up Content Stage (Physically pulled upward with the 5 rising columns!) */}
+        <div ref={act2PullStageRef} className="max-w-[1600px] mx-auto bg-bone-100">
+          {/* Scroll-Scrubbed Kinetic Telemetry Marquee Ribbon */}
+          <div className="w-full overflow-hidden border-y-2 border-ink-950 py-2.5 mb-10 bg-bone-100">
+            <div
+              ref={marqueeTrackRef}
+              className="flex items-center gap-10 whitespace-nowrap text-[11px] tracking-[0.28em] uppercase font-sans font-black text-ink-950 will-change-transform"
+            >
+              <span>02 // GRAND TOURING MANIFESTO</span>
+              <span className="text-sun-600">////</span>
+              <span>SPEED · MEETS · NATURE</span>
+              <span className="text-sun-600">////</span>
+              <span>PORSCHE 911 · MERCEDES-AMG · LAMBORGHINI</span>
+              <span className="text-sun-600">////</span>
+              <span>ĐÀ LẠT · ĐÈO HẢI VÂN · DUYÊN HẢI</span>
+              <span className="text-sun-600">////</span>
+              <span>POWER · PRECISION · FREEDOM</span>
             </div>
           </div>
 
-          {/* Skew-Velocity Split-Word Headline */}
-          <div className="mb-12 sm:mb-16 pointer-events-none px-2">
+          {/* 3D Skew-Flip Split-Word Headline */}
+          <div
+            style={{ perspective: "1000px" }}
+            className="mb-12 sm:mb-16 pointer-events-none px-2"
+          >
             <h2
               style={{
                 fontFamily: "var(--font-archivo, sans-serif)",
@@ -428,6 +489,7 @@ export default function SceneBSection() {
                     ref={(el) => {
                       act2WordRefs.current[wIdx] = el;
                     }}
+                    style={{ transformOrigin: "bottom left" }}
                     className="inline-block will-change-transform"
                   >
                     {word}
@@ -556,11 +618,24 @@ export default function SceneBSection() {
         id="quy-trinh"
         className="relative w-full lg:h-[225svh] bg-ink-950"
       >
-        <div
-          ref={act3StageRef}
-          className="lg:sticky lg:top-0 w-full min-h-[100svh] bg-ink-950 text-bone-100 py-14 sm:py-16 px-6 sm:px-12 lg:px-20 flex flex-col justify-between overflow-hidden"
-        >
-          {/* Tactile Lithograph Dust & Constructivist Center Axis */}
+        <div className="lg:sticky lg:top-0 w-full min-h-[100svh] bg-ink-950 text-bone-100 py-14 sm:py-16 px-6 sm:px-12 lg:px-20 flex flex-col justify-between overflow-hidden">
+          {/* Rich Constructivist Rotating SVG Astrolabe & Radial Grid Background */}
+          <svg
+            ref={act3AstrolabeRef}
+            aria-hidden="true"
+            viewBox="0 0 800 800"
+            className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[760px] text-bone-100/[0.07] pointer-events-none will-change-transform"
+          >
+            <circle cx="400" cy="400" r="370" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="12 12" />
+            <circle cx="400" cy="400" r="290" fill="none" stroke="currentColor" strokeWidth="1" />
+            <circle cx="400" cy="400" r="200" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 8" />
+            <line x1="30" y1="400" x2="770" y2="400" stroke="currentColor" strokeWidth="1" />
+            <line x1="400" y1="30" x2="400" y2="770" stroke="currentColor" strokeWidth="1" />
+            <line x1="138" y1="138" x2="662" y2="662" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" />
+            <line x1="662" y1="138" x2="138" y2="662" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" />
+          </svg>
+
+          {/* Tactile Lithograph Dust */}
           <div
             aria-hidden="true"
             style={{ mixBlendMode: "screen", opacity: 0.4 }}
@@ -574,11 +649,6 @@ export default function SceneBSection() {
               decoding="async"
             />
           </div>
-
-          <div
-            aria-hidden="true"
-            className="absolute left-0 right-0 top-1/2 h-[1px] bg-bone-100/15 pointer-events-none"
-          />
 
           {/* Stage Header with Slot-Machine Vertical Character Cascade */}
           <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-bone-100/20 pb-5">
@@ -615,7 +685,7 @@ export default function SceneBSection() {
             </p>
           </div>
 
-          {/* 3-Card Fanning & 3D Flipping Stage (Proportioned at h-[375px] sm:h-[395px] so 100% of the card is always visible without top clipping!) */}
+          {/* 3-Card Fanning & 3D Flipping Stage */}
           <div
             style={{ perspective: "1600px" }}
             className="relative z-20 w-full max-w-[1440px] mx-auto my-auto py-4 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
@@ -638,7 +708,7 @@ export default function SceneBSection() {
                     style={{ transformStyle: "preserve-3d" }}
                     className="relative w-full h-full will-change-transform"
                   >
-                    {/* ================= CARD FRONT FACE (Revealed after 180° Flip) ================= */}
+                    {/* CARD FRONT FACE */}
                     <div
                       style={{ backfaceVisibility: "hidden" }}
                       className="absolute inset-0 w-full h-full bg-bone-100 text-ink-950 border-2 border-bone-100 p-6 sm:p-7 flex flex-col justify-between shadow-2xl"
@@ -703,7 +773,7 @@ export default function SceneBSection() {
                       </div>
                     </div>
 
-                    {/* ================= CARD BACK FACE (Visible when Stacked & Fanning Out in a Curved Arc) ================= */}
+                    {/* CARD BACK FACE */}
                     <div
                       style={{
                         backfaceVisibility: "hidden",
@@ -749,7 +819,6 @@ export default function SceneBSection() {
             })}
           </div>
 
-          {/* Bottom Stage Progress Indicator */}
           <div className="relative z-10 w-full max-w-[1600px] mx-auto pt-3 border-t border-bone-100/15 flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans text-bone-100/60">
             <span>GỘP 1 TỤ → XÒE CONG HÌNH QUẠT → DÀN NGANG & LẬT 3D</span>
             <span className="text-sun-400">01 / 02 / 03</span>
@@ -759,3 +828,4 @@ export default function SceneBSection() {
     </section>
   );
 }
+
