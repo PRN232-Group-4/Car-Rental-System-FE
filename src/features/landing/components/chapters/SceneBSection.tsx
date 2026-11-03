@@ -5,6 +5,9 @@ import { ScanFace, KeyRound, ShieldCheck } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 
+const ACT2_WORDS_TOP = ["ĐƯỜNG", "DÀI", "LÀ", "ĐỂ"];
+const ACT3_TITLE_CHARS = ["N", "H", "Ẹ", "\u00A0", "N", "H", "Ư", "\u00A0", "K", "H", "Ô", "N", "G", "."];
+
 const CHAPTER_3_CARDS = [
   {
     step: "01",
@@ -46,29 +49,33 @@ const CHAPTER_3_CARDS = [
       { label: "NGHIỆM THU", value: "BIÊN BẢN SỐ HÓA" },
       { label: "THANH TOÁN", value: "HOÀN CỌC TỰ ĐỘNG" },
     ],
-    desc: "Nghiệm thu minh bạch bằng dữ liệu đối soát trực quan ngay khi kết thúc hành trình. Toàn bộ khoản đặt cọc được xử lý hoàn trả tự động.",
+    desc: "Nghiệm thu minh bạch bằng dữ liệu đối soát trực quan ngay khi kết thúc hành trình. Toàn bộ khoản đặt cọc được hệ thống xử lý hoàn trả tự động.",
   },
 ];
 
 export default function SceneBSection() {
   const containerRef = useRef<HTMLElement>(null);
 
-  // Exclusive 5-Column Venetian Step Transition (ONLY between Section 1 & Section 2!)
+  // 1. Exclusive Full-Height 5-Column Venetian Pillar Transition (ONLY between Section 1 & Section 2!)
   const stepShuttersWrapRef = useRef<HTMLDivElement>(null);
   const stepShuttersRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Act II Refs (Asymmetric 4+8 Editorial Spread with Seamless Poster 2)
+  // 2. Act II Refs (Asymmetric 4+8 Editorial Spread + Skew-Velocity Word Motion)
   const act2Ref = useRef<HTMLDivElement>(null);
-  const topKineticRef = useRef<HTMLDivElement>(null);
+  const act2WordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const bottomKineticRef = useRef<HTMLDivElement>(null);
   const leftPillarRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
-  const compassSvgRef = useRef<SVGSVGElement>(null);
 
-  // Act III Refs (3D Fanning & Flipping Tarot Card Stage!)
+  // 3. Unique Section 2 -> Section 3 Transition: Constructivist Double-Chevron Aperture Blades
+  const chevronWrapRef = useRef<HTMLDivElement>(null);
+  const leftChevronRef = useRef<HTMLDivElement>(null);
+  const rightChevronRef = useRef<HTMLDivElement>(null);
+
+  // 4. Act III Refs (3D Fanning & Flipping Tarot Card Stage + Slot-Machine Character Roll)
   const act3TrackRef = useRef<HTMLDivElement>(null);
   const act3StageRef = useRef<HTMLDivElement>(null);
-  const act3HeadingRef = useRef<HTMLDivElement>(null);
+  const act3CharRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const cardSlotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cardInnerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -82,14 +89,18 @@ export default function SceneBSection() {
         stepShuttersRef.current.forEach((s) => {
           if (s) gsap.set(s, { scaleY: 1 });
         });
+        act2WordRefs.current.forEach((w) => {
+          if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
+        });
+        act3CharRefs.current.forEach((c) => {
+          if (c) gsap.set(c, { clearProps: "all", opacity: 1 });
+        });
         gsap.set(
           [
-            topKineticRef.current,
             bottomKineticRef.current,
             leftPillarRef.current,
             posterImgRef.current,
             act3StageRef.current,
-            act3HeadingRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
@@ -102,8 +113,8 @@ export default function SceneBSection() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. EXCLUSIVE Section 1 -> Section 2 Transition: 5-Column Venetian Steps
-        // Starts IMMEDIATELY as Section 2's top edge enters the bottom of viewport (`top 100%`) and finishes 100% by `top 55%` (Zero delay when reaching Section 2!)
+        // 1. EXCLUSIVE Section 1 -> Section 2 Transition: Tall 85svh 5-Column Venetian Pillars!
+        // Rises dramatically across 85% of the viewport height with deep staggered steps (`stagger: 0.08`) and finishes right as Section 2's header locks into view!
         const validShutters = stepShuttersRef.current.filter(Boolean);
         if (validShutters.length > 0 && act2Ref.current) {
           gsap.fromTo(
@@ -111,42 +122,54 @@ export default function SceneBSection() {
             { scaleY: 0 },
             {
               scaleY: 1,
-              stagger: 0.05,
+              stagger: 0.08,
               ease: "none",
               scrollTrigger: {
                 trigger: act2Ref.current,
-                start: "top 100%",
-                end: "top 55%",
+                start: "top 105%",
+                end: "top 35%",
                 scrub: true,
               },
             }
           );
         }
 
-        // 2. Act II: Asymmetric Editorial Spread Choreography
+        // 2. Act II: Bespoke Skew-Velocity Word Unclipping (`skewX: -18deg -> 0deg`) + Opposing Horizontal Slide
+        const validAct2Words = act2WordRefs.current.filter(Boolean);
+        if (validAct2Words.length > 0 && act2Ref.current) {
+          gsap.fromTo(
+            validAct2Words,
+            { yPercent: 110, skewX: -18, opacity: 0.1 },
+            {
+              yPercent: 0,
+              skewX: 0,
+              opacity: 1,
+              stagger: 0.06,
+              ease: "none",
+              scrollTrigger: {
+                trigger: act2Ref.current,
+                start: "top 92%",
+                end: "top 40%",
+                scrub: true,
+              },
+            }
+          );
+        }
+
         if (act2Ref.current) {
           const act2Tl = gsap.timeline({
             scrollTrigger: {
               trigger: act2Ref.current,
-              start: "top 90%",
+              start: "top bottom",
               end: "bottom top",
               scrub: true,
             },
           });
 
-          if (topKineticRef.current) {
-            act2Tl.fromTo(
-              topKineticRef.current,
-              { xPercent: 5 },
-              { xPercent: -4, ease: "none" },
-              0
-            );
-          }
-
           if (bottomKineticRef.current) {
             act2Tl.fromTo(
               bottomKineticRef.current,
-              { xPercent: -5 },
+              { xPercent: -8 },
               { xPercent: 4, ease: "none" },
               0
             );
@@ -155,8 +178,8 @@ export default function SceneBSection() {
           if (leftPillarRef.current) {
             act2Tl.fromTo(
               leftPillarRef.current,
-              { y: 40 },
-              { y: -20, ease: "none" },
+              { y: 50 },
+              { y: -25, ease: "none" },
               0
             );
           }
@@ -164,126 +187,152 @@ export default function SceneBSection() {
           if (posterImgRef.current) {
             act2Tl.fromTo(
               posterImgRef.current,
-              { scale: 0.94 },
+              { scale: 0.92 },
               { scale: 1.03, ease: "none" },
-              0
-            );
-          }
-
-          if (compassSvgRef.current) {
-            act2Tl.fromTo(
-              compassSvgRef.current,
-              { rotate: -90 },
-              { rotate: 90, ease: "none" },
               0
             );
           }
         }
 
-        // 3. UNIQUE Section 2 -> Section 3 Transition (Diagonal Guillotine Wipe) + 3-Card Curved Fan-Out & 3D Flip Choreography!
-        if (act3TrackRef.current && act3StageRef.current) {
-          // Diagonal Slash Transition into Section 3
+        // 3. UNIQUE Section 2 -> Section 3 Transition: Constructivist Double-Chevron Diagonal Blades!
+        // Two massive angled plates (Left Vermilion & Right Obsidian) sweep in from opposite sides and lock together!
+        if (chevronWrapRef.current && leftChevronRef.current && rightChevronRef.current) {
+          const chevTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: chevronWrapRef.current,
+              start: "top 95%",
+              end: "bottom 35%",
+              scrub: true,
+            },
+          });
+
+          chevTl
+            .fromTo(
+              leftChevronRef.current,
+              { xPercent: -105 },
+              { xPercent: 0, ease: "none" },
+              0
+            )
+            .fromTo(
+              rightChevronRef.current,
+              { xPercent: 105 },
+              { xPercent: 0, ease: "none" },
+              0
+            );
+        }
+
+        // 4. Act III: Alternating Vertical Slot-Machine Character Cascade for "NHẸ NHƯ KHÔNG."
+        const validAct3Chars = act3CharRefs.current.filter(Boolean);
+        if (validAct3Chars.length > 0 && act3TrackRef.current) {
           gsap.fromTo(
-            act3StageRef.current,
-            { clipPath: "polygon(0% 12%, 100% 0%, 100% 100%, 0% 100%)" },
+            validAct3Chars,
             {
-              clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+              yPercent: (idx) => (idx % 2 === 0 ? -110 : 110),
+              opacity: 0,
+            },
+            {
+              yPercent: 0,
+              opacity: 1,
+              stagger: 0.03,
               ease: "none",
               scrollTrigger: {
                 trigger: act3TrackRef.current,
-                start: "top 95%",
-                end: "top 25%",
+                start: "top 85%",
+                end: "top 30%",
                 scrub: true,
               },
             }
           );
+        }
 
-          // Desktop (>1024px): Full 3-Stage Card Choreography (Stacked Center -> Curved Fan-Out -> Level Row & 180° 3D Flip)
-          if (window.innerWidth >= 1024) {
-            const c0 = cardSlotRefs.current[0];
-            const c1 = cardSlotRefs.current[1];
-            const c2 = cardSlotRefs.current[2];
-            const in0 = cardInnerRefs.current[0];
-            const in1 = cardInnerRefs.current[1];
-            const in2 = cardInnerRefs.current[2];
+        // 5. Act III: 3-Card Curved Fan-Out & 180° 3D Flip Choreography!
+        if (act3TrackRef.current && window.innerWidth >= 1024) {
+          const c0 = cardSlotRefs.current[0];
+          const c1 = cardSlotRefs.current[1];
+          const c2 = cardSlotRefs.current[2];
+          const in0 = cardInnerRefs.current[0];
+          const in1 = cardInnerRefs.current[1];
+          const in2 = cardInnerRefs.current[2];
 
-            if (c0 && c1 && c2 && in0 && in1 && in2) {
-              // Initial Stacked State at Center (All 3 cards stacked at the middle column, showing their ornate Card Backs `rotateY: 180`)
-              gsap.set(c0, { xPercent: 105, y: 0, rotateZ: 0, zIndex: 20 });
-              gsap.set(c1, { xPercent: 0, y: 0, rotateZ: 0, zIndex: 30 });
-              gsap.set(c2, { xPercent: -105, y: 0, rotateZ: 0, zIndex: 10 });
-              gsap.set([in0, in1, in2], { rotateY: 180 });
+          if (c0 && c1 && c2 && in0 && in1 && in2) {
+            // Initial State: All 3 cards stacked as 1 deck in the center column (`c1`), face-down (`rotateY: 180`)
+            gsap.set(c0, { xPercent: 105, y: 0, rotateZ: 0, scale: 0.94, zIndex: 20 });
+            gsap.set(c1, { xPercent: 0, y: 0, rotateZ: 0, scale: 1, zIndex: 30 });
+            gsap.set(c2, { xPercent: -105, y: 0, rotateZ: 0, scale: 0.94, zIndex: 10 });
+            gsap.set([in0, in1, in2], { rotateY: 180 });
 
-              const cardTl = gsap.timeline({
-                scrollTrigger: {
-                  trigger: act3TrackRef.current,
-                  start: "top 65%",
-                  end: "bottom 85%",
-                  scrub: true,
-                },
-              });
+            const cardTl = gsap.timeline({
+              scrollTrigger: {
+                trigger: act3TrackRef.current,
+                start: "top 55%",
+                end: "bottom 88%",
+                scrub: true,
+              },
+            });
 
-              // PHASE 1 (0.0 -> 0.45): Fan Out from Center Card in a Downward Curved Arc ("tách ra từ lá ở giữa cong xuống như xòe bộ bài")
-              cardTl
-                .to(
-                  c0,
-                  {
-                    xPercent: 0,
-                    y: 48,
-                    rotateZ: -10,
-                    ease: "power2.out",
-                    duration: 0.45,
-                  },
-                  0
-                )
-                .to(
-                  c1,
-                  {
-                    xPercent: 0,
-                    y: -16,
-                    rotateZ: 0,
-                    ease: "power2.out",
-                    duration: 0.45,
-                  },
-                  0
-                )
-                .to(
-                  c2,
-                  {
-                    xPercent: 0,
-                    y: 48,
-                    rotateZ: 10,
-                    ease: "power2.out",
-                    duration: 0.45,
-                  },
-                  0
-                );
-
-              // PHASE 2 (0.45 -> 0.72): Straighten into a Horizontal Row (`y: 0, rotateZ: 0`)
-              cardTl
-                .to(
-                  [c0, c1, c2],
-                  {
-                    y: 0,
-                    rotateZ: 0,
-                    ease: "power2.inOut",
-                    duration: 0.27,
-                  },
-                  0.45
-                );
-
-              // PHASE 3 (0.62 -> 1.0): 180° 3D Flip (`rotateY: 180 -> 0`) revealing the front information!
-              cardTl.to(
-                [in1, in0, in2],
+            // STEP A (0.0 -> 0.42): Emerge from center card & curve downward like fanning a hand of cards!
+            cardTl
+              .to(
+                c0,
                 {
-                  rotateY: 0,
-                  stagger: 0.06,
-                  ease: "power2.inOut",
-                  duration: 0.35,
+                  xPercent: 0,
+                  y: 64,
+                  rotateZ: -13,
+                  scale: 0.98,
+                  ease: "power2.out",
+                  duration: 0.42,
                 },
-                0.62
+                0
+              )
+              .to(
+                c1,
+                {
+                  xPercent: 0,
+                  y: -18,
+                  rotateZ: 0,
+                  scale: 1,
+                  ease: "power2.out",
+                  duration: 0.42,
+                },
+                0
+              )
+              .to(
+                c2,
+                {
+                  xPercent: 0,
+                  y: 64,
+                  rotateZ: 13,
+                  scale: 0.98,
+                  ease: "power2.out",
+                  duration: 0.42,
+                },
+                0
               );
-            }
+
+            // STEP B (0.42 -> 0.68): Align horizontally into a level row (`y: 0, rotateZ: 0, scale: 1`)
+            cardTl.to(
+              [c0, c1, c2],
+              {
+                y: 0,
+                rotateZ: 0,
+                scale: 1,
+                ease: "power2.inOut",
+                duration: 0.26,
+              },
+              0.42
+            );
+
+            // STEP C (0.60 -> 1.0): 180° 3D Flip (`rotateY: 180 -> 0`) to reveal the front information!
+            cardTl.to(
+              [in1, in0, in2],
+              {
+                rotateY: 0,
+                stagger: 0.06,
+                ease: "power2.inOut",
+                duration: 0.34,
+              },
+              0.60
+            );
           }
         }
       });
@@ -299,12 +348,12 @@ export default function SceneBSection() {
       id="cung-duong"
       className="relative w-full scene-b bg-bone-100 text-ink-950 select-none"
     >
-      {/* EXCLUSIVE SECTION 1 -> SECTION 2 TRANSITION: 5-Column Staggered Venetian Steps Overlapping Hero's Bottom Seam */}
+      {/* EXCLUSIVE SECTION 1 -> SECTION 2 TRANSITION: Tall 85svh 5-Column Venetian Pillars */}
       <div
         ref={stepShuttersWrapRef}
         aria-hidden="true"
-        style={{ zIndex: 35 }}
-        className="relative -mt-[20svh] w-full h-[20svh] grid grid-cols-5 pointer-events-none"
+        style={{ zIndex: 38 }}
+        className="relative -mt-[85svh] w-full h-[85svh] grid grid-cols-5 pointer-events-none"
       >
         {[0, 1, 2, 3, 4].map((colIdx) => (
           <div
@@ -313,7 +362,7 @@ export default function SceneBSection() {
               stepShuttersRef.current[colIdx] = el;
             }}
             style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
-            className="w-full h-full bg-bone-100 border-t-4 border-sun-600 will-change-transform"
+            className="w-full h-full bg-bone-100 border-t-8 border-sun-600 border-r border-ink-950/10 will-change-transform"
           />
         ))}
       </div>
@@ -321,12 +370,12 @@ export default function SceneBSection() {
       {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD (4-Col Story Pillar + 8-Col Seamless Poster 2) ================= */}
       <div
         ref={act2Ref}
-        className="relative w-full bg-bone-100 pt-12 sm:pt-16 pb-28 sm:pb-36 px-8 sm:px-14 lg:px-24 overflow-hidden"
+        className="relative w-full bg-bone-100 pt-16 sm:pt-24 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24 overflow-hidden"
       >
         {/* Tactile Inverted Paper Fiber Texture + Architectural Grid Lines */}
         <div
           aria-hidden="true"
-          style={{ mixBlendMode: "multiply", opacity: 0.14 }}
+          style={{ mixBlendMode: "multiply", opacity: 0.15 }}
           className="absolute inset-0 pointer-events-none"
         >
           <img
@@ -348,19 +397,6 @@ export default function SceneBSection() {
           <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.08] h-full" />
         </div>
 
-        {/* Rotating SVG Constructivist Clinometer Dial */}
-        <svg
-          ref={compassSvgRef}
-          aria-hidden="true"
-          viewBox="0 0 400 400"
-          className="hidden lg:block absolute -right-20 top-10 w-[360px] h-[360px] text-ink-950/[0.08] pointer-events-none will-change-transform"
-        >
-          <circle cx="200" cy="200" r="180" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="8 8" />
-          <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="20" y1="200" x2="380" y2="200" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="200" y1="20" x2="200" y2="380" stroke="currentColor" strokeWidth="1.5" />
-        </svg>
-
         {/* CRITICAL: Direct bg-bone-100 without z-index isolation so Poster 2's multiply blend is 100% seamless! */}
         <div className="max-w-[1600px] mx-auto bg-bone-100">
           {/* Top Constructivist Telemetry Bar */}
@@ -372,32 +408,44 @@ export default function SceneBSection() {
             </div>
           </div>
 
-          {/* Counter-Sliding Monumental Headline */}
+          {/* Skew-Velocity Split-Word Headline */}
           <div className="mb-12 sm:mb-16 pointer-events-none px-2">
-            <div ref={topKineticRef} className="will-change-transform">
-              <h2
-                style={{
-                  fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(2.5rem, 7.2vw, 9.2rem)",
-                  lineHeight: 1.12,
-                  fontVariationSettings: "'wdth' 76",
-                }}
-                className="font-black uppercase tracking-tight text-ink-950 whitespace-nowrap pt-[0.12em]"
-              >
-                ĐƯỜNG DÀI LÀ ĐỂ
-              </h2>
-            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-archivo, sans-serif)",
+                fontSize: "clamp(2.5rem, 7.2vw, 9.2rem)",
+                lineHeight: 1.14,
+                fontVariationSettings: "'wdth' 76",
+              }}
+              className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.26em]"
+            >
+              {ACT2_WORDS_TOP.map((word, wIdx) => (
+                <span
+                  key={word}
+                  className="inline-block overflow-hidden pt-[0.2em] pb-[0.06em] -mt-[0.16em]"
+                >
+                  <span
+                    ref={(el) => {
+                      act2WordRefs.current[wIdx] = el;
+                    }}
+                    className="inline-block will-change-transform"
+                  >
+                    {word}
+                  </span>
+                </span>
+              ))}
+            </h2>
 
             <div
               ref={bottomKineticRef}
-              className="flex items-center justify-end gap-6 -mt-[0.8vw] will-change-transform"
+              className="flex items-center justify-end gap-6 -mt-[0.6vw] will-change-transform"
             >
               <span className="hidden md:block flex-1 max-w-sm h-[3px] bg-ink-950" />
               <span
                 style={{
                   fontFamily: "var(--font-archivo, sans-serif)",
                   fontSize: "clamp(2.5rem, 7.2vw, 9.2rem)",
-                  lineHeight: 1.12,
+                  lineHeight: 1.14,
                   fontVariationSettings: "'wdth' 112",
                 }}
                 className="font-black uppercase tracking-tight text-sun-600 whitespace-nowrap pt-[0.12em]"
@@ -409,7 +457,6 @@ export default function SceneBSection() {
 
           {/* 12-Column Asymmetric Editorial Spread: Left 4 Cols Story Pillar + Right 8 Cols Seamless Poster 2 */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-bone-100">
-            {/* Left 4 Columns: Architectural Narrative & Route Specs */}
             <div
               ref={leftPillarRef}
               className="lg:col-span-4 space-y-8 border-t-4 border-ink-950 pt-6 will-change-transform"
@@ -463,7 +510,7 @@ export default function SceneBSection() {
               </div>
             </div>
 
-            {/* Right 8 Columns: Seamless Poster 2 Masterpiece (Direct `bg-bone-100` parent + `brightness(1.16) contrast(1.14)` + `multiply` = 100% Invisible Paper Box!) */}
+            {/* Right 8 Columns: Seamless Poster 2 Masterpiece */}
             <div className="lg:col-span-8 w-full aspect-[16/9] bg-bone-100 overflow-hidden">
               <img
                 ref={posterImgRef}
@@ -481,15 +528,37 @@ export default function SceneBSection() {
         </div>
       </div>
 
+      {/* ================= UNIQUE SECTION 2 -> SECTION 3 TRANSITION: CONSTRUCTIVIST DOUBLE-CHEVRON APERTURE ================= */}
+      <div
+        ref={chevronWrapRef}
+        aria-hidden="true"
+        className="relative w-full h-[28svh] bg-bone-100 overflow-hidden pointer-events-none"
+      >
+        <div
+          ref={leftChevronRef}
+          style={{
+            clipPath: "polygon(0% 0%, 62% 100%, 0% 100%)",
+          }}
+          className="absolute inset-0 w-full h-full bg-sun-600 will-change-transform"
+        />
+        <div
+          ref={rightChevronRef}
+          style={{
+            clipPath: "polygon(100% 0%, 100% 100%, 0% 100%, 38% 55%)",
+          }}
+          className="absolute inset-0 w-full h-full bg-ink-950 will-change-transform"
+        />
+      </div>
+
       {/* ================= ACT III: 3D CARD DECK FAN-OUT (CURVED ARC) & 180° FLIP STAGE ================= */}
       <div
         ref={act3TrackRef}
         id="quy-trinh"
-        className="relative w-full lg:h-[215svh] bg-bone-100"
+        className="relative w-full lg:h-[225svh] bg-ink-950"
       >
         <div
           ref={act3StageRef}
-          className="lg:sticky lg:top-0 w-full min-h-[100svh] bg-ink-950 text-bone-100 py-20 sm:py-24 px-6 sm:px-12 lg:px-20 flex flex-col justify-between overflow-hidden will-change-transform"
+          className="lg:sticky lg:top-0 w-full min-h-[100svh] bg-ink-950 text-bone-100 py-14 sm:py-16 px-6 sm:px-12 lg:px-20 flex flex-col justify-between overflow-hidden"
         >
           {/* Tactile Lithograph Dust & Constructivist Center Axis */}
           <div
@@ -511,37 +580,45 @@ export default function SceneBSection() {
             className="absolute left-0 right-0 top-1/2 h-[1px] bg-bone-100/15 pointer-events-none"
           />
 
-          {/* Stage Header */}
-          <div
-            ref={act3HeadingRef}
-            className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-bone-100/20 pb-6"
-          >
+          {/* Stage Header with Slot-Machine Vertical Character Cascade */}
+          <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-bone-100/20 pb-5">
             <div>
-              <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-2">
+              <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-1.5">
                 03 // BỘ BA THẺ BÀI QUY TRÌNH SỐ HÓA
               </span>
               <h2
+                aria-label="NHẸ NHƯ KHÔNG."
                 style={{
                   fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(2.75rem, 6.5vw, 7.8rem)",
-                  lineHeight: 1.08,
+                  fontSize: "clamp(2.5rem, 5.8vw, 6.8rem)",
+                  lineHeight: 1.12,
                   fontVariationSettings: "'wdth' 108",
                 }}
-                className="font-black uppercase tracking-tight text-bone-100"
+                className="font-black uppercase tracking-tight text-bone-100 flex overflow-hidden pt-[0.2em] pb-[0.06em] -mt-[0.16em]"
               >
-                NHẸ NHƯ KHÔNG.
+                {ACT3_TITLE_CHARS.map((ch, idx) => (
+                  <span
+                    key={idx}
+                    ref={(el) => {
+                      act3CharRefs.current[idx] = el;
+                    }}
+                    className="inline-block will-change-transform"
+                  >
+                    {ch}
+                  </span>
+                ))}
               </h2>
             </div>
 
-            <p className="font-sans text-sm sm:text-base text-bone-100/80 max-w-md leading-relaxed border-l-4 border-sun-600 pl-4">
-              Cuộn để xòe bộ thẻ hành trình và lật mở 3 bước bàn giao chìa khóa số không thủ tục giấy tờ.
+            <p className="font-sans text-xs sm:text-sm text-bone-100/80 max-w-md leading-relaxed border-l-4 border-sun-600 pl-4">
+              Cuộn để xòe bộ thẻ hành trình từ lá giữa theo hình cánh quạt, dàn ngang hàng và lật mở 3 bước bàn giao chìa khóa số.
             </p>
           </div>
 
-          {/* 3-Card Fanning & 3D Flipping Stage */}
+          {/* 3-Card Fanning & 3D Flipping Stage (Proportioned at h-[375px] sm:h-[395px] so 100% of the card is always visible without top clipping!) */}
           <div
             style={{ perspective: "1600px" }}
-            className="relative z-20 w-full max-w-[1480px] mx-auto my-auto py-8 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 items-center"
+            className="relative z-20 w-full max-w-[1440px] mx-auto my-auto py-4 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
           >
             {CHAPTER_3_CARDS.map((card, idx) => {
               const Icon = card.icon;
@@ -552,9 +629,8 @@ export default function SceneBSection() {
                     cardSlotRefs.current[idx] = el;
                   }}
                   style={{ perspective: "1500px" }}
-                  className="w-full h-[430px] sm:h-[460px] will-change-transform"
+                  className="w-full h-[375px] sm:h-[395px] will-change-transform"
                 >
-                  {/* 3D Preserved Inner Flipper */}
                   <div
                     ref={(el) => {
                       cardInnerRefs.current[idx] = el;
@@ -562,17 +638,16 @@ export default function SceneBSection() {
                     style={{ transformStyle: "preserve-3d" }}
                     className="relative w-full h-full will-change-transform"
                   >
-                    {/* ================= CARD FRONT FACE (Revealed after 180° Flip: Warm Archival Paper Lithograph Card) ================= */}
+                    {/* ================= CARD FRONT FACE (Revealed after 180° Flip) ================= */}
                     <div
                       style={{ backfaceVisibility: "hidden" }}
-                      className="absolute inset-0 w-full h-full bg-bone-100 text-ink-950 border-2 border-bone-100 p-7 sm:p-8 flex flex-col justify-between shadow-2xl"
+                      className="absolute inset-0 w-full h-full bg-bone-100 text-ink-950 border-2 border-bone-100 p-6 sm:p-7 flex flex-col justify-between shadow-2xl"
                     >
-                      {/* Top Accent Bar inside Card */}
-                      <div className="flex items-center justify-between border-b-2 border-ink-950 pb-4">
+                      <div className="flex items-center justify-between border-b-2 border-ink-950 pb-3">
                         <span
                           style={{
                             fontFamily: "var(--font-archivo, sans-serif)",
-                            fontSize: "clamp(3.25rem, 4.5vw, 4.75rem)",
+                            fontSize: "clamp(2.75rem, 3.8vw, 4.2rem)",
                             lineHeight: 0.88,
                             fontVariationSettings: "'wdth' 66",
                           }}
@@ -582,17 +657,16 @@ export default function SceneBSection() {
                         </span>
 
                         <div className="text-right">
-                          <span className="text-[10px] tracking-[0.24em] uppercase font-sans font-bold text-ink-950/60 block">
+                          <span className="text-[9px] tracking-[0.24em] uppercase font-sans font-bold text-ink-950/60 block">
                             {card.code}
                           </span>
-                          <span className="text-xs tracking-[0.2em] uppercase font-sans font-black text-ink-950 mt-0.5 block">
+                          <span className="text-[11px] tracking-[0.2em] uppercase font-sans font-black text-ink-950 mt-0.5 block">
                             {card.tag}
                           </span>
                         </div>
                       </div>
 
-                      {/* Middle Title & Description */}
-                      <div className="my-auto py-4 space-y-3">
+                      <div className="my-auto py-3 space-y-2.5">
                         <div className="inline-flex items-center gap-2 bg-ink-950 text-bone-100 px-3 py-1 text-[10px] tracking-[0.22em] uppercase font-sans font-bold">
                           <Icon className="w-3.5 h-3.5 text-sun-400" />
                           <span>{card.metric}</span>
@@ -601,8 +675,8 @@ export default function SceneBSection() {
                         <h3
                           style={{
                             fontFamily: "var(--font-archivo, sans-serif)",
-                            fontSize: "clamp(1.75rem, 2.5vw, 2.6rem)",
-                            lineHeight: 1.08,
+                            fontSize: "clamp(1.6rem, 2.2vw, 2.3rem)",
+                            lineHeight: 1.1,
                             fontVariationSettings: "'wdth' 100",
                           }}
                           className="font-black uppercase tracking-tight text-ink-950"
@@ -610,13 +684,12 @@ export default function SceneBSection() {
                           {card.title}
                         </h3>
 
-                        <p className="font-sans text-sm text-ink-950/85 leading-relaxed font-medium">
+                        <p className="font-sans text-xs sm:text-sm text-ink-950/85 leading-relaxed font-medium">
                           {card.desc}
                         </p>
                       </div>
 
-                      {/* Bottom Spec Telemetry Stamp */}
-                      <div className="pt-4 border-t-2 border-ink-950 grid grid-cols-2 gap-3">
+                      <div className="pt-3 border-t-2 border-ink-950 grid grid-cols-2 gap-3">
                         {card.specs.map((sp) => (
                           <div key={sp.label}>
                             <span className="text-[9px] tracking-[0.22em] uppercase font-sans font-bold text-ink-950/55 block">
@@ -630,30 +703,28 @@ export default function SceneBSection() {
                       </div>
                     </div>
 
-                    {/* ================= CARD BACK FACE (Visible when Stacked & Fanning Out: Ornate Constructivist Tarot Back) ================= */}
+                    {/* ================= CARD BACK FACE (Visible when Stacked & Fanning Out in a Curved Arc) ================= */}
                     <div
                       style={{
                         backfaceVisibility: "hidden",
                         transform: "rotateY(180deg)",
                       }}
-                      className="absolute inset-0 w-full h-full bg-ink-950 text-bone-100 border-2 border-sun-600 p-6 flex flex-col justify-between shadow-2xl"
+                      className="absolute inset-0 w-full h-full bg-ink-950 text-bone-100 border-2 border-sun-600 p-5 flex flex-col justify-between shadow-2xl"
                     >
-                      {/* Inner Constructivist Geometric Frame */}
-                      <div className="w-full h-full border border-bone-100/30 p-6 flex flex-col items-center justify-between relative overflow-hidden">
+                      <div className="w-full h-full border border-bone-100/30 p-5 flex flex-col items-center justify-between relative overflow-hidden">
                         <div className="w-full flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans font-bold text-sun-400">
                           <span>THONG DONG</span>
                           <span>PLATE {card.roman}</span>
                         </div>
 
-                        {/* Ornate Center Sun-Disc & Crosshair Seal */}
-                        <div className="relative w-36 h-36 rounded-full border-2 border-sun-600 flex items-center justify-center bg-ink-800">
-                          <div className="w-24 h-24 rounded-full bg-sun-600 flex items-center justify-center">
+                        <div className="relative w-32 h-32 rounded-full border-2 border-sun-600 flex items-center justify-center bg-ink-800">
+                          <div className="w-20 h-20 rounded-full bg-sun-600 flex items-center justify-center">
                             <span
                               style={{
                                 fontFamily: "var(--font-archivo, sans-serif)",
                                 fontVariationSettings: "'wdth' 68",
                               }}
-                              className="font-black text-4xl text-bone-100"
+                              className="font-black text-3xl text-bone-100"
                             >
                               {card.roman}
                             </span>
@@ -679,8 +750,8 @@ export default function SceneBSection() {
           </div>
 
           {/* Bottom Stage Progress Indicator */}
-          <div className="relative z-10 w-full max-w-[1600px] mx-auto pt-4 border-t border-bone-100/15 flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans text-bone-100/60">
-            <span>STACKED DECK → CURVED FAN-OUT → 3D FLIP REVEAL</span>
+          <div className="relative z-10 w-full max-w-[1600px] mx-auto pt-3 border-t border-bone-100/15 flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans text-bone-100/60">
+            <span>GỘP 1 TỤ → XÒE CONG HÌNH QUẠT → DÀN NGANG & LẬT 3D</span>
             <span className="text-sun-400">01 / 02 / 03</span>
           </div>
         </div>

@@ -36,7 +36,6 @@ export default function CinematicPreloader() {
         },
       });
 
-      // 1. Lithograph Ink Roller Bar & Giant Edition Counter 00 -> 100
       tl.to(
         counterObj,
         {
@@ -61,7 +60,6 @@ export default function CinematicPreloader() {
         );
       }
 
-      // 2. Fade Center Registration Plate & Split Horizontal Press Gates (Top Up / Bottom Down)
       if (centerPlateRef.current) {
         tl.to(
           centerPlateRef.current,
@@ -96,7 +94,7 @@ export default function CinematicPreloader() {
       ref={rootRef}
       aria-hidden="true"
       style={{ zIndex: 95 }}
-      className="fixed inset-0 w-full h-[100svh] pointer-events-none select-none overflow-hidden flex flex-col justify-between"
+      className="fixed inset-0 w-full h-[100dvh] pointer-events-none select-none overflow-hidden flex flex-col justify-between"
     >
       {/* Top Lithograph Press Gate (Warm Archival Paper with Constructivist Registration Marks) */}
       <div
@@ -140,7 +138,6 @@ export default function CinematicPreloader() {
         ref={bottomGateRef}
         className="relative w-full h-1/2 bg-ink-950 text-bone-100 px-6 sm:px-12 lg:px-20 py-8 flex flex-col justify-between will-change-transform"
       >
-        {/* Live Ink Roller Progress Bar */}
         <div className="w-full h-2 bg-bone-100/15 overflow-hidden">
           <div
             ref={barFillRef}
