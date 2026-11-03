@@ -41,8 +41,8 @@ const TRUST_BLADES = [
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
   const deckStageRef = useRef<HTMLDivElement>(null);
-  const horizonBeamRef = useRef<HTMLDivElement>(null);
-  const fillOverlayRef = useRef<HTMLDivElement>(null);
+  const blockShutter1Ref = useRef<HTMLDivElement>(null);
+  const blockShutter2Ref = useRef<HTMLDivElement>(null);
   const blueprintSvgRef = useRef<SVGSVGElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
@@ -58,58 +58,54 @@ export default function TrustChapter() {
         gsap.set(
           [
             deckStageRef.current,
-            horizonBeamRef.current,
-            fillOverlayRef.current,
             blueprintSvgRef.current,
             spineRef.current,
             posterImgRef.current,
           ],
           { clearProps: "all", opacity: 1 }
         );
+        if (blockShutter1Ref.current) gsap.set(blockShutter1Ref.current, { scaleX: 0 });
+        if (blockShutter2Ref.current) gsap.set(blockShutter2Ref.current, { scaleX: 0 });
         bladeRefs.current.forEach((b) => {
           if (b) gsap.set(b, { clearProps: "all", opacity: 1 });
         });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Section 3 -> Section 4 Transition: 3D Monolith Deck Elevation + Racing Blue Horizon Laser Expand
-        if (deckStageRef.current && horizonBeamRef.current) {
-          const entryTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top 96%",
-              end: "top 25%",
-              scrub: true,
-            },
-          });
-
-          entryTl
-            .fromTo(
-              horizonBeamRef.current,
-              { scaleX: 0.08 },
-              { scaleX: 1, ease: "none" },
-              0
-            )
-            .fromTo(
-              deckStageRef.current,
-              { y: 90, scale: 0.92 },
-              { y: 0, scale: 1, ease: "none" },
-              0
-            );
-        }
-
-        // 2. motionsites.ai-Inspired Hollow Stroke-to-Solid Fill Typography Scrub (`clipPath: inset(0 100% 0 0) -> inset(0 0% 0 0)`)
-        if (fillOverlayRef.current) {
+        // 1. UNIQUE SECTION 3 -> SECTION 4 TRANSITION: 3D Isometric Blueprint Sheet Unfold (`rotateX: 28deg, rotateZ: -2.5deg, scale: 0.86 -> 0`)
+        if (deckStageRef.current) {
           gsap.fromTo(
-            fillOverlayRef.current,
-            { clipPath: "inset(0% 100% 0% 0%)" },
+            deckStageRef.current,
+            { rotateX: 28, rotateZ: -2.5, scale: 0.86, y: 80 },
             {
-              clipPath: "inset(0% 0% 0% 0%)",
+              rotateX: 0,
+              rotateZ: 0,
+              scale: 1,
+              y: 0,
               ease: "none",
               scrollTrigger: {
-                trigger: fillOverlayRef.current,
-                start: "top 88%",
-                end: "top 32%",
+                trigger: containerRef.current,
+                start: "top 95%",
+                end: "top 22%",
+                scrub: true,
+              },
+            }
+          );
+        }
+
+        // 2. UNIQUE TYPOGRAPHY MOTION #4: Dual-Color Lithograph Ink-Roller Block Stamp
+        if (blockShutter1Ref.current && blockShutter2Ref.current) {
+          gsap.fromTo(
+            [blockShutter1Ref.current, blockShutter2Ref.current],
+            { scaleX: 1 },
+            {
+              scaleX: 0,
+              stagger: 0.14,
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top 78%",
+                end: "top 28%",
                 scrub: true,
               },
             }
@@ -152,7 +148,7 @@ export default function TrustChapter() {
           );
         }
 
-        // 3. Asymmetric Cantilever Spine Blades (Slide & 3D Unfold from Central Racing Blue Spine!)
+        // 3. Asymmetric Cantilever Spine Blades
         bladeRefs.current.forEach((blade, idx) => {
           if (!blade) return;
           const isLeft = idx % 2 === 0;
@@ -185,21 +181,14 @@ export default function TrustChapter() {
     <section
       ref={containerRef}
       id="tin-cay"
-      className="relative w-full bg-ink-950 select-none overflow-hidden pt-6"
+      style={{ perspective: "1600px" }}
+      className="relative w-full bg-ink-950 select-none overflow-hidden pt-8"
     >
-      {/* Expanding Racing Blue Horizon Laser Beam at Top Seam */}
-      <div
-        ref={horizonBeamRef}
-        aria-hidden="true"
-        style={{ transformOrigin: "center center" }}
-        className="w-full h-3 bg-lake-600 will-change-transform"
-      />
-
-      {/* Elevating Warm Archival Paper Monolith Deck */}
+      {/* 3D Unfolding Archival Blueprint Sheet */}
       <div
         ref={deckStageRef}
         style={{ transformOrigin: "center top" }}
-        className="relative w-full bg-bone-100 text-ink-950 py-24 sm:py-36 px-8 sm:px-14 lg:px-24 overflow-hidden will-change-transform"
+        className="relative w-full bg-bone-100 text-ink-950 border-t-8 border-lake-600 py-24 sm:py-36 px-8 sm:px-14 lg:px-24 overflow-hidden will-change-transform"
       >
         {/* Rich Constructivist SVG Blueprint Schematic & Architectural Grid */}
         <svg
@@ -224,46 +213,42 @@ export default function TrustChapter() {
           <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.08] h-full" />
         </div>
 
-        {/* CRITICAL: Direct bg-bone-100 without z-index isolation so Poster 1 blends 100.0% into #E9E4D8! */}
+        {/* Direct bg-bone-100 without z-index isolation so Poster 1 blends 100.0% into #E9E4D8! */}
         <div className="max-w-[1600px] mx-auto bg-bone-100 space-y-16 sm:space-y-24">
-          {/* 1. Editorial Exhibition Header with Hollow Stroke-to-Solid Fill Scroll Typography */}
+          {/* 1. Editorial Exhibition Header with Dual-Color Lithograph Ink-Roller Stamp */}
           <div className="border-b-2 border-ink-950 pb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="space-y-2">
               <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-lake-600 block mb-3">
                 04 // ENGINEERING HERITAGE & VERIFIED TRUST
               </span>
 
-              <div className="relative inline-block">
-                {/* Base Layer: Hollow Constructivist Stroke Outline */}
-                <div
-                  aria-hidden="true"
-                  style={{
-                    fontFamily: "var(--font-archivo, sans-serif)",
-                    fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
-                    lineHeight: 1.14,
-                    fontVariationSettings: "'wdth' 98",
-                    WebkitTextStroke: "2px var(--ink-950)",
-                    color: "transparent",
-                  }}
-                  className="font-black uppercase tracking-tight pt-[0.14em] select-none"
-                >
-                  TIN CẬY BẰNG DỮ KIỆN.
-                </div>
+              <h2
+                style={{
+                  fontFamily: "var(--font-archivo, sans-serif)",
+                  fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
+                  lineHeight: 1.14,
+                  fontVariationSettings: "'wdth' 98",
+                }}
+                className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.24em]"
+              >
+                <span className="relative inline-block overflow-hidden pt-[0.14em] pb-[0.04em]">
+                  <span>TIN CẬY BẰNG</span>
+                  <span
+                    ref={blockShutter1Ref}
+                    style={{ transformOrigin: "right center" }}
+                    className="absolute inset-0 bg-ink-950 pointer-events-none will-change-transform"
+                  />
+                </span>
 
-                {/* Foreground Scroll-Scrubbed Solid Fill Layer */}
-                <h2
-                  ref={fillOverlayRef}
-                  style={{
-                    fontFamily: "var(--font-archivo, sans-serif)",
-                    fontSize: "clamp(2.75rem, 6.8vw, 8.2rem)",
-                    lineHeight: 1.14,
-                    fontVariationSettings: "'wdth' 98",
-                  }}
-                  className="absolute inset-0 font-black uppercase tracking-tight text-ink-950 pt-[0.14em] will-change-transform"
-                >
-                  TIN CẬY BẰNG <span className="text-lake-600">DỮ KIỆN.</span>
-                </h2>
-              </div>
+                <span className="relative inline-block overflow-hidden pt-[0.14em] pb-[0.04em]">
+                  <span className="text-lake-600">DỮ KIỆN.</span>
+                  <span
+                    ref={blockShutter2Ref}
+                    style={{ transformOrigin: "right center" }}
+                    className="absolute inset-0 bg-lake-600 pointer-events-none will-change-transform"
+                  />
+                </span>
+              </h2>
             </div>
 
             <p className="font-sans text-base sm:text-lg text-ink-950/85 max-w-md leading-relaxed font-medium border-l-4 border-lake-600 pl-5">

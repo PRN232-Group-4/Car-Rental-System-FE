@@ -7,8 +7,8 @@ const HERO_LINE1_CHARS = ["S", "I", "Ê", "U", "\u00A0", "X", "E", "."];
 const HERO_LINE2_CHARS = ["K", "H", "Ô", "N", "G", "\u00A0", "V", "Ộ", "I", "."];
 
 export default function HeroChapter() {
-  const containerRef = useRef<HTMLElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLElement>(null);
+  const stickyStageRef = useRef<HTMLDivElement>(null);
   const bgImgRef = useRef<HTMLImageElement>(null);
   const svgRingRef = useRef<SVGSVGElement>(null);
   const spineRef = useRef<HTMLDivElement>(null);
@@ -21,17 +21,17 @@ export default function HeroChapter() {
   const mistRef = useRef<HTMLDivElement>(null);
   const carRef = useRef<HTMLDivElement>(null);
   const branchRef = useRef<HTMLDivElement>(null);
+  const shutterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useGSAP(
     () => {
-      if (typeof window === "undefined" || !containerRef.current) return;
+      if (typeof window === "undefined" || !trackRef.current) return;
 
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
           [
-            stageRef.current,
             bgImgRef.current,
             svgRingRef.current,
             spineRef.current,
@@ -48,17 +48,20 @@ export default function HeroChapter() {
         char2Refs.current.forEach((c) => {
           if (c) gsap.set(c, { clearProps: "all", opacity: 1 });
         });
+        shutterRefs.current.forEach((s) => {
+          if (s) gsap.set(s, { scaleY: 0 });
+        });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. Entrance Choreography: 3D Character Flip + Constructivist SVG Ring Spin + Full Uncropped Car Entrance
+        // 1. UNIQUE TYPOGRAPHY MOTION #1: 3D Top-Hinged Mechanical Flap Flip (`rotateX: -95deg -> 0deg`)
         const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
         if (bgImgRef.current) {
           introTl.fromTo(
             bgImgRef.current,
-            { scale: 1.15, opacity: 0 },
-            { scale: 1.02, opacity: 1, duration: 1.4, ease: "power3.out" },
+            { scale: 1.14, opacity: 0 },
+            { scale: 1.02, opacity: 1, duration: 1.35, ease: "power3.out" },
             0
           );
         }
@@ -67,7 +70,7 @@ export default function HeroChapter() {
           introTl.fromTo(
             svgRingRef.current,
             { rotate: -60, scale: 0.85, opacity: 0 },
-            { rotate: 0, scale: 1, opacity: 1, duration: 1.5 },
+            { rotate: 0, scale: 1, opacity: 1, duration: 1.45 },
             0.1
           );
         }
@@ -78,12 +81,12 @@ export default function HeroChapter() {
         if (c1.length > 0) {
           introTl.fromTo(
             c1,
-            { yPercent: 115, rotateX: -90, opacity: 0 },
+            { rotateX: -95, yPercent: -40, opacity: 0 },
             {
-              yPercent: 0,
               rotateX: 0,
+              yPercent: 0,
               opacity: 1,
-              duration: 1.1,
+              duration: 1.05,
               stagger: 0.04,
             },
             0.12
@@ -93,12 +96,12 @@ export default function HeroChapter() {
         if (c2.length > 0) {
           introTl.fromTo(
             c2,
-            { yPercent: 115, rotateX: -90, opacity: 0 },
+            { rotateX: -95, yPercent: -40, opacity: 0 },
             {
-              yPercent: 0,
               rotateX: 0,
+              yPercent: 0,
               opacity: 1,
-              duration: 1.1,
+              duration: 1.05,
               stagger: 0.035,
             },
             0.24
@@ -127,17 +130,17 @@ export default function HeroChapter() {
           introTl.fromTo(
             leadBlockRef.current,
             { x: -30, opacity: 0 },
-            { x: 0, opacity: 1, duration: 0.95 },
-            0.38
+            { x: 0, opacity: 1, duration: 0.9 },
+            0.36
           );
         }
 
         if (carRef.current) {
           introTl.fromTo(
             carRef.current,
-            { xPercent: 16, yPercent: 8, scale: 0.9, opacity: 0 },
-            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.35 },
-            0.22
+            { xPercent: 14, yPercent: 6, scale: 0.92, opacity: 0 },
+            { xPercent: 0, yPercent: 0, scale: 1, opacity: 1, duration: 1.3 },
+            0.2
           );
         }
 
@@ -145,72 +148,71 @@ export default function HeroChapter() {
           introTl.fromTo(
             branchRef.current,
             { xPercent: 18, yPercent: 10, opacity: 0 },
-            { xPercent: 0, yPercent: 0, opacity: 1, duration: 1.4 },
-            0.32
+            { xPercent: 0, yPercent: 0, opacity: 1, duration: 1.35 },
+            0.3
           );
         }
 
-        // 2. 1:1 Scroll-Linked Multi-Plane Parallax + Variable Font Width Stretch (`wdth` morphing on scroll!)
+        // 2. SCROLL PARALLAX + EXCLUSIVE SECTION 1 -> 2 TRANSITION: 5-COLUMN RISING STEP-STAIR PILLARS
+        // Because `stickyStageRef` stays pinned for 138svh, at scrollY=0 all 5 columns are strictly `scaleY: 0` (ZERO overlap on the car or caption!).
+        // As the user scrolls down, the 5 full-height columns rise in a dramatic staircase (`stagger: 0.09`) pulling Section 2's paper canvas up to the top!
         const scrollTl = gsap.timeline({
           scrollTrigger: {
-            trigger: containerRef.current,
+            trigger: trackRef.current,
             start: "top top",
-            end: "bottom top",
+            end: "bottom bottom",
             scrub: true,
           },
         });
 
-        if (stageRef.current) {
-          scrollTl.to(stageRef.current, { yPercent: -8, scale: 0.96, ease: "none" }, 0);
-        }
         if (bgImgRef.current) {
-          scrollTl.to(bgImgRef.current, { yPercent: 15, scale: 1.12, ease: "none" }, 0);
+          scrollTl.to(bgImgRef.current, { yPercent: 12, scale: 1.1, ease: "none" }, 0);
         }
         if (svgRingRef.current) {
-          scrollTl.to(svgRingRef.current, { rotate: 110, scale: 1.15, ease: "none" }, 0);
+          scrollTl.to(svgRingRef.current, { rotate: 95, scale: 1.12, ease: "none" }, 0);
         }
         if (line1WrapRef.current) {
-          scrollTl.to(
-            line1WrapRef.current,
-            {
-              xPercent: -10,
-              fontVariationSettings: "'wdth' 115",
-              ease: "none",
-            },
-            0
-          );
+          scrollTl.to(line1WrapRef.current, { xPercent: -10, ease: "none" }, 0);
         }
         if (line2WrapRef.current) {
-          scrollTl.to(
-            line2WrapRef.current,
-            {
-              xPercent: 12,
-              fontVariationSettings: "'wdth' 75",
-              ease: "none",
-            },
-            0
-          );
+          scrollTl.to(line2WrapRef.current, { xPercent: 12, ease: "none" }, 0);
         }
         if (mistRef.current) {
-          scrollTl.to(mistRef.current, { xPercent: -16, opacity: 0.72, ease: "none" }, 0);
+          scrollTl.to(mistRef.current, { xPercent: -14, opacity: 0.7, ease: "none" }, 0);
         }
         if (carRef.current) {
           scrollTl.to(
             carRef.current,
-            { xPercent: -14, yPercent: -12, scale: 1.08, ease: "none" },
+            { xPercent: -12, yPercent: -8, scale: 1.06, ease: "none" },
             0
           );
         }
         if (branchRef.current) {
           scrollTl.to(
             branchRef.current,
-            { xPercent: 10, yPercent: -28, scale: 1.14, ease: "none" },
+            { xPercent: 8, yPercent: -24, scale: 1.12, ease: "none" },
             0
           );
         }
 
+        // 5-Column Step-Stair Pillars (Starts rising at 18% of the Hero scroll track and reaches 100% full-screen right as Section 2 arrives!)
+        const validShutters = shutterRefs.current.filter(Boolean);
+        if (validShutters.length > 0) {
+          scrollTl.fromTo(
+            validShutters,
+            { scaleY: 0 },
+            {
+              scaleY: 1,
+              stagger: 0.09,
+              ease: "none",
+              duration: 0.65,
+            },
+            0.18
+          );
+        }
+
         // 3. Interactive Pointer 3D Depth Parallax
-        const el = containerRef.current;
+        const el = stickyStageRef.current;
         if (el && window.matchMedia("(pointer: fine)").matches) {
           const xBg = gsap.quickTo(bgImgRef.current, "x", { duration: 1.0, ease: "power3.out" });
           const yBg = gsap.quickTo(bgImgRef.current, "y", { duration: 1.0, ease: "power3.out" });
@@ -224,10 +226,10 @@ export default function HeroChapter() {
             const ny = (e.clientY / window.innerHeight - 0.5) * 2;
             xBg(nx * 14);
             yBg(ny * 8);
-            xCar(nx * -26);
-            yCar(ny * -12);
-            xBranch(nx * -40);
-            yBranch(ny * -18);
+            xCar(nx * -24);
+            yCar(ny * -10);
+            xBranch(nx * -38);
+            yBranch(ny * -16);
           };
 
           el.addEventListener("mousemove", onMove, { passive: true });
@@ -237,19 +239,19 @@ export default function HeroChapter() {
 
       return () => mm.revert();
     },
-    { scope: containerRef }
+    { scope: trackRef }
   );
 
   return (
     <section
-      ref={containerRef}
+      ref={trackRef}
       id="gioi-thieu"
-      className="relative w-full h-[100svh] min-h-[720px] bg-ink-950 text-bone-100 overflow-hidden select-none"
+      className="relative w-full h-[138svh] bg-ink-950 text-bone-100 select-none"
     >
+      {/* Sticky 100svh Viewport Stage: Guarantees 100% of the Porsche & Caption are visible at scrollY=0 with ZERO cream bar overlap! */}
       <div
-        ref={stageRef}
-        style={{ transformOrigin: "center top" }}
-        className="relative w-full h-full flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 sm:pt-24 pb-10 will-change-transform"
+        ref={stickyStageRef}
+        className="sticky top-0 w-full h-[100svh] min-h-[700px] overflow-hidden flex flex-col justify-between px-6 sm:px-12 lg:px-20 pt-20 sm:pt-24 pb-8"
       >
         {/* Layer 1 (z-10): Full-Bleed Da Lat Dawn Woodcut Painting */}
         <picture className="absolute inset-0 w-full h-full block pointer-events-none" style={{ zIndex: 10 }}>
@@ -272,13 +274,13 @@ export default function HeroChapter() {
           />
         </picture>
 
-        {/* Layer 2 (z-14): Constructivist SVG Telemetry Compass Ring & Architectural Crosshairs */}
+        {/* Layer 2 (z-14): Constructivist SVG Telemetry Compass Ring & Crosshairs */}
         <svg
           ref={svgRingRef}
           aria-hidden="true"
           viewBox="0 0 600 600"
           style={{ zIndex: 14 }}
-          className="hidden sm:block absolute right-[12%] top-[8%] w-[44vw] max-w-[540px] aspect-square text-bone-100/20 pointer-events-none will-change-transform"
+          className="hidden sm:block absolute right-[12%] top-[8%] w-[42vw] max-w-[520px] aspect-square text-bone-100/20 pointer-events-none will-change-transform"
         >
           <circle cx="300" cy="300" r="280" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="6 10" />
           <circle cx="300" cy="300" r="220" fill="none" stroke="currentColor" strokeWidth="1" />
@@ -296,7 +298,7 @@ export default function HeroChapter() {
           ref={horizonRuleRef}
           aria-hidden="true"
           style={{ zIndex: 14, transformOrigin: "left center" }}
-          className="absolute left-0 right-0 bottom-[16%] h-[1px] bg-bone-100/25 pointer-events-none will-change-transform"
+          className="absolute left-0 right-0 bottom-[14%] h-[1px] bg-bone-100/25 pointer-events-none will-change-transform"
         />
 
         {/* Layer 3 (z-15): Lithograph Dust Texture */}
@@ -314,7 +316,7 @@ export default function HeroChapter() {
           />
         </div>
 
-        {/* Layer 4 (z-20): Monumental 3D Character-Flip & Variable-Width Typography (Positioned high & crisp in upper sky!) */}
+        {/* Layer 4 (z-20): Monumental 3D Flap-Flip Typography */}
         <div
           style={{ zIndex: 20, perspective: "1200px" }}
           className="relative w-full max-w-[1640px] mx-auto pointer-events-none"
@@ -327,7 +329,7 @@ export default function HeroChapter() {
               ref={line1WrapRef}
               style={{
                 fontFamily: "var(--font-archivo, sans-serif)",
-                fontSize: "clamp(3.25rem, 8.6vw, 10.8rem)",
+                fontSize: "clamp(3.25rem, 8.4vw, 10.4rem)",
                 lineHeight: 1.08,
                 fontVariationSettings: "'wdth' 74",
               }}
@@ -339,7 +341,7 @@ export default function HeroChapter() {
                   ref={(el) => {
                     char1Refs.current[idx] = el;
                   }}
-                  style={{ transformOrigin: "bottom center" }}
+                  style={{ transformOrigin: "50% 0%" }}
                   className="inline-block will-change-transform"
                 >
                   {ch}
@@ -351,7 +353,7 @@ export default function HeroChapter() {
               ref={line2WrapRef}
               style={{
                 fontFamily: "var(--font-archivo, sans-serif)",
-                fontSize: "clamp(2.15rem, 5.4vw, 6.8rem)",
+                fontSize: "clamp(2.1rem, 5.2vw, 6.5rem)",
                 lineHeight: 1.12,
                 fontVariationSettings: "'wdth' 114",
               }}
@@ -363,7 +365,7 @@ export default function HeroChapter() {
                   ref={(el) => {
                     char2Refs.current[idx] = el;
                   }}
-                  style={{ transformOrigin: "bottom center" }}
+                  style={{ transformOrigin: "50% 0%" }}
                   className="inline-block will-change-transform"
                 >
                   {ch}
@@ -377,7 +379,7 @@ export default function HeroChapter() {
         <div
           ref={mistRef}
           aria-hidden="true"
-          style={{ zIndex: 25, mixBlendMode: "screen", opacity: 0.4 }}
+          style={{ zIndex: 25, mixBlendMode: "screen", opacity: 0.38 }}
           className="absolute inset-0 pointer-events-none will-change-transform"
         >
           <img
@@ -389,17 +391,16 @@ export default function HeroChapter() {
           />
         </div>
 
-        {/* Layer 6 (z-30): Bottom Row — Left Architectural Caption in Dark Pine Zone + Right Full Uncropped Porsche 911 Above the Fold! */}
+        {/* Layer 6 (z-30): Bottom Row — Left Manifesto Block & Right Full Uncropped Porsche 911 */}
         <div
           style={{ zIndex: 30 }}
           className="relative w-full max-w-[1640px] mx-auto mt-auto flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6"
         >
-          {/* Left Manifesto Block (Sits cleanly in the bottom-left dark pine forest, NEVER over the white mist!) */}
           <div
             ref={leadBlockRef}
-            className="max-w-sm bg-ink-950/95 border-l-4 border-sun-600 p-4 sm:p-5 mb-2 sm:mb-6 will-change-transform"
+            className="max-w-sm bg-ink-950/95 border-l-4 border-sun-600 p-4 sm:p-5 mb-2 will-change-transform"
           >
-            <div className="flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans font-bold text-sun-400 mb-2">
+            <div className="flex items-center justify-between text-[10px] tracking-[0.26em] uppercase font-sans font-bold text-sun-400 mb-1.5">
               <span>PORSCHE · MERCEDES-AMG · LAMBORGHINI</span>
               <span>/////</span>
             </div>
@@ -408,11 +409,10 @@ export default function HeroChapter() {
             </p>
           </div>
 
-          {/* Right Foreground Porsche 911 (100% of wheels and front bumper visible above the fold at scrollY=0!) */}
           <div
             ref={carRef}
             style={{
-              width: "clamp(290px, 43vw, 720px)",
+              width: "clamp(280px, 41vw, 680px)",
             }}
             className="ml-auto mr-[2%] sm:mr-[6%] pointer-events-none will-change-transform"
           >
@@ -442,9 +442,9 @@ export default function HeroChapter() {
           aria-hidden="true"
           style={{
             zIndex: 35,
-            width: "clamp(180px, 23vw, 400px)",
+            width: "clamp(170px, 22vw, 380px)",
           }}
-          className="hidden sm:block absolute -right-[2%] bottom-[14%] pointer-events-none will-change-transform"
+          className="hidden sm:block absolute -right-[2%] bottom-[12%] pointer-events-none will-change-transform"
         >
           <picture className="w-full block">
             <source
@@ -463,6 +463,24 @@ export default function HeroChapter() {
               decoding="async"
             />
           </picture>
+        </div>
+
+        {/* Layer 8 (z-40): EXCLUSIVE SECTION 1 -> 2 TRANSITION: 5-Column Rising Step-Stair Pillars (NO orange top border, subtle vertical architectural seam so the 5 columns are clearly visible as they pull Section 2 up!) */}
+        <div
+          aria-hidden="true"
+          style={{ zIndex: 40 }}
+          className="absolute inset-0 w-full h-full grid grid-cols-5 pointer-events-none"
+        >
+          {[0, 1, 2, 3, 4].map((colIdx) => (
+            <div
+              key={colIdx}
+              ref={(el) => {
+                shutterRefs.current[colIdx] = el;
+              }}
+              style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
+              className="w-full h-full bg-bone-100 border-r border-ink-950/[0.06] will-change-transform"
+            />
+          ))}
         </div>
       </div>
     </section>

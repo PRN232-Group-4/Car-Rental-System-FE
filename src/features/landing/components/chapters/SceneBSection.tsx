@@ -55,25 +55,22 @@ const CHAPTER_3_CARDS = [
 export default function SceneBSection() {
   const containerRef = useRef<HTMLElement>(null);
 
-  // 1. Seamless 5-Column Crest Pull-Up Transition (Zero vertical lines, compact 22svh crest that pulls Section 2 up!)
-  const stepShuttersRef = useRef<(HTMLDivElement | null)[]>([]);
-  const act2PullStageRef = useRef<HTMLDivElement>(null);
-
-  // 2. Act II Refs (Rich Constructivist SVG Topographic Background + Kinetic Velocity Marquee + 3D Skew Word Reveal)
+  // Act II Refs (Pulled-Up Paper Stage + Variable-Font Width Wave Typography)
   const act2Ref = useRef<HTMLDivElement>(null);
+  const act2ContentRef = useRef<HTMLDivElement>(null);
   const marqueeTrackRef = useRef<HTMLDivElement>(null);
   const act2WordRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const bottomKineticRef = useRef<HTMLDivElement>(null);
+  const bottomKineticRef = useRef<HTMLSpanElement>(null);
   const leftPillarRef = useRef<HTMLDivElement>(null);
   const posterImgRef = useRef<HTMLImageElement>(null);
   const compassSvgRef = useRef<SVGSVGElement>(null);
 
-  // 3. Unique Section 2 -> Section 3 Transition: Constructivist Double-Chevron Aperture Blades
-  const chevronWrapRef = useRef<HTMLDivElement>(null);
-  const leftChevronRef = useRef<HTMLDivElement>(null);
-  const rightChevronRef = useRef<HTMLDivElement>(null);
+  // Unique Section 2 -> Section 3 Transition: Center-Out Horizontal Split Iris Gate!
+  const irisGateWrapRef = useRef<HTMLDivElement>(null);
+  const irisCoreRef = useRef<HTMLDivElement>(null);
+  const irisLaserRef = useRef<HTMLDivElement>(null);
 
-  // 4. Act III Refs (3D Fanning & Flipping Tarot Card Stage + Rotating SVG Astrolabe Background)
+  // Act III Refs (Odometer Cylinder Character Roll + 3D Fanning & Flipping Tarot Card Deck)
   const act3TrackRef = useRef<HTMLDivElement>(null);
   const act3AstrolabeRef = useRef<SVGSVGElement>(null);
   const act3CharRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -87,9 +84,6 @@ export default function SceneBSection() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        stepShuttersRef.current.forEach((s) => {
-          if (s) gsap.set(s, { scaleY: 1 });
-        });
         act2WordRefs.current.forEach((w) => {
           if (w) gsap.set(w, { clearProps: "all", opacity: 1 });
         });
@@ -98,12 +92,13 @@ export default function SceneBSection() {
         });
         gsap.set(
           [
-            act2PullStageRef.current,
+            act2ContentRef.current,
             marqueeTrackRef.current,
             bottomKineticRef.current,
             leftPillarRef.current,
             posterImgRef.current,
             compassSvgRef.current,
+            irisCoreRef.current,
             act3AstrolabeRef.current,
           ],
           { clearProps: "all", opacity: 1 }
@@ -117,57 +112,48 @@ export default function SceneBSection() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. SEAMLESS 5-COLUMN CREST PULL-UP TRANSITION (Section 1 -> Section 2)
-        // Zero vertical borders between columns, compact 22svh wave crest, AND synchronized with `act2PullStageRef` y-translation so the columns physically PULL Section 2 up!
-        const validShutters = stepShuttersRef.current.filter(Boolean);
-        if (validShutters.length > 0 && act2Ref.current) {
-          const pullTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: act2Ref.current,
-              start: "top 100%",
-              end: "top 45%",
-              scrub: true,
-            },
-          });
-
-          pullTl.fromTo(
-            validShutters,
-            { scaleY: 0 },
-            {
-              scaleY: 1,
-              stagger: 0.04,
-              ease: "none",
-            },
-            0
-          );
-
-          if (act2PullStageRef.current) {
-            pullTl.fromTo(
-              act2PullStageRef.current,
-              { y: 110 },
-              { y: 0, ease: "none" },
-              0
-            );
-          }
-        }
-
-        // 2. Act II: 3D Skew-Flip Word Reveal + Kinetic Velocity Marquee + Rotating SVG Compass
+        // 1. UNIQUE TYPOGRAPHY MOTION #2 (Act II): Variable-Font Width Elastic Wave (`fontVariationSettings: 'wdth' 58 -> 118`)
+        // Zero overflow clipping so Vietnamese letters are NEVER cut in half like in `image_daf141.jpg`!
         const validAct2Words = act2WordRefs.current.filter(Boolean);
         if (validAct2Words.length > 0 && act2Ref.current) {
           gsap.fromTo(
             validAct2Words,
-            { yPercent: 115, rotateX: -75, skewY: 6, opacity: 0 },
             {
-              yPercent: 0,
-              rotateX: 0,
-              skewY: 0,
+              fontVariationSettings: "'wdth' 58",
+              y: 36,
+              opacity: 0.15,
+            },
+            {
+              fontVariationSettings: "'wdth' 108",
+              y: 0,
               opacity: 1,
-              stagger: 0.06,
+              stagger: 0.08,
               ease: "none",
               scrollTrigger: {
                 trigger: act2Ref.current,
-                start: "top 90%",
-                end: "top 38%",
+                start: "top 92%",
+                end: "top 35%",
+                scrub: true,
+              },
+            }
+          );
+        }
+
+        if (bottomKineticRef.current && act2Ref.current) {
+          gsap.fromTo(
+            bottomKineticRef.current,
+            {
+              fontVariationSettings: "'wdth' 62",
+              xPercent: -12,
+            },
+            {
+              fontVariationSettings: "'wdth' 122",
+              xPercent: 0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: act2Ref.current,
+                start: "top 85%",
+                end: "top 25%",
                 scrub: true,
               },
             }
@@ -188,16 +174,7 @@ export default function SceneBSection() {
             act2Tl.fromTo(
               marqueeTrackRef.current,
               { xPercent: 0 },
-              { xPercent: -24, ease: "none" },
-              0
-            );
-          }
-
-          if (bottomKineticRef.current) {
-            act2Tl.fromTo(
-              bottomKineticRef.current,
-              { xPercent: -10 },
-              { xPercent: 4, ease: "none" },
+              { xPercent: -22, ease: "none" },
               0
             );
           }
@@ -205,7 +182,7 @@ export default function SceneBSection() {
           if (leftPillarRef.current) {
             act2Tl.fromTo(
               leftPillarRef.current,
-              { y: 45 },
+              { y: 40 },
               { y: -20, ease: "none" },
               0
             );
@@ -230,33 +207,34 @@ export default function SceneBSection() {
           }
         }
 
-        // 3. UNIQUE Section 2 -> Section 3 Transition: Constructivist Double-Chevron Diagonal Blades
-        if (chevronWrapRef.current && leftChevronRef.current && rightChevronRef.current) {
-          const chevTl = gsap.timeline({
+        // 2. UNIQUE SECTION 2 -> SECTION 3 TRANSITION: Center-Out Horizontal Split Iris Gate!
+        // A glowing Vermilion laser line cracks across the center of the screen and expands vertically (`scaleY: 0 -> 1`) to open Section 3's dark stage!
+        if (irisGateWrapRef.current && irisCoreRef.current && irisLaserRef.current) {
+          const irisTl = gsap.timeline({
             scrollTrigger: {
-              trigger: chevronWrapRef.current,
-              start: "top 95%",
+              trigger: irisGateWrapRef.current,
+              start: "top 92%",
               end: "bottom 35%",
               scrub: true,
             },
           });
 
-          chevTl
+          irisTl
             .fromTo(
-              leftChevronRef.current,
-              { xPercent: -105 },
-              { xPercent: 0, ease: "none" },
+              irisLaserRef.current,
+              { scaleX: 0 },
+              { scaleX: 1, ease: "none", duration: 0.3 },
               0
             )
             .fromTo(
-              rightChevronRef.current,
-              { xPercent: 105 },
-              { xPercent: 0, ease: "none" },
-              0
+              irisCoreRef.current,
+              { scaleY: 0 },
+              { scaleY: 1, ease: "none", duration: 0.7 },
+              0.2
             );
         }
 
-        // 4. Act III: Rotating SVG Astrolabe + Slot-Machine Character Cascade + 3-Card Curved Fan-Out & 3D Flip
+        // 3. UNIQUE TYPOGRAPHY MOTION #3 (Act III): 3D Cylindrical Odometer Character Spin (`rotateX: 110deg/-110deg -> 0deg`)
         if (act3AstrolabeRef.current && act3TrackRef.current) {
           gsap.fromTo(
             act3AstrolabeRef.current,
@@ -279,11 +257,13 @@ export default function SceneBSection() {
           gsap.fromTo(
             validAct3Chars,
             {
-              yPercent: (idx) => (idx % 2 === 0 ? -115 : 115),
+              yPercent: (idx) => (idx % 2 === 0 ? -100 : 100),
+              rotateX: (idx) => (idx % 2 === 0 ? 90 : -90),
               opacity: 0,
             },
             {
               yPercent: 0,
+              rotateX: 0,
               opacity: 1,
               stagger: 0.03,
               ease: "none",
@@ -297,6 +277,7 @@ export default function SceneBSection() {
           );
         }
 
+        // 4. Act III: 3-Card Curved Fan-Out & 180° 3D Flip Choreography!
         if (act3TrackRef.current && window.innerWidth >= 1024) {
           const c0 = cardSlotRefs.current[0];
           const c1 = cardSlotRefs.current[1];
@@ -398,28 +379,10 @@ export default function SceneBSection() {
       id="cung-duong"
       className="relative w-full scene-b bg-bone-100 text-ink-950 select-none"
     >
-      {/* SEAMLESS 5-COLUMN CREST PULL-UP TRANSITION (Compact 22svh, ZERO vertical borders between columns, pulls Section 2 up seamlessly!) */}
-      <div
-        aria-hidden="true"
-        style={{ zIndex: 38 }}
-        className="relative -mt-[22svh] w-full h-[22svh] grid grid-cols-5 pointer-events-none"
-      >
-        {[0, 1, 2, 3, 4].map((colIdx) => (
-          <div
-            key={colIdx}
-            ref={(el) => {
-              stepShuttersRef.current[colIdx] = el;
-            }}
-            style={{ transformOrigin: "bottom center", transform: "scaleY(0)" }}
-            className="w-full h-full bg-bone-100 -mx-[1px] will-change-transform"
-          />
-        ))}
-      </div>
-
-      {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD (With Rich SVG Schematics & Velocity Marquee) ================= */}
+      {/* ================= ACT II: ASYMMETRIC 12-COLUMN EDITORIAL SPREAD ================= */}
       <div
         ref={act2Ref}
-        className="relative w-full bg-bone-100 pt-8 sm:pt-12 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24 overflow-hidden"
+        className="relative w-full bg-bone-100 pt-14 sm:pt-20 pb-24 sm:pb-32 px-8 sm:px-14 lg:px-24 overflow-hidden"
       >
         {/* Rich Constructivist SVG Topographic & Clinometer Schematic Background */}
         <svg
@@ -446,8 +409,8 @@ export default function SceneBSection() {
           <div className="col-start-4 lg:col-start-12 border-r border-ink-950/[0.08] h-full" />
         </div>
 
-        {/* Pulled-Up Content Stage (Physically pulled upward with the 5 rising columns!) */}
-        <div ref={act2PullStageRef} className="max-w-[1600px] mx-auto bg-bone-100">
+        {/* Direct bg-bone-100 without z-index isolation so Poster 2's multiply blend is 100% seamless! */}
+        <div ref={act2ContentRef} className="max-w-[1600px] mx-auto bg-bone-100">
           {/* Scroll-Scrubbed Kinetic Telemetry Marquee Ribbon */}
           <div className="w-full overflow-hidden border-y-2 border-ink-950 py-2.5 mb-10 bg-bone-100">
             <div
@@ -466,51 +429,41 @@ export default function SceneBSection() {
             </div>
           </div>
 
-          {/* 3D Skew-Flip Split-Word Headline */}
-          <div
-            style={{ perspective: "1000px" }}
-            className="mb-12 sm:mb-16 pointer-events-none px-2"
-          >
+          {/* Unclipped Variable-Font Width Wave Headline (NEVER cuts letters horizontally!) */}
+          <div className="mb-12 sm:mb-16 pointer-events-none px-2">
             <h2
               style={{
                 fontFamily: "var(--font-archivo, sans-serif)",
-                fontSize: "clamp(2.5rem, 7.2vw, 9.2rem)",
-                lineHeight: 1.14,
-                fontVariationSettings: "'wdth' 76",
+                fontSize: "clamp(2.5rem, 6.8vw, 8.8rem)",
+                lineHeight: 1.15,
               }}
-              className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.26em]"
+              className="font-black uppercase tracking-tight text-ink-950 flex flex-wrap items-baseline gap-x-[0.24em]"
             >
               {ACT2_WORDS_TOP.map((word, wIdx) => (
                 <span
                   key={word}
-                  className="inline-block overflow-hidden pt-[0.2em] pb-[0.06em] -mt-[0.16em]"
+                  ref={(el) => {
+                    act2WordRefs.current[wIdx] = el;
+                  }}
+                  style={{ fontVariationSettings: "'wdth' 96" }}
+                  className="inline-block will-change-transform"
                 >
-                  <span
-                    ref={(el) => {
-                      act2WordRefs.current[wIdx] = el;
-                    }}
-                    style={{ transformOrigin: "bottom left" }}
-                    className="inline-block will-change-transform"
-                  >
-                    {word}
-                  </span>
+                  {word}
                 </span>
               ))}
             </h2>
 
-            <div
-              ref={bottomKineticRef}
-              className="flex items-center justify-end gap-6 -mt-[0.6vw] will-change-transform"
-            >
+            <div className="flex items-center justify-end gap-6 mt-1">
               <span className="hidden md:block flex-1 max-w-sm h-[3px] bg-ink-950" />
               <span
+                ref={bottomKineticRef}
                 style={{
                   fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(2.5rem, 7.2vw, 9.2rem)",
-                  lineHeight: 1.14,
-                  fontVariationSettings: "'wdth' 112",
+                  fontSize: "clamp(2.5rem, 6.8vw, 8.8rem)",
+                  lineHeight: 1.15,
+                  fontVariationSettings: "'wdth' 115",
                 }}
-                className="font-black uppercase tracking-tight text-sun-600 whitespace-nowrap pt-[0.12em]"
+                className="font-black uppercase tracking-tight text-sun-600 whitespace-nowrap will-change-transform"
               >
                 «ĐI CHẬM.»
               </span>
@@ -590,25 +543,23 @@ export default function SceneBSection() {
         </div>
       </div>
 
-      {/* ================= UNIQUE SECTION 2 -> SECTION 3 TRANSITION: CONSTRUCTIVIST DOUBLE-CHEVRON APERTURE ================= */}
+      {/* ================= UNIQUE SECTION 2 -> SECTION 3 TRANSITION: CENTER-OUT HORIZONTAL SPLIT IRIS GATE ================= */}
       <div
-        ref={chevronWrapRef}
+        ref={irisGateWrapRef}
         aria-hidden="true"
-        className="relative w-full h-[28svh] bg-bone-100 overflow-hidden pointer-events-none"
+        className="relative w-full h-[24svh] bg-bone-100 flex items-center justify-center overflow-hidden pointer-events-none"
       >
+        {/* Center Horizontal Vermilion Laser Seam */}
         <div
-          ref={leftChevronRef}
-          style={{
-            clipPath: "polygon(0% 0%, 62% 100%, 0% 100%)",
-          }}
-          className="absolute inset-0 w-full h-full bg-sun-600 will-change-transform"
+          ref={irisLaserRef}
+          style={{ transformOrigin: "center center" }}
+          className="w-full h-2 bg-sun-600 z-10 will-change-transform"
         />
+        {/* Expanding Obsidian Iris Gate (Opens simultaneously upward & downward from the center seam!) */}
         <div
-          ref={rightChevronRef}
-          style={{
-            clipPath: "polygon(100% 0%, 100% 100%, 0% 100%, 38% 55%)",
-          }}
-          className="absolute inset-0 w-full h-full bg-ink-950 will-change-transform"
+          ref={irisCoreRef}
+          style={{ transformOrigin: "center center", transform: "scaleY(0)" }}
+          className="absolute inset-0 w-full h-full bg-ink-950 border-y-4 border-sun-600 will-change-transform"
         />
       </div>
 
@@ -650,8 +601,11 @@ export default function SceneBSection() {
             />
           </div>
 
-          {/* Stage Header with Slot-Machine Vertical Character Cascade */}
-          <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-bone-100/20 pb-5">
+          {/* Stage Header with 3D Cylindrical Odometer Character Roll */}
+          <div
+            style={{ perspective: "1000px" }}
+            className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-bone-100/20 pb-5"
+          >
             <div>
               <span className="text-xs tracking-[0.28em] uppercase font-sans font-bold text-sun-400 block mb-1.5">
                 03 // BỘ BA THẺ BÀI QUY TRÌNH SỐ HÓA
