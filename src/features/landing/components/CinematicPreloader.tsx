@@ -1,211 +1,185 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ShieldCheck, Compass } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 
-const BOOT_PHASES = [
-  "Khởi tạo không gian trưng bày 3D",
-  "Đồng bộ danh mục xe sẵn sàng vận hành",
-  "Xác thực tiêu chuẩn kiểm định hai chiều",
-  "Sẵn sàng lăn bánh cùng Thong Dong",
-];
-
 export default function CinematicPreloader() {
+  const [isDone, setIsDone] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const topShutterRef = useRef<HTMLDivElement>(null);
-  const bottomShutterRef = useRef<HTMLDivElement>(null);
-  const centerHudRef = useRef<HTMLDivElement>(null);
-  const laserLineRef = useRef<HTMLDivElement>(null);
-  const counterNodeRef = useRef<HTMLSpanElement>(null);
-  const stepTextRef = useRef<HTMLSpanElement>(null);
-
-  const [isDismissed, setIsDismissed] = useState(false);
+  const topGateRef = useRef<HTMLDivElement>(null);
+  const bottomGateRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const barFillRef = useRef<HTMLDivElement>(null);
+  const centerPlateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      fetch("/models/porsche_911_carrera_4s_opt.glb", { priority: "low" as RequestPriority }).catch(() => {});
+    if (typeof window === "undefined") return;
+    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isWebDriver = navigator.webdriver;
+    const hasSeen = sessionStorage.getItem("td_preloader_seen") === "1";
+
+    if (isReduced || isWebDriver || hasSeen) {
+      setIsDone(true);
     }
   }, []);
 
   useGSAP(
     () => {
-      if (typeof window === "undefined" || !rootRef.current) return;
+      if (isDone || typeof window === "undefined" || !rootRef.current) return;
 
-      const params = new URLSearchParams(window.location.search);
-      const holdForInspect = params.get("preloader") === "hold";
-      const forceFull = params.get("preloader") === "1" || holdForInspect;
-      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const isAutomatedBot = navigator.webdriver === true && !forceFull;
-      const alreadyBooted = sessionStorage.getItem("td_editorial_booted") === "1" && !forceFull;
-
-      if (prefersReduced || isAutomatedBot || alreadyBooted) {
-        setIsDismissed(true);
-        return;
-      }
-
-      const progressObj = { value: 0 };
+      const counterObj = { val: 0 };
       const tl = gsap.timeline({
         onComplete: () => {
-          if (!holdForInspect) {
-            sessionStorage.setItem("td_editorial_booted", "1");
-            setIsDismissed(true);
-          }
+          sessionStorage.setItem("td_preloader_seen", "1");
+          setIsDone(true);
         },
       });
 
       tl.to(
-        progressObj,
+        counterObj,
         {
-          value: holdForInspect ? 88 : 100,
-          duration: holdForInspect ? 0.6 : 1.1,
+          val: 100,
+          duration: 1.15,
           ease: "power3.inOut",
           onUpdate: () => {
-            const current = Math.round(progressObj.value);
-            if (counterNodeRef.current) {
-              counterNodeRef.current.textContent = String(current).padStart(2, "0");
-            }
-            if (stepTextRef.current) {
-              const stepIdx = Math.min(
-                BOOT_PHASES.length - 1,
-                Math.floor((current / 100) * BOOT_PHASES.length)
-              );
-              stepTextRef.current.textContent = BOOT_PHASES[stepIdx];
+            if (counterRef.current) {
+              counterRef.current.textContent = String(Math.round(counterObj.val)).padStart(3, "0");
             }
           },
         },
         0
       );
 
-      if (laserLineRef.current) {
+      if (barFillRef.current) {
         tl.fromTo(
-          laserLineRef.current,
-          { scaleX: 0.02 },
-          {
-            scaleX: holdForInspect ? 0.88 : 1,
-            duration: holdForInspect ? 0.6 : 1.1,
-            ease: "power3.inOut",
-          },
+          barFillRef.current,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 1.15, ease: "power3.inOut" },
           0
         );
       }
 
-      if (holdForInspect) return;
-
-      if (centerHudRef.current) {
+      if (centerPlateRef.current) {
         tl.to(
-          centerHudRef.current,
-          {
-            opacity: 0,
-            y: -12,
-            duration: 0.25,
-            ease: "power2.in",
-          },
-          1.12
+          centerPlateRef.current,
+          { opacity: 0, scale: 0.96, duration: 0.25, ease: "power2.in" },
+          1.1
         );
       }
 
-      if (topShutterRef.current && bottomShutterRef.current) {
+      if (topGateRef.current) {
         tl.to(
-          topShutterRef.current,
-          {
-            yPercent: -100,
-            duration: 0.75,
-            ease: "power4.inOut",
-          },
-          1.22
-        ).to(
-          bottomShutterRef.current,
-          {
-            yPercent: 100,
-            duration: 0.75,
-            ease: "power4.inOut",
-          },
-          1.22
+          topGateRef.current,
+          { yPercent: -100, duration: 0.75, ease: "expo.inOut" },
+          1.15
+        );
+      }
+
+      if (bottomGateRef.current) {
+        tl.to(
+          bottomGateRef.current,
+          { yPercent: 100, duration: 0.75, ease: "expo.inOut" },
+          1.15
         );
       }
     },
-    { scope: rootRef }
+    { dependencies: [isDone], scope: rootRef }
   );
 
-  if (isDismissed) return null;
+  if (isDone) return null;
 
   return (
     <div
       ref={rootRef}
-      role="status"
-      aria-live="polite"
-      aria-label="Đang tải trải nghiệm Thong Dong"
-      className="fixed inset-0 z-[120] min-h-[100dvh] w-full pointer-events-auto overflow-hidden select-none"
+      aria-hidden="true"
+      style={{ zIndex: 95 }}
+      className="fixed inset-0 w-full h-[100dvh] pointer-events-none select-none overflow-hidden flex flex-col justify-between"
     >
+      {/* Top Lithograph Press Gate (Warm Archival Paper with Constructivist Registration Marks) */}
       <div
-        ref={topShutterRef}
-        className="absolute top-0 left-0 right-0 h-1/2 bg-stage-ink border-b border-white/10 will-change-transform"
+        ref={topGateRef}
+        className="relative w-full h-1/2 bg-bone-100 text-ink-950 border-b-4 border-sun-600 px-6 sm:px-12 lg:px-20 py-8 flex flex-col justify-between will-change-transform"
       >
-        <div className="max-w-[1600px] mx-auto h-full px-6 sm:px-12 py-8 flex flex-col justify-between text-white">
-          <div className="flex items-center justify-between text-xs tracking-wider uppercase text-white/70">
-            <span className="font-display font-bold tracking-widest text-white">
-              THONG DONG
-            </span>
-            <span className="font-sans text-white/60">
-              Dịch vụ thuê xe cao cấp
-            </span>
-          </div>
+        <div className="flex items-center justify-between border-b-2 border-ink-950 pb-4 text-[10px] sm:text-xs tracking-[0.28em] uppercase font-sans font-bold">
+          <span>THONG DONG // ARCHIVAL LITHOGRAPH EDITION</span>
+          <span className="text-sun-600">PRESS PLATE NO. 01 — 05</span>
         </div>
-      </div>
 
-      <div
-        ref={bottomShutterRef}
-        className="absolute bottom-0 left-0 right-0 h-1/2 bg-stage-ink border-t border-white/10 will-change-transform"
-      >
-        <div className="max-w-[1600px] mx-auto h-full px-6 sm:px-12 py-8 flex flex-col justify-end text-white">
-          <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-white/70">
-            <span ref={stepTextRef} className="font-sans font-medium text-white">
-              {BOOT_PHASES[0]}
+        <div className="my-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
+          <div className="lg:col-span-7">
+            <span className="text-[10px] tracking-[0.26em] uppercase font-sans font-bold text-ink-950/60 block mb-2">
+              POWER / PRECISION / FREEDOM
             </span>
-            <div className="flex items-center gap-6 text-white/50">
-              <span className="hidden sm:flex items-center gap-1.5">
-                <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
-                <span>Biên bản đối soát minh bạch</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Compass aria-hidden="true" className="w-3.5 h-3.5 text-primary" />
-                <span>Hà Nội · Đà Nẵng · TP.HCM</span>
-              </span>
+            <div
+              style={{
+                fontFamily: "var(--font-archivo, sans-serif)",
+                fontSize: "clamp(2.5rem, 6.5vw, 7.5rem)",
+                lineHeight: 0.92,
+                fontVariationSettings: "'wdth' 110",
+              }}
+              className="font-black uppercase tracking-tight text-ink-950"
+            >
+              SIÊU XE. KHÔNG VỘI.
             </div>
           </div>
+          <div className="hidden lg:flex lg:col-span-5 justify-end">
+            <img
+              src="/assets/landing/a4-car-960.webp"
+              alt=""
+              className="w-64 h-auto object-contain contrast-125 brightness-95"
+            />
+          </div>
         </div>
       </div>
 
+      {/* Bottom Lithograph Press Gate (Deep Obsidian Ink with Giant Counter) */}
       <div
-        ref={centerHudRef}
-        className="relative z-10 min-h-[100dvh] w-full flex flex-col items-center justify-center px-6 pointer-events-none"
+        ref={bottomGateRef}
+        className="relative w-full h-1/2 bg-ink-950 text-bone-100 px-6 sm:px-12 lg:px-20 py-8 flex flex-col justify-between will-change-transform"
       >
-        <div className="w-full max-w-3xl flex flex-col items-center text-center">
-          <p className="text-white/60 text-xs sm:text-sm uppercase tracking-[0.25em] mb-3 font-sans">
-            Trải nghiệm di chuyển tự chủ
-          </p>
-          <div className="flex items-baseline gap-3 mb-6">
-            <span className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-              Thuê xe
-            </span>
-            <span className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
-              thong dong<span className="text-primary">.</span>
+        <div className="w-full h-2 bg-bone-100/15 overflow-hidden">
+          <div
+            ref={barFillRef}
+            style={{ transformOrigin: "left center" }}
+            className="w-full h-full bg-sun-600 will-change-transform"
+          />
+        </div>
+
+        <div
+          ref={centerPlateRef}
+          className="my-auto flex flex-col sm:flex-row sm:items-end justify-between gap-6 will-change-transform"
+        >
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <span className="w-4 h-2 bg-lake-400 inline-block" />
+              <span className="w-4 h-2 bg-lake-400 inline-block" />
+              <span className="w-4 h-2 bg-lake-400 inline-block" />
+              <span className="w-4 h-2 bg-lake-400 inline-block" />
+              <span className="w-4 h-2 bg-lake-400 inline-block" />
+            </div>
+            <span className="text-xs tracking-[0.26em] uppercase font-sans font-bold text-bone-100/75 block">
+              ĐANG NẠP BẢN KHẮC ĐÀ LẠT & ĐÈO HẢI VÂN...
             </span>
           </div>
 
-          <div className="w-full max-w-md h-[1.5px] bg-white/15 overflow-hidden relative mb-4">
-            <div
-              ref={laserLineRef}
-              className="h-full w-full bg-primary origin-left will-change-transform"
-            />
-          </div>
+          <span
+            ref={counterRef}
+            style={{
+              fontFamily: "var(--font-archivo, sans-serif)",
+              fontSize: "clamp(4.5rem, 14vw, 15rem)",
+              lineHeight: 0.85,
+              fontVariationSettings: "'wdth' 68",
+            }}
+            className="font-black text-bone-100 tracking-tight"
+          >
+            000
+          </span>
+        </div>
 
-          <div className="flex items-baseline gap-1 font-mono text-2xl sm:text-3xl font-bold text-white tabular-nums">
-            <span ref={counterNodeRef}>00</span>
-            <span className="text-sm text-primary">%</span>
-          </div>
+        <div className="flex items-center justify-between border-t border-bone-100/20 pt-4 text-[10px] tracking-[0.24em] uppercase font-sans text-bone-100/60">
+          <span>PORSCHE · MERCEDES-AMG · LAMBORGHINI</span>
+          <span>TP. HỒ CHÍ MINH · VIỆT NAM</span>
         </div>
       </div>
     </div>

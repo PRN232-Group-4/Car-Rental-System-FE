@@ -22,8 +22,8 @@ export default {
       app: {
         url: process.env.APP_URL ?? 'http://localhost:3000',
         command: {
-          executable: 'npm',
-          args: ['run', 'dev'],
+          executable: process.platform === 'win32' ? 'cmd.exe' : 'npm',
+          args: process.platform === 'win32' ? ['/c', 'npm', 'run', 'dev'] : ['run', 'dev'],
           // Next 16 từ chối chạy dev server thứ hai khi đã có một cái đang chạy.
           // Local dùng lại server sẵn có; CI luôn spawn.
           reuseExisting: true,

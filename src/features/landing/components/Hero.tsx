@@ -2,11 +2,7 @@
 
 import { useRef } from "react";
 import dynamic from "next/dynamic";
-import { SearchWidget } from "@/features/rentals";
-import type { RentalMode } from "@/features/rentals/components/SearchWidget";
-import { ArrowUpRight, ShieldCheck, Compass } from "lucide-react";
-import { useSplitReveal } from "@/lib/motion/text";
-import { useMagneticHover } from "@/lib/motion/hover";
+import { ShieldCheck, Compass } from "lucide-react";
 import { useCountUp } from "@/lib/motion/number";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
@@ -37,31 +33,15 @@ const Hero3DCanvas = dynamic(() => import("./Hero3DCanvas"), {
   ),
 });
 
-export interface HeroSearchCriteria {
-  mode: RentalMode;
-  facilityId: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-}
-
-interface HeroProps {
-  onSearchCriteriaChange?: (criteria: HeroSearchCriteria) => void;
-}
-
-export default function Hero({ onSearchCriteriaChange }: HeroProps) {
+export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const headingWrapRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const leftWordRef = useRef<HTMLSpanElement>(null);
   const rightWordRef = useRef<HTMLSpanElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const searchConsoleRef = useRef<HTMLDivElement>(null);
-  const ctaLinkRef = useRef<HTMLAnchorElement>(null);
   const powerCounterRef = useRef<HTMLSpanElement>(null);
 
-  useMagneticHover(ctaLinkRef);
   useCountUp(powerCounterRef, 443, { duration: 1.4, formatter: (val) => `${val} HP` });
 
   useGSAP(
@@ -75,7 +55,6 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         if (headingWrapRef.current) gsap.set(headingWrapRef.current, { yPercent: 0 });
         if (leftWordRef.current) gsap.set(leftWordRef.current, { xPercent: 0, opacity: 1, y: 0 });
         if (rightWordRef.current) gsap.set(rightWordRef.current, { xPercent: 0, opacity: 1, y: 0 });
-        if (searchConsoleRef.current) gsap.set(searchConsoleRef.current, { opacity: 1, y: 0 });
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -96,15 +75,6 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
             { opacity: 0, scale: 0.95, y: 20 },
             { opacity: 1, scale: 1, y: 0, duration: 0.95 },
             0.15
-          );
-        }
-
-        if (searchConsoleRef.current) {
-          tl.fromTo(
-            searchConsoleRef.current,
-            { opacity: 0, y: 16 },
-            { opacity: 1, y: 0, duration: 0.75 },
-            0.4
           );
         }
 
@@ -200,7 +170,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
         <div ref={headingWrapRef} className="w-full will-change-transform relative z-10 text-center">
           <h1
             ref={headingRef}
-            className="font-display font-extrabold text-ink tracking-tight leading-[0.88] text-[clamp(4.5rem,8.8vw,9.75rem)] w-full select-none flex flex-wrap items-baseline justify-center gap-x-6 sm:gap-x-8"
+            className="font-display font-extrabold text-ink tracking-tight leading-[1.05] pt-[0.15em] text-[clamp(4.5rem,8.8vw,9.75rem)] w-full select-none flex flex-wrap items-baseline justify-center gap-x-6 sm:gap-x-8"
           >
             <span ref={leftWordRef} className="inline-block will-change-transform">
               Thuê xe
@@ -214,7 +184,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           </h1>
         </div>
 
-        {/* 3D Porsche Carrera 4S Stage — Căn tâm chuẩn xác trên mặt phẳng bóng đổ & Monolith Disc */}
+        {/* 3D Porsche Carrera 4S Stage */}
         <div
           ref={stageRef}
           className="relative w-full max-w-6xl mx-auto -mt-4 sm:-mt-6 md:-mt-8 z-20 flex justify-center bg-transparent overflow-visible will-change-transform h-[480px] xl:h-[520px]"
@@ -247,7 +217,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
           </div>
 
           <div className="lg:col-span-5 flex flex-wrap sm:flex-nowrap items-center justify-between lg:justify-end gap-5">
-            <div className="flex items-center gap-5 px-4 py-2.5 rounded-xl bg-surface border border-line-strong">
+            <div className="flex items-center gap-5 px-4 py-2.5 rounded-none bg-surface border border-line-strong">
               <div>
                 <span className="text-[11px] font-sans text-ink-3 block">Tiêu điểm hôm nay</span>
                 <span className="font-display font-bold text-sm text-ink">Porsche 911 Carrera 4S</span>
@@ -260,25 +230,7 @@ export default function Hero({ onSearchCriteriaChange }: HeroProps) {
                 </span>
               </div>
             </div>
-
-            <a
-              ref={ctaLinkRef}
-              href="#showroom-3d"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-stage-ink text-white font-sans text-xs sm:text-sm font-semibold hover:bg-primary transition-colors cursor-pointer group shrink-0"
-            >
-              <span>Khám phá ngoại thất 3D</span>
-              <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
           </div>
-        </div>
-
-        {/* Live Search Console */}
-        <div
-          ref={searchConsoleRef}
-          id="tim-xe"
-          className="relative z-40 w-full scroll-mt-28"
-        >
-          <SearchWidget onSearch={onSearchCriteriaChange} />
         </div>
       </div>
     </section>

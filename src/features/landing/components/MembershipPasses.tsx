@@ -24,6 +24,7 @@ import { gsap } from "@/lib/motion/register";
 const FALLBACK_PLANS: SubscriptionPlan[] = [
   {
     id: "pass-urban-12",
+    // TODO-DATA (MembershipPasses.tsx:27): Hai bộ tên gói: Fallback (Urban Mobility 12 / Grand Tourer 30 / Executive Vault 50) vs API (Atelier 12 giờ / Grand Touring 30 giờ / Signature 50 giờ). Thời hạn gói 50 giờ lại ngắn hơn gói 30 giờ.
     name: "Urban Mobility 12",
     hours: 12,
     price: 120000,
@@ -397,7 +398,7 @@ export default function MembershipPasses() {
                               isSelected ? "text-primary" : "text-ink-3"
                             }`}
                           >
-                            0{idx + 1} // {plan.hours} GIỜ
+                            0{idx + 1} · {plan.hours} GIỜ
                           </span>
                           {plan.popular && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-primary text-white font-mono text-[10px] font-bold uppercase tracking-wider">

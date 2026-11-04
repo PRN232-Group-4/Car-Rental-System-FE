@@ -22,6 +22,7 @@ export const FALLBACK_FLEET_VEHICLES: Vehicle[] = [
     transmission: "Tự động 8 cấp PDK",
     fuelType: "Động cơ Boxer Twin-Turbo",
     maxRange: "443 mã lực · 0-100km/h: 3.4s",
+    // TODO-DATA (use-fleet-vehicles.ts:25): Giá giờ 1.850.000đ/giờ vs giá gói 30 giờ = 250.000đ (~8.333đ/giờ) ở MembershipPasses.tsx:45 chênh lệch ~222 lần. Giữ nguyên theo quy tắc không tự sửa số liệu.
     hourlyPrice: 1850000,
     monthlyPrice: 165000000,
     imageUrl: "/assets/fleet/porsche-911-4s.png",
