@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -8,7 +8,7 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 import { Button } from "@/components/ui/Button";
 import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/motion/register";
+import { gsap } from "@/lib/motion/register";
 import { 
   Rotate3d, 
   Gauge, 
@@ -146,7 +146,7 @@ export default function InteractiveStudio3D() {
   const isScrollingRef = useRef<boolean>(false);
   const isAutoRotateRef = useRef<boolean>(isAutoRotate);
   const hotspotElementsRef = useRef<Record<string, HTMLDivElement | null>>({});
-  const lastInteractionTimeRef = useRef<number>(Date.now());
+  const lastInteractionTimeRef = useRef<number>(0);
   const isIdleRef = useRef<boolean>(false);
   const isUserInteractingRef = useRef<boolean>(false);
 
@@ -192,38 +192,7 @@ export default function InteractiveStudio3D() {
     });
   };
 
-  const notifyUserActivity = () => {
-    lastInteractionTimeRef.current = Date.now();
-    if (isIdleRef.current) {
-      isIdleRef.current = false;
-      startLoop();
-    }
-  };
-
-  const handleSelectColor = (hex: string) => {
-    notifyUserActivity();
-    setSelectedColor(hex);
-    playTactileClick();
-    if (currentObjectRef.current) {
-      applyPaintColorToMeshes(currentObjectRef.current, hex);
-    }
-  };
-
-  const handleHotspotClick = (hotspot: Hotspot) => {
-    notifyUserActivity();
-    playTactileClick();
-    if (activeHotspotId === hotspot.id) {
-      setActiveHotspotId(null);
-    } else {
-      setActiveHotspotId(hotspot.id);
-      if (controlsRef.current) {
-        controlsRef.current.target.lerp(hotspot.pos, 0.35);
-        controlsRef.current.update();
-      }
-    }
-  };
-
-  const startLoop = () => {
+  function startLoop() {
     if (animFrameIdRef.current) return;
     const tick = () => {
       if (!isVisibleRef.current) {
@@ -283,13 +252,44 @@ export default function InteractiveStudio3D() {
     animFrameIdRef.current = requestAnimationFrame(tick);
   };
 
-  const stopLoop = () => {
+  function stopLoop() {
     if (rendererRef.current && sceneRef.current && cameraRef.current) {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
     }
     if (animFrameIdRef.current) {
       cancelAnimationFrame(animFrameIdRef.current);
       animFrameIdRef.current = null;
+    }
+  };
+
+  const notifyUserActivity = useCallback(() => {
+    lastInteractionTimeRef.current = Date.now();
+    if (isIdleRef.current) {
+      isIdleRef.current = false;
+      startLoop();
+    }
+  }, []);
+
+  const handleSelectColor = (hex: string) => {
+    notifyUserActivity();
+    setSelectedColor(hex);
+    playTactileClick();
+    if (currentObjectRef.current) {
+      applyPaintColorToMeshes(currentObjectRef.current, hex);
+    }
+  };
+
+  const handleHotspotClick = (hotspot: Hotspot) => {
+    notifyUserActivity();
+    playTactileClick();
+    if (activeHotspotId === hotspot.id) {
+      setActiveHotspotId(null);
+    } else {
+      setActiveHotspotId(hotspot.id);
+      if (controlsRef.current) {
+        controlsRef.current.target.lerp(hotspot.pos, 0.35);
+        controlsRef.current.update();
+      }
     }
   };
 

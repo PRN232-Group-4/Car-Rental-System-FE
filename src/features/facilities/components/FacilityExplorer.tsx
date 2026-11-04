@@ -94,6 +94,7 @@ export default function FacilityExplorer({
       <div data-kinetic-skew="true">
         <SectionHeading 
           title="Chi nhánh & điểm nhận xe" 
+          // TODO-DATA (FacilityExplorer.tsx:97): Ghi nhãn mạng lưới bàn giao 24/7 trong khi giờ mở cửa thực tế tại trạm là 07:00–22:00 (Thảo Điền 06:30–22:30 theo api.ts:13,27).
           subtitle="Mạng lưới trạm bàn giao kỹ thuật số 24/7 tại các vị trí trọng điểm TP. Hồ Chí Minh." 
         />
       </div>

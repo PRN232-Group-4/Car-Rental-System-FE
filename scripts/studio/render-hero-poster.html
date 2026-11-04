@@ -84,11 +84,17 @@
 </head>
 <body class="bg-light">
   <div id="toolbar">
-    <strong>Hero Car Studio</strong>
+    <strong>Hero Car Studio (3D)</strong>
     <span id="status">Đang khởi tạo WebGL...</span>
-    <button class="btn active" id="btn-composite" onclick="window.switchMode('composite')">Composite (Xe + Bóng)</button>
-    <button class="btn" id="btn-body" onclick="window.switchMode('body')">Chỉ thân xe</button>
-    <button class="btn" id="btn-shadow" onclick="window.switchMode('shadow')">Chỉ bóng đổ</button>
+    <div style="display:flex; gap:6px; margin: 0 4px;">
+      <button class="btn active" id="btn-scene-a" onclick="window.switchScene('scene-a')">Cảnh A (3/4 trước thấp)</button>
+      <button class="btn" id="btn-scene-b" onclick="window.switchScene('scene-b')">Cảnh B (3/4 ôm cua)</button>
+    </div>
+    <div style="display:flex; gap:6px; margin: 0 4px;">
+      <button class="btn active" id="btn-composite" onclick="window.switchMode('composite')">Composite (Xe + Bóng)</button>
+      <button class="btn" id="btn-body" onclick="window.switchMode('body')">Chỉ thân xe</button>
+      <button class="btn" id="btn-shadow" onclick="window.switchMode('shadow')">Chỉ bóng đổ</button>
+    </div>
     <button class="btn" onclick="toggleBg()">Đổi nền Preview</button>
   </div>
 
@@ -101,9 +107,11 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { MeshoptDecoder } from '/public/libs/meshopt/meshopt_decoder.module.js';
+    window.THREE = THREE;
 
     window.__ready = false;
     window.__mode = 'composite';
+    window.__currentScene = 'scene-a';
 
     const canvas = document.getElementById('render-canvas');
     const statusEl = document.getElementById('status');
@@ -127,8 +135,8 @@
     const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 100);
     
     // Low 3/4 front view matching premium automotive showcases
-    camera.position.set(3.8, 1.15, 3.4);
-    const cameraTarget = new THREE.Vector3(0, 0.38, 0);
+    camera.position.set(3.5, 0.95, 3.1);
+    const cameraTarget = new THREE.Vector3(0, 0.48, 0);
     camera.lookAt(cameraTarget);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -183,37 +191,71 @@
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
 
+    function alignAndGroundCar(yaw = 0, roll = 0, pitch = 0) {
+      if (!carGroup) return;
+
+      // 1. Reset transform & apply rotation
+      carGroup.position.set(0, 0, 0);
+      carGroup.rotation.set(pitch, yaw, roll);
+      carGroup.updateMatrixWorld(true);
+
+      // 2. Compute true vertex bounding box from real mesh geometries (ignoring Plane_0 floor plane)
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      let minZ = Infinity, maxZ = -Infinity;
+      const v = new THREE.Vector3();
+
+      carGroup.traverse((child) => {
+        if (child.isMesh && child.name !== 'Plane_0') {
+          const posAttr = child.geometry.attributes.position;
+          if (posAttr) {
+            for (let i = 0; i < posAttr.count; i++) {
+              v.fromBufferAttribute(posAttr, i);
+              v.applyMatrix4(child.matrixWorld);
+              if (v.x < minX) minX = v.x;
+              if (v.x > maxX) maxX = v.x;
+              if (v.y < minY) minY = v.y;
+              if (v.y > maxY) maxY = v.y;
+              if (v.z < minZ) minZ = v.z;
+              if (v.z > maxZ) maxZ = v.z;
+            }
+          }
+        }
+      });
+
+      const centerX = (minX + maxX) / 2;
+      const centerZ = (minZ + maxZ) / 2;
+
+      // 3. Ground the bottom of the tires EXACTLY to y = 0.000
+      carGroup.position.set(-centerX, -minY, -centerZ);
+      carGroup.updateMatrixWorld(true);
+    }
+
     statusEl.textContent = 'Đang nạp mô hình Carrera 4S...';
     loader.load(
       '/public/models/porsche_911_carrera_4s_opt.glb',
       (gltf) => {
         carGroup = gltf.scene;
 
-        // Auto center and align vehicle to ground
-        const bbox = new THREE.Box3().setFromObject(carGroup);
-        const center = bbox.getCenter(new THREE.Vector3());
-        const size = bbox.getSize(new THREE.Vector3());
-        
-        carGroup.position.x = -center.x;
-        carGroup.position.y = -bbox.min.y; // ground bottom of wheels to Y=0
-        carGroup.position.z = -center.z;
-
         carGroup.traverse((child) => {
           if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            carMeshes.push(child);
+            // Hide Plane_0 (4-vertex baked decal) so Three.js real PCF contact shadow works
+            if (child.name === 'Plane_0') {
+              child.visible = false;
+            } else {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              carMeshes.push(child);
 
-            // Enhance automotive materials if needed
-            if (child.material) {
-              child.material.envMapIntensity = 1.2;
-              if (child.material.name === 'paint') {
-                // High gloss automotive clearcoat
-                child.material.roughness = 0.22;
-                child.material.metalness = 0.75;
-                if ('clearcoat' in child.material) {
-                  child.material.clearcoat = 1.0;
-                  child.material.clearcoatRoughness = 0.05;
+              if (child.material) {
+                child.material.envMapIntensity = 1.2;
+                if (child.material.name === 'paint') {
+                  child.material.roughness = 0.22;
+                  child.material.metalness = 0.75;
+                  if ('clearcoat' in child.material) {
+                    child.material.clearcoat = 1.0;
+                    child.material.clearcoatRoughness = 0.05;
+                  }
                 }
               }
             }
@@ -221,6 +263,7 @@
         });
 
         scene.add(carGroup);
+        alignAndGroundCar(0, 0, 0);
         statusEl.textContent = 'Mô hình đã sẵn sàng (' + carMeshes.length + ' meshes).';
 
         // Warm up and render frames
@@ -228,8 +271,49 @@
         setTimeout(() => {
           renderer.render(scene, camera);
           window.__ready = true;
+          window.__carGroup = carGroup;
+          window.__scene = scene;
+          window.__camera = camera;
+          window.__controls = controls;
+          window.__renderer = renderer;
+          window.__alignAndGroundCar = alignAndGroundCar;
           statusEl.textContent = 'Sẵn sàng kết xuất ảnh chất lượng cao!';
         }, 300);
+
+    window.switchScene = function(sceneId) {
+      window.__currentScene = sceneId;
+      const btnA = document.getElementById('btn-scene-a');
+      const btnB = document.getElementById('btn-scene-b');
+      if (btnA) btnA.classList.toggle('active', sceneId === 'scene-a');
+      if (btnB) btnB.classList.toggle('active', sceneId === 'scene-b');
+
+      if (!carGroup) return;
+
+      if (sceneId === 'scene-a') {
+        // Cảnh A: Góc 3/4 trước thấp chuẩn mực
+        alignAndGroundCar(0, 0, 0);
+        camera.position.set(3.5, 0.95, 3.1);
+        cameraTarget.set(0, 0.48, 0);
+        controls.target.copy(cameraTarget);
+        camera.lookAt(cameraTarget);
+        statusEl.textContent = 'Cảnh A: Góc 3/4 trước thấp (Đã tiếp đất chuẩn)';
+      } else if (sceneId === 'scene-b') {
+        // Cảnh B: Góc 3/4 trước xoay 10° với thân xe nghiêng nhẹ ôm cua
+        const yaw = 10 * Math.PI / 180;
+        const roll = -2.8 * Math.PI / 180;
+        const pitch = 0.6 * Math.PI / 180;
+        alignAndGroundCar(yaw, roll, pitch);
+
+        camera.position.set(3.6, 1.05, 3.2);
+        cameraTarget.set(0, 0.48, 0);
+        controls.target.copy(cameraTarget);
+        camera.lookAt(cameraTarget);
+        statusEl.textContent = 'Cảnh B: Góc 3/4 ôm cua (nghiêng nhẹ 2.8°, tiếp đất chuẩn)';
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    };
       },
       undefined,
       (err) => {

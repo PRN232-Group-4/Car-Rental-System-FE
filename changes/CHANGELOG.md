@@ -1,4 +1,5 @@
 # Changelog
+- 2026-11-01 — [Tái thiết kế Landing Page theo concept Riso Grand Tour — Siêu xe. Không vội.](2026-11-01-riso-grand-tour-landing.md)
 - 2026-10-25 — [Đồng bộ URL API số ít/số nhiều với backend](2026-10-25-api-resource-number.md)
 - 2026-10-23 — [Gắn nhật ký kiểm toán vào API thật](2026-10-23-audit-log-api-wiring.md)
 - 2026-10-23 — [Restyle khối kiểm tra xe theo bố cục landing của dev-huy](2026-10-23-landing-inspection-restyle.md)
