@@ -707,11 +707,55 @@ Mọi thay đổi landing phải qua: `npm run typecheck`, `npm run lint:design`
 
 ### A14.7 Khung marketing trên các trang công khai
 
-Các trang công khai ngoài `/` dùng chung `Navbar` và `Footer` (`src/components/layout/`). Hai khung này mang ngôn ngữ landing để người dùng đi từ `/` sang `/find` không bị đổi giao diện đột ngột. Thân trang giữ A1–A13 vì cần mật độ bộ lọc, bảng và form.
+Các trang công khai ngoài `/` dùng chung `Navbar` và `Footer` (`src/components/layout/`). Thân trang theo A15.
 
-- **Navbar:** thanh `ink-950` toàn chiều ngang, góc vuông, không kính. Logo `ThongDong.` bằng Archivo màu `bone-100`, dấu chấm `sun-600`. Liên kết chữ `bone-100/75`, hover `sun-400`. CTA đăng ký nền `sun-600` góc vuông.
-- **Footer:** nền `ink-950`, viền đỉnh 4px `sun-600`, bố cục 4 cột như footer landing. Liên kết trỏ tới route thật, không dùng anchor của landing (`#cong-nghe`, `#quy-trinh`…) trên trang khác.
-- Giữ nguyên `id`, `aria-*` và chức năng của khung (menu tài khoản, đổi giao diện, âm thanh, menu di động).
+- **Navbar:** thanh `ink-950` toàn chiều ngang, góc vuông, không kính. Logo `ThongDong.` bằng Archivo màu `bone-100`, dấu chấm `sun-600`. Liên kết chữ `bone-100/75`, hover `sun-400`. CTA đăng ký nền `primary` góc vuông.
+- **Footer:** nền `ink-950`, viền đỉnh 4px `sun-600`, bố cục 4 cột dùng chung `FooterContent` với footer landing. Liên kết trỏ tới route thật, không dùng anchor của landing (`#cong-nghe`, `#quy-trinh`…) trên trang khác.
+- Giữ nguyên `id`, `aria-*` và chức năng của khung (menu tài khoản, âm thanh, menu di động).
+
+## A15. Bề mặt ứng dụng (mọi trang ngoài landing)
+
+> **Áp dụng cho:** trang công khai (`/find`, `/facilities`, `/inspection`, `/subscriptions`, `/vehicles/detail`), đăng nhập/đăng ký, dashboard khách, cổng tài xế `/staff`, và Transit Desk `/admin`. Khi A15 mâu thuẫn với A1–A13, A15 thắng.
+
+### A15.1 Vai trò bề mặt
+
+| Bề mặt | Token | Dùng cho |
+| --- | --- | --- |
+| Thân trang (giấy) | `canvas` = `bone-100 #E9E4D8` | Nền mọi trang |
+| Bề mặt đặc | `surface #F4F1EA` | Ô nhập, thân bảng, thẻ, panel, popover |
+| Vùng lõm | `sunken #E1DBCE` | Đầu bảng, skeleton, ô disabled |
+| Khung mực | `ink-950 #0F1215` | Masthead admin/khách, sidebar cổng tài xế, Navbar/Footer công khai |
+| Chữ | `ink`, `ink-2`, `ink-3` | Chính, phụ, metadata (đều ≥ 4.5:1 trên giấy) |
+| Đường kẻ | `line`, `line-strong`; rule đậm `ink` | Hairline, viền ô nhập/thẻ; rule đầu khối |
+
+- **Màu nhấn trên giấy:** `primary` = `sun-700 #A83C16` cho CTA, link, trạng thái chọn, focus (chữ trắng trên nền primary 6.3:1). `sun-600` chỉ dùng cho mảng màu lớn hoặc đồ họa, không làm chữ nhỏ trên giấy (3.7:1).
+- **Nhấn phụ:** `td-teal` = `lake-700 #0D5F87` (từ nhấn trong tiêu đề, nhãn kỹ thuật).
+- **Màu nhấn trên khung mực:** chữ `bone-100` / `bone-100/72`, hover và nhãn nhấn `sun-400`. Không dùng `primary` làm chữ trên nền mực.
+- **Trạng thái:** `success`, `warning`, `danger`, `info` và nền `*-bg` của chúng, luôn kèm icon + chữ.
+- Chỉ một theme sáng (giấy + mực). Không có chế độ tối, không có nút đổi theme.
+
+### A15.2 Hình học
+
+- Góc vuông cho mọi thứ: nút, ô nhập, thẻ, bảng, dialog, badge, tab. Thang `rounded-*` của Tailwind đã bị đặt về 0 trong `globals.css`.
+- `rounded-full` chỉ cho phần tử vuông thành đĩa: avatar, chấm trạng thái, nút icon trên khung mực. Không dùng cho phần tử chữ nhật (pill badge, pill tab, chip, nút pill).
+- Không kính, không `backdrop-filter`, không gradient. Các lớp `glass-*` là bề mặt đặc góc vuông.
+- Bóng chỉ cho lớp nổi (popover, dialog, drawer) qua `shadow-e2`/`shadow-e3`. Thẻ và panel phẳng, tách nhau bằng viền.
+
+### A15.3 Chữ
+
+- `h1`, `h2` dùng Archivo (`--font-display`) mặc định qua `globals.css`. Phần còn lại dùng Be Vietnam Pro.
+- `font-mono` chỉ cho dữ liệu: mã đơn, biển số, số liệu, thời gian. Không dùng nhãn mono kiểu HUD làm trang trí (ví dụ `SYS-INIT`, `// TELEMETRY`, toạ độ giả).
+
+### A15.4 Chuyển động
+
+Chỉ phản hồi chức năng (hover, focus, mở/đóng). Không parallax, không scroll-scrub, không chuyển cảnh điện ảnh trong trang app. Hiệu ứng đó chỉ thuộc landing (A14.4).
+
+### A15.5 Quy tắc viết code
+
+- Màu chỉ đi qua token trong `globals.css` (`bg-canvas`, `bg-surface`, `text-ink`, `bg-primary`, `td-*`, `ink-950`, `bone-100`, `sun-*`, `lake-*`). Không viết hex hay rgba trong class, style inline hoặc CSS module, trừ khi định nghĩa token.
+- Không thêm `border-radius` khác `0`/`50%` trong CSS module.
+- Đổi style không được đổi hành vi: giữ nguyên `id`, `aria-*`, `data-testid`, validation, phân quyền và request API.
+- Kiểm tra bằng `node scripts/design-sweep.mjs <tag> http://localhost:3000 <prefixes>`: số phần tử bo góc, kính và màu cũ trên mỗi route phải về 0, trừ đĩa hợp lệ.
 
 ---
 

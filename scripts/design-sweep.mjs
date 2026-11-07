@@ -1,6 +1,6 @@
 // Visits every app route with a mocked API and signed-in Admin+Customer profile,
 // then records how far each page is from the landing visual language (DESIGN.md A14).
-// Usage: node scripts/design-sweep.mjs <tag> [baseUrl]
+// Usage: node scripts/design-sweep.mjs <tag> [baseUrl] [routePrefixes without leading slash, comma-separated]
 // Output: test-results/design-sweep/<tag>/{report.json,*.png}
 import { chromium } from "@playwright/test";
 import fs from "node:fs";
@@ -10,6 +10,8 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const tag = process.argv[2] ?? "current";
 const base = process.argv[3] ?? "http://localhost:3000";
+// Prefixes are given without the leading slash (e.g. "admin,staff") so Git Bash does not rewrite them into paths.
+const prefixes = (process.argv[4] ?? "").split(",").filter(Boolean).map((p) => "/" + p.replace(/^\/+/, ""));
 const outDir = path.join(root, "test-results", "design-sweep", tag);
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -104,7 +106,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, red
 let current = "/";
 await mockApi(page, () => current);
 const report = {};
-for (const route of routesFromAppDir()) {
+for (const route of routesFromAppDir().filter((r) => !prefixes.length || prefixes.some((p) => r.startsWith(p)))) {
   current = route;
   try {
     await page.context().clearCookies();
