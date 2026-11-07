@@ -10,10 +10,17 @@ import { useEffect } from "react";
 import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
 import { getNavigation } from "@/config/navigation";
 import { useMounted } from "@/hooks/use-mounted";
-import { Button } from "@/components/ui/Button";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger, Flip } from "@/lib/motion/register";
 import styles from "./Navbar.module.css";
+
+// Marketing chrome follows the landing surface (DESIGN.md A14.7): ink bar, square corners, sun accent.
+const DESKTOP_LINK = "px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-bone-100/75 hover:text-sun-400 transition-colors";
+const MOBILE_LINK = "block px-3 py-2 text-sm font-semibold text-bone-100 hover:text-sun-400 hover:bg-bone-100/5 transition-colors";
+const ICON_BUTTON = "w-9 h-9 flex items-center justify-center rounded-full border border-bone-100/20 text-bone-100/75 hover:text-sun-400 hover:border-sun-400 transition-colors cursor-pointer";
+const MENU_ITEM = "flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-bone-100/75 hover:text-sun-400 hover:bg-bone-100/5 transition-colors";
+const MENU_ITEM_ACCENT = "flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-sun-400 hover:bg-bone-100/5 transition-colors";
+const CTA = "inline-flex items-center justify-center font-bold bg-sun-600 text-white hover:bg-sun-400 transition-colors";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -102,81 +109,59 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 sm:px-6 pointer-events-none">
+    <header className="fixed top-0 inset-x-0 z-50 pointer-events-none">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs pointer-events-auto"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-sun-600 focus:text-white font-bold text-xs pointer-events-auto"
       >
         Bỏ qua điều hướng
       </a>
       <nav
         ref={navRef}
-        className={`${styles.navbar} glass-1 w-full max-w-6xl rounded-2xl px-5 py-3 pointer-events-auto transition-shadow`}
+        className={`${styles.navbar} w-full bg-ink-950 text-bone-100 border-b border-bone-100/15 px-6 sm:px-12 py-4 pointer-events-auto`}
       >
-        <div className="relative flex items-center justify-between gap-4">
-          {/* Brand Name & Logo */}
+        <div className="relative max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link
             href="/"
             onClick={handleLogoClick}
-            className="flex items-center gap-2 group whitespace-nowrap py-0.5 select-none"
+            className="flex items-center whitespace-nowrap py-0.5 select-none font-display text-xl sm:text-2xl font-black tracking-tight text-bone-100 hover:text-sun-400 transition-colors"
           >
-            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink group-hover:text-primary transition-colors">
-              ThongDong.
-            </span>
+            ThongDong<span className="text-sun-600">.</span>
           </Link>
 
           {/* Desktop Navigation Links — Căn giữa tuyệt đối & Xếp chuẩn theo thứ tự scroll landing page */}
           <div className="hidden lg:flex items-center justify-center gap-1 lg:gap-2 whitespace-nowrap absolute left-1/2 -translate-x-1/2">
-            <Link
-              id="nav-tim-xe"
-              href="/find"
-              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
-            >
+            <Link id="nav-tim-xe" href="/find" className={DESKTOP_LINK}>
               Thuê xe
             </Link>
-            <Link
-              id="nav-chi-nhanh"
-              href="/facilities"
-              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
-            >
+            <Link id="nav-chi-nhanh" href="/facilities" className={DESKTOP_LINK}>
               Chi nhánh
             </Link>
-            <Link
-              href="/#cong-nghe"
-              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
-            >
+            <Link href="/inspection" className={DESKTOP_LINK}>
               Kiểm định
             </Link>
-            <Link
-              href="/#quy-trinh"
-              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
-            >
+            <Link href="/#quy-trinh" className={DESKTOP_LINK}>
               Hướng dẫn
             </Link>
-            <Link
-              href="/#goi-thue-bao"
-              className="px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm font-semibold text-ink-3 hover:text-primary rounded-lg hover:bg-canvas transition-colors"
-            >
+            <Link href="/subscriptions" className={DESKTOP_LINK}>
               Gói thuê bao
             </Link>
           </div>
 
           {/* Right Action buttons */}
           <div className="ml-auto hidden lg:flex items-center gap-2 whitespace-nowrap">
-            {/* Global Theme Toggle with Liquid Wave */}
             <button
               type="button"
               id="theme-toggle"
               data-testid="global-theme-toggle"
               onClick={toggleTheme}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 hover:bg-surface text-ink hover:text-primary hover:border-primary/40 transition-colors cursor-pointer shadow-e1"
+              className={ICON_BUTTON}
               aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
               title={theme === "dark" ? "Giao diện: Tối" : "Giao diện: Sáng"}
             >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-ink-3" />}
+              {theme === "dark" ? <Sun className="w-4 h-4 text-sun-400" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* Global Web Audio Haptic Toggle */}
             <button
               type="button"
               id="global-audio-toggle"
@@ -187,20 +172,20 @@ export default function Navbar() {
                 setIsAudioEnabled(next);
                 if (next) playTactileClick();
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 hover:bg-surface text-ink hover:text-primary hover:border-primary/40 transition-colors cursor-pointer shadow-e1"
+              className={ICON_BUTTON}
               aria-label={isAudioEnabled ? "Tắt âm thanh haptic (Đang bật)" : "Bật âm thanh haptic (Đang tắt)"}
               title={isAudioEnabled ? "Âm thanh: Đang bật" : "Âm thanh: Đang tắt"}
             >
-              {isAudioEnabled ? <Volume2 className="w-4 h-4 text-primary" /> : <VolumeX className="w-4 h-4 text-ink-3" />}
+              {isAudioEnabled ? <Volume2 className="w-4 h-4 text-sun-400" /> : <VolumeX className="w-4 h-4" />}
             </button>
             {mounted && isAuthenticated && user ? (
-              <div>
+              <div className="relative">
                 <button
                   type="button"
                   aria-expanded={userMenuOpen}
                   aria-controls="landing-account-menu"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface-raised border border-line text-sm font-medium text-ink transition-all cursor-pointer shadow-e1"
+                  className="flex items-center gap-2 px-3 py-1.5 border border-bone-100/20 hover:border-sun-400 text-sm font-medium text-bone-100 transition-colors cursor-pointer"
                 >
                   {user.avatarUrl ? (
                     <Image
@@ -209,67 +194,56 @@ export default function Navbar() {
                       width={24}
                       height={24}
                       unoptimized
-                      className="w-6 h-6 rounded-full object-cover ring-1 ring-primary/40"
+                      className="w-6 h-6 rounded-full object-cover ring-1 ring-sun-400/60"
                     />
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-primary-tint text-primary flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-sun-600 text-white flex items-center justify-center text-xs font-bold">
                       {user?.fullName?.charAt(0) || "U"}
                     </div>
                   )}
                   <span className="max-w-[120px] truncate font-semibold text-xs sm:text-sm">
                     {user.fullName}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-ink-3" />
+                  <ChevronDown className="w-3.5 h-3.5 text-bone-100/60" />
                 </button>
 
-                {/* User dropdown menu */}
                 {userMenuOpen && (
-                  <div id="landing-account-menu" className={`${styles.accountMenu} glass-1`}>
-                    <div className="px-3 py-2 border-b border-line mb-1">
-                      <p className="text-xs font-bold text-ink truncate">
+                  <div id="landing-account-menu" className={styles.accountMenu}>
+                    <div className="px-3 py-2 border-b border-bone-100/15 mb-1">
+                      <p className="text-xs font-bold text-bone-100 truncate">
                         {user.fullName}
                       </p>
-                      <p className="text-xs text-ink-3 truncate mt-0.5">
+                      <p className="text-xs text-bone-100/60 truncate mt-0.5">
                         {user.email}
                       </p>
-                      <div className="flex items-center gap-1 mt-1.5">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold bg-primary/10 text-primary">
-                          {hasRole("admin")
-                            ? "Quản trị viên"
-                            : hasRole("manager")
-                              ? "Quản lý"
-                              : hasRole("driver")
-                                ? "Tài xế"
-                                : hasRole("customerservice")
-                                  ? "Chăm sóc khách hàng"
-                                  : hasRole("maintenance")
-                                    ? "Kỹ thuật viên"
-                                    : hasRole("staff")
-                                      ? "Nhân viên"
-                                      : "Khách hàng"}
-                        </span>
-                      </div>
+                      <span className="block mt-1.5 text-[10px] tracking-[0.22em] uppercase font-bold text-sun-400">
+                        {hasRole("admin")
+                          ? "Quản trị viên"
+                          : hasRole("manager")
+                            ? "Quản lý"
+                            : hasRole("driver")
+                              ? "Tài xế"
+                              : hasRole("customerservice")
+                                ? "Chăm sóc khách hàng"
+                                : hasRole("maintenance")
+                                  ? "Kỹ thuật viên"
+                                  : hasRole("staff")
+                                    ? "Nhân viên"
+                                    : "Khách hàng"}
+                      </span>
                     </div>
 
-                    <div className="py-1 border-b border-line mb-1 space-y-0.5">
+                    <div className="py-1 border-b border-bone-100/15 mb-1 space-y-0.5">
                       {hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) && (
-                        <Link
-                          href="/admin"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                        >
-                          <Car className="size-3.5 text-primary" />
+                        <Link href="/admin" onClick={() => setUserMenuOpen(false)} className={MENU_ITEM_ACCENT}>
+                          <Car className="size-3.5" />
                           <span>Cổng quản trị</span>
                         </Link>
                       )}
 
                       {hasRole("driver") && (
-                        <Link
-                          href="/staff"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                        >
-                          <Car className="size-3.5 text-primary" />
+                        <Link href="/staff" onClick={() => setUserMenuOpen(false)} className={MENU_ITEM_ACCENT}>
+                          <Car className="size-3.5" />
                           <span>Cổng tài xế</span>
                         </Link>
                       )}
@@ -277,27 +251,17 @@ export default function Navbar() {
                       {/* Customer Hub Links */}
                       {(hasRole("customer") || !hasAnyRole(user?.roles, STAFF_PORTAL_ROLES)) &&
                         getNavigation(user?.roles, "customer").map(({ href, label, icon: Icon }) => (
-                          <Link
-                            key={href}
-                            href={href}
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                          >
+                          <Link key={href} href={href} onClick={() => setUserMenuOpen(false)} className={MENU_ITEM}>
                             {Icon && <Icon className="size-3.5" />}
                             <span>{label}</span>
                           </Link>
                         ))}
 
-                      <Link
-                        href="/profile"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                      >
+                      <Link href="/profile" onClick={() => setUserMenuOpen(false)} className={MENU_ITEM}>
                         <FileCheck className="size-3.5 opacity-0" />
                         <span>Hồ sơ cá nhân</span>
                       </Link>
-                      <Link href={passwordHref} onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors">
+                      <Link href={passwordHref} onClick={() => setUserMenuOpen(false)} className={MENU_ITEM}>
                         <KeyRound className="size-3.5" aria-hidden="true" />
                         <span>Đổi mật khẩu</span>
                       </Link>
@@ -309,7 +273,7 @@ export default function Navbar() {
                         setUserMenuOpen(false);
                         logout();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-danger hover:bg-danger-bg rounded-lg transition-colors cursor-pointer text-left"
+                      className={`${MENU_ITEM} w-full py-2 cursor-pointer text-left`}
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Đăng xuất</span>
@@ -321,13 +285,13 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="px-3.5 py-2 text-sm font-semibold text-ink-3 hover:text-ink transition-colors cursor-pointer"
+                  className="px-3.5 py-2 text-sm font-semibold text-bone-100/75 hover:text-bone-100 transition-colors cursor-pointer"
                 >
                   Đăng nhập
                 </Link>
-                <Button as={Link} href="/register" variant="marketing-cta" size="sm" className="font-bold px-4 shadow-sm">
+                <Link href="/register" className={`${CTA} min-h-9 px-4 text-xs`}>
                   Đăng ký
-                </Button>
+                </Link>
               </>
             )}
           </div>
@@ -339,11 +303,11 @@ export default function Navbar() {
               id="mobile-theme-toggle"
               data-testid="mobile-theme-toggle"
               onClick={toggleTheme}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 text-ink hover:text-primary transition-colors cursor-pointer"
+              className={ICON_BUTTON}
               aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
               title={theme === "dark" ? "Giao diện: Tối" : "Giao diện: Sáng"}
             >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-ink-3" />}
+              {theme === "dark" ? <Sun className="w-4 h-4 text-sun-400" /> : <Moon className="w-4 h-4" />}
             </button>
             <button
               type="button"
@@ -355,15 +319,15 @@ export default function Navbar() {
                 setIsAudioEnabled(next);
                 if (next) playTactileClick();
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-line bg-surface/80 text-ink hover:text-primary transition-colors cursor-pointer"
+              className={ICON_BUTTON}
               aria-label={isAudioEnabled ? "Tắt âm thanh haptic" : "Bật âm thanh haptic"}
               title={isAudioEnabled ? "Âm thanh: Đang bật" : "Âm thanh: Đang tắt"}
             >
-              {isAudioEnabled ? <Volume2 className="w-4 h-4 text-primary" /> : <VolumeX className="w-4 h-4 text-ink-3" />}
+              {isAudioEnabled ? <Volume2 className="w-4 h-4 text-sun-400" /> : <VolumeX className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-10 h-10 flex items-center justify-center text-ink hover:text-primary rounded-lg hover:bg-canvas transition-colors cursor-pointer ml-0.5"
+              className="w-10 h-10 flex items-center justify-center text-bone-100 hover:text-sun-400 transition-colors cursor-pointer ml-0.5"
               aria-label="Mở menu điều hướng"
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav-menu"
@@ -379,45 +343,25 @@ export default function Navbar() {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className={`${styles.mobileMenu} lg:hidden pt-4 pb-2 border-t border-line mt-3 space-y-1`}>
-            <Link
-              href="/find"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
-            >
+          <div id="mobile-nav-menu" className={`${styles.mobileMenu} lg:hidden max-w-7xl mx-auto pt-4 pb-2 border-t border-bone-100/15 mt-3 space-y-1`}>
+            <Link href="/find" onClick={() => setMobileMenuOpen(false)} className={MOBILE_LINK}>
               Thuê xe
             </Link>
-            <Link
-              href="/facilities"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
-            >
+            <Link href="/facilities" onClick={() => setMobileMenuOpen(false)} className={MOBILE_LINK}>
               Chi nhánh
             </Link>
-            <Link
-              href="/#kiem-dinh"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
-            >
+            <Link href="/inspection" onClick={() => setMobileMenuOpen(false)} className={MOBILE_LINK}>
               Kiểm định
             </Link>
-            <Link
-              href="/#quy-trinh"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
-            >
+            <Link href="/#quy-trinh" onClick={() => setMobileMenuOpen(false)} className={MOBILE_LINK}>
               Hướng dẫn
             </Link>
-            <Link
-              href="/#goi-thue-bao"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-semibold text-ink rounded-lg hover:bg-canvas"
-            >
+            <Link href="/subscriptions" onClick={() => setMobileMenuOpen(false)} className={MOBILE_LINK}>
               Gói thuê bao
             </Link>
-            <div className="pt-3 border-t border-line flex flex-col gap-2">
+            <div className="pt-3 border-t border-bone-100/15 flex flex-col gap-2">
               {mounted && isAuthenticated && user ? (
-                <div className="p-3 border-t border-line">
+                <div className="p-3">
                   <div className="flex items-center gap-2.5 mb-2">
                     {user.avatarUrl ? (
                       <Image
@@ -429,58 +373,40 @@ export default function Navbar() {
                         className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                      <div className="w-8 h-8 rounded-full bg-sun-600 text-white flex items-center justify-center font-bold text-xs">
                         {user?.fullName?.charAt(0) || "U"}
                       </div>
                     )}
                     <div>
-                      <div className="text-sm font-bold text-ink">{user.fullName}</div>
-                      <div className="text-xs text-ink-3">{user.email}</div>
+                      <div className="text-sm font-bold text-bone-100">{user.fullName}</div>
+                      <div className="text-xs text-bone-100/60">{user.email}</div>
                     </div>
                   </div>
 
-                  <div className="py-2 border-y border-line my-2 space-y-1">
+                  <div className="py-2 border-y border-bone-100/15 my-2 space-y-1">
                     {hasAnyRole(user?.roles, STAFF_PORTAL_ROLES) && (
-                      <Link
-                        href="/admin"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-1.5 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors"
-                      >
+                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className={MENU_ITEM_ACCENT}>
                         Cổng quản trị
                       </Link>
                     )}
 
                     {hasRole("driver") && (
-                      <Link
-                        href="/staff"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-3 py-1.5 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors"
-                      >
+                      <Link href="/staff" onClick={() => setMobileMenuOpen(false)} className={MENU_ITEM_ACCENT}>
                         Cổng tài xế
                       </Link>
                     )}
 
                     {(hasRole("customer") || !hasAnyRole(user?.roles, STAFF_PORTAL_ROLES)) &&
                       getNavigation(user?.roles, "customer").map(({ href, label }) => (
-                        <Link
-                          key={href}
-                          href={href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                        >
+                        <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)} className={MENU_ITEM}>
                           {label}
                         </Link>
                       ))}
 
-                    <Link
-                      href="/profile"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block px-3 py-1.5 text-xs font-semibold text-ink hover:text-primary hover:bg-canvas rounded-lg transition-colors"
-                    >
+                    <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className={MENU_ITEM}>
                       Hồ sơ cá nhân
                     </Link>
-                    <Link href={passwordHref} onClick={() => setMobileMenuOpen(false)}
-                      className="block px-3 py-1.5 text-xs font-semibold text-ink hover:text-primary hover:bg-canvas rounded-lg transition-colors">
+                    <Link href={passwordHref} onClick={() => setMobileMenuOpen(false)} className={MENU_ITEM}>
                       Đổi mật khẩu
                     </Link>
                   </div>
@@ -490,7 +416,7 @@ export default function Navbar() {
                       setMobileMenuOpen(false);
                       logout();
                     }}
-                    className="w-full py-2 text-xs font-semibold text-danger bg-danger-bg hover:bg-danger-bg rounded-lg transition-colors cursor-pointer"
+                    className="w-full py-2 text-xs font-semibold text-bone-100 border border-bone-100/20 hover:border-sun-400 hover:text-sun-400 transition-colors cursor-pointer"
                   >
                     Đăng xuất
                   </button>
@@ -500,19 +426,17 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full py-2.5 text-sm font-semibold text-center text-ink bg-canvas rounded-lg block"
+                    className="w-full py-2.5 text-sm font-semibold text-center text-bone-100 border border-bone-100/20 hover:border-sun-400 transition-colors block"
                   >
                     Đăng nhập
                   </Link>
-                  <Button
-                    as={Link}
+                  <Link
                     href="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    variant="primary"
-                    className="w-full"
+                    className={`${CTA} w-full min-h-10 px-4 text-[13px]`}
                   >
                     Đăng ký tài khoản
-                  </Button>
+                  </Link>
                 </>
               )}
             </div>

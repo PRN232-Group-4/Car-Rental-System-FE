@@ -43,10 +43,7 @@ const TRUST_BLADES = [
 export default function TrustChapter() {
   const containerRef = useRef<HTMLElement>(null);
 
-  // Unique Section 3 -> Section 4 Transition: 3D Interlocking Diagonal Vault Gate (`vaultGateWrapRef`)
-  const vaultGateWrapRef = useRef<HTMLDivElement>(null);
-  const leftVaultDoorRef = useRef<HTMLDivElement>(null);
-  const rightVaultDoorRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const blueprintSvgRef = useRef<SVGSVGElement>(null);
@@ -67,8 +64,6 @@ export default function TrustChapter() {
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(
           [
-            leftVaultDoorRef.current,
-            rightVaultDoorRef.current,
             blueprintSvgRef.current,
             spineRef.current,
             posterImgRef.current,
@@ -90,31 +85,29 @@ export default function TrustChapter() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // 1. UNMISTAKABLE SECTION 3 -> SECTION 4 TRANSITION: 3D Interlocking Diagonal Vault Doors!
-        // Two massive interlocking geometric doors (Left Racing Blue `#1177A8` + Right Obsidian `#0F1215`) shear apart diagonally (`xPercent: 0 -> -105% / +105%`) right as the user scrolls from Section 3 into Section 4!
-        if (vaultGateWrapRef.current && leftVaultDoorRef.current && rightVaultDoorRef.current) {
-          const gateTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: vaultGateWrapRef.current,
-              start: "top 92%",
-              end: "bottom 25%",
-              scrub: true,
-            },
-          });
+        // Section 3 -> 4: the paper stage opens as a disc growing from its top edge over the ink of Section 3.
+        // The disc first grows to cover one viewport, then snaps to cover the whole stage so lower content is never clipped.
+        const stage = stageRef.current;
+        if (stage) {
+          const viewportRadius = () => Math.hypot(stage.offsetWidth / 2, window.innerHeight);
+          const stageRadius = () => Math.hypot(stage.offsetWidth / 2, stage.offsetHeight) + 2;
 
-          gateTl
+          gsap
+            .timeline({
+              scrollTrigger: {
+                trigger: stage,
+                start: "top bottom",
+                end: "top 15%",
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            })
             .fromTo(
-              leftVaultDoorRef.current,
-              { xPercent: 0 },
-              { xPercent: -105, ease: "power2.inOut" },
-              0
+              stage,
+              { clipPath: "circle(0px at 50% 0px)" },
+              { clipPath: () => `circle(${viewportRadius()}px at 50% 0px)`, ease: "none", duration: 0.96 }
             )
-            .fromTo(
-              rightVaultDoorRef.current,
-              { xPercent: 0 },
-              { xPercent: 105, ease: "power2.inOut" },
-              0
-            );
+            .to(stage, { clipPath: () => `circle(${stageRadius()}px at 50% 0px)`, ease: "none", duration: 0.04 });
         }
 
         // 2. UNIQUE TYPOGRAPHY MOTION #4: 3D Perspective Word Cascade (Zero black box bug on `TIN CẬY BẰNG`!)
@@ -249,39 +242,13 @@ export default function TrustChapter() {
     <section
       ref={containerRef}
       id="tin-cay"
-      className="relative w-full bg-bone-100 text-ink-950 select-none overflow-hidden"
+      className="relative w-full bg-ink-950 text-ink-950 select-none overflow-hidden"
     >
-      {/* ================= UNIQUE SECTION 3 -> SECTION 4 TRANSITION: 3D INTERLOCKING DIAGONAL VAult GATE ================= */}
-      <div
-        ref={vaultGateWrapRef}
-        aria-hidden="true"
-        className="relative w-full h-[32svh] bg-bone-100 overflow-hidden pointer-events-none flex items-center justify-center"
-      >
-        {/* Underlying Archival Blueprint Seal revealed as the Vault Doors shear open */}
-        <div className="text-center space-y-1">
-          <span className="text-[10px] tracking-[0.32em] uppercase font-sans font-black text-lake-600 block">
-            SECTION 04 // VERIFIED TELEMETRY
-          </span>
-          <div className="w-32 h-[3px] bg-ink-950 mx-auto" />
-        </div>
-
-        {/* Left Racing Blue Diagonal Vault Door */}
-        <div
-          ref={leftVaultDoorRef}
-          style={{ clipPath: "polygon(0% 0%, 62% 0%, 42% 100%, 0% 100%)" }}
-          className="absolute inset-0 w-full h-full bg-lake-600 will-change-transform"
-        />
-
-        {/* Right Obsidian Ink Diagonal Vault Door */}
-        <div
-          ref={rightVaultDoorRef}
-          style={{ clipPath: "polygon(58% 0%, 100% 0%, 100% 100%, 38% 100%)" }}
-          className="absolute inset-0 w-full h-full bg-ink-950 border-b-4 border-lake-400 will-change-transform"
-        />
-      </div>
-
       {/* Main Archival Blueprint Stage */}
-      <div className="relative w-full bg-bone-100 text-ink-950 pt-8 sm:pt-12 pb-24 sm:pb-36 px-8 sm:px-14 lg:px-24 overflow-hidden">
+      <div
+        ref={stageRef}
+        className="relative w-full bg-bone-100 text-ink-950 pt-16 sm:pt-24 pb-24 sm:pb-36 px-8 sm:px-14 lg:px-24 overflow-hidden"
+      >
         {/* Rich Constructivist SVG Blueprint Schematic & Architectural Grid */}
         <svg
           ref={blueprintSvgRef}
