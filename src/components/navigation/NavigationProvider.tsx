@@ -19,7 +19,6 @@ function RouteCommitObserver() {
         if (target && typeof target.focus === "function") {
           if (!target.hasAttribute("tabindex")) {
             target.setAttribute("tabindex", "-1");
-            target.style.outline = "none";
           }
           target.focus({ preventScroll: true });
         }

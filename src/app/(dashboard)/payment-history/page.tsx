@@ -111,10 +111,10 @@ export default function LichSuThanhToanPage() {
         </div>
 
         <div className="p-6 rounded bg-td-white border border-td-rule">
-          <div className="text-xs font-bold uppercase tracking-wider text-primary-graphic mb-1">
+          <div className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
             Tiền cọc đang giữ / chờ duyệt
           </div>
-          <div className="text-2xl font-bold text-primary-graphic">
+          <div className="text-2xl font-bold text-primary">
             {formatVnd(depositHolding)}
           </div>
           <div className="text-xs text-td-muted mt-1">Chờ biên bản hậu kiểm định</div>

@@ -18,11 +18,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock Shell & AuthGate
-vi.mock("@/features/admin/StaffShell", () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  StaffShell: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
 vi.mock("@/features/auth/AuthGate", () => ({
   AuthGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,

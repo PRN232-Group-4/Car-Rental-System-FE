@@ -25,7 +25,7 @@
   --amber-press: var(--primary-press);
   --amber-tint: var(--primary-tint);
 
-  --primary: #A83C16;
+  --primary: var(--sun-700);
   --primary-hover: #8A3112;
   --primary-press: #73280E;
   --primary-tint: #F5E0D5;
@@ -99,7 +99,7 @@
   --td-rule: var(--line);
   --td-oxide: var(--primary);
   --td-oxide-hover: var(--primary-hover);
-  --td-teal: #0D5F87;
+  --td-teal: var(--lake-700);
   --td-teal-hover: #0A4C6C;
   --td-cobalt: var(--primary-graphic);
   --td-chalk: var(--sunken);
@@ -117,8 +117,10 @@
   --ink-800: #181D22;
   --bone-100: #E9E4D8;
   --sun-600: #C84B20;
+  --sun-700: #A83C16;
   --sun-400: #E0662F;
   --lake-600: #1177A8;
+  --lake-700: #0D5F87;
   --lake-400: #3DA5D9;
   --rule: rgba(233, 228, 216, 0.18);
   --dur-120: 120ms;
@@ -284,8 +286,10 @@ html:has([data-portal="admin"]) {
   --color-ink-800: var(--ink-800);
   --color-bone-100: var(--bone-100);
   --color-sun-600: var(--sun-600);
+  --color-sun-700: var(--sun-700);
   --color-sun-400: var(--sun-400);
   --color-lake-600: var(--lake-600);
+  --color-lake-700: var(--lake-700);
   --color-lake-400: var(--lake-400);
   --color-white: #ffffff;
   --color-rule: var(--rule);
@@ -498,6 +502,12 @@ main {
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* Route changes move focus to a non-interactive main/h1 (tabindex="-1") for screen readers.
+   It is not reachable by Tab, so it does not need a visible ring. */
+:where(main, h1, #main-content)[tabindex="-1"]:focus {
+  outline: none;
 }
 
 /* Scrollbar */
