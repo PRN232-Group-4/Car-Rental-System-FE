@@ -26,11 +26,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Kiểm tra trường bắt buộc, định dạng/khoảng giá trị, lỗi API và lỗi mạng khi thay đổi form.
 - Ưu tiên tái sử dụng `src/components/forms/inline-validation.tsx` (`useInlineValidation`, `ValidatedForm`, `InlineInput/InlineSelect/InlineTextarea`). Mỗi form độc lập dùng một validation riêng; lỗi nghiệp vụ nhiều trường truyền qua `validate`, lỗi API dùng `report`, lỗi upload dùng `setField` để giữ lỗi của các trường khác.
 
+## Quy tắc bắt buộc: ngôn ngữ thiết kế
+
+- Landing `/` theo `DESIGN.md` A14; mọi trang còn lại (công khai, đăng nhập, dashboard khách, cổng tài xế, Admin) theo A15: thân giấy `bone-100`, khung mực `ink-950`, nhấn `primary` (sun-700), góc vuông, không kính, không gradient, một theme duy nhất.
+- Màu chỉ đi qua token trong `src/app/globals.css`; không viết hex trong class, style inline hay CSS module. `npm run lint:design` chặn bo góc khác 0/đĩa tròn, hex trong CSS module và selector theme tối.
+- Khi đổi giao diện, chạy `node scripts/design-sweep.mjs <tag> http://localhost:3000 <tiền tố route không có dấu />` và xem ảnh chụp; số phần tử bo góc, kính và màu cũ phải về 0.
+
 ## Quy tắc bắt buộc: đồng bộ giao diện Admin
 
-- Khi tạo hoặc sửa `/admin/**` hay component dùng trong Admin, đọc và tuân theo `docs/admin-ui.md` cùng Phần A9 của `DESIGN.md` (Transit Desk: folio + sổ mở).
+- Khi tạo hoặc sửa `/admin/**` hay component dùng trong Admin, đọc và tuân theo `docs/admin-ui.md`, Phần A9 (Transit Desk: folio + sổ mở) và Phần A15 (bề mặt giấy/mực, góc vuông) của `DESIGN.md`.
 - Trang cấp 1 mở bằng `TransitFolio`; bộ lọc/tìm kiếm/tra cứu dùng `AdminFilterBar`, `AdminFilterField`, `AdminFilterButton`; bảng danh sách dùng `AdminTableCard`, `AdminTable`, `AdminTableEmptyRow` (hoặc `DataTable` khi có sắp xếp); trạng thái dùng `AdminStatusBadge`. Không tự dựng style riêng cho từng trang nếu component chung đã đáp ứng, và không dùng pill `StatusBadge` trong Admin.
-- Thay đổi màu, bo góc, kích thước control hoặc bố cục chung tại component dùng chung; dùng token `td-*` trong `globals.css` (CTA `td-oxide`, rule `td-ink`/`td-rule`, bo 4px/6px). Viền đậm `border-td-ink` chỉ dùng làm rule đầu bảng/khối — không dùng làm khung card; không lồng card, không shadow, không toolbar tràn ngang.
+- Thay đổi màu, bo góc, kích thước control hoặc bố cục chung tại component dùng chung; dùng token `td-*` trong `globals.css` (CTA `td-oxide`, rule `td-ink`/`td-rule`, góc vuông). Viền đậm `border-td-ink` chỉ dùng làm rule đầu bảng/khối — không dùng làm khung card; không lồng card, không shadow, không toolbar tràn ngang.
 - Giữ nguyên phân quyền, validation, điều kiện lọc và request API khi chỉ sửa style. Kiểm tra desktop/mobile, lỗi inline, áp dụng và đặt lại bộ lọc trước khi hoàn tất.
 
 ## Quy tắc bắt buộc: popup tạo và chỉnh sửa Admin

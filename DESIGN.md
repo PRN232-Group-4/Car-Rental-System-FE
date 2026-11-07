@@ -1,6 +1,6 @@
 # Design System — Hệ Thống Thuê Xe Thong Dong (Vehicle Rental System)
 
-> **Phiên bản 3.1 — Light Editorial Automotive Blueprint, Warm Canvas, Zero-Gradient.**
+> **Phiên bản 4.0 — Constructivist Lithograph cho toàn hệ thống.** Landing theo A14, mọi trang còn lại theo A15 (giấy bone, khung mực ink, nhấn sun, góc vuông, một theme). Các mục A1–A13 còn hiệu lực ở phần không mâu thuẫn với A14/A15 (bố cục, mật độ, trợ năng, quy tắc admin); màu, kính, bo góc, theme tối và chuyển động điện ảnh trong A1–A13 đã được A14/A15 thay thế.
 >
 > Tài liệu gồm hai phần:
 >
