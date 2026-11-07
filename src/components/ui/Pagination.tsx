@@ -102,7 +102,7 @@ export function Pagination({
               onChange={(e) => {
                 onPageSizeChange(Number(e.currentTarget.value));
               }}
-              className="rounded border border-td-rule bg-transparent px-2 py-1 text-[11px] text-td-ink outline-none transition focus:border-primary disabled:opacity-50"
+              className="border border-td-rule bg-transparent px-2 py-1 text-[11px] text-td-ink outline-none transition focus:border-primary disabled:opacity-50"
               aria-label={`Số ${itemName} mỗi trang`}
             >
               {pageSizeOptions.map((size) => (
@@ -124,7 +124,7 @@ export function Pagination({
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage <= 1 || loading}
           aria-label="Trang trước"
-          className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
+          className="border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -152,7 +152,7 @@ export function Pagination({
               aria-label={`Trang ${item}`}
               aria-current={isCurrent ? "page" : undefined}
               className={cn(
-                "h-8 min-w-8 rounded px-2 text-[11px] font-bold tabular-nums transition",
+                "h-8 min-w-8 px-2 text-[11px] font-bold tabular-nums transition",
                 isCurrent
                   ? "bg-primary text-white"
                   : "border border-td-rule text-td-ink hover:bg-td-chalk",
@@ -169,7 +169,7 @@ export function Pagination({
           onClick={() => onPageChange(Math.min(pageCount, currentPage + 1))}
           disabled={currentPage >= pageCount || loading}
           aria-label="Trang tiếp theo"
-          className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
+          className="border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>

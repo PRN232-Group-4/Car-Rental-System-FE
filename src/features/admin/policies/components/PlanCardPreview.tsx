@@ -22,7 +22,7 @@ export function PlanCardPreview({ plan, subscribersCount }: PlanCardPreviewProps
   const hourlyRate = calculateHourlyRate(price, hours);
 
   return (
-    <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+    <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-td-muted block mb-1">

@@ -186,7 +186,7 @@ export default function AppPortalShell({
             <AccountAvatar
               src={user.avatarUrl}
               name={user.name}
-              className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-sm font-bold text-white shadow-sm"
+              className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-sm font-bold text-white"
             />
             <span className={styles.sidebarText}>
               <span className="block truncate text-sm font-bold text-td-ink">
@@ -242,7 +242,7 @@ export default function AppPortalShell({
     >
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:shadow-e2 font-bold text-xs"
       >
         Bỏ qua điều hướng
       </a>
@@ -344,7 +344,7 @@ export default function AppPortalShell({
                 <AccountAvatar
                   src={user.avatarUrl}
                   name={user.name}
-                  className="h-8 w-8 rounded-full bg-primary/10 text-xs font-bold text-primary"
+                  className="h-8 w-8 rounded-full bg-primary-tint text-xs font-bold text-primary"
                 />
                 <span className="hidden xl:block max-w-[120px] truncate text-xs font-bold text-td-ink text-left">
                   {user.name}
@@ -358,7 +358,7 @@ export default function AppPortalShell({
 
               {headerProfileOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-64 rounded border border-td-rule bg-td-white p-3 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 mt-2 w-64 rounded border border-td-rule bg-td-white p-3 shadow-e2 z-50 animate-in fade-in zoom-in-95 duration-150"
                   role="menu"
                   aria-label="Tuỳ chọn tài khoản"
                 >
@@ -366,7 +366,7 @@ export default function AppPortalShell({
                     <AccountAvatar
                       src={user.avatarUrl}
                       name={user.name}
-                      className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-xs font-bold text-white shadow-sm"
+                      className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-xs font-bold text-white"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-bold text-td-ink">{user.name}</p>

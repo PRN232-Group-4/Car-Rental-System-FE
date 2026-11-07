@@ -159,7 +159,7 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
 
           {/* Stacked Telemetry Bar */}
           <div className="mt-3">
-            <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-td-chalk">
+            <div className="flex h-2.5 w-full overflow-hidden bg-td-chalk">
               <div
                 style={{ width: `${Math.min(Number(data.utilizationRate.value || 0), 100)}%` }}
                 className="bg-td-oxide transition-all duration-500"
@@ -173,11 +173,11 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
             </div>
             <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-td-muted">
               <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-td-oxide" />
+                <span className="h-1.5 w-1.5 bg-td-oxide" />
                 Lăn bánh: {rentingCount} xe
               </span>
               <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-td-chalk border border-td-rule" />
+                <span className="h-1.5 w-1.5 bg-td-chalk border border-td-rule" />
                 Tại bãi: {idleCount} xe
               </span>
             </div>
@@ -200,7 +200,7 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
               <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
             {maintenanceCount !== null && maintenanceCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-warning-bg px-1.5 py-0.5 text-[10px] font-bold text-warning">
+              <span className="inline-flex items-center gap-0.5 bg-warning-bg px-1.5 py-0.5 text-[10px] font-bold text-warning">
                 <AlertCircle className="h-2.5 w-2.5" aria-hidden="true" />
                 <span>Cần theo dõi</span>
               </span>
@@ -231,7 +231,7 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
             <span className="flex h-7 w-7 items-center justify-center text-td-oxide">
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-1.5 py-0.5 text-[10px] font-bold text-success font-mono">
+            <span className="inline-flex items-center gap-1 bg-success-bg px-1.5 py-0.5 text-[10px] font-bold text-success font-mono">
               <Zap className="h-2.5 w-2.5" />
               {rentalsTrend.text}
             </span>

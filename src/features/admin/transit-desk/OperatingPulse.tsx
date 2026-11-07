@@ -237,7 +237,7 @@ export function OperatingPulse() {
         </div>
 
         {/* Right: Instrument Plate (Công cụ phân phối đội xe) */}
-        <aside aria-busy={fleetQuery.isPending} className="lg:col-span-5 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between relative overflow-hidden shadow-sm">
+        <aside aria-busy={fleetQuery.isPending} className="lg:col-span-5 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between relative overflow-hidden">
           <div>
             <div className="flex items-center justify-between border-b border-td-rule pb-3">
               <span className="font-mono text-[10px] uppercase tracking-wider text-td-muted">

@@ -245,9 +245,9 @@ function FindCatalogContent() {
                 key={tab.value}
                 type="button"
                 onClick={() => updateFilters({ category: tab.value as FindFilterState["category"] })}
-                className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
+                className={`whitespace-nowrap px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-white"
                     : "border border-line bg-surface text-ink-2 hover:bg-surface-raised"
                 }`}
               >
@@ -261,7 +261,7 @@ function FindCatalogContent() {
         <button
           type="button"
           onClick={() => setMobileDrawerOpen(true)}
-          className="lg:hidden flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-2 text-xs font-bold text-ink shadow-xs hover:bg-sunken shrink-0 cursor-pointer"
+          className="lg:hidden flex items-center gap-2 border border-line bg-surface px-3.5 py-2 text-xs font-bold text-ink hover:bg-sunken shrink-0 cursor-pointer"
         >
           <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
           <span>Bộ lọc</span>
@@ -276,7 +276,7 @@ function FindCatalogContent() {
       {/* 3. Bố cục 2 cột (Desktop Sidebar + Catalog Grid) */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
         {/* Desktop Sidebar (>= 1024px) */}
-        <aside className="hidden lg:block sticky top-28 rounded-2xl border border-line bg-surface p-5 shadow-e1">
+        <aside className="hidden lg:block sticky top-28 border border-line bg-surface p-5">
           <VehicleFilters
             filters={filters}
             facilities={facilities}
@@ -288,7 +288,7 @@ function FindCatalogContent() {
         {/* Main Content Area */}
         <main className="w-full flex flex-col min-w-0">
           {/* Thanh Tìm kiếm văn bản, Đếm kết quả & Sắp xếp */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 shadow-e1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-line bg-surface p-4">
             <form onSubmit={handleSearchSubmit} className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3" />
               <input
@@ -296,11 +296,11 @@ function FindCatalogContent() {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Tìm theo tên xe, hãng xe, đời xe hoặc trạm..."
-                className="w-full rounded-xl border border-line bg-canvas pl-9 pr-20 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:bg-surface focus:outline-none"
+                className="w-full border border-line bg-canvas pl-9 pr-20 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:bg-surface focus:outline-none"
               />
               <button
                 type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-primary hover:bg-primary-hover px-3 py-1 text-[11px] font-bold text-white transition-colors cursor-pointer"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary-hover px-3 py-1 text-[11px] font-bold text-white transition-colors cursor-pointer"
               >
                 Tìm
               </button>
@@ -317,7 +317,7 @@ function FindCatalogContent() {
                   value={filters.sort}
                   onChange={(e) => updateFilters({ sort: e.target.value as FindFilterState["sort"] })}
                   aria-label="Sắp xếp danh sách xe"
-                  className="rounded-xl border border-line bg-canvas px-2.5 py-1.5 text-xs font-bold text-ink transition-colors focus:border-primary focus:outline-none cursor-pointer"
+                  className="border border-line bg-canvas px-2.5 py-1.5 text-xs font-bold text-ink transition-colors focus:border-primary focus:outline-none cursor-pointer"
                 >
                   {SORT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -373,7 +373,7 @@ function FindCatalogContent() {
                     <span>Đặt lại toàn bộ bộ lọc</span>
                   </Button>
                 }
-                className="my-12 rounded-2xl border border-line bg-surface shadow-e1"
+                className="my-12 border border-line bg-surface"
               />
             ) : (
               <div
@@ -440,11 +440,11 @@ function FindCatalogContent() {
 function FindPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
-      <div className="h-10 w-64 rounded-xl bg-sunken" />
-      <div className="mt-3 h-4 w-96 rounded bg-sunken/60" />
+      <div className="h-10 w-64 bg-sunken" />
+      <div className="mt-3 h-4 w-96 bg-sunken/60" />
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-80 rounded-2xl bg-sunken" />
+          <div key={i} className="h-80 bg-sunken" />
         ))}
       </div>
     </div>

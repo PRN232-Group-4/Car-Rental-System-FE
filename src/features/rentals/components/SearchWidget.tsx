@@ -199,7 +199,7 @@ export default function SearchWidget({
               )}
             </div>
             {typeof fac.availableVehicles === "number" && (
-              <span className={`text-xs font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
+              <span className={`text-xs font-mono px-2 py-0.5 font-bold shrink-0 ${
                 facilityId === fac.id ? "bg-white/20 text-white" : "bg-sunken text-primary font-bold"
               }`}>
                 {fac.availableVehicles} xe
@@ -365,7 +365,7 @@ export default function SearchWidget({
       </div>
 
       {/* Main Single-Deck Floating Console with .glass-2 */}
-      <div className="glass-2 rounded-2xl p-2 sm:p-4 border border-white/80 relative max-w-full overflow-hidden sm:overflow-visible shadow-lg">
+      <div className="glass-2 rounded-2xl p-2 sm:p-4 border border-white/80 relative max-w-full overflow-hidden sm:overflow-visible">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Column 1: Trạm nhận xe */}
           <div className="flex-1 min-w-0 relative px-4 py-3 rounded-xl hover:bg-surface/60 transition-colors">
@@ -421,7 +421,7 @@ export default function SearchWidget({
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-50 w-[420px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-3 border border-line-strong shadow-2xl focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
+                        className="z-50 w-[420px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-3 border border-line-strong shadow-e3 focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
                       >
                         {stationListContent}
                       </Popover.Content>
@@ -489,7 +489,7 @@ export default function SearchWidget({
                         align="end"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-50 w-[460px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-5 sm:p-6 border border-line-strong shadow-2xl focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
+                        className="z-50 w-[460px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-5 sm:p-6 border border-line-strong shadow-e3 focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
                       >
                         {timePickerContent}
                       </Popover.Content>

@@ -119,11 +119,11 @@ export function AvailabilityCalendar({
           <button
             type="button"
             onClick={handleResetToday}
-            className="rounded border border-td-rule bg-td-white px-2.5 py-1 text-xs font-semibold text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
+            className="border border-td-rule bg-td-white px-2.5 py-1 text-xs font-semibold text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
           >
             Hôm nay
           </button>
-          <div className="flex items-center border border-td-rule rounded overflow-hidden bg-td-white">
+          <div className="flex items-center border border-td-rule overflow-hidden bg-td-white">
             <button
               type="button"
               onClick={handlePrev}
@@ -147,23 +147,23 @@ export function AvailabilityCalendar({
       {/* 2. Chú thích trực quan (Legend — WCAG: không phụ thuộc độc nhất màu sắc) */}
       <div className="flex flex-wrap items-center gap-4 py-3 text-xs text-td-ink border-b border-td-rule">
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded border border-td-rule bg-td-white inline-block" />
+          <span className="w-3.5 h-3.5 border border-td-rule bg-td-white inline-block" />
           <span>Còn trống</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span
-            className="w-3.5 h-3.5 rounded border border-td-rule bg-td-chalk inline-block bg-[url('data:image/svg+xml,%3Csvg%20width=%278%27%20height=%278%27%20viewBox=%270%200%208%208%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20d=%27M0%208L8%200M-1%201L1%20-1M7%209L9%207%27%20stroke=%27%2364748b%27%20stroke-width=%271.2%27%20stroke-opacity=%270.3%27/%3E%3C/svg%3E')]"
+            className="w-3.5 h-3.5 border border-td-rule bg-td-chalk inline-block bg-[url('data:image/svg+xml,%3Csvg%20width=%278%27%20height=%278%27%20viewBox=%270%200%208%208%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath%20d=%27M0%208L8%200M-1%201L1%20-1M7%209L9%207%27%20stroke=%27%2364748b%27%20stroke-width=%271.2%27%20stroke-opacity=%270.3%27/%3E%3C/svg%3E')]"
           />
           <span>Đã có đơn thuê</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded border border-warning/40 bg-warning-bg flex items-center justify-center">
+          <span className="w-3.5 h-3.5 border border-warning/40 bg-warning-bg flex items-center justify-center">
             <Wrench className="w-2.5 h-2.5 text-warning" />
           </span>
           <span>Bảo trì kỹ thuật</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded border border-dashed border-ink-3/40 bg-td-white flex items-center justify-center">
+          <span className="w-3.5 h-3.5 border border-dashed border-ink-3/40 bg-td-white flex items-center justify-center">
             <Clock className="w-2.5 h-2.5 text-td-muted" />
           </span>
           <span>Đệm giao nhận 60p</span>
@@ -175,7 +175,7 @@ export function AvailabilityCalendar({
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 animate-pulse">
             {Array.from({ length: 14 }).map((_, i) => (
-              <div key={i} className="h-20 rounded bg-td-chalk" />
+              <div key={i} className="h-20 bg-td-chalk" />
             ))}
           </div>
         ) : (
@@ -184,7 +184,7 @@ export function AvailabilityCalendar({
               const formattedDay = formatDate(dayItem.date, "dd/MM");
               const isToday = isSameDay(dayItem.date, nowGmt7());
 
-              let cardStyles = "border-td-rule bg-td-white hover:border-primary cursor-pointer hover:shadow-xs";
+              let cardStyles = "border-td-rule bg-td-white hover:border-primary cursor-pointer";
               let badgeLabel = "Sẵn sàng";
               let badgeStyles = "bg-success-bg text-success";
 
@@ -214,7 +214,7 @@ export function AvailabilityCalendar({
                       handleDateClick(dayItem);
                     }
                   }}
-                  className={`flex flex-col justify-between rounded border p-2.5 transition-all text-left ${cardStyles}`}
+                  className={`flex flex-col justify-between border p-2.5 transition-all text-left ${cardStyles}`}
                   aria-label={`Ngày ${formattedDay}: ${badgeLabel}`}
                 >
                   <div className="flex items-center justify-between">
@@ -222,14 +222,14 @@ export function AvailabilityCalendar({
                       {formattedDay}
                     </span>
                     {isToday && (
-                      <span className="rounded-full bg-primary-tint px-1.5 py-0.2 font-mono text-[9px] font-bold text-primary">
+                      <span className="bg-primary-tint px-1.5 py-0.2 font-mono text-[9px] font-bold text-primary">
                         Hôm nay
                       </span>
                     )}
                   </div>
 
                   <div className="mt-3 flex items-center justify-between gap-1">
-                    <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${badgeStyles}`}>
+                    <span className={`px-1.5 py-0.5 text-[10px] font-bold ${badgeStyles}`}>
                       {badgeLabel}
                     </span>
                     {dayItem.status === "available" && (

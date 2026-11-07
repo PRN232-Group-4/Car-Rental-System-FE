@@ -620,20 +620,9 @@ export default function InteractiveStudio3D() {
       ref={sectionRef}
       className="relative py-14 lg:py-16 px-4 sm:px-6 lg:px-8 w-full bg-stage-ink text-white border-y border-line-strong scroll-mt-24 overflow-hidden"
     >
-      {/* Monumental Chapter Numeral */}
-      <span 
-        aria-hidden="true" 
-        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-white/10 select-none pointer-events-none absolute right-8 top-2 z-0 opacity-40"
-      >
-        04
-      </span>
-
       {/* Section Header */}
       <div className="relative z-10 max-w-[1680px] mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
-          <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase block mb-2">
-            TRẠM MÔ PHỎNG KIỂM ĐỊNH KỸ THUẬT SỐ // TỶ LỆ NGUYÊN BẢN 1:1
-          </span>
           <h2 data-kinetic-skew="true" className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight text-balance">
             Trạm mô&#160;phỏng kiểm&#160;định xe kỹ&#160;thuật&#160;số
           </h2>
@@ -648,7 +637,7 @@ export default function InteractiveStudio3D() {
         {/* Mobile Editorial Card Fallback (DESIGN.md A8) */}
         {!isMobileActive && (
           <div className="lg:hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-stage-ink border border-white/15">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-primary flex items-center justify-center mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-sun-400 flex items-center justify-center mb-3">
               <Box className="w-6 h-6 stroke-[2]" aria-hidden="true" />
             </div>
             <h3 className="font-display text-lg font-bold text-white mb-1">
@@ -734,10 +723,10 @@ export default function InteractiveStudio3D() {
 
         {/* Active Hotspot Glass Popover Card (Docked Top-Left below switcher) */}
         {activeHotspot && (
-          <div className="absolute top-20 left-4 sm:left-6 max-w-sm z-30 p-5 rounded-2xl glass-ink border border-white/20 text-white shadow-xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="absolute top-20 left-4 sm:left-6 max-w-sm z-30 p-5 rounded-2xl glass-ink border border-white/20 text-white shadow-e3 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-3 mb-2">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-bold px-2 py-0.5 rounded bg-primary/20">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-sun-400 font-bold px-2 py-0.5 rounded bg-primary/20">
                   {activeHotspot.subtitle}
                 </span>
                 <h4 className="font-display text-base font-bold text-white mt-1">
@@ -762,7 +751,7 @@ export default function InteractiveStudio3D() {
         {/* Loading Overlay with Progress Counter */}
         {isLoading && (
           <div className="absolute inset-0 glass-ink z-20 flex flex-col items-center justify-center p-6 text-center">
-            <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+            <Loader2 className="w-10 h-10 text-sun-400 animate-spin mb-4" />
             <h4 className="font-display text-base font-bold text-white mb-1">
               Đang nạp mô hình 3D {activeModel.name}...
             </h4>
@@ -770,7 +759,7 @@ export default function InteractiveStudio3D() {
               Dữ liệu mô phỏng vật lý đa giác cao · {loadingProgress}%
             </p>
             {/* Progress Bar */}
-            <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-48 h-1.5 bg-white/10 overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-200"
                 style={{ width: `${loadingProgress}%` }}
@@ -798,7 +787,7 @@ export default function InteractiveStudio3D() {
 
         {/* 1. Top-Left Floating Dock: Model Selector */}
         <div className="absolute top-4 left-4 z-20 flex items-center gap-2 pointer-events-auto">
-          <div className="glass-ink p-1.5 rounded-2xl border border-white/15 shadow-sm flex items-center gap-1.5">
+          <div className="glass-ink p-1.5 rounded-2xl border border-white/15 flex items-center gap-1.5">
             {MODELS.map((model) => (
               <button
                 key={model.id}
@@ -809,7 +798,7 @@ export default function InteractiveStudio3D() {
                 }}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 select-none ${
                   selectedModelId === model.id
-                    ? "bg-primary text-white shadow-sm border border-primary/40"
+                    ? "bg-primary text-white border border-primary/40"
                     : "hover:bg-white/10 text-white/70 hover:text-white"
                 }`}
               >
@@ -830,8 +819,8 @@ export default function InteractiveStudio3D() {
 
         {/* 2. Top-Right Floating Dock: Colorway Palette */}
         <div className="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-3 pointer-events-auto">
-          <div className="glass-ink px-3.5 py-2 rounded-2xl border border-white/15 shadow-sm flex items-center gap-2.5">
-            <Palette className="w-4 h-4 text-primary shrink-0" />
+          <div className="glass-ink px-3.5 py-2 rounded-2xl border border-white/15 flex items-center gap-2.5">
+            <Palette className="w-4 h-4 text-sun-400 shrink-0" />
             <div className="flex items-center gap-1.5">
               {COLORWAYS.map((c) => (
                 <button
@@ -840,7 +829,7 @@ export default function InteractiveStudio3D() {
                   onClick={() => handleSelectColor(c.hex)}
                   className={`w-5 h-5 rounded-full border-2 transition-transform cursor-pointer ${
                     selectedColor === c.hex
-                      ? "border-primary scale-125 shadow-sm ring-2 ring-primary/40"
+                      ? "border-primary scale-125 ring-2 ring-primary/40"
                       : "border-white/30 hover:scale-110"
                   }`}
                   style={{ backgroundColor: c.hex }}
@@ -857,8 +846,8 @@ export default function InteractiveStudio3D() {
 
         {/* 3. Bottom-Left Floating Dock: Navigation Guidance & Camera Controls */}
         <div className="absolute bottom-4 left-4 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
-          <div className="glass-ink px-3.5 py-2 rounded-full border border-white/15 flex items-center gap-2 text-xs font-mono text-white/70 shadow-sm">
-            <Compass className="w-3.5 h-3.5 text-primary" />
+          <div className="glass-ink px-3.5 py-2 border border-white/15 flex items-center gap-2 text-xs font-mono text-white/70">
+            <Compass className="w-3.5 h-3.5 text-sun-400" />
             <span className="hidden sm:inline">Giữ &amp; kéo chuột xoay 360° · Nhấp vào điểm tiêu cự trên thân xe</span>
             <span className="sm:hidden">Vuốt để xoay xe</span>
           </div>
@@ -870,7 +859,7 @@ export default function InteractiveStudio3D() {
                 setIsAutoRotate(!isAutoRotate);
                 playTactileClick();
               }}
-              className={`px-3 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm border ${
+              className={`px-3 py-2 text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                 isAutoRotate
                   ? "bg-primary text-white border-primary"
                   : "glass-ink text-white/70 hover:text-white border-white/15"
@@ -883,7 +872,7 @@ export default function InteractiveStudio3D() {
             <button
               type="button"
               onClick={handleResetCamera}
-              className="glass-ink p-2 rounded-full text-white/70 hover:text-white transition-colors border border-white/15 shadow-sm cursor-pointer"
+              className="glass-ink p-2 rounded-full text-white/70 hover:text-white transition-colors border border-white/15 cursor-pointer"
               title="Đặt lại góc nhìn ban đầu"
               aria-label="Đặt lại góc nhìn"
             >
@@ -894,7 +883,7 @@ export default function InteractiveStudio3D() {
 
         {/* 4. Bottom-Right Floating Dock: Direct Booking CTA */}
         <div className="absolute bottom-4 right-4 z-20 hidden sm:flex items-center gap-2 pointer-events-auto">
-          <div className="glass-ink p-1.5 rounded-2xl border border-white/15 shadow-sm">
+          <div className="glass-ink p-1.5 rounded-2xl border border-white/15">
             <Button
               type="button"
               onClick={() => {
@@ -919,7 +908,7 @@ export default function InteractiveStudio3D() {
             <span className="text-[11px] font-sans text-white/60 block mb-1">Cấu hình động cơ</span>
             <span className="font-mono text-base font-bold text-white tracking-tight">{activeModel.engine}</span>
           </div>
-          <Cpu className="w-5 h-5 text-primary shrink-0 opacity-80" />
+          <Cpu className="w-5 h-5 text-sun-400 shrink-0 opacity-80" />
         </div>
 
         <div className="flex items-center justify-between border-b lg:border-b-0 pb-4 lg:pb-0 border-white/10">
@@ -927,7 +916,7 @@ export default function InteractiveStudio3D() {
             <span className="text-[11px] font-sans text-white/60 block mb-1">Công suất cực đại</span>
             <span className="font-mono text-base font-bold text-white tracking-tight">{activeModel.power}</span>
           </div>
-          <Gauge className="w-5 h-5 text-primary shrink-0 opacity-80" />
+          <Gauge className="w-5 h-5 text-sun-400 shrink-0 opacity-80" />
         </div>
 
         <div className="flex items-center justify-between border-b lg:border-b-0 pb-4 lg:pb-0 border-white/10">
@@ -935,7 +924,7 @@ export default function InteractiveStudio3D() {
             <span className="text-[11px] font-sans text-white/60 block mb-1">Tốc độ tối đa</span>
             <span className="font-mono text-base font-bold text-white tracking-tight">{activeModel.topSpeed}</span>
           </div>
-          <Rotate3d className="w-5 h-5 text-primary shrink-0 opacity-80" />
+          <Rotate3d className="w-5 h-5 text-sun-400 shrink-0 opacity-80" />
         </div>
 
         <div className="flex items-center justify-between pb-4 lg:pb-0">
@@ -943,7 +932,7 @@ export default function InteractiveStudio3D() {
             <span className="text-[11px] font-sans text-white/60 block mb-1">Tiêu chuẩn an toàn</span>
             <span className="font-mono text-sm font-bold text-white tracking-tight">Biên bản số 60s · Hoàn cọc 15p</span>
           </div>
-          <Box className="w-5 h-5 text-primary shrink-0 opacity-80" />
+          <Box className="w-5 h-5 text-sun-400 shrink-0 opacity-80" />
         </div>
       </div>
     </section>

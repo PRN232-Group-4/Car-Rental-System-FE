@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Clock, Phone, Car, ArrowUpRight, Compass, ShieldCheck } from "lucide-react";
+import { MapPin, Clock, Phone, Car, ArrowUpRight, ShieldCheck } from "lucide-react";
 import Link from "@/components/navigation/NavigationLink";
 import { getFacilities, getInitialFacilities } from "../api";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -83,13 +83,6 @@ export default function FacilityExplorer({
 
   return (
     <section id="chi-nhanh" className="mx-auto w-full max-w-[1480px] xl:max-w-[1600px] scroll-mt-28 px-4 sm:px-6 lg:px-12 py-14 sm:py-16 relative overflow-hidden">
-      {/* Monumental Chapter Numeral */}
-      <span 
-        aria-hidden="true" 
-        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-8 top-2 z-0 opacity-40"
-      >
-        03
-      </span>
 
       <div data-kinetic-skew="true">
         <SectionHeading 
@@ -113,9 +106,9 @@ export default function FacilityExplorer({
                   type="button"
                   aria-pressed={selected}
                   onClick={() => handleSelectFacility(facility.id)}
-                  className={`group flex w-full items-start justify-between gap-4 rounded-2xl border p-5 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer ${
+                  className={`group flex w-full items-start justify-between gap-4 border p-5 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer ${
                     selected 
-                      ? "border-primary bg-surface shadow-sm ring-1 ring-primary/20" 
+                      ? "border-primary bg-surface ring-1 ring-primary/20" 
                       : "border-line-strong bg-surface hover:border-primary/50"
                   }`}
                 >
@@ -135,7 +128,7 @@ export default function FacilityExplorer({
                     )}
                   </span>
                   <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center transition-colors ${
                       selected ? "bg-primary text-white" : "bg-sunken text-ink-3 group-hover:text-primary"
                     }`}
                   >
@@ -147,13 +140,13 @@ export default function FacilityExplorer({
           </div>
 
           {/* Interactive Preview Card with Architectural Blueprint Map as Main Hero */}
-          <article data-facility-preview className="min-w-0 overflow-hidden rounded-3xl border border-line-strong bg-surface shadow-sm">
+          <article data-facility-preview className="min-w-0 overflow-hidden border border-line-strong bg-surface">
             <div className="space-y-5 p-6 sm:p-7">
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-line pb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold px-2 py-0.5 rounded bg-primary-tint">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold px-2 py-0.5 bg-primary-tint">
                       TRẠM ĐIỀU PHỐI SỐ
                     </span>
                     <span className="flex items-center gap-1 text-[11px] font-mono text-success font-semibold">
@@ -190,13 +183,7 @@ export default function FacilityExplorer({
               )}
 
               {/* Architectural SVG Blueprint Map of HCMC (Expanded as Panel Hero) */}
-              <div className="relative w-full overflow-hidden rounded-2xl border border-line bg-canvas">
-                <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-                  <span className="flex items-center gap-1.5 text-[11px] font-mono tracking-widest text-ink-3 uppercase bg-surface/90 px-2.5 py-1 rounded-md border border-line shadow-sm">
-                    <Compass className="w-3.5 h-3.5 text-primary" />
-                    <span>HCMC ARCHITECTURAL GRID</span>
-                  </span>
-                </div>
+              <div className="relative w-full overflow-hidden border border-line bg-canvas">
 
                 <svg
                   viewBox="0 0 600 340"
@@ -359,7 +346,7 @@ export default function FacilityExplorer({
                       const cat = document.getElementById("danh-muc-xe");
                       if (cat) cat.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary-hover active:bg-primary-press transition-colors shadow-sm cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-primary text-white font-bold text-sm hover:bg-primary-hover active:bg-primary-press transition-colors cursor-pointer"
                   >
                     <span>Chọn nhận xe tại trạm này</span>
                     <ArrowUpRight className="h-4 w-4" />
@@ -367,7 +354,7 @@ export default function FacilityExplorer({
                 ) : (
                   <Link
                     href={`/find?facilityId=${encodeURIComponent(current.id)}`}
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary-hover active:bg-primary-press transition-colors shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-primary text-white font-bold text-sm hover:bg-primary-hover active:bg-primary-press transition-colors"
                   >
                     <span>Xem xe khả dụng tại chi nhánh này</span>
                     <ArrowUpRight className="h-4 w-4" />

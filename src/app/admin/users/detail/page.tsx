@@ -190,7 +190,7 @@ function UserDetailContent() {
       <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide shadow-xs">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide">
               {user.fullName
                 .split(" ")
                 .map((n) => n[0])
@@ -208,7 +208,7 @@ function UserDetailContent() {
                   {user.isActive ? "Hoạt động" : "Đã khóa"}
                 </AdminStatusBadge>
                 {isSelf && (
-                  <span className="rounded-full bg-td-chalk px-2 py-0.5 font-mono text-[10px] font-bold text-td-oxide">
+                  <span className="bg-td-chalk px-2 py-0.5 font-mono text-[10px] font-bold text-td-oxide">
                     Tài khoản của bạn
                   </span>
                 )}

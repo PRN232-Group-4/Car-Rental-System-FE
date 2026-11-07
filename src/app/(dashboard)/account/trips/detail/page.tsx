@@ -172,7 +172,7 @@ function TripDetailContent() {
           {/* Apple Wallet Style Digital Smart Keycard & Live Telemetry Gauge */}
           <DigitalSmartKeycard vehicle={trip.vehicle} rentalStatus={trip.status} />
           {/* Thông tin nhận - trả xe */}
-          <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+          <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
               Thông tin hành trình & Bàn giao
             </h3>
@@ -217,7 +217,7 @@ function TripDetailContent() {
                   </div>
                 </div>
                 {typeof trip.driver.rating === "number" && (
-                  <div className="flex items-center gap-1 font-mono text-xs font-bold bg-td-chalk px-2.5 py-1 rounded-full border border-td-rule text-td-ink">
+                  <div className="flex items-center gap-1 font-mono text-xs font-bold bg-td-chalk px-2.5 py-1 border border-td-rule text-td-ink">
                     <Star className="w-3.5 h-3.5 text-primary fill-primary" />
                     <span>{trip.driver.rating.toFixed(2)}</span>
                   </div>
@@ -240,7 +240,7 @@ function TripDetailContent() {
 
           {/* Thông tin hóa đơn điện tử */}
           {trip.invoice && (
-            <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-3">
+            <div className="bg-td-white rounded border border-td-rule p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
                   <FileText className="w-4 h-4 text-primary" />

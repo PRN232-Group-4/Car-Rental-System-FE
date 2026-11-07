@@ -77,7 +77,7 @@ export default function SubscriptionPlans() {
             <div
               role={notice.type === "error" ? "alert" : "status"}
               aria-live={notice.type === "error" ? "assertive" : "polite"}
-              className={`mt-4 p-3.5 rounded text-sm font-semibold max-w-lg mx-auto border ${notice.type === "error" ? "border-danger/30 bg-danger-bg text-danger" : "border-td-rule bg-td-white text-td-ink"}`}
+              className={`mt-4 p-3.5 text-sm font-semibold max-w-lg mx-auto border ${notice.type === "error" ? "border-danger/30 bg-danger-bg text-danger" : "border-td-rule bg-td-white text-td-ink"}`}
             >
               {notice.text}
             </div>
@@ -91,8 +91,8 @@ export default function SubscriptionPlans() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-2">
           {/* Main Popular Plan (Asymmetric Large Card: 7 cols) */}
           {popularPlan && (
-            <div className="lg:col-span-7 bg-td-white rounded p-8 sm:p-10 flex flex-col justify-between relative text-td-ink border-2 border-primary">
-              <div className="absolute -top-3.5 left-8 whitespace-nowrap bg-primary text-white text-xs uppercase tracking-wider font-extrabold px-4 py-1.5 rounded-full flex items-center gap-1.5 z-20">
+            <div className="lg:col-span-7 bg-td-white p-8 sm:p-10 flex flex-col justify-between relative text-td-ink border-2 border-primary">
+              <div className="absolute -top-3.5 left-8 whitespace-nowrap bg-primary text-white text-xs uppercase tracking-wider font-extrabold px-4 py-1.5 flex items-center gap-1.5 z-20">
                 <Sparkles className="w-3.5 h-3.5 text-primary-tint shrink-0" />
                 <span>LỰA CHỌN PHỔ BIẾN NHẤT</span>
               </div>
@@ -133,7 +133,7 @@ export default function SubscriptionPlans() {
                 <div className="space-y-3 mb-8 pt-4 border-t border-td-rule">
                   {popularPlan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-sm text-td-ink">
-                      <div className="w-5 h-5 rounded-full bg-primary-tint text-primary flex items-center justify-center shrink-0">
+                      <div className="w-5 h-5 bg-primary-tint text-primary flex items-center justify-center shrink-0">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                       <span>{feature}</span>
@@ -176,7 +176,7 @@ export default function SubscriptionPlans() {
             {regularPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="bg-td-white rounded p-6 sm:p-7 flex flex-col justify-between text-td-ink border border-td-rule flex-1 group"
+                className="bg-td-white p-6 sm:p-7 flex flex-col justify-between text-td-ink border border-td-rule flex-1 group"
               >
                 <div>
                   <div className="flex items-baseline justify-between gap-2 mb-3">

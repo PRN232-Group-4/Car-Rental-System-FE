@@ -151,7 +151,6 @@ export default function AdminDashboardPage() {
                   Phân khu 1: Dòng tiền & Cân đối Đội xe
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // CASHFLOW</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <RevenueChart
@@ -187,7 +186,6 @@ export default function AdminDashboardPage() {
                   Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // ASSET_YIELD</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <TopVehiclesTable
@@ -214,7 +212,6 @@ export default function AdminDashboardPage() {
                   Phân khu 3: Kiểm soát Chi phí Bảo dưỡng & Hội viên Thuê bao
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // RISK_ANALYSIS</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <MaintenanceVsRevenueChart

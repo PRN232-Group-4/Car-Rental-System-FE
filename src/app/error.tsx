@@ -23,12 +23,12 @@ export default function ErrorBoundary({
       className="min-h-[100dvh] bg-canvas text-ink flex items-center justify-center p-4 sm:p-6 focus:outline-none"
     >
       <div className="w-full max-w-md text-center space-y-6">
-        <div className="mx-auto w-20 h-20 rounded-3xl bg-danger/10 border border-danger/20 flex items-center justify-center text-danger shadow-e1">
+        <div className="mx-auto w-20 h-20 bg-danger/10 border border-danger/20 flex items-center justify-center text-danger">
           <AlertTriangle className="w-10 h-10 stroke-[1.8]" />
         </div>
 
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-danger/10 text-danger border border-danger/20 text-xs font-mono font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-danger/10 text-danger border border-danger/20 text-xs font-mono font-bold">
             <span>GIÁN ĐOẠN HỆ THỐNG</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-ink">
@@ -39,7 +39,7 @@ export default function ErrorBoundary({
           </p>
 
           {error.digest && (
-            <p className="font-mono text-[11px] text-ink-3 bg-sunken px-2.5 py-1 rounded-md inline-block max-w-full truncate border border-line">
+            <p className="font-mono text-[11px] text-ink-3 bg-sunken px-2.5 py-1 inline-block max-w-full truncate border border-line">
               Mã tham chiếu: {error.digest}
             </p>
           )}
@@ -49,14 +49,14 @@ export default function ErrorBoundary({
           <button
             type="button"
             onClick={() => reset()}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-e1 transition hover:bg-primary-hover cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Thử lại</span>
           </button>
           <Link
             href="/"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 py-3 text-sm font-semibold text-ink hover:bg-canvas transition cursor-pointer shadow-xs"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-line bg-surface px-5 py-3 text-sm font-semibold text-ink hover:bg-canvas transition cursor-pointer"
           >
             <Home className="w-4 h-4" />
             <span>Về trang chủ</span>

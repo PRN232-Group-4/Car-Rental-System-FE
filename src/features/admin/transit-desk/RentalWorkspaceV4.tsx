@@ -741,7 +741,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "not-found" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-not-found-state"
             >
@@ -779,7 +779,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "forbidden" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-forbidden-state"
             >
@@ -793,7 +793,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "error" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-error-state"
             >
@@ -816,7 +816,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "invalid-data" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-invalid-data-state"
             >

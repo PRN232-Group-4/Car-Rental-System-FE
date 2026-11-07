@@ -90,7 +90,7 @@ export default function LichSuThanhToanPage() {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="p-6 rounded bg-td-white border border-td-rule shadow-xs">
+        <div className="p-6 rounded bg-td-white border border-td-rule">
           <div className="text-xs font-bold uppercase tracking-wider text-td-muted mb-1">
             Tổng tiền đã nộp
           </div>
@@ -100,7 +100,7 @@ export default function LichSuThanhToanPage() {
           <div className="text-xs text-td-muted mt-1">Bao gồm cọc và phí thuê</div>
         </div>
 
-        <div className="p-6 rounded bg-td-white border border-td-rule shadow-xs">
+        <div className="p-6 rounded bg-td-white border border-td-rule">
           <div className="text-xs font-bold uppercase tracking-wider text-info mb-1">
             Tiền cọc đã hoàn trả
           </div>
@@ -110,7 +110,7 @@ export default function LichSuThanhToanPage() {
           <div className="text-xs text-td-muted mt-1">Đã giải ngân về tài khoản</div>
         </div>
 
-        <div className="p-6 rounded bg-td-white border border-td-rule shadow-xs">
+        <div className="p-6 rounded bg-td-white border border-td-rule">
           <div className="text-xs font-bold uppercase tracking-wider text-primary-graphic mb-1">
             Tiền cọc đang giữ / chờ duyệt
           </div>
@@ -134,7 +134,7 @@ export default function LichSuThanhToanPage() {
             onClick={() => setFilterType(tab.id)}
             className={`px-4 py-2 rounded text-xs font-bold transition-all shrink-0 cursor-pointer ${
               filterType === tab.id
-                ? "bg-stage-ink text-white shadow-xs"
+                ? "bg-stage-ink text-white"
                 : "bg-td-white border border-td-rule text-td-muted hover:bg-td-chalk"
             }`}
           >
@@ -144,7 +144,7 @@ export default function LichSuThanhToanPage() {
       </div>
 
       {/* Ledger Table */}
-      <div className="rounded border border-td-rule bg-td-white overflow-hidden shadow-xs">
+      <div className="rounded border border-td-rule bg-td-white overflow-hidden">
         {isLoading ? (
           <div className="p-6"><TableSkeleton label="Đang tải lịch sử giao dịch" rows={5} columns={5} /></div>
         ) : error ? (

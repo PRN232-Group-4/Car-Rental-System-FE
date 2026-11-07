@@ -97,9 +97,9 @@ export function VehicleFilters({
                 key={cat.value}
                 type="button"
                 onClick={() => onChange({ category: cat.value as FindFilterState["category"] })}
-                className={`flex w-full items-center justify-between rounded px-3 py-2 text-xs font-medium transition-all text-left cursor-pointer ${
+                className={`flex w-full items-center justify-between px-3 py-2 text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
-                    ? "bg-primary text-white font-bold shadow-xs"
+                    ? "bg-primary text-white font-bold"
                     : "text-td-ink hover:bg-td-chalk"
                 }`}
               >
@@ -121,7 +121,7 @@ export function VehicleFilters({
           value={filters.facilityId || "all"}
           onChange={(e) => onChange({ facilityId: e.target.value })}
           aria-label="Chi nhánh giao nhận"
-          className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
+          className="w-full border border-td-rule bg-td-white px-3 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
         >
           <option value="all">Tất cả chi nhánh</option>
           {facilities.map((fac) => (
@@ -135,14 +135,14 @@ export function VehicleFilters({
       {/* 3. Thương hiệu xe */}
       <div className="space-y-2 border-t border-td-rule pt-4">
         <label htmlFor={brandInputId} className="text-xs font-bold text-td-ink">Thương hiệu</label>
-        <input id={brandInputId} type="text" value={filters.brand === "all" ? "" : filters.brand || ""} onChange={event => onChange({ brand: event.target.value || "all" })} placeholder="Nhập thương hiệu cần tìm" className="w-full rounded border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink" />
+        <input id={brandInputId} type="text" value={filters.brand === "all" ? "" : filters.brand || ""} onChange={event => onChange({ brand: event.target.value || "all" })} placeholder="Nhập thương hiệu cần tìm" className="w-full border border-td-rule bg-td-white px-3 py-2 text-xs text-td-ink" />
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
             onClick={() => onChange({ brand: "all" })}
             className={`rounded px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
               filters.brand === "all" || !filters.brand
-                ? "bg-primary text-white font-bold shadow-xs"
+                ? "bg-primary text-white font-bold"
                 : "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
             }`}
           >
@@ -157,7 +157,7 @@ export function VehicleFilters({
                 onClick={() => onChange({ brand: isSelected ? "all" : b })}
                 className={`rounded px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-primary text-white font-bold shadow-xs"
+                    ? "bg-primary text-white font-bold"
                     : "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
                 }`}
               >
@@ -184,7 +184,7 @@ export function VehicleFilters({
                 onClick={() => onChange({ seats: seat.value })}
                 className={`rounded py-1.5 text-xs font-medium transition-all text-center cursor-pointer ${
                   isSelected
-                    ? "bg-primary text-white font-bold shadow-xs"
+                    ? "bg-primary text-white font-bold"
                     : "border border-td-rule bg-td-white text-td-ink hover:bg-td-chalk"
                 }`}
               >
@@ -206,7 +206,7 @@ export function VehicleFilters({
             value={filters.transmission || "all"}
             onChange={(e) => onChange({ transmission: e.target.value as FindFilterState["transmission"] })}
             aria-label="Loại hộp số"
-            className="w-full rounded border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
+            className="w-full border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
           >
             {TRANSMISSION_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -225,7 +225,7 @@ export function VehicleFilters({
             value={filters.fuelType || "all"}
             onChange={(e) => onChange({ fuelType: e.target.value as FindFilterState["fuelType"] })}
             aria-label="Loại nhiên liệu"
-            className="w-full rounded border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
+            className="w-full border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
           >
             {FUEL_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -262,7 +262,7 @@ export function VehicleFilters({
                     onChange({ priceMin: p.min, priceMax: p.max });
                   }
                 }}
-                className={`flex w-full items-center justify-between rounded px-3 py-1.5 text-xs transition-colors text-left cursor-pointer ${
+                className={`flex w-full items-center justify-between px-3 py-1.5 text-xs transition-colors text-left cursor-pointer ${
                   isMatch
                     ? "bg-primary-tint font-bold text-primary border border-primary/20"
                     : "text-td-ink hover:bg-td-chalk"
@@ -282,14 +282,14 @@ export function VehicleFilters({
           <button
             type="button"
             onClick={onReset}
-            className="flex-1 rounded border border-td-rule py-2.5 text-xs font-bold text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
+            className="flex-1 border border-td-rule py-2.5 text-xs font-bold text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
           >
             Đặt lại
           </button>
           <button
             type="button"
             onClick={onApplyMobile}
-            className="flex-2 rounded bg-primary py-2.5 text-xs font-bold text-white hover:bg-primary-hover transition-colors cursor-pointer"
+            className="flex-2 bg-primary py-2.5 text-xs font-bold text-white hover:bg-primary-hover transition-colors cursor-pointer"
           >
             Xem kết quả
           </button>

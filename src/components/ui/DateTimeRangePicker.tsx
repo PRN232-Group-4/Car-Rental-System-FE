@@ -255,7 +255,7 @@ export function DateTimeRangePicker({
             type="button"
             disabled={disabled}
             aria-describedby={ariaDescribedby}
-            className={`group flex h-12 w-full items-center justify-between gap-3 rounded-xl border bg-surface px-4 text-left text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 ${
+            className={`group flex h-12 w-full items-center justify-between gap-3 border bg-surface px-4 text-left text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 ${
               isInvalid
                 ? "border-danger text-danger focus:border-danger"
                 : "border-line hover:border-line-strong focus:border-primary"
@@ -274,7 +274,7 @@ export function DateTimeRangePicker({
 
             <div className="flex items-center gap-2 shrink-0">
               {currentDurationInfo && currentDurationInfo.isValid && (
-                <span className="hidden sm:inline-flex items-center rounded-md bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
+                <span className="hidden sm:inline-flex items-center bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
                   {currentDurationInfo.days > 0
                     ? `${currentDurationInfo.days} ngày ${currentDurationInfo.hours % 24 > 0 ? `${currentDurationInfo.hours % 24}h` : ""}`
                     : `${currentDurationInfo.hours} giờ`}
@@ -293,7 +293,7 @@ export function DateTimeRangePicker({
           <Popover.Content
             align="start"
             sideOffset={8}
-            className="z-50 w-full max-w-[95vw] sm:max-w-none rounded-3xl border border-line bg-surface p-4 sm:p-6 shadow-e3 focus:outline-none glass-3 animate-in fade-in-0 zoom-in-95"
+            className="z-50 w-full max-w-[95vw] sm:max-w-none border border-line bg-surface p-4 sm:p-6 shadow-e3 focus:outline-none glass-3 animate-in fade-in-0 zoom-in-95"
           >
             {/* 1. DayPicker Lịch ngày */}
             <div className="flex justify-center overflow-x-auto pb-4">
@@ -312,18 +312,18 @@ export function DateTimeRangePicker({
                   month_caption: "flex items-center justify-between font-bold text-ink px-2 py-1 text-sm",
                   caption_label: "font-bold text-ink",
                   nav: "flex items-center gap-1",
-                  button_previous: "min-h-11 min-w-11 rounded-lg flex items-center justify-center hover:bg-sunken text-ink transition-colors",
-                  button_next: "min-h-11 min-w-11 rounded-lg flex items-center justify-center hover:bg-sunken text-ink transition-colors",
+                  button_previous: "min-h-11 min-w-11 flex items-center justify-center hover:bg-sunken text-ink transition-colors",
+                  button_next: "min-h-11 min-w-11 flex items-center justify-center hover:bg-sunken text-ink transition-colors",
                   weeks: "w-full border-collapse space-y-1",
                   weekdays: "flex",
                   weekday: "text-ink-3 text-xs font-semibold w-11 text-center py-1",
                   week: "flex w-full mt-1",
                   day: "p-0 relative text-center focus-within:relative focus-within:z-20",
-                  day_button: "min-h-11 min-w-11 text-sm font-medium text-ink rounded-lg hover:bg-surface-raised flex items-center justify-center transition-colors cursor-pointer",
+                  day_button: "min-h-11 min-w-11 text-sm font-medium text-ink hover:bg-surface-raised flex items-center justify-center transition-colors cursor-pointer",
                   disabled: "opacity-30 cursor-not-allowed pointer-events-none line-through text-ink-3",
                   today: "font-bold text-primary border border-primary/40",
-                  range_start: "bg-primary text-white font-bold rounded-lg shadow-e1",
-                  range_end: "bg-primary text-white font-bold rounded-lg shadow-e1",
+                  range_start: "bg-primary text-white font-bold",
+                  range_end: "bg-primary text-white font-bold",
                   range_middle: "bg-primary-tint text-primary font-semibold rounded-none",
                   selected: "bg-primary text-white font-bold",
                   outside: "opacity-30",
@@ -343,7 +343,7 @@ export function DateTimeRangePicker({
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                     aria-label="Giờ nhận xe (GMT+7)"
-                    className="w-full rounded-xl border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
+                    className="w-full border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
                   >
                     {timeSlots.map((slot) => (
                       <option key={`start-${slot}`} value={slot}>
@@ -362,7 +362,7 @@ export function DateTimeRangePicker({
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                     aria-label="Giờ trả xe (GMT+7)"
-                    className="w-full rounded-xl border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
+                    className="w-full border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
                   >
                     {timeSlots.map((slot) => (
                       <option key={`end-${slot}`} value={slot}>
@@ -377,12 +377,12 @@ export function DateTimeRangePicker({
             {/* 3. Cảnh báo lỗi & Tóm tắt thời lượng */}
             <div className="mt-4">
               {validationError ? (
-                <div className="flex items-center gap-2 rounded-xl bg-warning-bg/60 p-2.5 text-xs font-medium text-warning border border-warning/20">
+                <div className="flex items-center gap-2 bg-warning-bg/60 p-2.5 text-xs font-medium text-warning border border-warning/20">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{validationError}</span>
                 </div>
               ) : currentDurationInfo?.isValid ? (
-                <div className="flex items-center justify-between text-xs font-medium text-ink-2 bg-canvas rounded-xl p-2.5 border border-line">
+                <div className="flex items-center justify-between text-xs font-medium text-ink-2 bg-canvas p-2.5 border border-line">
                   <span>Tổng thời gian dự kiến:</span>
                   <span className="font-mono tabular-nums font-bold text-primary">
                     {currentDurationInfo.days > 0 && `${currentDurationInfo.days} ngày `}
@@ -399,7 +399,7 @@ export function DateTimeRangePicker({
               <button
                 type="button"
                 onClick={handleReset}
-                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-ink-3 hover:bg-sunken hover:text-ink transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-ink-3 hover:bg-sunken hover:text-ink transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Thiết lập lại</span>
@@ -409,7 +409,7 @@ export function DateTimeRangePicker({
                 type="button"
                 onClick={handleApply}
                 disabled={!currentDurationInfo?.isValid || Boolean(validationError)}
-                className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-white shadow-e1 hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                className="flex items-center gap-1.5 bg-primary px-5 py-2 text-xs font-bold text-white hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Áp dụng thời gian</span>

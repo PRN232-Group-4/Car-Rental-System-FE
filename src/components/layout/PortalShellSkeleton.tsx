@@ -16,17 +16,17 @@ function MastheadSkeleton({ chapters = 5, chapterWidth = "w-24" }: { chapters?: 
     <div className="sticky top-0 z-30 border-b border-td-rule bg-td-paper">
       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 px-4 py-3 lg:grid-cols-[280px_minmax(0,1fr)_auto] lg:px-6">
         <div className="flex items-center gap-3">
-          <Skeleton className="h-9 w-9 rounded" />
+          <Skeleton className="h-9 w-9" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-28" />
             <Skeleton className="h-2.5 w-20" />
           </div>
         </div>
         <div className="hidden items-center gap-2 md:flex">
-          {Array.from({ length: chapters }, (_, index) => <Skeleton key={index} className={`h-8 ${chapterWidth} rounded`} />)}
+          {Array.from({ length: chapters }, (_, index) => <Skeleton key={index} className={`h-8 ${chapterWidth}`} />)}
         </div>
         <div className="flex items-center justify-end gap-2">
-          <Skeleton className="hidden h-8 w-28 rounded sm:block" />
+          <Skeleton className="hidden h-8 w-28 sm:block" />
           <Skeleton className="h-9 w-9 rounded-full" />
         </div>
       </div>
@@ -58,10 +58,10 @@ export function AdminShellSkeleton({ label = "Đang tải không gian vận hàn
       {/* Bảng danh sách: giữ cấu trúc cột để không nhảy bố cục */}
       <div className="mt-6 space-y-3">
         <div className="flex items-center justify-between gap-4">
-          <Skeleton className="h-10 w-full max-w-sm rounded" />
-          <Skeleton className="h-10 w-32 rounded" />
+          <Skeleton className="h-10 w-full max-w-sm" />
+          <Skeleton className="h-10 w-32" />
         </div>
-        <div className="rounded border border-td-rule bg-td-white p-4">
+        <div className="border border-td-rule bg-td-white p-4">
           <div className="flex items-center gap-4 border-b border-td-ink pb-3">
             {Array.from({ length: 5 }, (_, index) => <Skeleton key={index} className="h-3 flex-1" />)}
           </div>
@@ -71,7 +71,7 @@ export function AdminShellSkeleton({ label = "Đang tải không gian vận hàn
         </div>
         <div className="flex items-center justify-between gap-4">
           <Skeleton className="h-3 w-40" />
-          <Skeleton className="h-9 w-48 rounded" />
+          <Skeleton className="h-9 w-48" />
         </div>
       </div>
     </SkeletonBlock>
@@ -85,13 +85,13 @@ export function CustomerShellSkeleton({ label = "Đang tải khu khách hàng...
     <SkeletonBlock label={label} className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
       <FolioSkeleton />
       <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-3 rounded border border-td-rule bg-td-white p-5">
+        {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-3 border border-td-rule bg-td-white p-5">
           <Skeleton className="h-5 w-2/3" />
           <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-9 w-32 rounded" />
+          <Skeleton className="h-9 w-32" />
         </div>)}
       </div>
-      <div className="mt-6 space-y-3 rounded border border-td-rule bg-td-white p-5">
+      <div className="mt-6 space-y-3 border border-td-rule bg-td-white p-5">
         <Skeleton className="h-5 w-48" />
         {Array.from({ length: 4 }, (_, index) => <div key={index} className="flex items-center justify-between gap-4 border-t border-td-rule/60 pt-3">
           <Skeleton className="h-4 w-40 max-w-full" />
@@ -109,7 +109,7 @@ export function DriverShellSkeleton({ label = "Đang tải cổng tài xế..." 
     <SkeletonBlock label={label} className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
       <FolioSkeleton />
       <div className="mt-6 space-y-4">
-        {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-3 rounded border border-td-rule bg-td-white p-5">
+        {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-3 border border-td-rule bg-td-white p-5">
           <Skeleton className="h-5 w-1/2" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-4/5" />

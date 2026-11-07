@@ -55,7 +55,7 @@ export default function GPLXPage() {
       </Suspense>
 
       {/* Current Status Card */}
-      <div className="p-6 rounded bg-td-white border border-td-rule shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-6 rounded bg-td-white border border-td-rule flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded bg-primary-tint text-primary flex items-center justify-center shrink-0">
             <ShieldCheck className="w-6 h-6" />
@@ -164,7 +164,7 @@ function LicenseEditForm({
         e.preventDefault();
         if (!saveMutation.isPending) saveMutation.mutate();
       }}
-      className="p-6 sm:p-8 rounded bg-td-white border border-td-rule shadow-sm space-y-6"
+      className="p-6 sm:p-8 rounded bg-td-white border border-td-rule space-y-6"
     >
       <h2 className="text-lg font-bold text-td-ink border-b border-td-rule pb-3">
         Thông tin chi tiết giấy phép
@@ -261,7 +261,7 @@ function LicenseEditForm({
         <button
           type="submit"
           disabled={saveMutation.isPending}
-          className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {saveMutation.isPending ? (
             <>

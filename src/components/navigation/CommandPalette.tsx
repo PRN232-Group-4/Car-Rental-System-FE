@@ -201,7 +201,7 @@ export function CommandPalette({
             type="button"
             onClick={onClose}
             aria-label="Đóng bảng tìm kiếm"
-            className="cursor-pointer rounded p-1 text-td-muted hover:bg-td-chalk hover:text-td-ink"
+            className="cursor-pointer p-1 text-td-muted hover:bg-td-chalk hover:text-td-ink"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -235,7 +235,7 @@ export function CommandPalette({
                   key={`recent-${route.href}`}
                   type="button"
                   onClick={() => handleSelect(route.href)}
-                  className="cursor-pointer rounded border border-td-rule bg-td-paper px-2 py-0.5 font-mono text-[11px] text-td-ink transition-colors hover:border-td-ink"
+                  className="cursor-pointer border border-td-rule bg-td-paper px-2 py-0.5 font-mono text-[11px] text-td-ink transition-colors hover:border-td-ink"
                 >
                   {route.label}
                 </button>

@@ -115,12 +115,12 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
                 {invoice.invoiceNumber}
               </h1>
               {isPaid ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-primary-tint text-warning">
                   <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                   Đã thanh toán
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-primary-tint text-warning">
                   <Clock className="w-3.5 h-3.5 text-primary-graphic" />
                   {waitingConfirmation ? "Chờ xác nhận đơn" : invoice.status === "cancelled" ? "Đã hủy" : "Chưa thanh toán"}
                 </span>
@@ -144,7 +144,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       </div>
 
       {/* Invoice Breakdown Card */}
-      <div className="p-6 sm:p-8 rounded bg-td-white border border-td-rule shadow-sm space-y-6">
+      <div className="p-6 sm:p-8 rounded bg-td-white border border-td-rule space-y-6">
         <h2 className="text-base font-bold text-td-ink border-b border-td-rule pb-3 flex items-center gap-2">
           <Receipt className="w-4 h-4 text-primary" />
           <span>Bảng kê chi tiết thanh toán</span>
@@ -213,7 +213,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
             <button
               onClick={handleCheckout}
               disabled={paying}
-              className="px-8 py-3.5 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              className="px-8 py-3.5 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {paying ? (
                 <>

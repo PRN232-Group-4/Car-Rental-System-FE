@@ -69,7 +69,7 @@ export function VehicleGallery({
             setLightboxOpen(true);
           }
         }}
-        className="group relative aspect-[16/10] w-full overflow-hidden rounded sm:rounded border border-td-rule bg-stage-ink cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="group relative aspect-[16/10] w-full overflow-hidden sm:rounded border border-td-rule bg-stage-ink cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
         aria-label={`Xem ảnh lớn của ${vehicleName}`}
       >
         <Image
@@ -84,18 +84,18 @@ export function VehicleGallery({
         {/* Nút phóng to Lightbox */}
         <div className="absolute bottom-3 right-3 flex items-center gap-2">
           {vehicleColor && (
-            <span className="hidden sm:inline-flex rounded bg-stage-ink/80 px-2.5 py-1 text-xs font-medium text-white shadow-xs">
+            <span className="hidden sm:inline-flex bg-stage-ink/80 px-2.5 py-1 text-xs font-medium text-white">
               Màu: {vehicleColor}
             </span>
           )}
-          <span className="flex items-center gap-1.5 rounded bg-stage-ink/80 px-2.5 py-1 text-xs font-semibold text-white shadow-xs group-hover:bg-primary transition-colors">
+          <span className="flex items-center gap-1.5 bg-stage-ink/80 px-2.5 py-1 text-xs font-semibold text-white group-hover:bg-primary transition-colors">
             <Maximize2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Phóng to</span>
           </span>
         </div>
 
         {/* Chỉ báo số lượng ảnh */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded bg-stage-ink/80 px-2.5 py-1 text-xs font-mono tabular-nums font-semibold text-white shadow-xs">
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-stage-ink/80 px-2.5 py-1 text-xs font-mono tabular-nums font-semibold text-white">
           <Camera className="w-3.5 h-3.5 text-primary-tint" />
           <span>{activeIndex + 1} / {allImages.length}</span>
         </div>
@@ -111,9 +111,9 @@ export function VehicleGallery({
                 key={`thumb-${idx}`}
                 type="button"
                 onClick={() => setActiveIndex(idx)}
-                className={`relative h-16 w-24 sm:h-20 sm:w-28 shrink-0 overflow-hidden rounded border transition-all cursor-pointer ${
+                className={`relative h-16 w-24 sm:h-20 sm:w-28 shrink-0 overflow-hidden border transition-all cursor-pointer ${
                   isActive
-                    ? "border-primary ring-2 ring-primary/30 shadow-xs"
+                    ? "border-primary ring-2 ring-primary/30"
                     : "border-td-rule opacity-70 hover:opacity-100 hover:border-td-rule"
                 }`}
               >
@@ -187,7 +187,7 @@ export function VehicleGallery({
             </Dialog.Close>
 
             {/* Chỉ báo phía dưới */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-stage-ink/80 px-4 py-1.5 font-mono text-xs tabular-nums font-semibold text-white shadow-xs">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-stage-ink/80 px-4 py-1.5 font-mono text-xs tabular-nums font-semibold text-white">
               {activeIndex + 1} / {allImages.length}
             </div>
           </Dialog.Content>

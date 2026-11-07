@@ -118,7 +118,7 @@ export default function LoginForm() {
   return (
     <div className="w-full">
       {/* Main Solid Form Card */}
-      <div className="bg-surface rounded-2xl p-6 sm:p-7 shadow-e2 border border-line text-ink">
+      <div className="bg-surface p-6 sm:p-7 border border-line text-ink">
         <div className="mb-4">
           <h1 className="text-2xl font-black tracking-tight text-ink">
             Đăng nhập
@@ -130,7 +130,7 @@ export default function LoginForm() {
 
         {/* Error Alert Box */}
         {shownError && (
-          <div role="alert" aria-live="assertive" className="mb-3.5 p-3 rounded-xl bg-danger-bg border border-danger/30 text-danger text-xs flex items-start gap-2 animate-in fade-in duration-200">
+          <div role="alert" aria-live="assertive" className="mb-3.5 p-3 bg-danger-bg border border-danger/30 text-danger text-xs flex items-start gap-2 animate-in fade-in duration-200">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span className="leading-snug">{shownError}</span>
           </div>
@@ -138,7 +138,7 @@ export default function LoginForm() {
 
         {/* Success Alert Box */}
         {successMessage && (
-          <div className="mb-3.5 p-3 rounded-xl bg-primary-tint border border-primary/30 text-warning text-xs flex items-start gap-2 animate-in fade-in duration-200">
+          <div className="mb-3.5 p-3 bg-primary-tint border border-primary/30 text-warning text-xs flex items-start gap-2 animate-in fade-in duration-200">
             <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <span className="leading-snug">{successMessage}</span>
           </div>
@@ -175,7 +175,7 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full pl-9 pr-3.5 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
+                className="w-full pl-9 pr-3.5 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
                 autoComplete="email"
               />
             </div>
@@ -211,7 +211,7 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-9 pr-10 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
+                className="w-full pl-9 pr-10 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
                 autoComplete="current-password"
               />
               <button
@@ -234,7 +234,7 @@ export default function LoginForm() {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded text-primary focus:ring-primary border-line-strong cursor-pointer"
+                className="w-4 h-4 text-primary focus:ring-primary border-line-strong cursor-pointer"
               />
               <span className="text-xs text-ink-3 font-medium">Ghi nhớ đăng nhập</span>
             </label>
@@ -244,7 +244,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-1 py-2.5 px-4 flex items-center justify-center gap-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover shadow-e1 hover:shadow-e2 active:scale-[0.99] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full mt-1 py-2.5 px-4 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <>
@@ -273,7 +273,7 @@ export default function LoginForm() {
         {/* Google OAuth Button */}
         <a
           href="/api/auth/google"
-          className="w-full py-2 px-3 flex items-center justify-center gap-2 rounded-xl text-xs sm:text-sm font-semibold text-ink bg-surface hover:bg-surface-raised border border-line-strong shadow-xs transition-all cursor-pointer"
+          className="w-full py-2 px-3 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-ink bg-surface hover:bg-surface-raised border border-line-strong transition-all cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path

@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
 
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-3 hover:text-ink hover:bg-surface transition-colors"
+          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-ink-3 hover:text-ink hover:bg-surface transition-colors"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           <span>Về trang đăng nhập</span>

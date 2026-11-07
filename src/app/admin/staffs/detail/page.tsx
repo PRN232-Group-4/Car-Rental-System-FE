@@ -158,7 +158,7 @@ function StaffDetailView({
       <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide shadow-xs">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide">
               {staff.fullName
                 .split(" ")
                 .map((n) => n[0])
@@ -176,7 +176,7 @@ function StaffDetailView({
                   {staff.isActive ? "Đang làm việc" : "Tạm ngừng"}
                 </AdminStatusBadge>
                 {isDriver && (
-                  <span className="rounded-full bg-td-chalk border border-td-oxide/30 px-2.5 py-0.5 text-xs font-bold text-td-oxide flex items-center gap-1">
+                  <span className="bg-td-chalk border border-td-oxide/30 px-2.5 py-0.5 text-xs font-bold text-td-oxide flex items-center gap-1">
                     <Car className="w-3.5 h-3.5" />
                     Tài xế chuyên nghiệp
                   </span>

@@ -88,9 +88,9 @@ export function RatingDistribution({
               </div>
 
               {/* Progress Bar */}
-              <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-td-chalk">
+              <div className="relative h-2.5 flex-1 overflow-hidden bg-td-chalk">
                 <div
-                  className="h-full rounded-full bg-td-oxide transition-all duration-300"
+                  className="h-full bg-td-oxide transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
               </div>

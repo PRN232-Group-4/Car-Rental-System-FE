@@ -9,7 +9,7 @@ interface TripPriceBreakdownProps {
 export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
   if (trip.isSubscription) {
     return (
-      <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+      <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
           <Package className="w-4 h-4" aria-hidden="true" />
           <span>Hình thức thanh toán theo gói</span>
@@ -61,7 +61,7 @@ export function TripPriceBreakdown({ trip }: TripPriceBreakdownProps) {
   };
 
   return (
-    <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+    <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
       <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
         Chi tiết thanh toán & Đặt cọc
       </h3>

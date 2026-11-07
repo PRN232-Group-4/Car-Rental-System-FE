@@ -71,7 +71,7 @@ export default function MySubscriptionsPage() {
           </div>
           <Link
             href="/subscriptions"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded bg-primary text-white font-bold text-sm shadow-md hover:bg-primary-hover transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded bg-primary text-white font-bold text-sm hover:bg-primary-hover transition-all"
           >
             <span>Khám phá các gói cước</span>
             <ArrowRight className="w-4 h-4" />
@@ -137,7 +137,7 @@ export default function MySubscriptionsPage() {
 
                 {/* Thanh giờ còn lại */}
                 <div className="mt-3 flex items-center gap-3">
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-td-chalk">
+                  <div className="h-2 flex-1 overflow-hidden bg-td-chalk">
                     <div
                       className={`h-full transition-all duration-500 ${isLowHours ? "bg-warning" : "bg-primary"}`}
                       style={{ width: `${percentage}%` }}
@@ -189,7 +189,7 @@ export default function MySubscriptionsPage() {
                     </td>
                     <td className="p-4 font-semibold text-td-ink">{item.totalHours} giờ</td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-td-chalk text-td-muted">
+                      <span className="px-2.5 py-1 text-xs font-bold bg-td-chalk text-td-muted">
                         {item.status === "expired" ? "Hết hạn" : "Đã dùng hết"}
                       </span>
                     </td>

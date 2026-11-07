@@ -99,7 +99,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
               {getReportTypeLabel(report.type)}
             </span>
             {isOverdue && (
-              <span className="rounded-full bg-danger px-2 py-0.5 text-[11px] font-bold text-white">
+              <span className="bg-danger px-2 py-0.5 text-[11px] font-bold text-white">
                 Quá hạn SLA
               </span>
             )}
@@ -302,7 +302,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
           <ol className="mt-4 space-y-3 border-l-2 border-td-rule pl-4 text-xs">
             {report.history.map((h, idx) => (
               <li key={idx} className="relative">
-                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border border-td-rule bg-td-oxide" />
+                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 border border-td-rule bg-td-oxide" />
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-td-ink">{h.by || "Hệ thống"}</span>
                   <span className="font-mono text-td-muted">{formatDateTime(h.at, "dd/MM/yyyy HH:mm")}</span>

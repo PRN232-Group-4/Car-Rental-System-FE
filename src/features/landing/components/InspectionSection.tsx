@@ -100,13 +100,13 @@ export default function InspectionSection() {
 
       {/* Interactive Phase Toggle Tabs */}
       <div className="relative z-10 flex items-center justify-start mb-8">
-        <div className="p-1 rounded-2xl bg-surface border border-line-strong shadow-sm flex items-center gap-1.5">
+        <div className="p-1 rounded-2xl bg-surface border border-line-strong flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => handlePhaseSwitch("pre")}
             className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               phase === "pre"
-                ? "bg-stage-ink text-white shadow-sm"
+                ? "bg-stage-ink text-white"
                 : "text-ink-2 hover:text-ink hover:bg-sunken"
             }`}
           >
@@ -119,7 +119,7 @@ export default function InspectionSection() {
             onClick={() => handlePhaseSwitch("post")}
             className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               phase === "post"
-                ? "bg-stage-ink text-white shadow-sm"
+                ? "bg-stage-ink text-white"
                 : "text-ink-2 hover:text-ink hover:bg-sunken"
             }`}
           >
@@ -133,7 +133,7 @@ export default function InspectionSection() {
       <div ref={scanContentRef} className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         
         {/* Left Telemetry Visual Scanner Bay (7 cols) */}
-        <div data-scanner-panel className="lg:col-span-7 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div data-scanner-panel className="lg:col-span-7 rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-line mb-6">
               <div className="flex items-center gap-2.5 text-xs font-mono font-bold text-ink">
@@ -144,7 +144,7 @@ export default function InspectionSection() {
                     : "BIÊN BẢN HOÀN TRẢ & ĐỐI SOÁT DỮ LIỆU TELEMATICS"}
                 </span>
               </div>
-              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-primary-tint text-primary font-bold">
+              <span className="text-[11px] font-mono px-2.5 py-0.5 bg-primary-tint text-primary font-bold">
                 {phase === "pre" ? "Trạng thái: Đã niêm phong" : "Trạng thái: Hoàn cọc tự động"}
               </span>
             </div>
@@ -233,7 +233,7 @@ export default function InspectionSection() {
         <div data-scanner-panel className="lg:col-span-5 flex flex-col justify-between gap-6">
           
           {/* Top Big Metric Card */}
-          <div className="rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 shadow-sm flex flex-col justify-between flex-1">
+          <div className="rounded-3xl bg-surface border border-line-strong p-6 sm:p-8 flex flex-col justify-between flex-1">
             <div>
               <div className="flex items-center justify-between text-xs font-mono text-ink-3 mb-2">
                 <span>CHỈ SỐ ĐỐI SOÁT CỐT LÕI</span>
@@ -261,7 +261,7 @@ export default function InspectionSection() {
           </div>
 
           {/* Bottom Financial Security Box */}
-          <div className="rounded-3xl bg-stage-ink text-white p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+          <div className="rounded-3xl bg-stage-ink text-white p-6 sm:p-8 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 text-primary text-xs font-mono font-bold mb-3">
                 <ShieldCheck className="w-4 h-4" />

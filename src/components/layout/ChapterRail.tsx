@@ -96,11 +96,11 @@ export default function ChapterRail() {
             onClick={(e) => handleScrollTo(e, ch.href)}
             aria-label={`${ch.name} (Chương ${ch.shortLabel})`}
             aria-current={isActive ? "true" : undefined}
-            className="group flex items-center gap-2.5 py-1 px-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full"
+            className="group flex items-center gap-2.5 py-1 px-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             {/* Label Tooltip: Only visible on hover / focus */}
             <span
-              className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-all duration-200 pointer-events-none opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 -translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0 shadow-sm whitespace-nowrap ${
+              className={`text-xs font-semibold px-2.5 py-1 transition-all duration-200 pointer-events-none opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 -translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0 whitespace-nowrap ${
                 isActive
                   ? "bg-stage-ink text-white ring-1 ring-white/10"
                   : "bg-surface border border-line-strong text-ink-2"

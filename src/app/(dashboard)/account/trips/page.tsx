@@ -137,7 +137,7 @@ function TripsListContent() {
             <div key={i} className="bg-td-white rounded border border-td-rule p-5 space-y-4">
               <div className="flex justify-between items-start">
                 <Skeleton className="h-6 w-32 rounded" />
-                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-5 w-20" />
               </div>
               <Skeleton className="h-16 w-full rounded" />
               <div className="pt-3 border-t border-td-rule flex justify-between items-center">

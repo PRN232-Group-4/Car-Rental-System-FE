@@ -35,7 +35,7 @@ export function StatCard({
     >
       <div className="flex items-center justify-between">
         {Icon && (
-          <span className="flex h-9 w-9 items-center justify-center rounded border border-td-rule text-primary">
+          <span className="flex h-9 w-9 items-center justify-center border border-td-rule text-primary">
             <Icon className="h-4 w-4" aria-hidden="true" />
           </span>
         )}
@@ -43,7 +43,7 @@ export function StatCard({
         {trend && (
           <div
             className={cn(
-              "inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-mono text-[11px] font-bold tabular-nums",
+              "inline-flex items-center gap-1 px-1.5 py-0.5 font-mono text-[11px] font-bold tabular-nums",
               trend.direction === "up" && "text-success",
               trend.direction === "down" && "text-danger",
               trend.direction === "neutral" && "text-td-muted",

@@ -61,7 +61,7 @@ export function ChartCard({
               onClick={() => setShowTable((prev) => !prev)}
               aria-pressed={showTable}
               aria-label={showTable ? "Chuyển sang xem biểu đồ" : "Chuyển sang xem dạng bảng"}
-              className="inline-flex items-center gap-1.5 rounded border border-td-rule px-2.5 py-1 text-[11px] font-bold text-td-ink transition hover:bg-td-chalk"
+              className="inline-flex items-center gap-1.5 border border-td-rule px-2.5 py-1 text-[11px] font-bold text-td-ink transition hover:bg-td-chalk"
             >
               {showTable ? (
                 <>

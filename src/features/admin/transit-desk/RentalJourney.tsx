@@ -394,7 +394,7 @@ export function RentalJourney() {
                       key={step.key}
                       className={`relative border p-2.5 rounded transition-colors flex flex-col justify-between ${
                         isCurrent
-                          ? "border-td-oxide bg-td-chalk/50 shadow-xs"
+                          ? "border-td-oxide bg-td-chalk/50"
                           : isPassed
                           ? "border-td-rule bg-td-paper text-td-ink"
                           : "border-td-rule/60 bg-transparent text-td-muted opacity-60"
@@ -667,7 +667,7 @@ export function RentalJourney() {
       {/* Confirmation Modal for Destructive / Terminal Status Transitions */}
       {confirmStatusModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-6 shadow-e3 space-y-4">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs font-bold text-td-oxide border border-td-oxide p-1">
                 LƯU Ý

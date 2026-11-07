@@ -35,13 +35,13 @@ export default function GoiThueBaoPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
               href="#goi-thue-bao"
-              className="px-6 py-3.5 rounded-2xl bg-primary hover:bg-primary-hover active:scale-[0.98] text-white font-bold text-sm shadow-e1 hover:shadow-e2 transition-all cursor-pointer"
+              className="px-6 py-3.5 bg-primary hover:bg-primary-hover active:scale-[0.98] text-white font-bold text-sm transition-all cursor-pointer"
             >
               Xem các gói cước
             </a>
             <Link
               href="/my-subscriptions"
-              className="px-6 py-3.5 rounded-2xl bg-surface hover:bg-sunken active:scale-[0.98] text-ink border border-line font-bold text-sm shadow-e1 transition-all"
+              className="px-6 py-3.5 bg-surface hover:bg-sunken active:scale-[0.98] text-ink border border-line font-bold text-sm transition-all"
             >
               Gói thuê của tôi
             </Link>
@@ -49,9 +49,9 @@ export default function GoiThueBaoPage() {
 
           {/* Giá trị cốt lõi của gói: bố cục 2/1 có trọng tâm (A5: cấm 3 thẻ bằng nhau lười biếng) */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 max-w-5xl mx-auto mt-16 text-left items-stretch">
-            <div className="md:col-span-6 p-7 sm:p-8 rounded-3xl bg-surface border-2 border-primary/40 shadow-e1 flex flex-col justify-between">
+            <div className="md:col-span-6 p-7 sm:p-8 bg-surface border-2 border-primary/40 flex flex-col justify-between">
               <div>
-                <div className="w-11 h-11 rounded-2xl bg-primary-tint text-primary flex items-center justify-center font-bold mb-4">
+                <div className="w-11 h-11 bg-primary-tint text-primary flex items-center justify-center font-bold mb-4">
                   <Zap className="w-6 h-6 stroke-[2.2]" />
                 </div>
                 <h3 className="font-bold text-lg text-ink mb-2">Đặt xe tức thì không cần cọc từng lượt</h3>
@@ -65,9 +65,9 @@ export default function GoiThueBaoPage() {
             </div>
 
             <div className="md:col-span-6 flex flex-col gap-6">
-              <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs flex-1 flex flex-col justify-between">
+              <div className="p-6 bg-surface border border-line flex-1 flex flex-col justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-2xl bg-primary-tint text-primary flex items-center justify-center font-bold shrink-0">
+                  <div className="w-10 h-10 bg-primary-tint text-primary flex items-center justify-center font-bold shrink-0">
                     <RefreshCw className="w-5 h-5 stroke-[2.2]" />
                   </div>
                   <div>
@@ -79,9 +79,9 @@ export default function GoiThueBaoPage() {
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-surface border border-line shadow-xs flex-1 flex flex-col justify-between">
+              <div className="p-6 bg-surface border border-line flex-1 flex flex-col justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-2xl bg-primary-tint text-primary flex items-center justify-center font-bold shrink-0">
+                  <div className="w-10 h-10 bg-primary-tint text-primary flex items-center justify-center font-bold shrink-0">
                     <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
                   </div>
                   <div>
@@ -109,7 +109,7 @@ export default function GoiThueBaoPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-surface border border-line">
+            <div className="p-6 bg-surface border border-line">
               <h4 className="font-bold text-ink text-base mb-2">
                 1. Gói thuê bao áp dụng cho những dòng xe nào?
               </h4>
@@ -118,7 +118,7 @@ export default function GoiThueBaoPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface border border-line">
+            <div className="p-6 bg-surface border border-line">
               <h4 className="font-bold text-ink text-base mb-2">
                 2. Điều gì xảy ra khi tôi dùng hết số giờ trước hạn?
               </h4>
@@ -127,7 +127,7 @@ export default function GoiThueBaoPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface border border-line">
+            <div className="p-6 bg-surface border border-line">
               <h4 className="font-bold text-ink text-base mb-2">
                 3. Tôi có cần đặt cọc từng lần thuê xe khi dùng gói không?
               </h4>

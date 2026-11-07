@@ -46,7 +46,7 @@ export function Drawer({
           className={cn(
             "fixed z-50 flex flex-col bg-surface shadow-e3 transition-transform focus:outline-none",
             isBottom &&
-              "inset-x-0 bottom-0 max-h-[85dvh] rounded-t-[20px] border-t border-line",
+              "inset-x-0 bottom-0 max-h-[85dvh] border-t border-line",
             isLeft &&
               "inset-y-0 left-0 h-full w-[min(88vw,320px)] border-r border-line",
             isRight &&
@@ -77,7 +77,7 @@ export function Drawer({
                 <button
                   type="button"
                   aria-label="Đóng ngăn kéo"
-                  className="rounded-xl border border-line p-1.5 text-ink-3 transition hover:bg-canvas hover:text-ink"
+                  className="border border-line p-1.5 text-ink-3 transition hover:bg-canvas hover:text-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>

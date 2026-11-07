@@ -228,8 +228,8 @@ export function FleetRegistry() {
                       aria-pressed={isSelected ? "true" : "false"}
                       className={`group grid w-full grid-cols-12 items-center gap-y-2 gap-x-4 py-3.5 px-3 text-left transition-all duration-200 cursor-pointer relative rounded-sm border border-transparent ${
                         isSelected
-                          ? "bg-td-chalk/70 border-td-rule shadow-xs"
-                          : "hover:bg-td-chalk/40 hover:border-td-rule/60 hover:shadow-xs hover:-translate-y-[1px]"
+                          ? "bg-td-chalk/70 border-td-rule"
+                          : "hover:bg-td-chalk/40 hover:border-td-rule/60 hover:-translate-y-[1px]"
                       }`}
                     >
                       {/* Left marker line on selected row */}
@@ -334,7 +334,7 @@ export function FleetRegistry() {
         {/* Right: Contextual Folio - Theme-Aware Surface & Fidelity (P1-01 & P1-05) */}
         <aside
           aria-label="Hồ sơ chi tiết phương tiện"
-          className="lg:col-span-4 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between transition-colors shadow-xs"
+          className="lg:col-span-4 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between transition-colors"
         >
           {selectedVehicle ? (
             <div className="space-y-6">

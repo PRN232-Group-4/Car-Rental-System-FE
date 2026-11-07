@@ -103,10 +103,10 @@ function PaymentResultContent() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 sm:py-12">
-      <div className="p-8 sm:p-10 rounded bg-td-white border border-td-rule shadow-sm text-center space-y-6">
+      <div className="p-8 sm:p-10 rounded bg-td-white border border-td-rule text-center space-y-6">
         {isSuccess ? (
           <>
-            <div className="w-16 h-16 rounded-full bg-primary-tint text-primary flex items-center justify-center mx-auto shadow-lg shadow-primary/20 animate-in zoom-in-95">
+            <div className="w-16 h-16 rounded-full bg-primary-tint text-primary flex items-center justify-center mx-auto animate-in zoom-in-95">
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
@@ -153,7 +153,7 @@ function PaymentResultContent() {
               {isPlanPurchase ? (
                 <Link
                   href="/my-subscriptions"
-                  className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
+                  className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
                 >
                   <Package className="w-4 h-4" />
                   <span>Xem gói thuê của tôi</span>
@@ -169,7 +169,7 @@ function PaymentResultContent() {
                   </Link>
                   <Link
                     href="/booking"
-                    className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2"
+                    className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
                   >
                     <Car className="w-4 h-4" />
                     <span>Đặt thêm xe</span>
@@ -202,7 +202,7 @@ function PaymentResultContent() {
                       ? `/invoices/${orderCode}`
                       : "/invoices"
                 }
-                className="px-6 py-3 rounded bg-primary text-white font-bold text-xs sm:text-sm shadow-md"
+                className="px-6 py-3 rounded bg-primary text-white font-bold text-xs sm:text-sm"
               >
                 Thử thanh toán lại
               </Link>

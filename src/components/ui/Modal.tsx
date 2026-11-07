@@ -42,7 +42,7 @@ export function Modal({
         />
         <Dialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 flex max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-line bg-surface shadow-e3 transition-all",
+            "fixed left-1/2 top-1/2 z-50 flex max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col border border-line bg-surface shadow-e3 transition-all",
             "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
             sizeClasses[size],
             className,
@@ -64,7 +64,7 @@ export function Modal({
                 <button
                   type="button"
                   aria-label="Đóng cửa sổ"
-                  className="rounded-xl border border-line p-2 text-ink-3 transition hover:bg-canvas hover:text-ink"
+                  className="border border-line p-2 text-ink-3 transition hover:bg-canvas hover:text-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>

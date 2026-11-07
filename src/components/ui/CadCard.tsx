@@ -66,10 +66,10 @@ export function CadCard({
   return (
     <div
       ref={cardRef}
-      className={`group relative rounded-xl bg-surface border transition-colors duration-200 select-none overflow-hidden ${
+      className={`group relative bg-surface border transition-colors duration-200 select-none overflow-hidden ${
         active
-          ? "border-primary/80 shadow-sm ring-1 ring-primary/25"
-          : "border-line-strong hover:border-line-strong hover:shadow-sm"
+          ? "border-primary/80 ring-1 ring-primary/25"
+          : "border-line-strong hover:border-line-strong"
       } ${className}`}
       {...props}
     >

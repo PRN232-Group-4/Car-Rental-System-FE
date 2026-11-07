@@ -327,7 +327,7 @@ export default function Vehicle3DViewer({
     return (
       <div
         data-testid="3d-fallback-banner"
-        className={`relative aspect-[16/10] w-full overflow-hidden rounded sm:rounded border border-td-rule bg-stage-ink flex flex-col justify-end p-6 text-white ${className}`}
+        className={`relative aspect-[16/10] w-full overflow-hidden border border-td-rule bg-stage-ink flex flex-col justify-end p-6 text-white ${className}`}
       >
         <Image
           src={posterUrl}
@@ -355,7 +355,7 @@ export default function Vehicle3DViewer({
     return (
       <div
         data-testid="3d-poster-view"
-        className={`relative aspect-[16/10] w-full overflow-hidden rounded sm:rounded border border-td-rule bg-stage-ink flex items-center justify-center p-6 ${className}`}
+        className={`relative aspect-[16/10] w-full overflow-hidden border border-td-rule bg-stage-ink flex items-center justify-center p-6 ${className}`}
       >
         <Image
           src={posterUrl}
@@ -366,8 +366,8 @@ export default function Vehicle3DViewer({
           className="object-cover opacity-50"
         />
 
-        <div className="relative z-10 flex flex-col items-center text-center p-6 rounded bg-stage-ink/80 border border-white/10 max-w-md">
-          <div className="flex h-12 w-12 items-center justify-center rounded bg-primary text-white mb-3">
+        <div className="relative z-10 flex flex-col items-center text-center p-6 bg-stage-ink/80 border border-white/10 max-w-md">
+          <div className="flex h-12 w-12 items-center justify-center bg-primary text-white mb-3">
             <Rotate3d className="w-6 h-6 animate-pulse" />
           </div>
           <h3 className="text-base font-bold text-white">Khám phá mô hình 3D tương tác</h3>
@@ -378,7 +378,7 @@ export default function Vehicle3DViewer({
           <button
             type="button"
             onClick={() => setIsActivated(true)}
-            className="mt-4 flex items-center gap-2 rounded bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 transition-all cursor-pointer"
+            className="mt-4 flex items-center gap-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 transition-all cursor-pointer"
           >
             <Play className="w-4 h-4" />
             <span>Khởi động mô hình 3D (25 MB)</span>
@@ -391,7 +391,7 @@ export default function Vehicle3DViewer({
   return (
     <div
       data-testid="3d-canvas-container"
-      className={`relative aspect-[16/10] w-full overflow-hidden rounded sm:rounded border border-td-rule bg-td-chalk ${className}`}
+      className={`relative aspect-[16/10] w-full overflow-hidden border border-td-rule bg-td-chalk ${className}`}
     >
       {/* Three.js Canvas Container — touch-action: pan-y đảm bảo cuộn dọc trên mobile */}
       <div
@@ -408,7 +408,7 @@ export default function Vehicle3DViewer({
             Đang tải mô hình 3D chính xác...{" "}
             <span className="font-mono tabular-nums">{loadingProgress}%</span>
           </p>
-          <div className="mt-3 h-1.5 w-48 rounded-full bg-line overflow-hidden">
+          <div className="mt-3 h-1.5 w-48 bg-line overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-200"
               style={{ width: `${loadingProgress}%` }}
@@ -425,7 +425,7 @@ export default function Vehicle3DViewer({
           <button
             type="button"
             onClick={() => setIsActivated(false)}
-            className="mt-3 rounded border border-td-rule bg-td-white px-3 py-1.5 text-xs font-semibold text-td-ink hover:bg-td-chalk"
+            className="mt-3 border border-td-rule bg-td-white px-3 py-1.5 text-xs font-semibold text-td-ink hover:bg-td-chalk"
           >
             Quay lại xem ảnh chụp
           </button>
@@ -435,7 +435,7 @@ export default function Vehicle3DViewer({
       {/* Floating Toolbar Điều Khiển 3D */}
       {!isLoading && !loadError && (
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-1.5 rounded bg-td-white/90 px-3 py-1.5 text-xs font-bold text-td-ink border border-td-rule pointer-events-auto">
+          <div className="flex items-center gap-1.5 bg-td-white/90 px-3 py-1.5 text-xs font-bold text-td-ink border border-td-rule pointer-events-auto">
             <Rotate3d className="w-4 h-4 text-primary" />
             <span>Kéo chuột / vuốt để xoay</span>
           </div>
@@ -445,7 +445,7 @@ export default function Vehicle3DViewer({
               type="button"
               onClick={() => setIsAutoRotate(!isAutoRotate)}
               aria-label="Bật/Tắt tự xoay"
-              className={`rounded px-2.5 py-1.5 text-xs font-semibold shadow-xs border transition-colors cursor-pointer ${
+              className={`rounded px-2.5 py-1.5 text-xs font-semibold border transition-colors cursor-pointer ${
                 isAutoRotate
                   ? "bg-primary text-white border-primary"
                   : "bg-td-white/90 text-td-ink border-td-rule hover:bg-td-chalk"
@@ -457,7 +457,7 @@ export default function Vehicle3DViewer({
               type="button"
               onClick={handleResetCamera}
               aria-label="Đặt lại góc camera"
-              className="rounded border border-td-rule bg-td-white/90 p-2 text-td-ink shadow-xs hover:bg-td-chalk transition-colors cursor-pointer"
+              className="border border-td-rule bg-td-white/90 p-2 text-td-ink hover:bg-td-chalk transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -467,7 +467,7 @@ export default function Vehicle3DViewer({
 
       {/* Bảng chọn màu thân xe (DESIGN.md A8 Color Customization) */}
       {!isLoading && !loadError && (
-        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded bg-td-white/95 p-3 border border-td-rule">
+        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 bg-td-white/95 p-3 border border-td-rule">
           <div className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Màu thân xe:</span>
@@ -484,7 +484,7 @@ export default function Vehicle3DViewer({
                   aria-label={`Chọn màu ${col.name}`}
                   className={`h-6 w-6 rounded-full border transition-all cursor-pointer ${
                     isSelected
-                      ? "ring-2 ring-primary ring-offset-2 scale-110 shadow-xs border-white"
+                      ? "ring-2 ring-primary ring-offset-2 scale-110 border-white"
                       : "border-td-rule hover:scale-105"
                   }`}
                   style={{ backgroundColor: col.hex }}

@@ -34,10 +34,10 @@ export const GlassPanel = forwardRef<HTMLDivElement, GlassPanelProps>(function G
   };
 
   const radiusClasses: Record<GlassRadius, string> = {
-    control: "rounded-[var(--r-control)]",
-    card: "rounded-[var(--r-card)]",
-    panel: "rounded-[var(--r-panel)]",
-    pill: "rounded-[var(--r-pill)]",
+    control: "rounded-none",
+    card: "rounded-none",
+    panel: "rounded-none",
+    pill: "rounded-none",
     none: "rounded-none",
   };
 

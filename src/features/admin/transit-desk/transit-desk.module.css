@@ -475,7 +475,7 @@
   border-radius: 0;
   border: 1px solid var(--color-td-rule);
   background-color: var(--color-td-paper);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-e3);
   --spotlight-x: 50%;
   --spotlight-y: 50%;
   --spotlight-opacity: 0;
@@ -483,19 +483,7 @@
 }
 
 .routeIndexSpotlight {
-  position: absolute;
-  width: 320px;
-  height: 320px;
-  top: var(--spotlight-y, 50%);
-  left: var(--spotlight-x, 50%);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  border-radius: 9999px;
-  background-color: var(--color-td-oxide);
-  opacity: calc(var(--spotlight-opacity, 0) * 0.1);
-  filter: blur(48px);
-  transition: opacity 0.25s ease;
-  z-index: 10;
+  display: none;
 }
 
 .routeIndexItem {
@@ -552,7 +540,7 @@
   display: inline-block;
   width: 6px;
   height: 6px;
-  border-radius: 9999px;
+  border-radius: 50%;
   background-color: var(--color-td-oxide);
   flex-shrink: 0;
   animation: incidentDotBlink 1.5s ease-in-out infinite alternate;
