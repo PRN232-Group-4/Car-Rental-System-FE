@@ -1,5 +1,13 @@
+/* Sidebar is ink chrome (A14.7): re-point the td-* tokens it uses instead of rewriting every class. */
 .sidebarSurface {
-  background-color: var(--surface);
+  --td-white: var(--ink-950);
+  --td-paper: var(--ink-800);
+  --td-ink: var(--bone-100);
+  --td-ink-muted: rgba(233, 228, 216, 0.65);
+  --td-rule: rgba(233, 228, 216, 0.15);
+  --td-chalk: rgba(233, 228, 216, 0.08);
+  background-color: var(--ink-950);
+  color: var(--bone-100);
 }
 
 .brandCollapsed {

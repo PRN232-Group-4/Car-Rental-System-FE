@@ -13,10 +13,8 @@ import {
   LogOut,
   KeyRound,
   Menu,
-  Moon,
   PanelLeftClose,
   PanelLeftOpen,
-  Sun,
   X,
 } from "lucide-react";
 import styles from "./AppPortalShell.module.css";
@@ -44,8 +42,6 @@ export interface AppPortalShellProps {
   profileLoading?: boolean;
   profileError?: string;
   rightHeaderActions?: ReactNode;
-  theme?: "light" | "dark";
-  onToggleTheme?: () => void;
   onLogout: () => Promise<void> | void;
   children: ReactNode;
 }
@@ -61,8 +57,6 @@ export default function AppPortalShell({
   profileLoading = false,
   profileError,
   rightHeaderActions,
-  theme,
-  onToggleTheme,
   onLogout,
   children,
 }: AppPortalShellProps) {
@@ -120,10 +114,10 @@ export default function AppPortalShell({
         >
           {/* Expanded: text only */}
           <div className={`${styles.brandExpanded} flex flex-col`}>
-            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-td-ink group-hover:text-primary transition-colors">
+            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-td-ink group-hover:text-sun-400 transition-colors">
               ThongDong.
             </span>
-            <span className={`${styles.sidebarText} block text-[10px] font-bold uppercase tracking-[0.2em] text-primary mt-0.5`}>
+            <span className={`${styles.sidebarText} block text-[10px] font-bold uppercase tracking-[0.2em] text-sun-400 mt-0.5`}>
               {portalLabel}
             </span>
           </div>
@@ -243,7 +237,6 @@ export default function AppPortalShell({
   return (
     <div
       className={`${styles.shell} min-h-[100dvh] bg-td-paper text-td-ink`}
-      data-admin-theme={theme}
       data-menu-collapsed={!desktopMenuOpen}
       data-menu-animated={menuAnimated}
     >
@@ -330,23 +323,6 @@ export default function AppPortalShell({
           {/* Right Header Actions */}
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {rightHeaderActions}
-
-            {onToggleTheme && theme && (
-              <button
-                type="button"
-                onClick={onToggleTheme}
-                aria-label="Đổi giao diện sáng/tối"
-                aria-pressed={theme === "dark"}
-                title={theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule text-td-ink transition hover:bg-td-chalk focus-visible:outline-2 focus-visible:outline-primary cursor-pointer"
-              >
-                {theme === "dark" ? (
-                  <Sun aria-hidden="true" className="h-4 w-4" />
-                ) : (
-                  <Moon aria-hidden="true" className="h-4 w-4" />
-                )}
-              </button>
-            )}
 
             <span
               aria-hidden="true"

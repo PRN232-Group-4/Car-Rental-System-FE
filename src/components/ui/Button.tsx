@@ -65,7 +65,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     "sticky-morph":
       "bg-stage-ink text-white hover:bg-primary transition-colors cursor-pointer",
     "filter-pill":
-      "rounded-full bg-td-white text-td-ink border border-td-rule hover:border-td-ink transition-colors cursor-pointer",
+      "bg-td-white text-td-ink border border-td-rule hover:border-td-ink transition-colors cursor-pointer",
     secondary:
       "border border-td-rule bg-transparent text-td-ink hover:bg-td-chalk transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
     "secondary-stage":

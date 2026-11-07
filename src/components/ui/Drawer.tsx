@@ -55,7 +55,7 @@ export function Drawer({
           )}
         >
           {isBottom && (
-            <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-sunken" />
+            <div className="mx-auto mt-3 h-1.5 w-12 bg-sunken" />
           )}
 
           {title ? (

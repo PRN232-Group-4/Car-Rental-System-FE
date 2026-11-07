@@ -7,16 +7,14 @@ import { useNavigationRouter as useRouter } from "@/components/navigation/Naviga
 import { useAuth } from "@/features/auth";
 import { usePortalAccess } from "@/features/auth/use-portal-access";
 import { isAdminOrStaffAccount } from "@/features/profile/api";
-import { useAdminTheme } from "@/features/admin/use-admin-theme";
 import { getNavigation, ROUTE_CHAPTER_MAP, type NavItem } from "@/config/navigation";
 import type { Role } from "@/features/auth/roles";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "./transit-desk.module.css";
-import RentalLiquidTransition from "./RentalLiquidTransition";
 import { FormSkeleton } from "@/components/ui/Skeleton";
 import { operatorContext } from "./operator-context";
 import AccountAvatar from "@/components/ui/AccountAvatar";
-import { House, Moon, Sun, LogOut, User, KeyRound, Volume2, VolumeX } from "lucide-react";
+import { House, LogOut, User, KeyRound, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
 import {
   isHapticAudioEnabled,
@@ -35,7 +33,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useAdminTheme();
   const { account, checkingAccess, accessError } = usePortalAccess(
     isAdminOrStaffAccount,
   );
@@ -67,15 +64,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
     return (account?.roles ?? user?.roles ?? []) as Role[];
   }, [account?.roles, user?.roles]);
 
-  // Clean up data-admin-theme when navigating away from Admin portal
-  useEffect(() => {
-    return () => {
-      if (typeof document !== "undefined") {
-        delete document.documentElement.dataset.adminTheme;
-        document.documentElement.removeAttribute("data-admin-theme");
-      }
-    };
-  }, []);
   // Global hotkey for Ctrl+K / Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -218,7 +206,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
   return (
     <div
       data-portal="admin"
-      data-admin-theme={theme}
       data-subportal={
         pathname?.startsWith("/admin/rentals") ? "rental-v4" : undefined
       }
@@ -273,28 +260,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
           </div>
 
           <CommandTrigger onClick={() => setIsRouteIndexOpen(true)} />
-
-          <button
-            type="button"
-            id="admin-theme-toggle"
-            data-testid="admin-theme-toggle"
-            onClick={() => {
-              playTactileClick();
-              toggleTheme();
-            }}
-            className={styles.themeToggle}
-            aria-label={
-              theme === "dark"
-                ? "Chuyển giao diện sáng"
-                : "Chuyển giao diện tối"
-            }
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
 
           {/* Micro-Haptic Audio Toggle */}
           <button
@@ -434,7 +399,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
       )}
 
       {/* Global A1.1 Organic Liquid Flood Transition */}
-      <RentalLiquidTransition />
     </div>
   );
 }

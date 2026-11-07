@@ -126,8 +126,7 @@
 }
 
 /* LIGHT THEME TOKENS */
-:global([data-admin-theme="light"]) .workspaceRoot,
-:global([data-theme="light"]) .workspaceRoot {
+.workspaceRoot {
   --bg-canvas: #E7E3DD;
   --bg-stage: rgba(250, 248, 245, 0.88);
   --bg-stage-solid: #FAF8F5;
@@ -353,8 +352,7 @@
   box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.18);
 }
 
-:global([data-admin-theme="light"]) .queueItemActive,
-:global([data-theme="light"]) .queueItemActive {
+.queueItemActive {
   border-left: 3px solid var(--color-mulberry) !important;
 }
 
@@ -362,8 +360,7 @@
   color: var(--color-champagne) !important;
 }
 
-:global([data-admin-theme="light"]) .queueItemActive .queueId,
-:global([data-theme="light"]) .queueItemActive .queueId {
+.queueItemActive .queueId {
   color: var(--color-mulberry) !important;
 }
 
@@ -412,14 +409,6 @@
 }
 
 
-
-:global(html[data-admin-theme="dark"]) .dossierPanel::before {
-  background: radial-gradient(
-    650px circle at var(--dossier-mouse-x, 50%) var(--dossier-mouse-y, 0%),
-    rgba(200, 169, 107, 0.14),
-    transparent 65%
-  );
-}
 
 /* ADAPTIVE HORIZONTAL STEPPER RAIL (ZERO COLLISION) */
 .stepperContainer {
@@ -581,8 +570,7 @@
   animation: stepperRipple 2.2s infinite;
 }
 
-:global([data-admin-theme="light"]) .stepperGlyphActive,
-:global([data-theme="light"]) .stepperGlyphActive {
+.stepperGlyphActive {
   border-color: var(--stage-amber);
   background-color: var(--stage-amber);
   color: var(--color-white);
@@ -676,8 +664,7 @@
   border: 1px solid rgba(200, 169, 107, 0.32);
 }
 
-:global([data-admin-theme="light"]) .telemetryIllustrativeBadge,
-:global([data-theme="light"]) .telemetryIllustrativeBadge {
+.telemetryIllustrativeBadge {
   color: var(--color-champagne);
   background: rgba(122, 91, 24, 0.10);
   border-color: rgba(122, 91, 24, 0.28);
@@ -744,8 +731,7 @@
 }
 
 /* Light Theme Overrides */
-:global([data-admin-theme="light"]) .gpsTrackingPanel,
-:global([data-theme="light"]) .gpsTrackingPanel {
+.gpsTrackingPanel {
   --surface: #FAF8F5;
   --bg-surface: #FAF8F5;
   --ink: #1F1B22;
@@ -759,42 +745,35 @@
   --primary: var(--td-oxide);
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(section),
-:global([data-theme="light"]) .gpsTrackingPanel :global(section) {
+.gpsTrackingPanel :global(section) {
   background-color: #FAF8F5 !important;
   border-color: rgba(31, 27, 34, 0.12) !important;
   color: #1F1B22 !important;
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(h2),
-:global([data-theme="light"]) .gpsTrackingPanel :global(h2) {
+.gpsTrackingPanel :global(h2) {
   color: #1F1B22 !important;
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(.text-ink-3),
-:global([data-theme="light"]) .gpsTrackingPanel :global(.text-ink-3) {
+.gpsTrackingPanel :global(.text-ink-3) {
   color: #58515E !important;
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(button),
-:global([data-theme="light"]) .gpsTrackingPanel :global(button) {
+.gpsTrackingPanel :global(button) {
   color: var(--td-oxide) !important;
   border-color: color-mix(in srgb, var(--td-oxide) 28%, transparent) !important;
   background-color: color-mix(in srgb, var(--td-oxide) 5%, transparent);
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(button:hover),
-:global([data-theme="light"]) .gpsTrackingPanel :global(button:hover) {
+.gpsTrackingPanel :global(button:hover) {
   border-color: var(--td-oxide) !important;
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(dt),
-:global([data-theme="light"]) .gpsTrackingPanel :global(dt) {
+.gpsTrackingPanel :global(dt) {
   color: #58515E !important;
 }
 
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(dd),
-:global([data-theme="light"]) .gpsTrackingPanel :global(dd) {
+.gpsTrackingPanel :global(dd) {
   color: #1F1B22 !important;
 }
 
@@ -954,8 +933,7 @@
   box-shadow: 0 0 0 1px var(--color-champagne);
 }
 
-:global([data-admin-theme="light"]) .inputField:focus,
-:global([data-theme="light"]) .inputField:focus {
+.inputField:focus {
   border-color: var(--color-mulberry);
   box-shadow: 0 0 0 1px var(--color-mulberry);
 }
@@ -994,8 +972,7 @@
   border: 1px solid rgba(217, 68, 54, 0.35);
 }
 
-:global([data-admin-theme="light"]) .overrideBadge,
-:global([data-theme="light"]) .overrideBadge {
+.overrideBadge {
   color: #B3261E;
   background: #FCE8E6;
   border-color: #B3261E;

@@ -3,8 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "@/components/navigation/NavigationLink";
 import Image from "next/image";
-import { Menu, X, LogOut, ChevronDown, Car, FileCheck, KeyRound, Sun, Moon, Volume2, VolumeX } from "lucide-react";
-import { useTheme } from "@/lib/use-theme";
+import { Menu, X, LogOut, ChevronDown, Car, FileCheck, KeyRound, Volume2, VolumeX } from "lucide-react";
 import { isHapticAudioEnabled, setHapticAudioEnabled, playTactileClick } from "@/lib/audio/haptic-audio";
 import { useEffect } from "react";
 import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
@@ -27,7 +26,6 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const mounted = useMounted();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
 
   useEffect(() => {
@@ -150,18 +148,6 @@ export default function Navbar() {
 
           {/* Right Action buttons */}
           <div className="ml-auto hidden lg:flex items-center gap-2 whitespace-nowrap">
-            <button
-              type="button"
-              id="theme-toggle"
-              data-testid="global-theme-toggle"
-              onClick={toggleTheme}
-              className={ICON_BUTTON}
-              aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
-              title={theme === "dark" ? "Giao diện: Tối" : "Giao diện: Sáng"}
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-sun-400" /> : <Moon className="w-4 h-4" />}
-            </button>
-
             <button
               type="button"
               id="global-audio-toggle"
@@ -298,17 +284,6 @@ export default function Navbar() {
 
           {/* Mobile secondary controls & menu toggle */}
           <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              id="mobile-theme-toggle"
-              data-testid="mobile-theme-toggle"
-              onClick={toggleTheme}
-              className={ICON_BUTTON}
-              aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
-              title={theme === "dark" ? "Giao diện: Tối" : "Giao diện: Sáng"}
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-sun-400" /> : <Moon className="w-4 h-4" />}
-            </button>
             <button
               type="button"
               id="mobile-audio-toggle"

@@ -53,9 +53,10 @@ describe("Phase 3C — Vietnamese Typography & NFC Integrity Regression", () => 
     }
   });
 
-  it("biến dark theme --td-rule đạt độ tương phản non-text >= 3.0:1 theo WCAG 2.1", () => {
+  it("chỉ có một theme giấy/mực: --td-rule dùng đường kẻ chung, không còn khối theme tối", () => {
     const globalsCss = fs.readFileSync(path.resolve(process.cwd(), "src/app/globals.css"), "utf8");
-    expect(globalsCss).toContain("--td-rule: rgba(245, 241, 236, 0.14);");
+    expect(globalsCss).toContain("--td-rule: var(--line);");
+    expect(globalsCss).not.toMatch(/data-(admin-)?theme="dark"/);
     expect(globalsCss).toContain("--font-serif: var(--font-be-vietnam)");
   });
 });

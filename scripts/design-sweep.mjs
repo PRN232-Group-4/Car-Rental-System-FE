@@ -1,0 +1,130 @@
+// Visits every app route with a mocked API and signed-in Admin+Customer profile,
+// then records how far each page is from the landing visual language (DESIGN.md A14).
+// Usage: node scripts/design-sweep.mjs <tag> [baseUrl]
+// Output: test-results/design-sweep/<tag>/{report.json,*.png}
+import { chromium } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const tag = process.argv[2] ?? "current";
+const base = process.argv[3] ?? "http://localhost:3000";
+const outDir = path.join(root, "test-results", "design-sweep", tag);
+fs.mkdirSync(outDir, { recursive: true });
+
+const SKIP = new Set(["/", "/dev/glyph-test"]);
+
+function routesFromAppDir() {
+  const appDir = path.join(root, "src", "app");
+  const routes = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name === "page.tsx") {
+        const rel = path.relative(appDir, dir).split(path.sep).filter((s) => !/^\(.*\)$/.test(s));
+        const url = "/" + rel.map((s) => (/^\[.*\]$/.test(s) ? "1" : s)).join("/");
+        if (!SKIP.has(url)) routes.push(url);
+      }
+    }
+  };
+  walk(appDir);
+  return routes.sort();
+}
+
+// Each portal redirects users without its role, so the profile follows the route.
+function rolesFor(route) {
+  if (route.startsWith("/admin")) return ["Admin"];
+  if (route.startsWith("/staff")) return ["Driver"];
+  if (["/login", "/register", "/forgot-password"].includes(route)) return null;
+  return ["Customer"];
+}
+
+async function mockApi(page, getRoute) {
+  await page.route("**/api/**", (route) => {
+    const p = new URL(route.request().url()).pathname;
+    if (p.endsWith("/account/profile")) {
+      const roles = rolesFor(getRoute());
+      return roles
+        ? route.fulfill({ json: { id: 1, fullName: "Kiểm Thử", email: "sweep@test.local", roles } })
+        : route.fulfill({ status: 401, json: { title: "Unauthorized" } });
+    }
+    return route.fulfill({ json: { items: [], totalCount: 0, data: [] } });
+  });
+}
+
+// Old A1–A13 colors that should disappear once a page follows the landing palette.
+const LEGACY = {
+  "rgb(180, 83, 9)": "amber",
+  "rgb(146, 64, 14)": "amber-hover",
+  "rgb(254, 243, 199)": "amber-tint",
+  "rgb(250, 248, 245)": "td-paper",
+  "rgb(251, 251, 249)": "canvas",
+  "rgb(15, 23, 42)": "slate-ink",
+};
+
+function measure(legacy) {
+  const isVisible = (el, r) => r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden";
+  let rounded = 0;
+  let backdrop = 0;
+  const legacyHits = {};
+  const roundedSamples = [];
+  for (const el of document.querySelectorAll("body *")) {
+    if (el.closest("svg") || el.closest("nextjs-portal")) continue;
+    const r = el.getBoundingClientRect();
+    if (!isVisible(el, r)) continue;
+    const cs = getComputedStyle(el);
+    const radius = parseFloat(cs.borderTopLeftRadius) || 0;
+    const isDisc = radius >= Math.min(r.width, r.height) / 2 - 1 && Math.abs(r.width - r.height) <= 2;
+    if (radius > 0.5 && !isDisc) {
+      rounded++;
+      if (roundedSamples.length < 5) roundedSamples.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)}`);
+    }
+    if (cs.backdropFilter && cs.backdropFilter !== "none") backdrop++;
+    for (const prop of ["color", "backgroundColor", "borderTopColor"]) {
+      const name = legacy[cs[prop]];
+      if (name) legacyHits[name] = (legacyHits[name] ?? 0) + 1;
+    }
+  }
+  const main = document.querySelector("main") ?? document.body;
+  return {
+    bodyBg: getComputedStyle(document.body).backgroundColor,
+    mainBg: getComputedStyle(main).backgroundColor,
+    h1Font: document.querySelector("h1") ? getComputedStyle(document.querySelector("h1")).fontFamily.split(",")[0] : null,
+    rounded,
+    roundedSamples,
+    backdrop,
+    legacyHits,
+  };
+}
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+let current = "/";
+await mockApi(page, () => current);
+const report = {};
+for (const route of routesFromAppDir()) {
+  current = route;
+  try {
+    await page.context().clearCookies();
+    await page.goto(base + route, { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(1500);
+    report[route] = { finalUrl: new URL(page.url()).pathname, ...(await page.evaluate(measure, LEGACY)) };
+    await page.screenshot({ path: path.join(outDir, `${route.slice(1).replace(/\//g, "__") || "root"}.png`) });
+  } catch (error) {
+    report[route] = { error: String(error).slice(0, 200) };
+  }
+  const r = report[route];
+  console.log(route, r.error ? `ERROR ${r.error}` : `rounded=${r.rounded} backdrop=${r.backdrop} legacy=${JSON.stringify(r.legacyHits)}`);
+}
+await browser.close();
+fs.writeFileSync(path.join(outDir, "report.json"), JSON.stringify(report, null, 2));
+
+const rows = Object.values(report).filter((r) => !r.error);
+const sum = (f) => rows.reduce((n, r) => n + f(r), 0);
+console.log(
+  `\nSUMMARY ${tag}: routes=${rows.length} errors=${Object.keys(report).length - rows.length} ` +
+    `rounded=${sum((r) => r.rounded)} backdrop=${sum((r) => r.backdrop)} ` +
+    `legacy=${sum((r) => Object.values(r.legacyHits).reduce((a, b) => a + b, 0))}`,
+);

@@ -25,14 +25,15 @@
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr) auto;
   align-items: stretch;
-  border-bottom: 1px solid var(--color-td-rule);
-  background-color: var(--color-td-white);
+  border-bottom: 1px solid rgba(233, 228, 216, 0.15);
+  background-color: var(--ink-950);
+  color: var(--bone-100);
   min-height: 72px;
 }
 
 .logoZone {
-  background-color: var(--color-td-ink);
-  color: var(--color-td-white);
+  background-color: var(--ink-950);
+  color: var(--bone-100);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -47,23 +48,22 @@
   position: absolute;
   right: 0;
   top: 0;
-  width: 12px;
+  width: 4px;
   height: 100%;
-  background-color: var(--color-td-oxide);
-  transform: skewX(-12deg) translateX(7px);
+  background-color: var(--sun-600);
 }
 
 .tdMark {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 900;
   font-size: 28px;
   line-height: 1;
   letter-spacing: -0.05em;
-  color: var(--color-td-white);
+  color: var(--bone-100);
 }
 
 .tdMarkSlash {
-  color: var(--color-td-oxide);
+  color: var(--sun-400);
 }
 
 .brandName {
@@ -104,7 +104,7 @@
   white-space: nowrap;
   font-size: 13px;
   font-weight: 700;
-  color: var(--color-td-muted);
+  color: rgba(233, 228, 216, 0.72);
   position: relative;
   background: transparent;
   border: none;
@@ -114,11 +114,11 @@
 }
 
 .chapterBtn:hover {
-  color: var(--color-td-ink);
+  color: var(--sun-400);
 }
 
 .chapterBtn[aria-current="true"] {
-  color: var(--color-td-ink);
+  color: var(--bone-100);
 }
 
 .navigationDot {
@@ -128,7 +128,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: var(--color-td-oxide);
+  background-color: var(--sun-400);
 }
 
 .navigationCount {
@@ -140,9 +140,9 @@
   min-height: 20px;
   margin-left: 7px;
   padding: 1px 5px;
-  border: 1px solid var(--color-td-oxide);
-  border-radius: 4px;
-  color: var(--color-td-oxide);
+  border: 1px solid var(--sun-400);
+  border-radius: 0;
+  color: var(--sun-400);
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
@@ -155,18 +155,11 @@
   bottom: 0;
   left: 0;
   height: 3px;
-  background: var(--color-td-oxide);
-  border-radius: 3px 3px 0 0;
+  background: var(--sun-600);
   pointer-events: none;
   z-index: 5;
   opacity: 0;
-  box-shadow: 0 0 10px rgba(110, 58, 82, 0.45);
   transition: opacity 150ms ease;
-}
-
-:global([data-admin-theme="dark"]) .chapterGlider {
-  background: var(--color-champagne);
-  box-shadow: 0 0 12px rgba(200, 169, 107, 0.5);
 }
 
 .chapterPageTransition {
@@ -191,7 +184,7 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 10px 20px;
-  border-left: 1px solid var(--color-td-rule);
+  border-left: 1px solid rgba(233, 228, 216, 0.15);
 }
 
 .accountMenu {
@@ -203,7 +196,6 @@
   padding: 8px;
   border: 1px solid var(--color-td-rule);
   border-top: 0;
-  border-radius: 0 0 4px 4px;
   background-color: var(--color-td-white);
   color: var(--color-td-ink);
   font-size: 12px;
@@ -213,18 +205,26 @@
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.4;
-  color: var(--color-td-muted);
+  color: rgba(233, 228, 216, 0.6);
   text-align: right;
 }
 
+.utilityMeta :global(.text-td-ink) {
+  color: var(--bone-100);
+}
+
+.utilityMeta :global(.text-td-muted) {
+  color: rgba(233, 228, 216, 0.6);
+}
+
 .commandTrigger {
-  background-color: var(--color-td-ink);
-  color: var(--color-td-white);
+  background-color: var(--primary);
+  color: var(--on-primary);
   height: 36px;
   padding: 0 12px;
   font-size: 12px;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -234,7 +234,7 @@
 }
 
 .commandTrigger:hover {
-  background-color: var(--color-td-teal);
+  background-color: var(--primary-hover);
 }
 
 .commandTrigger kbd {
@@ -243,9 +243,10 @@
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: 0;
 }
 
+/* Icon button in the ink masthead: a disc, the only round shape besides avatars. */
 .themeToggle {
   height: 36px;
   width: 36px;
@@ -253,15 +254,16 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid var(--color-td-rule);
-  border-radius: 4px;
-  color: var(--color-td-ink);
+  border: 1px solid rgba(233, 228, 216, 0.24);
+  border-radius: 50%;
+  color: rgba(233, 228, 216, 0.75);
   cursor: pointer;
-  transition: background-color 0.15s ease-out;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
 }
 
 .themeToggle:hover {
-  background-color: var(--color-td-chalk);
+  color: var(--sun-400);
+  border-color: var(--sun-400);
 }
 
 /* 2. Operations Context Strip (48â€“54px) */
@@ -470,7 +472,7 @@
   width: 100%;
   max-width: 42rem;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 0;
   border: 1px solid var(--color-td-rule);
   background-color: var(--color-td-paper);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -496,10 +498,6 @@
   z-index: 10;
 }
 
-:global(html[data-admin-theme="dark"]) .routeIndexSpotlight {
-  opacity: calc(var(--spotlight-opacity, 0) * 0.16);
-}
-
 .routeIndexItem {
   position: relative;
   display: flex;
@@ -507,7 +505,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-radius: 6px;
+  border-radius: 0;
   padding: 10px 14px;
   text-align: left;
   border-left: 3px solid transparent;
@@ -535,7 +533,7 @@
 .incidentOverduePulse {
   position: relative;
   animation: incidentRadarPulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 @keyframes incidentRadarPulse {
