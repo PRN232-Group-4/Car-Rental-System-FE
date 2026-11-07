@@ -63,24 +63,22 @@ test("overview shows named skeletons without zero fleet counts while loading", a
 });
 
 for (const width of [375, 768, 1280]) {
-  test(`overview fits ${width}px in dark theme and reduced motion`, async ({ page }) => {
+  test(`overview fits ${width}px with reduced motion`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/admin");
     await expect(page.getByRole("complementary")).toContainText(/5\s*\/\s*12 XE SẴN SÀNG/);
-    await expect(page.locator("html")).toHaveAttribute("data-admin-theme", "dark");
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-    await page.screenshot({ path: `test-results/dashboard-charts/dashboard-dark-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `test-results/dashboard-charts/dashboard-reduced-${width}.png`, fullPage: true });
   });
 }
 
 for (const width of [375, 1280]) {
-  test(`overview fits ${width}px in light theme`, async ({ page }) => {
+  test(`overview fits ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.emulateMedia({ colorScheme: "light" });
     await page.goto("/admin");
     await expect(page.getByRole("complementary")).toContainText(/5\s*\/\s*12 XE SẴN SÀNG/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-    await page.screenshot({ path: `test-results/dashboard-charts/dashboard-light-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `test-results/dashboard-charts/dashboard-${width}.png`, fullPage: true });
   });
 }

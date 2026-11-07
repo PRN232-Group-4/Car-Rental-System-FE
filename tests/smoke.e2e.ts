@@ -11,22 +11,40 @@ describe('Smoke — trang chủ', () => {
     await expect(screen.getByRole('link', { name: 'ThongDong.' }).first()).toBeVisible();
   });
 
-  test('thanh điều hướng có đủ mục chính và nút đăng nhập/đăng ký', async ({ app, screen }) => {
+  test('nút Menu mở lớp điều hướng với đủ mục chính, đăng nhập và đăng ký', async ({ app, browser, screen }) => {
     await app.open('/');
 
-    for (const name of ['Thuê xe', 'Chi nhánh', 'Gói thuê bao', 'Hướng dẫn', 'Kiểm định']) {
-      await expect(screen.getByRole('link', { name, exact: true }).first()).toBeVisible();
+    await screen.getByRole('button', { name: 'Mở menu điều hướng' }).click();
+    await expect(browser.locator('[role="dialog"][aria-label="Menu điều hướng"]')).toBeVisible();
+
+    const items: Array<[string, string]> = [
+      ['ĐỘI XE TUYỂN CHỌN', '/find'],
+      ['MẠNG LƯỚI TRẠM', '/facilities'],
+      ['KIỂM ĐỊNH KỸ THUẬT 3D', '/inspection'],
+      ['GÓI HỘI VIÊN', '/subscriptions'],
+      ['ĐĂNG KÝ THÀNH VIÊN', '/register'],
+      ['ĐĂNG NHẬP', '/login'],
+    ];
+    for (const [label, href] of items) {
+      const link = browser.locator(`[role="dialog"] a[href="${href}"]`);
+      await expect(link).toBeVisible();
+      await expect(link).toContainText(label);
     }
-    await expect(screen.getByRole('link', { name: 'Đăng nhập' }).first()).toBeVisible();
-    await expect(screen.getByRole('link', { name: 'Đăng ký' }).first()).toBeVisible();
   });
 
-  test('landing render đủ 8 khối nội dung theo thứ tự', async ({ app, browser }) => {
+  test('landing render đủ 5 chương nội dung theo thứ tự', async ({ app, browser }) => {
     await app.open('/');
 
-    for (const id of ['#gioi-thieu', '#tim-xe', '#showroom-3d', '#doi-xe', '#cong-nghe', '#quy-trinh', '#goi-thue-bao', '#lien-he']) {
-      await expect(browser.locator(id)).toBeAttached();
+    const expected = ['gioi-thieu', 'cung-duong', 'quy-trinh', 'tin-cay', 'dat-xe'];
+    for (const id of expected) {
+      await expect(browser.locator(`#${id}`)).toBeAttached();
     }
+
+    const order = await browser.evaluate((ids: string[]) => {
+      const all = Array.from(document.querySelectorAll('main [id]')).map((el) => el.id);
+      return all.filter((id) => ids.includes(id));
+    }, expected);
+    expect(order).toEqual(expected);
   });
 
   test('route công khai trả về nội dung, route riêng tư chặn khách', async ({ app, browser }) => {

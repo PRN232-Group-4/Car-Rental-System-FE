@@ -37,16 +37,17 @@ describe('Responsive — không tràn ngang', () => {
     expect(submit!.y).toBeGreaterThan(frame!.y + frame!.height / 2);
   });
 
-  test('dưới lg thì dùng menu điều hướng thu gọn', async ({ app, browser, screen }) => {
+  test('ở mọi cỡ màn hình điều hướng là nút Menu mở lớp phủ toàn màn hình', async ({ app, browser, screen }) => {
     await app.open('/');
     await browser.setViewport({ width: 768, height: 900 });
 
-    // Ở 768px bản desktop không đủ chỗ, nên điều hướng phải là dạng thu gọn.
+    const dialog = browser.locator('[role="dialog"][aria-label="Menu điều hướng"]');
     await expect(screen.getByRole('button', { name: 'Mở menu điều hướng' })).toBeVisible();
-    await expect(browser.locator('#mobile-nav-menu')).toBeHidden();
+    await expect(dialog).toBeHidden();
 
     await screen.getByRole('button', { name: 'Mở menu điều hướng' }).click();
-    await expect(browser.locator('#mobile-nav-menu')).toBeVisible();
-    await expect(screen.getByRole('link', { name: 'Gói thuê bao' }).first()).toBeVisible();
+    await expect(dialog).toBeVisible();
+    await expect(browser.locator('[role="dialog"] a[href="/subscriptions"]')).toBeVisible();
+    await expect(browser.locator('[role="dialog"] a[href="/login"]')).toBeVisible();
   });
 });

@@ -10,7 +10,6 @@ const technician = { id: 9, userId: 201, email: "maintenance@example.test", full
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript(() => localStorage.setItem("vrs-admin-theme", "light"));
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     let data: unknown = { items: [], totalCount: 0, page: 1, pageSize: 100 };
@@ -43,10 +42,7 @@ for (const width of [1600, 1280, 390]) {
     await page.getByRole("textbox", { name: "Số GPLX", exact: true }).fill("790123456789");
     await page.getByRole("textbox", { name: "Ngày hết hạn", exact: true }).fill("2030-10-21");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    for (const theme of ["light", "dark"]) {
-      if (theme === "dark") await page.locator("#admin-theme-toggle").click();
-      await page.screenshot({ path: `test-results/staff-email-${width}-${theme}.png`, fullPage: true });
-    }
+    await page.screenshot({ path: `test-results/staff-email-${width}.png`, fullPage: true });
   });
 }
 

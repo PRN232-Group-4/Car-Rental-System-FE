@@ -10,7 +10,6 @@ function envelope(data: unknown, code = 200) {
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript(() => localStorage.setItem("vrs-admin-theme", "light"));
   await page.route("**/api/**", (route) => {
     const url = new URL(route.request().url());
     const path = url.pathname;
@@ -45,9 +44,7 @@ for (const width of [1600, 1280, 390]) {
     await expect(detail.getByText("Xước nhẹ bên trái")).toBeVisible();
     await expect(page.getByText("Mã đơn mẫu kiểm tra:")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `test-results/inspection-directory-${width}-light.png`, fullPage: true });
-    await page.locator("#admin-theme-toggle").click();
-    await page.screenshot({ path: `test-results/inspection-directory-${width}-dark.png`, fullPage: true });
+    await page.screenshot({ path: `test-results/inspection-directory-${width}.png`, fullPage: true });
   });
 }
 

@@ -31,48 +31,45 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [1600, 1280, 390, 320]) {
-  for (const theme of ["light", "dark"] as const) {
-    test(`vehicle edit fits the Transit Desk layout at ${width}px in ${theme}`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 900 });
-      await page.addInitScript((value) => localStorage.setItem("vrs-admin-theme", value), theme);
-      await page.goto("/admin/vehicles/edit?vehicleId=42");
-      await expect(page.getByRole("heading", { level: 1 })).toContainText("Chỉnh sửa");
-      await expect(page.getByLabel("Hãng xe", { exact: true })).toHaveValue("Toyota");
-      await expect(page.getByLabel("Số chỗ ngồi", { exact: true })).toHaveValue("5");
-      const profile = page.getByRole("complementary", { name: "Hồ sơ phương tiện" });
-      const information = page.getByRole("region", { name: "Thông tin phương tiện", exact: true });
-      await expect(information).toBeVisible();
-      await expect(profile).toContainText("Toyota Vios");
-      await expect(profile).toContainText("51A-123.45");
-      await expect(profile).toContainText("Chi nhánh trung tâm");
-      await page.evaluate(() => document.fonts.ready);
-      const [profileBox, informationBox] = await profile.evaluate((element) => {
-        const information = document.querySelector('section[aria-labelledby="vehicle-general-title"]')!;
-        return [element, information].map((section) => {
-          const { x, y, width, height } = section.getBoundingClientRect();
-          return { x, y, width, height };
-        });
+  test(`vehicle edit fits the Transit Desk layout at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/admin/vehicles/edit?vehicleId=42");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Chỉnh sửa");
+    await expect(page.getByLabel("Hãng xe", { exact: true })).toHaveValue("Toyota");
+    await expect(page.getByLabel("Số chỗ ngồi", { exact: true })).toHaveValue("5");
+    const profile = page.getByRole("complementary", { name: "Hồ sơ phương tiện" });
+    const information = page.getByRole("region", { name: "Thông tin phương tiện", exact: true });
+    await expect(information).toBeVisible();
+    await expect(profile).toContainText("Toyota Vios");
+    await expect(profile).toContainText("51A-123.45");
+    await expect(profile).toContainText("Chi nhánh trung tâm");
+    await page.evaluate(() => document.fonts.ready);
+    const [profileBox, informationBox] = await profile.evaluate((element) => {
+      const information = document.querySelector('section[aria-labelledby="vehicle-general-title"]')!;
+      return [element, information].map((section) => {
+        const { x, y, width, height } = section.getBoundingClientRect();
+        return { x, y, width, height };
       });
-      if (width >= 1024) {
-        expect(informationBox.x).toBeGreaterThanOrEqual(profileBox.x + profileBox.width);
-        expect(Math.abs(informationBox.y - profileBox.y)).toBeLessThanOrEqual(1);
-      } else {
-        expect(informationBox.y).toBeGreaterThanOrEqual(profileBox.y + profileBox.height);
-      }
-      for (const name of ["Thông tin phương tiện", "Thông số kỹ thuật", "Hình ảnh"]) {
-        const section = page.getByRole("region", { name, exact: true });
-        await expect(section).toHaveCSS("border-top-width", "1px");
-        await expect(section).toHaveCSS("border-left-width", "0px");
-      }
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-      const save = page.getByRole("button", { name: "Lưu thay đổi", exact: true });
-      await save.scrollIntoViewIfNeeded();
-      await expect(save).toBeInViewport();
-      await expect(save).toBeEnabled();
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.screenshot({ path: `test-results/vehicle-edit-${width}-${theme}.png`, fullPage: true });
     });
-  }
+    if (width >= 1024) {
+      expect(informationBox.x).toBeGreaterThanOrEqual(profileBox.x + profileBox.width);
+      expect(Math.abs(informationBox.y - profileBox.y)).toBeLessThanOrEqual(1);
+    } else {
+      expect(informationBox.y).toBeGreaterThanOrEqual(profileBox.y + profileBox.height);
+    }
+    for (const name of ["Thông tin phương tiện", "Thông số kỹ thuật", "Hình ảnh"]) {
+      const section = page.getByRole("region", { name, exact: true });
+      await expect(section).toHaveCSS("border-top-width", "1px");
+      await expect(section).toHaveCSS("border-left-width", "0px");
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    const save = page.getByRole("button", { name: "Lưu thay đổi", exact: true });
+    await save.scrollIntoViewIfNeeded();
+    await expect(save).toBeInViewport();
+    await expect(save).toBeEnabled();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: `test-results/vehicle-edit-${width}.png`, fullPage: true });
+  });
 }
 
 test("edit retains inline validation, API errors and upload error associations", async ({ page }) => {
