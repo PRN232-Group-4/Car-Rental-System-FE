@@ -82,18 +82,9 @@ function TripsListContent() {
   return (
     <div className="space-y-6">
       <TransitFolio
-        index="09"
-        tag="KH"
-        kicker="KHÁCH HÀNG · HÀNH TRÌNH"
-        title={<>Chuyến <span className="text-td-teal">của tôi.</span></>}
+        title="Chuyến của tôi"
         description="Theo dõi hành trình, kiểm tra biên bản bàn giao xe và quản lý các đơn thuê xe của bạn."
       >
-        <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG CHUYẾN</span>
-          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-            {isLoading ? "—" : String(totalCount).padStart(2, "0")}
-          </strong>
-        </div>
         {isFetching && !isLoading && (
           <span className="flex items-center gap-1 font-mono text-[11px] text-td-muted">
             <RefreshCw className="h-3.5 w-3.5 animate-spin text-primary" aria-hidden="true" />
@@ -109,7 +100,7 @@ function TripsListContent() {
       </TransitFolio>
 
       {/* Tabs thanh điều hướng */}
-      <div className="flex items-center gap-2 overflow-x-auto border-b border-td-ink pb-2 font-mono text-xs" role="tablist">
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-td-ink pb-2 text-xs" role="tablist">
         {TABS.map((tab) => {
           const isActive = currentTab === tab.key;
           return (
@@ -169,7 +160,7 @@ function TripsListContent() {
       ) : (
         <>
           <ul className="border-t border-td-ink">
-            <li className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted" aria-hidden="true">
+            <li className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 text-[11px] font-bold text-td-muted" aria-hidden="true">
               <span className="col-span-4">Phương tiện</span>
               <span className="col-span-4">Nhận / Trả xe</span>
               <span className="col-span-2 text-right">Chi phí</span>

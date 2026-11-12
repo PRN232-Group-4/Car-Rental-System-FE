@@ -48,11 +48,11 @@ type Row = {
 };
 type FormValues = Record<string, string>;
 
-const pageInfo: Record<Directory, { title: string; description: string; kicker: string; folio: React.ReactNode; columns: string[] }> = {
-  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", kicker: "TỔ CHỨC · PHÒNG BAN", folio: <>Phòng <span className="text-td-teal">ban.</span></>, columns: ["Phòng ban"] },
-  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", kicker: "TỔ CHỨC · CHI NHÁNH", folio: <>Chi <span className="text-td-teal">nhánh.</span></>, columns: ["Chi nhánh", "Địa chỉ"] },
-  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", kicker: "TỔ CHỨC · NHÂN SỰ", folio: <>Nhân <span className="text-td-teal">viên.</span></>, columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"] },
-  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", kicker: "TỔ CHỨC · PHÂN QUYỀN", folio: <>Vai <span className="text-td-teal">trò.</span></>, columns: ["Vai trò", "Nguồn", "Số nhân viên"] },
+const pageInfo: Record<Directory, { title: string; description: string; columns: string[] }> = {
+  departments: { title: "Phòng ban", description: "Danh sách phòng ban trong tổ chức.", columns: ["Phòng ban"] },
+  facilities: { title: "Chi nhánh", description: "Danh sách chi nhánh và địa chỉ.", columns: ["Chi nhánh", "Địa chỉ"] },
+  staffs: { title: "Nhân viên", description: "Nhân viên, vai trò và phân công chi nhánh.", columns: ["Nhân viên", "Vai trò / Phòng ban", "Chi nhánh"] },
+  roles: { title: "Vai trò", description: "Các vai trò hiện được gán cho nhân viên.", columns: ["Vai trò", "Nguồn", "Số nhân viên"] },
 };
 
 export default function DirectoryPage({ directory }: { directory: Directory }) {
@@ -294,15 +294,12 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   return (
     <div className="space-y-6">
       <TransitFolio
-        index="07"
-        tag="ORG"
-        kicker={info.kicker}
-        title={info.folio}
+        title={info.title}
         description={info.description}
       >
         <TransitFolioMetric
-          label="DANH MỤC · TỔNG SỐ"
-          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
+          label="Tổng số"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount)}
         />
         {canModify && (
           <button
@@ -314,7 +311,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           </button>
         )}
       </TransitFolio>
-      {directory === "roles" && <p className="border-l-2 border-td-oxide pl-3 text-xs text-td-muted">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
+      {directory === "roles" && <p className="pl-3 text-xs text-td-muted">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
 
       {directory === "staffs" && <AdminFilterBar description="Tìm nhân viên theo tên hoặc email." actions={
         <AdminFilterButton variant="secondary" disabled={!search} onClick={() => { setSearch(""); setPage(1); }}>Đặt lại</AdminFilterButton>
@@ -325,7 +322,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
       </AdminFilterBar>}
 
       <AdminTableCard>
-        <div className="border-b border-td-rule pb-2 pt-3"><h3 className="text-sm font-bold text-td-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 font-mono text-[11px] text-td-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
+        <div className="border-b border-td-rule pb-2 pt-3"><h3 className="text-sm font-bold text-td-ink">Danh sách {info.title.toLocaleLowerCase()}</h3><p className="mt-1 text-xs text-td-muted">{loading ? "Đang tải..." : `${rows.length} mục`}</p></div>
 
         <AdminTable aria-busy={loading} className="min-w-[640px]">
           <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
@@ -359,11 +356,11 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
         </AdminTable>
         {directory === "staffs" && (
           <div className="flex flex-col gap-3 border-t border-td-rule py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 font-mono text-[11px] text-td-muted">
+            <div className="flex items-center gap-3 text-[11px] text-td-muted">
               <span>Trang {page} / {pageCount} · {totalCount} nhân viên</span>
-              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded border border-td-rule bg-transparent px-2 py-1 text-xs text-td-ink outline-none focus:border-td-ink">
+              <InlineSelect value={pageSize} onChange={(event) => { setPageSize(Number(event.currentTarget.value)); setPage(1); }} aria-label="Số nhân viên mỗi trang" className="rounded border border-td-rule bg-transparent px-2 py-1 text-xs text-td-ink outline-none focus:border-td-ink">
                 {[10, 20, 50].map((size) => <option key={size} value={size}>{size} mỗi trang</option>)}
-              </select>
+              </InlineSelect>
             </div>
             <nav aria-label="Phân trang nhân viên" className="flex items-center gap-2">
               <button type="button" disabled={page <= 1 || loading} onClick={() => setPage((current) => Math.max(1, current - 1))} aria-label="Trang trước" className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>

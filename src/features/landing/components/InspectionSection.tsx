@@ -70,25 +70,11 @@ export default function InspectionSection() {
     <section 
       id="cong-nghe" 
       ref={containerRef} 
-      className="relative mx-auto w-full max-w-[1720px] scroll-mt-24 px-4 sm:px-6 lg:px-12 py-14 sm:py-16 overflow-hidden"
+      className="relative mx-auto w-full max-w-[1720px] scroll-mt-24 px-4 sm:px-6 lg:px-12 py-8 sm:py-10 overflow-hidden"
     >
-      {/* Monumental Chapter Numeral */}
-      <span 
-        aria-hidden="true" 
-        className="font-display font-black text-[clamp(4.5rem,7vw,8rem)] leading-none text-ink/5 dark:text-ink/10 select-none pointer-events-none absolute right-8 top-2 z-0 opacity-40"
-      >
-        05
-      </span>
-
       {/* Section Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <span className="text-xs font-mono font-bold tracking-wider text-primary uppercase">
-              HỆ THỐNG ĐỐI SOÁT KỸ THUẬT SỐ HAI CHIỀU // TELEMETRY SCANNER
-            </span>
-          </div>
           <h2 data-kinetic-skew="true" className="font-display text-3xl sm:text-5xl font-black tracking-tight text-ink text-balance">
             Kiểm định minh bạch &amp; Quyết toán tức thì
           </h2>
@@ -100,30 +86,28 @@ export default function InspectionSection() {
 
       {/* Interactive Phase Toggle Tabs */}
       <div className="relative z-10 flex items-center justify-start mb-8">
-        <div className="p-1 rounded-2xl bg-surface border border-line-strong flex items-center gap-1.5">
+        <div className="p-1 bg-surface border border-line-strong flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => handlePhaseSwitch("pre")}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               phase === "pre"
                 ? "bg-stage-ink text-white"
                 : "text-ink-2 hover:text-ink hover:bg-sunken"
             }`}
           >
-            <span className="font-mono text-xs text-primary font-bold">01.</span>
             <span>Bàn giao nhận xe (Pre-Rental)</span>
           </button>
 
           <button
             type="button"
             onClick={() => handlePhaseSwitch("post")}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               phase === "post"
                 ? "bg-stage-ink text-white"
                 : "text-ink-2 hover:text-ink hover:bg-sunken"
             }`}
           >
-            <span className="font-mono text-xs text-primary font-bold">02.</span>
             <span>Đối soát hoàn trả &amp; Hoàn cọc (Post-Rental)</span>
           </button>
         </div>

@@ -67,7 +67,7 @@ export function VehicleDetailView({
   };
 
   return (
-    <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 ${className}`}>
+    <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-8 sm:pt-8 sm:pb-12 ${className}`}>
       {/* 1. Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-td-muted">
         <Link href="/" className="hover:text-primary transition-colors">
@@ -86,8 +86,8 @@ export function VehicleDetailView({
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {vehicle.category.includes("electric") && (
-              <span className="bg-stage-ink px-2.5 py-0.5 font-mono text-[10px] font-bold text-white">
-                THUẦN ĐIỆN
+              <span className="bg-stage-ink px-2.5 py-0.5 text-xs font-semibold text-white">
+                Thuần điện
               </span>
             )}
             <span className="bg-td-white px-2.5 py-0.5 text-xs font-semibold text-td-ink border border-td-rule">

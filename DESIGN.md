@@ -484,9 +484,9 @@ Kỹ thuật & ngân sách:
 
 **Bảng màu (Palette A).** Light: `td-paper #FAF8F5`, `td-white #FFFFFF`, `td-ink #1F1B22`, `td-muted #58515E`, `td-rule rgba(31,27,34,.12)`, `td-oxide #B45309`, `td-teal #7A5B18`, `td-chalk #F0ECE6`. Dark: `td-paper #17161B`, `td-white #242126`, `td-ink #F5F1EC`, `td-muted #9E97A3`, `td-oxide #F6BA7C`, `td-teal #C8A96B`, `td-chalk #1C1A20`. `td-oxide` tham chiếu `--primary` ở cả hai theme; mọi cổng dùng chung cam amber. Chữ CTA dùng `--on-primary`: trắng ở light, `#17161B` ở dark.
 
-**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<span class="text-td-teal">` (không dùng chữ in nghiêng).
+**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Chỉ dữ liệu (mã, biển số, tiền, ngày giờ) dùng `font-mono`; nhãn, tab, tiêu đề cột, chú thích và trạng thái rỗng dùng chữ sans viết thường. Tiêu đề không tách màu, không chữ in nghiêng.
 
-**Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: số chương + tag mono, kicker viết hoa, `h1` lớn (tối đa `text-5xl`), một câu mô tả, vùng phải chứa **một** số liệu tổng (`TransitFolioMetric`) và/hoặc **một** hành động chính có nhãn chữ. Mobile: vùng phải xuống dòng dưới tiêu đề.
+**Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: `h1` (`text-2xl`/`sm:text-3xl`) một màu mực, không dấu chấm cuối, một câu mô tả; vùng phải chứa tối đa **một** số liệu thật (`TransitFolioMetric`: nhãn thường + số `tabular-nums`, không đệm số 0) và/hoặc **một** hành động chính có nhãn chữ. Không số chương, không tag, không kicker phía trên tiêu đề. Tiêu đề bắt đầu cách đáy khung dính khoảng 24–40px. Mobile: vùng phải xuống dòng dưới tiêu đề.
 
 **Sổ mở thay cho card.** Danh sách render kiểu ledger: head mono chữ hoa với rule `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`; bảng rộng cuộn trong wrapper, toàn trang không tràn ngang. Trạng thái hiển thị bằng **badge pill màu nền** — bo tròn, padding nhỏ, chữ nhỏ, glyph nhỏ + nhãn (`AdminStatusBadge`), cặp màu theo A2 và `status-tone.ts`; bảng ánh xạ duy nhất `status-rules.ts` với các domain `activity`, `vehicle`, `rental`, `maintenance`, `license`, `shift`, `report`, `review`.
 
@@ -729,7 +729,7 @@ Các trang công khai ngoài `/` dùng chung `Navbar` và `Footer` (`src/compone
 | Đường kẻ | `line`, `line-strong`; rule đậm `ink` | Hairline, viền ô nhập/thẻ; rule đầu khối |
 
 - **Màu nhấn trên giấy:** `primary` = `sun-700 #A83C16` cho CTA, link, trạng thái chọn, focus (chữ trắng trên nền primary 6.3:1). `sun-600` chỉ dùng cho mảng màu lớn hoặc đồ họa, không làm chữ nhỏ trên giấy (3.7:1).
-- **Nhấn phụ:** `td-teal` = `lake-700 #0D5F87` (từ nhấn trong tiêu đề, nhãn kỹ thuật).
+- **Nhấn phụ:** `td-teal` = `lake-700 #0D5F87` cho trạng thái thông tin và liên kết phụ; không dùng để tô nửa tiêu đề.
 - **Màu nhấn trên khung mực:** chữ `bone-100` / `bone-100/72`, hover và nhãn nhấn `sun-400`. Không dùng `primary` làm chữ trên nền mực.
 - **Trạng thái:** `success`, `warning`, `danger`, `info` và nền `*-bg` của chúng, luôn kèm icon + chữ.
 - Chỉ một theme sáng (giấy + mực). Không có chế độ tối, không có nút đổi theme.
@@ -744,7 +744,9 @@ Các trang công khai ngoài `/` dùng chung `Navbar` và `Footer` (`src/compone
 ### A15.3 Chữ
 
 - `h1`, `h2` dùng Archivo (`--font-display`) mặc định qua `globals.css`. Phần còn lại dùng Be Vietnam Pro.
-- `font-mono` chỉ cho dữ liệu: mã đơn, biển số, số liệu, thời gian. Không dùng nhãn mono kiểu HUD làm trang trí (ví dụ `SYS-INIT`, `// TELEMETRY`, toạ độ giả).
+- `font-mono` chỉ cho dữ liệu: mã đơn, biển số, số liệu, thời gian. Không dùng nhãn mono kiểu HUD làm trang trí (ví dụ `SYS-INIT`, `// TELEMETRY`, toạ độ giả), không dùng mono cho nhãn, tab, nút, tiêu đề cột hay tên người.
+- Không kicker/eyebrow (dòng nhãn nhỏ viết hoa phía trên tiêu đề), không số chương/mục (`01`, `09 KH`) trừ khi thứ tự là dữ liệu, không tiêu đề tách hai màu, không dấu chấm "tuyên ngôn" cuối tiêu đề, không khối số to kiểu `TỔNG 00`.
+- Icon chỉ đi với hành động hoặc trạng thái (nút, ô nhập, badge, thao tác dòng, điều hướng). Không icon trang trí cạnh tiêu đề/nhãn, không ô icon + tiêu đề + một dòng làm khung trang, không viền màu bên trái/phải dày hơn 1px.
 
 ### A15.4 Chuyển động
 
@@ -755,7 +757,7 @@ Chỉ phản hồi chức năng (hover, focus, mở/đóng). Không parallax, kh
 - Màu chỉ đi qua token trong `globals.css` (`bg-canvas`, `bg-surface`, `text-ink`, `bg-primary`, `td-*`, `ink-950`, `bone-100`, `sun-*`, `lake-*`). Không viết hex hay rgba trong class, style inline hoặc CSS module, trừ khi định nghĩa token.
 - Không thêm `border-radius` khác `0`/`50%` trong CSS module.
 - Đổi style không được đổi hành vi: giữ nguyên `id`, `aria-*`, `data-testid`, validation, phân quyền và request API.
-- Kiểm tra bằng `node scripts/design-sweep.mjs <tag> http://localhost:3000 <prefixes>`: số phần tử bo góc, kính và màu cũ trên mỗi route phải về 0, trừ đĩa hợp lệ.
+- Kiểm tra bằng `node scripts/design-sweep.mjs <tag> http://localhost:3000 <prefixes>`: số phần tử bo góc, kính và màu cũ trên mỗi route phải về 0, trừ đĩa hợp lệ; `kickers` phải rỗng và `headGap` (khoảng từ đáy khung dính tới `h1`) ≤ 48px, trừ trang trạng thái căn giữa và trang đăng nhập.
 
 ---
 

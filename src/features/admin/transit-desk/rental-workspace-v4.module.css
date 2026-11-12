@@ -85,7 +85,7 @@
   color: var(--ink);
   font-family: var(--font-sans), system-ui, sans-serif;
   background-color: var(--bg-canvas);
-  padding: 1.5rem 1rem 2.5rem;
+  padding: 0.75rem 1rem 2.5rem;
   isolation: isolate;
 }
 
@@ -98,7 +98,7 @@
   background: var(--bg-stage);
   border: 1px solid var(--stage-rim);
   border-radius: 0;
-  padding: 1.25rem;
+  padding: 0.75rem;
   transition: background-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
               border-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -113,7 +113,7 @@
 
 @media (max-width: 1366px) {
   .stageWrapper {
-    padding: 1rem;
+    padding: 0.75rem;
   }
   .cockpitGrid {
     grid-template-columns: 280px minmax(0, 1fr) 320px;
@@ -209,11 +209,6 @@
 
 .queueItemActive {
   background: var(--peripheral-solid) !important;
-  border-left: 3px solid var(--color-champagne) !important;
-}
-
-.queueItemActive {
-  border-left: 3px solid var(--color-mulberry) !important;
 }
 
 .queueItemActive .queueId {
@@ -235,7 +230,7 @@
   color: var(--dossier-text);
   border: 1px solid var(--dossier-hairline-strong);
   border-radius: 0;
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -445,7 +440,6 @@
   padding: 0.625rem 0.875rem;
   background: var(--dossier-tag-bg);
   border: 1px solid var(--dossier-hairline);
-  border-left: 3px solid var(--color-mulberry);
   border-radius: 0;
   font-size: 12px;
   color: var(--dossier-text);
@@ -491,10 +485,8 @@
 
 /* GPS & TELEMETRY SECTION WITH ILLUSTRATIVE BADGE */
 .telemetryIllustrativeBadge {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
   padding: 2px 6px;
   border-radius: 0;
   color: var(--color-champagne-text);

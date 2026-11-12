@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Clock, Sparkles, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
+import { Check, Clock, ArrowRight, Loader2 } from "lucide-react";
 import { getSubscriptionPlans, purchaseSubscriptionPlan } from "../api";
 import type { SubscriptionPlan } from "../types";
 import { useAuth } from "@/features/auth";
@@ -62,17 +62,9 @@ export default function SubscriptionPlans() {
   const regularPlans = plans.filter((p) => p.id !== popularPlan?.id);
 
   return (
-    <section className="relative border-t border-td-rule bg-td-chalk py-20 px-4 text-td-ink sm:px-6 md:py-28">
+    <section id="goi-thue-bao" className="relative bg-td-chalk pt-8 pb-12 px-4 text-td-ink sm:px-6 md:pb-16">
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight mb-4 text-td-ink">
-            Gói Thuê Bao Linh Hoạt — Tối Ưu Chi Phí
-          </h2>
-          <p className="text-sm sm:text-base text-td-ink leading-relaxed font-normal">
-            Trả trước một lần, dùng dần theo số giờ thực tế và theo dõi số dư giờ di chuyển trực tiếp trong tài khoản mà không cần thanh toán hóa đơn lẻ từng lần thuê.
-          </p>
-
+        <div className="max-w-3xl mx-auto">
           {notice && (
             <div
               role={notice.type === "error" ? "alert" : "status"}
@@ -92,9 +84,8 @@ export default function SubscriptionPlans() {
           {/* Main Popular Plan (Asymmetric Large Card: 7 cols) */}
           {popularPlan && (
             <div className="lg:col-span-7 bg-td-white p-8 sm:p-10 flex flex-col justify-between relative text-td-ink border-2 border-primary">
-              <div className="absolute -top-3.5 left-8 whitespace-nowrap bg-primary text-white text-xs uppercase tracking-wider font-extrabold px-4 py-1.5 flex items-center gap-1.5 z-20">
-                <Sparkles className="w-3.5 h-3.5 text-primary-tint shrink-0" />
-                <span>LỰA CHỌN PHỔ BIẾN NHẤT</span>
+              <div className="absolute -top-3.5 left-8 whitespace-nowrap bg-primary text-white text-xs font-bold px-4 py-1.5 flex items-center gap-1.5 z-20">
+                <span>Lựa chọn phổ biến nhất</span>
               </div>
 
               <div>
@@ -133,9 +124,7 @@ export default function SubscriptionPlans() {
                 <div className="space-y-3 mb-8 pt-4 border-t border-td-rule">
                   {popularPlan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-sm text-td-ink">
-                      <div className="w-5 h-5 bg-primary-tint text-primary flex items-center justify-center shrink-0">
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
+                      <Check className="w-4 h-4 text-primary shrink-0 stroke-[2.5]" aria-hidden="true" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -163,9 +152,8 @@ export default function SubscriptionPlans() {
                     </>
                   )}
                 </Button>
-                <p className="text-center text-xs text-td-muted mt-3 flex items-center justify-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span>Kích hoạt tự động ngay sau khi hoàn tất thanh toán</span>
+                <p className="text-center text-xs text-td-muted mt-3">
+                  Kích hoạt tự động ngay sau khi hoàn tất thanh toán
                 </p>
               </div>
             </div>

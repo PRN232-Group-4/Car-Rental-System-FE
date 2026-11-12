@@ -4,13 +4,23 @@ import { useRouter } from "next/navigation";
 import { X, ArrowUpRight } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
+import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
 
 interface MenuOverlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const MENU_ITEMS = [
+type MenuItem = {
+  index: string;
+  label: string;
+  sub: string;
+  href: string;
+  preview: string;
+  tag: string;
+};
+
+const PUBLIC_ITEMS: MenuItem[] = [
   {
     index: "01",
     label: "ĐỘI XE TUYỂN CHỌN",
@@ -43,6 +53,10 @@ const MENU_ITEMS = [
     preview: "/assets/landing/b0-backdrop-1920.webp",
     tag: "PRIVATE MEMBERSHIP",
   },
+];
+
+// Guests only; a signed-in visitor gets a single dashboard entry instead (dashboardItem).
+const GUEST_ITEMS: MenuItem[] = [
   {
     index: "05",
     label: "ĐĂNG KÝ THÀNH VIÊN",
@@ -61,11 +75,29 @@ const MENU_ITEMS = [
   },
 ];
 
+/** Where "my dashboard" is for this account, using the same role precedence as the account menu. */
+function dashboardItem(hasRole: (role: string) => boolean, isStaff: boolean): MenuItem {
+  const base = {
+    index: "05",
+    label: "BẢNG ĐIỀU KHIỂN",
+    preview: "/assets/landing/scene-a-dalat-full-1920.webp",
+    tag: "MEMBER PORTAL",
+  };
+  if (hasRole("admin") || hasRole("manager")) return { ...base, href: "/admin", sub: "Cổng quản trị vận hành đội xe" };
+  if (hasRole("driver")) return { ...base, href: "/staff", sub: "Ca trực & chuyến được giao" };
+  if (isStaff) return { ...base, href: "/admin", sub: "Cổng nghiệp vụ nội bộ" };
+  return { ...base, href: "/my-rentals", sub: "Đơn thuê, chuyến đi & hóa đơn của bạn" };
+}
+
 export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
   const router = useRouter();
+  const { user, isAuthenticated, hasRole } = useAuth();
+  const items: MenuItem[] = isAuthenticated && user
+    ? [...PUBLIC_ITEMS, dashboardItem(hasRole, hasAnyRole(user.roles, STAFF_PORTAL_ROLES))]
+    : [...PUBLIC_ITEMS, ...GUEST_ITEMS];
   const [isRendered, setIsRendered] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [navigatingItem, setNavigatingItem] = useState<(typeof MENU_ITEMS)[0] | null>(null);
+  const [navigatingItem, setNavigatingItem] = useState<MenuItem | null>(null);
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -143,7 +175,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
 
   const handleNavigateRoute = (
     e: React.MouseEvent<HTMLAnchorElement>,
-    item: (typeof MENU_ITEMS)[0]
+    item: MenuItem
   ) => {
     e.preventDefault();
     setNavigatingItem(item);
@@ -154,11 +186,19 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
       return;
     }
 
+    router.prefetch(item.href);
+
     requestAnimationFrame(() => {
       const navTl = gsap.timeline({
         onComplete: () => {
-          setIsRendered(false);
-          onClose();
+          // Same page: nothing will replace the loader, so close it here.
+          if (window.location.pathname === item.href) {
+            setIsRendered(false);
+            onClose();
+            return;
+          }
+          // Keep the loader up until the next page commits; this overlay lives in the
+          // page's own nav, so it unmounts together with the old page and the old page never flashes back.
           router.push(item.href);
         },
       });
@@ -259,7 +299,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
 
   if (!isRendered) return null;
 
-  const activeItem = MENU_ITEMS[activeIdx] ?? MENU_ITEMS[0];
+  const activeItem = items[activeIdx] ?? items[0];
 
   return (
     <div
@@ -335,7 +375,7 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           <div className="hidden md:flex items-center gap-3 text-[11px] tracking-[0.26em] uppercase font-sans font-bold text-bone-100/60">
             <span>EXHIBITION DIRECTORY</span>
             <span className="w-8 border-t border-bone-100/30" />
-            <span className="text-sun-400">01 — 06</span>
+            <span className="text-sun-400">01 — {String(items.length).padStart(2, "0")}</span>
           </div>
 
           <button
@@ -348,14 +388,14 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           </button>
         </div>
 
-        {/* 3. Center 12-Column Split Constructivist Stage (Compact vertical rhythm so all 6 items fit 100% inside 100dvh!) */}
+        {/* 3. Center 12-Column Split Constructivist Stage (compact vertical rhythm so every item fits inside 100dvh) */}
         <div
           style={{ perspective: "1200px" }}
           className="relative z-10 w-full max-w-[1640px] mx-auto px-6 sm:px-12 lg:px-20 py-4 my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
         >
-          {/* Left 7 Columns: 6 Single-Line Typographic Blades */}
+          {/* Left 7 Columns: single-line typographic blades */}
           <nav className="lg:col-span-7 divide-y divide-bone-100/15 border-y border-bone-100/15 bg-ink-950/80">
-            {MENU_ITEMS.map((item, idx) => {
+            {items.map((item, idx) => {
               const isActive = idx === activeIdx;
               return (
                 <div

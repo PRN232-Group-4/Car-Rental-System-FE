@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export interface PaginationProps {
   page: number; // 1-indexed
@@ -71,7 +72,7 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-t border-td-rule py-3 font-mono text-[11px] sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-4 border-t border-td-rule py-3 text-xs sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >
@@ -95,7 +96,7 @@ export function Pagination({
         {onPageSizeChange && pageSizeOptions.length > 0 && (
           <label htmlFor={pageSizeSelectId} className="flex items-center gap-2">
             <span>Hiển thị:</span>
-            <select
+            <InlineSelect
               id={pageSizeSelectId}
               value={pageSize}
               disabled={loading}
@@ -110,7 +111,7 @@ export function Pagination({
                   {size} / trang
                 </option>
               ))}
-            </select>
+            </InlineSelect>
           </label>
         )}
       </div>

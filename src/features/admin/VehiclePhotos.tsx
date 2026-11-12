@@ -16,8 +16,8 @@ export function VehiclePhotoGrid({ vehicle }: { vehicle: Pick<VehicleDto, "brand
 
   return <section aria-label="Ảnh phương tiện" className="min-w-0 space-y-3">
     <div className="flex flex-wrap items-baseline justify-between gap-2">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">Ảnh phương tiện</h3>
-      {photos.length > 0 && <span className="font-mono text-[10px] text-td-muted">{photos.length} ảnh · Bấm để xem ảnh gốc</span>}
+      <h3 className="text-xs font-bold text-td-muted">Ảnh phương tiện</h3>
+      {photos.length > 0 && <span className="text-[10px] text-td-muted">{photos.length} ảnh · Bấm để xem ảnh gốc</span>}
     </div>
     {photos.length ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
       {photos.map((source, index) => <a

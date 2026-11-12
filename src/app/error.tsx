@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "@/components/navigation/NavigationLink";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { RefreshCw, Home } from "lucide-react";
 
 export default function ErrorBoundary({
   error,
@@ -23,14 +23,7 @@ export default function ErrorBoundary({
       className="min-h-[100dvh] bg-canvas text-ink flex items-center justify-center p-4 sm:p-6 focus:outline-none"
     >
       <div className="w-full max-w-md text-center space-y-6">
-        <div className="mx-auto w-20 h-20 bg-danger/10 border border-danger/20 flex items-center justify-center text-danger">
-          <AlertTriangle className="w-10 h-10 stroke-[1.8]" />
-        </div>
-
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-danger/10 text-danger border border-danger/20 text-xs font-mono font-bold">
-            <span>GIÁN ĐOẠN HỆ THỐNG</span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-ink">
             Đã xảy ra sự cố kỹ thuật
           </h1>

@@ -13,7 +13,6 @@ import {
   MapPin,
   CheckCircle2,
   ArrowRight,
-  Filter,
   Car,
   AlertCircle,
   RefreshCw,
@@ -84,24 +83,22 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
   };
 
   return (
-    <section id="danh-sach-xe" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
+    <section id="danh-sach-xe" className="py-8 md:py-10 px-4 sm:px-6 max-w-7xl mx-auto">
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
         <SectionHeading
-          kicker="ĐỘI XE HỆ THỐNG"
           title="Khám phá phương tiện cho mọi cung đường"
           subtitle="Danh mục phương tiện, giá thuê và tình trạng được cập nhật từ hệ thống."
+          className="!mb-0"
         />
       </div>
 
       {/* Category Tabs with Bilingual Tech Micro-Badges */}
       <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-td-rule pb-4">
         {[
-          { id: "all", label: "Tất cả phương tiện", tag: "ALL" },
+          { id: "all", label: "Tất cả ô tô", tag: "ALL" },
           { id: "car", label: "Ô tô tiêu chuẩn", tag: "STANDARD" },
           { id: "electric_car", label: "Ô tô điện", tag: "EV CAR" },
-          { id: "motorbike", label: "Xe máy tiêu chuẩn", tag: "MOTO" },
-          { id: "electric_motorbike", label: "Xe máy điện", tag: "EV MOTO" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -114,21 +111,11 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
             }`}
           >
             <span>{tab.label}</span>
-            <span
-              className={`text-xs uppercase font-mono tracking-wider px-1.5 py-0.5 ${
-                selectedCategory === tab.id
-                  ? "bg-td-white/20 text-white"
-                  : "bg-td-chalk text-td-muted"
-              }`}
-            >
-              {tab.tag}
-            </span>
           </button>
         ))}
 
         <div className="ml-auto hidden sm:flex items-center gap-2 text-xs text-td-ink font-medium bg-td-white border border-td-rule px-3.5 py-1.5">
-          <Filter className="w-3.5 h-3.5 text-primary" />
-          <span>
+                    <span>
             Hiển thị <strong className="font-mono text-td-ink">{filteredVehicles.length}</strong> xe khả dụng
           </span>
         </div>

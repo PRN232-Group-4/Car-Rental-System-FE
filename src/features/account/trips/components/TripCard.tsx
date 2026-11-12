@@ -59,7 +59,7 @@ export function TripCard({ trip }: TripCardProps) {
 
         {/* Chi phí */}
         <div className="col-span-2 text-right">
-          <span className="block font-mono text-[10px] uppercase tracking-wider text-td-muted">
+          <span className="block text-xs text-td-muted">
             {isSubscription ? "Hình thức" : "Tổng chi phí"}
           </span>
           {isSubscription ? (
@@ -104,7 +104,7 @@ export function TripCard({ trip }: TripCardProps) {
             </Link>
           </div>
           {trip.facility && (
-            <span className="flex max-w-full items-center gap-1 text-[10px] text-td-muted">
+            <span className="flex max-w-full items-center gap-1 text-xs text-td-muted">
               <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
               <span className="truncate">{trip.facility.name}</span>
             </span>

@@ -90,10 +90,7 @@ export default function AuditLogsPage() {
     <AuthGate allowedRoles={["Admin", "Manager"]}>
       <div className="space-y-6">
         <TransitFolio
-          index="07"
-          tag="ORG"
-          kicker="TỔ CHỨC · TRUY VẾT QUẢN TRỊ"
-          title={<>Nhật ký <span className="text-td-teal">kiểm toán hệ thống.</span></>}
+          title="Nhật ký kiểm toán hệ thống"
           description="Truy vết bất biến các can thiệp phân quyền vai trò, khóa tài khoản, thu hồi phiên và thao tác bảo mật theo múi giờ GMT+7."
         />
 

@@ -3,6 +3,7 @@
 import { Search, AlertTriangle, Car, Wrench } from "lucide-react";
 import { REPORT_TYPE_MAP } from "../report-status";
 import type { ReportFilterParams } from "../types";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 interface ReportFilterBarProps {
   filters: ReportFilterParams;
@@ -36,7 +37,7 @@ export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
           <label htmlFor="report-type" className="sr-only">
             Loại phản ánh
           </label>
-          <select
+          <InlineSelect
             id="report-type"
             value={filters.type ?? ""}
             onChange={(e) => onChange({ ...filters, type: e.target.value || undefined })}
@@ -48,7 +49,7 @@ export function ReportFilterBar({ filters, onChange }: ReportFilterBarProps) {
                 {label}
               </option>
             ))}
-          </select>
+          </InlineSelect>
         </div>
 
         {/* Nút lọc nhanh: Gắn đơn thuê / Gắn bảo dưỡng */}

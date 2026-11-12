@@ -21,25 +21,16 @@ export default function InspectionPage() {
       >
         <Navbar />
 
-        <div className="w-full flex flex-col pt-20">
-          <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-            <span className="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">
-              Quy Trình Kiểm Tra Kỹ Thuật Số
-            </span>
-            <h1 className="font-display text-4xl sm:text-5xl font-black tracking-tight text-ink">
-              Kiểm Định &amp; Trưng Bày Xe 3D
-            </h1>
-            <p className="text-base text-ink-2 max-w-2xl mt-3 leading-relaxed">
-              Khám phá ngoại thất phương tiện qua mô hình 3D tương tác đa chiều và đối soát biên bản bàn giao xe trước / sau chuyến đi.
-            </p>
-          </header>
+        {/* The studio opens directly under the fixed nav (~53px); its own heading leads the page. */}
+        <div className="w-full flex flex-col pt-[53px]">
+          <h1 className="sr-only">Kiểm định và trưng bày xe 3D</h1>
 
-          {/* S04: Interactive 360° 3D Studio */}
-          <div id="showroom-3d" className="relative w-full border-t border-line">
+          {/* Interactive 360° 3D Studio */}
+          <div id="showroom-3d" className="relative w-full">
             <InteractiveStudioGate />
           </div>
 
-          {/* S05: Dual Inspection & Settlement Ledger */}
+          {/* Dual Inspection & Settlement Ledger */}
           <div id="cong-nghe" className="relative w-full border-t border-line">
             <InspectionSection />
           </div>

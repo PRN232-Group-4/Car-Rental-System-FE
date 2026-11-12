@@ -15,7 +15,7 @@ import { TransitFolio, TransitFolioMetric } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import VehicleMaintenanceTechnicians from "@/features/admin/VehicleMaintenanceTechnicians";
-import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus, BatteryCharging, Gauge } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, X, Edit, Trash2, Plus } from "lucide-react";
 import { playTactileClick } from "@/lib/audio/haptic-audio";
 
 const NO_VEHICLES: VehicleDto[] = [];
@@ -117,15 +117,12 @@ export function FleetRegistry() {
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Top Folio */}
       <TransitFolio
-        index="02"
-        tag="FLT"
-        kicker="TÀI SẢN · ĐỘI XE"
-        title={<>Sổ <span className="text-td-teal">phương tiện.</span></>}
-        description="Nhìn biển số trước, đọc thông số sau. Bảng tra cứu dữ liệu mở (Open Ledger), không đóng khung card rời cho từng bản ghi."
+        title="Sổ phương tiện"
+        description="Nhìn biển số trước, đọc thông số sau."
       >
         <TransitFolioMetric
-          label="FLEET REGISTRY · TỔNG QUY MÔ"
-          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount).padStart(2, "0")}
+          label="Tổng phương tiện"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(totalCount)}
         />
         {canManage && (
           <Link
@@ -150,12 +147,12 @@ export function FleetRegistry() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Biển số, hãng xe, cơ sở..."
               aria-label="Tìm phương tiện"
-              className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 font-mono text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
+              className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
             />
           </div>
 
           {/* Status Tabs */}
-          <div className="flex items-center gap-2 font-mono text-xs">
+          <div className="flex items-center gap-2 text-xs">
             {[
               { id: "all", label: "Tất cả" },
               { id: "available", label: "Sẵn sàng" },
@@ -184,7 +181,7 @@ export function FleetRegistry() {
           </div>
         </div>
 
-        <span className="font-mono text-xs text-td-muted">
+        <span className="text-xs text-td-muted">
           Trang {page} / {totalPages}
         </span>
       </div>
@@ -195,11 +192,11 @@ export function FleetRegistry() {
         <div className="lg:col-span-8 overflow-x-auto">
           <div className="min-w-[620px]">
             {/* Ledger Head */}
-            <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
-              <span className="col-span-3">BIỂN SỐ</span>
-              <span className="col-span-3">PHƯƠNG TIỆN</span>
-              <span className="col-span-3">CƠ SỞ TRẠM</span>
-              <span className="col-span-3 text-right">TRẠNG THÁI</span>
+            <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 text-xs font-semibold text-td-muted">
+              <span className="col-span-3">Biển số</span>
+              <span className="col-span-3">Phương tiện</span>
+              <span className="col-span-3">Cơ sở</span>
+              <span className="col-span-3 text-right">Trạng thái</span>
             </div>
 
             {/* Ledger Rows */}
@@ -210,7 +207,7 @@ export function FleetRegistry() {
                 ))}
               </div>
             ) : filteredVehicles.length === 0 ? (
-              <div className="py-12 text-center font-mono text-xs text-td-muted border-b border-td-rule">
+              <div className="py-12 text-center text-sm text-td-muted border-b border-td-rule">
                 Không tìm thấy phương tiện nào phù hợp với bộ lọc hiện tại.
               </div>
             ) : (
@@ -252,7 +249,7 @@ export function FleetRegistry() {
                         <span className="text-xs font-semibold text-td-ink block truncate">
                           {v.brand} {v.model}
                         </span>
-                        <span className="font-mono text-[10px] text-td-muted block">
+                        <span className="text-[11px] text-td-muted block">
                           {v.vehicleType || "Chưa phân loại"}
                         </span>
                       </div>
@@ -262,7 +259,7 @@ export function FleetRegistry() {
                         <span className="text-xs text-td-ink block truncate">
                           {v.facility || "Chưa gán trạm"}
                         </span>
-                        <span className="font-mono text-[10px] text-td-muted block">
+                        <span className="text-[11px] text-td-muted block">
                           Năm SX: {v.yearOfManufacture || "—"}
                         </span>
                       </div>
@@ -282,14 +279,12 @@ export function FleetRegistry() {
                       </div>
 
                       {/* Audit 8: In-row Telemetry Ribbon (revealed on hover or when selected) */}
-                      <div className="col-span-12 max-h-0 overflow-hidden opacity-0 group-hover:max-h-12 group-hover:opacity-100 group-focus-within:max-h-12 group-focus-within:opacity-100 transition-all duration-200 ease-out border-t border-td-rule/50 pt-2 flex items-center justify-between text-[11px] font-mono text-td-muted">
+                      <div className="col-span-12 max-h-0 overflow-hidden opacity-0 group-hover:max-h-12 group-hover:opacity-100 group-focus-within:max-h-12 group-focus-within:opacity-100 transition-all duration-200 ease-out border-t border-td-rule/50 pt-2 flex items-center justify-between text-[11px] text-td-muted">
                         <div className="flex items-center gap-4">
                           <span className="inline-flex items-center gap-1.5 text-td-ink">
-                            <BatteryCharging className="h-3 w-3 text-td-oxide" />
                             <span>Trạng thái trạm: <strong className="text-td-ink font-semibold">{v.facility ? "Đã định vị" : "Chờ trạm"}</strong></span>
                           </span>
                           <span className="inline-flex items-center gap-1.5 text-td-ink">
-                            <Gauge className="h-3 w-3 text-td-oxide" />
                             <span>Đặc tả: <strong className="text-td-ink font-semibold">{v.yearOfManufacture ? `${v.yearOfManufacture} · ` : ""}{v.color || "Tiêu chuẩn"}</strong></span>
                           </span>
                         </div>
@@ -304,7 +299,7 @@ export function FleetRegistry() {
             )}
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between py-4 font-mono text-xs text-td-muted">
+            <div className="flex items-center justify-between py-4 text-xs text-td-muted">
               <span>{filteredVehicles.length} / {totalCount} xe trên hệ thống</span>
               <div className="flex items-center gap-2">
                 <button
@@ -340,9 +335,6 @@ export function FleetRegistry() {
             <div className="space-y-6">
               <div className="flex items-start justify-between border-b border-td-rule pb-4">
                 <div>
-                  <span className="font-mono text-[10px] uppercase tracking-wider text-td-muted">
-                    HỒ SƠ PHƯƠNG TIỆN
-                  </span>
                   <div className="font-mono text-2xl font-bold tracking-tight text-td-ink mt-1">
                     {selectedVehicle.licensePlate?.trim() || "Chưa có biển số"}
                   </div>
@@ -436,9 +428,7 @@ export function FleetRegistry() {
             </div>
           ) : (
             <div className="py-24 text-center">
-              <span className="font-mono text-xs text-td-muted uppercase tracking-wider block font-semibold">
-                CHƯA CHỌN PHƯƠNG TIỆN
-              </span>
+              <p className="text-sm font-semibold text-td-ink">Chưa chọn phương tiện</p>
               <p className="mt-2 text-xs text-td-muted max-w-xs mx-auto">
                 Nhấp vào bất kỳ dòng nào trong Sổ phương tiện bên trái để xem hồ sơ kỹ thuật chi tiết.
               </p>

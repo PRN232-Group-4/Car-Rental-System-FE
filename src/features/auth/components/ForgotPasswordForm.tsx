@@ -66,11 +66,11 @@ export default function ForgotPasswordForm() {
 
   if (step === "success") {
     return (
-      <div className="glass-1 p-6 sm:p-8 border border-line text-center space-y-4">
+      <div className="bg-surface p-6 sm:p-7 border border-line text-ink text-center space-y-4">
         <div className="w-12 h-12 rounded-full bg-success/10 text-success mx-auto flex items-center justify-center">
           <CheckCircle2 className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-ink">Đặt lại mật khẩu thành công!</h2>
+        <h1 className="text-2xl font-black tracking-tight text-ink">Đặt lại mật khẩu thành công!</h1>
         <p className="text-xs sm:text-sm text-ink-3">
           Mật khẩu tài khoản của bạn đã được cập nhật. Bạn có thể đăng nhập ngay bằng mật khẩu mới.
         </p>
@@ -87,9 +87,9 @@ export default function ForgotPasswordForm() {
 
   if (step === "verify") {
     return (
-      <div className="glass-1 p-6 sm:p-8 border border-line space-y-5">
+      <div className="bg-surface p-6 sm:p-7 border border-line text-ink space-y-5">
         <div>
-          <h2 className="text-xl font-bold text-ink">Nhập mã xác thực</h2>
+          <h1 className="text-2xl font-black tracking-tight text-ink">Nhập mã xác thực</h1>
           <p className="text-xs text-ink-3 mt-1">
             Mã OTP đã được gửi về email <strong>{email}</strong>. Vui lòng kiểm tra hộp thư đến hoặc thư rác.
           </p>
@@ -173,9 +173,9 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <div className="glass-1 p-6 sm:p-8 border border-line space-y-5">
+    <div className="bg-surface p-6 sm:p-7 border border-line text-ink space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-ink">Quên mật khẩu</h2>
+        <h1 className="text-2xl font-black tracking-tight text-ink">Quên mật khẩu</h1>
         <p className="text-xs text-ink-3 mt-1">
           Nhập địa chỉ email đăng ký tài khoản của bạn để nhận mã khôi phục mật khẩu.
         </p>

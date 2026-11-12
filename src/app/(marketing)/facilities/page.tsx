@@ -13,7 +13,7 @@ export default function FacilitiesPage() {
   return (
     <div className="min-h-dvh bg-canvas text-ink flex flex-col selection:bg-primary/20 selection:text-warning">
       <Navbar />
-      <main className="flex-1 pt-24 sm:pt-28 pb-16">
+      <main className="flex-1 pt-[53px] pb-12">
         <FacilityExplorer />
       </main>
       <Footer />

@@ -16,6 +16,7 @@ import type {
   MaintenanceVsRevenueRow,
   PlanUsageRow,
 } from "../types";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export interface DashboardExportData {
   kpis?: DashboardKpis;
@@ -220,7 +221,7 @@ export function DashboardFiltersBar({
                   type="date"
                   value={fromDateFormatted}
                   onChange={(e) => handleCustomDateChange("from", e.target.value)}
-                  className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
+                  className="h-7 w-full border-0 bg-transparent px-0 text-xs text-td-ink focus:outline-none"
                 />
               </div>
             </div>
@@ -236,7 +237,7 @@ export function DashboardFiltersBar({
                   type="date"
                   value={toDateFormatted}
                   onChange={(e) => handleCustomDateChange("to", e.target.value)}
-                  className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
+                  className="h-7 w-full border-0 bg-transparent px-0 text-xs text-td-ink focus:outline-none"
                 />
               </div>
             </div>
@@ -249,7 +250,7 @@ export function DashboardFiltersBar({
           </label>
           <div className="mt-1 flex items-center gap-2 rounded border border-td-rule px-2.5 py-1">
             <Building2 className="h-4 w-4 text-td-muted" />
-            <select
+            <InlineSelect
               id="filter-facility"
               value={filters.facilityId ?? ""}
               onChange={(e) =>
@@ -258,13 +259,13 @@ export function DashboardFiltersBar({
                   facilityId: e.target.value ? Number(e.target.value) : undefined,
                 })
               }
-              className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
+              className="h-7 w-full border-0 bg-transparent px-0 text-xs text-td-ink focus:outline-none"
             >
               <option value="">Tất cả chi nhánh</option>
               <option value="1">Chi nhánh Quận 1 (Trụ sở chính)</option>
               <option value="2">Chi nhánh Sân bay Tân Sơn Nhất</option>
               <option value="3">Chi nhánh TP. Thủ Đức</option>
-            </select>
+            </InlineSelect>
           </div>
         </div>
 
@@ -274,7 +275,7 @@ export function DashboardFiltersBar({
           </label>
           <div className="mt-1 flex items-center gap-2 rounded border border-td-rule px-2.5 py-1">
             <Car className="h-4 w-4 text-td-muted" />
-            <select
+            <InlineSelect
               id="filter-vehicle-type"
               value={filters.vehicleTypeId ?? ""}
               onChange={(e) =>
@@ -283,13 +284,12 @@ export function DashboardFiltersBar({
                   vehicleTypeId: e.target.value ? Number(e.target.value) : undefined,
                 })
               }
-              className="w-full bg-transparent text-xs text-td-ink focus:outline-none"
+              className="h-7 w-full border-0 bg-transparent px-0 text-xs text-td-ink focus:outline-none"
             >
               <option value="">Tất cả loại xe</option>
               <option value="1">Ô tô điện cao cấp</option>
               <option value="2">Ô tô xăng gia đình</option>
-              <option value="3">Xe máy điện đô thị</option>
-            </select>
+            </InlineSelect>
           </div>
         </div>
       </div>

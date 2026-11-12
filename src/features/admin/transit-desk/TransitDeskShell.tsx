@@ -225,7 +225,7 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
           </div>
           <div>
             <div className={styles.brandName}>Thong Dong</div>
-            <div className={styles.brandKicker}>TRANSIT DESK · OPERATIONS</div>
+            <div className={styles.brandKicker}>Transit Desk</div>
           </div>
         </Link>
 
@@ -345,9 +345,6 @@ export function TransitDeskShell({ children }: TransitDeskShellProps) {
 
       {/* Contextual Route Strip */}
       <div className={styles.contextStrip}>
-        <span className={styles.contextLabel}>
-          {activeChapter.toUpperCase()}
-        </span>
         <nav
           className={styles.contextLinks}
           aria-label={`Các route thuộc nhóm ${activeChapter}`}

@@ -153,7 +153,7 @@ export default function SearchWidget({
   /* Station list items */
   const stationListContent = (
     <div className="space-y-1">
-      <div className="px-3 py-2 text-xs font-mono font-bold text-ink-3 uppercase tracking-wider border-b border-line mb-1">
+      <div className="px-3 py-2 text-xs font-bold text-ink-3 border-b border-line mb-1">
         Hệ thống trạm nhận xe
       </div>
       <div className="max-h-64 sm:max-h-72 overflow-y-auto overscroll-contain space-y-1 pr-1">
@@ -257,7 +257,7 @@ export default function SearchWidget({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Start Datetime */}
         <div className="p-3 bg-sunken/50 rounded-xl border border-line space-y-2">
-          <span className="text-xs font-bold text-primary uppercase tracking-wider block">
+          <span className="text-xs font-bold text-primary block">
             Thời gian nhận xe
           </span>
           <div className="space-y-1">
@@ -287,7 +287,7 @@ export default function SearchWidget({
 
         {/* End Datetime */}
         <div className="p-3 bg-sunken/50 rounded-xl border border-line space-y-2">
-          <span className="text-xs font-bold text-ink uppercase tracking-wider block">
+          <span className="text-xs font-bold text-ink block">
             Thời gian trả xe
           </span>
           <div className="space-y-1">
@@ -374,7 +374,7 @@ export default function SearchWidget({
                 <MapPin className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-xs font-bold text-ink-3 mb-0.5">
                   Trạm nhận xe
                 </span>
 
@@ -442,7 +442,7 @@ export default function SearchWidget({
                 <Calendar className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-xs font-bold text-ink-3 mb-0.5">
                   Lịch trình di chuyển
                 </span>
 

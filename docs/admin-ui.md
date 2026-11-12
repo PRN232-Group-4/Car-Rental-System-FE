@@ -16,7 +16,7 @@
 - CTA mọi cổng dùng **mực cam sun**: `td-oxide` tham chiếu `--primary` = `sun-700 #A83C16` với chữ trắng (6.3:1). Không khai báo palette riêng cho Admin. `td-teal` là mực xanh `lake-700`.
 - Hình khối: **góc vuông** cho nút, control, `.admin-input`, bề mặt hồ sơ và stage (DESIGN.md A15.2). `rounded-full` chỉ cho avatar, chấm trạng thái và nút icon tròn trên khung mực.
 - Đường kẻ thay cho card: `border-td-rule` (1px) phân tách, `border-td-ink` (1px) làm rule đầu bảng/khối. **Không** dùng `shadow-e1/e2`, không lồng card chỉ để trang trí.
-- Nhãn phụ, số liệu, ID, ngày giờ, trạng thái dùng `font-mono` chữ hoa nhỏ (`text-[10px]/text-[11px]`, `tracking-wider`). Tiêu đề `h1`/`h2` dùng Archivo mặc định (A15.3), nhấn bằng `<span className="text-td-teal">` (không in nghiêng). Không dùng nhãn mono làm trang trí kiểu HUD.
+- `font-mono` chỉ cho dữ liệu: mã, biển số, tiền, ngày giờ, số điện thoại. Nhãn, tab, tiêu đề cột, phân trang, chú thích, trạng thái rỗng dùng sans viết thường. Tiêu đề `h1`/`h2` dùng Archivo mặc định (A15.3), một màu mực, không dấu chấm cuối, không tách màu. Không kicker, không số chương, không icon trang trí cạnh tiêu đề (DESIGN.md A15.3).
 
 ## 3. Folio header (bắt buộc cho trang cấp 1)
 
@@ -24,26 +24,24 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 ```tsx
 <TransitFolio
-  index="07" tag="ORG"
-  kicker="TỔ CHỨC · NHÂN SỰ"
-  title={<>Nhân viên & <span className="text-td-teal">tài xế.</span></>}
+  title="Nhân viên & tài xế"
   description="Một câu mô tả phạm vi và cách đọc trang."
 >
-  <TransitFolioMetric label="TỔNG NHÂN SỰ" value={totalCount} />
+  <TransitFolioMetric label="Tổng nhân sự" value={totalCount} />
   <button className="rounded bg-td-oxide px-4 py-2.5 text-xs font-bold text-white">…</button>
 </TransitFolio>
 ```
 
-- Số chương + tag: `01 OPS` (Ca trực), `02 FLT` (Đội xe), `03 TRI` (Chăm sóc & Sự cố), `04 OPS/INS` (Vận hành), `05 DSP` (Điều phối), `06 PLC` (Chính sách), `07 ORG` (Tổ chức), `08 ME` (Cá nhân).
-- Vùng phải chỉ chứa **một** số liệu tổng và/hoặc **một** hành động chính. Nút luôn có nhãn chữ, không icon-only.
+- `TransitFolio` không nhận số chương, tag hay kicker. Tiêu đề bắt đầu cách đáy khung dính khoảng 24–40px.
+- Vùng phải chỉ chứa tối đa **một** số liệu thật (không đệm số 0, bỏ nếu trùng tổng của danh sách bên dưới) và/hoặc **một** hành động chính. Nút luôn có nhãn chữ, không icon-only. Liên kết quay lại của trang chi tiết đặt trong vùng phải này.
 - Mobile: vùng phải xuống dòng dưới tiêu đề, không cắt chữ, không tràn ngang.
 
 ## 4. Trang danh sách
 
-- Bộ lọc: `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton` (`src/components/admin/AdminFilters.tsx`) — nhãn mono chữ hoa, control gạch chân 36px, nút áp dụng mực cam `primary`, "Đặt lại" secondary. Không dựng toolbar lọc riêng.
+- Bộ lọc: `AdminFilterBar` + `AdminFilterField` + `AdminFilterButton` (`src/components/admin/AdminFilters.tsx`) — tiêu đề `h2` thường không icon, nhãn sans viết thường, control gạch chân 36px, nút áp dụng mực cam `primary`, "Đặt lại" secondary. Không dựng toolbar lọc riêng.
 - Bảng: `AdminTableCard` + `AdminTable` + `AdminTableEmptyRow` (`src/components/admin/AdminTable.tsx`) hoặc `DataTable` (`src/components/ui/DataTable.tsx`, dùng cho bảng có sắp xếp). Cả hai render kiểu **sổ mở**: header trong, chân bảng là đường `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`.
 - Cột thao tác đánh dấu `data-actions`, căn phải, chỉ dùng `AdminRowAction` với ánh xạ tại `row-action-rules.ts` (`view`=Eye, `edit`=Pencil, `delete`=Trash2 danger, `activate`=CirclePlay, `deactivate`=PauseCircle). Không tự dựng icon/nhãn trong cột này; không dựng cột Thao tác rỗng.
-- Phân trang, số bản ghi, mô tả trạng thái trống dùng mono `text-[11px] text-td-muted`.
+- Phân trang, số bản ghi, mô tả trạng thái trống dùng sans `text-xs text-td-muted`; tiêu đề cột sans `text-xs font-semibold`.
 - Trạng thái: `AdminStatusBadge` (**badge vuông màu nền** — góc vuông, padding nhỏ, glyph nhỏ + nhãn, cặp màu theo `status-tone.ts`) với `domain` + giá trị API; bảng ánh xạ duy nhất `src/components/admin/status-rules.ts` (`activity`, `vehicle`, `rental`, `maintenance`, `license`, `shift`, `report`, `review`). `LicenseBadge` render qua `AdminStatusBadge`. `StatusBadge` dùng cùng một nguồn ánh xạ tone, dùng ngoài Admin.
 - Tải dữ liệu: `AdminTableSkeleton` trong `tbody` với đúng số cột, `aria-busy` trên bảng, không hiện "không có dữ liệu" trước khi request xong.
 - Ngày giờ theo `formatAdminDateTime`/`formatAdminDate` (`src/lib/date-time`), `Asia/Ho_Chi_Minh`. Không hiện ID kỹ thuật làm tên dự phòng.
@@ -52,8 +50,8 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 - Folio + lưới 12 cột: cột trái 4 (hồ sơ định danh trong `rounded border border-td-rule bg-td-white p-6`), cột phải 8 (biểu mẫu/bảng chi tiết). Dưới `lg` xếp một cột.
 - Hồ sơ định danh: avatar 64px góc vuông, tên `text-lg font-bold`, `AdminStatusBadge`, rồi danh sách `dl` dòng `flex justify-between` với `divide-y divide-td-rule` (nhãn `text-td-muted`, giá trị `font-semibold text-td-ink`). Không dùng banner nền tối/navy.
-- Biểu mẫu: `ValidatedForm` + `FormField`/`InlineInput` với `.admin-input`; tiêu đề mục là `text-sm font-bold text-td-ink` + mô tả mono; hàng lưu có `border-t border-td-rule`, nút `primary` góc vuông.
-- Ghi chú quyền/nghiệp vụ dùng `border-l-2 border-td-oxide pl-3 text-xs text-td-muted`, không dùng khối nền màu.
+- Biểu mẫu: `ValidatedForm` + `FormField`/`InlineInput` với `.admin-input`; tiêu đề mục là `text-sm font-bold text-td-ink` + mô tả `text-xs text-td-muted`; hàng lưu có `border-t border-td-rule`, nút `primary` góc vuông.
+- Ghi chú quyền/nghiệp vụ là đoạn `text-xs text-td-muted` thường; không viền màu bên trái, không khối nền màu.
 - Lỗi luôn hiển thị ngay dưới trường (theo `AGENTS.md`), lỗi chung đặt ở vùng lỗi phía trên nội dung.
 - Thao tác tạo/cập nhật/xóa hiển thị toast thành công sau API thành công; lỗi chung thêm toast lỗi và giữ nội dung form. Dùng Toaster chung tại root Providers; gọi ở trang hoặc hook xử lý mutation, không gọi ở cả hai tầng. Lỗi đã ánh xạ vào trường không tạo toast rỗng, không thay lỗi inline bằng toast.
 
@@ -61,7 +59,7 @@ Dùng `TransitFolio` + `TransitFolioMetric` trong `src/features/admin/transit-de
 
 - Dùng `FormDialog` (+ `FormDialogFooter` **bên trong** `ValidatedForm`); không tự dựng dialog hay footer. Rule `ADMIN_POPUP_FORM` của `lint:design` kiểm tra cấu trúc này.
 - Header/footer giữ nguyên khi nội dung cuộn; footer nền surface đặc, viền trên, nút Hủy secondary + Lưu primary; khóa đóng/gửi khi đang lưu; giữ dữ liệu và lỗi khi API thất bại.
-- Nội dung trong dialog dùng `.admin-input`, nhãn mono, `InlineError`; không đặt bảng dữ liệu lớn trong dialog.
+- Nội dung trong dialog dùng `.admin-input`, nhãn sans thường, `InlineError`; không đặt bảng dữ liệu lớn trong dialog.
 - Escape/backdrop đóng khi không busy, giữ focus trong dialog và trả focus về nút mở.
 
 ## 7. Ngoại lệ bố cục: `/admin/rentals`

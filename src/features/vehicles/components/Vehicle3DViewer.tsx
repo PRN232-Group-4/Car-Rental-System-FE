@@ -5,7 +5,7 @@ import Image from "next/image";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Rotate3d, Play, RotateCcw, Loader2, Sparkles, AlertCircle, Camera } from "lucide-react";
+import { Rotate3d, Play, RotateCcw, Loader2, Sparkles, AlertCircle } from "lucide-react";
 
 export interface Vehicle3DViewerProps {
   modelUrl?: string;
@@ -337,10 +337,7 @@ export default function Vehicle3DViewer({
           className="object-cover opacity-60"
         />
         <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-2 text-primary-tint font-bold text-xs uppercase tracking-wider">
-            <Camera className="w-4 h-4" />
-            <span>Mô hình 3D đang được hoàn thiện</span>
-          </div>
+          <p className="text-primary-tint font-bold text-sm">Mô hình 3D đang được hoàn thiện</p>
           <h3 className="text-lg font-bold text-white">{vehicleName}</h3>
           <p className="text-xs text-white/80 max-w-md">
             Dòng xe này hiện được hiển thị qua ảnh chụp thực tế đa góc. Mô hình 3D tương tác có sẵn trên dòng xe Porsche 911 tại chi nhánh Trung tâm.

@@ -70,13 +70,13 @@ export default function PaymentManagement() {
   const reset = () => { setDraft(EMPTY_FILTERS); setFilters(EMPTY_FILTERS); setPage(1); validation.reset(); };
   const errorStatus = query.error && "status" in query.error ? query.error.status : undefined;
 
-  if (!canRead) return <p role="alert" className="border-l-2 border-td-oxide pl-3 text-sm text-td-ink">Bạn không có quyền xem danh sách thanh toán.</p>;
+  if (!canRead) return <p role="alert" className="pl-3 text-sm text-td-ink">Bạn không có quyền xem danh sách thanh toán.</p>;
 
   return <div className="space-y-6">
-    <TransitFolio index="04" tag="OPS" kicker="VẬN HÀNH · SỔ THANH TOÁN"
-      title={<>Thanh toán <span className="text-td-teal">đơn thuê.</span></>}
+    <TransitFolio
+      title="Thanh toán đơn thuê"
       description="Tra cứu giao dịch tiền thuê, tiền cọc, phí quá giờ, gói đăng ký và hoàn tiền theo hóa đơn.">
-      <TransitFolioMetric label="GIAO DỊCH PHÙ HỢP" value={query.isPending || query.isError ? "—" : filtered.length.toLocaleString("vi-VN")} />
+      <TransitFolioMetric label="Giao dịch phù hợp" value={query.isPending || query.isError ? "—" : filtered.length.toLocaleString("vi-VN")} />
     </TransitFolio>
 
     <ValidatedForm validation={validation} onSubmit={() => { setFilters({ ...draft, search: draft.search.trim() }); setPage(1); }}>
@@ -108,7 +108,7 @@ export default function PaymentManagement() {
       </AdminFilterBar>
     </ValidatedForm>
 
-    {query.isError && <div role="alert" className="space-y-3 border-l-2 border-td-oxide pl-3 text-sm text-td-ink">
+    {query.isError && <div role="alert" className="space-y-3 text-sm text-td-ink">
       <p>{errorStatus === 403 ? "Bạn không có quyền xem danh sách thanh toán." : "Không thể tải danh sách thanh toán. Vui lòng thử lại."}</p>
       <button type="button" className={pageButtonClass} disabled={query.isFetching} onClick={() => void query.refetch()}>Thử tải lại</button>
     </div>}
@@ -141,7 +141,7 @@ export default function PaymentManagement() {
           </tr>) : <AdminTableEmptyRow colSpan={7}>Không có giao dịch phù hợp. Hãy thử đặt lại bộ lọc.</AdminTableEmptyRow>}
         </tbody>
       </AdminTable>
-      <nav aria-label="Phân trang thanh toán" className="flex flex-wrap items-center justify-between gap-3 py-4 font-mono text-[11px] text-td-muted">
+      <nav aria-label="Phân trang thanh toán" className="flex flex-wrap items-center justify-between gap-3 py-4 text-[11px] text-td-muted">
         <span aria-live="polite">{query.isPending || query.isError ? "Chưa có dữ liệu" : `${filtered.length.toLocaleString("vi-VN")} giao dịch · Trang ${currentPage}/${pages}`}</span>
         <div className="flex gap-2">
           <button type="button" className={pageButtonClass} disabled={query.isFetching || query.isError || currentPage <= 1} onClick={() => setPage(currentPage - 1)}>Trang trước</button>

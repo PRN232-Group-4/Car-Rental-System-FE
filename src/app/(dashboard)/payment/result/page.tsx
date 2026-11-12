@@ -3,16 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "@/components/navigation/NavigationLink";
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  RefreshCw,
-  FileText,
-  Car,
-  ShieldCheck,
-  Package,
-} from "lucide-react";
+import { CheckCircle2, XCircle, Clock, RefreshCw, FileText, Car, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, Invoice } from "@/features/invoices";
 import { getPlanPurchaseStatus, PlanPurchaseStatus } from "@/features/subscriptions";
@@ -141,7 +132,6 @@ function PaymentResultContent() {
             )}
 
             <div className="p-4 rounded bg-primary-tint border border-primary/30 text-warning text-xs font-semibold flex items-center justify-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
               <span>
                 {isPlanPurchase
                   ? "Gói thuê bao đã được kích hoạt. Bạn có thể dùng ngay khi đặt xe."

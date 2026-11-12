@@ -173,7 +173,7 @@ export default function VehicleDetailPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 pt-[4.5rem]">
         <Suspense fallback={<VehicleDetailSkeleton />}>
           <VehicleDetailContent />
         </Suspense>

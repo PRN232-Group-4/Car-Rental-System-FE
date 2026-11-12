@@ -2,6 +2,7 @@
 
 import { Search, MessageSquare } from "lucide-react";
 import type { ReviewFilterParams, ReviewStatus } from "../types";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 interface ReviewFilterBarProps {
   filters: ReviewFilterParams;
@@ -35,7 +36,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
           <label htmlFor="review-star" className="sr-only">
             Mức sao
           </label>
-          <select
+          <InlineSelect
             id="review-star"
             value={filters.rating ?? ""}
             onChange={(e) =>
@@ -52,7 +53,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
             <option value="3">3 sao - Bình thường</option>
             <option value="2">2 sao - Chưa hài lòng</option>
             <option value="1">1 sao - Kém / Bất bình</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {/* Lọc theo trạng thái kiểm duyệt */}
@@ -60,7 +61,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
           <label htmlFor="review-status" className="sr-only">
             Trạng thái kiểm duyệt
           </label>
-          <select
+          <InlineSelect
             id="review-status"
             disabled title="API chưa cung cấp trạng thái kiểm duyệt"
             value={filters.status ?? "all"}
@@ -76,7 +77,7 @@ export function ReviewFilterBar({ filters, onChange }: ReviewFilterBarProps) {
             <option value="visible">Hiển thị công khai</option>
             <option value="reported">Bị báo cáo (Cần duyệt)</option>
             <option value="hidden">Đã ẩn kiểm duyệt</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {/* Lọc có/chưa phản hồi */}

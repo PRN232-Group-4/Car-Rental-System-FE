@@ -30,7 +30,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Landing `/` theo `DESIGN.md` A14; mọi trang còn lại (công khai, đăng nhập, dashboard khách, cổng tài xế, Admin) theo A15: thân giấy `bone-100`, khung mực `ink-950`, nhấn `primary` (sun-700), góc vuông, không kính, không gradient, một theme duy nhất.
 - Màu chỉ đi qua token trong `src/app/globals.css`; không viết hex trong class, style inline hay CSS module. `npm run lint:design` chặn bo góc khác 0/đĩa tròn, hex trong CSS module và selector theme tối.
-- Khi đổi giao diện, chạy `node scripts/design-sweep.mjs <tag> http://localhost:3000 <tiền tố route không có dấu />` và xem ảnh chụp; số phần tử bo góc, kính và màu cũ phải về 0.
+- Không kicker/eyebrow trên tiêu đề, không số chương, không tiêu đề tách màu hay dấu chấm cuối, không khối số to kiểu `TỔNG 00`, không mono cho nhãn/tab/nút, không icon trang trí cạnh tiêu đề (DESIGN.md A15.3).
+- Khi đổi giao diện, chạy `node scripts/design-sweep.mjs <tag> http://localhost:3000 <tiền tố route không có dấu />` và xem ảnh chụp; số phần tử bo góc, kính và màu cũ phải về 0, `kickers` rỗng, `headGap` ≤ 48px (trừ trang căn giữa như đăng nhập, trang trạng thái).
 
 ## Quy tắc bắt buộc: đồng bộ giao diện Admin
 

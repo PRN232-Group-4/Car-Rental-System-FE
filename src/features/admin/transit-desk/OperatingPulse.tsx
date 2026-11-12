@@ -73,8 +73,8 @@ export function OperatingPulse() {
   // Current date in GMT+7
   const todayStr = useMemo(() => {
     const now = new Date();
-    const d = String(now.getDate()).padStart(2, "0");
-    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate());
+    const m = String(now.getMonth() + 1);
     const y = String(now.getFullYear()).slice(-2);
     return `${d}.${m}/${y}`;
   }, []);
@@ -83,13 +83,10 @@ export function OperatingPulse() {
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* 1. Folio Top / Masthead Summary */}
       <TransitFolio
-        index="01"
-        tag="OPS"
-        kicker="TRẠM VẬN HÀNH · CA TRỰC ĐIỀU HÀNH"
-        title={<>Ca trực <span className="text-td-teal">đang diễn ra.</span></>}
+        title="Ca trực đang diễn ra"
         description="Các mốc quyết định trong một hành trình thuê xe. Tập trung vào sự cố sắp vượt hạn SLA và đơn cần bàn giao tại trạm."
       >
-        <TransitFolioMetric label="NHẬT KÝ CA · ASIA/HO_CHI_MINH" value={todayStr} />
+        <TransitFolioMetric label="Ngày" value={todayStr} />
         {canManage && <CreateVehicleButton />}
       </TransitFolio>
 
@@ -106,52 +103,52 @@ export function OperatingPulse() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Stop 1: Renting */}
           <div className="relative border-l border-td-rule pl-5 first:border-l-0">
-            <span className="block font-mono text-[11px] text-td-muted uppercase font-semibold">
-              01 · Đang lưu hành
+            <span className="block text-[11px] text-td-muted font-semibold">
+              Đang lưu hành
             </span>
             <strong className="mt-2 block font-sans text-4xl font-bold text-td-ink tracking-tight">
               {isLoading ? <Skeleton className="h-10 w-24" /> : formatNum(data?.renting)}
             </strong>
-            <span className="mt-2 block font-mono text-xs text-td-muted">
+            <span className="mt-2 block text-xs text-td-muted">
               Đơn thuê đang trong hành trình
             </span>
           </div>
 
           {/* Stop 2: Maintenance */}
           <div className="relative border-l border-td-rule pl-5">
-            <span className="block font-mono text-[11px] text-td-muted uppercase font-semibold">
-              02 · Bảo dưỡng
+            <span className="block text-[11px] text-td-muted font-semibold">
+              Bảo dưỡng
             </span>
             <strong className={`mt-2 block font-sans text-4xl font-bold tracking-tight ${data?.maintenance && data.maintenance > 0 ? "text-td-oxide" : "text-td-ink"}`}>
               {isLoading ? <Skeleton className="h-10 w-24" /> : formatNum(data?.maintenance)}
             </strong>
-            <span className="mt-2 block font-mono text-xs text-td-muted">
+            <span className="mt-2 block text-xs text-td-muted">
               Phiếu kỹ thuật đang mở
             </span>
           </div>
 
           {/* Stop 3: Active Subscriptions */}
           <div className="relative border-l border-td-rule pl-5">
-            <span className="block font-mono text-[11px] text-td-muted uppercase font-semibold">
-              03 · Gói hiệu lực
+            <span className="block text-[11px] text-td-muted font-semibold">
+              Gói hiệu lực
             </span>
             <strong className="mt-2 block font-sans text-4xl font-bold text-td-ink tracking-tight">
               {isLoading ? <Skeleton className="h-10 w-24" /> : formatNum(data?.activeSubscriptions)}
             </strong>
-            <span className="mt-2 block font-mono text-xs text-td-muted">
+            <span className="mt-2 block text-xs text-td-muted">
               Gói hội viên đang hoạt động
             </span>
           </div>
 
           {/* Stop 4: Paid Revenue */}
           <div className="relative border-l border-td-rule pl-5">
-            <span className="block font-mono text-[11px] text-td-muted uppercase font-semibold">
-              04 · Doanh thu lũy kế
+            <span className="block text-[11px] text-td-muted font-semibold">
+              Doanh thu lũy kế
             </span>
             <strong className="mt-2 block font-sans text-3xl font-bold text-td-ink tracking-tight">
               {isLoading ? <Skeleton className="h-10 w-32" /> : formatMoney(data?.revenue)}
             </strong>
-            <span className="mt-2 block font-mono text-xs text-td-muted">
+            <span className="mt-2 block text-xs text-td-muted">
               Tổng hóa đơn đã thanh toán
             </span>
           </div>
@@ -166,9 +163,6 @@ export function OperatingPulse() {
             <h2 className="font-sans text-2xl font-bold text-td-ink">
               Đến lượt xử lý
             </h2>
-            <span className="font-mono text-xs text-td-muted uppercase tracking-wider">
-              SORTED · SLA ATTENTION
-            </span>
           </div>
 
           {reportsQuery.isLoading ? (
@@ -179,13 +173,13 @@ export function OperatingPulse() {
             </div>
           ) : pendingQueue.length === 0 ? (
             <div className="border border-td-rule bg-td-white p-6 text-center">
-              <p className="font-mono text-xs text-td-muted">
+              <p className="text-sm text-td-muted">
                 Hiện không có sự cố nào đang chờ xử lý tại trạm.
               </p>
             </div>
           ) : (
             <div className="divide-y divide-td-rule border-b border-td-rule">
-              {pendingQueue.map((report, idx) => {
+              {pendingQueue.map((report) => {
                 const isOverdue = isSlaBreached(report.createdAt, report.status);
                 const waitStr = getWaitTimeText(report.createdAt, report.resolvedAt);
 
@@ -195,13 +189,10 @@ export function OperatingPulse() {
                     href={`/admin/reports?id=${report.id}`}
                     className="grid grid-cols-12 items-center gap-4 py-4 px-2 hover:bg-td-chalk/50 transition-colors cursor-pointer group"
                   >
-                    <div className="col-span-1 font-mono text-xl font-bold text-td-oxide">
-                      {String(idx + 1).padStart(2, "0")}
-                    </div>
-                    <div className="col-span-8 min-w-0">
+                    <div className="col-span-9 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] uppercase font-bold text-td-muted">
-                          SỰ CỐ #{report.id} · {getReportTypeLabel(report.type)}
+                        <span className="text-[10px] font-bold text-td-muted">
+                          Sự cố #{report.id} · {getReportTypeLabel(report.type)}
                         </span>
                       </div>
                       <div className="font-semibold text-sm text-td-ink truncate mt-0.5">
@@ -215,8 +206,8 @@ export function OperatingPulse() {
                       <div className={`font-mono text-xs font-bold ${isOverdue ? "text-td-oxide" : "text-td-ink"}`}>
                         {waitStr}
                       </div>
-                      <span className="font-mono text-[10px] text-td-muted uppercase">
-                        {!report.createdAt ? "CHƯA CÓ MỐC THỜI GIAN" : isOverdue ? "QUÁ HẠN SLA" : "CHỜ PHẢN HỒI"}
+                      <span className="text-[10px] text-td-muted">
+                        {!report.createdAt ? "Chưa có mốc thời gian" : isOverdue ? "Quá hạn SLA" : "Chờ phản hồi"}
                       </span>
                     </div>
                   </Link>
@@ -228,7 +219,7 @@ export function OperatingPulse() {
           <div className="pt-2">
             <Link
               href="/admin/reports"
-              className="inline-flex items-center gap-2 font-mono text-xs font-bold text-td-ink hover:text-td-oxide transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-td-ink hover:text-td-oxide transition-colors"
             >
               <span>Xem toàn bộ danh sách sự cố trạm</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -240,9 +231,7 @@ export function OperatingPulse() {
         <aside aria-busy={fleetQuery.isPending} className="lg:col-span-5 rounded border border-td-rule bg-td-white p-6 text-td-ink flex flex-col justify-between relative overflow-hidden">
           <div>
             <div className="flex items-center justify-between border-b border-td-rule pb-3">
-              <span className="font-mono text-[10px] uppercase tracking-wider text-td-muted">
-                INSTRUMENT · FLEET CAPACITY
-              </span>
+              <h2 className="text-sm font-bold text-td-ink">Năng lực đội xe</h2>
               <button
                 type="button"
                 onClick={() => void fleetQuery.refetch()}
@@ -264,10 +253,10 @@ export function OperatingPulse() {
                 <ErrorState message="Không thể tải cơ cấu đội xe. Vui lòng thử lại." onRetry={() => void fleetQuery.refetch()} />
               ) : (
                 <>
-                  <div className="font-sans text-5xl font-bold tracking-tight text-td-ink">
+                  <div className="text-3xl font-bold tracking-tight text-td-ink">
                     {fleetCounts.available}
-                    <span className="ml-3 font-mono text-sm tracking-normal text-td-muted">
-                      / {fleetCounts.total} XE SẴN SÀNG
+                    <span className="ml-2 text-sm font-normal tracking-normal text-td-muted">
+                      / {fleetCounts.total} xe sẵn sàng
                     </span>
                   </div>
                   <p className="mt-2 text-xs text-td-muted leading-relaxed">
@@ -278,17 +267,17 @@ export function OperatingPulse() {
             </div>
           </div>
 
-          {!fleetQuery.isPending && !fleetQuery.isError && <div className="grid grid-cols-3 gap-3 border-t border-td-rule pt-4 font-mono text-xs">
+          {!fleetQuery.isPending && !fleetQuery.isError && <div className="grid grid-cols-3 gap-3 border-t border-td-rule pt-4 text-xs">
             <div>
-              <span className="block text-[10px] text-td-muted uppercase">ĐANG THUÊ</span>
+              <span className="block text-[10px] text-td-muted">Đang thuê</span>
               <strong className="text-base text-td-ink">{fleetCounts.rented}</strong>
             </div>
             <div>
-              <span className="block text-[10px] text-td-muted uppercase">BẢO DƯỠNG</span>
+              <span className="block text-[10px] text-td-muted">Bảo dưỡng</span>
               <strong className="text-base text-td-oxide">{fleetCounts.maintenance}</strong>
             </div>
             <div>
-              <span className="block text-[10px] text-td-muted uppercase">TẠM NGƯNG</span>
+              <span className="block text-[10px] text-td-muted">Tạm ngưng</span>
               <strong className="text-base text-td-muted">{fleetCounts.other}</strong>
             </div>
           </div>}
@@ -296,13 +285,12 @@ export function OperatingPulse() {
       </div>
 
       {/* 4. Operations Bottom Strip: Task shortcuts */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 border-t border-td-rule pt-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <Link
           href="/admin/rentals"
-          className="p-5 border border-td-rule bg-td-white hover:border-td-ink transition-colors rounded group"
+          className="group block border-t border-td-ink pt-3"
         >
-          <span className="font-mono text-[10px] font-bold text-td-muted uppercase">01 · VẬN HÀNH</span>
-          <h3 className="mt-1 font-semibold text-base text-td-ink group-hover:text-td-oxide transition-colors">
+          <h3 className="font-semibold text-base text-td-ink group-hover:text-td-oxide transition-colors">
             Bàn giao & Nhận xe
           </h3>
           <p className="mt-2 text-xs text-td-muted">
@@ -312,10 +300,9 @@ export function OperatingPulse() {
 
         <Link
           href="/admin/vehicles"
-          className="p-5 border border-td-rule bg-td-white hover:border-td-ink transition-colors rounded group"
+          className="group block border-t border-td-ink pt-3"
         >
-          <span className="font-mono text-[10px] font-bold text-td-muted uppercase">02 · ĐỘI XE</span>
-          <h3 className="mt-1 font-semibold text-base text-td-ink group-hover:text-td-oxide transition-colors">
+          <h3 className="font-semibold text-base text-td-ink group-hover:text-td-oxide transition-colors">
             Sổ phương tiện
           </h3>
           <p className="mt-2 text-xs text-td-muted">
@@ -325,10 +312,9 @@ export function OperatingPulse() {
 
         <Link
           href="/admin/inspections"
-          className="p-5 border border-td-rule bg-td-white hover:border-td-ink transition-colors rounded group"
+          className="group block border-t border-td-ink pt-3"
         >
-          <span className="font-mono text-[10px] font-bold text-td-muted uppercase">03 · BẰNG CHỨNG</span>
-          <h3 className="mt-1 font-semibold text-base text-td-ink group-hover:text-td-oxide transition-colors">
+          <h3 className="font-semibold text-base text-td-ink group-hover:text-td-oxide transition-colors">
             Biên bản kiểm tra xe
           </h3>
           <p className="mt-2 text-xs text-td-muted">

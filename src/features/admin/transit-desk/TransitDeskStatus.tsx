@@ -82,14 +82,14 @@ export function TransitDeskStatus({
     <span
       data-status-tone={tone}
       data-status-flashing={isFlashing ? "true" : undefined}
-      className={`inline-flex items-center gap-2 font-mono text-xs tracking-wide uppercase transition-all duration-300 ${
+      className={`inline-flex items-center gap-2 text-xs transition-all duration-300 ${
         isFlashing ? "scale-105 rounded px-1 -mx-1" : ""
       } ${getToneClass()} ${className}`}
     >
       {renderGlyph()}
       <span>{children}</span>
       {metaText && (
-        <span className="font-normal text-td-muted lowercase tracking-normal">
+        <span className="font-normal text-td-muted">
           · {metaText}
         </span>
       )}

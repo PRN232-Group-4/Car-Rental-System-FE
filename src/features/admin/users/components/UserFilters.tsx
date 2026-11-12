@@ -5,6 +5,7 @@ import { Search, RotateCcw } from "lucide-react";
 import { UserFilterParams } from "../types";
 import { ROLES } from "@/features/auth/roles";
 import { Button } from "@/components/ui/Button";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export interface UserFiltersProps {
   filters: UserFilterParams;
@@ -57,7 +58,7 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
 
         {/* 2. Lọc theo Vai trò */}
         <div className="w-full md:w-48">
-          <select
+          <InlineSelect
             value={filters.role || "all"}
             onChange={(e) => onChange({ role: e.target.value, page: 1 })}
             className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
@@ -68,12 +69,12 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
                 {r}
               </option>
             ))}
-          </select>
+          </InlineSelect>
         </div>
 
         {/* 3. Lọc theo Trạng thái */}
         <div className="w-full md:w-44">
-          <select
+          <InlineSelect
             value={filters.isActive || "all"}
             onChange={(e) => onChange({ isActive: e.target.value, page: 1 })}
             className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
@@ -81,12 +82,12 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Đang hoạt động</option>
             <option value="locked">Đã bị khóa</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {/* 4. Lọc theo Loại hồ sơ */}
         <div className="w-full md:w-44">
-          <select
+          <InlineSelect
             value={filters.profile || "all"}
             onChange={(e) => onChange({ profile: e.target.value, page: 1 })}
             className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
@@ -95,7 +96,7 @@ export function UserFilters({ filters, onChange, onReset }: UserFiltersProps) {
             <option value="customer">Hồ sơ khách hàng</option>
             <option value="staff">Hồ sơ nhân viên</option>
             <option value="none">Chưa có hồ sơ</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {/* 5. Nút Reset */}

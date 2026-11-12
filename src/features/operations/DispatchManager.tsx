@@ -9,6 +9,7 @@ import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { AdminFilterBar, AdminFilterField, AdminFilterButton } from "@/components/admin/AdminFilters";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { Pagination } from "@/components/ui/Pagination";
 import VehicleName from "@/features/admin/VehicleName";
 import StaffName from "@/features/admin/StaffName";
@@ -54,18 +55,10 @@ export default function DispatchManager() {
   const createShift = (id = activeFilter.driverStaffId) => { if (!DRIVER_SHIFT_MANAGEMENT_ENABLED) return; setCreatingDriverId(id); setEditing(null); };
   const refresh = async () => { if (canReadDispatch) await Promise.all([shifts.refetch(), schedule.refetch()]); };
   return <div className="space-y-6">
-    <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
-      <div className="flex items-start gap-5">
-        <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">05<br />DSP</span>
-        <div>
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · CA LÀM & PHÂN CHUYẾN</span>
-          <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">Điều phối <span className="text-td-teal">tài xế.</span></h1>
-          <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">Tra cứu tài xế và phân công cho xe theo từng đơn thuê.</p>
-        </div>
-      </div>
+    <TransitFolio title="Điều phối tài xế" description="Tra cứu tài xế và phân công cho xe theo từng đơn thuê.">
       <button type="button" className={`${operationsButton} self-start sm:self-end`} aria-describedby={!DRIVER_SHIFT_MANAGEMENT_ENABLED ? "driver-shift-paused" : undefined} disabled={!DRIVER_SHIFT_MANAGEMENT_ENABLED || drivers.isPending || drivers.isError || !driverOptions.length} onClick={() => createShift()}>Tạo ca làm</button>
-    </div>
-    {!DRIVER_SHIFT_MANAGEMENT_ENABLED && <p id="driver-shift-paused" role="status" className="border-l-2 border-td-oxide pl-3 text-sm text-td-muted">{DRIVER_SHIFT_PAUSED_MESSAGE} <a className="font-semibold text-td-oxide underline" href="#rental-driver-assignment">Mở phân công tài xế</a></p>}
+    </TransitFolio>
+    {!DRIVER_SHIFT_MANAGEMENT_ENABLED && <p id="driver-shift-paused" role="status" className="text-sm text-td-muted">{DRIVER_SHIFT_PAUSED_MESSAGE} <a className="font-semibold text-td-oxide underline" href="#rental-driver-assignment">Mở phân công tài xế</a></p>}
     {canReadDispatch && <>
     <ValidatedForm validation={validation} validate={() => validateBookingTimes(filter.startTime, filter.endTime)} onSubmit={() => { setActiveFilter({ ...filter }); setDriverPage(1); }}>
       <AdminFilterBar description="Lọc ca làm và lịch chuyến theo tài xế, khoảng thời gian." actions={<>

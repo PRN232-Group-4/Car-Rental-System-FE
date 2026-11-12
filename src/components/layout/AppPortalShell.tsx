@@ -117,7 +117,7 @@ export default function AppPortalShell({
             <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-td-ink group-hover:text-sun-400 transition-colors">
               ThongDong.
             </span>
-            <span className={`${styles.sidebarText} block text-[10px] font-bold uppercase tracking-[0.2em] text-sun-400 mt-0.5`}>
+            <span className={`${styles.sidebarText} block text-[10px] font-bold text-sun-400 mt-0.5`}>
               {portalLabel}
             </span>
           </div>
@@ -142,9 +142,6 @@ export default function AppPortalShell({
 
       {/* Navigation Scroll Container */}
       <div className={`${styles.navigationScroll} min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-6`}>
-        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-td-muted`}>
-          Không gian làm việc
-        </p>
         <nav aria-label={`Điều hướng ${portalLabel.toLowerCase()}`} className="space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = isActiveHref(href);
@@ -314,9 +311,9 @@ export default function AppPortalShell({
               <p className="text-xs font-medium text-td-muted truncate">
                 {portalSubLabel}
               </p>
-              <h1 className="mt-0.5 truncate text-base font-bold text-td-ink">
+              <p className="mt-0.5 truncate text-base font-bold text-td-ink">
                 {currentPage}
-              </h1>
+              </p>
             </div>
           </div>
 

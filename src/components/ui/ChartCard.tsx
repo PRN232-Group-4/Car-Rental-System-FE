@@ -85,7 +85,7 @@ export function ChartCard({
             <table className="w-full border-collapse text-left text-xs">
               <caption className="sr-only">Bảng số liệu cho {title}</caption>
               <thead>
-                <tr className="border-b border-td-ink font-mono text-[11px] uppercase tracking-wider text-td-muted">
+                <tr className="border-b border-td-ink text-xs font-semibold text-td-muted">
                   {tableData.headers.map((h, i) => (
                     <th key={i} scope="col" className="px-2 py-2">
                       {h}

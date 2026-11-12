@@ -33,8 +33,6 @@ export interface ActiveFilterChipsProps {
 const CATEGORY_NAMES: Record<string, string> = {
   car: "Ô tô xăng",
   electric_car: "Ô tô điện",
-  motorbike: "Xe máy",
-  electric_motorbike: "Xe máy điện",
 };
 
 const TRANSMISSION_NAMES: Record<string, string> = {

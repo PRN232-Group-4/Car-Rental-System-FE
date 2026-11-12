@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "@/components/navigation/NavigationLink";
-import { ShieldAlert, ArrowLeft, Home, LogIn } from "lucide-react";
+import { ArrowLeft, Home, LogIn } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { getLoginPortalPath } from "@/features/auth/portal-routing";
 
@@ -15,10 +15,6 @@ export default function ForbiddenPage() {
   return (
     <main className="min-h-dvh bg-canvas text-ink flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md text-center space-y-6">
-        <div className="mx-auto w-16 h-16 bg-danger/10 border border-danger/20 flex items-center justify-center text-danger">
-          <ShieldAlert className="w-8 h-8" />
-        </div>
-
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             Truy cập bị từ chối

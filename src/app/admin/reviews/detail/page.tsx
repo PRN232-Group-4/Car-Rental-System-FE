@@ -20,16 +20,16 @@ export default function ReviewDetailPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
-          {/* Breadcrumb / Back button */}
-          <div>
-            <Link
-              href="/admin/reviews"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-muted transition hover:text-td-ink"
-            >
-              <ArrowLeft className="h-4 w-4" />
+
+          <TransitFolio
+            title="Chi tiết đánh giá"
+            description="Nội dung nhận xét, bằng chứng chuyến đi và thao tác kiểm duyệt."
+          >
+            <Link href="/admin/reviews" className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-muted transition hover:text-td-ink">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               <span>Quay lại danh sách đánh giá</span>
             </Link>
-          </div>
+          </TransitFolio>
 
           {!reviewId && (
             <EmptyState
@@ -38,16 +38,8 @@ export default function ReviewDetailPage() {
             />
           )}
 
-          <TransitFolio
-            index="03"
-            tag="TRI"
-            kicker="CHĂM SÓC & SỰ CỐ · HỒ SƠ ĐÁNH GIÁ"
-            title={<>Chi tiết <span className="text-td-teal">đánh giá.</span></>}
-            description="Nội dung nhận xét, bằng chứng chuyến đi và thao tác kiểm duyệt."
-          />
-
           {reviewId && isLoading && (
-            <div className="flex h-64 animate-pulse items-center justify-center rounded border border-td-rule bg-td-white font-mono text-xs text-td-muted">
+            <div className="flex h-64 animate-pulse items-center justify-center rounded border border-td-rule bg-td-white text-xs text-td-muted">
               Đang tải chi tiết đánh giá #{reviewId}...
             </div>
           )}

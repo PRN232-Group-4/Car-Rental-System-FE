@@ -39,30 +39,18 @@ type Field = {
   options?: { value: string; label: string }[];
 };
 
-const catalogInfo: Record<CatalogKey, { title: string; description: string; index: string; tag: string; kicker: string; folio: React.ReactNode }> = {
+const catalogInfo: Record<CatalogKey, { title: string; description: string }> = {
   "vehicle-types": {
     title: "Loại phương tiện",
     description: "Quản lý loại phương tiện và nhiên liệu mặc định.",
-    index: "02",
-    tag: "FLT",
-    kicker: "TÀI SẢN · PHÂN LOẠI XE",
-    folio: <>Loại <span className="text-td-teal">phương tiện.</span></>,
   },
   policies: {
     title: "Chính sách thuê xe",
     description: "Cấu hình VAT, phí trễ giờ và đặt cọc cho từng loại phương tiện.",
-    index: "06",
-    tag: "PLC",
-    kicker: "CHÍNH SÁCH · ĐIỀU KHOẢN THUÊ",
-    folio: <>Chính sách <span className="text-td-teal">thuê xe.</span></>,
   },
   "subscription-plans": {
     title: "Gói đăng ký",
     description: "Quản lý gói thuê bao, thời hạn, số giờ sử dụng và quyền lợi.",
-    index: "06",
-    tag: "PLC",
-    kicker: "CHÍNH SÁCH · GÓI THUÊ BAO",
-    folio: <>Gói <span className="text-td-teal">đăng ký.</span></>,
   },
 };
 
@@ -259,15 +247,12 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
   return (
     <div className="space-y-6">
       <TransitFolio
-        index={info.index}
-        tag={info.tag}
-        kicker={info.kicker}
-        title={info.folio}
+        title={info.title}
         description={info.description}
       >
         <TransitFolioMetric
-          label="DANH MỤC · TỔNG SỐ"
-          value={loading ? <Skeleton className="h-8 w-16" /> : String(catalog === "policies" ? policyTotal : records.length).padStart(2, "0")}
+          label="Tổng số"
+          value={loading ? <Skeleton className="h-8 w-16" /> : String(catalog === "policies" ? policyTotal : records.length)}
         />
         {canManage && (
           <button
@@ -280,15 +265,15 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
           </button>
         )}
       </TransitFolio>
-      {catalog === "policies" && <p className="max-w-3xl border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">Mỗi chính sách là một phiên bản được giữ lại cho lịch sử thuê xe. Khi đổi điều khoản, hãy tạm ngưng chính sách đang hoạt động của loại xe trước khi tạo phiên bản mới. Các đơn thuê đã tạo giữ nguyên điều khoản và giá. Số lần thuê là tổng đơn đã gắn với từng chính sách, gồm mọi trạng thái.</p>}
-      {loadError && <div className="flex flex-wrap items-center gap-3 border-l-2 border-danger pl-3 text-sm"><p role="alert" className="text-danger">{loadError}</p><button type="button" onClick={() => void loadRecords()} className="font-semibold text-td-oxide underline">Thử lại</button></div>}
-      {catalog === "policies" && statusError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{statusError}</p>}
+      {catalog === "policies" && <p className="max-w-3xl text-xs leading-relaxed text-td-muted">Mỗi chính sách là một phiên bản được giữ lại cho lịch sử thuê xe. Khi đổi điều khoản, hãy tạm ngưng chính sách đang hoạt động của loại xe trước khi tạo phiên bản mới. Các đơn thuê đã tạo giữ nguyên điều khoản và giá. Số lần thuê là tổng đơn đã gắn với từng chính sách, gồm mọi trạng thái.</p>}
+      {loadError && <div className="flex flex-wrap items-center gap-3 text-sm"><p role="alert" className="text-danger">{loadError}</p><button type="button" onClick={() => void loadRecords()} className="font-semibold text-td-oxide underline">Thử lại</button></div>}
+      {catalog === "policies" && statusError && <p role="alert" className="pl-3 text-sm text-danger">{statusError}</p>}
       {catalog === "policies" && statusPendingId !== null && <p role="status" className="sr-only">Đang cập nhật trạng thái chính sách...</p>}
 
       <AdminTableCard>
         <div className="border-b border-td-rule pb-2 pt-3">
           <h3 className="text-sm font-bold text-td-ink">Danh sách {info.title.toLocaleLowerCase()}</h3>
-          <p className="mt-1 font-mono text-[11px] text-td-muted">{loading ? "Đang tải..." : `${catalog === "policies" ? policyTotal : records.length} mục`}</p>
+          <p className="mt-1 text-[11px] text-td-muted">{loading ? "Đang tải..." : `${catalog === "policies" ? policyTotal : records.length} mục`}</p>
         </div>
         <AdminTable aria-busy={loading} className="min-w-[680px]">
           <caption className="sr-only">Danh sách {info.title.toLocaleLowerCase()}</caption>
@@ -330,7 +315,7 @@ export default function CatalogManager({ catalog }: { catalog: CatalogKey }) {
             {!loading && !loadError && records.length === 0 && <AdminTableEmptyRow colSpan={columns.length + (showActions ? 2 : 1)}>Không có dữ liệu.</AdminTableEmptyRow>}
           </tbody>
         </AdminTable>
-        {catalog === "policies" && <div className="flex flex-wrap items-center justify-between gap-3 border-t border-td-rule py-3 font-mono text-[11px] text-td-muted">
+        {catalog === "policies" && <div className="flex flex-wrap items-center justify-between gap-3 border-t border-td-rule py-3 text-[11px] text-td-muted">
           <span>Trang {policyPage} / {policyPageCount} · {policyTotal} chính sách</span>
           <nav aria-label="Phân trang chính sách" className="flex items-center gap-2">
             <button type="button" aria-label="Trang chính sách trước" disabled={loading || policyPage <= 1} onClick={() => setPolicyPage((page) => page - 1)} className="rounded border border-td-rule p-1.5 text-td-ink disabled:opacity-40"><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>

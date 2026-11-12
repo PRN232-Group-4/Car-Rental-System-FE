@@ -207,13 +207,10 @@ export default function SubscriptionPlansPage() {
     <AuthGate allowedRoles={["Admin", "Manager"]}>
         <div className="space-y-6">
           <TransitFolio
-            index="06"
-            tag="PLC"
-            kicker="CHÍNH SÁCH · GÓI THUÊ BAO"
-            title={<>Gói thuê bao <span className="text-td-teal">di chuyển.</span></>}
+            title="Gói thuê bao di chuyển"
             description="Quản lý danh mục các gói thuê bao giờ linh hoạt, thiết lập thời hạn và đơn giá quy đổi cho khách hàng toàn hệ thống."
           >
-            <TransitFolioMetric label="DANH MỤC · TỔNG SỐ GÓI" value={isLoading ? <Skeleton className="h-8 w-16" /> : String(plans.length).padStart(2, "0")} />
+            <TransitFolioMetric label="Tổng số gói" value={isLoading ? <Skeleton className="h-8 w-16" /> : String(plans.length)} />
             <button
               type="button"
               onClick={handleOpenCreate}

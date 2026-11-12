@@ -129,7 +129,7 @@ export default function DriverLicenseProfile({
       <section aria-label="Tiến trình xác minh hồ sơ">
         <div className="flex flex-col justify-between gap-3 border-b border-td-ink pb-2 sm:flex-row sm:items-end">
           <div>
-            <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+            <h3 className="text-[11px] font-bold text-td-muted">
               Tiến trình xác minh hồ sơ tài xế
             </h3>
             <p className="mt-1 text-sm text-td-ink">
@@ -181,7 +181,7 @@ export default function DriverLicenseProfile({
           <div className="flex items-start justify-between gap-4 border-b border-td-rule pb-3">
             <div>
               <h3 className="text-sm font-bold text-td-ink">Giấy phép lái xe</h3>
-              <p className="mt-1 font-mono text-[11px] text-td-muted">
+              <p className="mt-1 text-[11px] text-td-muted">
                 Hồ sơ giấy phép được lưu trong hệ thống nhân sự.
               </p>
             </div>
@@ -203,13 +203,13 @@ export default function DriverLicenseProfile({
           </dl>
 
           {staff.licenseImageUrl && (
-            <p className="mt-4 flex items-center gap-2 border-t border-td-rule pt-3 font-mono text-[11px] text-td-muted">
+            <p className="mt-4 flex items-center gap-2 border-t border-td-rule pt-3 text-[11px] text-td-muted">
               <FileCheck className="h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
               <span className="truncate">Ảnh giấy phép lái xe đã được lưu trên hệ thống</span>
             </p>
           )}
 
-          <p className="mt-4 flex items-start gap-2 border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">
+          <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-td-muted">
             <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
             Thông tin giấy phép do quản trị viên cập nhật và xác thực theo hồ sơ nhân sự. Cần thay đổi, vui lòng liên hệ ban quản trị.
           </p>
@@ -217,7 +217,7 @@ export default function DriverLicenseProfile({
       ) : isApproved && !editingApprovedLicense ? (
         <section
           aria-label="Giấy phép đã xác minh"
-          className="flex flex-col justify-between gap-4 border-l-2 border-td-oxide bg-td-white px-5 py-4 sm:flex-row sm:items-center"
+          className="flex flex-col justify-between gap-4 bg-td-white px-5 py-4 sm:flex-row sm:items-center"
         >
           <div className="flex items-start gap-3">
             <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-td-oxide" aria-hidden="true" />
@@ -242,14 +242,14 @@ export default function DriverLicenseProfile({
       <section className="rounded border border-td-rule bg-td-white p-5 sm:p-7">
         <div className="border-b border-td-rule pb-3">
           <h3 className="text-sm font-bold text-td-ink">Tải lên giấy phép lái xe</h3>
-          <p className="mt-1 font-mono text-[11px] text-td-muted">
+          <p className="mt-1 text-[11px] text-td-muted">
             Giấy phép hợp lệ sẽ được quản trị viên xác minh.
           </p>
         </div>
 
         <ValidatedForm validation={validation} validate={() => !file && !staff.licenseImageUrl ? { imageUrl: "Vui lòng tải lên ảnh giấy phép lái xe." } : {}} key={`driver-license-${staff.id}`} onSubmit={submit} className="space-y-5">
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
+            <label className="text-[11px] font-semibold text-td-muted">
               Số giấy phép lái xe
               <InlineInput
                 name="licenseNumber"
@@ -258,7 +258,7 @@ export default function DriverLicenseProfile({
                 className="admin-input mt-2"
               />
             </label>
-            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
+            <label className="text-[11px] font-semibold text-td-muted">
               Hạng giấy phép
               <InlineInput
                 name="licenseType"
@@ -268,7 +268,7 @@ export default function DriverLicenseProfile({
                 className="admin-input mt-2"
               />
             </label>
-            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
+            <label className="text-[11px] font-semibold text-td-muted">
               Ngày cấp
               <InlineInput
                 name="licenseIssueDate"
@@ -277,7 +277,7 @@ export default function DriverLicenseProfile({
                 className="admin-input mt-2"
               />
             </label>
-            <label className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
+            <label className="text-[11px] font-semibold text-td-muted">
               Ngày hết hạn
               <InlineInput
                 name="licenseExpiryDate"
@@ -308,7 +308,7 @@ export default function DriverLicenseProfile({
             <span className="text-sm font-bold text-td-ink">
               {file ? "Chọn ảnh khác" : "Nhấn để tải ảnh giấy phép"}
             </span>
-            <span className="mt-1 font-mono text-[11px] text-td-muted">
+            <span className="mt-1 text-[11px] text-td-muted">
               JPG, PNG hoặc WEBP · tối đa 10 MB
             </span>
           </button>
@@ -383,7 +383,7 @@ function ProgressStep({
   return (
     <div className="px-0 py-3.5 sm:px-4 sm:first:pl-0 sm:last:pr-0">
       <span
-        className={`flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider ${
+        className={`flex items-center gap-1.5 text-[11px] font-bold ${
           complete ? "text-td-ink" : "text-td-muted"
         }`}
       >

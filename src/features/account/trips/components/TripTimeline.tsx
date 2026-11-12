@@ -41,7 +41,7 @@ export function TripTimeline({ timeline }: TripTimelineProps) {
 
   return (
     <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+      <h3 className="text-xs font-bold text-td-muted">
         Lịch sử hành trình (Timeline)
       </h3>
 

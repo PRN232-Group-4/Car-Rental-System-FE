@@ -65,7 +65,7 @@ export function StatCard({
         )}
       </div>
 
-      <p className="mt-4 font-mono text-[11px] uppercase tracking-wider text-td-muted">{label}</p>
+      <p className="mt-4 text-xs font-semibold text-td-muted">{label}</p>
       <p className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink tabular-nums">
         {value}
       </p>

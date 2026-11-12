@@ -1,19 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Key, 
-  Lock, 
-  Unlock, 
-  Wifi, 
-  BatteryCharging, 
-  Fuel, 
-  Gauge, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Zap,
-  Car
-} from "lucide-react";
+import { Lock, Unlock, Wifi, BatteryCharging, Fuel, Gauge, ShieldCheck, CheckCircle2, Zap, Car } from "lucide-react";
 import { playRemoteLock, playRemoteUnlock, playTactileClick } from "@/lib/audio/haptic-audio";
 
 export interface DigitalSmartKeycardProps {
@@ -63,9 +51,8 @@ export function DigitalSmartKeycard({ vehicle, rentalStatus }: DigitalSmartKeyca
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Key className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-bold uppercase tracking-wider text-ink font-display">
-            Chìa Khóa Số & Telemetry Vận Hành
+          <h3 className="text-sm font-bold text-ink font-display">
+            Chìa khóa số và chỉ số vận hành
           </h3>
         </div>
       </div>
@@ -95,7 +82,7 @@ export function DigitalSmartKeycard({ vehicle, rentalStatus }: DigitalSmartKeyca
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Car className="w-4 h-4 text-sun-400" />
-                <span className="text-[10px] font-mono tracking-widest uppercase text-bone-100/70">
+                <span className="text-[10px] text-bone-100/70">
                   THONG DONG SMART PASS
                 </span>
               </div>
@@ -125,7 +112,7 @@ export function DigitalSmartKeycard({ vehicle, rentalStatus }: DigitalSmartKeyca
               aria-label="Khóa cửa xe"
             >
               <Lock className="w-4 h-4" />
-              <span>{isLocked ? "ĐÃ KHÓA XE" : "KHÓA XE"}</span>
+              <span>{isLocked ? "Đã khóa xe" : "Khóa xe"}</span>
             </button>
 
             <button
@@ -140,15 +127,15 @@ export function DigitalSmartKeycard({ vehicle, rentalStatus }: DigitalSmartKeyca
               aria-label="Mở khóa cửa xe"
             >
               <Unlock className="w-4 h-4" />
-              <span>{!isLocked ? "ĐÃ MỞ KHÓA" : "MỞ KHÓA"}</span>
+              <span>{!isLocked ? "Đã mở khóa" : "Mở khóa"}</span>
             </button>
           </div>
 
           {/* Card Bottom Row: NFC Chip & Encryption Badge */}
           <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-bone-100/70 border-t border-ink-800 pt-3">
             <ShieldCheck className="w-3.5 h-3.5 text-sun-400" />
-            <span className="uppercase text-sun-400 font-bold">
-              {rentalStatus === "renting" ? "ĐANG VẬN HÀNH" : "SẴN SÀNG"}
+            <span className=" text-sun-400 font-bold">
+              {rentalStatus === "renting" ? "Đang vận hành" : "Sẵn sàng"}
             </span>
           </div>
         </div>
@@ -157,8 +144,8 @@ export function DigitalSmartKeycard({ vehicle, rentalStatus }: DigitalSmartKeyca
         <div className="md:col-span-5 bg-surface border border-line-strong p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4 border-b border-line pb-3">
-              <span className="text-xs font-bold text-ink-3 uppercase tracking-wider">
-                CHỈ SỐ XE THỜI GIAN THỰC
+              <span className="text-xs font-bold text-ink-3">
+                Chỉ số xe thời gian thực
               </span>
               <span className="text-xs font-mono font-bold text-primary flex items-center gap-1">
                 <Zap className="w-3.5 h-3.5" />

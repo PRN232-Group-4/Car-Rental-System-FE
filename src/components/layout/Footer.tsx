@@ -138,7 +138,7 @@ export default function Footer() {
   return (
     <footer
       id="lien-he"
-      className="relative z-10 w-full bg-ink-950 border-t-4 border-sun-600 pt-16 sm:pt-20 pb-12 pl-6 sm:pl-12 lg:pl-20 pr-14 md:pr-16 lg:pr-24 xl:pr-28 text-bone-100 scroll-mt-24"
+      className="relative z-10 w-full bg-ink-950 border-t-4 border-sun-600 pt-16 sm:pt-20 pb-12 px-6 sm:px-12 lg:px-20 text-bone-100 scroll-mt-24"
     >
       <FooterContent />
     </footer>

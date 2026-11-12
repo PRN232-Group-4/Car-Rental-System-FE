@@ -105,7 +105,7 @@ function UserRoleForm({
         )}
 
         {error && (
-          <div role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger space-y-1.5">
+          <div role="alert" className="pl-3 text-sm text-danger space-y-1.5">
             <p>{error}</p>
             {isEmployeeProfileError && (
               <div className="pt-1">
@@ -174,7 +174,7 @@ function UserRoleForm({
         )}
 
         {confirming && !isBlockedByMissingStaff && (
-          <p className="border-l-2 border-td-oxide pl-3 text-sm text-td-ink">
+          <p className="pl-3 text-sm text-td-ink">
             Cấp thêm vai trò {role} cho {userName}. Các phiên đăng nhập hiện tại sẽ bị thu hồi để áp dụng quyền mới.
           </p>
         )}

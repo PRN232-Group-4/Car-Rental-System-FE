@@ -40,8 +40,8 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
           <div className="flex flex-wrap items-center gap-1.5">
             {isElectric && (
-              <span className="bg-stage-ink px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-white">
-                THUẦN ĐIỆN
+              <span className="bg-stage-ink px-2 py-0.5 text-[11px] font-semibold text-white">
+                Thuần điện
               </span>
             )}
             {vehicle.categoryLabel && (

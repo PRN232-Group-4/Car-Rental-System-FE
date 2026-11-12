@@ -69,7 +69,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
           <div className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-td-muted" aria-hidden="true" />
             <div>
-              <span className="text-td-muted block text-[10px] font-sans">Odometer</span>
+              <span className="text-td-muted block text-xs font-sans">Odometer</span>
               <span className="font-bold text-td-ink">
                 {inspection.odometerKm ? `${inspection.odometerKm.toLocaleString()} km` : "—"}
               </span>
@@ -78,7 +78,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
           <div className="flex items-center gap-2">
             <Fuel className="w-4 h-4 text-td-muted" aria-hidden="true" />
             <div>
-              <span className="text-td-muted block text-[10px] font-sans">Mức nhiên liệu / Pin</span>
+              <span className="text-td-muted block text-xs font-sans">Mức nhiên liệu / Pin</span>
               <span className="font-bold text-td-ink">
                 {typeof inspection.fuelBatteryLevel === "number"
                   ? `${inspection.fuelBatteryLevel}%`
@@ -125,7 +125,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+      <h3 className="text-xs font-bold text-td-muted">
         Biên bản kiểm định xe (Minh bạch bàn giao)
       </h3>
 

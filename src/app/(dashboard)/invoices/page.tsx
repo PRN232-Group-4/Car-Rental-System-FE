@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
-import { FileText, ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoices, Invoice } from "@/features/invoices";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -45,18 +45,9 @@ export default function HoaDonPage() {
   return (
     <div className="space-y-8">
       <TransitFolio
-        index="09"
-        tag="KH"
-        kicker="KHÁCH HÀNG · TÀI CHÍNH & HOÁ ĐƠN"
-        title={<>Danh sách <span className="text-td-teal">hóa đơn.</span></>}
+        title="Danh sách hóa đơn"
         description="Tra cứu hóa đơn tiền thuê xe trực tiếp, tiền đặt cọc và thanh toán trực tuyến qua cổng PayOS."
       >
-        <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG HOÁ ĐƠN</span>
-          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-            {isLoading ? "—" : String(invoices.length).padStart(2, "0")}
-          </strong>
-        </div>
         <Link
           href="/booking"
           className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover"
@@ -69,7 +60,7 @@ export default function HoaDonPage() {
       {/* Filters and Search Bar */}
       <div className="flex flex-col items-start justify-between gap-4 border-y border-td-rule py-3 sm:flex-row sm:items-center">
         {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
           {[
             { id: "all", label: "Tất cả" },
             { id: "pending", label: "Chưa thanh toán" },
@@ -100,7 +91,7 @@ export default function HoaDonPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm theo số hóa đơn, mã đơn..."
             aria-label="Tìm hóa đơn"
-            className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 font-mono text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
+            className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
           />
         </div>
       </div>
@@ -116,7 +107,6 @@ export default function HoaDonPage() {
         <p role="alert" className="text-sm text-danger">{error instanceof Error ? error.message : "Không tải được hóa đơn."} <button type="button" className="underline" onClick={() => void refetch()}>Thử lại</button></p>
       ) : filteredInvoices.length === 0 ? (
         <div className="border-t border-td-ink py-12 text-center">
-          <FileText className="mx-auto h-8 w-8 text-td-muted" aria-hidden="true" />
           <h3 className="mt-3 text-sm font-bold text-td-ink">Không tìm thấy hóa đơn phù hợp</h3>
           <p className="mt-1 text-xs text-td-muted">
             {searchQuery
@@ -129,7 +119,7 @@ export default function HoaDonPage() {
           {/* Trên màn hình hẹp, sổ cái cuộn ngang thay vì bóp méo từng cột. */}
           <div className="overflow-x-auto">
           <div className="min-w-[720px]">
-          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 text-[11px] font-bold text-td-muted">
             <span className="col-span-5">Hóa đơn</span>
             <span className="col-span-3">Mốc thời gian</span>
             <span className="col-span-2 text-right">Tổng thanh toán</span>

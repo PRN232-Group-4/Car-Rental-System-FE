@@ -260,7 +260,8 @@ export default function LoginForm() {
           </button>
         </ValidatedForm>
 
-        {/* Divider */}
+        {/* Tạm ẩn đăng nhập Google: luồng này đang lỗi, chưa sửa. Bỏ comment khối dưới để bật lại.
+        Divider
         <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-line" />
@@ -270,7 +271,7 @@ export default function LoginForm() {
           </div>
         </div>
 
-        {/* Google OAuth Button */}
+        Google OAuth Button
         <a
           href="/api/auth/google"
           className="w-full py-2 px-3 flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-ink bg-surface hover:bg-surface-raised border border-line-strong transition-all cursor-pointer"
@@ -295,6 +296,7 @@ export default function LoginForm() {
           </svg>
           <span>Đăng nhập với Google</span>
         </a>
+        */}
 
         {/* Switch to Register */}
         <div className="mt-4 pt-3 border-t border-line text-center text-xs text-ink-3">

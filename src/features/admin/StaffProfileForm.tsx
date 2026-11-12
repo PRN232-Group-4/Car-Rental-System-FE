@@ -198,18 +198,15 @@ export default function StaffProfileForm() {
   return (
     <div className="space-y-7">
       <TransitFolio
-        index="08"
-        tag="ME"
-        kicker="CÁ NHÂN · HỒ SƠ NHÂN VIÊN"
-        title={<>Hồ sơ <span className="text-td-teal">của tôi.</span></>}
+        title="Hồ sơ của tôi"
         description="Xem và cập nhật thông tin liên hệ của bạn."
       >
         <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">VAI TRÒ</span>
+          <span className="block text-xs text-td-muted">Vai trò</span>
           <strong className="block text-sm font-bold text-td-ink">
             {staff?.staffRole?.trim() || "Nhân sự vận hành"}
           </strong>
-          <span className="mt-1 block font-mono text-[10px] text-td-muted">
+          <span className="mt-1 block text-xs text-td-muted">
             {staff?.facilityName?.trim() || "Chưa gán trạm"}
           </span>
         </div>
@@ -217,7 +214,7 @@ export default function StaffProfileForm() {
 
       {loading && <FormSkeleton label="Đang tải hồ sơ..." fields={4} />}
       {error && (
-        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
+        <p role="alert" className="border-l border-danger pl-3 text-sm text-danger">
           {error}
         </p>
       )}
@@ -236,8 +233,8 @@ export default function StaffProfileForm() {
                     className="h-16 w-16 rounded border border-td-rule bg-td-chalk font-mono text-lg font-bold text-td-oxide"
                   />
                   <div className="min-w-0 space-y-1">
-                    <span className="block font-mono text-[10px] uppercase tracking-wider text-td-muted">
-                      {staff.email || "TÀI KHOẢN CÁ NHÂN"}
+                    <span className="block text-xs text-td-muted">
+                      {staff.email || "Tài khoản cá nhân"}
                     </span>
                     <p className="truncate font-sans text-lg font-bold tracking-tight text-td-ink">
                       {staff.fullName ?? staff.email}
@@ -261,7 +258,7 @@ export default function StaffProfileForm() {
                 </dl>
               </div>
 
-              <p className="mt-4 flex items-start gap-2 border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">
+              <p className="mt-4 flex items-start gap-2 border-l border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-td-oxide" aria-hidden="true" />
                 Chức vụ, phòng ban và cơ sở trực do quản trị viên cập nhật theo hồ sơ nhân sự.
               </p>

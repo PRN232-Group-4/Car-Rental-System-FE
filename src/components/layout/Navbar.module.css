@@ -4,7 +4,7 @@
 
 .accountMenu {
   position: absolute;
-  top: calc(100% + 17px);
+  top: calc(100% + 13px);
   right: 0;
   z-index: 50;
   width: min(18rem, calc(100vw - 88px));
@@ -17,8 +17,9 @@
   background: var(--ink-950);
 }
 
-.mobileMenu {
-  max-height: calc(100dvh - 128px);
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
+
+/* Landing variant: no ink bar above, so the panel floats under the button with its own top edge. */
+.accountMenuFloating {
+  top: calc(100% + 8px);
+  border-top: 1px solid var(--ink-800);
 }

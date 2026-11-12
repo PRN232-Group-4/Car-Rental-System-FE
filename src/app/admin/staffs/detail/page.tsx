@@ -148,17 +148,14 @@ function StaffDetailView({
 
       {/* 2. Folio + thẻ thông tin nhân viên */}
       <TransitFolio
-        index="07"
-        tag="ORG"
-        kicker="TỔ CHỨC · HỒ SƠ NHÂN SỰ"
-        title={<>Hồ sơ <span className="text-td-teal">nhân sự.</span></>}
+        title="Hồ sơ nhân sự"
         description="Thông tin công tác, giấy phép lái xe và lịch sử hoạt động của nhân viên tại trạm."
       />
 
       <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper text-2xl font-black text-td-oxide">
               {staff.fullName
                 .split(" ")
                 .map((n) => n[0])
@@ -299,7 +296,7 @@ function StaffDetailView({
       {/* Tab 1: Hồ sơ */}
       {activeTab === "profile" && (
         <ValidatedForm validation={profileValidation} onSubmit={handleSaveProfile} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
-          {profileError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{profileError}</p>}
+          {profileError && <p role="alert" className="pl-3 text-sm text-danger">{profileError}</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Phòng ban làm việc" required>
               <InlineSelect name="departmentId" required
@@ -376,7 +373,7 @@ function StaffDetailView({
       {/* Tab 2: Giấy phép lái xe */}
       {activeTab === "license" && isDriver && (
         <ValidatedForm validation={licenseValidation} onSubmit={handleSaveLicense} validate={() => ({ expiryDate: issueDate && expiryDate && expiryDate < issueDate ? "Ngày hết hạn GPLX phải từ ngày cấp trở đi." : undefined })} className="rounded border border-td-rule bg-td-white p-6 sm:p-8 space-y-6">
-          {licenseError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{licenseError}</p>}
+          {licenseError && <p role="alert" className="pl-3 text-sm text-danger">{licenseError}</p>}
           {/* Cảnh báo tình trạng hạn bằng */}
           {licenseCalc.state === "expired" && (
             <div className="flex items-start gap-3 rounded border border-danger/30 bg-danger-bg/40 p-4 text-xs text-danger">

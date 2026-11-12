@@ -310,6 +310,17 @@ html {
   overflow-x: clip;
 }
 
+/* Radix Select/Dialog lock scroll via react-remove-scroll-bar: body gets overflow:hidden and a
+   scrollbar-width margin. Here html (overflow-x: clip) owns the scrollbar, so neither helps:
+   - the margin only narrows the page and shifts centered content;
+   - overflow:hidden turns body into a scroll container, so sticky mastheads (Admin, portals) stop
+     sticking and scroll out of view.
+   Undo both; react-remove-scroll still blocks wheel/touch scrolling outside the open layer. */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+}
+
 body {
   background: var(--canvas);
   color: var(--ink);

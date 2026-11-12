@@ -180,17 +180,14 @@ function UserDetailContent() {
 
       {/* 2. Folio + thẻ hồ sơ tổng quan */}
       <TransitFolio
-        index="07"
-        tag="ORG"
-        kicker="TỔ CHỨC · HỒ SƠ NGƯỜI DÙNG"
-        title={<>Hồ sơ <span className="text-td-teal">người dùng.</span></>}
+        title="Hồ sơ người dùng"
         description="Tài khoản, vai trò, hồ sơ khách hàng / nhân viên và lịch sử bảo mật của một người dùng."
       />
 
       <div className="rounded border border-td-rule bg-td-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper font-mono text-2xl font-black text-td-oxide">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded border border-td-rule bg-td-paper text-2xl font-black text-td-oxide">
               {user.fullName
                 .split(" ")
                 .map((n) => n[0])
@@ -340,7 +337,7 @@ function UserDetailContent() {
         </button>
       </div>
 
-      {actionError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{actionError}</p>}
+      {actionError && <p role="alert" className="pl-3 text-sm text-danger">{actionError}</p>}
       {/* 4. Nội dung từng Tab */}
 
       {/* TAB 1: TỔNG QUAN */}

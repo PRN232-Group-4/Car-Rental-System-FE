@@ -3,17 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  MapPin,
-  Car,
-  Clock,
-  FileText,
-  AlertCircle,
-  XCircle,
-  Star,
-  User,
-} from "lucide-react";
+import { ArrowLeft, Clock, AlertCircle, XCircle, Star, User } from "lucide-react";
 import { AuthGate } from "@/features/auth/AuthGate";
 import { useMyTrip, useNow, getTripRemainingTime } from "@/features/account/trips/hooks";
 import { TripStatusBadge } from "@/features/account/trips/components/TripStatusBadge";
@@ -59,9 +49,6 @@ function TripDetailContent() {
   if (error || !trip) {
     return (
       <div className="bg-td-white rounded border border-td-rule p-10 text-center space-y-4 max-w-lg mx-auto mt-10">
-        <div className="w-12 h-12 rounded-full bg-td-chalk flex items-center justify-center mx-auto text-td-muted">
-          <Car className="w-6 h-6" />
-        </div>
         <h2 className="font-display text-xl font-bold text-td-ink">
           Không tìm thấy chuyến đi
         </h2>
@@ -173,7 +160,7 @@ function TripDetailContent() {
           <DigitalSmartKeycard vehicle={trip.vehicle} rentalStatus={trip.status} />
           {/* Thông tin nhận - trả xe */}
           <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+            <h3 className="text-xs font-bold text-td-muted">
               Thông tin hành trình & Bàn giao
             </h3>
 
@@ -190,7 +177,6 @@ function TripDetailContent() {
 
             <div className="space-y-2 text-xs text-td-ink">
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-td-ink font-semibold">Địa điểm & Cơ sở: </strong>
                   <span>{trip.pickup?.location || trip.facility?.name || "Tại cơ sở hệ thống"}</span>
@@ -242,8 +228,7 @@ function TripDetailContent() {
           {trip.invoice && (
             <div className="bg-td-white rounded border border-td-rule p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
-                  <FileText className="w-4 h-4 text-primary" />
+                <div className="flex items-center gap-2 text-xs font-bold text-td-muted">
                   <span>Hóa đơn điện tử</span>
                 </div>
                 <span className="font-mono text-xs text-td-muted">

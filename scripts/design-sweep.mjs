@@ -1,5 +1,6 @@
 // Visits every app route with a mocked API and signed-in Admin+Customer profile,
-// then records how far each page is from the landing visual language (DESIGN.md A14).
+// then records how far each page is from the app visual language (DESIGN.md A15): rounded/glass/legacy colors,
+// kicker labels above headings, and the gap between the sticky top chrome and the first h1.
 // Usage: node scripts/design-sweep.mjs <tag> [baseUrl] [routePrefixes without leading slash, comma-separated]
 // Output: test-results/design-sweep/<tag>/{report.json,*.png}
 import { chromium } from "@playwright/test";
@@ -89,8 +90,39 @@ function measure(legacy) {
       if (name) legacyHits[name] = (legacyHits[name] ?? 0) + 1;
     }
   }
+  // Kicker/eyebrow above a heading (impeccable craft floor bans it): a short, small, uppercase or tracked
+  // label as the heading's previous visible sibling, or its parent's when the heading leads its block.
+  const visible = (el) => { const r = el.getBoundingClientRect(); return isVisible(el, r); };
+  const prevVisible = (el) => { let p = el.previousElementSibling; while (p && !visible(p)) p = p.previousElementSibling; return p; };
+  const isKicker = (el) => {
+    if (!el) return false;
+    const text = el.textContent.trim();
+    const cs = getComputedStyle(el);
+    const fs = parseFloat(cs.fontSize);
+    const tracked = parseFloat(cs.letterSpacing) / fs > 0.04 || cs.textTransform === "uppercase";
+    return text.length > 0 && text.length <= 60 && fs <= 14 && tracked && !el.querySelector("input,button,a,select,h1,h2,h3");
+  };
+  const kickers = [];
+  for (const h of document.querySelectorAll("main h1, main h2")) {
+    if (!visible(h) || h.closest("nextjs-portal")) continue;
+    let k = prevVisible(h);
+    if (!k && h.parentElement) k = prevVisible(h.parentElement);
+    if (isKicker(k)) kickers.push({ text: k.textContent.trim().slice(0, 40), icon: !!k.querySelector("svg") });
+  }
+  // Gap between the bottom of the fixed/sticky top chrome and the first heading.
+  let chromeBottom = 0;
+  for (const el of document.querySelectorAll("body *")) {
+    const cs = getComputedStyle(el);
+    if (cs.position !== "fixed" && cs.position !== "sticky") continue;
+    const r = el.getBoundingClientRect();
+    if (r.top <= 1 && r.height > 0 && r.height < 240 && r.width > innerWidth / 2) chromeBottom = Math.max(chromeBottom, r.bottom);
+  }
+  const h1 = [...document.querySelectorAll("main h1, h1")].find(visible);
   const main = document.querySelector("main") ?? document.body;
   return {
+    kickers,
+    headGap: h1 ? Math.round(h1.getBoundingClientRect().top - chromeBottom) : null,
+    scrollRatio: Math.round((document.documentElement.scrollHeight / innerHeight) * 100) / 100,
     bodyBg: getComputedStyle(document.body).backgroundColor,
     mainBg: getComputedStyle(main).backgroundColor,
     h1Font: document.querySelector("h1") ? getComputedStyle(document.querySelector("h1")).fontFamily.split(",")[0] : null,
@@ -118,7 +150,7 @@ for (const route of routesFromAppDir().filter((r) => !prefixes.length || prefixe
     report[route] = { error: String(error).slice(0, 200) };
   }
   const r = report[route];
-  console.log(route, r.error ? `ERROR ${r.error}` : `rounded=${r.rounded} backdrop=${r.backdrop} legacy=${JSON.stringify(r.legacyHits)}`);
+  console.log(route, r.error ? `ERROR ${r.error}` : `rounded=${r.rounded} backdrop=${r.backdrop} legacy=${JSON.stringify(r.legacyHits)} kickers=${r.kickers.length} headGap=${r.headGap}`);
 }
 await browser.close();
 fs.writeFileSync(path.join(outDir, "report.json"), JSON.stringify(report, null, 2));
@@ -128,5 +160,6 @@ const sum = (f) => rows.reduce((n, r) => n + f(r), 0);
 console.log(
   `\nSUMMARY ${tag}: routes=${rows.length} errors=${Object.keys(report).length - rows.length} ` +
     `rounded=${sum((r) => r.rounded)} backdrop=${sum((r) => r.backdrop)} ` +
-    `legacy=${sum((r) => Object.values(r.legacyHits).reduce((a, b) => a + b, 0))}`,
+    `legacy=${sum((r) => Object.values(r.legacyHits).reduce((a, b) => a + b, 0))} ` +
+    `kickers=${sum((r) => r.kickers.length)} headGap>48=${rows.filter((r) => r.headGap > 48).length}`,
 );

@@ -18,7 +18,7 @@ export default function CancellationReason({
   timestampLabel = "Thời gian hủy",
   emptyMessage = "Chưa có lý do hủy được ghi nhận.",
 }: CancellationReasonProps) {
-  return <section aria-label={title} className="space-y-2 border-l-2 border-td-oxide pl-4 text-sm">
+  return <section aria-label={title} className="space-y-2 border-l border-td-oxide pl-4 text-sm">
     <h3 className="font-bold text-td-ink">{title}</h3>
     <p className="whitespace-pre-wrap break-words text-td-ink">{reason?.trim() || emptyMessage}</p>
     {cancelledAt && <p className="text-xs text-td-muted">{timestampLabel}: {formatAdminDateTime(cancelledAt)}</p>}

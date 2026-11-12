@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useId, useState } from "react";
-import type { ComponentProps } from "react";
+import { Children, Fragment, createContext, isValidElement, useContext, useId, useState } from "react";
+import type { ChangeEvent, ComponentProps, ReactNode } from "react";
+import { Select, type SelectOption } from "@/components/ui/Select";
 import { ApiClientError } from "@/api/api-client";
 
 export type FieldErrors = Record<string, string>;
@@ -36,7 +37,10 @@ export function useInlineValidation() {
       const control = element as HTMLInputElement;
       return next[control.name || control.id] && control.type !== "hidden" && !control.disabled && !control.classList.contains("sr-only") && control.getClientRects().length;
     });
-    first?.focus();
+    // A custom Select keeps its native <select> hidden for FormData; focus its visible trigger instead.
+    const hiddenName = first?.getAttribute("aria-hidden") === "true" ? (first as HTMLSelectElement).name : "";
+    const trigger = hiddenName ? form?.querySelector<HTMLElement>(`[data-select-for="${CSS.escape(hiddenName)}"]`) : null;
+    (trigger ?? first)?.focus();
   };
   return {
     errors, show,
@@ -119,9 +123,63 @@ export function InlineError({ name, inputId }: { name: string; inputId?: string 
     <ErrorText id={`${inputId ?? id}-error`} error={error} />
   </div>;
 }
-export function InlineSelect(props: ComponentProps<"select">) {
-  const { error, errorId, attributes } = useField(props);
-  return <><select {...props} {...attributes} /><ErrorText id={errorId} error={error} /></>;
+const textOf = (node: ReactNode): string =>
+  Children.toArray(node)
+    .map((child) =>
+      typeof child === "string" || typeof child === "number"
+        ? String(child)
+        : isValidElement(child)
+          ? textOf((child.props as { children?: ReactNode }).children)
+          : "",
+    )
+    .join("");
+
+/** Reads <option>/<optgroup> children (fragments and arrays included) into Select options. */
+function optionsFromChildren(children: ReactNode): SelectOption[] {
+  const options: SelectOption[] = [];
+  const walk = (node: ReactNode) =>
+    Children.forEach(node, (child) => {
+      if (!isValidElement(child)) return;
+      const props = child.props as ComponentProps<"option">;
+      if (child.type === Fragment || child.type === "optgroup") walk(props.children);
+      else if (child.type === "option") {
+        const text = textOf(props.children);
+        options.push({ value: String(props.value ?? text), label: props.children, textValue: text, disabled: props.disabled });
+      }
+    });
+  walk(children);
+  return options;
+}
+
+/**
+ * Form dropdown with inline error. Same call shape as a native <select> (option children, onChange(event)),
+ * rendered with the shared Select; inside a form its hidden native select keeps name/required/FormData working.
+ */
+export function InlineSelect({ children, onChange, value, defaultValue, name, required, disabled, title, ...props }: ComponentProps<"select">) {
+  const { error, errorId, attributes } = useField({ ...props, name });
+  const emit = (next: string) => {
+    const target = { name: name ?? "", id: attributes.id, value: next, type: "select-one" };
+    onChange?.({ target, currentTarget: target } as unknown as ChangeEvent<HTMLSelectElement>);
+  };
+  return <>
+    <Select
+      options={optionsFromChildren(children)}
+      value={value === undefined ? undefined : String(value)}
+      defaultValue={defaultValue === undefined ? undefined : String(defaultValue)}
+      onValueChange={emit}
+      name={name}
+      required={required}
+      disabled={disabled}
+      title={title}
+      id={attributes.id}
+      className={attributes.className}
+      aria-label={props["aria-label"]}
+      aria-invalid={attributes["aria-invalid"]}
+      aria-describedby={attributes["aria-describedby"]}
+      data-select-for={name}
+    />
+    <ErrorText id={errorId} error={error} />
+  </>;
 }
 export function InlineTextarea(props: ComponentProps<"textarea">) {
   const { error, errorId, attributes } = useField(props);

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Drawer } from "@/components/ui/Drawer";
+import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -116,7 +117,7 @@ export function PolicyDrawer({
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="vehicleTypeId"
-                className="block text-xs font-bold uppercase tracking-wider text-td-ink"
+                className="block text-xs font-bold text-td-ink"
               >
                 Loại xe áp dụng <span className="text-td-oxide">*</span>
               </label>
@@ -131,17 +132,22 @@ export function PolicyDrawer({
                 </button>
               )}
             </div>
-            <select
-              id="vehicleTypeId"
-              {...register("vehicleTypeId", { valueAsNumber: true })}
-              className="w-full h-11 px-3.5 rounded border border-td-rule bg-td-white text-td-ink text-sm focus:outline-none focus:ring-2 focus:ring-td-oxide/20 focus:border-td-oxide"
-            >
-              {vehicleTypes.map((vt) => (
-                <option key={vt.id} value={vt.id}>
-                  {vt.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="vehicleTypeId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  id="vehicleTypeId"
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(next) => field.onChange(Number(next))}
+                  options={vehicleTypes.map((vt) => ({ value: String(vt.id), label: vt.name }))}
+                  placeholder="Chọn loại xe"
+                  menuLabel="Loại xe áp dụng"
+                  aria-invalid={!!errors.vehicleTypeId}
+                  className="h-11 border-td-rule bg-td-white px-3.5 text-td-ink"
+                />
+              )}
+            />
             {errors.vehicleTypeId && (
               <p className="text-xs text-danger mt-1">{errors.vehicleTypeId.message}</p>
             )}

@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { SlidersHorizontal, RotateCcw, Car, Fuel, Building2, Users, Settings2, DollarSign } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import type { Facility } from "@/features/facilities/types";
+import { Select } from "@/components/ui/Select";
 import { FindFilterState } from "../findFilterSchema";
 
 export interface VehicleFiltersProps {
@@ -16,15 +17,14 @@ export interface VehicleFiltersProps {
   isMobileDrawer?: boolean;
 }
 
-const CATEGORY_OPTIONS = [
-  { value: "all", label: "Tất cả phân khúc" },
+// Thong Dong rents cars only.
+export const CATEGORY_OPTIONS = [
+  { value: "all", label: "Tất cả ô tô" },
   { value: "electric_car", label: "Ô tô điện" },
   { value: "car", label: "Ô tô xăng" },
-  { value: "electric_motorbike", label: "Xe máy điện" },
-  { value: "motorbike", label: "Xe máy xăng" },
 ];
 
-const SEAT_OPTIONS = [
+export const SEAT_OPTIONS = [
   { value: 0, label: "Tất cả" },
   { value: 2, label: "2 chỗ" },
   { value: 4, label: "4 chỗ" },
@@ -32,7 +32,7 @@ const SEAT_OPTIONS = [
   { value: 7, label: "7 chỗ" },
 ];
 
-const TRANSMISSION_OPTIONS = [
+export const TRANSMISSION_OPTIONS = [
   { value: "all", label: "Tất cả" },
   { value: "automatic", label: "Tự động" },
   { value: "manual", label: "Số sàn" },
@@ -45,11 +45,17 @@ const FUEL_OPTIONS = [
   { value: "petrol", label: "Xăng" },
 ];
 
-const PRICE_PRESETS = [
+export const PRICE_PRESETS = [
   { label: "Dưới 50.000đ/h", min: 0, max: 50000 },
   { label: "50.000đ – 150.000đ/h", min: 50000, max: 150000 },
   { label: "150.000đ – 300.000đ/h", min: 150000, max: 300000 },
   { label: "Trên 300.000đ/h", min: 300000, max: 0 },
+];
+
+export const LONGTERM_PRICE_PRESETS = [
+  { label: "Dưới 10.000.000đ/tháng", min: 0, max: 10000000 },
+  { label: "10.000.000đ – 20.000.000đ/tháng", min: 10000000, max: 20000000 },
+  { label: "Trên 20.000.000đ/tháng", min: 20000000, max: 0 },
 ];
 
 export function VehicleFilters({
@@ -69,7 +75,6 @@ export function VehicleFilters({
       {!isMobileDrawer && (
         <div className="flex items-center justify-between border-b border-td-rule pb-3.5">
           <div className="flex items-center gap-2 font-bold text-td-ink">
-            <SlidersHorizontal className="w-4 h-4 text-primary" />
             <h2 className="text-base">Bộ lọc tìm xe</h2>
           </div>
           <button
@@ -86,7 +91,6 @@ export function VehicleFilters({
       {/* 1. Phân khúc xe */}
       <div className="space-y-2">
         <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
-          <Car className="w-3.5 h-3.5 text-primary" />
           <span>Phân khúc phương tiện</span>
         </label>
         <div className="space-y-1">
@@ -114,22 +118,16 @@ export function VehicleFilters({
       {/* 2. Chi nhánh / Trạm đón xe */}
       <div className="space-y-2 border-t border-td-rule pt-4">
         <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
-          <Building2 className="w-3.5 h-3.5 text-primary" />
           <span>Chi nhánh giao nhận</span>
         </label>
-        <select
-          value={filters.facilityId || "all"}
-          onChange={(e) => onChange({ facilityId: e.target.value })}
+        <Select
           aria-label="Chi nhánh giao nhận"
-          className="w-full border border-td-rule bg-td-white px-3 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
-        >
-          <option value="all">Tất cả chi nhánh</option>
-          {facilities.map((fac) => (
-            <option key={fac.id} value={fac.id}>
-              {fac.name} ({fac.city})
-            </option>
-          ))}
-        </select>
+          menuLabel="Trạm tiếp nhận"
+          value={filters.facilityId || "all"}
+          onValueChange={(v) => onChange({ facilityId: v })}
+          options={[{ value: "all", label: "Tất cả chi nhánh" }, ...facilities.map((fac) => ({ value: String(fac.id), label: `${fac.name} (${fac.city})` }))]}
+          className="text-xs font-medium"
+        />
       </div>
 
       {/* 3. Thương hiệu xe */}
@@ -171,7 +169,6 @@ export function VehicleFilters({
       {/* 4. Số chỗ ngồi */}
       <div className="space-y-2 border-t border-td-rule pt-4">
         <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
-          <Users className="w-3.5 h-3.5 text-primary" />
           <span>Số chỗ tối thiểu (ô tô)</span>
         </label>
         <div className="grid grid-cols-5 gap-1.5">
@@ -199,55 +196,40 @@ export function VehicleFilters({
       <div className="grid grid-cols-2 gap-3 border-t border-td-rule pt-4">
         <div className="space-y-2">
           <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
-            <Settings2 className="w-3.5 h-3.5 text-primary" />
             <span>Hộp số</span>
           </label>
-          <select
-            value={filters.transmission || "all"}
-            onChange={(e) => onChange({ transmission: e.target.value as FindFilterState["transmission"] })}
+          <Select
             aria-label="Loại hộp số"
-            className="w-full border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
-          >
-            {TRANSMISSION_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            menuLabel="Hộp số"
+            value={filters.transmission || "all"}
+            onValueChange={(v) => onChange({ transmission: v as FindFilterState["transmission"] })}
+            options={TRANSMISSION_OPTIONS}
+            className="text-xs font-medium"
+          />
         </div>
 
         <div className="space-y-2">
           <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
-            <Fuel className="w-3.5 h-3.5 text-primary" />
             <span>Nhiên liệu</span>
           </label>
-          <select
-            value={filters.fuelType || "all"}
-            onChange={(e) => onChange({ fuelType: e.target.value as FindFilterState["fuelType"] })}
+          <Select
             aria-label="Loại nhiên liệu"
-            className="w-full border border-td-rule bg-td-white px-2.5 py-2 text-xs font-medium text-td-ink transition-colors focus:border-primary focus:outline-none"
-          >
-            {FUEL_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            menuLabel="Nhiên liệu"
+            value={filters.fuelType || "all"}
+            onValueChange={(v) => onChange({ fuelType: v as FindFilterState["fuelType"] })}
+            options={FUEL_OPTIONS}
+            className="text-xs font-medium"
+          />
         </div>
       </div>
 
       {/* 6. Mức giá thuê theo giờ */}
       <div className="space-y-2 border-t border-td-rule pt-4">
         <label className="flex items-center gap-1.5 text-xs font-bold text-td-ink">
-          <DollarSign className="w-3.5 h-3.5 text-primary" />
           <span>Khoảng giá thuê / {filters.mode === "longterm" ? "tháng" : "giờ"}</span>
         </label>
         <div className="space-y-1">
-          {(filters.mode === "longterm" ? [
-            { label: "Dưới 10.000.000đ/tháng", min: 0, max: 10000000 },
-            { label: "10.000.000đ – 20.000.000đ/tháng", min: 10000000, max: 20000000 },
-            { label: "Trên 20.000.000đ/tháng", min: 20000000, max: 0 },
-          ] : PRICE_PRESETS).map((p, idx) => {
+          {(filters.mode === "longterm" ? LONGTERM_PRICE_PRESETS : PRICE_PRESETS).map((p, idx) => {
             const isMatch =
               Number(filters.priceMin || 0) === p.min &&
               Number(filters.priceMax || 0) === p.max;

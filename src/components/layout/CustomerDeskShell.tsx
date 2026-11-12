@@ -142,7 +142,7 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
             </div>
             <div>
               <div className={styles.brandName}>Thong Dong</div>
-              <div className={styles.brandKicker}>CUSTOMER DESK</div>
+              <div className={styles.brandKicker}>Customer Desk</div>
             </div>
           </Link>
 
@@ -237,7 +237,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
         </header>
 
         <div className={styles.contextStrip}>
-          <span className={styles.contextLabel}>{activeChapter.chapter.toUpperCase()}</span>
           <nav
             className={styles.contextLinks}
             aria-label={`Các trang thuộc nhóm ${activeChapter.chapter}`}
