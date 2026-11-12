@@ -253,9 +253,6 @@ export function TransitDeskRouteIndex({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-td-rule bg-td-white px-5 py-3.5">
           <div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-              WAYFINDING · ROUTE ATLAS
-            </span>
             <h2 id="routeIndexTitle" className="text-lg font-bold text-td-ink">
               Tìm chức năng vận hành
             </h2>
@@ -291,16 +288,14 @@ export function TransitDeskRouteIndex({
         {/* Recent routes strip (P2-02: displayed when search is empty) */}
         {!query.trim() && recentRoutes.length > 0 && (
           <div className="border-b border-td-rule bg-td-white/60 px-5 py-2">
-            <span className="font-mono text-[10px] uppercase font-bold text-td-muted block mb-1">
-              GẦN ĐÂY / RECENT
-            </span>
+            <span className="text-xs font-semibold text-td-muted block mb-1">Gần đây</span>
             <div className="flex flex-wrap gap-1.5">
               {recentRoutes.map((r) => (
                 <button
                   key={`recent-${r.href}`}
                   type="button"
                   onClick={() => handleSelect(r.href)}
-                  className="rounded border border-td-rule bg-td-paper px-2 py-0.5 font-mono text-[11px] text-td-ink hover:border-td-ink transition-colors cursor-pointer"
+                  className="rounded border border-td-rule bg-td-paper px-2 py-0.5 text-xs text-td-ink hover:border-td-ink transition-colors cursor-pointer"
                 >
                   {r.label}
                 </button>
@@ -312,7 +307,7 @@ export function TransitDeskRouteIndex({
         {/* Results */}
         <div className="max-h-80 overflow-y-auto p-2">
           {filteredRoutes.length === 0 ? (
-            <div className="py-8 text-center font-mono text-xs text-td-muted">
+            <div className="py-8 text-center text-xs text-td-muted">
               Không tìm thấy chức năng được phân quyền phù hợp.
             </div>
           ) : (
@@ -329,7 +324,7 @@ export function TransitDeskRouteIndex({
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="shrink-0 font-mono text-[11px] font-semibold uppercase text-td-muted">
+                    <span className="shrink-0 text-xs font-semibold text-td-muted">
                       {route.chapter}
                     </span>
                     <span className="font-semibold text-sm truncate">
@@ -346,7 +341,7 @@ export function TransitDeskRouteIndex({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-td-rule bg-td-white px-5 py-2.5 font-mono text-[11px] text-td-muted">
+        <div className="flex items-center justify-between border-t border-td-rule bg-td-white px-5 py-2.5 text-[11px] text-td-muted">
           <span>{filteredRoutes.length} chức năng hợp lệ theo quyền tài khoản</span>
           <div className="flex items-center gap-2">
             <span>↑↓ Di chuyển</span>

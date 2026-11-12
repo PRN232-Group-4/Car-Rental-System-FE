@@ -593,9 +593,6 @@ describe("Challenger Suite 4: DESIGN.md v3.1 Compliance Verification", () => {
 
     // Color tokens
     expect(container.querySelector(".text-ink-3")).toBeInTheDocument();
-    expect(container.querySelector(".bg-danger\\/10")).toBeInTheDocument();
-    expect(container.querySelector(".text-danger")).toBeInTheDocument();
-    expect(container.querySelector(".border-danger\\/20")).toBeInTheDocument();
 
     // Authenticated actions: Portal button + Home button
     const portalBtn = screen.getByRole("link", { name: /Về cổng được phân quyền/i });

@@ -33,8 +33,6 @@ export interface ActiveFilterChipsProps {
 const CATEGORY_NAMES: Record<string, string> = {
   car: "Ô tô xăng",
   electric_car: "Ô tô điện",
-  motorbike: "Xe máy",
-  electric_motorbike: "Xe máy điện",
 };
 
 const TRANSMISSION_NAMES: Record<string, string> = {
@@ -133,14 +131,14 @@ export function ActiveFilterChips({
       {chips.map((chip) => (
         <span
           key={chip.key}
-          className="inline-flex items-center gap-1.5 rounded-full border border-td-rule bg-td-white px-3 py-1 text-xs font-medium text-td-ink shadow-xs"
+          className="inline-flex items-center gap-1.5 border border-td-rule bg-td-white px-3 py-1 text-xs font-medium text-td-ink"
         >
           <span>{chip.label}</span>
           <button
             type="button"
             onClick={() => onRemove(chip.key)}
             aria-label={`Xóa bộ lọc ${chip.label}`}
-            className="rounded-full p-0.5 text-td-muted hover:bg-td-chalk hover:text-td-ink transition-colors cursor-pointer"
+            className="p-0.5 text-td-muted hover:bg-td-chalk hover:text-td-ink transition-colors cursor-pointer"
           >
             <X className="w-3 h-3" />
           </button>
@@ -150,7 +148,7 @@ export function ActiveFilterChips({
       <button
         type="button"
         onClick={onClearAll}
-        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary-tint/60 transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary-tint/60 transition-colors cursor-pointer"
       >
         <RotateCcw className="w-3 h-3" />
         <span>Xóa tất cả</span>

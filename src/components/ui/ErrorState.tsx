@@ -47,7 +47,7 @@ export function ErrorState({
           <h3 className="text-sm font-bold text-td-ink">{title}</h3>
           <p className="mt-1 max-w-md text-xs leading-relaxed text-td-muted">{resolvedMessage}</p>
           {resolvedTraceId && (
-            <p className="mt-2 inline-block rounded border border-td-rule px-2 py-1 font-mono text-[11px] text-td-muted">
+            <p className="mt-2 inline-block border border-td-rule px-2 py-1 font-mono text-[11px] text-td-muted">
               Mã tham chiếu: <span className="select-all">{resolvedTraceId}</span>
             </p>
           )}
@@ -58,7 +58,7 @@ export function ErrorState({
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 rounded border border-td-rule px-3 py-1.5 text-xs font-bold text-td-ink transition-colors hover:bg-td-chalk"
+            className="inline-flex items-center gap-2 border border-td-rule px-3 py-1.5 text-xs font-bold text-td-ink transition-colors hover:bg-td-chalk"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             <span>Thử lại</span>

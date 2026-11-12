@@ -190,9 +190,6 @@ export function CommandPalette({
 
         <div className="flex items-center justify-between border-b border-td-rule bg-td-white px-5 py-3.5">
           <div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-              WAYFINDING · ROUTE ATLAS
-            </span>
             <h2 id="commandPaletteTitle" className="text-lg font-bold text-td-ink">
               {title}
             </h2>
@@ -201,7 +198,7 @@ export function CommandPalette({
             type="button"
             onClick={onClose}
             aria-label="Đóng bảng tìm kiếm"
-            className="cursor-pointer rounded p-1 text-td-muted hover:bg-td-chalk hover:text-td-ink"
+            className="cursor-pointer p-1 text-td-muted hover:bg-td-chalk hover:text-td-ink"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -226,8 +223,8 @@ export function CommandPalette({
 
         {!query.trim() && recentRoutes.length > 0 && (
           <div className="border-b border-td-rule bg-td-white/60 px-5 py-2">
-            <span className="mb-1 block font-mono text-[10px] font-bold uppercase text-td-muted">
-              GẦN ĐÂY / RECENT
+            <span className="mb-1 block text-xs font-semibold text-td-muted">
+              Gần đây
             </span>
             <div className="flex flex-wrap gap-1.5">
               {recentRoutes.map((route) => (
@@ -235,7 +232,7 @@ export function CommandPalette({
                   key={`recent-${route.href}`}
                   type="button"
                   onClick={() => handleSelect(route.href)}
-                  className="cursor-pointer rounded border border-td-rule bg-td-paper px-2 py-0.5 font-mono text-[11px] text-td-ink transition-colors hover:border-td-ink"
+                  className="cursor-pointer border border-td-rule bg-td-paper px-2 py-0.5 text-xs text-td-ink transition-colors hover:border-td-ink"
                 >
                   {route.label}
                 </button>
@@ -246,7 +243,7 @@ export function CommandPalette({
 
         <div className="max-h-80 overflow-y-auto p-2">
           {filteredRoutes.length === 0 ? (
-            <div className="py-8 text-center font-mono text-xs text-td-muted">{emptyHint}</div>
+            <div className="py-8 text-center text-sm text-td-muted">{emptyHint}</div>
           ) : (
             filteredRoutes.map((route, index) => {
               const isSelected = index === selectedIndex;
@@ -259,7 +256,7 @@ export function CommandPalette({
                   className={`${styles.routeIndexItem} ${isSelected ? styles.routeIndexItemSelected : ""}`}
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="shrink-0 font-mono text-[11px] font-semibold uppercase text-td-muted">
+                    <span className="shrink-0 text-xs text-td-muted">
                       {route.chapter}
                     </span>
                     <span className="truncate text-sm font-semibold">{route.label}</span>

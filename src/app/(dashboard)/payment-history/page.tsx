@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
-import { CreditCard, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -74,52 +74,29 @@ export default function LichSuThanhToanPage() {
   return (
     <div className="space-y-8">
       <TransitFolio
-        index="09"
-        tag="KH"
-        kicker="KHÁCH HÀNG · SỔ CÁI TÀI CHÍNH"
-        title={<>Lịch sử thanh toán & <span className="text-td-teal">hoàn cọc.</span></>}
+        title="Lịch sử thanh toán & hoàn cọc"
         description="Minh bạch toàn bộ dòng tiền: tiền thuê, tiền cọc đã nộp và trạng thái hoàn cọc sau khi kết thúc chuyến xe."
       >
-        <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">SỐ GIAO DỊCH</span>
-          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-            {isLoading ? "—" : String(filteredPayments.length).padStart(2, "0")}
-          </strong>
-        </div>
       </TransitFolio>
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="p-6 rounded bg-td-white border border-td-rule shadow-xs">
-          <div className="text-xs font-bold uppercase tracking-wider text-td-muted mb-1">
-            Tổng tiền đã nộp
-          </div>
-          <div className="text-2xl font-bold text-td-ink">
-            {formatVnd(totalPaid)}
-          </div>
-          <div className="text-xs text-td-muted mt-1">Bao gồm cọc và phí thuê</div>
+      {/* Tổng dòng tiền: ba con số đọc như dữ liệu, cùng một hàng */}
+      <dl className="grid grid-cols-1 border-y border-td-rule sm:grid-cols-3 sm:divide-x sm:divide-td-rule">
+        <div className="py-3 sm:px-5 sm:first:pl-0">
+          <dt className="text-xs text-td-muted">Tổng tiền đã nộp</dt>
+          <dd className="mt-0.5 text-lg font-semibold tabular-nums text-td-ink">{formatVnd(totalPaid)}</dd>
+          <dd className="text-xs text-td-muted">Bao gồm cọc và phí thuê</dd>
         </div>
-
-        <div className="p-6 rounded bg-td-white border border-td-rule shadow-xs">
-          <div className="text-xs font-bold uppercase tracking-wider text-info mb-1">
-            Tiền cọc đã hoàn trả
-          </div>
-          <div className="text-2xl font-bold text-info">
-            {formatVnd(totalRefunded)}
-          </div>
-          <div className="text-xs text-td-muted mt-1">Đã giải ngân về tài khoản</div>
+        <div className="py-3 sm:px-5 sm:first:pl-0">
+          <dt className="text-xs text-td-muted">Tiền cọc đã hoàn trả</dt>
+          <dd className="mt-0.5 text-lg font-semibold tabular-nums text-td-ink">{formatVnd(totalRefunded)}</dd>
+          <dd className="text-xs text-td-muted">Đã giải ngân về tài khoản</dd>
         </div>
-
-        <div className="p-6 rounded bg-td-white border border-td-rule shadow-xs">
-          <div className="text-xs font-bold uppercase tracking-wider text-primary-graphic mb-1">
-            Tiền cọc đang giữ / chờ duyệt
-          </div>
-          <div className="text-2xl font-bold text-primary-graphic">
-            {formatVnd(depositHolding)}
-          </div>
-          <div className="text-xs text-td-muted mt-1">Chờ biên bản hậu kiểm định</div>
+        <div className="py-3 sm:px-5 sm:first:pl-0">
+          <dt className="text-xs text-td-muted">Tiền cọc đang giữ / chờ duyệt</dt>
+          <dd className="mt-0.5 text-lg font-semibold tabular-nums text-td-ink">{formatVnd(depositHolding)}</dd>
+          <dd className="text-xs text-td-muted">Chờ biên bản hậu kiểm định</dd>
         </div>
-      </div>
+      </dl>
 
       {/* Filters */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -134,7 +111,7 @@ export default function LichSuThanhToanPage() {
             onClick={() => setFilterType(tab.id)}
             className={`px-4 py-2 rounded text-xs font-bold transition-all shrink-0 cursor-pointer ${
               filterType === tab.id
-                ? "bg-stage-ink text-white shadow-xs"
+                ? "bg-stage-ink text-white"
                 : "bg-td-white border border-td-rule text-td-muted hover:bg-td-chalk"
             }`}
           >
@@ -144,7 +121,7 @@ export default function LichSuThanhToanPage() {
       </div>
 
       {/* Ledger Table */}
-      <div className="rounded border border-td-rule bg-td-white overflow-hidden shadow-xs">
+      <div className="rounded border border-td-rule bg-td-white overflow-hidden">
         {isLoading ? (
           <div className="p-6"><TableSkeleton label="Đang tải lịch sử giao dịch" rows={5} columns={5} /></div>
         ) : error ? (
@@ -156,14 +133,13 @@ export default function LichSuThanhToanPage() {
           </div>
         ) : filteredPayments.length === 0 ? (
           <div className="p-12 text-center space-y-2">
-            <CreditCard className="w-10 h-10 text-td-muted mx-auto" />
             <h3 className="font-bold text-td-ink">Chưa có giao dịch trong danh mục này</h3>
             <p className="text-xs text-td-muted">Các giao dịch thanh toán sẽ tự động ghi sổ tại đây.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-td-chalk text-xs font-semibold text-td-muted uppercase border-b border-td-rule">
+              <thead className="bg-td-chalk text-xs font-semibold text-td-muted border-b border-td-rule">
                 <tr>
                   <th className="p-4 sm:p-5">Giao dịch</th>
                   <th className="p-4 sm:p-5">Mã đơn / Hóa đơn</th>
@@ -219,7 +195,7 @@ export default function LichSuThanhToanPage() {
                       </td>
 
                       <td className="p-4 sm:p-5">
-                        <span className="text-xs font-semibold text-td-muted uppercase">
+                        <span className="text-xs font-semibold text-td-muted">
                           {p.method || "PayOS"}
                         </span>
                       </td>

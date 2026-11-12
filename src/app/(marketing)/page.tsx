@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { archivo, beVietnamPro } from "./fonts";
+import { archivo, beVietnamPro } from "../fonts";
 import LandingNav from "@/features/landing/components/LandingNav";
 import CinematicPreloader from "@/features/landing/components/CinematicPreloader";
 import HeroChapter from "@/features/landing/components/chapters/HeroChapter";

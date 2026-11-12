@@ -98,19 +98,16 @@ export default function DriverRevenueDashboard() {
   return (
     <div className="space-y-6">
       <TransitFolio
-        index="10"
-        tag="NV"
-        kicker="NHÂN VIÊN · DOANH THU CHUYẾN"
-        title={<>Doanh thu <span className="text-td-teal">chuyến xe.</span></>}
+        title="Doanh thu chuyến xe"
         description="Tổng giá trị thuê của các chuyến đã hoàn thành và được phân công cho bạn."
       >
         <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG GIÁ TRỊ</span>
+          <span className="block text-xs text-td-muted">Tổng giá trị</span>
           <strong className="block font-sans text-2xl font-bold tracking-tight text-td-ink">
             {loading ? "—" : `${totalRevenue.toLocaleString("vi-VN")} ₫`}
           </strong>
         </div>
-        <label className="flex items-center gap-2 rounded border border-td-rule px-2.5 py-1.5 font-mono text-[11px] text-td-ink">
+        <label className="flex items-center gap-2 rounded border border-td-rule px-2.5 py-1.5 text-[11px] text-td-ink">
           <CalendarDays className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
           <span className="sr-only">Chọn tháng</span>
           <input
@@ -122,11 +119,11 @@ export default function DriverRevenueDashboard() {
         </label>
       </TransitFolio>
 
-      <p className="max-w-3xl border-l-2 border-info pl-3 text-xs leading-relaxed text-td-muted">
+      <p className="max-w-3xl border-l border-info pl-3 text-xs leading-relaxed text-td-muted">
         Số liệu là tổng giá trị thuê của chuyến đã hoàn thành, không phải hoa hồng cá nhân hoặc doanh thu đã đối soát thanh toán.
       </p>
       {error && (
-        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
+        <p role="alert" className="border-l border-danger pl-3 text-sm text-danger">
           {error}
         </p>
       )}
@@ -138,7 +135,7 @@ export default function DriverRevenueDashboard() {
 
       <section aria-label="Chỉ số doanh thu" className="grid gap-6 border-y-2 border-td-ink py-6 sm:grid-cols-2">
         <div className="relative pl-5 first:pl-5 sm:border-l sm:border-td-rule sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
-          <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase text-td-muted">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-td-muted">
             <CircleDollarSign className="h-3.5 w-3.5" aria-hidden="true" /> 01 · Tổng giá trị chuyến hoàn thành
           </span>
           <strong className="mt-2 block font-sans text-4xl font-bold tracking-tight text-td-ink">
@@ -146,7 +143,7 @@ export default function DriverRevenueDashboard() {
           </strong>
         </div>
         <div className="relative pl-5 sm:border-l sm:border-td-rule sm:pl-5">
-          <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase text-td-muted">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-td-muted">
             <ClipboardCheck className="h-3.5 w-3.5" aria-hidden="true" /> 02 · Chuyến được phân công trong tháng
           </span>
           <strong className="mt-2 block font-sans text-4xl font-bold tracking-tight text-td-ink">
@@ -157,7 +154,7 @@ export default function DriverRevenueDashboard() {
 
       <section aria-label="Chuyến đã hoàn thành">
         <div className="flex items-baseline justify-between border-b border-td-ink pb-2">
-          <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+          <h3 className="text-[11px] font-bold text-td-muted">
             Chuyến đã hoàn thành
           </h3>
           <span className="font-mono text-[11px] text-td-muted">{completedRentals.length} chuyến</span>
@@ -171,7 +168,7 @@ export default function DriverRevenueDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left">
               <thead>
-                <tr className="border-b border-td-rule font-mono text-[11px] uppercase tracking-wider text-td-muted">
+                <tr className="border-b border-td-rule text-[11px] text-td-muted">
                   <th className="py-2.5 pr-4 font-bold">Mã chuyến</th>
                   <th className="px-4 py-2.5 font-bold">Thời gian</th>
                   <th className="py-2.5 pl-4 text-right font-bold">Giá trị thuê</th>

@@ -3,7 +3,7 @@ import { formatTime } from "@/lib/time";
 
 export const findFilterSchema = z.object({
   search: z.string().optional().default(""),
-  category: z.enum(["all", "car", "electric_car", "motorbike", "electric_motorbike"]).default("all").catch("all"),
+  category: z.enum(["all", "car", "electric_car"]).default("all").catch("all"),
   facilityId: z.string().regex(/^(all|[1-9]\d*)$/).default("all").catch("all"),
   brand: z.string().optional().default("all"),
   seats: z.coerce.number().int().nonnegative().default(0).catch(0),
@@ -13,7 +13,7 @@ export const findFilterSchema = z.object({
   priceMax: z.coerce.number().finite().nonnegative().default(0).catch(0),
   sort: z.enum(["price_asc", "price_desc", "year_desc", "name_asc"]).default("price_asc").catch("price_asc"),
   page: z.coerce.number().int().min(1).default(1).catch(1),
-  pageSize: z.coerce.number().int().min(1).max(100).default(9).catch(9),
+  pageSize: z.coerce.number().int().min(1).max(100).default(12).catch(12),
   startDate: z.string().optional(),
   startTime: z.string().optional(),
   endDate: z.string().optional(),

@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 const counts = { rentals: 123, inspections: 3, maintenance: 2, reports: 4, licenses: 5 };
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript(() => localStorage.setItem("vrs-admin-theme", "light"));
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     const data = path.endsWith("/account/profile")
@@ -15,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [1600, 1280, 390]) {
-  test(`parent dots and exact child counts at ${width}px in both themes`, async ({ page }) => {
+  test(`parent dots and exact child counts at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 950 });
     await page.goto("/admin/maintenance");
     const chapters = page.getByRole("navigation", { name: "Nhóm chức năng", exact: true });
@@ -26,9 +25,7 @@ for (const width of [1600, 1280, 390]) {
     await expect(operations.getByRole("link", { name: /^Vận hành đơn thuê\s*, 123 hồ sơ mới cần xử lý$/ })).toBeAttached();
     await expect(operations.getByRole("link", { name: /^Kiểm tra xe\s*, 3 hồ sơ mới cần xử lý$/ })).toBeAttached();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `test-results/navigation-counts-${width}-light.png` });
-    await page.locator("#admin-theme-toggle").click();
-    await page.screenshot({ path: `test-results/navigation-counts-${width}-dark.png` });
+    await page.screenshot({ path: `test-results/navigation-counts-${width}.png` });
     await page.goto("/admin/reports");
     const care = page.getByRole("navigation", { name: "Các route thuộc nhóm Chăm sóc & Sự cố", exact: true });
     const license = care.getByRole("link", { name: /^Duyệt GPLX\s*, 5 hồ sơ mới cần xử lý$/ });

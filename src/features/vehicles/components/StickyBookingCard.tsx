@@ -151,13 +151,13 @@ export function StickyBookingCard({
         </div>
 
         {/* Toggle Hourly / Longterm */}
-        <div className="flex rounded bg-td-chalk p-1 border border-td-rule">
+        <div className="flex bg-td-chalk p-1 border border-td-rule">
           <button
             type="button"
             onClick={() => setRentalType("hourly")}
             className={`rounded px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
               rentalType === "hourly"
-                ? "bg-td-white text-td-ink shadow-xs"
+                ? "bg-td-white text-td-ink"
                 : "text-td-muted hover:text-td-ink"
             }`}
           >
@@ -168,7 +168,7 @@ export function StickyBookingCard({
             onClick={() => setRentalType("longterm")}
             className={`rounded px-2.5 py-1 text-xs font-bold transition-all cursor-pointer ${
               rentalType === "longterm"
-                ? "bg-td-white text-td-ink shadow-xs"
+                ? "bg-td-white text-td-ink"
                 : "text-td-muted hover:text-td-ink"
             }`}
           >
@@ -195,7 +195,7 @@ export function StickyBookingCard({
 
       {/* 3. Lựa chọn Có tài xế / Tự lái (Nếu là ô tô) */}
       {!vehicle.category.includes("motorbike") && (
-        <div className="flex items-center justify-between rounded border border-td-rule bg-td-paper p-3">
+        <div className="flex items-center justify-between border border-td-rule bg-td-paper p-3">
           <div className="flex items-center gap-2.5">
             <UserCheck className="w-4 h-4 text-primary" />
             <div>
@@ -211,14 +211,14 @@ export function StickyBookingCard({
               onChange={(e) => setHasDriver(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-10 h-6 bg-td-chalk peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-td-rule after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+            <div className="w-10 h-6 bg-td-chalk peer-focus:outline-none peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-td-rule after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
           </label>
         </div>
       )}
 
       {/* 4. Cảnh báo tình trạng xe khả dụng */}
       {availabilityError && (
-        <div className="flex items-start gap-2 rounded bg-warning-bg/60 p-3 text-xs font-medium text-warning border border-warning/20">
+        <div className="flex items-start gap-2 bg-warning-bg/60 p-3 text-xs font-medium text-warning border border-warning/20">
           <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{availabilityError}</span>
         </div>
@@ -240,7 +240,7 @@ export function StickyBookingCard({
         type="button"
         onClick={handleProceedBooking}
         disabled={Boolean(availabilityError) || isCheckingAvailability || !dateRange.from}
-        className="w-full flex items-center justify-center gap-2 rounded bg-primary py-3.5 px-6 font-bold text-sm text-white hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 bg-primary py-3.5 px-6 font-bold text-sm text-white hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
       >
         <span>Tiến hành đặt xe</span>
         <ArrowRight className="w-4 h-4" />

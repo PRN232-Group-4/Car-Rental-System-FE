@@ -41,6 +41,8 @@ for (const file of files) {
   const isGlobalsCss = relPath === 'src/app/globals.css';
   const isAdminConsumer = /^src\/(?:app\/admin|features\/(?:admin|operations))\//.test(relPath);
   const isRentalWorkspaceV4Css = /rental-workspace-v4\.module\.css$/.test(relPath);
+  const isAppCss = /\.css$/.test(relPath) && !isGlobalsCss && !relPath.startsWith('src/features/landing/');
+  const isTestFile = /\.(?:test|spec)\./.test(relPath);
   const content = fs.readFileSync(file, 'utf-8');
   const lines = content.split('\n');
 
@@ -222,17 +224,51 @@ for (const file of files) {
         });
       }
     }
+
+    // 11. Góc vuông (A15.2): CSS ngoài globals/landing chỉ được bo 0 hoặc thành đĩa tròn.
+    const radius = isAppCss ? line.match(/border-radius:\s*([^;]+);/) : null;
+    if (radius && !/^(?:0(?:px)?|50%|9999px|var\(--r-[a-z]+\))$/.test(radius[1].trim())) {
+      violations.push({
+        file: relPath,
+        line: lineNum,
+        rule: 'SQUARE_CORNERS (A15.2)',
+        message: 'Chỉ dùng border-radius 0, hoặc 50%/9999px cho phần tử vuông thành đĩa tròn.',
+        detail: trimmed
+      });
+    }
+
+    // 12. Màu thô trong CSS module (A15.5): màu đi qua token khai báo trong globals.css.
+    if (isAppCss && /\.module\.css$/.test(relPath) && /#[0-9a-fA-F]{3,8}\b/.test(line)) {
+      violations.push({
+        file: relPath,
+        line: lineNum,
+        rule: 'TOKEN_COLORS_ONLY (A15.5)',
+        message: 'Không viết mã hex trong CSS module; dùng var(--token) từ globals.css.',
+        detail: trimmed
+      });
+    }
+
+    // 13. Một theme duy nhất (A15.1): không còn selector hay thuộc tính theme tối.
+    if (!isTestFile && /data-(?:admin-)?theme=["']?dark/.test(line)) {
+      violations.push({
+        file: relPath,
+        line: lineNum,
+        rule: 'SINGLE_THEME (A15.1)',
+        message: 'App chỉ có một theme giấy/mực; không thêm chế độ tối.',
+        detail: trimmed
+      });
+    }
   });
 }
 
 if (violations.length > 0) {
-  console.error(`\x1b[31m[DESIGN LINT FAILED] Tìm thấy ${violations.length} lỗi vi phạm DESIGN.md v3.0 (Phần A):\x1b[0m\n`);
+  console.error(`\x1b[31m[DESIGN LINT FAILED] Tìm thấy ${violations.length} lỗi vi phạm DESIGN.md Phần A (gồm A14–A15):\x1b[0m\n`);
   for (const v of violations) {
     console.error(`  \x1b[33m${v.file}:${v.line}\x1b[0m - \x1b[31m[${v.rule}]\x1b[0m ${v.message}`);
     console.error(`    \x1b[90m${v.detail}\x1b[0m\n`);
   }
   process.exit(1);
 } else {
-  console.log('\x1b[32m[DESIGN LINT PASSED] Toàn bộ mã nguồn đạt 100% quy tắc DESIGN.md v3.0 Phần A.\x1b[0m');
+  console.log('\x1b[32m[DESIGN LINT PASSED] Toàn bộ mã nguồn đạt 100% quy tắc DESIGN.md Phần A (gồm A14–A15).\x1b[0m');
   process.exit(0);
 }

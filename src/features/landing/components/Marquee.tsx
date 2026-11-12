@@ -39,7 +39,7 @@ export default function Marquee() {
   );
 
   const items = [
-    { tag: "MULTI-CATEGORY", desc: "4 Nhóm Xe: Ô Tô & Xe Máy, Xăng & Điện", icon: Zap },
+    { tag: "MULTI-CATEGORY", desc: "Ô Tô Xăng & Ô Tô Điện", icon: Zap },
     { tag: "CHAUFFEUR & SELF-DRIVE", desc: "Linh Hoạt Tự Lái Hoặc Kèm Tài Xế", icon: Award },
     { tag: "DIGITAL HANDOVER", desc: "Theo Dõi Biên Bản Bàn Giao", icon: ShieldCheck },
     { tag: "PAYMENTS", desc: "Theo Dõi Thanh Toán Và Quyết Toán", icon: RefreshCw },

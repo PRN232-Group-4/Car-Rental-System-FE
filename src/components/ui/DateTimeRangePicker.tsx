@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useId, useMemo } from "react";
-import * as Popover from "@radix-ui/react-popover";
 import { DayPicker, DateRange } from "react-day-picker";
 import { vi } from "date-fns/locale";
-import { Calendar, Clock, ChevronDown, AlertCircle, RotateCcw, Check } from "lucide-react";
+import { Calendar, ChevronDown, AlertCircle, RotateCcw, ArrowRight } from "lucide-react";
+import { Modal } from "./Modal";
+import { Select } from "./Select";
 import {
   GMT7_TIMEZONE,
   nowGmt7,
@@ -44,6 +45,14 @@ export interface DateTimeRangePickerProps {
   className?: string;
   "aria-invalid"?: boolean | "true" | "false";
   "aria-describedby"?: string;
+}
+
+/** "2 ngày 3 giờ" / "5 giờ" for a whole-hour span. */
+function durationText(hours: number): string {
+  const days = Math.floor(hours / 24);
+  const rest = hours % 24;
+  if (days === 0) return `${hours} giờ`;
+  return rest > 0 ? `${days} ngày ${rest} giờ` : `${days} ngày`;
 }
 
 export function DateTimeRangePicker({
@@ -248,176 +257,154 @@ export function DateTimeRangePicker({
         </>
       )}
 
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <button
-            id={inputId}
-            type="button"
-            disabled={disabled}
-            aria-describedby={ariaDescribedby}
-            className={`group flex h-12 w-full items-center justify-between gap-3 rounded-xl border bg-surface px-4 text-left text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 ${
-              isInvalid
-                ? "border-danger text-danger focus:border-danger"
-                : "border-line hover:border-line-strong focus:border-primary"
-            } ${disabled ? "cursor-not-allowed bg-sunken/60 text-ink-3" : "cursor-pointer text-ink"}`}
+      <button
+        id={inputId}
+        type="button"
+        disabled={disabled}
+        aria-describedby={ariaDescribedby}
+        aria-haspopup="dialog"
+        onClick={() => setOpen(true)}
+        className={`group flex h-12 w-full items-center justify-between gap-3 border bg-surface px-4 text-left text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 ${
+          isInvalid
+            ? "border-danger text-danger focus:border-danger"
+            : "border-line hover:border-line-strong focus:border-primary"
+        } ${disabled ? "cursor-not-allowed bg-sunken/60 text-ink-3" : "cursor-pointer text-ink"}`}
+      >
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <Calendar className="h-4 w-4 shrink-0 text-primary" />
+          <span
+            className={`truncate font-medium ${
+              hasValue ? "font-mono tabular-nums text-ink" : "text-ink-3"
+            }`}
           >
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <Calendar className="h-4 w-4 shrink-0 text-primary" />
-              <span
-                className={`truncate font-medium ${
-                  hasValue ? "font-mono tabular-nums text-ink" : "text-ink-3"
-                }`}
-              >
-                {displayLabel}
-              </span>
-            </div>
+            {displayLabel}
+          </span>
+        </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              {currentDurationInfo && currentDurationInfo.isValid && (
-                <span className="hidden sm:inline-flex items-center rounded-md bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
-                  {currentDurationInfo.days > 0
-                    ? `${currentDurationInfo.days} ngày ${currentDurationInfo.hours % 24 > 0 ? `${currentDurationInfo.hours % 24}h` : ""}`
-                    : `${currentDurationInfo.hours} giờ`}
-                </span>
+        <div className="flex items-center gap-2 shrink-0">
+          {currentDurationInfo && currentDurationInfo.isValid && (
+            <span className="hidden sm:inline-flex items-center bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
+              {durationText(currentDurationInfo.hours)}
+            </span>
+          )}
+          <ChevronDown className="h-4 w-4 text-ink-3" />
+        </div>
+      </button>
+
+      <Modal
+        open={open}
+        onOpenChange={setOpen}
+        title="Thời gian thuê"
+        size="xl"
+        footer={
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 text-sm">
+              {currentDurationInfo ? (
+                <>
+                  <p className="font-mono font-bold tabular-nums text-ink">
+                    {formatRange(currentDurationInfo.startDt, currentDurationInfo.endDt)}
+                  </p>
+                  {validationError ? (
+                    <p role="alert" className="mt-0.5 flex items-center gap-1.5 text-xs font-medium text-danger">
+                      <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      {validationError}
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-xs text-ink-3">
+                      Thời gian thuê: <span className="font-semibold text-primary">{durationText(currentDurationInfo.hours)}</span>
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-xs text-ink-3">Chọn ngày nhận và ngày trả trên lịch.</p>
               )}
-              <ChevronDown
-                className={`h-4 w-4 text-ink-3 transition-transform duration-200 ${
-                  open ? "rotate-180" : ""
-                }`}
-              />
             </div>
-          </button>
-        </Popover.Trigger>
-
-        <Popover.Portal>
-          <Popover.Content
-            align="start"
-            sideOffset={8}
-            className="z-50 w-full max-w-[95vw] sm:max-w-none rounded-3xl border border-line bg-surface p-4 sm:p-6 shadow-e3 focus:outline-none glass-3 animate-in fade-in-0 zoom-in-95"
-          >
-            {/* 1. DayPicker Lịch ngày */}
-            <div className="flex justify-center overflow-x-auto pb-4">
-              <DayPicker
-                mode="range"
-                timeZone={GMT7_TIMEZONE}
-                locale={vi}
-                selected={internalRange}
-                onSelect={setInternalRange}
-                disabled={disabledMatchers}
-                numberOfMonths={typeof window !== "undefined" && window.innerWidth >= 640 ? 2 : 1}
-                classNames={{
-                  root: "relative",
-                  months: "flex flex-col sm:flex-row gap-6",
-                  month: "space-y-4",
-                  month_caption: "flex items-center justify-between font-bold text-ink px-2 py-1 text-sm",
-                  caption_label: "font-bold text-ink",
-                  nav: "flex items-center gap-1",
-                  button_previous: "min-h-11 min-w-11 rounded-lg flex items-center justify-center hover:bg-sunken text-ink transition-colors",
-                  button_next: "min-h-11 min-w-11 rounded-lg flex items-center justify-center hover:bg-sunken text-ink transition-colors",
-                  weeks: "w-full border-collapse space-y-1",
-                  weekdays: "flex",
-                  weekday: "text-ink-3 text-xs font-semibold w-11 text-center py-1",
-                  week: "flex w-full mt-1",
-                  day: "p-0 relative text-center focus-within:relative focus-within:z-20",
-                  day_button: "min-h-11 min-w-11 text-sm font-medium text-ink rounded-lg hover:bg-surface-raised flex items-center justify-center transition-colors cursor-pointer",
-                  disabled: "opacity-30 cursor-not-allowed pointer-events-none line-through text-ink-3",
-                  today: "font-bold text-primary border border-primary/40",
-                  range_start: "bg-primary text-white font-bold rounded-lg shadow-e1",
-                  range_end: "bg-primary text-white font-bold rounded-lg shadow-e1",
-                  range_middle: "bg-primary-tint text-primary font-semibold rounded-none",
-                  selected: "bg-primary text-white font-bold",
-                  outside: "opacity-30",
-                }}
-              />
-            </div>
-
-            {/* 2. Bộ chọn giờ 30 phút */}
-            <div className="mt-4 border-t border-line pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-ink-2">
-                    <Clock className="w-3.5 h-3.5 text-primary" />
-                    <span>Giờ nhận xe (GMT+7)</span>
-                  </label>
-                  <select
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    aria-label="Giờ nhận xe (GMT+7)"
-                    className="w-full rounded-xl border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
-                  >
-                    {timeSlots.map((slot) => (
-                      <option key={`start-${slot}`} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-ink-2">
-                    <Clock className="w-3.5 h-3.5 text-primary" />
-                    <span>Giờ trả xe (GMT+7)</span>
-                  </label>
-                  <select
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    aria-label="Giờ trả xe (GMT+7)"
-                    className="w-full rounded-xl border border-line bg-surface px-3 py-2 font-mono text-sm tabular-nums text-ink transition-colors focus:border-primary focus:outline-none"
-                  >
-                    {timeSlots.map((slot) => (
-                      <option key={`end-${slot}`} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Cảnh báo lỗi & Tóm tắt thời lượng */}
-            <div className="mt-4">
-              {validationError ? (
-                <div className="flex items-center gap-2 rounded-xl bg-warning-bg/60 p-2.5 text-xs font-medium text-warning border border-warning/20">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{validationError}</span>
-                </div>
-              ) : currentDurationInfo?.isValid ? (
-                <div className="flex items-center justify-between text-xs font-medium text-ink-2 bg-canvas rounded-xl p-2.5 border border-line">
-                  <span>Tổng thời gian dự kiến:</span>
-                  <span className="font-mono tabular-nums font-bold text-primary">
-                    {currentDurationInfo.days > 0 && `${currentDurationInfo.days} ngày `}
-                    {currentDurationInfo.hours % 24 > 0 && `${currentDurationInfo.hours % 24} giờ`}
-                    {currentDurationInfo.hours === 0 && "0 giờ"}
-                    {` (${currentDurationInfo.hours}h)`}
-                  </span>
-                </div>
-              ) : null}
-            </div>
-
-            {/* 4. Footer hành động */}
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
+            <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
                 onClick={handleReset}
-                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-ink-3 hover:bg-sunken hover:text-ink transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-ink-3 hover:bg-sunken hover:text-ink transition-colors cursor-pointer"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Thiết lập lại</span>
               </button>
-
               <button
                 type="button"
                 onClick={handleApply}
                 disabled={!currentDurationInfo?.isValid || Boolean(validationError)}
-                className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-white shadow-e1 hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                className="bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
-                <Check className="w-3.5 h-3.5" />
-                <span>Áp dụng thời gian</span>
+                Tiếp tục
               </button>
             </div>
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
+          </div>
+        }
+      >
+        {/* Two-month calendar. react-day-picker renders nav as a sibling of the months, so it is laid over the caption row. */}
+        <div className="flex justify-center border border-line p-3 sm:p-4">
+          <DayPicker
+            mode="range"
+            timeZone={GMT7_TIMEZONE}
+            locale={vi}
+            selected={internalRange}
+            onSelect={setInternalRange}
+            disabled={disabledMatchers}
+            numberOfMonths={typeof window !== "undefined" && window.innerWidth >= 768 ? 2 : 1}
+            classNames={{
+              root: "relative",
+              months: "flex flex-col md:flex-row gap-8",
+              month: "space-y-2",
+              month_caption: "flex h-11 items-center justify-center text-sm font-bold text-ink",
+              caption_label: "font-bold text-ink",
+              nav: "pointer-events-none absolute inset-x-0 top-0 z-10 flex h-11 items-center justify-between",
+              button_previous: "pointer-events-auto flex h-11 w-11 items-center justify-center text-ink hover:bg-sunken disabled:opacity-30 transition-colors cursor-pointer",
+              button_next: "pointer-events-auto flex h-11 w-11 items-center justify-center text-ink hover:bg-sunken disabled:opacity-30 transition-colors cursor-pointer",
+              month_grid: "border-collapse",
+              weekdays: "flex",
+              weekday: "w-10 sm:w-11 py-1 text-center text-xs font-semibold text-ink-3",
+              week: "mt-1 flex w-full",
+              day: "relative p-0 text-center focus-within:relative focus-within:z-20",
+              day_button: "flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center text-sm font-medium text-ink hover:bg-surface-raised transition-colors cursor-pointer",
+              disabled: "pointer-events-none cursor-not-allowed text-ink-3 opacity-30",
+              today: "font-bold text-primary underline underline-offset-4",
+              range_start: "bg-primary text-white font-bold",
+              range_end: "bg-primary text-white font-bold",
+              range_middle: "bg-primary-tint text-primary font-semibold",
+              selected: "bg-primary text-white font-bold",
+              outside: "opacity-30",
+            }}
+          />
+        </div>
+
+        {/* Pickup and return time, GMT+7 */}
+        <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+          <div className="block border border-line px-3 py-2">
+            <span className="block text-xs text-ink-3">Giờ nhận xe (GMT+7)</span>
+            <Select
+              aria-label="Giờ nhận xe (GMT+7)"
+              menuLabel="Giờ nhận xe (GMT+7)"
+              value={startTime}
+              onValueChange={setStartTime}
+              options={timeSlots.map((slot) => ({ value: slot, label: slot }))}
+              className="mt-0.5 h-8 border-0 bg-transparent px-0 font-mono text-base font-semibold tabular-nums"
+              contentClassName="min-w-40"
+            />
+          </div>
+          <ArrowRight className="h-4 w-4 text-ink-3" aria-hidden="true" />
+          <div className="block border border-line px-3 py-2">
+            <span className="block text-xs text-ink-3">Giờ trả xe (GMT+7)</span>
+            <Select
+              aria-label="Giờ trả xe (GMT+7)"
+              menuLabel="Giờ trả xe (GMT+7)"
+              value={endTime}
+              onValueChange={setEndTime}
+              options={timeSlots.map((slot) => ({ value: slot, label: slot }))}
+              className="mt-0.5 h-8 border-0 bg-transparent px-0 font-mono text-base font-semibold tabular-nums"
+              contentClassName="min-w-40"
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

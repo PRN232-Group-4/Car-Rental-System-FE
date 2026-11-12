@@ -23,7 +23,7 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
     <article
       data-vehicle-id={vehicle.id}
       data-testid="vehicle-card"
-      className={`group relative flex flex-col justify-between overflow-hidden rounded border border-td-rule bg-td-white glass-lift transition-all duration-300 ${className}`}
+      className={`group relative flex flex-col justify-between overflow-hidden border border-td-rule bg-td-white glass-lift transition-all duration-300 ${className}`}
     >
       {/* 1. Khung ảnh tỷ lệ 4:3 (>=60% diện tích trực quan), zoom 1.04 khi hover */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-td-chalk">
@@ -40,12 +40,12 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
           <div className="flex flex-wrap items-center gap-1.5">
             {isElectric && (
-              <span className="rounded-md bg-stage-ink px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-white shadow-xs">
-                THUẦN ĐIỆN
+              <span className="bg-stage-ink px-2 py-0.5 text-[11px] font-semibold text-white">
+                Thuần điện
               </span>
             )}
             {vehicle.categoryLabel && (
-              <span className="rounded-md bg-td-white/90 px-2 py-0.5 text-[11px] font-semibold text-td-ink shadow-xs border border-td-rule">
+              <span className="bg-td-white/90 px-2 py-0.5 text-[11px] font-semibold text-td-ink border border-td-rule">
                 {vehicle.categoryLabel}
               </span>
             )}
@@ -53,12 +53,12 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
 
           <div>
             {vehicle.isAvailable ? (
-              <span className="flex items-center gap-1 rounded-full bg-success-bg px-2.5 py-0.5 text-[11px] font-bold text-success border border-success/20 shadow-xs">
+              <span className="flex items-center gap-1 bg-success-bg px-2.5 py-0.5 text-[11px] font-bold text-success border border-success/20">
                 <CheckCircle2 className="w-3 h-3" />
                 <span>Sẵn sàng</span>
               </span>
             ) : (
-              <span className="rounded-full bg-td-chalk px-2.5 py-0.5 text-[11px] font-bold text-td-ink border border-td-rule shadow-xs">
+              <span className="bg-td-chalk px-2.5 py-0.5 text-[11px] font-bold text-td-ink border border-td-rule">
                 Đang thuê
               </span>
             )}
@@ -68,7 +68,7 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
         {/* Trạm cơ sở ở góc dưới ảnh */}
         {vehicle.facilityName && (
           <div className="absolute bottom-2.5 left-3 pointer-events-none">
-            <span className="flex items-center gap-1 rounded-md bg-stage-ink/85 px-2 py-0.5 text-[11px] font-medium text-white shadow-xs">
+            <span className="flex items-center gap-1 bg-stage-ink/85 px-2 py-0.5 text-[11px] font-medium text-white">
               <MapPin className="w-3 h-3 text-primary-tint" />
               <span className="truncate max-w-[180px]">{vehicle.facilityName}</span>
             </span>
@@ -92,7 +92,7 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
           </div>
 
           {/* Lưới 4 chip thông số kỹ thuật chuẩn A6 */}
-          <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-td-ink bg-td-paper rounded p-2.5 border border-td-rule">
+          <div className="mt-3.5 grid grid-cols-2 gap-2 text-xs text-td-ink bg-td-paper p-2.5 border border-td-rule">
             <div className="flex items-center gap-1.5 truncate">
               <Users className="w-3.5 h-3.5 text-primary shrink-0" />
               <span className="truncate">{vehicle.seats ? `${vehicle.seats} chỗ` : "Tiêu chuẩn"}</span>
@@ -145,7 +145,7 @@ export function VehicleCard({ vehicle, priority = false, className = "", booking
 
           <Link
             href={vehicleDetailHref(vehicle, bookingContext)}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-primary-hover group-hover:shadow-e1 cursor-pointer"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 bg-primary px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-primary-hover cursor-pointer"
           >
             <span>Chi tiết</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />

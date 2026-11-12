@@ -32,35 +32,9 @@ test("collapsed icons share the rail center even with a scrolling menu", async (
   await page.screenshot({ path: "test-results/admin-centered-icons.png" });
 });
 
-test("Admin dark mode follows system, persists choice and releases public pages", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
-  await page.goto("/admin/vehicles");
-  const root = page.locator("html");
-  const toggle = page.getByRole("button", { name: "Chế độ tối", exact: true });
-  await expect(root).toHaveAttribute("data-admin-theme", "dark");
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("main")).toHaveCSS("color", "rgb(241, 245, 249)");
-  await page.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
-  await expect(page.getByRole("dialog")).toHaveCSS("background-color", "rgb(23, 32, 46)");
-  await page.screenshot({ path: "test-results/admin-dark-dialog.png" });
-  await page.keyboard.press("Escape");
-  await toggle.click();
-  await expect(root).toHaveAttribute("data-admin-theme", "light");
-  await page.reload();
-  await expect(root).toHaveAttribute("data-admin-theme", "light");
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await toggle.click();
-  await page.goto("/admin/vehicle-types");
-  await expect(root).toHaveAttribute("data-admin-theme", "dark");
-  await expect(page.locator('[data-status-tone="success"]').first()).toHaveCSS("color", "rgb(134, 239, 172)");
-  await page.goto("/login");
-  await expect(root).not.toHaveAttribute("data-admin-theme");
-});
-
-test("mobile dark mode and sticky form actions remain usable while scrolling", async ({ page }) => {
+test("mobile sticky form actions remain usable while scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 700 });
   await page.goto("/admin/vehicles");
-  await page.getByRole("button", { name: "Chế độ tối", exact: true }).click();
   await page.getByRole("button", { name: "Thêm phương tiện", exact: true }).click();
   const dialog = page.getByRole("dialog");
   const cancel = dialog.getByRole("button", { name: "Hủy", exact: true });

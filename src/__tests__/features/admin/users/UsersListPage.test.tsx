@@ -21,11 +21,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock Shell & AuthGate to focus tests strictly on UsersListPage behavior
-vi.mock("@/features/admin/StaffShell", () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="staff-shell">{children}</div>,
-  StaffShell: ({ children }: { children: React.ReactNode }) => <div data-testid="staff-shell">{children}</div>,
-}));
-
 vi.mock("@/features/auth/AuthGate", () => ({
   AuthGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -125,7 +120,7 @@ describe("FE-23 Admin Users — List Page Component", () => {
   it("hiển thị tiêu đề trang và bảng danh sách người dùng", async () => {
     renderUsersPage();
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Người dùng & phân quyền.");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Người dùng & phân quyền");
 
     // Chờ dữ liệu bảng tải xong
     await waitFor(() => {

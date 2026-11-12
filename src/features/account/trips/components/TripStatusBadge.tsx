@@ -27,7 +27,7 @@ export function TripStatusBadge({ status, className }: TripStatusBadgeProps) {
     case "renting":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full bg-primary-tint/40 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary ${
+          className={`inline-flex items-center gap-1.5 bg-primary-tint/40 border border-primary/20 px-2.5 py-0.5 text-xs font-bold text-primary ${
             className ?? ""
           }`}
           role="status"

@@ -11,6 +11,7 @@ import {
 import { DriverAssignDrawer } from "@/features/admin/staff/components/DriverAssignDrawer";
 import { LicenseBadge } from "@/features/admin/staff/components/LicenseBadge";
 import { getLicenseState } from "@/features/admin/staff/license-utils";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { Button } from "@/components/ui/Button";
 import { formatDate, nowGmt7 } from "@/lib/time";
 import {
@@ -22,6 +23,7 @@ import {
   Grid3X3,
   AlertTriangle,
 } from "lucide-react";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 function DriverScheduleContent() {
   const { data: facilities = [] } = useFacilities();
@@ -87,23 +89,9 @@ function DriverScheduleContent() {
   return (
     <div className="space-y-6">
       {/* 1. Header trang */}
-      <div className="flex flex-col justify-between gap-6 border-b border-td-rule pb-6 sm:flex-row sm:items-end">
-        <div className="flex items-start gap-5">
-          <span className="min-w-[42px] border-t-2 border-td-oxide pt-1 font-mono text-xs font-bold text-td-oxide">05<br />DSP</span>
-          <div>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">ĐIỀU PHỐI · LỊCH TRÌNH VẬN HÀNH</span>
-            <h1 className="mt-1 font-sans text-3xl font-bold tracking-tight text-td-ink sm:text-4xl md:text-5xl">
-              Bảng lịch trình <span className="text-td-teal">tài xế.</span>
-            </h1>
-            <p className="mt-2 max-w-xl text-xs leading-relaxed text-td-muted sm:text-sm">
-              Theo dõi phân bổ chuyến đi, vùng đệm theo từng xe và chỉ định / thay đổi tài xế.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 self-start sm:self-end">
+      <TransitFolio title="Bảng lịch trình tài xế" description="Theo dõi phân bổ chuyến đi, vùng đệm theo từng xe và chỉ định / thay đổi tài xế.">
           {/* Nút chuyển chế độ xem Ma trận lưới vs Danh sách (A11y) */}
-          <div className="flex items-center gap-2 font-mono text-xs">
+          <div className="flex items-center gap-2 text-xs">
             <button
               type="button"
               onClick={() => setViewMode("grid")}
@@ -138,8 +126,7 @@ function DriverScheduleContent() {
             <UserCheck className="w-4 h-4 mr-1.5" />
             <span>Điều phối tài xế</span>
           </Link>
-        </div>
-      </div>
+      </TransitFolio>
 
       {/* 2. Thanh điều khiển tuần & bộ lọc cơ sở */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-td-ink pb-4">
@@ -180,7 +167,7 @@ function DriverScheduleContent() {
         {/* Lọc cơ sở */}
         <div className="flex items-center gap-3">
           <span className="text-xs text-td-muted whitespace-nowrap">Trạm / Cơ sở:</span>
-          <select
+          <InlineSelect
             value={selectedFacilityId}
             onChange={(e) => setSelectedFacilityId(e.target.value)}
             className="h-8 rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
@@ -191,7 +178,7 @@ function DriverScheduleContent() {
                 {f.name}
               </option>
             ))}
-          </select>
+          </InlineSelect>
         </div>
       </div>
 
@@ -200,7 +187,7 @@ function DriverScheduleContent() {
         <div className="overflow-x-auto border-t border-td-ink">
           <table className="w-full border-collapse text-left text-xs min-w-[900px]">
             <caption className="sr-only">Lịch trình công tác của đội ngũ tài xế theo tuần</caption>
-            <thead className="border-b border-td-ink font-mono text-[11px] uppercase tracking-wider text-td-muted">
+            <thead className="border-b border-td-ink text-xs text-td-muted">
               <tr>
                 <th className="p-3 text-left font-bold w-48 border-r border-td-rule">
                   Tài xế ({drivers.length})
@@ -216,7 +203,7 @@ function DriverScheduleContent() {
                         isToday ? "bg-td-chalk text-td-oxide font-black" : "text-td-ink"
                       }`}
                     >
-                      <span className="block text-[11px] font-mono text-td-muted">
+                      <span className="block text-[11px] text-td-muted">
                         {dayNames[index]}
                       </span>
                       <span className="block text-sm font-bold">
@@ -326,7 +313,7 @@ function DriverScheduleContent() {
         /* 4. Xem Dạng Danh Sách (A11y / Mobile View) */
         <div className="space-y-4">
           {schedules.length === 0 ? (
-            <div className="border-t border-td-ink py-12 text-center font-mono text-xs text-td-muted">
+            <div className="border-t border-td-ink py-12 text-center text-sm text-td-muted">
               Không có chuyến đi nào được lên lịch trong khoảng thời gian này.
             </div>
           ) : (

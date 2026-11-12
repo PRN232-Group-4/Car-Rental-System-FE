@@ -73,15 +73,12 @@ export function IncidentTriage() {
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Folio Top */}
       <TransitFolio
-        index="03"
-        tag="TRI"
-        kicker="TIẾP NHẬN & XỬ LÝ · SỰ CỐ"
-        title={<>Xử lý khiếu nại & <span className="text-td-teal">báo cáo sự cố.</span></>}
+        title="Xử lý khiếu nại & báo cáo sự cố"
         description="Bàn ưu tiên xử lý sự cố. Đọc thời hạn phản hồi trước, mở bằng chứng sau. Không giấu công việc khẩn cấp trong các badge nhiều màu."
       >
         <TransitFolioMetric
-          label="INCIDENT QUEUE · TỔNG HỒ SƠ"
-          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(reports.length).padStart(2, "0")}
+          label="Tổng hồ sơ"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(reports.length)}
         />
       </TransitFolio>
 
@@ -97,12 +94,12 @@ export function IncidentTriage() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Mã số, tên khách hàng, nội dung..."
               aria-label="Tìm sự cố"
-              className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 font-mono text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
+              className="w-full border-b border-td-rule bg-transparent py-1.5 pl-8 pr-3 text-xs text-td-ink placeholder-td-muted outline-none focus:border-td-ink"
             />
           </div>
 
           {/* Status buttons */}
-          <div className="flex items-center gap-2 font-mono text-xs">
+          <div className="flex items-center gap-2 text-xs">
             {[
               { id: undefined, label: "Tất cả" },
               { id: "new", label: "Mới tiếp nhận" },
@@ -128,7 +125,7 @@ export function IncidentTriage() {
           </div>
         </div>
 
-        <span className="font-mono text-xs text-td-muted">
+        <span className="text-xs text-td-muted">
           {filteredReports.length} hồ sơ trong hàng đợi
         </span>
       </div>
@@ -139,9 +136,9 @@ export function IncidentTriage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 border-t border-td-ink pt-6">
         {/* Left Column: Triage List */}
         <div className="lg:col-span-5 border-r border-td-rule pr-0 lg:pr-6 space-y-2">
-          <div className="flex items-center justify-between border-b border-td-rule pb-2 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
-            <span>HÀNG ĐỢI / THEO SLA</span>
-            <span>THỜI HẠN</span>
+          <div className="flex items-center justify-between border-b border-td-rule pb-2 text-[11px] font-bold text-td-muted">
+            <span>Hàng đợi theo SLA</span>
+            <span>Thời hạn</span>
           </div>
 
           {isLoading ? (
@@ -151,12 +148,12 @@ export function IncidentTriage() {
               <Skeleton className="h-20 w-full rounded" />
             </div>
           ) : filteredReports.length === 0 ? (
-            <div className="py-12 text-center font-mono text-xs text-td-muted">
+            <div className="py-12 text-center text-sm text-td-muted">
               Không có sự cố nào trong bộ lọc này.
             </div>
           ) : (
             <div className="divide-y divide-td-rule">
-              {filteredReports.map((report, idx) => {
+              {filteredReports.map((report) => {
                 const isSelected = activeReport?.id === report.id;
                 const isClosed = report.status === "resolved" || report.status === "rejected";
                 const isOverdue = isSlaBreached(report.createdAt, report.status);
@@ -172,15 +169,8 @@ export function IncidentTriage() {
                       isSelected ? "bg-td-chalk/70" : "hover:bg-td-chalk/30"
                     } ${isUrgent ? styles.incidentOverduePulse : ""}`}
                   >
-                    {/* Active marker on left */}
-                    {isSelected && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute left-0 top-0 bottom-0 w-1 bg-td-oxide"
-                      />
-                    )}
 
-                    <div className="col-span-2 font-mono text-xl font-bold text-td-oxide flex items-center gap-1.5">
+                    <div className="col-span-1 flex items-center pt-0.5">
                       {isUrgent && (
                         <span
                           className={styles.incidentRadarDot}
@@ -188,15 +178,14 @@ export function IncidentTriage() {
                           title="Sự cố khẩn cấp quá hạn SLA"
                         />
                       )}
-                      <span>{String(idx + 1).padStart(2, "0")}</span>
                     </div>
 
-                    <div className="col-span-7 min-w-0">
+                    <div className="col-span-8 min-w-0">
                       <div className="flex items-center gap-1 truncate">
-                        <span className="font-mono text-xs text-td-muted">#{report.id} ·</span>
+                        <span className="text-xs text-td-muted">#{report.id} ·</span>
                         <strong className="text-xs font-semibold text-td-ink truncate">{report.customer.fullName}</strong>
                       </div>
-                      <span className="font-mono text-[10px] text-td-muted block uppercase mt-0.5">
+                      <span className="text-[10px] text-td-muted block mt-0.5">
                         {getReportTypeLabel(report.type)}
                       </span>
                       <p className="line-clamp-2 text-[11px] text-td-muted mt-1 leading-normal">
@@ -208,7 +197,7 @@ export function IncidentTriage() {
                       <div className={`font-mono text-xs font-bold ${!isClosed && isOverdue ? "text-td-oxide" : "text-td-ink"}`}>
                         {waitStr}
                       </div>
-                      <span className="font-mono text-[9px] text-td-muted uppercase block">
+                      <span className="text-[9px] text-td-muted block">
                         {isClosed ? "Đã giải quyết" : !report.createdAt ? "Chưa có mốc thời gian" : (isOverdue ? "Quá hạn" : "Trong hạn")}
                       </span>
                     </div>
@@ -226,11 +215,8 @@ export function IncidentTriage() {
               {/* Casefile Top */}
               <div className="flex items-start justify-between border-b border-td-rule pb-4">
                 <div>
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-                    HỒ SƠ BẰNG CHỨNG SỰ CỐ #{activeReport.id}
-                  </span>
-                  <h2 className="mt-1 font-sans text-2xl font-bold text-td-ink tracking-tight">
-                    {getReportTypeLabel(activeReport.type)}
+                  <h2 className="font-sans text-2xl font-bold text-td-ink tracking-tight">
+                    Sự cố #{activeReport.id} · {getReportTypeLabel(activeReport.type)}
                   </h2>
                 </div>
 
@@ -245,9 +231,9 @@ export function IncidentTriage() {
               </div>
 
               {/* Context metadata */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-td-rule pb-4 font-mono text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-td-rule pb-4 text-xs">
                 <div>
-                  <span className="text-td-muted uppercase text-[10px] block">Khách hàng</span>
+                  <span className="text-td-muted text-[10px] block">Khách hàng</span>
                   <strong className="text-td-ink block mt-0.5">
                     {activeReport.customer.fullName} · {activeReport.customer.phone}
                   </strong>
@@ -255,7 +241,7 @@ export function IncidentTriage() {
                 </div>
 
                 <div>
-                  <span className="text-td-muted uppercase text-[10px] block">Đơn thuê liên quan</span>
+                  <span className="text-td-muted text-[10px] block">Đơn thuê liên quan</span>
                   {activeReport.rentalId ? (
                     <Link
                       href={`/admin/rentals?rentalId=${activeReport.rentalId}`}
@@ -273,7 +259,7 @@ export function IncidentTriage() {
                 </div>
 
                 <div>
-                  <span className="text-td-muted uppercase text-[10px] block">Phiếu bảo dưỡng</span>
+                  <span className="text-td-muted text-[10px] block">Phiếu bảo dưỡng</span>
                   {activeReport.maintenance ? (
                     <Link
                       href="/admin/maintenance"
@@ -292,9 +278,7 @@ export function IncidentTriage() {
 
               {/* Description & Narrative */}
               <div>
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted block mb-2">
-                  NỘI DUNG TRÌNH BÁO
-                </span>
+                <h3 className="text-sm font-bold text-td-ink mb-2">Nội dung trình báo</h3>
                 <p className="text-sm text-td-ink leading-relaxed bg-td-paper p-4 rounded border border-td-rule">
                   {activeReport.descriptionPreview || "Không có nội dung mô tả sự cố."}
                 </p>
@@ -304,7 +288,7 @@ export function IncidentTriage() {
               <div className="flex flex-wrap items-center justify-between gap-4 border-t border-td-rule pt-4">
                 <Link
                   href={`/admin/reports/detail?id=${activeReport.id}`}
-                  className="font-mono text-xs font-bold text-td-ink hover:text-td-oxide inline-flex items-center gap-1.5"
+                  className="text-xs font-bold text-td-ink hover:text-td-oxide inline-flex items-center gap-1.5"
                 >
                   <span>Mở hồ sơ chi tiết và bản đồ tọa độ</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -313,14 +297,14 @@ export function IncidentTriage() {
                 <button
                   type="button"
                   onClick={() => setDrawerReportId(activeReport.id)}
-                  className="rounded bg-td-ink px-4 py-2 font-mono text-xs font-bold text-white hover:bg-td-teal transition-colors cursor-pointer"
+                  className="rounded bg-td-ink px-4 py-2 text-xs font-bold text-white hover:bg-td-teal transition-colors cursor-pointer"
                 >
                   Xử lý & Cập nhật trạng thái
                 </button>
               </div>
             </div>
           ) : (
-            <div className="border border-td-rule bg-td-white rounded p-16 text-center font-mono text-xs text-td-muted">
+            <div className="border border-td-rule bg-td-white rounded p-16 text-center text-sm text-td-muted">
               Chọn một sự cố trong hàng đợi bên trái để mở hồ sơ đối chiếu bằng chứng.
             </div>
           )}

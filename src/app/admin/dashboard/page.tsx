@@ -112,10 +112,7 @@ export default function AdminDashboardPage() {
         <div className="space-y-6">
           {/* Header */}
           <TransitFolio
-            index="01"
-            tag="OPS"
-            kicker="TRẠM VẬN HÀNH · DASHBOARD BIỂU ĐỒ"
-            title={<>Chỉ huy điều hành & <span className="text-td-teal">doanh thu.</span></>}
+            title="Chỉ huy điều hành & doanh thu"
             description="Giám sát dòng tiền thực thu, hiệu suất khai thác đội xe, tỷ lệ đơn hàng và rủi ro chi phí theo múi giờ GMT+7."
           >
             <span className="inline-flex items-center gap-1.5 border-l border-td-rule pl-4 text-[11px] font-semibold text-td-muted">
@@ -142,16 +139,14 @@ export default function AdminDashboardPage() {
             onRetry={() => kpisQuery.refetch()}
           />
 
-          {/* Phân khu 1: Dòng tiền & Cân đối Đội xe */}
+          {/* Dòng tiền & Cân đối Đội xe */}
           <section aria-labelledby="cashflow-heading" className="space-y-4">
             <div className="flex items-center justify-between border-b border-td-ink pb-2">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 bg-td-oxide" aria-hidden="true" />
-                <h2 id="cashflow-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
-                  Phân khu 1: Dòng tiền & Cân đối Đội xe
+                <h2 id="cashflow-heading" className="text-sm font-bold text-td-ink">
+                  Dòng tiền & Cân đối Đội xe
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // CASHFLOW</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <RevenueChart
@@ -178,16 +173,14 @@ export default function AdminDashboardPage() {
             </div>
           </section>
 
-          {/* Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê */}
+          {/* Năng suất Phương tiện & Phân bổ Đơn thuê */}
           <section aria-labelledby="productivity-heading" className="space-y-4">
             <div className="flex items-center justify-between border-b border-td-ink pb-2">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 bg-td-oxide" aria-hidden="true" />
-                <h2 id="productivity-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
-                  Phân khu 2: Năng suất Phương tiện & Phân bổ Đơn thuê
+                <h2 id="productivity-heading" className="text-sm font-bold text-td-ink">
+                  Năng suất Phương tiện & Phân bổ Đơn thuê
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // ASSET_YIELD</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <TopVehiclesTable
@@ -205,16 +198,14 @@ export default function AdminDashboardPage() {
             </div>
           </section>
 
-          {/* Phân khu 3: Rủi ro Bảo dưỡng & Hội viên Thuê bao */}
+          {/* Rủi ro Bảo dưỡng & Hội viên Thuê bao */}
           <section aria-labelledby="risk-heading" className="space-y-4">
             <div className="flex items-center justify-between border-b border-td-ink pb-2">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 bg-warning" aria-hidden="true" />
-                <h2 id="risk-heading" className="font-mono text-[11px] font-bold uppercase tracking-wider text-td-ink sm:text-xs">
-                  Phân khu 3: Kiểm soát Chi phí Bảo dưỡng & Hội viên Thuê bao
+                <h2 id="risk-heading" className="text-sm font-bold text-td-ink">
+                  Kiểm soát Chi phí Bảo dưỡng & Hội viên Thuê bao
                 </h2>
               </div>
-              <span className="font-mono text-[11px] text-td-muted">OPS.TELEMETRY // RISK_ANALYSIS</span>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <MaintenanceVsRevenueChart

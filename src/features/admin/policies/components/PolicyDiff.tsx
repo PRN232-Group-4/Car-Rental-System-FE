@@ -69,13 +69,13 @@ export function PolicyDiff({
   return (
     <div className="space-y-4">
       {/* Khối so sánh thông số */}
-      <div className="bg-td-white border border-td-rule rounded p-4 shadow-sm">
+      <div className="bg-td-white border border-td-rule rounded p-4">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+          <h4 className="text-xs font-bold text-td-muted">
             Bảng so sánh điều khoản {vehicleTypeName ? `· ${vehicleTypeName}` : ""}
           </h4>
           {currentPolicy && (
-            <span className="text-xs text-td-muted font-mono">
+            <span className="text-xs text-td-muted">
               Bản hiện tại: #{currentPolicy.id}
             </span>
           )}

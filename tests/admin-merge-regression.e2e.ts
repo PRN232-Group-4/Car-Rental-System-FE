@@ -59,11 +59,8 @@ test('tracking route renders and resolves a real API-shaped alert', async ({ app
   await expect(screen.getByRole('heading', { name: 'Vùng địa lý và cảnh báo' })).toBeVisible();
   for (const width of [1600, 1280, 390]) {
     await browser.setViewport({ width, height: 950 });
-    for (const theme of ['light', 'dark']) {
-      await browser.evaluate((value) => document.documentElement.setAttribute('data-admin-theme', value), theme);
-      expect(await browser.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      await app.screenshot(`tracking-${width}-${theme}`);
-    }
+    expect(await browser.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await app.screenshot(`tracking-${width}`);
   }
   await screen.getByRole('button', { name: 'Xem và xử lý cảnh báo', exact: true }).click();
   await expect(screen.getByRole('heading', { name: 'Chi tiết cảnh báo' })).toBeVisible();
@@ -78,11 +75,8 @@ test('handover route blocks uninspected rentals, reloads readiness and confirms 
   for (const width of [1600, 1280, 390]) {
     await browser.setViewport({ width, height: 950 });
     await browser.locator('#rental-detail').scrollIntoView();
-    for (const theme of ['light', 'dark']) {
-      await browser.evaluate((value) => document.documentElement.setAttribute('data-admin-theme', value), theme);
-      expect(await browser.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      await app.screenshot(`handover-${width}-${theme}`);
-    }
+    expect(await browser.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await app.screenshot(`handover-${width}`);
   }
   await expect(screen.getByRole('link', { name: 'Mở phiếu kiểm tra', exact: true })).toHaveAttribute('href', '/admin/inspections?rentalId=77');
   await screen.getByRole('button', { name: 'Tải lại kết quả kiểm tra', exact: true }).click();

@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { Toaster as SonnerToaster, toast } from "sonner";
 
 /** Toaster dùng chung: tối đa 3 toast, thành công 4s, lỗi 8s (FE-20 G). */
@@ -12,9 +13,10 @@ export function Toaster() {
       gap={10}
       offset={16}
       closeButton
+      style={{ "--border-radius": "0px" } as React.CSSProperties}
       toastOptions={{
         classNames: {
-          toast: "rounded-xl border border-line bg-surface text-sm text-ink shadow-e2 whitespace-pre-line",
+          toast: "border border-line bg-surface text-sm text-ink shadow-e2 rounded-none whitespace-pre-line",
           title: "font-semibold whitespace-pre-line",
           description: "text-xs text-ink-3 whitespace-pre-line",
           error: "text-danger",

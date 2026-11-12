@@ -8,7 +8,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Button } from "@/components/ui/Button";
-import { TransitFolio, TransitFolioMetric } from "@/features/admin/transit-desk/TransitFolio";
+import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { formatDateTime } from "@/lib/time";
 import { RatingStars } from "@/features/admin/reviews/components/RatingStars";
 import { RatingDistribution } from "@/features/admin/reviews/components/RatingDistribution";
@@ -153,35 +153,27 @@ export default function AdminReviewsPage() {
         <div className="space-y-6">
           {/* Header */}
           <TransitFolio
-            index="03"
-            tag="TRI"
-            kicker="CHĂM SÓC & SỰ CỐ · CHẤT LƯỢNG DỊCH VỤ"
-            title={<>Đánh giá <span className="text-td-teal">nhân sự & tài xế.</span></>}
+            title="Đánh giá nhân sự & tài xế"
             description="Đọc đánh giá thực từ API nhân viên. API hiện chưa hỗ trợ kiểm duyệt hoặc phản hồi."
-          >
-            <TransitFolioMetric
-              label="ĐIỂM TRUNG BÌNH HỆ THỐNG"
-              value={summary?.average !== null && summary?.average !== undefined ? summary.average.toFixed(2) : "—"}
-            />
-          </TransitFolio>
+          />
 
           {/* Dải tổng quan */}
-          <section aria-label="Tổng quan đánh giá" className="border-y-2 border-td-ink py-6">
+          <section aria-label="Tổng quan đánh giá" className="border-y border-td-ink py-6">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "01 · Điểm trung bình", value: summary?.average !== null && summary?.average !== undefined ? `${summary.average.toFixed(2)} / 5.0` : "—", note: "Thang điểm 5 sao toàn hệ thống" },
-                { label: "02 · Lượt đánh giá", value: summary?.count ?? "—", note: "Nhận xét hợp lệ đã ghi nhận" },
-                { label: "03 · Tỉ lệ hài lòng", value: stats.positivePct, note: "Nhận xét từ 4 sao trở lên" },
-                { label: "04 · Bị báo cáo", value: stats.reportedCount, note: "API chưa cung cấp" },
+                { label: "Điểm trung bình", value: summary?.average !== null && summary?.average !== undefined ? `${summary.average.toFixed(2)} / 5.0` : "—", note: "Thang điểm 5 sao toàn hệ thống" },
+                { label: "Lượt đánh giá", value: summary?.count ?? "—", note: "Nhận xét hợp lệ đã ghi nhận" },
+                { label: "Tỉ lệ hài lòng", value: stats.positivePct, note: "Nhận xét từ 4 sao trở lên" },
+                { label: "Bị báo cáo", value: stats.reportedCount, note: "API chưa cung cấp" },
               ].map((metric, index) => (
                 <div key={metric.label} className={`relative pl-5 ${index === 0 ? "" : "border-l border-td-rule"}`}>
-                  <span className="block font-mono text-[11px] font-semibold uppercase text-td-muted">
+                  <span className="block text-[11px] font-semibold text-td-muted">
                     {metric.label}
                   </span>
                   <strong className="mt-2 block font-sans text-4xl font-bold tracking-tight text-td-ink">
                     {metric.value}
                   </strong>
-                  <span className="mt-2 block font-mono text-xs text-td-muted">
+                  <span className="mt-2 block text-xs text-td-muted">
                     {metric.note}
                   </span>
                 </div>

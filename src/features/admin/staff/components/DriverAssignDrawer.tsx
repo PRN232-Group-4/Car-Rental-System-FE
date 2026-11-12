@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export interface DriverAssignDrawerProps {
   open: boolean;
@@ -109,7 +110,7 @@ export function DriverAssignDrawer({
           {/* Danh sách tài xế */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+              <h4 className="text-xs font-bold text-td-muted">
                 Danh sách tài xế ({drivers.length})
               </h4>
 
@@ -148,13 +149,13 @@ export function DriverAssignDrawer({
                         !isEligible
                           ? "border-td-rule/70 bg-td-chalk/40 opacity-75 cursor-not-allowed"
                           : isSelected
-                          ? "border-td-oxide bg-td-chalk/20 ring-2 ring-td-oxide/20 shadow-xs"
+                          ? "border-td-oxide bg-td-chalk/20 ring-2 ring-td-oxide/20"
                           : "border-td-rule bg-td-white hover:border-td-oxide/50 hover:bg-td-paper"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-white font-mono text-xs font-bold text-td-oxide shadow-xs">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-white text-xs font-bold text-td-oxide">
                             {d.fullName
                               .split(" ")
                               .map((n) => n[0])
@@ -182,12 +183,12 @@ export function DriverAssignDrawer({
                         {/* Trạng thái hợp lệ */}
                         <div className="text-right shrink-0">
                           {isEligible ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-success-bg/40 border border-success/30 px-2 py-0.5 font-sans text-[11px] font-bold text-success">
+                            <span className="inline-flex items-center gap-1 bg-success-bg/40 border border-success/30 px-2 py-0.5 font-sans text-[11px] font-bold text-success">
                               <CheckCircle2 className="w-3 h-3" />
                               Khả dụng
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg/40 border border-danger/30 px-2 py-0.5 font-sans text-[11px] font-bold text-danger">
+                            <span className="inline-flex items-center gap-1 bg-danger-bg/40 border border-danger/30 px-2 py-0.5 font-sans text-[11px] font-bold text-danger">
                               <XCircle className="w-3 h-3" />
                               Không phù hợp
                             </span>
@@ -216,7 +217,7 @@ export function DriverAssignDrawer({
           {/* Lý do và ghi chú */}
           <div className="space-y-4 pt-2 border-t border-td-rule">
             <FormField label="Lý do điều phối / thay đổi" required>
-              <select
+              <InlineSelect
                 value={reason}
                 onChange={(e) => setReason(e.target.value as AssignDriverReason)}
                 className="h-11 w-full rounded border border-td-rule bg-td-white px-3 text-sm text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
@@ -225,7 +226,7 @@ export function DriverAssignDrawer({
                 <option value="customer_request">Khách hàng yêu cầu đổi tài xế</option>
                 <option value="driver_unavailable">Tài xế trước đó không liên lạc được</option>
                 <option value="other">Lý do điều phối nghiệp vụ khác</option>
-              </select>
+              </InlineSelect>
             </FormField>
 
             <FormField label="Ghi chú nội bộ">

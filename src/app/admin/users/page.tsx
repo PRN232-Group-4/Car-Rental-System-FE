@@ -111,7 +111,7 @@ function AdminUsersContent() {
 
           return (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-chalk font-mono text-xs font-bold text-td-oxide">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-chalk text-xs font-bold text-td-oxide">
                 {initials || <User className="w-4 h-4 text-td-muted" />}
               </div>
               <div className="min-w-0">
@@ -248,15 +248,12 @@ function AdminUsersContent() {
     <div className="space-y-6">
       {/* Header trang */}
       <TransitFolio
-        index="07"
-        tag="ORG"
-        kicker="TỔ CHỨC · TÀI KHOẢN & PHÂN QUYỀN"
-        title={<>Người dùng & <span className="text-td-teal">phân quyền.</span></>}
+        title="Người dùng & phân quyền"
         description="Tra cứu tài khoản người dùng, phân quyền vai trò và kiểm soát an toàn bảo mật hệ thống."
       >
         <TransitFolioMetric
-          label="HỆ THỐNG · TỔNG TÀI KHOẢN"
-          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(data?.totalCount ?? 0).padStart(2, "0")}
+          label="Tổng tài khoản"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(data?.totalCount ?? 0)}
         />
         {isManagerOnly && (
           <div className="inline-flex items-center gap-2 border-l border-td-rule pl-4 text-[11px] text-td-muted">
@@ -266,7 +263,7 @@ function AdminUsersContent() {
         )}
       </TransitFolio>
 
-      {actionError && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{actionError}</p>}
+      {actionError && <p role="alert" className="pl-3 text-sm text-danger">{actionError}</p>}
       {/* Bộ lọc */}
       <UserFilters
         filters={filters}

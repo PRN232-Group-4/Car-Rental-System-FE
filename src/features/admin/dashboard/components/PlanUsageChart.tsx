@@ -84,9 +84,9 @@ export function PlanUsageChart({
               </div>
 
               {/* Progress bar */}
-              {pct !== null && <div className="relative mt-1 h-3 w-full overflow-hidden rounded-full bg-td-chalk">
+              {pct !== null && <div className="relative mt-1 h-3 w-full overflow-hidden bg-td-chalk">
                 <div
-                  className="h-full rounded-full bg-td-oxide transition-all duration-300"
+                  className="h-full bg-td-oxide transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
               </div>}

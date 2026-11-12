@@ -38,18 +38,9 @@ export default function CustomerRentals() {
   const awaitingDecision = rental ? ["pending", "pre_inspection"].includes(rental.status) : false;
   return <div className="space-y-6">
     <TransitFolio
-      index="09"
-      tag="KH"
-      kicker="KHÁCH HÀNG · ĐƠN THUÊ"
-      title={<>Đơn thuê <span className="text-td-teal">của tôi.</span></>}
+      title="Đơn thuê của tôi"
       description="Theo dõi yêu cầu đặt xe và tiến trình thuê xe của bạn."
     >
-      <div className="border-l border-td-rule pl-4 text-right">
-        <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG YÊU CẦU</span>
-        <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-          {list.isPending ? "—" : String(list.data?.totalCount ?? 0).padStart(2, "0")}
-        </strong>
-      </div>
     </TransitFolio>
     {params.has("rentalId") && !validSelection && <p role="alert" className="text-sm text-danger">Mã yêu cầu không hợp lệ. Vui lòng chọn một yêu cầu trong danh sách bên dưới.</p>}
     {validSelection && <section id="rental-progress" className={panel} aria-busy={detail.isFetching}>
@@ -73,11 +64,11 @@ export default function CustomerRentals() {
         {!!rental.timeline?.length && <details className="border-t border-td-rule pt-4"><summary className="cursor-pointer text-sm font-semibold">Lịch sử trạng thái</summary><ol className="mt-3 space-y-2 text-sm text-td-muted">{rental.timeline.map((event, index) => <li key={`${event.to}-${event.at}-${index}`}><span>{rentalProgressSteps.find((step) => step.status === event.to)?.label ?? rentalStatusLabel(event.to)}</span> · <time>{formatAdminDateTime(event.at)}</time>{event.reason ? ` · ${event.reason}` : ""}</li>)}</ol></details>}
       </>}
     </section>}
-    <nav aria-label="Lọc đơn thuê" className="flex flex-wrap items-center gap-2 border-b border-td-ink pb-3 font-mono text-xs">{tabs.map((item) => <button key={item.value} type="button" aria-pressed={tab === item.value} onClick={() => { setTab(item.value); setPage(1); }} className={`cursor-pointer border-b-2 px-3 py-1 font-bold transition-colors ${tab === item.value ? "border-primary text-primary" : "border-transparent text-td-muted hover:text-td-ink"}`}>{item.label}</button>)}</nav>
+    <nav aria-label="Lọc đơn thuê" className="flex flex-wrap items-center gap-2 border-b border-td-ink pb-3 text-xs">{tabs.map((item) => <button key={item.value} type="button" aria-pressed={tab === item.value} onClick={() => { setTab(item.value); setPage(1); }} className={`cursor-pointer border-b-2 px-3 py-1 font-bold transition-colors ${tab === item.value ? "border-primary text-primary" : "border-transparent text-td-muted hover:text-td-ink"}`}>{item.label}</button>)}</nav>
     <div className="space-y-4" aria-busy={list.isFetching}>
       {list.isPending ? <FormSkeleton label="Đang tải danh sách đơn thuê" fields={4} /> : list.error ? <p role="alert" className="text-sm text-danger">{errorText(list.error)} <button type="button" className="underline" onClick={() => void list.refetch()}>Thử lại</button></p> : <>
-        {!list.data?.items?.length && <p className={panel}>Chưa có đơn thuê trong mục này.</p>}
-        {!!list.data?.items?.length && <div className="border-t border-td-ink divide-y divide-td-rule border-b border-td-rule">{list.data.items.map((item) => <article key={item.id} className="py-3.5">
+        {!list.data?.items?.length && <p className="pt-1 text-sm text-td-muted">Chưa có đơn thuê trong mục này.</p>}
+        {!!list.data?.items?.length && <div className="divide-y divide-td-rule border-b border-td-rule">{list.data.items.map((item) => <article key={item.id} className="py-3.5">
           <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-bold">{item.orderId ? `Đơn thuê #${item.orderId}` : `Yêu cầu #${item.id}`}</h2><Link href={`/my-rentals?rentalId=${item.id}#rental-progress`} className="text-sm font-semibold text-primary underline" aria-label={`Xem chi tiết yêu cầu ${item.id}`}>Xem chi tiết</Link></div>
           <p className="text-sm font-semibold text-td-ink">{item.vehicleBrand} {item.vehicleModel}</p>
           <p className="font-mono text-[11px] text-td-muted">{formatAdminDateTime(item.startTime)} → {formatAdminDateTime(item.endTime)}</p>
@@ -86,7 +77,7 @@ export default function CustomerRentals() {
           {item.rentalType === "longterm" && <Link href={`/rental-contract?rentalId=${item.id}`} className="mt-2 block text-sm font-semibold text-primary underline">Tải / xem hợp đồng đã ký</Link>}
           {["pending", "pre_inspection"].includes(item.status) && <button type="button" onClick={() => setCancelTarget(item)} className="mt-3 rounded border border-td-rule px-3 py-2 text-sm font-semibold text-danger" aria-label={`Hủy đơn thuê #${item.id}`}>Hủy đơn thuê</button>}
         </article>)}</div>}
-        <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-td-muted"><p aria-live="polite">{list.data?.totalCount ?? 0} yêu cầu / đơn thuê · Trang {page}/{Math.max(1, Math.ceil((list.data?.totalCount ?? 0) / 20))}</p><div className="flex gap-2"><button type="button" disabled={page === 1 || list.isFetching} onClick={() => setPage((current) => current - 1)} className="rounded border border-td-rule px-3 py-1 font-bold text-td-ink disabled:opacity-50">Trang trước</button><button type="button" disabled={page * 20 >= (list.data?.totalCount ?? 0) || list.isFetching} onClick={() => setPage((current) => current + 1)} className="rounded border border-td-rule px-3 py-1 font-bold text-td-ink disabled:opacity-50">Trang sau</button></div></div>
+        <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-td-muted"><p aria-live="polite">{list.data?.totalCount ?? 0} yêu cầu / đơn thuê · Trang {page}/{Math.max(1, Math.ceil((list.data?.totalCount ?? 0) / 20))}</p><div className="flex gap-2"><button type="button" disabled={page === 1 || list.isFetching} onClick={() => setPage((current) => current - 1)} className="rounded border border-td-rule px-3 py-1 font-bold text-td-ink disabled:opacity-50">Trang trước</button><button type="button" disabled={page * 20 >= (list.data?.totalCount ?? 0) || list.isFetching} onClick={() => setPage((current) => current + 1)} className="rounded border border-td-rule px-3 py-1 font-bold text-td-ink disabled:opacity-50">Trang sau</button></div></div>
       </>}
     </div>
     {cancelTarget && <RentalCancelDialog key={cancelTarget.id} rental={cancelTarget} audience="customer" close={() => setCancelTarget(null)} refresh={async () => { await list.refetch(); if (validSelection) await detail.refetch(); }} />}

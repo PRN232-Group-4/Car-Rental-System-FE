@@ -15,7 +15,7 @@ for (const width of [320, 375, 768, 1280, 1440]) {
     const title = page.getByRole("heading", { name: "Tìm & Thuê Xe Thong Dong", exact: true });
     await expect(title).toBeVisible();
     const header = await page.locator("header").boundingBox();
-    const kicker = await page.getByText("Danh mục phương tiện", { exact: true }).boundingBox();
+    const kicker = await title.boundingBox();
     expect(header).not.toBeNull();
     expect(kicker).not.toBeNull();
     expect(kicker!.y).toBeGreaterThanOrEqual(header!.y + header!.height + 16);

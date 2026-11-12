@@ -1,4 +1,4 @@
-import { archivo } from "@/app/(marketing)/fonts";
+import { archivo } from "@/app/fonts";
 import DisplayLine from "@/features/landing/components/DisplayLine";
 
 export const metadata = {

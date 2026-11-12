@@ -51,11 +51,11 @@ export default function FormDialog({ title, children, onClose, busy = false, siz
         const bounds = event.currentTarget.getBoundingClientRect();
         if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onClose();
       }}
-      className={`${styles.dialog} fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] ${size === "xl" ? "max-w-5xl" : "max-w-2xl"} overflow-y-auto rounded-2xl border border-line bg-surface p-0 text-ink shadow-e2 backdrop:bg-stage-ink/50`}
+      className={`${styles.dialog} fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] ${size === "xl" ? "max-w-5xl" : "max-w-2xl"} overflow-y-auto border border-line bg-surface p-0 text-ink shadow-e2 backdrop:bg-stage-ink/50`}
     >
       <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface px-5 py-4 sm:px-6">
         <h2 id={titleId} className="text-base font-bold">{title}</h2>
-        <button type="button" disabled={busy} onClick={onClose} aria-label="Đóng biểu mẫu" className="rounded-lg p-2 text-ink-3 transition hover:bg-sunken hover:text-ink disabled:opacity-50">
+        <button type="button" disabled={busy} onClick={onClose} aria-label="Đóng biểu mẫu" className="p-2 text-ink-3 transition hover:bg-sunken hover:text-ink disabled:opacity-50">
           <X className="h-5 w-5" />
         </button>
       </div>

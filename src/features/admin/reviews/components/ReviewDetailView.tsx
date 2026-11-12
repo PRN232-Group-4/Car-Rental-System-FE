@@ -25,6 +25,7 @@ import {
 import { useHideReview, useUnhideReview, useReplyReview } from "../hooks";
 import type { ReviewDetail } from "../types";
 import { RentalVehiclePhotos } from "@/features/admin/VehiclePhotos";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 interface ReviewDetailViewProps {
   review: ReviewDetail;
@@ -109,7 +110,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
       <div className="flex flex-col justify-between gap-4 border-b border-td-rule pb-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-base font-bold text-td-ink">Đánh giá #{review.id}</span>
+            <span className="text-base font-bold text-td-ink">Đánh giá #{review.id}</span>
             <AdminStatusBadge domain="review" status={review.status}>{statusMeta.label}</AdminStatusBadge>
             <RatingStars rating={review.rating} size="md" />
           </div>
@@ -199,7 +200,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
 
       {/* Nội dung nhận xét - CHỐNG XSS: Render văn bản thuần */}
       <section className="rounded border border-td-rule bg-td-white p-5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">Nội dung nhận xét</h3>
+        <h3 className="text-xs font-bold text-td-muted">Nội dung nhận xét</h3>
         <div className="mt-3 whitespace-pre-wrap rounded border border-td-rule bg-td-chalk p-4 text-sm leading-relaxed text-td-ink">
           {review.comment}
         </div>
@@ -210,7 +211,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
         {/* Nhân sự được đánh giá */}
         <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+            <div className="flex items-center gap-2 text-xs font-bold text-td-muted">
               <User className="h-4 w-4 text-td-oxide" />
               <span>Nhân sự được đánh giá</span>
             </div>
@@ -240,7 +241,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
         {/* Đơn thuê gốc */}
         <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+            <div className="flex items-center gap-2 text-xs font-bold text-td-muted">
               <Car className="h-4 w-4 text-td-oxide" />
               <span>Chuyến đi liên quan</span>
             </div>
@@ -282,7 +283,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
         <div className="flex items-center justify-between border-b border-td-rule pb-3">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-td-oxide" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+            <h3 className="text-xs font-bold text-td-muted">
               Phản hồi chính thức cho khách
             </h3>
           </div>
@@ -381,7 +382,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
             <label htmlFor="hide-reason-select" className="block text-xs font-semibold text-td-ink">
               Lý do kiểm duyệt bắt buộc <span className="text-danger">*</span>
             </label>
-            <select
+            <InlineSelect
               id="hide-reason-select"
               value={selectedReason}
               onChange={(e) => setSelectedReason(e.target.value)}
@@ -392,7 +393,7 @@ export function ReviewDetailView({ review }: ReviewDetailViewProps) {
                   {r}
                 </option>
               ))}
-            </select>
+            </InlineSelect>
           </div>
 
           {selectedReason === "Khác (vui lòng nhập giải trình chi tiết)" && (

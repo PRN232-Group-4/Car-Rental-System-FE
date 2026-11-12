@@ -75,14 +75,11 @@ export default function CustomerDirectory({ initialLicenseStatus = "" }: { initi
 
   return <div className="space-y-6">
     <TransitFolio
-      index="07"
-      tag="ORG"
-      kicker="TỔ CHỨC · KHÁCH HÀNG"
-      title={<>Khách <span className="text-td-teal">hàng.</span></>}
+      title="Khách hàng"
       description="Tra cứu toàn bộ khách hàng và theo dõi giấy phép lái xe đang chờ phê duyệt."
     >
       <TransitFolioMetric
-        label="DANH BẠ · TỔNG KHÁCH"
+        label="Tổng khách hàng"
         value={query.isPending ? <Skeleton className="h-8 w-16" /> : totalCount.toLocaleString("vi-VN")}
       />
     </TransitFolio>
@@ -114,7 +111,7 @@ export default function CustomerDirectory({ initialLicenseStatus = "" }: { initi
     <AdminTableCard>
       <div className="border-b border-td-rule pb-2 pt-3">
         <h2 className="text-sm font-bold text-td-ink">Danh sách khách hàng</h2>
-        <p aria-live="polite" className="mt-1 font-mono text-[11px] text-td-muted">{query.isPending ? "Đang tải khách hàng..." : query.error ? "Chưa tải được danh sách" : `${totalCount.toLocaleString("vi-VN")} khách hàng`}</p>
+        <p aria-live="polite" className="mt-1 text-[11px] text-td-muted">{query.isPending ? "Đang tải khách hàng..." : query.error ? "Chưa tải được danh sách" : `${totalCount.toLocaleString("vi-VN")} khách hàng`}</p>
       </div>
       <AdminTable className="min-w-[860px]" aria-busy={query.isFetching}>
         <caption className="sr-only">Danh sách khách hàng</caption>
@@ -132,12 +129,12 @@ export default function CustomerDirectory({ initialLicenseStatus = "" }: { initi
         </tbody>
       </AdminTable>
       <div className="flex flex-col gap-3 border-t border-td-rule py-3 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-td-muted">Số khách hàng mỗi trang
-          <select aria-label="Số khách hàng mỗi trang" className="rounded border border-td-rule bg-transparent px-2 py-1 text-xs text-td-ink outline-none focus:border-td-ink" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>
+        <label className="flex flex-wrap items-center gap-3 text-[11px] text-td-muted">Số khách hàng mỗi trang
+          <InlineSelect aria-label="Số khách hàng mỗi trang" className="rounded border border-td-rule bg-transparent px-2 py-1 text-xs text-td-ink outline-none focus:border-td-ink" value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>
             {[10, 20, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}
-          </select>
+          </InlineSelect>
         </label>
-        <nav aria-label="Phân trang khách hàng" className="flex items-center gap-3 font-mono text-[11px] text-td-muted">
+        <nav aria-label="Phân trang khách hàng" className="flex items-center gap-3 text-[11px] text-td-muted">
           <span>Trang {page} / {pageCount}</span>
           <button type="button" aria-label="Trang trước" disabled={page <= 1 || query.isFetching} onClick={() => setPage((current) => current - 1)} className={pageButtonClass}><ChevronLeft aria-hidden="true" className="h-4 w-4" /></button>
           <button type="button" aria-label="Trang sau" disabled={page >= pageCount || query.isFetching || !!query.error} onClick={() => setPage((current) => current + 1)} className={pageButtonClass}><ChevronRight aria-hidden="true" className="h-4 w-4" /></button>

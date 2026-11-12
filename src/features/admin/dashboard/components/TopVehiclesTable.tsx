@@ -66,7 +66,7 @@ export function TopVehiclesTable({
         header: "Tỉ lệ khai thác",
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="h-2 w-16 overflow-hidden rounded-full bg-td-chalk">
+            <div className="h-2 w-16 overflow-hidden bg-td-chalk">
               <div
                 className="h-full bg-td-oxide"
                 style={{ width: `${Math.min(row.original.utilization, 100)}%` }}

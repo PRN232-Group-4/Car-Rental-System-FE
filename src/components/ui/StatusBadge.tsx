@@ -71,7 +71,7 @@ export function StatusBadge({
       data-status-tone={config.tone}
       className={cn(
         statusPillClasses,
-        size === "md" ? "text-[11px]" : "text-[10px]",
+        size === "md" ? "text-xs" : "text-[11px]",
         statusToneClasses[config.tone],
         className,
       )}

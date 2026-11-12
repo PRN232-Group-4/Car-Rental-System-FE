@@ -39,13 +39,13 @@ export function ReportStatusChips({
             aria-pressed={isSelected}
             className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-semibold transition ${
               isSelected
-                ? "bg-td-oxide text-white shadow-sm"
+                ? "bg-td-oxide text-white"
                 : "border border-td-rule bg-td-white text-td-ink hover:bg-td-paper active:bg-td-chalk"
             }`}
           >
             <span>{chip.label}</span>
             <span
-              className={`rounded-full px-1.5 py-0.2 font-mono text-[11px] ${
+              className={`px-1.5 py-0.2 font-mono text-[11px] ${
                 isSelected
                   ? "bg-white/20 text-white"
                   : "bg-td-chalk text-td-muted"

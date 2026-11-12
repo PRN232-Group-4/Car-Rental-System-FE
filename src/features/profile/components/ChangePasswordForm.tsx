@@ -107,7 +107,7 @@ export default function ChangePasswordForm() {
             }} />
         </FormField>
         {sent && <>
-          <p role="status" className="border-l-2 border-td-oxide pl-3 text-sm text-td-muted">OTP đã được gửi. Vui lòng kiểm tra hộp thư đến hoặc thư rác.</p>
+          <p role="status" className="border-l border-td-oxide pl-3 text-sm text-td-muted">OTP đã được gửi. Vui lòng kiểm tra hộp thư đến hoặc thư rác.</p>
           <FormField label="Mã OTP" htmlFor="change-password-otp">
             <InlineInput ref={otpInput} id="change-password-otp" name="otp" type="text" inputMode="numeric" autoComplete="one-time-code"
               required maxLength={6} pattern="[0-9]{6}" className="admin-input" readOnly={busy} value={otp}

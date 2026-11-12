@@ -27,7 +27,7 @@ npx playwright show-report
 ## 📂 Các kịch bản kiểm thử hiện tại
 
 ### 1. `smoke.spec.ts` (Smoke Tests)
-- **Tải trang chủ**: Xác minh Header, thương hiệu `ThongDong.`, các liên kết menu (Thuê xe, Gói thuê bao), nút Đăng nhập và Footer.
+- **Tải trang chủ**: Xác minh Header, thương hiệu `ThongDong.`, thanh trên cùng với nút **Menu** (mở lớp phủ điều hướng toàn màn hình gồm Đội xe, Mạng lưới trạm, Kiểm định, Gói hội viên, Đăng ký, Đăng nhập) và Footer.
 - **Trang Gói thuê bao (`/subscriptions`)**: Xác minh tiêu đề chính và các nút xem gói cước.
 - **Trang Đăng nhập (`/login`)**: Kiểm tra sự hiện diện của input email, password, nút đăng nhập; không hiển thị tài khoản mẫu.
 - **Route Guard**: Đảm bảo người dùng chưa xác thực khi truy cập trực tiếp vào các route được bảo vệ (`/booking`, `/invoices`, v.v.) sẽ tự động bị điều hướng về `/login?next=...`.

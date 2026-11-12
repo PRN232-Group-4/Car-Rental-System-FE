@@ -72,7 +72,7 @@ export function CreateMaintenanceModal({
           <label htmlFor="maint-type" className="block text-xs font-semibold text-td-ink">
             Hạng mục bảo dưỡng
           </label>
-          <select
+          <InlineSelect
             id="maint-type"
             value={maintenanceType}
             disabled title="API lấy hạng mục từ báo cáo, chưa hỗ trợ chọn hạng mục riêng"
@@ -83,7 +83,7 @@ export function CreateMaintenanceModal({
             <option value="Bảo dưỡng hệ thống điều hòa">Bảo dưỡng hệ thống điều hòa</option>
             <option value="Sửa chữa thân vỏ & Sơn xe">Sửa chữa thân vỏ & Sơn xe</option>
             <option value="Bảo dưỡng động cơ / Pin điện">Bảo dưỡng động cơ / Pin điện</option>
-          </select>
+          </InlineSelect>
         </div>
 
         <div>

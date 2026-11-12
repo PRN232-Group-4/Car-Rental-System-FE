@@ -40,14 +40,14 @@ export function ConfirmDialog({
         />
         <Dialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-6 shadow-e2 transition-all",
+            "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 border border-line bg-surface p-6 shadow-e2 transition-all",
             "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           )}
         >
           <div className="flex items-start gap-4">
             <div
               className={cn(
-                "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                "flex h-11 w-11 shrink-0 items-center justify-center",
                 isDanger
                   ? "bg-danger-bg text-danger"
                   : "bg-primary-tint text-primary",
@@ -71,7 +71,7 @@ export function ConfirmDialog({
               type="button"
               disabled={isPending}
               onClick={() => onOpenChange(false)}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-10 items-center justify-center border border-line bg-surface px-4 text-sm font-semibold text-ink-2 transition hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50"
             >
               {cancelLabel}
             </button>
@@ -83,7 +83,7 @@ export function ConfirmDialog({
                 void onConfirm();
               }}
               className={cn(
-                "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold text-white shadow-e1 transition disabled:cursor-not-allowed disabled:opacity-50",
+                "inline-flex h-10 items-center justify-center gap-2 px-5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50",
                 isDanger
                   ? "bg-danger hover:bg-danger-hover active:bg-danger-hover"
                   : "bg-primary hover:bg-primary-hover active:bg-primary-press",

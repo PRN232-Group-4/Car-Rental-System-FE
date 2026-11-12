@@ -79,7 +79,7 @@ export function UserLoyaltyDialog({
             onClick={() => setDirection("add")}
             className={`flex items-center justify-center gap-2 rounded border p-3 text-xs font-bold transition-all cursor-pointer ${
               direction === "add"
-                ? "border-td-oxide bg-td-chalk text-td-oxide shadow-xs"
+                ? "border-td-oxide bg-td-chalk text-td-oxide"
                 : "border-td-rule bg-td-white text-td-muted hover:text-td-ink"
             }`}
           >
@@ -91,7 +91,7 @@ export function UserLoyaltyDialog({
             onClick={() => setDirection("subtract")}
             className={`flex items-center justify-center gap-2 rounded border p-3 text-xs font-bold transition-all cursor-pointer ${
               direction === "subtract"
-                ? "border-danger bg-danger-bg/40 text-danger shadow-xs"
+                ? "border-danger bg-danger-bg/40 text-danger"
                 : "border-td-rule bg-td-white text-td-muted hover:text-td-ink"
             }`}
           >

@@ -106,7 +106,7 @@ export function InspectionWorkQueue() {
   return <section className="min-w-0 space-y-3" aria-label="Đơn cần kiểm tra">
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div><h2 className="text-lg font-bold text-td-ink">Đơn cần kiểm tra</h2><p className="mt-1 text-xs text-td-muted">Chọn đơn từ danh sách để phân công và lập biên bản.</p></div>
-      <label className="text-xs text-td-muted">Giai đoạn kiểm tra<select aria-label="Giai đoạn kiểm tra" className="admin-input mt-2" value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }}><option value="pre_inspection">Kiểm tra trước thuê</option><option value="post_inspection">Kiểm tra sau thuê</option></select></label>
+      <label className="text-xs text-td-muted">Giai đoạn kiểm tra<InlineSelect aria-label="Giai đoạn kiểm tra" className="admin-input mt-2" value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }}><option value="pre_inspection">Kiểm tra trước thuê</option><option value="post_inspection">Kiểm tra sau thuê</option></InlineSelect></label>
     </div>
     {query.isError && <p role="alert" className="text-sm text-danger">Không thể tải đơn cần kiểm tra. <button type="button" className="underline" onClick={() => void query.refetch()}>Tải lại đơn cần kiểm tra</button></p>}
     <AdminTableCard><AdminTable className="min-w-[650px]" aria-busy={query.isFetching}>

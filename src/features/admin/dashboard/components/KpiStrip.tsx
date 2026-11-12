@@ -1,15 +1,9 @@
 "use client";
 
 import {
-  DollarSign,
-  CheckCircle2,
-  Car,
-  Activity,
-  Wrench,
   TrendingUp,
   TrendingDown,
   AlertCircle,
-  Zap,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -84,16 +78,13 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
   const maintenanceCount = data.maintenanceVehicles.value;
 
   return (
-    <section aria-label="Trung tâm chỉ huy telemetry KPI điều hành" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
+    <section aria-label="Chỉ số điều hành" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
       {/* 1. HERO OPS METRIC: Doanh thu thực thu kỳ này (2 cột) */}
       <article className="relative flex flex-col justify-between border-t border-td-rule pt-4 transition-all md:col-span-2 lg:col-span-2">
         <div>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center text-td-oxide">
-                <DollarSign className="h-4 w-4" aria-hidden="true" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-td-ink">
+              <span className="text-xs font-bold text-td-ink">
                 Doanh thu
               </span>
             </div>
@@ -135,15 +126,11 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
         <div>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center text-td-oxide">
-                <Activity className="h-4 w-4" aria-hidden="true" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-td-ink">
+              <span className="text-xs font-bold text-td-ink">
                 Trực chiến đội xe & Tỉ lệ khai thác
               </span>
             </div>
             <span className="inline-flex items-center gap-1 rounded border border-td-rule px-2 py-0.5 font-mono text-xs font-semibold text-td-ink tabular-nums">
-              <Car className="h-3 w-3 text-td-oxide" />
               <span>{rentingCount} / {totalVehicles}</span>
             </span>
           </div>
@@ -159,7 +146,7 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
 
           {/* Stacked Telemetry Bar */}
           <div className="mt-3">
-            <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-td-chalk">
+            <div className="flex h-2.5 w-full overflow-hidden bg-td-chalk">
               <div
                 style={{ width: `${Math.min(Number(data.utilizationRate.value || 0), 100)}%` }}
                 className="bg-td-oxide transition-all duration-500"
@@ -171,13 +158,13 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
                 title={`Sẵn sàng / Lưu bãi: ${idleCount} xe`}
               />
             </div>
-            <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-td-muted">
+            <div className="mt-2 flex items-center justify-between text-[11px] text-td-muted">
               <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-td-oxide" />
+                <span className="h-1.5 w-1.5 bg-td-oxide" />
                 Lăn bánh: {rentingCount} xe
               </span>
               <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-td-chalk border border-td-rule" />
+                <span className="h-1.5 w-1.5 bg-td-chalk border border-td-rule" />
                 Tại bãi: {idleCount} xe
               </span>
             </div>
@@ -196,17 +183,14 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
       <article className="flex flex-col justify-between border-t border-td-rule pt-4 md:col-span-1 lg:col-span-1">
         <div>
           <div className="flex items-center justify-between gap-1">
-            <span className="flex h-7 w-7 items-center justify-center rounded bg-warning-bg text-warning">
-              <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
-            </span>
             {maintenanceCount !== null && maintenanceCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-warning-bg px-1.5 py-0.5 text-[10px] font-bold text-warning">
+              <span className="inline-flex items-center gap-0.5 bg-warning-bg px-1.5 py-0.5 text-[10px] font-bold text-warning">
                 <AlertCircle className="h-2.5 w-2.5" aria-hidden="true" />
                 <span>Cần theo dõi</span>
               </span>
             )}
           </div>
-          <p className="mt-3 text-xs font-bold uppercase tracking-wider text-td-ink">
+          <p className="mt-3 text-xs font-bold text-td-ink">
             Xe đang bảo dưỡng
           </p>
           <div className="mt-1 flex items-baseline gap-2">
@@ -228,15 +212,11 @@ export function KpiStrip({ data, isLoading, isError, onRetry }: KpiStripProps) {
       <article className="flex flex-col justify-between border-t border-td-rule pt-4 md:col-span-1 lg:col-span-1">
         <div>
           <div className="flex items-center justify-between gap-1">
-            <span className="flex h-7 w-7 items-center justify-center text-td-oxide">
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-1.5 py-0.5 text-[10px] font-bold text-success font-mono">
-              <Zap className="h-2.5 w-2.5" />
+            <span className="inline-flex items-center gap-1 bg-success-bg px-1.5 py-0.5 text-[10px] font-bold text-success font-mono">
               {rentalsTrend.text}
             </span>
           </div>
-          <p className="mt-3 text-xs font-bold uppercase tracking-wider text-td-ink">
+          <p className="mt-3 text-xs font-bold text-td-ink">
             Đơn hoàn tất
           </p>
           <div className="mt-1 flex items-baseline gap-2">

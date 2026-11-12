@@ -169,7 +169,7 @@ export function VehicleSpecs({
           {specItems.map((spec, idx) => (
             <div
               key={`spec-${idx}`}
-              className="flex flex-col justify-between rounded border border-td-rule bg-td-chalk p-3 transition-colors hover:border-td-rule"
+              className="flex flex-col justify-between border border-td-rule bg-td-chalk p-3 transition-colors hover:border-td-rule"
             >
               <div className="flex items-center gap-2 text-td-muted">
                 {spec.icon}
@@ -194,7 +194,7 @@ export function VehicleSpecs({
             {features.map((feat, idx) => (
               <div
                 key={`feat-${idx}`}
-                className="flex items-center gap-2.5 rounded border border-td-rule bg-td-white p-2.5 text-xs font-medium text-td-ink shadow-xs"
+                className="flex items-center gap-2.5 border border-td-rule bg-td-white p-2.5 text-xs font-medium text-td-ink"
               >
                 <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                 <span className="truncate">{feat}</span>

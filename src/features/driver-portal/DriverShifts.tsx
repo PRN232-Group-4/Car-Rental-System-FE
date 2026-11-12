@@ -145,18 +145,9 @@ export default function DriverShifts() {
   return (
     <div className="space-y-6">
       <TransitFolio
-        index="10"
-        tag="NV"
-        kicker="NHÂN VIÊN · LỊCH PHÂN CÔNG"
-        title={<>Ca <span className="text-td-teal">làm việc.</span></>}
+        title="Ca làm việc"
         description="Xem các chuyến xe được phân công cho bạn trong khoảng thời gian đã chọn."
       >
-        <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">TỔNG SỐ CA</span>
-          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-            {loading ? "—" : String(shifts.length).padStart(2, "0")}
-          </strong>
-        </div>
         <button
           type="button"
           onClick={() => setReloadKey((current) => current + 1)}
@@ -167,10 +158,10 @@ export default function DriverShifts() {
           Làm mới
         </button>
       </TransitFolio>
-      {!DRIVER_SHIFT_MANAGEMENT_ENABLED && <p role="status" className="border-l-2 border-td-oxide pl-3 text-sm text-td-muted">Chức năng quản lý ca trực tài xế đang tạm khóa. Các chuyến xe đã được phân công theo đơn thuê vẫn hiển thị bên dưới.</p>}
+      {!DRIVER_SHIFT_MANAGEMENT_ENABLED && <p role="status" className="border-l border-td-oxide pl-3 text-sm text-td-muted">Chức năng quản lý ca trực tài xế đang tạm khóa. Các chuyến xe đã được phân công theo đơn thuê vẫn hiển thị bên dưới.</p>}
 
       <section className="flex flex-col gap-4 border-y border-td-rule py-3 sm:flex-row sm:items-end">
-        <label className="flex-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
+        <label className="flex-1 text-[11px] font-semibold text-td-muted">
           Từ ngày
           <input
             type="date"
@@ -180,7 +171,7 @@ export default function DriverShifts() {
             className="admin-input mt-1 font-sans text-xs"
           />
         </label>
-        <label className="flex-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">
+        <label className="flex-1 text-[11px] font-semibold text-td-muted">
           Đến ngày
           <input
             type="date"
@@ -198,7 +189,7 @@ export default function DriverShifts() {
       </section>
 
       {error && (
-        <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
+        <p role="alert" className="border-l border-danger pl-3 text-sm text-danger">
           {error}
         </p>
       )}
@@ -226,7 +217,7 @@ export default function DriverShifts() {
 
       {canLoad && !loading && shifts.length > 0 && (
         <section aria-label="Danh sách ca làm việc" className="border-t border-td-ink">
-          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+          <div className="grid grid-cols-12 gap-4 border-b border-td-ink py-2.5 text-[11px] font-bold text-td-muted">
             <span className="col-span-4">Ca / Chuyến</span>
             <span className="col-span-3">Bắt đầu</span>
             <span className="col-span-3">Kết thúc</span>

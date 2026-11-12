@@ -43,7 +43,7 @@ function UserLockForm({ onOpenChange, userName, isCurrentlyActive, onConfirm, is
   return <FormDialog title={isCurrentlyActive ? "Khóa tài khoản người dùng" : "Mở khóa tài khoản"} onClose={() => onOpenChange(false)} busy={busy}>
     <ValidatedForm validation={validation} onSubmit={submit} className="space-y-4">
       <p className="text-sm text-td-muted">{isCurrentlyActive ? `Khóa quyền đăng nhập của tài khoản ${userName} và thu hồi các phiên hiện tại.` : `Khôi phục quyền đăng nhập của tài khoản ${userName}.`}</p>
-      {error && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{error}</p>}
+      {error && <p role="alert" className="pl-3 text-sm text-danger">{error}</p>}
       {isCurrentlyActive && <FormField label="Lý do khóa tài khoản" htmlFor="reason" required helperText="Nhập lý do từ 1 đến 1000 ký tự để lưu vào nhật ký bảo mật.">
         <InlineTextarea id="reason" name="reason" required maxLength={1000} value={reason} onChange={(event) => setReason(event.target.value)} rows={3} className="admin-input" disabled={busy} />
       </FormField>}

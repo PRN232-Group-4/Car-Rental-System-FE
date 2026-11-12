@@ -15,7 +15,7 @@ export function SkeletonBlock({ label, children, className = "" }: { label: stri
 
 export function SkeletonStat({ className = "" }: { className?: string }) {
   return <div aria-hidden="true" className={`border-t border-td-rule pt-4 ${className}`}>
-    <Skeleton className="h-9 w-9 rounded" />
+    <Skeleton className="h-9 w-9" />
     <Skeleton className="mt-5 h-4 w-24" />
     <Skeleton className="mt-2 h-7 w-32" />
   </div>;
@@ -40,7 +40,7 @@ export function FormSkeleton({ label = "Đang tải biểu mẫu...", fields = 6
 export function CardSkeleton({
   mediaClassName = "h-56 w-full rounded-none",
   lines = 3,
-  containerClassName = "rounded border border-td-rule bg-td-white",
+  containerClassName = "border border-td-rule bg-td-white",
 }: { mediaClassName?: string; lines?: number; containerClassName?: string }) {
   return <div aria-hidden="true" data-skeleton-card className={`overflow-hidden ${containerClassName}`}>
     <Skeleton className={mediaClassName} />

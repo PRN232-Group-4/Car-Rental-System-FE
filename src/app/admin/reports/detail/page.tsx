@@ -20,16 +20,16 @@ export default function ReportDetailPage() {
   return (
     <AuthGate allowedRoles={["Admin", "Manager", "Staff", "CustomerService", "Maintenance"]}>
         <div className="space-y-6">
-          {/* Breadcrumb / Back button */}
-          <div>
-            <Link
-              href="/admin/reports"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-muted transition hover:text-td-ink"
-            >
-              <ArrowLeft className="h-4 w-4" />
+
+          <TransitFolio
+            title="Chi tiết sự cố"
+            description="Hồ sơ tiếp nhận, bằng chứng và tiến trình xử lý báo cáo sự cố tại trạm."
+          >
+            <Link href="/admin/reports" className="inline-flex items-center gap-1.5 text-xs font-semibold text-td-muted transition hover:text-td-ink">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               <span>Quay lại danh sách báo cáo</span>
             </Link>
-          </div>
+          </TransitFolio>
 
           {!reportId && (
             <EmptyState
@@ -38,16 +38,8 @@ export default function ReportDetailPage() {
             />
           )}
 
-          <TransitFolio
-            index="03"
-            tag="TRI"
-            kicker="CHĂM SÓC & SỰ CỐ · HỒ SƠ BÁO CÁO"
-            title={<>Chi tiết <span className="text-td-teal">sự cố.</span></>}
-            description="Hồ sơ tiếp nhận, bằng chứng và tiến trình xử lý báo cáo sự cố tại trạm."
-          />
-
           {reportId && isLoading && (
-            <div className="flex h-64 animate-pulse items-center justify-center rounded border border-td-rule bg-td-white font-mono text-xs text-td-muted">
+            <div className="flex h-64 animate-pulse items-center justify-center rounded border border-td-rule bg-td-white text-xs text-td-muted">
               Đang tải chi tiết báo cáo #{reportId}...
             </div>
           )}

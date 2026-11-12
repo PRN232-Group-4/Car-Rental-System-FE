@@ -24,8 +24,8 @@ const NORMAL_STEPS: StepItem[] = [
 export function TripStepper({ status, cancelReason }: TripStepperProps) {
   if (status === "cancelled") {
     return (
-      <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted mb-4">
+      <div className="bg-td-white rounded border border-td-rule p-5">
+        <h3 className="text-xs font-bold text-td-muted mb-4">
           Tiến trình đơn thuê
         </h3>
         <ol className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -68,8 +68,8 @@ export function TripStepper({ status, cancelReason }: TripStepperProps) {
   const currentIndex = stepOrder[status] ?? 0;
 
   return (
-    <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted mb-4">
+    <div className="bg-td-white rounded border border-td-rule p-5">
+      <h3 className="text-xs font-bold text-td-muted mb-4">
         Tiến trình đơn thuê
       </h3>
       <ol className="grid grid-cols-1 sm:grid-cols-5 gap-4">

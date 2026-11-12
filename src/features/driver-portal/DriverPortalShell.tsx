@@ -81,7 +81,7 @@ export default function DriverPortalShell({ children }: { children: ReactNode })
         profileButtonText="Hồ sơ của tôi"
         rightHeaderActions={
           account.facilityId !== null ? (
-            <span className="hidden rounded-full border border-td-rule bg-td-chalk px-3 py-1.5 text-xs font-semibold text-td-ink sm:inline-flex">
+            <span className="hidden border border-td-rule bg-td-chalk px-3 py-1.5 text-xs font-semibold text-td-ink sm:inline-flex">
               Cơ sở #{account.facilityId}
             </span>
           ) : null

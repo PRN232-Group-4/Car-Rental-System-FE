@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 import { useNavigationRouter as useRouter } from "@/components/navigation/NavigationProvider";
 import { useAuth } from "@/features/auth";
 import { initialsFor } from "@/features/profile/api";
-import { CarFront, LogOut, Moon, Sun, User, KeyRound } from "lucide-react";
-import { useTheme } from "@/lib/use-theme";
+import { CarFront, LogOut, User, KeyRound } from "lucide-react";
 import { CommandPalette, CommandTrigger, type CommandRoute } from "@/components/navigation/CommandPalette";
 import styles from "@/features/admin/transit-desk/transit-desk.module.css";
 
@@ -71,7 +70,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -144,7 +142,7 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
             </div>
             <div>
               <div className={styles.brandName}>Thong Dong</div>
-              <div className={styles.brandKicker}>CUSTOMER DESK</div>
+              <div className={styles.brandKicker}>Customer Desk</div>
             </div>
           </Link>
 
@@ -178,19 +176,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
             </div>
 
             <CommandTrigger onClick={() => setIsCommandOpen(true)} />
-
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className={styles.themeToggle}
-              aria-label={theme === "dark" ? "Chuyển giao diện sáng" : "Chuyển giao diện tối"}
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <Moon className="h-4 w-4" aria-hidden="true" />
-              )}
-            </button>
 
             {/* Menu tài khoản: thông tin + hồ sơ + đăng xuất nằm trong avatar */}
             <div ref={userMenuRef}>
@@ -252,7 +237,6 @@ export function CustomerDeskShell({ children }: CustomerDeskShellProps) {
         </header>
 
         <div className={styles.contextStrip}>
-          <span className={styles.contextLabel}>{activeChapter.chapter.toUpperCase()}</span>
           <nav
             className={styles.contextLinks}
             aria-label={`Các trang thuộc nhóm ${activeChapter.chapter}`}

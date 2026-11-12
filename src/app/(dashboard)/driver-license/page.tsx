@@ -6,13 +6,7 @@ import React, { Suspense, useState } from "react";
 import { TransitFolio } from "@/features/admin/transit-desk/TransitFolio";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { FormSkeleton } from "@/components/ui/Skeleton";
-import {
-  FileCheck,
-  ShieldCheck,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-} from "lucide-react";
+import { FileCheck, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
 import { getCustomerLicense, saveCustomerLicense, CustomerLicense } from "@/features/licenses";
 import { customerLicenses, hasCustomerLicense } from "@/features/licenses/booking-license";
@@ -41,10 +35,7 @@ export default function GPLXPage() {
   return (
     <div className="space-y-8">
       <TransitFolio
-        index="09"
-        tag="KH"
-        kicker="KHÁCH HÀNG · HỒ SƠ LÁI XE"
-        title={<>Giấy phép <span className="text-td-teal">lái xe.</span></>}
+        title="Giấy phép lái xe"
         description="Hệ thống yêu cầu xác minh GPLX hợp lệ và còn hạn trước khi bạn có thể nhận xe thuê trực tiếp."
       >
         {getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}
@@ -55,13 +46,10 @@ export default function GPLXPage() {
       </Suspense>
 
       {/* Current Status Card */}
-      <div className="p-6 rounded bg-td-white border border-td-rule shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-6 rounded bg-td-white border border-td-rule flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded bg-primary-tint text-primary flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
           <div>
-            <div className="text-xs text-td-muted font-semibold uppercase tracking-wider">
+            <div className="text-xs text-td-muted font-semibold">
               Trạng thái hồ sơ lái xe
             </div>
             <div className="mt-1">{getStatusBadge(hasCustomerLicense(license) ? license?.status : undefined)}</div>
@@ -164,7 +152,7 @@ function LicenseEditForm({
         e.preventDefault();
         if (!saveMutation.isPending) saveMutation.mutate();
       }}
-      className="p-6 sm:p-8 rounded bg-td-white border border-td-rule shadow-sm space-y-6"
+      className="p-6 sm:p-8 rounded bg-td-white border border-td-rule space-y-6"
     >
       <h2 className="text-lg font-bold text-td-ink border-b border-td-rule pb-3">
         Thông tin chi tiết giấy phép
@@ -191,7 +179,7 @@ function LicenseEditForm({
       <fieldset disabled={saveMutation.isPending} className="contents">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="license-number" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
+          <label htmlFor="license-number" className="block text-xs font-bold text-td-ink mb-2">
             Số GPLX / Mã số thẻ *
           </label>
           <InlineInput id="license-number" name="licenseNumber"
@@ -205,7 +193,7 @@ function LicenseEditForm({
         </div>
 
         <div>
-          <label htmlFor="license-type" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
+          <label htmlFor="license-type" className="block text-xs font-bold text-td-ink mb-2">
             Hạng giấy phép *
           </label>
           <InlineSelect id="license-type" name="licenseType" required
@@ -218,7 +206,7 @@ function LicenseEditForm({
         </div>
 
         <div>
-          <label htmlFor="license-issue-date" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
+          <label htmlFor="license-issue-date" className="block text-xs font-bold text-td-ink mb-2">
             Ngày cấp *
           </label>
           <InlineInput id="license-issue-date" name="issueDate"
@@ -231,7 +219,7 @@ function LicenseEditForm({
         </div>
 
         <div>
-          <label htmlFor="license-expiry-date" className="block text-xs font-bold uppercase tracking-wider text-td-ink mb-2">
+          <label htmlFor="license-expiry-date" className="block text-xs font-bold text-td-ink mb-2">
             Ngày hết hạn *
           </label>
           <InlineInput id="license-expiry-date" name="expiryDate"
@@ -261,7 +249,7 @@ function LicenseEditForm({
         <button
           type="submit"
           disabled={saveMutation.isPending}
-          className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          className="px-6 py-3 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {saveMutation.isPending ? (
             <>

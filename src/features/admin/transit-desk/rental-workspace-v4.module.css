@@ -1,97 +1,80 @@
-/* Thong Dong TRANSIT DESK — PHASE 3E: A1.1 REFINED FROSTED EDITORIAL DECK
-   Art Direction: Palette A (Graphite Glass Deck A1.1)
-   Bounded Glass Stage · Opaque Warm Porcelain Dossier · De-cardified Editorial Ledger
-   Operational Pilot Route: /admin/rentals
-*/
+/* Thong Dong TRANSIT DESK: rental workspace. Flat paper and ink rules; tokens come from globals.css. */
 
 .workspaceRoot {
-  /* ========================================================================= */
-  /* COLOR TOKENS: PALETTE A (GRAPHITE GLASS DECK A1.1)                       */
-  /* Strict Contrast Remediation for Light Mode & Dark Mode                    */
-  /* ========================================================================= */
+  --bg-canvas: var(--canvas);
+  --bg-stage: var(--canvas);
+  --bg-stage-solid: var(--canvas);
+  --stage-rim: var(--line-strong);
 
-  /* Default (Dark Theme) Tokens */
-  --bg-canvas: #17161B;
-  --bg-stage: rgba(36, 33, 38, 0.78);
-  --bg-stage-solid: #242126;
-  --stage-rim: rgba(200, 169, 107, 0.22);
-  --stage-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-  --stage-floor-glow: 0 0 120px color-mix(in srgb, var(--td-oxide) 16%, transparent);
-
-  --color-graphite: #17161B;
-  --color-carbon: #242126;
-  --color-charcoal: #1F1B22;
-  --color-mulberry: var(--td-oxide);
-  --color-mulberry-hover: var(--td-oxide-hover);
-  --color-mulberry-subtle: color-mix(in srgb, var(--td-oxide) 25%, transparent);
+  --color-graphite: var(--canvas);
+  --color-carbon: var(--surface);
+  --color-charcoal: var(--ink);
+  --color-mulberry: var(--primary);
+  --color-mulberry-hover: var(--primary-hover);
+  --color-mulberry-subtle: var(--primary-tint);
   --color-plum: var(--primary-graphic);
-  --color-champagne: #C8A96B;
-  --color-champagne-text: #E5CA92;
-  --color-blush: #D8B1A7;
-  --color-blush-text: #E8CAC3;
-  --color-porcelain: #F5F1EC;
-  --color-danger: #D94436;
+  --color-champagne: var(--warning);
+  --color-champagne-text: var(--warning);
+  --color-blush: var(--danger);
+  --color-blush-text: var(--danger);
+  --color-porcelain: var(--surface);
+  --color-danger: var(--danger);
 
-  --text-canvas-title: #F5F1EC;
-  --text-canvas-muted: #9E97A3;
+  --text-canvas-title: var(--ink);
+  --text-canvas-muted: var(--ink-3);
 
-  /* Central Dossier Opaque Plane Tokens (Dark Mode) */
-  --dossier-bg: #F5F1EC;
-  --dossier-text: #1F1B22;
-  --dossier-muted: #615967;
-  --dossier-hairline: rgba(31, 27, 34, 0.12);
-  --dossier-hairline-strong: rgba(31, 27, 34, 0.22);
-  --dossier-tag-bg: #EAE3DA;
-  --dossier-active-bg: color-mix(in srgb, var(--td-oxide) 8%, transparent);
+  --dossier-bg: var(--surface);
+  --dossier-text: var(--ink);
+  --dossier-muted: var(--ink-3);
+  --dossier-hairline: var(--line);
+  --dossier-hairline-strong: var(--line-strong);
+  --dossier-tag-bg: var(--sunken);
+  --dossier-active-bg: var(--primary-tint);
 
-  /* Peripheral (Queue & Command) Tokens (Dark Mode) */
-  --peripheral-bg: rgba(25, 23, 29, 0.65);
-  --peripheral-solid: #1C1A20;
-  --peripheral-border: rgba(255, 255, 255, 0.08);
-  --peripheral-text: #F5F1EC;
-  --peripheral-muted: #9E97A3;
-  --peripheral-active-border: #C8A96B;
+  --peripheral-bg: var(--surface);
+  --peripheral-solid: var(--surface);
+  --peripheral-border: var(--line);
+  --peripheral-text: var(--ink);
+  --peripheral-muted: var(--ink-3);
+  --peripheral-active-border: var(--primary);
 
-  /* Input & Action Tokens (Dark Mode) */
-  --input-bg: rgba(0, 0, 0, 0.35);
-  --input-border: rgba(255, 255, 255, 0.14);
-  --input-text: #F5F1EC;
-  --btn-secondary-bg: #2C2831;
-  --btn-secondary-border: rgba(255, 255, 255, 0.12);
-  --btn-secondary-text: #F5F1EC;
+  --input-bg: var(--surface);
+  --input-border: var(--line-strong);
+  --input-text: var(--ink);
+  --btn-secondary-bg: var(--sunken);
+  --btn-secondary-border: var(--line-strong);
+  --btn-secondary-text: var(--ink);
 
-  /* BACKWARDS COMPATIBILITY ALIASES (A1.1 PALETTE A MAPPINGS) */
-  --v4-ink: var(--color-porcelain);
-  --v4-marine: var(--td-oxide);
-  --v4-mineral: var(--peripheral-muted);
-  --v4-orchid: var(--color-plum);
-  --v4-celadon: var(--color-champagne-text);
-  --v4-coral: var(--color-blush);
-  --v4-champagne: var(--color-champagne);
-  --v4-white: var(--color-carbon);
-  --v4-rule: var(--peripheral-border);
-  --v4-queue-bg: var(--peripheral-bg);
-  --v4-dossier-bg: var(--dossier-bg);
-  --v4-command-bg: var(--peripheral-bg);
-  --v4-surface-card: var(--peripheral-solid);
-  --v4-input-bg: var(--input-bg);
-  --v4-surface-muted: rgba(255, 255, 255, 0.05);
+  --v4-ink: var(--ink);
+  --v4-marine: var(--primary);
+  --v4-mineral: var(--ink-3);
+  --v4-orchid: var(--primary-graphic);
+  --v4-celadon: var(--warning);
+  --v4-coral: var(--danger);
+  --v4-champagne: var(--warning);
+  --v4-white: var(--surface);
+  --v4-rule: var(--line);
+  --v4-queue-bg: var(--surface);
+  --v4-dossier-bg: var(--surface);
+  --v4-command-bg: var(--surface);
+  --v4-surface-card: var(--surface);
+  --v4-input-bg: var(--surface);
+  --v4-surface-muted: var(--sunken);
 
-  /* Legacy VV Aliases for smooth fallback */
   --td-vv-canvas: var(--bg-canvas);
-  --td-vv-ink: var(--peripheral-text);
-  --td-vv-muted: var(--peripheral-muted);
-  --td-vv-rule: var(--peripheral-border);
-  --td-vv-queue-bg: var(--peripheral-bg);
-  --td-vv-dossier-bg: var(--dossier-bg);
-  --td-vv-command-bg: var(--peripheral-bg);
-  --td-vv-surface-elevated: var(--peripheral-solid);
-  --td-vv-surface-muted: var(--v4-surface-muted);
-  --td-vv-input-bg: var(--input-bg);
-  --td-vv-violet: var(--color-mulberry);
-  --td-vv-peach: var(--color-champagne);
-  --td-vv-peach-chip: var(--color-champagne-text);
-  --td-vv-danger: var(--color-danger);
+  --td-vv-ink: var(--ink);
+  --td-vv-muted: var(--ink-3);
+  --td-vv-rule: var(--line);
+  --td-vv-queue-bg: var(--surface);
+  --td-vv-dossier-bg: var(--surface);
+  --td-vv-command-bg: var(--surface);
+  --td-vv-surface-elevated: var(--surface);
+  --td-vv-surface-muted: var(--sunken);
+  --td-vv-input-bg: var(--surface);
+  --td-vv-violet: var(--primary);
+  --td-vv-peach: var(--warning);
+  --td-vv-peach-chip: var(--warning);
+  --td-vv-danger: var(--danger);
 
   container-type: inline-size;
   container-name: workspace;
@@ -99,128 +82,11 @@
   min-height: 0;
   width: 100%;
   margin: 0 auto;
-  color: var(--peripheral-text);
-  font-family:
-    var(--font-sans),
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
   background-color: var(--bg-canvas);
-  background-image:
-    radial-gradient(
-      ellipse 70% 50% at 88% -5%,
-      color-mix(in srgb, var(--td-oxide) 16%, transparent) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      ellipse 50% 40% at 12% 105%,
-      rgba(200, 169, 107, 0.10) 0%,
-      transparent 55%
-    );
-  background-attachment: fixed;
-  padding: 1.5rem 1rem 2.5rem;
+  padding: 0.75rem 1rem 2.5rem;
   isolation: isolate;
-}
-
-/* LIGHT THEME TOKENS */
-:global([data-admin-theme="light"]) .workspaceRoot,
-:global([data-theme="light"]) .workspaceRoot {
-  --bg-canvas: #E7E3DD;
-  --bg-stage: rgba(250, 248, 245, 0.88);
-  --bg-stage-solid: #FAF8F5;
-  --stage-rim: color-mix(in srgb, var(--td-oxide) 24%, transparent);
-  --stage-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
-  --stage-floor-glow: 0 0 80px rgba(200, 169, 107, 0.14);
-
-  --color-graphite: #E7E3DD;
-  --color-carbon: #FAF8F5;
-  --color-charcoal: #1F1B22;
-  --color-mulberry: var(--td-oxide);
-  --color-mulberry-hover: var(--td-oxide-hover);
-  --color-mulberry-subtle: color-mix(in srgb, var(--td-oxide) 14%, transparent);
-  --color-plum: var(--primary-graphic);
-  --color-champagne: #7A5B18;
-  --color-champagne-text: #63470D;
-  --color-blush: #753428;
-  --color-blush-text: #61281E;
-  --color-porcelain: #FFFFFF;
-  --color-danger: #B3261E;
-
-  --text-canvas-title: #1F1B22;
-  --text-canvas-muted: #5E5865;
-
-  /* Central Dossier Opaque Plane Tokens (Light Mode) */
-  --dossier-bg: #FFFFFF;
-  --dossier-text: #1F1B22;
-  --dossier-muted: #58515E;
-  --dossier-hairline: rgba(31, 27, 34, 0.10);
-  --dossier-hairline-strong: rgba(31, 27, 34, 0.20);
-  --dossier-tag-bg: #F0ECE6;
-  --dossier-active-bg: color-mix(in srgb, var(--td-oxide) 6%, transparent);
-
-  /* Peripheral Tokens (Light Mode) */
-  --peripheral-bg: rgba(245, 241, 236, 0.82);
-  --peripheral-solid: #F3EFE9;
-  --peripheral-border: rgba(31, 27, 34, 0.12);
-  --peripheral-text: #1F1B22;
-  --peripheral-muted: #58515E;
-  --peripheral-active-border: #7A5B18;
-
-  /* Input & Action Tokens (Light Mode) */
-  --input-bg: #FFFFFF;
-  --input-border: rgba(31, 27, 34, 0.22);
-  --input-text: #1F1B22;
-  --btn-secondary-bg: #ECE7E1;
-  --btn-secondary-border: rgba(31, 27, 34, 0.18);
-  --btn-secondary-text: #1F1B22;
-
-  /* Light Aliases */
-  --v4-ink: var(--color-charcoal);
-  --v4-marine: var(--color-mulberry);
-  --v4-mineral: var(--peripheral-muted);
-  --v4-orchid: var(--color-plum);
-  --v4-celadon: var(--color-champagne-text);
-  --v4-coral: var(--color-blush);
-  --v4-champagne: var(--color-champagne);
-  --v4-white: var(--peripheral-solid);
-  --v4-rule: var(--peripheral-border);
-  --v4-queue-bg: var(--peripheral-bg);
-  --v4-dossier-bg: var(--dossier-bg);
-  --v4-command-bg: var(--peripheral-bg);
-  --v4-surface-card: var(--peripheral-solid);
-  --v4-input-bg: var(--input-bg);
-  --v4-surface-muted: rgba(31, 27, 34, 0.05);
-
-  --td-vv-canvas: var(--bg-canvas);
-  --td-vv-ink: var(--peripheral-text);
-  --td-vv-muted: var(--peripheral-muted);
-  --td-vv-rule: var(--peripheral-border);
-  --td-vv-queue-bg: var(--peripheral-bg);
-  --td-vv-dossier-bg: var(--dossier-bg);
-  --td-vv-command-bg: var(--peripheral-bg);
-  --td-vv-surface-elevated: var(--peripheral-solid);
-  --td-vv-surface-muted: var(--v4-surface-muted);
-  --td-vv-input-bg: var(--input-bg);
-  --td-vv-violet: var(--color-mulberry);
-  --td-vv-peach: var(--color-champagne);
-  --td-vv-peach-chip: var(--color-champagne-text);
-  --td-vv-danger: var(--color-danger);
-
-  background-color: var(--bg-canvas);
-  background-image:
-    radial-gradient(
-      ellipse 70% 50% at 88% -5%,
-      color-mix(in srgb, var(--td-oxide) 8%, transparent) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      ellipse 50% 40% at 12% 105%,
-      rgba(122, 91, 24, 0.06) 0%,
-      transparent 55%
-    );
 }
 
 /* ========================================================================= */
@@ -230,12 +96,9 @@
   width: 100%;
   margin: 0 auto;
   background: var(--bg-stage);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--stage-rim);
-  border-radius: 18px;
-  box-shadow: var(--stage-shadow), var(--stage-floor-glow);
-  padding: 1.25rem;
+  border-radius: 0;
+  padding: 0.75rem;
   transition: background-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
               border-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -250,7 +113,7 @@
 
 @media (max-width: 1366px) {
   .stageWrapper {
-    padding: 1rem;
+    padding: 0.75rem;
   }
   .cockpitGrid {
     grid-template-columns: 280px minmax(0, 1fr) 320px;
@@ -273,14 +136,11 @@
 /* ========================================================================= */
 .queuePanel {
   background: var(--peripheral-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--peripheral-border);
-  border-radius: 10px;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.15);
   height: min(720px, calc(100dvh - 15rem));
   min-height: 320px;
 }
@@ -305,8 +165,8 @@
   margin: 0.75rem;
   padding: 0.75rem;
   border: 1.5px solid var(--color-champagne);
-  border-radius: 8px;
-  background: rgba(200, 169, 107, 0.08);
+  border-radius: 0;
+  background: var(--warning-bg);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -349,21 +209,13 @@
 
 .queueItemActive {
   background: var(--peripheral-solid) !important;
-  border-left: 3px solid var(--color-champagne) !important;
-  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.18);
-}
-
-:global([data-admin-theme="light"]) .queueItemActive,
-:global([data-theme="light"]) .queueItemActive {
-  border-left: 3px solid var(--color-mulberry) !important;
 }
 
 .queueItemActive .queueId {
   color: var(--color-champagne) !important;
 }
 
-:global([data-admin-theme="light"]) .queueItemActive .queueId,
-:global([data-theme="light"]) .queueItemActive .queueId {
+.queueItemActive .queueId {
   color: var(--color-mulberry) !important;
 }
 
@@ -371,36 +223,14 @@
 /* CENTER COLUMN — RENTAL DOSSIER (OPAQUE WARM PORCELAIN EDITORIAL LEDGER)   */
 /* ========================================================================= */
 .dossierPanel {
-  /* This plane stays light in both themes. */
   --color-mulberry: var(--stage-amber);
-  /* Scoped High-Contrast Editorial Tokens for Opaque Warm Porcelain Plane */
-  --ink: #1F1B22;
-  --ink-2: #3F3744;
-  --ink-3: #615967;
-  --color-ink: #1F1B22;
-  --color-ink-2: #3F3744;
-  --color-ink-3: #615967;
-  --v4-ink: #1F1B22;
-  --v4-marine: var(--color-mulberry);
-  --v4-mineral: #615967;
-  --v4-rule: rgba(31, 27, 34, 0.12);
-  --v4-surface-muted: rgba(31, 27, 34, 0.05);
-  --v4-surface-card: #FFFFFF;
-  --v4-coral: var(--color-mulberry);
-  --v4-champagne: var(--color-mulberry);
-  --td-ink: #1F1B22;
-  --td-ink-muted: #615967;
-  --color-td-ink: #1F1B22;
-  --color-td-muted: #615967;
-
   position: relative;
   overflow: hidden;
   background: var(--dossier-bg);
   color: var(--dossier-text);
   border: 1px solid var(--dossier-hairline-strong);
-  border-radius: 12px;
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.14);
-  padding: 1.5rem;
+  border-radius: 0;
+  padding: 1.25rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -412,14 +242,6 @@
 }
 
 
-
-:global(html[data-admin-theme="dark"]) .dossierPanel::before {
-  background: radial-gradient(
-    650px circle at var(--dossier-mouse-x, 50%) var(--dossier-mouse-y, 0%),
-    rgba(200, 169, 107, 0.14),
-    transparent 65%
-  );
-}
 
 /* ADAPTIVE HORIZONTAL STEPPER RAIL (ZERO COLLISION) */
 .stepperContainer {
@@ -436,7 +258,7 @@
   padding: 0.625rem 0.75rem;
   background: var(--dossier-tag-bg);
   border: 1px solid var(--dossier-hairline);
-  border-radius: 8px;
+  border-radius: 0;
   gap: 0.25rem;
   width: 100%;
   box-sizing: border-box;
@@ -569,23 +391,22 @@
 .stepperGlyphPassed {
   border-color: var(--stage-amber);
   background-color: var(--stage-amber);
-  color: var(--color-white);
+  color: var(--surface);
 }
 
 .stepperGlyphActive {
   border-color: var(--color-champagne);
   background-color: var(--color-champagne);
-  color: #1F1B22; /* WCAG AAA high contrast */
-  box-shadow: 0 0 0 3px rgba(200, 169, 107, 0.28);
+  color: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-tint);
 
   animation: stepperRipple 2.2s infinite;
 }
 
-:global([data-admin-theme="light"]) .stepperGlyphActive,
-:global([data-theme="light"]) .stepperGlyphActive {
+.stepperGlyphActive {
   border-color: var(--stage-amber);
   background-color: var(--stage-amber);
-  color: var(--color-white);
+  color: var(--surface);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--stage-amber) 22%, transparent);
 }
 
@@ -619,8 +440,7 @@
   padding: 0.625rem 0.875rem;
   background: var(--dossier-tag-bg);
   border: 1px solid var(--dossier-hairline);
-  border-left: 3px solid var(--color-mulberry);
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 12px;
   color: var(--dossier-text);
 }
@@ -653,7 +473,7 @@
 
 .metricTile {
   padding: 0.75rem 0.875rem;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1px solid var(--dossier-hairline);
   background: var(--dossier-tag-bg);
   display: flex;
@@ -665,69 +485,54 @@
 
 /* GPS & TELEMETRY SECTION WITH ILLUSTRATIVE BADGE */
 .telemetryIllustrativeBadge {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 0;
   color: var(--color-champagne-text);
-  background: rgba(200, 169, 107, 0.15);
-  border: 1px solid rgba(200, 169, 107, 0.32);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning);
 }
 
-:global([data-admin-theme="light"]) .telemetryIllustrativeBadge,
-:global([data-theme="light"]) .telemetryIllustrativeBadge {
+.telemetryIllustrativeBadge {
   color: var(--color-champagne);
-  background: rgba(122, 91, 24, 0.10);
-  border-color: rgba(122, 91, 24, 0.28);
+  background: var(--warning-bg);
+  border-color: var(--warning);
 }
 
 /* ========================================================================= */
 /* LIVE GPS TRACKING PANEL EMBED (P1-A CONTRAST REMEDIATION)                 */
 /* ========================================================================= */
 .gpsTrackingPanel {
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   border: 1px solid var(--dossier-hairline);
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
 }
 
-/* Scoped variables & dark theme styles (Default / Dark Mode) */
 .gpsTrackingPanel {
-  --surface: #17202E;
-  --bg-surface: #17202E;
-  --ink: #F5F1EC;
-  --ink-2: #E2E8F0;
-  --ink-3: #CBD5E1;
-  --color-ink: #F5F1EC;
-  --color-ink-2: #E2E8F0;
-  --color-ink-3: #CBD5E1;
-  --line: rgba(200, 169, 107, 0.22);
-  --line-strong: rgba(200, 169, 107, 0.40);
+  --bg-surface: var(--surface);
   --primary: var(--td-oxide);
 }
 
 .gpsTrackingPanel :global(section) {
-  background-color: #17202E !important;
-  border-color: rgba(200, 169, 107, 0.22) !important;
-  color: #F5F1EC !important;
-  border-radius: 12px;
+  background-color: var(--surface) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
 }
 
 .gpsTrackingPanel :global(h2) {
-  color: #F5F1EC !important;
+  color: var(--ink) !important;
   font-weight: 700;
 }
 
 .gpsTrackingPanel :global(.text-ink-3) {
-  color: #CBD5E1 !important;
+  color: var(--ink-3) !important;
 }
 
 .gpsTrackingPanel :global(button) {
   color: var(--td-oxide) !important;
-  border-color: rgba(200, 169, 107, 0.40) !important;
-  background-color: rgba(200, 169, 107, 0.08);
+  border-color: var(--line-strong) !important;
+  background-color: transparent;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 
@@ -736,66 +541,11 @@
 }
 
 .gpsTrackingPanel :global(dt) {
-  color: #CBD5E1 !important;
+  color: var(--ink-3) !important;
 }
 
 .gpsTrackingPanel :global(dd) {
-  color: #F5F1EC !important;
-}
-
-/* Light Theme Overrides */
-:global([data-admin-theme="light"]) .gpsTrackingPanel,
-:global([data-theme="light"]) .gpsTrackingPanel {
-  --surface: #FAF8F5;
-  --bg-surface: #FAF8F5;
-  --ink: #1F1B22;
-  --ink-2: #3F3744;
-  --ink-3: #58515E;
-  --color-ink: #1F1B22;
-  --color-ink-2: #3F3744;
-  --color-ink-3: #58515E;
-  --line: rgba(31, 27, 34, 0.12);
-  --line-strong: rgba(31, 27, 34, 0.24);
-  --primary: var(--td-oxide);
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(section),
-:global([data-theme="light"]) .gpsTrackingPanel :global(section) {
-  background-color: #FAF8F5 !important;
-  border-color: rgba(31, 27, 34, 0.12) !important;
-  color: #1F1B22 !important;
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(h2),
-:global([data-theme="light"]) .gpsTrackingPanel :global(h2) {
-  color: #1F1B22 !important;
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(.text-ink-3),
-:global([data-theme="light"]) .gpsTrackingPanel :global(.text-ink-3) {
-  color: #58515E !important;
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(button),
-:global([data-theme="light"]) .gpsTrackingPanel :global(button) {
-  color: var(--td-oxide) !important;
-  border-color: color-mix(in srgb, var(--td-oxide) 28%, transparent) !important;
-  background-color: color-mix(in srgb, var(--td-oxide) 5%, transparent);
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(button:hover),
-:global([data-theme="light"]) .gpsTrackingPanel :global(button:hover) {
-  border-color: var(--td-oxide) !important;
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(dt),
-:global([data-theme="light"]) .gpsTrackingPanel :global(dt) {
-  color: #58515E !important;
-}
-
-:global([data-admin-theme="light"]) .gpsTrackingPanel :global(dd),
-:global([data-theme="light"]) .gpsTrackingPanel :global(dd) {
-  color: #1F1B22 !important;
+  color: var(--ink) !important;
 }
 
 /* ========================================================================= */
@@ -804,11 +554,8 @@
 /* ========================================================================= */
 .commandPanel {
   background: var(--peripheral-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--peripheral-border);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.18);
+  border-radius: 0;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -840,7 +587,7 @@
   background-color: var(--color-mulberry);
   color: var(--on-primary);
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: 0;
   font-weight: 600;
   font-size: 0.8125rem;
   display: inline-flex;
@@ -882,9 +629,9 @@
 /* CONSEQUENTIAL / DESTRUCTIVE ACTION BUTTON (DANGER CRIMSON + WHITE TEXT) */
 .consequentialActionButton {
   background-color: var(--color-danger);
-  color: #ffffff;
+  color: var(--surface);
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: 0;
   font-weight: 600;
   font-size: 0.8125rem;
   display: inline-flex;
@@ -913,7 +660,7 @@
   color: var(--btn-secondary-text);
   border: 1px solid var(--btn-secondary-border);
   padding: 0.625rem 1rem;
-  border-radius: 8px;
+  border-radius: 0;
   font-weight: 600;
   font-size: 0.8125rem;
   display: inline-flex;
@@ -940,7 +687,7 @@
   background: var(--input-bg);
   color: var(--input-text);
   border: 1px solid var(--input-border);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
   width: 100%;
@@ -954,8 +701,7 @@
   box-shadow: 0 0 0 1px var(--color-champagne);
 }
 
-:global([data-admin-theme="light"]) .inputField:focus,
-:global([data-theme="light"]) .inputField:focus {
+.inputField:focus {
   border-color: var(--color-mulberry);
   box-shadow: 0 0 0 1px var(--color-mulberry);
 }
@@ -988,17 +734,16 @@
   font-size: 0.625rem;
   font-weight: 700;
   padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(217, 68, 54, 0.18);
-  color: #FF7B72;
-  border: 1px solid rgba(217, 68, 54, 0.35);
+  border-radius: 0;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
 }
 
-:global([data-admin-theme="light"]) .overrideBadge,
-:global([data-theme="light"]) .overrideBadge {
-  color: #B3261E;
-  background: #FCE8E6;
-  border-color: #B3261E;
+.overrideBadge {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: var(--danger);
 }
 
 /* TERMINAL CONFIRMATION MODAL */
@@ -1029,9 +774,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(14, 12, 17, 0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: color-mix(in srgb, var(--ink-950) 72%, transparent);
   padding: 1rem;
   animation: modalBackdropFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -1041,8 +784,7 @@
   width: 100%;
   max-width: 28rem;
   background: var(--dossier-bg);
-  border-radius: 12px;
-  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.5);
+  border-radius: 0;
   border: 1px solid var(--dossier-hairline-strong);
   padding: 1.5rem;
   display: flex;
@@ -1054,15 +796,15 @@
 
 .modalIconCompleted {
   padding: 0.5rem;
-  border-radius: 9999px;
+  border-radius: 50%;
   background-color: color-mix(in srgb, var(--td-oxide) 15%, transparent);
   color: var(--color-mulberry);
 }
 
 .modalIconCancelled {
   padding: 0.5rem;
-  border-radius: 9999px;
-  background-color: rgba(217, 68, 54, 0.15);
+  border-radius: 50%;
+  background-color: var(--danger-bg);
   color: var(--color-danger);
 }
 
@@ -1075,9 +817,9 @@
   padding: 0.5rem 1rem;
   font-size: 0.75rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 0;
   background-color: var(--color-mulberry);
-  color: #ffffff;
+  color: var(--surface);
   border: none;
   cursor: pointer;
   transition: opacity 150ms ease;
@@ -1091,9 +833,9 @@
   padding: 0.5rem 1rem;
   font-size: 0.75rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 0;
   background-color: var(--color-danger);
-  color: #ffffff;
+  color: var(--surface);
   border: none;
   cursor: pointer;
   transition: opacity 150ms ease;
@@ -1129,7 +871,6 @@
   clip-path: url(#liquidFloodClip);
   -webkit-clip-path: url(#liquidFloodClip);
   background-color: var(--bg-canvas);
-  background-image: radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--td-oxide) 18%, transparent) 0%, transparent 60%);
   background-repeat: no-repeat;
 }
 
@@ -1199,7 +940,7 @@
   .modalOverlay {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background: rgba(0, 0, 0, 0.85) !important;
+    background: var(--ink-950) !important;
   }
 }
 

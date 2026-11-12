@@ -25,7 +25,7 @@ const DynamicVehicle3DViewer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="aspect-[16/10] w-full rounded sm:rounded bg-td-chalk flex items-center justify-center animate-pulse text-xs font-semibold text-td-muted border border-td-rule">
+      <div className="aspect-[16/10] w-full sm:rounded bg-td-chalk flex items-center justify-center animate-pulse text-xs font-semibold text-td-muted border border-td-rule">
         Đang khởi tạo WebGL 3D Studio...
       </div>
     ),
@@ -67,7 +67,7 @@ export function VehicleDetailView({
   };
 
   return (
-    <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 ${className}`}>
+    <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-8 sm:pt-8 sm:pb-12 ${className}`}>
       {/* 1. Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-td-muted">
         <Link href="/" className="hover:text-primary transition-colors">
@@ -86,23 +86,23 @@ export function VehicleDetailView({
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {vehicle.category.includes("electric") && (
-              <span className="rounded-md bg-stage-ink px-2.5 py-0.5 font-mono text-[10px] font-bold text-white shadow-xs">
-                THUẦN ĐIỆN
+              <span className="bg-stage-ink px-2.5 py-0.5 text-xs font-semibold text-white">
+                Thuần điện
               </span>
             )}
-            <span className="rounded-md bg-td-white px-2.5 py-0.5 text-xs font-semibold text-td-ink border border-td-rule shadow-xs">
+            <span className="bg-td-white px-2.5 py-0.5 text-xs font-semibold text-td-ink border border-td-rule">
               {vehicle.categoryLabel}
             </span>
-            <span className="rounded-md bg-td-white px-2.5 py-0.5 text-xs font-semibold text-td-ink border border-td-rule shadow-xs">
+            <span className="bg-td-white px-2.5 py-0.5 text-xs font-semibold text-td-ink border border-td-rule">
               Đời {vehicle.year}
             </span>
             {vehicle.isAvailable ? (
-              <span className="flex items-center gap-1 rounded-full bg-success-bg px-2.5 py-0.5 text-xs font-bold text-success border border-success/20">
+              <span className="flex items-center gap-1 bg-success-bg px-2.5 py-0.5 text-xs font-bold text-success border border-success/20">
                 <CheckCircle2 className="w-3 h-3" />
                 <span>Sẵn sàng giao xe</span>
               </span>
             ) : (
-              <span className="rounded-full bg-td-chalk px-2.5 py-0.5 text-xs font-bold text-td-muted border border-td-rule">
+              <span className="bg-td-chalk px-2.5 py-0.5 text-xs font-bold text-td-muted border border-td-rule">
                 Đang có đơn thuê
               </span>
             )}
@@ -131,9 +131,9 @@ export function VehicleDetailView({
               <button
                 type="button"
                 onClick={() => setActiveMediaTab("gallery")}
-                className={`flex items-center gap-1.5 rounded px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   activeMediaTab === "gallery"
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-white"
                     : "text-td-ink hover:bg-td-chalk border border-td-rule bg-td-white"
                 }`}
               >
@@ -144,9 +144,9 @@ export function VehicleDetailView({
               <button
                 type="button"
                 onClick={() => setActiveMediaTab("3d")}
-                className={`flex items-center gap-1.5 rounded px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   activeMediaTab === "3d"
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-white"
                     : "text-td-ink hover:bg-td-chalk border border-td-rule bg-td-white"
                 }`}
               >
@@ -157,9 +157,9 @@ export function VehicleDetailView({
               <button
                 type="button"
                 onClick={() => setActiveMediaTab("calendar")}
-                className={`flex items-center gap-1.5 rounded px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   activeMediaTab === "calendar"
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-white"
                     : "text-td-ink hover:bg-td-chalk border border-td-rule bg-td-white"
                 }`}
               >
@@ -199,7 +199,7 @@ export function VehicleDetailView({
           </div>
 
           {/* Mô tả xe & Cam kết chất lượng Thong Dong */}
-          <div className="rounded border border-td-rule bg-td-white p-5 sm:p-6 space-y-4">
+          <div className="border border-td-rule bg-td-white p-5 sm:p-6 space-y-4">
             <h2 className="text-base font-bold text-td-ink">Mô tả phương tiện & Cam kết kiểm định</h2>
             <p className="text-xs sm:text-sm text-td-ink leading-relaxed">
               {vehicle.description ||
@@ -223,7 +223,7 @@ export function VehicleDetailView({
           </div>
 
           {/* Thông số kỹ thuật Bento Grid */}
-          <div className="rounded border border-td-rule bg-td-white p-5 sm:p-6">
+          <div className="border border-td-rule bg-td-white p-5 sm:p-6">
             <VehicleSpecs
               category={vehicle.category}
               year={vehicle.year}

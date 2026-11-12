@@ -185,10 +185,7 @@ export default function ProfileManager() {
     <div className="relative text-td-ink">
       <main className="relative z-10 w-full">
         <TransitFolio
-          index="09"
-          tag="KH"
-          kicker="KHÁCH HÀNG · HỒ SƠ CÁ NHÂN"
-          title={<>Quản lý <span className="text-td-teal">hồ sơ.</span></>}
+          title="Quản lý hồ sơ"
           description="Cập nhật thông tin và xác minh giấy phép lái xe để sẵn sàng cho chuyến đi tiếp theo."
         >
           <StatusBadge
@@ -222,7 +219,7 @@ export default function ProfileManager() {
                     : "unavailable"
               }
             >
-              {licenseStatus ? licenseStatus.toLocaleUpperCase().replaceAll("_", " ") : "CHƯA HOÀN TẤT"}
+              {licenseStatus ? licenseStatus.replaceAll("_", " ") : "Chưa hoàn tất"}
             </StatusBadge>
           </div>
           <div className="grid gap-4 md:grid-cols-3">

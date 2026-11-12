@@ -20,7 +20,7 @@ export function RatingDistribution({
   return (
     <div className="flex flex-col gap-3 border-t border-td-ink pt-4">
       <div className="flex items-center justify-between border-b border-td-rule pb-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+        <h3 className="text-xs font-bold text-td-muted">
           Phân bố đánh giá
         </h3>
         {selectedStar && (
@@ -88,9 +88,9 @@ export function RatingDistribution({
               </div>
 
               {/* Progress Bar */}
-              <div className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-td-chalk">
+              <div className="relative h-2.5 flex-1 overflow-hidden bg-td-chalk">
                 <div
-                  className="h-full rounded-full bg-td-oxide transition-all duration-300"
+                  className="h-full bg-td-oxide transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
               </div>

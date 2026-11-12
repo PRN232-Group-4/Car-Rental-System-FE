@@ -18,11 +18,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock Shell & AuthGate
-vi.mock("@/features/admin/StaffShell", () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  StaffShell: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
 vi.mock("@/features/auth/AuthGate", () => ({
   AuthGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -58,7 +53,7 @@ describe("FE-14 Admin Policies & Plans — Component Tests", () => {
     it("hiển thị tiêu đề, mô tả và nút Tạo phiên bản mới", async () => {
       renderWithClient(<PoliciesPage />);
 
-      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Chính sách thuê & đặt cọc.");
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Chính sách thuê & đặt cọc");
       expect(
         screen.getByText(/Chính sách thuê là bất biến theo phiên bản/i)
       ).toBeInTheDocument();
@@ -89,7 +84,7 @@ describe("FE-14 Admin Policies & Plans — Component Tests", () => {
     it("hiển thị tiêu đề gói thuê bao và nút Tạo gói mới", async () => {
       renderWithClient(<SubscriptionPlansPage />);
 
-      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gói thuê bao di chuyển.");
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gói thuê bao di chuyển");
       expect(screen.getByText("Tạo gói mới")).toBeInTheDocument();
     });
 

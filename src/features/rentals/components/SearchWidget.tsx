@@ -153,7 +153,7 @@ export default function SearchWidget({
   /* Station list items */
   const stationListContent = (
     <div className="space-y-1">
-      <div className="px-3 py-2 text-xs font-mono font-bold text-ink-3 uppercase tracking-wider border-b border-line mb-1">
+      <div className="px-3 py-2 text-xs font-bold text-ink-3 border-b border-line mb-1">
         Hệ thống trạm nhận xe
       </div>
       <div className="max-h-64 sm:max-h-72 overflow-y-auto overscroll-contain space-y-1 pr-1">
@@ -199,7 +199,7 @@ export default function SearchWidget({
               )}
             </div>
             {typeof fac.availableVehicles === "number" && (
-              <span className={`text-xs font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
+              <span className={`text-xs font-mono px-2 py-0.5 font-bold shrink-0 ${
                 facilityId === fac.id ? "bg-white/20 text-white" : "bg-sunken text-primary font-bold"
               }`}>
                 {fac.availableVehicles} xe
@@ -257,7 +257,7 @@ export default function SearchWidget({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Start Datetime */}
         <div className="p-3 bg-sunken/50 rounded-xl border border-line space-y-2">
-          <span className="text-xs font-bold text-primary uppercase tracking-wider block">
+          <span className="text-xs font-bold text-primary block">
             Thời gian nhận xe
           </span>
           <div className="space-y-1">
@@ -287,7 +287,7 @@ export default function SearchWidget({
 
         {/* End Datetime */}
         <div className="p-3 bg-sunken/50 rounded-xl border border-line space-y-2">
-          <span className="text-xs font-bold text-ink uppercase tracking-wider block">
+          <span className="text-xs font-bold text-ink block">
             Thời gian trả xe
           </span>
           <div className="space-y-1">
@@ -365,7 +365,7 @@ export default function SearchWidget({
       </div>
 
       {/* Main Single-Deck Floating Console with .glass-2 */}
-      <div className="glass-2 rounded-2xl p-2 sm:p-4 border border-white/80 relative max-w-full overflow-hidden sm:overflow-visible shadow-lg">
+      <div className="glass-2 rounded-2xl p-2 sm:p-4 border border-white/80 relative max-w-full overflow-hidden sm:overflow-visible">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Column 1: Trạm nhận xe */}
           <div className="flex-1 min-w-0 relative px-4 py-3 rounded-xl hover:bg-surface/60 transition-colors">
@@ -374,7 +374,7 @@ export default function SearchWidget({
                 <MapPin className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-xs font-bold text-ink-3 mb-0.5">
                   Trạm nhận xe
                 </span>
 
@@ -421,7 +421,7 @@ export default function SearchWidget({
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-50 w-[420px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-3 border border-line-strong shadow-2xl focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
+                        className="z-50 w-[420px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-3 border border-line-strong shadow-e3 focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
                       >
                         {stationListContent}
                       </Popover.Content>
@@ -442,7 +442,7 @@ export default function SearchWidget({
                 <Calendar className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-xs font-bold text-ink-3 uppercase tracking-wider mb-0.5">
+                <span className="block text-xs font-bold text-ink-3 mb-0.5">
                   Lịch trình di chuyển
                 </span>
 
@@ -489,7 +489,7 @@ export default function SearchWidget({
                         align="end"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-50 w-[460px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-5 sm:p-6 border border-line-strong shadow-2xl focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
+                        className="z-50 w-[460px] max-w-[calc(100vw-2rem)] bg-surface text-ink rounded-xl p-5 sm:p-6 border border-line-strong shadow-e3 focus:outline-none max-h-[min(85vh,560px)] overflow-y-auto animate-in fade-in zoom-in-95 duration-150"
                       >
                         {timePickerContent}
                       </Popover.Content>

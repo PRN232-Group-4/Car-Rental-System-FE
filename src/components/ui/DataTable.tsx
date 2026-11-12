@@ -72,7 +72,7 @@ export function DataTable<TData, TValue = unknown>({
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left text-[13px] text-td-ink">
           <caption className="sr-only">{caption}</caption>
-          <thead className="border-b border-td-ink font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted">
+          <thead className="border-b border-td-ink text-xs font-semibold text-td-muted">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -102,7 +102,7 @@ export function DataTable<TData, TValue = unknown>({
                         <button
                           type="button"
                           onClick={header.column.getToggleSortingHandler()}
-                          className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-td-muted transition hover:text-td-ink focus:outline-none"
+                          className="group inline-flex items-center gap-1.5 text-xs font-semibold text-td-muted transition hover:text-td-ink focus:outline-none"
                         >
                           <span>
                             {flexRender(
