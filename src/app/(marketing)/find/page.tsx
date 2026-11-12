@@ -6,9 +6,17 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { VehicleCard } from "@/features/vehicles/components/VehicleCard";
 import { VehicleCardSkeleton } from "@/features/vehicles/components/VehicleCardSkeleton";
-import { VehicleFilters } from "@/features/vehicles/components/VehicleFilters";
+import {
+  VehicleFilters,
+  CATEGORY_OPTIONS,
+  SEAT_OPTIONS,
+  TRANSMISSION_OPTIONS,
+  PRICE_PRESETS,
+  LONGTERM_PRICE_PRESETS,
+} from "@/features/vehicles/components/VehicleFilters";
 import { ActiveFilterChips } from "@/features/vehicles/components/ActiveFilterChips";
 import { DateTimeRangePicker } from "@/components/ui/DateTimeRangePicker";
+import { Select } from "@/components/ui/Select";
 import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -20,16 +28,8 @@ import { getVehiclesPaginated } from "@/features/vehicles/api";
 import { getFacilities } from "@/features/facilities/api";
 import { useQuery } from "@tanstack/react-query";
 import { VehiclePage } from "@/features/vehicles/types";
-import { Search, SlidersHorizontal, ArrowUpDown, Car, RotateCcw } from "lucide-react";
+import { Search, SlidersHorizontal, RotateCcw, MapPin } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
-
-const CATEGORY_TABS = [
-  { value: "all", label: "Tất cả" },
-  { value: "electric_car", label: "Ô tô điện" },
-  { value: "car", label: "Ô tô xăng" },
-  { value: "electric_motorbike", label: "Xe máy điện" },
-  { value: "motorbike", label: "Xe máy xăng" },
-];
 
 const SORT_OPTIONS = [
   { value: "price_asc", label: "Giá tăng dần" },
@@ -55,7 +55,7 @@ function FindCatalogContent() {
     setSearchInput(filters.search || "");
   }
 
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   // Danh sách chi nhánh thật cho bộ lọc (không dùng dữ liệu tĩnh)
   const facilitiesQuery = useQuery({
@@ -72,7 +72,7 @@ function FindCatalogContent() {
     items: [],
     totalCount: 0,
     page: 1,
-    pageSize: 9,
+    pageSize: 12,
   });
   const [retryTrigger, setRetryTrigger] = useState(0);
 
@@ -193,242 +193,227 @@ function FindCatalogContent() {
     return count;
   }, [filters]);
 
-  return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      {/* 1. Header Trang & Bộ chọn thời gian nhận/trả xe */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-line pb-8">
-        <div>
-          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
-            <Car className="w-4 h-4" />
-            <span>Danh mục phương tiện</span>
-          </div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-black text-ink tracking-tight">
-            Tìm & Thuê Xe Thong Dong
-          </h1>
-          <p className="mt-1.5 text-sm text-ink-3 max-w-xl">
-            Đội xe sở hữu trực tiếp 100%, kiểm định 12 hạng mục nghiêm ngặt, minh bạch giá cả và hỗ trợ đổi xe linh hoạt.
-          </p>
-        </div>
+  const pricePresets = filters.mode === "longterm" ? LONGTERM_PRICE_PRESETS : PRICE_PRESETS;
+  const priceValue = `${Number(filters.priceMin || 0)}-${Number(filters.priceMax || 0)}`;
 
-        {/* Thanh chọn lịch trình GMT+7 */}
-        <div className="w-full md:w-80 shrink-0">
-          <label className="block text-xs font-bold text-ink mb-1.5">
-            Lịch trình thuê xe dự kiến:
-          </label>
-          <DateTimeRangePicker
-            value={{
-              from: filters.startDate ?? null,
-              to: filters.endDate ?? null,
-              startTime: filters.startTime,
-              endTime: filters.endTime,
-            }}
-            rentalMode={filters.mode}
-            onChange={(val) => {
-              updateFilters({
-                startDate: val.from ?? undefined,
-                endDate: val.to ?? undefined,
-                startTime: val.startTime,
-                endTime: val.endTime,
-              });
-            }}
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 pb-10">
+      <h1 className="sr-only">Tìm và thuê xe ô tô</h1>
+
+      {/* 1. Chuyến đi: chi nhánh nhận xe, thời gian thuê, tìm theo tên */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,15rem)_minmax(0,22rem)_minmax(0,1fr)]">
+        <Select
+          aria-label="Chi nhánh giao nhận"
+          menuLabel="Trạm tiếp nhận"
+          icon={<MapPin className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />}
+          value={filters.facilityId || "all"}
+          onValueChange={(v) => updateFilters({ facilityId: v })}
+          options={[{ value: "all", label: "Tất cả chi nhánh" }, ...facilities.map((fac) => ({ value: String(fac.id), label: fac.name }))]}
+          className="h-12 px-4 font-medium"
+        />
+
+        <DateTimeRangePicker
+          value={{
+            from: filters.startDate ?? null,
+            to: filters.endDate ?? null,
+            startTime: filters.startTime,
+            endTime: filters.endTime,
+          }}
+          rentalMode={filters.mode}
+          onChange={(val) => {
+            updateFilters({
+              startDate: val.from ?? undefined,
+              endDate: val.to ?? undefined,
+              startTime: val.startTime,
+              endTime: val.endTime,
+            });
+          }}
+        />
+
+        <form onSubmit={handleSearchSubmit} className="relative md:col-span-2 lg:col-span-1">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
+          <input
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Tên xe, hãng xe hoặc đời xe"
+            aria-label="Tìm xe theo tên, hãng hoặc đời xe"
+            className="h-12 w-full border border-line bg-surface pl-10 pr-20 text-sm text-ink placeholder:text-ink-3 transition-colors hover:border-line-strong focus:border-primary focus:outline-none"
           />
-        </div>
+          <button
+            type="submit"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-primary px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-primary-hover cursor-pointer"
+          >
+            Tìm
+          </button>
+        </form>
       </div>
 
-      {/* 2. Dải Tab Phân Khúc Nhanh (Category Quick Tabs) */}
-      <div className="mt-6 flex items-center justify-between gap-4 overflow-x-auto pb-2 scrollbar-none">
-        <div className="flex items-center gap-2">
-          {CATEGORY_TABS.map((tab) => {
-            const isSelected = filters.category === tab.value;
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => updateFilters({ category: tab.value as FindFilterState["category"] })}
-                className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-primary text-white shadow-xs"
-                    : "border border-line bg-surface text-ink-2 hover:bg-surface-raised"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+      {/* 2. Bộ lọc ngang: loại xe, số chỗ, hộp số, giá; phần còn lại trong "Bộ lọc" */}
+      <div className="mt-3 flex items-center gap-2 overflow-x-auto border-y border-line py-3 scrollbar-none">
+        {CATEGORY_OPTIONS.map((cat) => {
+          const isSelected = filters.category === cat.value;
+          return (
+            <button
+              key={cat.value}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => updateFilters({ category: cat.value as FindFilterState["category"] })}
+              className={`h-9 shrink-0 whitespace-nowrap px-3.5 text-xs font-semibold transition-colors cursor-pointer ${
+                isSelected
+                  ? "bg-ink-950 text-bone-100"
+                  : "border border-line bg-surface text-ink hover:border-line-strong"
+              }`}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
 
-        {/* Nút mở Drawer trên Mobile (< 1024px) */}
+        <span className="mx-1 h-6 w-px shrink-0 bg-line" aria-hidden="true" />
+
+        <FilterSelect
+          label="Số chỗ"
+          value={String(Number(filters.seats || 0))}
+          options={[
+            { value: "0", label: "Số chỗ" },
+            ...SEAT_OPTIONS.filter((o) => o.value > 0).map((o) => ({ value: String(o.value), label: `Từ ${o.label}` })),
+          ]}
+          onChange={(v) => updateFilters({ seats: Number(v) })}
+        />
+        <FilterSelect
+          label="Hộp số"
+          value={filters.transmission || "all"}
+          options={[
+            { value: "all", label: "Hộp số" },
+            ...TRANSMISSION_OPTIONS.filter((o) => o.value !== "all"),
+          ]}
+          onChange={(v) => updateFilters({ transmission: v as FindFilterState["transmission"] })}
+        />
+        <FilterSelect
+          label="Mức giá"
+          value={priceValue}
+          options={[
+            { value: "0-0", label: filters.mode === "longterm" ? "Giá thuê tháng" : "Giá thuê giờ" },
+            ...pricePresets.map((p) => ({ value: `${p.min}-${p.max}`, label: p.label })),
+          ]}
+          onChange={(v) => {
+            const [min, max] = v.split("-").map(Number);
+            updateFilters({ priceMin: min, priceMax: max });
+          }}
+        />
+
         <button
           type="button"
-          onClick={() => setMobileDrawerOpen(true)}
-          className="lg:hidden flex items-center gap-2 rounded-xl border border-line bg-surface px-3.5 py-2 text-xs font-bold text-ink shadow-xs hover:bg-sunken shrink-0 cursor-pointer"
+          onClick={() => setFilterDrawerOpen(true)}
+          className="ml-auto flex h-9 shrink-0 items-center gap-2 border border-line bg-surface px-3.5 text-xs font-semibold text-ink hover:border-line-strong cursor-pointer"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
+          <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
           <span>Bộ lọc</span>
           {activeFiltersCount > 0 && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary font-mono text-[10px] font-bold text-white">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold tabular-nums text-white">
               {activeFiltersCount}
             </span>
           )}
         </button>
       </div>
 
-      {/* 3. Bố cục 2 cột (Desktop Sidebar + Catalog Grid) */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
-        {/* Desktop Sidebar (>= 1024px) */}
-        <aside className="hidden lg:block sticky top-28 rounded-2xl border border-line bg-surface p-5 shadow-e1">
-          <VehicleFilters
-            filters={filters}
-            facilities={facilities}
-            onChange={updateFilters}
-            onReset={handleClearAll}
-          />
-        </aside>
-
-        {/* Main Content Area */}
-        <main className="w-full flex flex-col min-w-0">
-          {/* Thanh Tìm kiếm văn bản, Đếm kết quả & Sắp xếp */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 shadow-e1">
-            <form onSubmit={handleSearchSubmit} className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Tìm theo tên xe, hãng xe, đời xe hoặc trạm..."
-                className="w-full rounded-xl border border-line bg-canvas pl-9 pr-20 py-2 text-xs font-medium text-ink transition-colors focus:border-primary focus:bg-surface focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-primary hover:bg-primary-hover px-3 py-1 text-[11px] font-bold text-white transition-colors cursor-pointer"
-              >
-                Tìm
-              </button>
-            </form>
-
-            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-              <span className="text-xs font-semibold text-ink-3">
-                {loading ? "Đang tải..." : `Tìm thấy ${pageData.totalCount} xe`}
-              </span>
-
-              <div className="flex items-center gap-1.5">
-                <ArrowUpDown className="w-3.5 h-3.5 text-primary" />
-                <select
-                  value={filters.sort}
-                  onChange={(e) => updateFilters({ sort: e.target.value as FindFilterState["sort"] })}
-                  aria-label="Sắp xếp danh sách xe"
-                  className="rounded-xl border border-line bg-canvas px-2.5 py-1.5 text-xs font-bold text-ink transition-colors focus:border-primary focus:outline-none cursor-pointer"
-                >
-                  {SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Dải Chips bộ lọc đang áp dụng */}
-          <ActiveFilterChips
-            filters={filters}
-            facilities={facilities}
-            onRemove={handleRemoveChip}
-            onClearAll={handleClearAll}
-          />
-
-          {/* Trạng thái Lưới xe: Loading / Error / Empty / Grid */}
-          <div className="mt-6">
-            {error ? (
-              <ErrorState
-                title="Không thể tải dữ liệu xe"
-                message={error}
-                onRetry={() => {
-                  setLoading(true);
-                  setError(null);
-                  setRetryTrigger((c) => c + 1);
-                }}
-                className="my-8"
-              />
-            ) : loading ? (
-              <div
-                data-testid="find-skeleton-grid"
-                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-              >
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <VehicleCardSkeleton key={`skel-${i}`} />
-                ))}
-              </div>
-            ) : pageData.items.length === 0 ? (
-              <EmptyState
-                title="Không tìm thấy phương tiện phù hợp"
-                description="Hãy thử nới lỏng các tiêu chí lọc, đổi khoảng giá hoặc tìm kiếm theo từ khóa khác."
-                action={
-                  <Button
-                    variant="primary"
-                    onClick={handleClearAll}
-                    className="flex items-center gap-1.5"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Đặt lại toàn bộ bộ lọc</span>
-                  </Button>
-                }
-                className="my-12 rounded-2xl border border-line bg-surface shadow-e1"
-              />
-            ) : (
-              <div
-                ref={gridContainerRef}
-                data-testid="vehicle-grid"
-                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-              >
-                {pageData.items.map((vehicle, idx) => (
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    priority={idx < 3}
-                    bookingContext={{
-                      from: filters.startDate,
-                      to: filters.endDate,
-                      rentalType: filters.mode,
-                      mode: searchParams.get("mode") === "driver" ? "driver" : searchParams.get("mode") === "subscription" ? "subscription" : "self",
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Phân trang */}
-          {!loading && pageData.totalCount > pageData.pageSize && (
-            <div className="mt-10 border-t border-line pt-6">
-              <Pagination
-                page={pageData.page}
-                pageSize={pageData.pageSize}
-                totalCount={pageData.totalCount}
-                pageSizeOptions={[6, 9, 12, 18]}
-                itemName="xe"
-                onPageChange={(nextPage) => updateFilters({ page: nextPage })}
-                onPageSizeChange={(nextSize) => updateFilters({ pageSize: nextSize, page: 1 })}
-              />
-            </div>
-          )}
-        </main>
+      {/* 3. Kết quả & sắp xếp */}
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <p className="text-sm text-ink-3" aria-live="polite">
+          {loading ? "Đang tải..." : <><span className="font-semibold tabular-nums text-ink">{pageData.totalCount}</span> xe phù hợp</>}
+        </p>
+        <Select
+          aria-label="Sắp xếp danh sách xe"
+          menuLabel="Sắp xếp"
+          value={filters.sort}
+          onValueChange={(v) => updateFilters({ sort: v as FindFilterState["sort"] })}
+          options={SORT_OPTIONS}
+          className="h-9 w-auto text-xs font-semibold"
+          contentClassName="min-w-48"
+        />
       </div>
 
-      {/* Drawer Bộ lọc trên Mobile */}
-      <Drawer
-        open={mobileDrawerOpen}
-        onOpenChange={setMobileDrawerOpen}
-        title="Bộ lọc chi tiết"
-        side="bottom"
-      >
-        <div className="p-5 overflow-y-auto max-h-[75vh]">
+      <ActiveFilterChips
+        filters={filters}
+        facilities={facilities}
+        onRemove={handleRemoveChip}
+        onClearAll={handleClearAll}
+      />
+
+      {/* 4. Lưới xe 4 cột */}
+      <section aria-label="Danh sách xe" className="mt-5">
+        {error ? (
+          <ErrorState
+            title="Không thể tải dữ liệu xe"
+            message={error}
+            onRetry={() => {
+              setLoading(true);
+              setError(null);
+              setRetryTrigger((c) => c + 1);
+            }}
+            className="my-8"
+          />
+        ) : loading ? (
+          <div data-testid="find-skeleton-grid" className={GRID}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <VehicleCardSkeleton key={`skel-${i}`} />
+            ))}
+          </div>
+        ) : pageData.items.length === 0 ? (
+          <EmptyState
+            title="Không tìm thấy xe phù hợp"
+            description="Hãy thử nới lỏng các tiêu chí lọc, đổi khoảng giá hoặc tìm theo từ khóa khác."
+            action={
+              <Button variant="primary" onClick={handleClearAll} className="flex items-center gap-1.5">
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Đặt lại toàn bộ bộ lọc</span>
+              </Button>
+            }
+            className="my-12 border border-line bg-surface"
+          />
+        ) : (
+          <div ref={gridContainerRef} data-testid="vehicle-grid" className={GRID}>
+            {pageData.items.map((vehicle, idx) => (
+              <VehicleCard
+                key={vehicle.id}
+                vehicle={vehicle}
+                priority={idx < 4}
+                bookingContext={{
+                  from: filters.startDate,
+                  to: filters.endDate,
+                  rentalType: filters.mode,
+                  mode: searchParams.get("mode") === "driver" ? "driver" : searchParams.get("mode") === "subscription" ? "subscription" : "self",
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {!loading && pageData.totalCount > pageData.pageSize && (
+        <div className="mt-10 border-t border-line pt-6">
+          <Pagination
+            page={pageData.page}
+            pageSize={pageData.pageSize}
+            totalCount={pageData.totalCount}
+            pageSizeOptions={[8, 12, 16, 24]}
+            itemName="xe"
+            onPageChange={(nextPage) => updateFilters({ page: nextPage })}
+            onPageSizeChange={(nextSize) => updateFilters({ pageSize: nextSize, page: 1 })}
+          />
+        </div>
+      )}
+
+      {/* Bộ lọc đầy đủ (chi nhánh, hãng, nhiên liệu...) */}
+      <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen} title="Bộ lọc" side="right">
+        <div className="p-5 overflow-y-auto max-h-[100dvh]">
           <VehicleFilters
             filters={filters}
             facilities={facilities}
             onChange={updateFilters}
             onReset={handleClearAll}
-            onApplyMobile={() => setMobileDrawerOpen(false)}
+            onApplyMobile={() => setFilterDrawerOpen(false)}
             isMobileDrawer
           />
         </div>
@@ -437,14 +422,42 @@ function FindCatalogContent() {
   );
 }
 
+const GRID = "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+/** Filter chip on the shared Select; highlighted once it leaves its default (first) option. */
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) {
+  const active = value !== options[0]?.value;
+  return (
+    <Select
+      aria-label={label}
+      menuLabel={label}
+      value={value}
+      onValueChange={onChange}
+      options={options}
+      className={`h-9 w-auto shrink-0 px-3.5 text-xs font-semibold ${active ? "border-primary bg-primary-tint text-primary" : ""}`}
+      contentClassName="min-w-48"
+    />
+  );
+}
+
 function FindPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 animate-pulse">
-      <div className="h-10 w-64 rounded-xl bg-sunken" />
-      <div className="mt-3 h-4 w-96 rounded bg-sunken/60" />
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-80 rounded-2xl bg-sunken" />
+      <div className="h-12 w-full bg-sunken" />
+      <div className="mt-3 h-9 w-2/3 bg-sunken/60" />
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="h-80 bg-sunken" />
         ))}
       </div>
     </div>
@@ -455,7 +468,7 @@ export default function FindPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="flex-1 pt-20 focus:outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 pt-16 focus:outline-none">
         <Suspense fallback={<FindPageSkeleton />}>
           <FindCatalogContent />
         </Suspense>

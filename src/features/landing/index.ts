@@ -7,7 +7,6 @@ export { default as MultiFleetCatalog } from "./components/MultiFleetCatalog";
 export { default as InspectionSection } from "./components/InspectionSection";
 export { default as PinnedJourney } from "./components/PinnedJourney";
 export { default as MembershipPasses } from "./components/MembershipPasses";
-export { default as ContinuousBlueprint } from "./components/ContinuousBlueprint";
 export { default as CinematicPreloader } from "./components/CinematicPreloader";
 
 // Riso Grand Tour Chapters & Components
@@ -20,7 +19,6 @@ export { default as BookingDock } from "./components/BookingDock";
 export { default as LandingNav } from "./components/LandingNav";
 export { default as HalftoneImage } from "./components/HalftoneImage";
 export { default as CursorDisc } from "./components/CursorDisc";
-export { default as ScrollDiscTransition } from "./components/ScrollDiscTransition";
 export { default as SceneLayerStack } from "./components/SceneLayerStack";
 export { default as SceneBSection } from "./components/chapters/SceneBSection";
 export { default as DisplayLine } from "./components/DisplayLine";

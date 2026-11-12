@@ -21,7 +21,7 @@ export default function VehicleImage(props: VehicleImageProps) {
 function VehicleImageContent({
   src,
   alt,
-  className = "h-12 w-[68px] rounded-lg",
+  className = "h-12 w-[68px]",
   imageClassName = "",
   loading = "eager",
 }: VehicleImageProps) {

@@ -66,18 +66,18 @@ export default function ForgotPasswordForm() {
 
   if (step === "success") {
     return (
-      <div className="glass-1 rounded-3xl p-6 sm:p-8 shadow-e2 border border-line text-center space-y-4">
+      <div className="bg-surface p-6 sm:p-7 border border-line text-ink text-center space-y-4">
         <div className="w-12 h-12 rounded-full bg-success/10 text-success mx-auto flex items-center justify-center">
           <CheckCircle2 className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-ink">Đặt lại mật khẩu thành công!</h2>
+        <h1 className="text-2xl font-black tracking-tight text-ink">Đặt lại mật khẩu thành công!</h1>
         <p className="text-xs sm:text-sm text-ink-3">
           Mật khẩu tài khoản của bạn đã được cập nhật. Bạn có thể đăng nhập ngay bằng mật khẩu mới.
         </p>
         <button
           type="button"
           onClick={() => router.push("/login")}
-          className="w-full mt-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover shadow-e1 transition-all cursor-pointer"
+          className="w-full mt-2 py-3 px-4 text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover transition-all cursor-pointer"
         >
           Đăng nhập ngay
         </button>
@@ -87,16 +87,16 @@ export default function ForgotPasswordForm() {
 
   if (step === "verify") {
     return (
-      <div className="glass-1 rounded-3xl p-6 sm:p-8 shadow-e2 border border-line space-y-5">
+      <div className="bg-surface p-6 sm:p-7 border border-line text-ink space-y-5">
         <div>
-          <h2 className="text-xl font-bold text-ink">Nhập mã xác thực</h2>
+          <h1 className="text-2xl font-black tracking-tight text-ink">Nhập mã xác thực</h1>
           <p className="text-xs text-ink-3 mt-1">
             Mã OTP đã được gửi về email <strong>{email}</strong>. Vui lòng kiểm tra hộp thư đến hoặc thư rác.
           </p>
         </div>
 
         {generalError && (
-          <div role="alert" aria-live="assertive" className="p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
+          <div role="alert" aria-live="assertive" className="p-3 bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{generalError}</span>
           </div>
@@ -120,7 +120,7 @@ export default function ForgotPasswordForm() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 placeholder="123456"
-                className="w-full pl-9 pr-3 py-2.5 bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary outline-none"
+                className="w-full pl-9 pr-3 py-2.5 bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary outline-none"
               />
             </div>
             <InlineError name="otp" inputId="otp-input" />
@@ -138,7 +138,7 @@ export default function ForgotPasswordForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Tối thiểu 6 ký tự"
-              className="w-full px-3 py-2.5 bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary outline-none"
+              className="w-full px-3 py-2.5 bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary outline-none"
             />
             <InlineError name="newPassword" inputId="new-password" />
           </div>
@@ -155,7 +155,7 @@ export default function ForgotPasswordForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Nhập lại mật khẩu mới"
-              className="w-full px-3 py-2.5 bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary outline-none"
+              className="w-full px-3 py-2.5 bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary outline-none"
             />
             <InlineError name="confirmPassword" inputId="confirm-password" />
           </div>
@@ -163,7 +163,7 @@ export default function ForgotPasswordForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-2.5 px-4 flex items-center justify-center gap-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover shadow-e1 transition-all cursor-pointer disabled:opacity-60"
+            className="w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover transition-all cursor-pointer disabled:opacity-60"
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Xác nhận đổi mật khẩu"}
           </button>
@@ -173,16 +173,16 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <div className="glass-1 rounded-3xl p-6 sm:p-8 shadow-e2 border border-line space-y-5">
+    <div className="bg-surface p-6 sm:p-7 border border-line text-ink space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-ink">Quên mật khẩu</h2>
+        <h1 className="text-2xl font-black tracking-tight text-ink">Quên mật khẩu</h1>
         <p className="text-xs text-ink-3 mt-1">
           Nhập địa chỉ email đăng ký tài khoản của bạn để nhận mã khôi phục mật khẩu.
         </p>
       </div>
 
       {generalError && (
-        <div role="alert" aria-live="assertive" className="p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
+        <div role="alert" aria-live="assertive" className="p-3 bg-danger-bg border border-danger/20 text-danger text-xs flex items-start gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{generalError}</span>
         </div>
@@ -205,7 +205,7 @@ export default function ForgotPasswordForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full pl-9 pr-3 py-2.5 bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary outline-none"
+              className="w-full pl-9 pr-3 py-2.5 bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary outline-none"
             />
           </div>
           <InlineError name="email" inputId="forgot-email" />
@@ -214,7 +214,7 @@ export default function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2.5 px-4 flex items-center justify-center gap-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover shadow-e1 transition-all cursor-pointer disabled:opacity-60"
+          className="w-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-hover transition-all cursor-pointer disabled:opacity-60"
         >
           {submitting ? (
             <Loader2 className="w-4 h-4 animate-spin" />

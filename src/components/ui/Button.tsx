@@ -50,22 +50,22 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   ref
 ) {
   const sizeClasses = {
-    sm: "min-h-9 px-3 py-1.5 text-xs font-bold rounded gap-1.5",
-    md: "min-h-10 px-4 py-2 text-[13px] font-bold rounded gap-2",
-    lg: "min-h-11 px-5 py-2.5 text-sm font-bold rounded gap-2",
+    sm: "min-h-9 px-3 py-1.5 text-xs font-bold gap-1.5",
+    md: "min-h-10 px-4 py-2 text-[13px] font-bold gap-2",
+    lg: "min-h-11 px-5 py-2.5 text-sm font-bold gap-2",
   }[size];
 
   const variantClasses = {
     primary:
       "bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "amber-hero":
-      "bg-primary text-white shadow-[0_10px_24px_-8px_rgba(180,83,9,0.45)] hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
+      "bg-primary text-white hover:bg-primary-hover transition-colors cursor-pointer disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "marketing-cta":
       "relative overflow-hidden bg-accent-500 text-stage-ink hover:bg-accent-700 hover:text-white active:translate-y-[1px] transition-all cursor-pointer font-bold disabled:bg-td-chalk disabled:text-td-muted disabled:cursor-not-allowed",
     "sticky-morph":
       "bg-stage-ink text-white hover:bg-primary transition-colors cursor-pointer",
     "filter-pill":
-      "rounded-full bg-td-white text-td-ink border border-td-rule hover:border-td-ink transition-colors cursor-pointer",
+      "bg-td-white text-td-ink border border-td-rule hover:border-td-ink transition-colors cursor-pointer",
     secondary:
       "border border-td-rule bg-transparent text-td-ink hover:bg-td-chalk transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed",
     "secondary-stage":

@@ -16,7 +16,6 @@ for (const width of [1600, 1280, 390]) {
     let assigned: Record<string, unknown> | null = null;
     await page.setViewportSize({ width, height: 950 });
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.addInitScript(() => localStorage.setItem("vrs-admin-theme", "light"));
     const rental = () => ({ ...rentalBase, status: started ? "renting" : "pre_inspection", hasPassingPreInspection: passing });
     await page.route("**/api/**", async (route) => {
       const request = route.request();
@@ -49,10 +48,7 @@ for (const width of [1600, 1280, 390]) {
     await expect(page.getByText("Đã giao:")).toBeVisible();
     expect(startRequests).toBe(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    for (const theme of ["light", "dark"]) {
-      if (theme === "dark") await page.locator("#admin-theme-toggle").click();
-      await page.screenshot({ path: `test-results/inspection-assignment-${width}-${theme}.png` });
-    }
+    await page.screenshot({ path: `test-results/inspection-assignment-${width}.png` });
     passing = true;
     await page.getByText("Hướng dẫn kiểm tra", {exact:true}).click();
     await page.getByRole("button", { name: "Tải lại kết quả kiểm tra", exact: true }).click();

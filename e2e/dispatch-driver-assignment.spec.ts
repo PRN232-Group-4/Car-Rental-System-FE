@@ -2,12 +2,11 @@ import { expect, test } from "@playwright/test";
 
 const envelope = (data: unknown) => ({ code: 200, status: "success", is_success: true, data, message: "OK", error: null });
 
-const scenarios = [1600, 1280, 390].flatMap(width => ["light", "dark"].map(theme => ({ width, theme, role: "Admin" })));
-scenarios.push({ width: 390, theme: "light", role: "CustomerService" });
-for (const { width, theme, role } of scenarios) {
-  test(`assigns a driver to the selected rental vehicle while shifts are paused (${width}px, ${theme}, ${role})`, async ({ page }) => {
+const scenarios = [1600, 1280, 390].map(width => ({ width, role: "Admin" }));
+scenarios.push({ width: 390, role: "CustomerService" });
+for (const { width, role } of scenarios) {
+  test(`assigns a driver to the selected rental vehicle while shifts are paused (${width}px, ${role})`, async ({ page }) => {
     await page.setViewportSize({ width, height: 950 });
-    await page.addInitScript(theme => localStorage.setItem("vrs-admin-theme", theme), theme);
     let assignments = 0;
     let shiftWrites = 0;
     let managementReads = 0;
@@ -55,6 +54,6 @@ for (const { width, theme, role } of scenarios) {
     expect(shiftWrites).toBe(0);
     if (role === "CustomerService") expect(managementReads).toBe(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `../.validation/ui/driver-assignment-${width}-${theme}-${role}.png`, fullPage: true });
+    await page.screenshot({ path: `../.validation/ui/driver-assignment-${width}-${role}.png`, fullPage: true });
   });
 }

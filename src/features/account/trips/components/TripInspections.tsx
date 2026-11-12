@@ -22,7 +22,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
   ) => {
     if (!inspection) {
       return (
-        <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-2">
+        <div className="bg-td-white rounded border border-td-rule p-5 space-y-2">
           <h4 className="font-bold text-td-ink text-sm">{title}</h4>
           <span className="text-xs text-td-muted block">{subtitle}</span>
           <div className="bg-td-chalk rounded p-4 text-center text-xs text-td-muted">
@@ -35,7 +35,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
     const isOk = inspection.isOk ?? true;
 
     return (
-      <div className="bg-td-white rounded border border-td-rule p-5 shadow-sm space-y-4">
+      <div className="bg-td-white rounded border border-td-rule p-5 space-y-4">
         <div className="flex items-start justify-between gap-2">
           <div>
             <h4 className="font-bold text-td-ink text-sm">{title}</h4>
@@ -44,7 +44,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
             </span>
           </div>
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
+            className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold ${
               isOk
                 ? "bg-success-bg text-success border border-success/30"
                 : "bg-warning-bg text-warning border border-warning/30"
@@ -69,7 +69,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
           <div className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-td-muted" aria-hidden="true" />
             <div>
-              <span className="text-td-muted block text-[10px] font-sans">Odometer</span>
+              <span className="text-td-muted block text-xs font-sans">Odometer</span>
               <span className="font-bold text-td-ink">
                 {inspection.odometerKm ? `${inspection.odometerKm.toLocaleString()} km` : "—"}
               </span>
@@ -78,7 +78,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
           <div className="flex items-center gap-2">
             <Fuel className="w-4 h-4 text-td-muted" aria-hidden="true" />
             <div>
-              <span className="text-td-muted block text-[10px] font-sans">Mức nhiên liệu / Pin</span>
+              <span className="text-td-muted block text-xs font-sans">Mức nhiên liệu / Pin</span>
               <span className="font-bold text-td-ink">
                 {typeof inspection.fuelBatteryLevel === "number"
                   ? `${inspection.fuelBatteryLevel}%`
@@ -125,7 +125,7 @@ export function TripInspections({ inspections }: TripInspectionsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">
+      <h3 className="text-xs font-bold text-td-muted">
         Biên bản kiểm định xe (Minh bạch bàn giao)
       </h3>
 

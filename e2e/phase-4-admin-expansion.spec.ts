@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import type { Page, PageScreenshotOptions } from "@playwright/test";
+import type { Locator, Page, PageScreenshotOptions } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 
@@ -48,16 +48,15 @@ function calculateContrastRatio(color1: string, color2: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-async function setAdminTheme(page: Page, theme: "light" | "dark") {
-  await page.evaluate((t: string) => {
-    document.documentElement.dataset.adminTheme = t;
-    document.documentElement.setAttribute("data-theme", t);
-    try {
-      window.localStorage.setItem("vrs-admin-theme", t);
-    } catch {}
-    window.dispatchEvent(new Event("vrs-admin-theme-change"));
-  }, theme);
-  await page.waitForTimeout(300);
+async function backgroundOf(locator: Locator): Promise<string> {
+  return locator.evaluate((el) => {
+    for (let node: Element | null = el; node; node = node.parentElement) {
+      const bg = window.getComputedStyle(node).backgroundColor;
+      const alpha = bg.match(/rgba\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/);
+      if (bg !== "transparent" && (!alpha || parseFloat(alpha[1]) > 0)) return bg;
+    }
+    return "rgb(255, 255, 255)";
+  });
 }
 
 const MOCK_PROFILE = {
@@ -250,13 +249,10 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     });
   });
 
-  test("Gate 0 & Batch 1: /admin (Ca trực) Light & Dark Mode and Global Liquid Flood Transition", async ({ page }) => {
+  test("Gate 0 & Batch 1: /admin (Ca trực)", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin");
     await page.waitForLoadState("networkidle");
-
-    // 1. Ensure Light mode initially
-    await setAdminTheme(page, "light");
 
     // Verify brand name strictly "Thong Dong"
     const brandName = page.locator("header div").filter({ hasText: "Thong Dong" }).first();
@@ -270,54 +266,28 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     const heading = page.locator("h1").filter({ hasText: "Ca trực" });
     await expect(heading).toBeVisible();
 
-    // Capture Light Mode Screenshot
-    await saveMultiScreenshot(page, "phase4-batch1-admin-pulse-light-1920x1080.png");
+    await saveMultiScreenshot(page, "phase4-batch1-admin-pulse-1920x1080.png");
 
-    // 2. Test Global Organic Liquid Flood Transition
-    const themeBtn = page.locator('[data-testid="admin-theme-toggle"]');
-    await expect(themeBtn).toBeVisible();
-
-    // Trigger theme toggle to Dark
-    await themeBtn.click();
-    await page.waitForTimeout(1200); // allow 1050ms transition + settles
-
-    // Verify Dark mode applied
-    const isDark = await page.evaluate(() => document.documentElement.dataset.adminTheme === "dark");
-    expect(isDark).toBe(true);
-
-    // Dark Mode Contrast & Shortcut Surface Verification
-    const headingColorDark = await heading.evaluate((el) => window.getComputedStyle(el).color);
-    const headingContrast = calculateContrastRatio(headingColorDark, "rgb(23, 22, 27)");
+    // Contrast & Shortcut Surface Verification
+    const headingColor = await heading.evaluate((el) => window.getComputedStyle(el).color);
+    const headingContrast = calculateContrastRatio(headingColor, await backgroundOf(heading));
     expect(headingContrast).toBeGreaterThanOrEqual(4.5);
 
     const createVehicleBtn = page.locator("button").filter({ hasText: "ThA�m phương tiện" }).first();
-    // Wait for theme transition to settle
-    await page.waitForFunction(() => {
-      const btn = document.querySelector("button.bg-primary");
-      if (!btn) return false;
-      const color = window.getComputedStyle(btn).color;
-      return color === "rgb(43, 25, 11)";
-    }, { timeout: 3000 });
-
     const btnColor = await createVehicleBtn.evaluate((el) => window.getComputedStyle(el).color);
     const btnBg = await createVehicleBtn.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     const btnContrast = calculateContrastRatio(btnColor, btnBg);
     expect(btnContrast).toBeGreaterThanOrEqual(4.5);
 
-    // Verify operating pulse shortcut cards: must be Carbon #242126 in Dark Mode (NOT blinding white)
     const shortcutCard = page.locator("a[href*='/admin/rentals']").first();
     await expect(shortcutCard).toBeVisible();
     const shortcutBg = await shortcutCard.evaluate((el) => window.getComputedStyle(el).backgroundColor);
-    expect(shortcutBg).not.toBe("rgb(255, 255, 255)");
     const shortcutTitle = shortcutCard.locator("h3").first();
     const shortcutTitleColor = await shortcutTitle.evaluate((el) => window.getComputedStyle(el).color);
     const shortcutContrast = calculateContrastRatio(shortcutTitleColor, shortcutBg);
     expect(shortcutContrast).toBeGreaterThanOrEqual(4.5);
 
-    // Capture Dark Mode Screenshot
-    await saveMultiScreenshot(page, "phase4-batch1-admin-pulse-dark-1920x1080.png");
-
-    // 3. Responsive laptop reflow check (1366x768)
+    // Responsive laptop reflow check (1366x768)
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.waitForTimeout(300);
     await saveMultiScreenshot(page, "phase4-batch1-admin-pulse-laptop-1366x768.png");
@@ -328,58 +298,37 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     await page.goto("/admin/dashboard");
     await page.waitForLoadState("networkidle");
 
-    // Dark mode
-    await setAdminTheme(page, "dark");
-
     const title = page.locator("h1").filter({ hasText: "Trung tA�m Chỉ huy Điều hA�nh" });
     await expect(title).toBeVisible();
 
-    // P1-A Fix Verification: Heading contrast in Dark Mode >= 4.5:1
+    // P1-A Fix Verification: Heading contrast >= 4.5:1
     const titleColor = await title.evaluate((el) => window.getComputedStyle(el).color);
-    const canvasContrast = calculateContrastRatio(titleColor, "rgb(23, 22, 27)");
+    const canvasContrast = calculateContrastRatio(titleColor, await backgroundOf(title));
     expect(canvasContrast).toBeGreaterThanOrEqual(4.5);
 
-    // Verify Recharts axis tick contrast in Dark Mode >= 4.5:1 against chart card background (Carbon #242126 / rgb(36, 33, 38))
+    // Verify Recharts axis tick contrast >= 4.5:1 against its actual background
     const tickElements = page.locator(".recharts-cartesian-axis-tick text");
     await expect(tickElements.first()).toBeVisible();
     const tickCount = await tickElements.count();
     expect(tickCount).toBeGreaterThan(0);
-    const darkTickFill = await tickElements.first().evaluate((el) => {
+    const tickFill = await tickElements.first().evaluate((el) => {
       const style = window.getComputedStyle(el);
       return style.fill || style.color;
     });
-    const darkTickContrast = calculateContrastRatio(darkTickFill, "rgb(36, 33, 38)");
-    expect(darkTickContrast).toBeGreaterThanOrEqual(4.5);
+    const tickContrast = calculateContrastRatio(tickFill, await backgroundOf(tickElements.first()));
+    expect(tickContrast).toBeGreaterThanOrEqual(4.5);
 
     // High-Risk Flow Check: Metrics cards & Export / Filter controls
     const metricCards = page.locator("div").filter({ hasText: "Doanh thu" }).first();
     await expect(metricCards).toBeVisible();
 
-    await saveMultiScreenshot(page, "phase4-batch1-admin-dashboard-dark-1920x1080.png");
-
-    // Light mode
-    await setAdminTheme(page, "light");
-
-    // Verify Recharts axis tick contrast in Light Mode >= 4.5:1 against White #ffffff (rgb(255, 255, 255))
-    const lightTickElements = page.locator(".recharts-cartesian-axis-tick text");
-    await expect(lightTickElements.first()).toBeVisible();
-    const lightTickFill = await lightTickElements.first().evaluate((el) => {
-      const style = window.getComputedStyle(el);
-      return style.fill || style.color;
-    });
-    const lightTickContrast = calculateContrastRatio(lightTickFill, "rgb(255, 255, 255)");
-    expect(lightTickContrast).toBeGreaterThanOrEqual(4.5);
-
-    await saveMultiScreenshot(page, "phase4-batch1-admin-dashboard-light-1920x1080.png");
+    await saveMultiScreenshot(page, "phase4-batch1-admin-dashboard-1920x1080.png");
   });
 
   test("Batch 2: /admin/vehicles (Sổ phương tiện - Open Ledger) Verification", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin/vehicles");
     await page.waitForLoadState("networkidle");
-
-    // Dark mode
-    await setAdminTheme(page, "dark");
 
     const title = page.locator("h1").filter({ hasText: "Sổ phương tiện" });
     await expect(title).toBeVisible();
@@ -388,12 +337,7 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     const vinfastRow = page.locator("span").filter({ hasText: "51K-899.21" }).first();
     await expect(vinfastRow).toBeVisible();
 
-    await saveMultiScreenshot(page, "phase4-batch2-admin-vehicles-dark-1920x1080.png");
-
-    // Light mode
-    await setAdminTheme(page, "light");
-
-    await saveMultiScreenshot(page, "phase4-batch2-admin-vehicles-light-1920x1080.png");
+    await saveMultiScreenshot(page, "phase4-batch2-admin-vehicles-1920x1080.png");
   });
 
   test("Batch 3: /admin/vehicles/new (Commissioning Form) Verification — P1-B Contrast & Form Boundary", async ({ page }) => {
@@ -401,26 +345,24 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     await page.goto("/admin/vehicles/new");
     await page.waitForLoadState("networkidle");
 
-    await setAdminTheme(page, "dark");
-
     const formHeading = page.locator("h2").filter({ hasText: "ThA�m phương tiện mới" });
     await expect(formHeading).toBeVisible();
 
-    // P1-B Fix Verification: Form title & return link contrast in Dark Mode >= 4.5:1
+    // P1-B Fix Verification: Form title & return link contrast >= 4.5:1
     const headingColor = await formHeading.evaluate((el) => window.getComputedStyle(el).color);
-    expect(calculateContrastRatio(headingColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
+    expect(calculateContrastRatio(headingColor, await backgroundOf(formHeading))).toBeGreaterThanOrEqual(4.5);
 
     const returnLink = page.locator("a[href='/admin/vehicles']").first();
     await expect(returnLink).toBeVisible();
     const returnColor = await returnLink.evaluate((el) => window.getComputedStyle(el).color);
-    expect(calculateContrastRatio(returnColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
+    expect(calculateContrastRatio(returnColor, await backgroundOf(returnLink))).toBeGreaterThanOrEqual(4.5);
 
     // High-Risk Flow Check: Form validation boundaries (submit button present & disabled before required type selection)
     const submitBtn = page.locator("button[type='submit']").first();
     await expect(submitBtn).toBeVisible();
     await expect(submitBtn).toBeDisabled();
 
-    await saveMultiScreenshot(page, "phase4-batch3-admin-vehicle-new-dark-1920x1080.png");
+    await saveMultiScreenshot(page, "phase4-batch3-admin-vehicle-new-1920x1080.png");
   });
 
   test("Batch 4 & 5: Dispatch, Inspections & Incident Triage (/admin/reports)", async ({ page }) => {
@@ -428,16 +370,14 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     await page.goto("/admin/reports");
     await page.waitForLoadState("networkidle");
 
-    await setAdminTheme(page, "dark");
-
     const heading = page.locator("h1, h2").filter({ hasText: /sự cố/i }).first();
     await expect(heading).toBeVisible();
 
     // Heading contrast check
     const headingColor = await heading.evaluate((el) => window.getComputedStyle(el).color);
-    expect(calculateContrastRatio(headingColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
+    expect(calculateContrastRatio(headingColor, await backgroundOf(heading))).toBeGreaterThanOrEqual(4.5);
 
-    await saveMultiScreenshot(page, "phase4-batch5-admin-reports-dark-1920x1080.png");
+    await saveMultiScreenshot(page, "phase4-batch5-admin-reports-1920x1080.png");
   });
 
   test("Batch 6 & 7: Policy & Identity Registry (/admin/policies, /admin/users) — P1-C Contrast & User Archetype", async ({ page }) => {
@@ -445,22 +385,20 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     await page.goto("/admin/users");
     await page.waitForLoadState("networkidle");
 
-    await setAdminTheme(page, "dark");
-
     const userHeading = page.locator("h1, h2").filter({ hasText: /người dA�ng/i }).first();
     await expect(userHeading).toBeVisible();
 
-    // P1-C Fix Verification: Heading contrast in Dark Mode >= 4.5:1
+    // P1-C Fix Verification: Heading contrast >= 4.5:1
     const userTitleColor = await userHeading.evaluate((el) => window.getComputedStyle(el).color);
-    expect(calculateContrastRatio(userTitleColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
+    expect(calculateContrastRatio(userTitleColor, await backgroundOf(userHeading))).toBeGreaterThanOrEqual(4.5);
 
     // High-risk archetype check: User table row and search input
     const userRow = page.locator("td, span, div, a").filter({ hasText: "Vũ ThA�y An" }).first();
     await expect(userRow).toBeVisible();
     const userRowColor = await userRow.evaluate((el) => window.getComputedStyle(el).color);
-    expect(calculateContrastRatio(userRowColor, "rgb(23, 22, 27)")).toBeGreaterThanOrEqual(4.5);
+    expect(calculateContrastRatio(userRowColor, await backgroundOf(userRow))).toBeGreaterThanOrEqual(4.5);
 
-    await saveMultiScreenshot(page, "phase4-batch7-admin-users-dark-1920x1080.png");
+    await saveMultiScreenshot(page, "phase4-batch7-admin-users-1920x1080.png");
   });
 
   test("Parity Check: All 26 Admin Routes render within TransitDeskShell without errors", async ({ page }) => {
@@ -496,70 +434,4 @@ test.describe("Thong Dong Transit Desk — Phase 4 Admin Expansion Suite", () =>
     expect(mastheadCount).toBe(0);
   });
 
-  test("Invariant: Zero Theme Leakage during Cross-Portal Navigation (/admin Dark -> /account -> /booking -> /staff -> /admin)", async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 1080 });
-
-    // 1. Operator starts on /admin in Dark Mode
-    await page.goto("/admin");
-    await page.waitForLoadState("networkidle");
-    await setAdminTheme(page, "dark");
-
-    const darkAttr = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(darkAttr).toBe("dark");
-
-    // 2. Navigate to Customer Portal (/account)
-    await page.goto("/account");
-    await page.waitForLoadState("networkidle");
-
-    // Verify data-admin-theme is completely absent on /account
-    const accountThemeAttr = await page.evaluate(() => document.documentElement.getAttribute("data-admin-theme"));
-    expect(accountThemeAttr).toBeNull();
-    const accountThemeData = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(accountThemeData).toBeUndefined();
-
-    // 3. Navigate to Customer Booking (/booking)
-    // Fulfill profile as customer to respect RBAC boundary without redirection back to admin
-    await page.route("**/api/account/profile", (route) => {
-      route.fulfill({
-        status: 200,
-        json: { email: "customer@thongdong.vn", fullName: "KhA�ch HA�ng Thong Dong", roles: ["Customer"] },
-      });
-    });
-
-    await page.goto("/booking");
-    await page.waitForLoadState("networkidle");
-
-    const bookingThemeAttr = await page.evaluate(() => document.documentElement.getAttribute("data-admin-theme"));
-    expect(bookingThemeAttr).toBeNull();
-    const bookingThemeData = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(bookingThemeData).toBeUndefined();
-
-    // 4. Navigate to Driver/Staff Portal (/staff)
-    await page.route("**/api/account/profile", (route) => {
-      route.fulfill({
-        status: 200,
-        json: { email: "driver@thongdong.vn", fullName: "Nguyễn Văn HA�ng", roles: ["Driver", "Staff"] },
-      });
-    });
-
-    await page.goto("/staff");
-    await page.waitForLoadState("networkidle");
-
-    const staffThemeAttr = await page.evaluate(() => document.documentElement.getAttribute("data-admin-theme"));
-    expect(staffThemeAttr).toBeNull();
-    const staffThemeData = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(staffThemeData).toBeUndefined();
-
-    // 5. Navigate back to Admin Portal (/admin)
-    await page.route("**/api/account/profile", (route) => {
-      route.fulfill({ status: 200, json: MOCK_PROFILE });
-    });
-
-    await page.goto("/admin");
-    await page.waitForLoadState("networkidle");
-
-    // Verify dark mode is seamlessly restored from localStorage
-    const restoredTheme = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(restoredTheme).toBe("dark");
-  });
 });

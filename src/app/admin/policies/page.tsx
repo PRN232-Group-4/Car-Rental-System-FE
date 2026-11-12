@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, HelpCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
@@ -14,6 +14,7 @@ import {
 } from "@/features/admin/policies/hooks";
 import { PolicyDrawer } from "@/features/admin/policies/components/PolicyDrawer";
 import type { RentalPolicy } from "@/features/admin/policies/types";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export default function PoliciesPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -122,20 +123,10 @@ export default function PoliciesPage() {
         <div className="space-y-6">
           {/* Header */}
           <TransitFolio
-            index="06"
-            tag="PLC"
-            kicker="CHÍNH SÁCH · ĐIỀU KHOẢN & PHÁP LÝ"
-            title={<>Chính sách thuê & <span className="text-td-teal">đặt cọc.</span></>}
+            title="Chính sách thuê & đặt cọc"
             description="Chính sách thuê là bất biến theo phiên bản nhằm bảo vệ tính toàn vẹn của hợp đồng đã ký. Để điều chỉnh điều khoản, vui lòng tạo một phiên bản mới."
           >
-            <TransitFolioMetric label="PHIÊN BẢN · ĐANG HIỂN THỊ" value={String(filteredPolicies.length).padStart(2, "0")} />
-            <span
-              className="hidden items-center gap-1.5 border-l border-td-rule pl-4 text-[11px] text-td-muted sm:flex"
-              title="Quy tắc hệ thống: Không có chức năng Sửa hoặc Xóa chính sách đã ban hành"
-            >
-              <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Chính sách bất biến</span>
-            </span>
+            <TransitFolioMetric label="Phiên bản đang hiển thị" value={String(filteredPolicies.length)} />
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
@@ -153,7 +144,7 @@ export default function PoliciesPage() {
                 <label htmlFor="filter-vehicle-type" className="sr-only">
                   Lọc theo loại xe
                 </label>
-                <select
+                <InlineSelect
                   id="filter-vehicle-type"
                   value={selectedVehicleTypeFilter}
                   onChange={(e) => setSelectedVehicleTypeFilter(e.target.value)}
@@ -165,14 +156,14 @@ export default function PoliciesPage() {
                       {vt.name}
                     </option>
                   ))}
-                </select>
+                </InlineSelect>
               </div>
 
               <div>
                 <label htmlFor="filter-status" className="sr-only">
                   Lọc theo trạng thái
                 </label>
-                <select
+                <InlineSelect
                   id="filter-status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -181,7 +172,7 @@ export default function PoliciesPage() {
                   <option value="ALL">Tất cả trạng thái</option>
                   <option value="ACTIVE">Đang áp dụng</option>
                   <option value="INACTIVE">Đã ngừng</option>
-                </select>
+                </InlineSelect>
               </div>
             </div>
 

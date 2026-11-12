@@ -93,13 +93,13 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
       <div className="flex flex-col justify-between gap-4 border-b border-td-rule pb-5 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-base font-bold text-td-ink">Báo cáo #{report.id}</span>
+            <span className="text-base font-bold text-td-ink">Báo cáo #{report.id}</span>
             <AdminStatusBadge domain="report" status={report.status}>{statusMeta.label}</AdminStatusBadge>
             <span className="rounded border border-td-rule bg-td-white px-2.5 py-0.5 text-xs font-medium text-td-ink">
               {getReportTypeLabel(report.type)}
             </span>
             {isOverdue && (
-              <span className="rounded-full bg-danger px-2 py-0.5 text-[11px] font-bold text-white">
+              <span className="bg-danger px-2 py-0.5 text-[11px] font-bold text-white">
                 Quá hạn SLA
               </span>
             )}
@@ -172,7 +172,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
 
       {/* Nội dung chi tiết - CHỐNG XSS: Render văn bản thuần */}
       <section className="rounded border border-td-rule bg-td-white p-5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-td-muted">Nội dung phản ánh</h3>
+        <h3 className="text-xs font-bold text-td-muted">Nội dung phản ánh</h3>
         <div className="mt-3 whitespace-pre-wrap rounded border border-td-rule bg-td-chalk p-4 text-sm leading-relaxed text-td-ink">
           {report.description}
         </div>
@@ -203,7 +203,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
         {/* Khối khách hàng */}
         <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+            <div className="flex items-center gap-2 text-xs font-bold text-td-muted">
               <User className="h-4 w-4 text-td-oxide" />
               <span>Khách hàng phản ánh</span>
             </div>
@@ -231,7 +231,7 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
         {/* Khối liên kết: Đơn thuê hoặc Phiếu bảo dưỡng */}
         <section className="flex flex-col justify-between rounded border border-td-rule bg-td-white p-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+            <div className="flex items-center gap-2 text-xs font-bold text-td-muted">
               <Car className="h-4 w-4 text-td-oxide" />
               <span>Ngữ cảnh liên kết</span>
             </div>
@@ -295,14 +295,14 @@ export function ReportDetailView({ report }: ReportDetailViewProps) {
       {/* Nhật ký lịch sử thay đổi trạng thái (nếu có) */}
       {report.history && report.history.length > 0 && (
         <section className="rounded border border-td-rule bg-td-white p-5">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-td-muted">
+          <div className="flex items-center gap-2 text-xs font-bold text-td-muted">
             <Clock className="h-4 w-4 text-td-oxide" />
             <span>Nhật ký xử lý báo cáo</span>
           </div>
           <ol className="mt-4 space-y-3 border-l-2 border-td-rule pl-4 text-xs">
             {report.history.map((h, idx) => (
               <li key={idx} className="relative">
-                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border border-td-rule bg-td-oxide" />
+                <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 border border-td-rule bg-td-oxide" />
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-td-ink">{h.by || "Hệ thống"}</span>
                   <span className="font-mono text-td-muted">{formatDateTime(h.at, "dd/MM/yyyy HH:mm")}</span>

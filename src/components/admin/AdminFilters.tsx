@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { ChevronDown, Filter, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { Filter, RotateCcw } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import styles from "./AdminFilters.module.css";
 
@@ -15,7 +15,7 @@ export function AdminFilterBar({ title = "Bộ lọc", description, children, ac
   const titleId = useId();
   return <section className={styles.bar} data-admin-filters aria-labelledby={titleId}>
     <div className={styles.heading}>
-      <h2 id={titleId}><SlidersHorizontal aria-hidden="true" />{title}</h2>
+      <h2 id={titleId}>{title}</h2>
       {description && <p>{description}</p>}
     </div>
     <div className={styles.toolbar}>
@@ -25,10 +25,11 @@ export function AdminFilterBar({ title = "Bộ lọc", description, children, ac
   </section>;
 }
 
-export function AdminFilterField({ label, htmlFor, icon: Icon, select = false, children }: {
+export function AdminFilterField({ label, htmlFor, icon: Icon, children }: {
   label: string;
   htmlFor: string;
   icon?: LucideIcon;
+  /** Kept for call-site compatibility; the shared Select draws its own chevron. */
   select?: boolean;
   children: ReactNode;
 }) {
@@ -37,7 +38,6 @@ export function AdminFilterField({ label, htmlFor, icon: Icon, select = false, c
     <div className={`${styles.control} ${Icon ? styles.withIcon : ""}`}>
       {Icon && <Icon className={styles.leadingIcon} aria-hidden="true" />}
       {children}
-      {select && <ChevronDown className={styles.chevron} aria-hidden="true" />}
     </div>
   </div>;
 }

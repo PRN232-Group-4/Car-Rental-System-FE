@@ -293,14 +293,12 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
   const content = (
     <div className="min-w-0 space-y-8">
       {!onClose && <>
-        <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-xs font-semibold text-td-muted transition hover:text-td-oxide"><ArrowLeft className="h-4 w-4" /> Quay lại danh sách phương tiện</Link>
         <TransitFolio
-          index="02"
-          tag="FLT"
-          kicker="TÀI SẢN · HỒ SƠ PHƯƠNG TIỆN"
-          title={loading ? <>Hồ sơ <span className="text-td-teal">phương tiện.</span></> : isEditing ? <>Chỉnh sửa <span className="text-td-teal">phương tiện.</span></> : <>Thêm <span className="text-td-teal">phương tiện mới.</span></>}
+          title={loading ? "Hồ sơ phương tiện" : isEditing ? "Chỉnh sửa phương tiện" : "Thêm phương tiện mới"}
           description="Cập nhật hồ sơ, giá thuê và thông số kỹ thuật theo từng loại xe."
-        />
+        >
+          <Link href="/admin/vehicles" className="inline-flex items-center gap-2 text-xs font-semibold text-td-muted transition hover:text-td-ink"><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Quay lại danh sách phương tiện</Link>
+        </TransitFolio>
       </>}
       {error && <p role="alert" className="rounded border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">{error}</p>}
 
@@ -330,19 +328,19 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
               </AdminStatusBadge>
               <dl className="divide-y divide-td-rule text-sm">
                 <div className="flex flex-wrap justify-between gap-2 py-3">
-                  <dt className="font-mono text-[11px] uppercase text-td-muted">Loại xe</dt>
+                  <dt className="text-[11px] text-td-muted">Loại xe</dt>
                   <dd className="min-w-0 break-words text-right font-semibold text-td-ink">{selectedVehicleType?.name || "Chưa chọn"}</dd>
                 </div>
                 <div className="flex flex-wrap justify-between gap-2 py-3">
-                  <dt className="font-mono text-[11px] uppercase text-td-muted">Biển số</dt>
+                  <dt className="text-[11px] text-td-muted">Biển số</dt>
                   <dd className="min-w-0 break-words font-mono text-td-ink">{draft.licensePlate || "Chưa cập nhật"}</dd>
                 </div>
                 <div className="flex flex-wrap justify-between gap-2 py-3">
-                  <dt className="font-mono text-[11px] uppercase text-td-muted">Chi nhánh</dt>
+                  <dt className="text-[11px] text-td-muted">Chi nhánh</dt>
                   <dd className="min-w-0 break-words text-right font-semibold text-td-ink">{facilities.find((item) => String(item.id) === draft.facilityId)?.name || "Chưa phân công"}</dd>
                 </div>
               </dl>
-              <p className="border-l-2 border-td-oxide pl-3 text-xs leading-relaxed text-td-muted">Thông số hiển thị theo nhóm xe và nhiên liệu của loại phương tiện đã chọn.</p>
+              <p className="pl-3 text-xs leading-relaxed text-td-muted">Thông số hiển thị theo nhóm xe và nhiên liệu của loại phương tiện đã chọn.</p>
             </aside>
           )}
           <div className={onClose ? "min-w-0 space-y-6" : "min-w-0 space-y-8 lg:col-span-8"}>

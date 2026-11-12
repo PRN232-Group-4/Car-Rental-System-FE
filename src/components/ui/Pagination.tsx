@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export interface PaginationProps {
   page: number; // 1-indexed
@@ -71,7 +72,7 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-t border-td-rule py-3 font-mono text-[11px] sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-4 border-t border-td-rule py-3 text-xs sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >
@@ -95,14 +96,14 @@ export function Pagination({
         {onPageSizeChange && pageSizeOptions.length > 0 && (
           <label htmlFor={pageSizeSelectId} className="flex items-center gap-2">
             <span>Hiển thị:</span>
-            <select
+            <InlineSelect
               id={pageSizeSelectId}
               value={pageSize}
               disabled={loading}
               onChange={(e) => {
                 onPageSizeChange(Number(e.currentTarget.value));
               }}
-              className="rounded border border-td-rule bg-transparent px-2 py-1 text-[11px] text-td-ink outline-none transition focus:border-primary disabled:opacity-50"
+              className="border border-td-rule bg-transparent px-2 py-1 text-[11px] text-td-ink outline-none transition focus:border-primary disabled:opacity-50"
               aria-label={`Số ${itemName} mỗi trang`}
             >
               {pageSizeOptions.map((size) => (
@@ -110,7 +111,7 @@ export function Pagination({
                   {size} / trang
                 </option>
               ))}
-            </select>
+            </InlineSelect>
           </label>
         )}
       </div>
@@ -124,7 +125,7 @@ export function Pagination({
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage <= 1 || loading}
           aria-label="Trang trước"
-          className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
+          className="border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -152,7 +153,7 @@ export function Pagination({
               aria-label={`Trang ${item}`}
               aria-current={isCurrent ? "page" : undefined}
               className={cn(
-                "h-8 min-w-8 rounded px-2 text-[11px] font-bold tabular-nums transition",
+                "h-8 min-w-8 px-2 text-[11px] font-bold tabular-nums transition",
                 isCurrent
                   ? "bg-primary text-white"
                   : "border border-td-rule text-td-ink hover:bg-td-chalk",
@@ -169,7 +170,7 @@ export function Pagination({
           onClick={() => onPageChange(Math.min(pageCount, currentPage + 1))}
           disabled={currentPage >= pageCount || loading}
           aria-label="Trang tiếp theo"
-          className="rounded border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
+          className="border border-td-rule p-1.5 text-td-ink transition hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>

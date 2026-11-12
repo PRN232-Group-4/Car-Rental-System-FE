@@ -21,7 +21,7 @@ export function AdminStatusBadge({
   return (
     <span
       data-status-tone={tone}
-      className={`${statusPillClasses} text-[11px] ${statusToneClasses[tone]}`}
+      className={`${statusPillClasses} text-xs ${statusToneClasses[tone]}`}
     >
       <StatusGlyph tone={tone} />
       {children}

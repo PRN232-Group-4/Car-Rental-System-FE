@@ -65,7 +65,7 @@ export default function TrackingManager() {
   if (!allowed) return <p role="alert" className="text-sm text-danger">Chỉ Admin và Manager được xem geofence và xử lý cảnh báo.</p>;
   const zone = zones.error ? null : zones.data?.find((item) => item.id === zoneId);
   return <div className="space-y-6">
-    <TransitFolio index="05" tag="DSP" kicker="ĐIỀU PHỐI · ĐỊNH VỊ" title="Vùng địa lý và cảnh báo" description="Theo dõi vùng hoạt động, sự kiện ra/vào vùng và xử lý cảnh báo từ hệ thống định vị." />
+    <TransitFolio title="Vùng địa lý và cảnh báo" description="Theo dõi vùng hoạt động, sự kiện ra/vào vùng và xử lý cảnh báo từ hệ thống định vị." />
     <AdminTableCard><div className="border-b border-td-rule px-5 py-4"><h2 className="font-bold">Vùng địa lý</h2></div>
       {zones.error && <p role="alert" className="p-5 text-sm text-danger">{trackingError(zones.error)} <button type="button" className="underline" onClick={() => void zones.refetch()}>Thử lại</button></p>}
       <AdminTable aria-busy={zones.isFetching}><caption className="sr-only">Danh sách geofence</caption><thead><tr><th scope="col">Tên vùng</th><th scope="col">Loại vùng</th><th scope="col">Bán kính</th><th scope="col">Hoạt động</th><th scope="col" data-actions>Thao tác</th></tr></thead>

@@ -22,14 +22,11 @@ export default function RentalContractManager() {
   const query = useQuery({ queryKey: ["rental-contract", lookupId], queryFn: () => getRentalById(lookupId), enabled: /^[1-9]\d*$/.test(lookupId), retry: false });
   return <section className="space-y-6">
     <TransitFolio
-      index="09"
-      tag="KH"
-      kicker="KHÁCH HÀNG · HỢP ĐỒNG DÀI HẠN"
-      title={<>Hợp đồng <span className="text-td-teal">thuê dài hạn.</span></>}
+      title="Hợp đồng thuê dài hạn"
       description="Tra cứu đơn thuê và tải file hoặc ảnh hợp đồng đã ký trước khi nhận xe dài hạn."
     />
     <ValidatedForm validation={validation} onSubmit={() => setLookupId(rentalId)} className="space-y-3 border-y border-td-rule py-4">
-      <label htmlFor="rentalId" className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-td-muted">Mã đơn thuê</label><InlineInput id="rentalId" name="rentalId" type="number" min="1" step="1" required value={rentalId} onChange={(event) => setRentalId(event.target.value)} className={inputClass} />
+      <label htmlFor="rentalId" className="block text-[11px] font-semibold text-td-muted">Mã đơn thuê</label><InlineInput id="rentalId" name="rentalId" type="number" min="1" step="1" required value={rentalId} onChange={(event) => setRentalId(event.target.value)} className={inputClass} />
       <button type="submit" className="rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover">Tra cứu hợp đồng</button>
     </ValidatedForm>
     {query.isFetching && !query.data && <FormSkeleton label="Đang tải hợp đồng" fields={4} />}

@@ -1,180 +1,146 @@
 "use client";
 
 import Link from "@/components/navigation/NavigationLink";
-import { MapPin, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ShieldCheck, ArrowUpRight } from "lucide-react";
 
-export default function Footer() {
-  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (typeof window !== "undefined") {
-      if (window.location.pathname === "/") {
-        e.preventDefault();
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "smooth",
-        });
-        if (window.location.hash) {
-          window.history.pushState(null, "", "/");
-        }
-      }
-    }
-  };
-
+export function FooterContent() {
   return (
-    <footer 
-      id="lien-he" 
-      className="bg-stage-ink border-t border-white/10 text-white/80 pt-16 pb-12 px-4 sm:px-6 pr-14 md:pr-16 lg:pr-24 xl:pr-28 relative z-10 scroll-mt-24"
-    >
-      <div className="max-w-[1480px] xl:max-w-[1600px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 pb-12 border-b border-white/10">
-          {/* Brand & Introduction */}
-          <div className="lg:col-span-2 space-y-4">
-            <Link
-              href="/"
-              onClick={handleLogoClick}
-              className="inline-flex items-center gap-2.5 group"
-            >
-              <span className="font-display text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-primary-tint transition-colors">
-                ThongDong.
-              </span>
-            </Link>
-            <p className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-sm font-normal">
-              Hệ thống cho thuê phương tiện theo giờ và dài hạn, kèm tài xế chuyên nghiệp. Đơn vị sở hữu và vận hành trực tiếp toàn bộ đội xe thể thao, SUV hạng sang và xe thuần điện với quy trình kiểm định 2 chiều minh bạch.
-            </p>
-            <div className="flex items-center gap-2 text-xs text-white/80 pt-2">
-              <ShieldCheck className="w-4 h-4 text-primary-tint" aria-hidden="true" />
-              <span>Thanh toán an toàn tích hợp cổng PayOS</span>
-            </div>
+    <div className="max-w-[1640px] mx-auto space-y-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-bone-100/20">
+        <div className="lg:col-span-4 space-y-4">
+          <div className="font-display font-black text-3xl tracking-tight text-bone-100">
+            ThongDong<span className="text-sun-600">.</span>
           </div>
-
-          {/* Column 1: Về hệ thống */}
-          <div className="space-y-3 min-w-0">
-            <h4 className="text-sm font-semibold text-white">
-              Về hệ thống
-            </h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-white/70">
-              <li>
-                <a href="#gioi-thieu" className="hover:text-white transition-colors">
-                  Giới thiệu vận hành
-                </a>
-              </li>
-              <li>
-                <a href="#chi-nhanh" className="hover:text-white transition-colors">
-                  Hệ thống chi nhánh
-                </a>
-              </li>
-              <li>
-                <a href="#lien-he" className="hover:text-white transition-colors">
-                  Liên hệ điều phối
-                </a>
-              </li>
-              <li>
-                <Link href="/admin" className="inline-block text-xs text-primary font-semibold bg-primary-tint/20 border border-primary/30 px-2 py-0.5 rounded hover:bg-primary-tint/30 transition-colors">
-                  Cổng nhân viên / Admin
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 2: Thuê xe */}
-          <div className="space-y-3 min-w-0">
-            <h4 className="text-sm font-semibold text-white">
-              Thuê xe
-            </h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-white/70">
-              <li>
-                <a href="#quy-trinh" className="hover:text-white transition-colors">
-                  Hướng dẫn quy trình
-                </a>
-              </li>
-              <li>
-                <a href="#danh-muc-xe" className="hover:text-white transition-colors">
-                  Tìm kiếm &amp; đặt xe
-                </a>
-              </li>
-              <li>
-                <a href="#goi-thue-bao" className="hover:text-white transition-colors">
-                  Gói thuê bao trừ dần
-                </a>
-              </li>
-              <li>
-                <a href="#cong-nghe" className="hover:text-white transition-colors">
-                  Biên bản kiểm định xe
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Chính sách */}
-          <div className="space-y-3 min-w-0">
-            <h4 className="text-sm font-semibold text-white">
-              Chính sách
-            </h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-white/70">
-              <li>
-                <a href="#cong-nghe" className="hover:text-white transition-colors">
-                  Chính sách thuê &amp; đặt cọc
-                </a>
-              </li>
-              <li>
-                <a href="#cong-nghe" className="hover:text-white transition-colors">
-                  Quy trình quyết toán &amp; hoàn cọc
-                </a>
-              </li>
-              <li>
-                <a href="#cong-nghe" className="hover:text-white transition-colors">
-                  Kiểm định an toàn hai chiều
-                </a>
-              </li>
-              <li>
-                <a href="#goi-thue-bao" className="hover:text-white transition-colors">
-                  Chính sách giữ xe khi xác nhận
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4: Dịch vụ & Hỗ trợ */}
-          <div className="space-y-3 min-w-0 break-words">
-            <h4 className="text-sm font-semibold text-white">
-              Hỗ trợ khách hàng
-            </h4>
-            <div className="space-y-2.5 text-xs sm:text-sm text-white/70">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary-tint shrink-0" aria-hidden="true" />
-                <a href="#chi-nhanh" className="hover:text-white transition-colors font-medium">
-                  Mạng lưới trạm ThongDong
-                </a>
-              </div>
-              <div className="flex items-start gap-2 pt-1">
-                <ShieldCheck className="w-4 h-4 text-primary-tint shrink-0 mt-0.5" aria-hidden="true" />
-                <a href="#cong-nghe" className="hover:text-white transition-colors flex items-center gap-1">
-                  <span>Hỗ trợ sự cố &amp; kiểm định</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3D Model Asset Attribution (CC BY 4.0) */}
-        <div className="py-6 border-b border-white/10 text-xs text-white/70">
-          <p className="leading-relaxed">
-            <strong className="text-white font-semibold">Ghi nhận bản quyền mô hình 3D (CC BY 4.0):</strong>{" "}
-            1975 Porsche 911 (930) Turbo tác quyền bởi Karol Miklas; Porsche 911 Carrera 4S (2026 Edition) tác quyền bởi Martin Trafas / 3D Automotive Design Lab. Được tích hợp và tối ưu hoá hiển thị theo giấy phép Creative Commons Attribution 4.0 International.
+          <p className="font-sans text-sm text-bone-100/75 leading-relaxed max-w-sm">
+            Hệ thống cho thuê siêu xe và xe sang hiệu năng cao. Bàn giao chìa khóa số chuẩn xác, kiểm định kỹ thuật đa điểm và đối soát hoàn cọc tự động.
           </p>
+          <div className="pt-2 flex items-center gap-2 text-[11px] tracking-[0.22em] uppercase font-sans font-bold text-sun-400">
+            <ShieldCheck className="w-4 h-4" />
+            <span>100% ĐỘI XE BẢO HIỂM VẬT CHẤT TOÀN DIỆN</span>
+          </div>
         </div>
 
-        {/* Bottom copyright line */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/70">
-          <p>© 2026 Hệ thống cho thuê xe Thong Dong. Toàn bộ quyền được bảo lưu.</p>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-white transition-colors cursor-pointer">Điều khoản dịch vụ</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Chính sách bảo mật</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Bản quyền phần mềm v3.0</span>
+        <div className="lg:col-span-3 space-y-3">
+          <span className="text-[11px] tracking-[0.26em] uppercase font-sans font-bold text-sun-400 block mb-4">
+            KHÁM PHÁ HỆ THỐNG
+          </span>
+          <ul className="space-y-2.5 text-sm font-sans">
+            <li>
+              <Link href="/find" className="inline-flex items-center gap-1.5 text-bone-100/80 hover:text-sun-400 transition-colors">
+                <span>Đội xe tuyển chọn (Fleet)</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </li>
+            <li>
+              <Link href="/facilities" className="inline-flex items-center gap-1.5 text-bone-100/80 hover:text-sun-400 transition-colors">
+                <span>Mạng lưới trạm bàn giao</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </li>
+            <li>
+              <Link href="/inspection" className="inline-flex items-center gap-1.5 text-bone-100/80 hover:text-sun-400 transition-colors">
+                <span>Trạm mô phỏng kiểm định 3D</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </li>
+            <li>
+              <Link href="/subscriptions" className="inline-flex items-center gap-1.5 text-bone-100/80 hover:text-sun-400 transition-colors">
+                <span>Gói thuê bao hội viên</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div className="lg:col-span-2 space-y-3">
+          <span className="text-[11px] tracking-[0.26em] uppercase font-sans font-bold text-lake-400 block mb-4">
+            KHÁCH HÀNG
+          </span>
+          <ul className="space-y-2.5 text-sm font-sans">
+            <li>
+              <Link href="/register" className="text-bone-100/80 hover:text-bone-100 transition-colors">
+                Đăng ký thành viên
+              </Link>
+            </li>
+            <li>
+              <Link href="/login" className="text-bone-100/80 hover:text-bone-100 transition-colors">
+                Đăng nhập hệ thống
+              </Link>
+            </li>
+            <li>
+              <Link href="/my-rentals" className="text-bone-100/80 hover:text-bone-100 transition-colors">
+                Quản lý chuyến đi
+              </Link>
+            </li>
+            <li>
+              <Link href="/driver-license" className="text-bone-100/80 hover:text-bone-100 transition-colors">
+                Hồ sơ giấy phép lái xe
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div className="lg:col-span-3 space-y-3">
+          <span className="text-[11px] tracking-[0.26em] uppercase font-sans font-bold text-sun-400 block mb-4">
+            TRUNG TÂM ĐIỀU HÀNH
+          </span>
+          <div className="space-y-2.5 text-xs sm:text-base text-bone-100/80 font-sans">
+            <div className="flex items-start gap-2.5">
+              <MapPin className="w-4 h-4 text-sun-400 shrink-0 mt-0.5" />
+              <span className="text-xs sm:text-sm">Hệ thống trạm trung tâm Quận 1, Quận 2 (Thảo Điền), Quận 7 — TP. Hồ Chí Minh</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <Phone className="w-4 h-4 text-sun-400 shrink-0" />
+              <span className="text-xs sm:text-sm">Hotline Concierge: 1900 8888</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <Mail className="w-4 h-4 text-sun-400 shrink-0" />
+              <span className="text-xs sm:text-sm">Email hỗ trợ: support@vrs.vn</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <Clock className="w-4 h-4 text-sun-400 shrink-0" />
+              <span className="text-xs sm:text-sm">Khung giờ bàn giao trạm: 07:00 – 22:00</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <div className="space-y-4 text-xs text-bone-100/60">
+        <div className="leading-relaxed border-b border-bone-100/15 pb-4 text-[11px] text-bone-100/50">
+          <strong className="text-bone-100 font-medium">
+            Ghi nhận bản quyền mô hình 3D (CC BY 4.0):
+          </strong>{" "}
+          1975 Porsche 911 (930) Turbo tác quyền bởi Karol Miklas; Porsche 911 Carrera 4S (2026 Edition) tác quyền bởi Martin Trafas / 3D Automotive Design Lab. Được tích hợp và tối ưu hoá hiển thị theo giấy phép Creative Commons Attribution 4.0 International.
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-sans text-[11px] tracking-wider">
+          <span>
+            © 2026 Hệ thống cho thuê xe Thong Dong. Toàn bộ quyền được bảo lưu.
+          </span>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link href="/find" className="hover:text-sun-400 transition-colors">
+              ĐỘI XE
+            </Link>
+            <Link href="/facilities" className="hover:text-sun-400 transition-colors">
+              CHI NHÁNH
+            </Link>
+            <Link href="/inspection" className="hover:text-sun-400 transition-colors">
+              KIỂM ĐỊNH 3D
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Footer() {
+  return (
+    <footer
+      id="lien-he"
+      className="relative z-10 w-full bg-ink-950 border-t-4 border-sun-600 pt-16 sm:pt-20 pb-12 px-6 sm:px-12 lg:px-20 text-bone-100 scroll-mt-24"
+    >
+      <FooterContent />
     </footer>
   );
 }

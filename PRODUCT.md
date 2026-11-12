@@ -46,15 +46,17 @@ Chưa quyết định: cổng thanh toán nào ngoài PayOS; chính sách sau 72
 ## Brand Commitments
 
 - Tên hiển thị cho khách: **Thong Dong** (chuỗi hiển thị) và wordmark `ThongDong.`; tên kỹ thuật trong mã nguồn: **VRS**.
-- Hệ thống thị giác đã cam kết và ghi tại `DESIGN.md` v3.1 — đây là nguồn xác thực duy nhất cho mọi quyết định thị giác; khi Phần A và Phần B mâu thuẫn, Phần A thắng.
-- Điểm nhấn màu duy nhất: **Precision Amber `#B45309`** (tông vàng đồng kỹ thuật), diện tích điểm nhấn ≤ 10% mỗi màn hình.
-- Không gradient, không emoji, không font Inter, không `#000000`.
+- Hệ thống thị giác đã cam kết và ghi tại `DESIGN.md` — đây là nguồn xác thực duy nhất cho mọi quyết định thị giác; khi Phần A và Phần B mâu thuẫn, Phần A thắng. Landing `/` theo A14, mọi trang còn lại theo A15.
+- Bề mặt: thân giấy `bone-100`, khung mực `ink-950`, góc vuông, một theme duy nhất. Điểm nhấn màu duy nhất là `primary` (`sun-700`, cam sun), diện tích điểm nhấn ≤ 10% mỗi màn hình.
+- Không kính (backdrop blur), không gradient, không emoji, không font Inter, không `#000000`. Archivo cho h1/h2, Be Vietnam Pro cho chữ thân, mono chỉ cho dữ liệu (mã, biển số, tiền, ngày giờ).
+- Không kicker trên tiêu đề, không số chương, không khối số to kiểu `TỔNG 00`, không icon trang trí cạnh tiêu đề (`DESIGN.md` A15.3).
 - Giọng tiếng Việt, trực tiếp, nghiệp vụ; nhãn điều khiển gọi tên việc chúng làm.
 
 ## Evidence on Hand
 
 - `/e2e` — 22 kịch bản Playwright: đăng nhập/đăng ký, đặt xe theo giờ và dài hạn, hợp đồng, kiểm định GPLX, smoke từng trang, kiểm chứng token thiết kế.
-- `DESIGN.md` (v3.1) — hệ thống thị giác đầy đủ và đặc tả sản phẩm/UX.
+- `DESIGN.md` — hệ thống thị giác đầy đủ (A14 landing, A15 ứng dụng) và đặc tả sản phẩm/UX.
+- `scripts/design-sweep.mjs` — quét mọi route với API giả, đo bo góc, kính, màu cũ, kicker và khoảng cách header → tiêu đề.
 - `docs/SRS_CarRental.md`, `docs/specs/FE-*.md` — yêu cầu chức năng và đặc tả bề mặt.
 - `tests/TestSprite.pdf` — báo cáo kiểm thử tự động bên ngoài trên bản deploy (51 kịch bản), dùng làm danh sách lỗi đã biết.
 - Ảnh xe: hiện là ảnh minh hoạ qua `picsum.photos` khi phát triển; **chưa có** ảnh đội xe thật, chưa có testimonial, chưa có số liệu khách hàng thật — không được bịa các nội dung này.

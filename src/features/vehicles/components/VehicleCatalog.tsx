@@ -13,7 +13,6 @@ import {
   MapPin,
   CheckCircle2,
   ArrowRight,
-  Filter,
   Car,
   AlertCircle,
   RefreshCw,
@@ -84,51 +83,39 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
   };
 
   return (
-    <section id="danh-sach-xe" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
+    <section id="danh-sach-xe" className="py-8 md:py-10 px-4 sm:px-6 max-w-7xl mx-auto">
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
         <SectionHeading
-          kicker="ĐỘI XE HỆ THỐNG"
           title="Khám phá phương tiện cho mọi cung đường"
           subtitle="Danh mục phương tiện, giá thuê và tình trạng được cập nhật từ hệ thống."
+          className="!mb-0"
         />
       </div>
 
       {/* Category Tabs with Bilingual Tech Micro-Badges */}
       <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-td-rule pb-4">
         {[
-          { id: "all", label: "Tất cả phương tiện", tag: "ALL" },
+          { id: "all", label: "Tất cả ô tô", tag: "ALL" },
           { id: "car", label: "Ô tô tiêu chuẩn", tag: "STANDARD" },
           { id: "electric_car", label: "Ô tô điện", tag: "EV CAR" },
-          { id: "motorbike", label: "Xe máy tiêu chuẩn", tag: "MOTO" },
-          { id: "electric_motorbike", label: "Xe máy điện", tag: "EV MOTO" },
         ].map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setSelectedCategory(tab.id)}
-            className={`px-4 py-2.5 rounded text-xs sm:text-sm font-bold transition-all cursor-pointer select-none active:scale-[0.98] flex items-center gap-2 ${
+            className={`px-4 py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer select-none active:scale-[0.98] flex items-center gap-2 ${
               selectedCategory === tab.id
                 ? "bg-primary text-white"
                 : "bg-td-white hover:bg-td-chalk text-td-ink hover:text-td-ink border border-td-rule"
             }`}
           >
             <span>{tab.label}</span>
-            <span
-              className={`text-xs uppercase font-mono tracking-wider px-1.5 py-0.5 rounded ${
-                selectedCategory === tab.id
-                  ? "bg-td-white/20 text-white"
-                  : "bg-td-chalk text-td-muted"
-              }`}
-            >
-              {tab.tag}
-            </span>
           </button>
         ))}
 
-        <div className="ml-auto hidden sm:flex items-center gap-2 text-xs text-td-ink font-medium bg-td-white border border-td-rule px-3.5 py-1.5 rounded-full">
-          <Filter className="w-3.5 h-3.5 text-primary" />
-          <span>
+        <div className="ml-auto hidden sm:flex items-center gap-2 text-xs text-td-ink font-medium bg-td-white border border-td-rule px-3.5 py-1.5">
+                    <span>
             Hiển thị <strong className="font-mono text-td-ink">{filteredVehicles.length}</strong> xe khả dụng
           </span>
         </div>
@@ -148,7 +135,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
 
       {/* Error state */}
       {!loading && error && (
-        <div className="p-8 rounded bg-danger-bg border border-danger/30 text-center max-w-lg mx-auto space-y-4">
+        <div className="p-8 bg-danger-bg border border-danger/30 text-center max-w-lg mx-auto space-y-4">
           <AlertCircle className="w-10 h-10 text-danger mx-auto" />
           <h4 className="text-base font-bold text-td-ink">Không thể tải danh sách phương tiện</h4>
           <p className="text-xs text-td-ink">{error}</p>
@@ -161,7 +148,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
 
       {/* Empty state */}
       {!loading && !error && filteredVehicles.length === 0 && (
-        <div className="p-12 rounded bg-td-white border border-td-rule text-center max-w-md mx-auto space-y-4">
+        <div className="p-12 bg-td-white border border-td-rule text-center max-w-md mx-auto space-y-4">
           <Car className="w-12 h-12 text-td-muted mx-auto stroke-1" />
           <h4 className="text-lg font-bold text-td-ink">Không tìm thấy xe phù hợp</h4>
           <p className="text-xs sm:text-sm text-td-ink">
@@ -179,7 +166,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
           {filteredVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
-              className="glass-lite glass-lift rounded overflow-hidden flex flex-col group border border-td-rule hover:shadow-e2 transition-all duration-300"
+              className="glass-lite glass-lift overflow-hidden flex flex-col group border border-td-rule transition-all duration-300"
             >
               {/* Image Container with height >= 60% of card per spec */}
               <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stage-ink">
@@ -195,14 +182,14 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                   {vehicle.badges.map((badge, idx) => (
                     <span
                       key={idx}
-                      className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-stage-ink/90 text-white border border-white/10"
+                      className="text-xs font-semibold px-2.5 py-0.5 bg-stage-ink/90 text-white border border-white/10"
                     >
                       {badge}
                     </span>
                   ))}
                 </div>
 
-                <div className="absolute bottom-3 left-3 text-white text-xs font-semibold flex items-center gap-1.5 bg-stage-ink/90 px-3 py-1 rounded-full border border-white/10">
+                <div className="absolute bottom-3 left-3 text-white text-xs font-semibold flex items-center gap-1.5 bg-stage-ink/90 px-3 py-1 border border-white/10">
                   <MapPin className="w-3.5 h-3.5 text-primary" />
                   <span>{vehicle.facilityName}</span>
                 </div>
@@ -226,7 +213,7 @@ export default function VehicleCatalog({ filterFacilityId = "all" }: VehicleCata
                   </h3>
 
                   {/* Technical specifications */}
-                  <div className="grid grid-cols-2 gap-2 text-xs text-td-ink py-3 mb-4 bg-td-paper rounded px-3 border border-td-rule">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-td-ink py-3 mb-4 bg-td-paper px-3 border border-td-rule">
                     {vehicle.seats && (
                       <div className="flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-td-muted" />

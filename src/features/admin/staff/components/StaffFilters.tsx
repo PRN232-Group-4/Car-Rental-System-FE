@@ -1,6 +1,7 @@
 import React from "react";
 import { Search, X } from "lucide-react";
 import type { StaffFilterParams, StaffDepartment, StaffFacility } from "../types";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 export interface StaffFiltersProps {
   filters: StaffFilterParams;
@@ -43,7 +44,7 @@ export function StaffFilters({
 
         {/* Lọc phòng ban */}
         <div className="w-full md:w-52">
-          <select
+          <InlineSelect
             value={filters.departmentId || "all"}
             onChange={(e) => onChange({ departmentId: e.target.value, page: 1 })}
             className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
@@ -54,12 +55,12 @@ export function StaffFilters({
                 {d.name}
               </option>
             ))}
-          </select>
+          </InlineSelect>
         </div>
 
         {/* Lọc chi nhánh / cơ sở */}
         <div className="w-full md:w-56">
-          <select
+          <InlineSelect
             value={filters.facilityId || "all"}
             onChange={(e) => onChange({ facilityId: e.target.value, page: 1 })}
             className="h-8 w-full rounded border border-td-rule bg-transparent px-2 text-xs font-medium text-td-ink focus:border-td-ink focus:outline-none"
@@ -70,14 +71,14 @@ export function StaffFilters({
                 {f.name}
               </option>
             ))}
-          </select>
+          </InlineSelect>
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-td-rule/60">
         {/* Lọc vai trò tài xế */}
         <div className="w-full sm:w-44">
-          <select
+          <InlineSelect
             value={filters.isDriver || "all"}
             onChange={(e) => onChange({ isDriver: e.target.value, page: 1 })}
             className="h-9 w-full rounded border border-td-rule bg-td-white px-2.5 text-xs font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
@@ -85,12 +86,12 @@ export function StaffFilters({
             <option value="all">Mọi nhân sự</option>
             <option value="driver">Chỉ tài xế</option>
             <option value="staff">Nhân viên văn phòng</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {/* Lọc trạng thái hoạt động */}
         <div className="w-full sm:w-44">
-          <select
+          <InlineSelect
             value={filters.isActive || "all"}
             onChange={(e) => onChange({ isActive: e.target.value, page: 1 })}
             className="h-9 w-full rounded border border-td-rule bg-td-white px-2.5 text-xs font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
@@ -98,12 +99,12 @@ export function StaffFilters({
             <option value="all">Mọi trạng thái</option>
             <option value="active">Đang làm việc</option>
             <option value="locked">Tạm ngừng hoạt động</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {/* Lọc trạng thái giấy phép lái xe */}
         <div className="w-full sm:w-56">
-          <select
+          <InlineSelect
             value={filters.licenseStatus || "all"}
             onChange={(e) => onChange({ licenseStatus: e.target.value, page: 1 })}
             className="h-9 w-full rounded border border-td-rule bg-td-white px-2.5 text-xs font-medium text-td-ink focus:border-td-oxide focus:outline-none focus:ring-2 focus:ring-td-oxide/20"
@@ -113,7 +114,7 @@ export function StaffFilters({
             <option value="expiring">Sắp hết hạn (≤ 30 ngày)</option>
             <option value="expired">Đã hết hạn</option>
             <option value="missing">Chưa có GPLX</option>
-          </select>
+          </InlineSelect>
         </div>
 
         {hasActiveFilters && (

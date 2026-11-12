@@ -26,7 +26,7 @@ export function StaffRatingPanel({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Điểm trung bình Card */}
         <div className="flex flex-col items-center justify-center rounded border border-td-rule bg-td-white p-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-td-muted">
+          <p className="text-xs font-semibold text-td-muted">
             Điểm đánh giá trung bình
           </p>
           <div className="mt-3 flex items-baseline gap-2">

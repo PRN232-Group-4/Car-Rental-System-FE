@@ -12,10 +12,10 @@ interface FleetStatusChartProps {
 }
 
 const FLEET_LABELS: Record<keyof FleetStatus, { label: string; color: string; desc: string }> = {
-  available: { label: "Sẵn sàng đón khách", color: "var(--success, #059669)", desc: "Xe rảnh tại bãi" },
-  renting: { label: "Đang được thuê", color: "var(--primary, #B45309)", desc: "Đang trên lộ trình" },
-  maintenance: { label: "Bảo dưỡng / Sửa chữa", color: "var(--warning, #D97706)", desc: "Tại xưởng kỹ thuật" },
-  inactive: { label: "Tạm ngưng hoạt động", color: "var(--ink-muted, #94A3B8)", desc: "Chờ kiểm định / Lưu kho" },
+  available: { label: "Sẵn sàng đón khách", color: "var(--chart-3)", desc: "Xe rảnh tại bãi" },
+  renting: { label: "Đang được thuê", color: "var(--chart-1)", desc: "Đang trên lộ trình" },
+  maintenance: { label: "Bảo dưỡng / Sửa chữa", color: "var(--chart-4)", desc: "Tại xưởng kỹ thuật" },
+  inactive: { label: "Tạm ngưng hoạt động", color: "var(--chart-5)", desc: "Chờ kiểm định / Lưu kho" },
 };
 
 export function FleetStatusChart({ data, isLoading, isError, onRetry }: FleetStatusChartProps) {

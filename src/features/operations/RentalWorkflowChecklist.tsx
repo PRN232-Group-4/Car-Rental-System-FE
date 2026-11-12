@@ -62,7 +62,7 @@ export default function RentalWorkflowChecklist({ checklist, disabled = false, c
     {checklist.items.map(item => <div key={item.key} data-workflow-condition={item.key} className="min-w-0 space-y-3 border-b border-td-rule py-2">
       <label className="flex min-h-11 cursor-pointer items-start gap-2 text-xs text-td-ink">
         <input type="checkbox" checked={item.checked} disabled={disabled || item.automatic} onChange={() => checklist.toggle(item.key)} className="mt-0.5 h-4 w-4 shrink-0 accent-td-oxide" />
-        <span className="min-w-0">{item.label}{item.automatic && <span className="mt-1 block font-mono text-[10px] text-td-muted">{item.checked ? "Đã xác minh từ hệ thống" : "Chờ dữ liệu hệ thống"}</span>}</span>
+        <span className="min-w-0">{item.label}{item.automatic && <span className="mt-1 block text-[10px] text-td-muted">{item.checked ? "Đã xác minh từ hệ thống" : "Chờ dữ liệu hệ thống"}</span>}</span>
       </label>
       {item.key === "inspection" || item.key === "payment" || item.key === "contract" ? controls[item.key] : null}
     </div>)}

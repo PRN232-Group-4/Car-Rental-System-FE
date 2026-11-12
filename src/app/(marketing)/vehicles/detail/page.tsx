@@ -147,23 +147,23 @@ function VehicleDetailSkeleton() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 animate-pulse space-y-8">
       {/* Breadcrumb skeleton */}
-      <div className="h-4 w-48 rounded bg-sunken" />
+      <div className="h-4 w-48 bg-sunken" />
 
       {/* Title skeleton */}
       <div className="space-y-3 border-b border-line pb-6">
-        <div className="h-4 w-32 rounded bg-sunken" />
-        <div className="h-8 w-80 rounded-xl bg-sunken" />
-        <div className="h-4 w-48 rounded bg-sunken/60" />
+        <div className="h-4 w-32 bg-sunken" />
+        <div className="h-8 w-80 bg-sunken" />
+        <div className="h-4 w-48 bg-sunken/60" />
       </div>
 
       {/* 2-column skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
         <div className="space-y-6">
-          <div className="aspect-[16/10] w-full rounded-3xl bg-sunken" />
-          <div className="h-32 rounded-2xl bg-sunken" />
-          <div className="h-48 rounded-2xl bg-sunken" />
+          <div className="aspect-[16/10] w-full bg-sunken" />
+          <div className="h-32 bg-sunken" />
+          <div className="h-48 bg-sunken" />
         </div>
-        <div className="h-[460px] rounded-3xl bg-sunken" />
+        <div className="h-[460px] bg-sunken" />
       </div>
     </div>
   );
@@ -173,7 +173,7 @@ export default function VehicleDetailPage() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 pt-[4.5rem]">
         <Suspense fallback={<VehicleDetailSkeleton />}>
           <VehicleDetailContent />
         </Suspense>

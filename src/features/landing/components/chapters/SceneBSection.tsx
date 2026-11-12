@@ -124,6 +124,9 @@ export default function SceneBSection() {
         // - Simultaneously, `act2ContentRef` (Section 2's content) is pulled upward by `-32svh` right into the newly formed `bg-bone-100` column space so the columns physically pull Section 2 up to the top of the screen with ZERO blank space!
         const validShutters = stepShuttersRef.current.filter(Boolean);
         if (validShutters.length > 0 && act2Ref.current && act2ContentRef.current) {
+          // translateY does not shrink the layout box; pull the following layout up by the same distance the content ends at.
+          gsap.set(act2ContentRef.current, { marginBottom: "-30svh" });
+
           const pullTl = gsap.timeline({
             scrollTrigger: {
               trigger: act2Ref.current,

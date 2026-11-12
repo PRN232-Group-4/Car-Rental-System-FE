@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "@/components/navigation/NavigationLink";
-import { Package, AlertTriangle, ArrowRight, PlusCircle, HelpCircle } from "lucide-react";
+import { AlertTriangle, ArrowRight, PlusCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getMySubscriptions, CustomerSubscription } from "@/features/subscriptions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -23,18 +23,9 @@ export default function MySubscriptionsPage() {
   return (
     <div className="space-y-8">
       <TransitFolio
-        index="09"
-        tag="KH"
-        kicker="KHÁCH HÀNG · GÓI THUÊ BAO"
-        title={<>Gói thuê bao <span className="text-td-teal">của tôi.</span></>}
+        title="Gói thuê bao của tôi"
         description="Theo dõi số giờ di chuyển khả dụng, thời hạn sử dụng và lịch sử trừ giờ theo từng chuyến đi."
       >
-        <div className="border-l border-td-rule pl-4 text-right">
-          <span className="block font-mono text-[10px] tracking-wider text-td-muted">GÓI ĐANG HOẠT ĐỘNG</span>
-          <strong className="block text-3xl font-bold tracking-tight text-td-ink">
-            {isLoading || error ? "—" : String(activeSubscriptions.length).padStart(2, "0")}
-          </strong>
-        </div>
         <Link
           href="/subscriptions"
           className="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded bg-primary px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-primary-hover"
@@ -60,9 +51,6 @@ export default function MySubscriptionsPage() {
         />
       ) : activeSubscriptions.length === 0 ? (
         <div className="p-10 rounded bg-td-white border border-dashed border-td-rule text-center space-y-4">
-          <div className="w-14 h-14 rounded bg-primary-tint text-primary flex items-center justify-center mx-auto">
-            <Package className="w-7 h-7" />
-          </div>
           <div className="max-w-md mx-auto">
             <h3 className="text-lg font-bold text-td-ink">Bạn chưa có gói thuê bao nào đang hoạt động</h3>
             <p className="text-sm text-td-muted mt-1">
@@ -71,7 +59,7 @@ export default function MySubscriptionsPage() {
           </div>
           <Link
             href="/subscriptions"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded bg-primary text-white font-bold text-sm shadow-md hover:bg-primary-hover transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded bg-primary text-white font-bold text-sm hover:bg-primary-hover transition-all"
           >
             <span>Khám phá các gói cước</span>
             <ArrowRight className="w-4 h-4" />
@@ -108,7 +96,7 @@ export default function MySubscriptionsPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="block font-mono text-[10px] uppercase tracking-wider text-td-muted">Số giờ còn lại</span>
+                    <span className="block text-xs text-td-muted">Số giờ còn lại</span>
                     <span className="font-mono text-xl font-bold text-td-ink">
                       {sub.remainingHours}
                       <span className="ml-1 font-sans text-xs font-semibold text-td-muted">/ {sub.totalHours} giờ</span>
@@ -118,7 +106,7 @@ export default function MySubscriptionsPage() {
 
                 {/* Warning Alerts */}
                 {(isLowHours || isExpiringSoon) && (
-                  <div className="mt-3 flex items-start gap-2.5 border-l-2 border-warning pl-3 text-xs font-semibold text-td-muted">
+                  <div className="mt-3 flex items-start gap-2.5 border-l border-warning pl-3 text-xs font-semibold text-td-muted">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
                     <div className="space-y-0.5">
                       {isLowHours && (
@@ -137,7 +125,7 @@ export default function MySubscriptionsPage() {
 
                 {/* Thanh giờ còn lại */}
                 <div className="mt-3 flex items-center gap-3">
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-td-chalk">
+                  <div className="h-2 flex-1 overflow-hidden bg-td-chalk">
                     <div
                       className={`h-full transition-all duration-500 ${isLowHours ? "bg-warning" : "bg-primary"}`}
                       style={{ width: `${percentage}%` }}
@@ -171,7 +159,7 @@ export default function MySubscriptionsPage() {
           <h3 className="text-lg font-bold text-td-ink mb-4">Lịch sử gói thuê bao cũ</h3>
           <div className="rounded border border-td-rule bg-td-white overflow-hidden">
             <table className="w-full text-left text-sm">
-              <thead className="bg-td-chalk text-xs font-semibold text-td-muted uppercase border-b border-td-rule">
+              <thead className="bg-td-chalk text-xs font-semibold text-td-muted border-b border-td-rule">
                 <tr>
                   <th className="p-4">Tên gói</th>
                   <th className="p-4">Thời gian</th>
@@ -189,7 +177,7 @@ export default function MySubscriptionsPage() {
                     </td>
                     <td className="p-4 font-semibold text-td-ink">{item.totalHours} giờ</td>
                     <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-td-chalk text-td-muted">
+                      <span className="px-2.5 py-1 text-xs font-bold bg-td-chalk text-td-muted">
                         {item.status === "expired" ? "Hết hạn" : "Đã dùng hết"}
                       </span>
                     </td>
@@ -203,7 +191,6 @@ export default function MySubscriptionsPage() {
 
       {/* Information note */}
       <div className="p-5 rounded bg-td-chalk/70 border border-td-rule flex items-start gap-3 text-xs text-td-muted">
-        <HelpCircle className="w-4 h-4 text-td-muted shrink-0 mt-0.5" />
         <div className="space-y-1">
           <p className="font-bold text-td-ink">Quy tắc quản lý số dư thuê bao:</p>
           <p>

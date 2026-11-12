@@ -13,10 +13,7 @@ export default function IncidentReporter() {
   return (
     <div className="space-y-6">
       <TransitFolio
-        index="09"
-        tag="KH"
-        kicker="KHÁCH HÀNG · HỖ TRỢ SỰ CỐ"
-        title={<>Báo cáo <span className="text-td-teal">sự cố.</span></>}
+        title="Báo cáo sự cố"
         description="Gửi mô tả và ảnh hiện trạng để trạm tiếp nhận và xử lý theo SLA."
       />
       <RentalLookup title="Tra cứu đơn thuê" staffLinks={false}>

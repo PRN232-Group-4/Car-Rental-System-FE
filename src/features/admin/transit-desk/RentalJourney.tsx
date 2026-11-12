@@ -30,6 +30,7 @@ import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
 import { useInlineValidation, InlineSelect, ValidatedForm } from "@/components/forms/inline-validation";
 import TransitDeskStatus from "./TransitDeskStatus";
+import { TransitFolio } from "./TransitFolio";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const OPERATIONAL_STEPS = [
@@ -222,45 +223,19 @@ export function RentalJourney() {
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       {/* Folio Top Header - Compact for 1366x768 Task-First Ergonomics */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-td-rule pb-3">
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-bold text-td-oxide border-l-2 border-td-oxide pl-2.5">
-            04 / JNY
-          </span>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-td-ink font-sans">
-                Hành trình vận hành đơn thuê
-              </h1>
-              {rental && (
-                <div className="hidden sm:inline-flex items-center gap-2 ml-2">
-                  <span className="font-mono text-xs text-td-muted">Mã:</span>
-                  <strong className="font-mono text-xs font-bold text-td-ink bg-td-white px-2 py-0.5 border border-td-rule rounded">
-                    #{rental.id}
-                  </strong>
-                  <TransitDeskStatus domain="rental" status={rental.status}>
-                    {rentalStatuses[rental.status] ?? rental.status}
-                  </TransitDeskStatus>
-                </div>
-              )}
-            </div>
-            <p className="text-xs text-td-muted hidden md:block mt-0.5">
-              Bàn kiểm soát tiến trình thực tế của đơn thuê, kiểm tra bàn giao xe và khóa phân công tài xế.
-            </p>
+      <TransitFolio
+        title="Hành trình vận hành đơn thuê"
+        description="Bàn kiểm soát tiến trình thực tế của đơn thuê, kiểm tra bàn giao xe và khóa phân công tài xế."
+      >
+        {rental && (
+          <div className="flex items-center gap-2">
+            <strong className="text-sm font-bold tabular-nums text-td-ink">#{rental.id}</strong>
+            <TransitDeskStatus domain="rental" status={rental.status}>
+              {rentalStatuses[rental.status] ?? rental.status}
+            </TransitDeskStatus>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="border-l border-td-rule pl-3 text-right">
-            <span className="block font-mono text-[9px] text-td-muted uppercase tracking-wider">
-              OPERATIONAL DOSSIER
-            </span>
-            <strong className="block font-sans text-base font-bold tracking-tight text-td-ink">
-              {rental ? `#${rental.id}` : "—"}
-            </strong>
-          </div>
-        </div>
-      </div>
+        )}
+      </TransitFolio>
 
       {/* Lookup Toolbar - Streamlined single row */}
       <div className="border-b border-td-rule pb-3">
@@ -337,9 +312,7 @@ export function RentalJourney() {
       {/* Empty State */}
       {!lookupId && !isFetching && (
         <div className="border border-td-rule bg-td-white rounded p-12 text-center">
-          <span className="font-mono text-xs font-bold text-td-oxide uppercase tracking-wider block">
-            CHƯA CHỌN ĐƠN THUÊ
-          </span>
+          <p className="text-sm font-semibold text-td-ink">Chưa chọn đơn thuê</p>
           <p className="mt-2 text-xs sm:text-sm text-td-muted max-w-md mx-auto">
             Nhập mã đơn thuê do khách hàng hoặc trạm cung cấp để tải bảng điều phối hành trình và các nút lệnh chuyển tiếp.
           </p>
@@ -353,10 +326,7 @@ export function RentalJourney() {
           <section className="border border-td-rule bg-td-white rounded p-3.5 space-y-2.5" aria-label="Tiến trình vòng đời đơn thuê">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-td-rule pb-2">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-                  TIẾN TRÌNH VÒNG ĐỜI (STATE RAIL)
-                </span>
-                <span className="font-mono text-[10px] text-td-muted">·</span>
+                <span className="text-xs font-bold text-td-ink">Tiến trình vòng đời</span>
                 <span className="text-xs font-mono text-td-muted">
                   Giai đoạn {currentStepIndex + 1}/5
                 </span>
@@ -375,7 +345,7 @@ export function RentalJourney() {
               <div className="flex items-start gap-3 rounded border border-td-oxide bg-td-chalk p-3 text-td-oxide font-mono text-xs">
                 <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block font-bold uppercase tracking-wider">HỢP ĐỒNG ĐÃ BỊ HỦY BỎ</strong>
+                  <strong className="block font-bold uppercase tracking-wider">Hợp đồng đã bị hủy bỏ</strong>
                   <p className="mt-0.5 text-td-muted">
                     Đơn thuê này đã kết thúc do hủy bỏ. Tất cả các hành động bàn giao hoặc chuyển trạng thái tiếp theo đã bị vô hiệu hóa.
                   </p>
@@ -394,7 +364,7 @@ export function RentalJourney() {
                       key={step.key}
                       className={`relative border p-2.5 rounded transition-colors flex flex-col justify-between ${
                         isCurrent
-                          ? "border-td-oxide bg-td-chalk/50 shadow-xs"
+                          ? "border-td-oxide bg-td-chalk/50"
                           : isPassed
                           ? "border-td-rule bg-td-paper text-td-ink"
                           : "border-td-rule/60 bg-transparent text-td-muted opacity-60"
@@ -447,9 +417,6 @@ export function RentalJourney() {
               <div className="border border-td-rule bg-td-white rounded p-6 space-y-6">
                 <div className="flex items-start justify-between border-b border-td-rule pb-4">
                   <div>
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-                      THÔNG SỐ HỢP ĐỒNG THUÊ #{rental.id}
-                    </span>
                     <h3 className="mt-1 font-sans text-xl font-bold tracking-tight text-td-ink">
                       {rental.vehicleName || "Phương tiện chưa đặt tên"}
                     </h3>
@@ -458,8 +425,8 @@ export function RentalJourney() {
                     <span className="font-mono text-xs font-bold text-td-oxide block">
                       {rental.totalPrice.toLocaleString("vi-VN")} đ
                     </span>
-                    <span className="font-mono text-[10px] text-td-muted block uppercase">
-                      TỔNG CHI PHÍ THUÊ
+                    <span className="text-[11px] text-td-muted block">
+                      Tổng chi phí thuê
                     </span>
                   </div>
                 </div>
@@ -536,9 +503,6 @@ export function RentalJourney() {
               {/* Action Shelf 1: Phân xe và tài xế */}
               <section className="border border-td-rule bg-td-white rounded p-6 space-y-4" aria-label="Bàn phân công tài xế">
                 <div className="border-b border-td-rule pb-3">
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-                    ACTION SHELF · PHÂN CÔNG
-                  </span>
                   <h3 className="font-sans text-base font-bold text-td-ink">
                     Phân xe và tài xế
                   </h3>
@@ -604,9 +568,6 @@ export function RentalJourney() {
               {/* Action Shelf 2: Bàn giao và chuyển trạng thái */}
               <section className="border border-td-rule bg-td-white rounded p-6 space-y-4" aria-label="Bàn giao và chuyển trạng thái">
                 <div className="border-b border-td-rule pb-3">
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-td-muted">
-                    ACTION SHELF · CHUYỂN TRẠNG THÁI
-                  </span>
                   <h3 className="font-sans text-base font-bold text-td-ink">
                     Bàn giao và nhận xe
                   </h3>
@@ -667,10 +628,10 @@ export function RentalJourney() {
       {/* Confirmation Modal for Destructive / Terminal Status Transitions */}
       {confirmStatusModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-md rounded border border-td-rule bg-td-white p-6 shadow-e3 space-y-4">
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs font-bold text-td-oxide border border-td-oxide p-1">
-                LƯU Ý
+                Lưu ý
               </span>
               <h3 id="confirmModalTitle" className="font-sans text-base font-bold text-td-ink">
                 Xác nhận chuyển trạng thái cuối

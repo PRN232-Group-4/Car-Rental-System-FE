@@ -18,6 +18,7 @@ import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminTableSkeleton } from "@/components/admin/AdminTableSkeleton";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { VehicleIdentity } from "./VehicleName";
+import { InlineSelect } from "@/components/forms/inline-validation";
 
 const statusLabels: Record<string, string> = {
   available: "Sẵn sàng",
@@ -129,14 +130,14 @@ export default function VehicleManagement() {
           <input id="vehicle-filter-search" value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên, biển số hoặc chi nhánh..." />
         </AdminFilterField>
         <AdminFilterField label="Loại phương tiện" htmlFor="vehicle-filter-type" select>
-          <select id="vehicle-filter-type" value={category} onChange={(event) => { setCategory(event.currentTarget.value); setPage(1); }}>
+          <InlineSelect id="vehicle-filter-type" value={category} onChange={(event) => { setCategory(event.currentTarget.value); setPage(1); }}>
             <option value="all">Tất cả loại xe</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-          </select>
+          </InlineSelect>
         </AdminFilterField>
         <AdminFilterField label="Trạng thái" htmlFor="vehicle-filter-status" select>
-          <select id="vehicle-filter-status" value={status} onChange={(event) => { setStatus(event.currentTarget.value); setPage(1); }}>
+          <InlineSelect id="vehicle-filter-status" value={status} onChange={(event) => { setStatus(event.currentTarget.value); setPage(1); }}>
             <option value="all">Mọi trạng thái</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-          </select>
+          </InlineSelect>
         </AdminFilterField>
       </AdminFilterBar>
       <AdminTableCard>
@@ -184,7 +185,7 @@ export default function VehicleManagement() {
             <span>Hiển thị {firstResult}–{lastResult} trong {totalCount} phương tiện</span>
             <label className="flex items-center gap-2">
               <span>Số dòng:</span>
-              <select
+              <InlineSelect
                 value={pageSize}
                 onChange={(event) => {
                   setPageSize(Number(event.currentTarget.value));
@@ -194,7 +195,7 @@ export default function VehicleManagement() {
                 aria-label="Số phương tiện mỗi trang"
               >
                 {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
-              </select>
+              </InlineSelect>
             </label>
           </div>
           <nav aria-label="Phân trang phương tiện" className="flex items-center gap-1">

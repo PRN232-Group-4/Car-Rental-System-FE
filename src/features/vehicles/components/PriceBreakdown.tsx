@@ -94,7 +94,7 @@ export function PriceBreakdown({
     >
       <div className="flex items-center justify-between border-b border-td-rule pb-2.5">
         <span className="font-bold text-td-ink text-sm">Dự toán chi phí minh bạch</span>
-        <span className="rounded-md bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
+        <span className="bg-primary-tint px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
           {rentalType === "hourly" ? "Thuê theo giờ" : "Thuê dài hạn"}
         </span>
       </div>
@@ -142,7 +142,7 @@ export function PriceBreakdown({
           <div>
             <div className="flex items-center gap-1 font-semibold text-td-ink">
               <span>Tiền đặt cọc hoàn lại ({calculation.depositRate}%)</span>
-              <span className="text-[10px] text-success font-bold bg-success-bg px-1.5 py-0.2 rounded">
+              <span className="text-[10px] text-success font-bold bg-success-bg px-1.5 py-0.2">
                 Theo quyết toán
               </span>
             </div>
@@ -157,7 +157,7 @@ export function PriceBreakdown({
       </div>
 
       {/* Tổng thanh toán ban đầu (A + B) */}
-      <div className="flex items-center justify-between border-t border-td-rule pt-3 bg-td-white -mx-4 -mb-4 p-4 rounded-b-2xl">
+      <div className="flex items-center justify-between border-t border-td-rule pt-3 bg-td-white -mx-4 -mb-4 p-4">
         <div>
           <span className="font-bold text-td-ink text-sm">Tổng thanh toán dự kiến:</span>
           <p className="text-[10px] text-td-muted">Bao gồm cọc hoàn lại khi trả xe</p>

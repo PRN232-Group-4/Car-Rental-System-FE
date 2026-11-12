@@ -1,4 +1,3 @@
-import { CreditCard } from "lucide-react";
 import { InlineError } from "@/components/forms/inline-validation";
 
 // Includes the classes already used by customer profiles and legacy records.
@@ -46,16 +45,15 @@ export default function VehicleLicenseConfig({ value, onChange, disabled, error 
         <InlineError name="allowedLicenseTypes" inputId="allowedLicenseTypes" />
       </div>
       <div className="border-t border-td-rule pt-4">
-        <h3 className="font-mono text-[11px] uppercase tracking-wider text-td-muted">Bằng lái được chấp nhận</h3>
+        <h3 className="text-sm font-bold text-td-ink">Bằng lái được chấp nhận</h3>
         <p role="status" className="mt-2 text-sm text-td-ink">{unconfigured ? "Chưa chọn hạng bằng. Xe đang ẩn khỏi danh sách cho khách." : `Đã chọn ${selected.length} hạng bằng. Khách chỉ cần có một trong các hạng dưới đây.`}</p>
         {unconfigured ? (
-          <div className="mt-3 flex items-start gap-3 rounded border border-td-rule bg-td-white p-4">
-            <CreditCard aria-hidden="true" className="h-5 w-5 shrink-0 text-td-oxide" />
+          <div className="mt-3 border-t border-td-rule pt-3">
             <div><p className="text-sm font-semibold text-td-ink">Cần cấu hình hạng bằng lái</p><p className="mt-1 text-xs text-td-muted">Quản trị viên vẫn có thể xem và chỉnh sửa xe. Chọn hạng bằng được chấp nhận rồi lưu thay đổi.</p></div>
           </div>
         ) : (
-          <ul aria-label="Các hạng bằng đã chọn" className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {selected.map((type) => <li key={type} className="min-w-0 rounded border border-td-rule bg-td-white p-4"><CreditCard aria-hidden="true" className="h-5 w-5 text-td-oxide" /><p className="mt-3 break-words font-mono text-lg font-semibold text-td-ink">Hạng {type}</p><p className="mt-1 text-xs text-td-muted">Được phép thuê xe này</p></li>)}
+          <ul aria-label="Các hạng bằng đã chọn" className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-td-rule pt-3 text-sm">
+            {selected.map((type) => <li key={type} className="min-w-0 break-words"><span className="font-mono font-semibold text-td-ink">Hạng {type}</span> <span className="text-xs text-td-muted">được phép thuê xe này</span></li>)}
           </ul>
         )}
       </div>

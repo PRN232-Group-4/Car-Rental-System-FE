@@ -15,7 +15,6 @@ const rentals = Array.from({ length: 30 }, (_, index) => ({
 }));
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem("vrs-admin-theme", "light"));
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.route("**/api/**", (route) => {
     const url = new URL(route.request().url());
@@ -41,15 +40,12 @@ for (const width of [1920, 1600, 1280]) {
     const queue = workspace.locator('[class*="queueList"]');
     await expect(queue.getByRole("button")).toHaveCount(30);
 
-    for (const theme of ["light", "dark"]) {
-      if (theme === "dark") await page.locator("#admin-theme-toggle").click();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-      await page.screenshot({ path: `test-results/rentals-empty-${width}-${theme}.png` });
-      expect(await queue.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
-      // The queue keeps its own scrollbar; its boundaries must not trap page scrolling.
-      await queue.getByRole("button").last().scrollIntoViewIfNeeded();
-      await expect(queue.getByRole("button").last()).toBeInViewport();
-    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await page.screenshot({ path: `test-results/rentals-empty-${width}.png` });
+    expect(await queue.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+    // The queue keeps its own scrollbar; its boundaries must not trap page scrolling.
+    await queue.getByRole("button").last().scrollIntoViewIfNeeded();
+    await expect(queue.getByRole("button").last()).toBeInViewport();
 
     const search = page.getByRole("textbox", { name: "Nhập mã đơn thuê" });
     expect(await search.evaluate((element) => parseFloat(getComputedStyle(element).paddingLeft))).toBeGreaterThanOrEqual(32);
@@ -90,18 +86,15 @@ for (const width of [1220, 1180, 1024, 768]) {
     const command = workspace.getByRole("complementary", { name: "Bảng lệnh điều phối" });
     await expect(dossier.getByText("Thông số hợp đồng thuê #201", { exact: true })).toBeVisible();
 
-    for (const theme of ["light", "dark"]) {
-      if (theme === "dark") await page.locator("#admin-theme-toggle").click();
-      const left = (await queuePanel.boundingBox())!;
-      const right = (await dossier.boundingBox())!;
-      const actions = (await command.boundingBox())!;
-      expect(left.x + left.width).toBeLessThan(right.x);
-      expect(Math.abs(left.y - right.y)).toBeLessThanOrEqual(1);
-      expect(Math.abs(actions.x - right.x)).toBeLessThanOrEqual(1);
-      expect(actions.y).toBeGreaterThanOrEqual(right.y + right.height);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
-      await page.screenshot({ path: `test-results/rentals-two-columns-${width}-${theme}.png` });
-    }
+    const left = (await queuePanel.boundingBox())!;
+    const right = (await dossier.boundingBox())!;
+    const actions = (await command.boundingBox())!;
+    expect(left.x + left.width).toBeLessThan(right.x);
+    expect(Math.abs(left.y - right.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs(actions.x - right.x)).toBeLessThanOrEqual(1);
+    expect(actions.y).toBeGreaterThanOrEqual(right.y + right.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    await page.screenshot({ path: `test-results/rentals-two-columns-${width}.png` });
 
     await queue.getByRole("button").last().scrollIntoViewIfNeeded();
     await expect(queue.getByRole("button").last()).toBeInViewport();

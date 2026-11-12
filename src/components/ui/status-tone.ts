@@ -14,6 +14,6 @@ export const statusToneClasses: Record<StatusTone, string> = {
   neutral: "bg-sunken text-ink-2",
 };
 
-/** Class khung pill dùng chung: bo tròn, padding nhỏ, chữ nhỏ. */
+/** Class khung badge vuông dùng chung, padding nhỏ, chữ nhỏ. */
 export const statusPillClasses =
-  "inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 font-mono uppercase tracking-wide";
+  "inline-flex w-fit items-center gap-1.5 whitespace-nowrap px-2.5 py-0.5 font-semibold";

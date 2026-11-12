@@ -84,7 +84,7 @@ function StaffsListContent() {
 
           return (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-chalk font-mono text-xs font-bold text-td-oxide">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule bg-td-chalk text-xs font-bold text-td-oxide">
                 {initials || <User className="w-4 h-4 text-td-muted" />}
               </div>
               <div className="min-w-0">
@@ -211,15 +211,12 @@ function StaffsListContent() {
     <div className="space-y-6">
       {/* Header trang */}
       <TransitFolio
-        index="07"
-        tag="ORG"
-        kicker="TỔ CHỨC · ĐỘI NGŨ & NHÂN SỰ"
-        title={<>Nhân viên & <span className="text-td-teal">tài xế.</span></>}
+        title="Nhân viên & tài xế"
         description="Theo dõi phân bổ phòng ban, trạm trực, tình trạng giấy phép lái xe và lịch công tác."
       >
         <TransitFolioMetric
-          label="ĐỘI NGŨ · TỔNG NHÂN SỰ"
-          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(data?.totalCount ?? 0).padStart(2, "0")}
+          label="Tổng nhân sự"
+          value={isLoading ? <Skeleton className="h-8 w-16" /> : String(data?.totalCount ?? 0)}
         />
         <Link
           href="/admin/staffs/new"

@@ -13,14 +13,11 @@ import {
   AlertTriangle,
   ArrowRight,
   ExternalLink,
-  Car,
   Clock,
-  UserCheck,
   Check,
   ShieldAlert,
   Calendar,
   DollarSign,
-  Navigation,
   XCircle,
   Eye,
   Loader2,
@@ -51,7 +48,7 @@ import { signedContractDocumentHref } from "@/features/rentals/signed-contract";
 import VehicleName from "@/features/admin/VehicleName";
 import VehiclePhotos from "@/features/admin/VehiclePhotos";
 import RentalTrackingPanel from "@/features/maps/RentalTrackingPanel";
-import { useInlineValidation, ValidatedForm } from "@/components/forms/inline-validation";
+import { useInlineValidation, ValidatedForm, InlineSelect } from "@/components/forms/inline-validation";
 import FormDialog, { FormDialogFooter } from "@/components/ui/FormDialog";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useOptionalSession } from "@/features/auth/AuthContext";
@@ -549,13 +546,12 @@ export function RentalWorkspaceV4() {
         <aside className={styles.queuePanel} aria-label="Hàng đợi vận hành">
           <div className={styles.queueHeader}>
             <div className="flex items-center gap-2">
-              <Navigation className="h-4 w-4 text-[var(--v4-mineral)]" />
               <span className="font-bold text-xs text-[var(--v4-ink)]">
                 Hàng đợi vận hành
               </span>
             </div>
             {queueItems.length > 0 && (
-              <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
+              <span className="px-1.5 py-0.5 text-[10px] font-bold tabular-nums rounded bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
                 {queueItems.length}
               </span>
             )}
@@ -575,12 +571,12 @@ export function RentalWorkspaceV4() {
                     setIdInput(e.target.value);
                     handleQueueSearchChange(e.target.value);
                   }}
-                  className={`${styles.inputField} pl-8 text-xs font-mono`}
+                  className={`${styles.inputField} pl-8 text-xs`}
                   aria-label="Nhập mã đơn thuê"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <select
+                <InlineSelect
                   value={queueFilter}
                   onChange={(e) => handleQueueFilterChange(e.target.value)}
                   className={`${styles.inputField} text-xs py-1`}
@@ -594,7 +590,7 @@ export function RentalWorkspaceV4() {
                   <option value="post_inspection">Kiểm tra trả</option>
                   <option value="completed">Đã hoàn tất</option>
                   <option value="expired">Hết hạn</option>
-                </select>
+                </InlineSelect>
                 <button
                   type="submit"
                   className="px-3 py-1 text-xs font-bold bg-[var(--v4-marine)] text-white rounded hover:opacity-90 transition shrink-0"
@@ -741,7 +737,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "not-found" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-not-found-state"
             >
@@ -779,7 +775,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "forbidden" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-forbidden-state"
             >
@@ -793,7 +789,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "error" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-error-state"
             >
@@ -816,7 +812,7 @@ export function RentalWorkspaceV4() {
             </div>
           ) : detailState.status === "invalid-data" ? (
             <div
-              className="p-8 border border-[var(--v4-coral)] bg-[rgba(166,94,72,0.06)] rounded text-center space-y-3"
+              className="p-8 border border-[var(--v4-coral)] bg-danger-bg text-center space-y-3"
               role="alert"
               data-testid="rental-invalid-data-state"
             >
@@ -838,8 +834,7 @@ export function RentalWorkspaceV4() {
               </div>
             </div>
           ) : !activeRental ? (
-            <div className="p-12 text-center space-y-4 border border-dashed border-[var(--v4-rule)] rounded" data-testid="rental-idle-state">
-              <Car className="h-10 w-10 text-[var(--v4-mineral)] mx-auto opacity-60" />
+            <div className="p-12 text-center space-y-4" data-testid="rental-idle-state">
               <div className="space-y-1">
                 <h2 className="text-sm font-bold text-[var(--v4-ink)]">
                   Chưa chọn đơn thuê
@@ -954,9 +949,6 @@ export function RentalWorkspaceV4() {
                 {/* VEHICLE & JOURNEY IDENTITY ROW */}
                 <div className={styles.vehicleIdentityCard}>
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-marine)]">
-                      <Car className="h-6 w-6" />
-                    </div>
                     <div>
                       <div className="text-[11px] font-semibold text-[var(--v4-mineral)]">
                         Phương tiện lưu thông
@@ -1020,7 +1012,6 @@ export function RentalWorkspaceV4() {
               <div className="p-3.5 border border-[var(--v4-rule)] rounded bg-[var(--v4-surface-card)] space-y-2.5">
                 <div className="flex items-center justify-between pb-1.5 border-b border-[var(--v4-rule)]">
                   <span className="text-xs font-bold text-[var(--v4-ink)] flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 text-[var(--v4-marine)]" />
                     Nhật ký mốc thời gian & Chứng từ hợp đồng
                   </span>
                   <span className="text-[11px] font-mono text-[var(--v4-mineral)]">
@@ -1030,7 +1021,7 @@ export function RentalWorkspaceV4() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
                   <div className="space-y-0.5 p-2 rounded bg-[var(--v4-surface-muted)]">
                     <span className="text-[10px] font-semibold text-[var(--v4-mineral)] block">
-                      01. Ký kết hợp đồng
+                      Ký kết hợp đồng
                     </span>
                     <div className="font-mono font-bold text-[var(--v4-ink)] text-[11px]">
                       {activeRental.signedAt ? formatAdminDateTime(activeRental.signedAt) : "Chưa ghi nhận ngày ký"}
@@ -1042,7 +1033,7 @@ export function RentalWorkspaceV4() {
 
                   <div className="space-y-0.5 p-2 rounded bg-[var(--v4-surface-muted)]">
                     <span className="text-[10px] font-semibold text-[var(--v4-mineral)] block">
-                      02. Bắt đầu lưu thông
+                      Bắt đầu lưu thông
                     </span>
                     <div className="font-mono font-bold text-[var(--v4-ink)] text-[11px]">
                       {formatAdminDateTime(activeRental.startTime)}
@@ -1056,7 +1047,7 @@ export function RentalWorkspaceV4() {
 
                   <div className="space-y-0.5 p-2 rounded bg-[var(--v4-surface-muted)]">
                     <span className="text-[10px] font-semibold text-[var(--v4-mineral)] block">
-                      03. Hạn trả phương tiện
+                      Hạn trả phương tiện
                     </span>
                     <div className="font-mono font-bold text-[var(--v4-ink)] text-[11px]">
                       {formatAdminDateTime(activeRental.endTime)}
@@ -1110,8 +1101,7 @@ export function RentalWorkspaceV4() {
 
           {/* COMMAND SHELVES OR EMPTY PROMPT */}
           {!activeRental ? (
-            <div className="p-8 text-center space-y-2 border border-dashed border-[var(--v4-rule)] rounded" data-testid="command-inactive-state">
-              <UserCheck className="h-8 w-8 text-[var(--v4-mineral)] mx-auto opacity-60" />
+            <div className="p-8 text-center space-y-2" data-testid="command-inactive-state">
               <h2 className="text-xs font-bold text-[var(--v4-ink)]">
                 {detailState.status === "loading"
                   ? "Đang tải hồ sơ đơn..."

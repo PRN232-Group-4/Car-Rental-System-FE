@@ -2,17 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import Link from "@/components/navigation/NavigationLink";
-import {
-  CreditCard,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  ShieldCheck,
-  ChevronLeft,
-  Loader2,
-  ExternalLink,
-  Receipt,
-} from "lucide-react";
+import { CreditCard, Clock, CheckCircle2, AlertCircle, ChevronLeft, Loader2, ExternalLink } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoiceById, checkoutInvoice, Invoice } from "@/features/invoices";
@@ -102,7 +92,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       <div>
         <Link
           href="/invoices"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-td-muted hover:text-td-ink transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-td-muted hover:text-td-ink transition-colors mb-1.5"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Danh sách hóa đơn</span>
@@ -115,12 +105,12 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
                 {invoice.invoiceNumber}
               </h1>
               {isPaid ? (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-success-bg text-success">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                   Đã thanh toán
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary-tint text-warning">
+                <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-primary-tint text-warning">
                   <Clock className="w-3.5 h-3.5 text-primary-graphic" />
                   {waitingConfirmation ? "Chờ xác nhận đơn" : invoice.status === "cancelled" ? "Đã hủy" : "Chưa thanh toán"}
                 </span>
@@ -133,7 +123,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-td-muted font-semibold uppercase tracking-wider block">
+            <span className="text-xs text-td-muted font-semibold block">
               Tổng tiền
             </span>
             <span className="text-2xl sm:text-3xl font-bold text-primary">
@@ -144,9 +134,8 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
       </div>
 
       {/* Invoice Breakdown Card */}
-      <div className="p-6 sm:p-8 rounded bg-td-white border border-td-rule shadow-sm space-y-6">
+      <div className="p-6 sm:p-8 rounded bg-td-white border border-td-rule space-y-6">
         <h2 className="text-base font-bold text-td-ink border-b border-td-rule pb-3 flex items-center gap-2">
-          <Receipt className="w-4 h-4 text-primary" />
           <span>Bảng kê chi tiết thanh toán</span>
         </h2>
 
@@ -181,7 +170,6 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
 
         {/* Security & Refund note */}
         <div className="p-4 rounded bg-td-chalk border border-td-rule flex items-start gap-3 text-xs text-td-muted">
-          <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <p className="font-bold text-td-ink">Cơ chế bảo đảm tiền cọc:</p>
             <p>
@@ -213,7 +201,7 @@ export default function HoaDonDetailClient({ id }: { id: string }) {
             <button
               onClick={handleCheckout}
               disabled={paying}
-              className="px-8 py-3.5 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md shadow-primary/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              className="px-8 py-3.5 rounded bg-primary hover:bg-primary-hover text-white font-bold text-sm transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {paying ? (
                 <>

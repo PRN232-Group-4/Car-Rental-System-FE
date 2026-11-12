@@ -13,10 +13,8 @@ import {
   LogOut,
   KeyRound,
   Menu,
-  Moon,
   PanelLeftClose,
   PanelLeftOpen,
-  Sun,
   X,
 } from "lucide-react";
 import styles from "./AppPortalShell.module.css";
@@ -44,8 +42,6 @@ export interface AppPortalShellProps {
   profileLoading?: boolean;
   profileError?: string;
   rightHeaderActions?: ReactNode;
-  theme?: "light" | "dark";
-  onToggleTheme?: () => void;
   onLogout: () => Promise<void> | void;
   children: ReactNode;
 }
@@ -61,8 +57,6 @@ export default function AppPortalShell({
   profileLoading = false,
   profileError,
   rightHeaderActions,
-  theme,
-  onToggleTheme,
   onLogout,
   children,
 }: AppPortalShellProps) {
@@ -120,10 +114,10 @@ export default function AppPortalShell({
         >
           {/* Expanded: text only */}
           <div className={`${styles.brandExpanded} flex flex-col`}>
-            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-td-ink group-hover:text-primary transition-colors">
+            <span className="font-display text-xl sm:text-2xl font-black tracking-tight text-td-ink group-hover:text-sun-400 transition-colors">
               ThongDong.
             </span>
-            <span className={`${styles.sidebarText} block text-[10px] font-bold uppercase tracking-[0.2em] text-primary mt-0.5`}>
+            <span className={`${styles.sidebarText} block text-[10px] font-bold text-sun-400 mt-0.5`}>
               {portalLabel}
             </span>
           </div>
@@ -148,9 +142,6 @@ export default function AppPortalShell({
 
       {/* Navigation Scroll Container */}
       <div className={`${styles.navigationScroll} min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 pt-6`}>
-        <p className={`${styles.sectionLabel} whitespace-nowrap px-3 pb-3 text-xs font-bold uppercase tracking-[0.18em] text-td-muted`}>
-          Không gian làm việc
-        </p>
         <nav aria-label={`Điều hướng ${portalLabel.toLowerCase()}`} className="space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = isActiveHref(href);
@@ -192,7 +183,7 @@ export default function AppPortalShell({
             <AccountAvatar
               src={user.avatarUrl}
               name={user.name}
-              className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-sm font-bold text-white shadow-sm"
+              className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-sm font-bold text-white"
             />
             <span className={styles.sidebarText}>
               <span className="block truncate text-sm font-bold text-td-ink">
@@ -243,13 +234,12 @@ export default function AppPortalShell({
   return (
     <div
       className={`${styles.shell} min-h-[100dvh] bg-td-paper text-td-ink`}
-      data-admin-theme={theme}
       data-menu-collapsed={!desktopMenuOpen}
       data-menu-animated={menuAnimated}
     >
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-md focus:shadow-e2 font-bold text-xs"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[999] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:shadow-e2 font-bold text-xs"
       >
         Bỏ qua điều hướng
       </a>
@@ -321,32 +311,15 @@ export default function AppPortalShell({
               <p className="text-xs font-medium text-td-muted truncate">
                 {portalSubLabel}
               </p>
-              <h1 className="mt-0.5 truncate text-base font-bold text-td-ink">
+              <p className="mt-0.5 truncate text-base font-bold text-td-ink">
                 {currentPage}
-              </h1>
+              </p>
             </div>
           </div>
 
           {/* Right Header Actions */}
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {rightHeaderActions}
-
-            {onToggleTheme && theme && (
-              <button
-                type="button"
-                onClick={onToggleTheme}
-                aria-label="Đổi giao diện sáng/tối"
-                aria-pressed={theme === "dark"}
-                title={theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded border border-td-rule text-td-ink transition hover:bg-td-chalk focus-visible:outline-2 focus-visible:outline-primary cursor-pointer"
-              >
-                {theme === "dark" ? (
-                  <Sun aria-hidden="true" className="h-4 w-4" />
-                ) : (
-                  <Moon aria-hidden="true" className="h-4 w-4" />
-                )}
-              </button>
-            )}
 
             <span
               aria-hidden="true"
@@ -368,7 +341,7 @@ export default function AppPortalShell({
                 <AccountAvatar
                   src={user.avatarUrl}
                   name={user.name}
-                  className="h-8 w-8 rounded-full bg-primary/10 text-xs font-bold text-primary"
+                  className="h-8 w-8 rounded-full bg-primary-tint text-xs font-bold text-primary"
                 />
                 <span className="hidden xl:block max-w-[120px] truncate text-xs font-bold text-td-ink text-left">
                   {user.name}
@@ -382,7 +355,7 @@ export default function AppPortalShell({
 
               {headerProfileOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-64 rounded border border-td-rule bg-td-white p-3 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 mt-2 w-64 rounded border border-td-rule bg-td-white p-3 shadow-e2 z-50 animate-in fade-in zoom-in-95 duration-150"
                   role="menu"
                   aria-label="Tuỳ chọn tài khoản"
                 >
@@ -390,7 +363,7 @@ export default function AppPortalShell({
                     <AccountAvatar
                       src={user.avatarUrl}
                       name={user.name}
-                      className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-xs font-bold text-white shadow-sm"
+                      className="h-10 w-10 shrink-0 rounded-full bg-stage-ink text-xs font-bold text-white"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-bold text-td-ink">{user.name}</p>

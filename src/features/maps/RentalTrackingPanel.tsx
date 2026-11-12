@@ -23,7 +23,7 @@ export default function RentalTrackingPanel({ rentalId }: { rentalId: number | s
   const currentPage = Math.min(page, pages);
   const mapLocation = hasGpsCoordinates(last) && last ? { latitude: last.lat, longitude: last.lng } : null;
 
-  return <section className="space-y-4 rounded-2xl border border-line bg-surface p-5 shadow-e1 sm:p-6" aria-label="Hành trình GPS của đơn thuê">
+  return <section className="space-y-4 rounded border border-line bg-surface p-5 sm:p-6" aria-label="Hành trình GPS của đơn thuê">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h2 className="text-lg font-bold">Hành trình GPS</h2><p className="mt-1 text-sm text-ink-3">Tra cứu các vị trí thiết bị đã ghi nhận trong thời gian thuê.</p></div>
       <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="min-h-11 rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-primary">{open ? "Ẩn hành trình" : "Xem hành trình"}</button>
@@ -46,7 +46,7 @@ export default function RentalTrackingPanel({ rentalId }: { rentalId: number | s
               <tbody>{points.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((point, index) => <tr key={`${point.recordedAt}-${index}`}><td className="font-mono tabular-nums">{formatAdminDateTime(point.recordedAt)}</td><td className="font-mono tabular-nums">{point.lat.toFixed(5)}</td><td className="font-mono tabular-nums">{point.lng.toFixed(5)}</td><td>{point.speedKmh == null ? "—" : `${Math.round(point.speedKmh)} km/h`}</td></tr>)}</tbody>
             </AdminTable>
           </AdminTableCard>
-          {pages > 1 && <nav aria-label="Phân trang lịch sử GPS" className="flex flex-wrap items-center justify-end gap-3 text-sm"><button type="button" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)} className="min-h-11 rounded-lg border border-line-strong px-3 disabled:opacity-50">Trang trước</button><span>Trang {currentPage}/{pages}</span><button type="button" disabled={currentPage >= pages} onClick={() => setPage(currentPage + 1)} className="min-h-11 rounded-lg border border-line-strong px-3 disabled:opacity-50">Trang sau</button></nav>}
+          {pages > 1 && <nav aria-label="Phân trang lịch sử GPS" className="flex flex-wrap items-center justify-end gap-3 text-sm"><button type="button" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)} className="min-h-11 rounded border border-line-strong px-3 disabled:opacity-50">Trang trước</button><span>Trang {currentPage}/{pages}</span><button type="button" disabled={currentPage >= pages} onClick={() => setPage(currentPage + 1)} className="min-h-11 rounded-lg border border-line-strong px-3 disabled:opacity-50">Trang sau</button></nav>}
         </>}
       </>}
       {!route.isPending && <button type="button" disabled={route.isFetching} onClick={() => void route.refetch()} className="min-h-11 rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-primary disabled:opacity-50">{route.isFetching ? "Đang cập nhật..." : "Cập nhật hành trình"}</button>}

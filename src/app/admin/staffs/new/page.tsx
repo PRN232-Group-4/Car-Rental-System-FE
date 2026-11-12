@@ -60,14 +60,15 @@ function CreateStaffContent() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Button variant="ghost" size="sm" onClick={() => router.push("/admin/staffs")}>
-        <ArrowLeft className="mr-1 h-4 w-4" />Quay lại danh sách
-      </Button>
-      <TransitFolio index="07" tag="ORG" kicker="TỔ CHỨC · HỒ SƠ NHÂN SỰ MỚI"
-        title={<>Tạo hồ sơ <span className="text-td-teal">nhân viên / tài xế.</span></>}
-        description="Chọn email tài khoản có sẵn và phân công phòng ban, cơ sở làm việc." />
+      <TransitFolio
+        title="Tạo hồ sơ nhân viên / tài xế"
+        description="Chọn email tài khoản có sẵn và phân công phòng ban, cơ sở làm việc.">
+        <Button variant="ghost" size="sm" onClick={() => router.push("/admin/staffs")}>
+          <ArrowLeft className="mr-1 h-4 w-4" />Quay lại danh sách
+        </Button>
+      </TransitFolio>
       {loading ? <FormSkeleton fields={4} label="Đang tải tài khoản và danh mục nhân sự..." /> : loadError ? (
-        <div role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">
+        <div role="alert" className="pl-3 text-sm text-danger">
           Không thể tải danh mục nhân sự. Vui lòng thử lại.
           <Button variant="secondary" onClick={() => { void users.refetch(); void departments.refetch(); void facilities.refetch(); }}>Tải lại danh mục</Button>
         </div>
@@ -76,7 +77,7 @@ function CreateStaffContent() {
           userId: !selected || !selected.isActive || selected.staffId != null ? "Vui lòng chọn tài khoản đang hoạt động và chưa có hồ sơ nhân sự." : undefined,
           expiryDate: isDriver && issueDate && expiryDate && expiryDate < issueDate ? "Ngày hết hạn GPLX phải từ ngày cấp trở đi." : undefined,
         })} className="space-y-6 rounded border border-td-rule bg-td-white p-6 sm:p-8">
-          {error && <p role="alert" className="border-l-2 border-danger pl-3 text-sm text-danger">{error}</p>}
+          {error && <p role="alert" className="pl-3 text-sm text-danger">{error}</p>}
           {selected && initialUserId === String(selected.id) && (
             <div className="rounded border border-td-rule bg-td-paper p-3 text-xs text-td-ink flex items-center justify-between">
               <span>Đang tạo hồ sơ nhân viên cho: <strong>{selected.fullName || selected.email}</strong> ({selected.email}).</span>
@@ -108,7 +109,7 @@ function CreateStaffContent() {
               </InlineSelect>
             </FormField>
           </div>
-          {selected && <p className="border-l-2 border-td-oxide pl-3 text-xs text-td-muted">Vai trò tài khoản: {selected.roles.join(", ") || "Chưa có vai trò"}.{isDriver ? " Tài khoản có vai trò Driver; bổ sung giấy phép lái xe bên dưới." : " Thông tin giấy phép lái xe dành cho tài khoản có vai trò Driver."}</p>}
+          {selected && <p className="pl-3 text-xs text-td-muted">Vai trò tài khoản: {selected.roles.join(", ") || "Chưa có vai trò"}.{isDriver ? " Tài khoản có vai trò Driver; bổ sung giấy phép lái xe bên dưới." : " Thông tin giấy phép lái xe dành cho tài khoản có vai trò Driver."}</p>}
           {isDriver && <section aria-label="Giấy phép lái xe" className="space-y-4 border-t border-td-rule pt-5">
             <h2 className="text-sm font-bold text-td-ink">Giấy phép lái xe của tài xế</h2>
             <div className="grid gap-6 md:grid-cols-2">

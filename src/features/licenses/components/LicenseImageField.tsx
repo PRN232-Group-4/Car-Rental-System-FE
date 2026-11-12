@@ -134,7 +134,7 @@ export function LicenseImageField({
 
   return (
     <div className={className}>
-      <p className="mb-2 block text-xs font-bold uppercase tracking-wider text-td-ink">{label}</p>
+      <p className="mb-2 block text-xs font-bold text-td-ink">{label}</p>
 
       <InlineInput
         showError={false}

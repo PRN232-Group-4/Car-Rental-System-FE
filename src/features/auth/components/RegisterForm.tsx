@@ -139,7 +139,7 @@ export default function RegisterForm() {
   return (
     <div className="w-full">
       {/* Main Card */}
-      <div className="bg-surface rounded-2xl p-6 sm:p-7 border border-line shadow-e2 text-ink">
+      <div className="bg-surface p-6 sm:p-7 border border-line text-ink">
         {/* Step indicator */}
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-line">
           <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export default function RegisterForm() {
 
         {/* Error Alert Box */}
         {errorMessage && (
-          <div role="alert" aria-live="assertive" className="mb-3.5 p-3 rounded-xl bg-danger-bg border border-danger/30 text-danger text-xs flex items-start gap-2 animate-in fade-in duration-200">
+          <div role="alert" aria-live="assertive" className="mb-3.5 p-3 bg-danger-bg border border-danger/30 text-danger text-xs flex items-start gap-2 animate-in fade-in duration-200">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span className="leading-snug">{errorMessage}</span>
           </div>
@@ -211,7 +211,7 @@ export default function RegisterForm() {
 
         {/* Success Alert Box */}
         {successMessage && step !== "success" && (
-          <div className="mb-3.5 p-3 rounded-xl bg-primary-tint border border-primary/30 text-warning text-xs flex items-start gap-2 animate-in fade-in duration-200">
+          <div className="mb-3.5 p-3 bg-primary-tint border border-primary/30 text-warning text-xs flex items-start gap-2 animate-in fade-in duration-200">
             <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <span className="leading-snug">{successMessage}</span>
           </div>
@@ -252,7 +252,7 @@ export default function RegisterForm() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Nguyễn Văn An"
-                  className="w-full pl-9 pr-3.5 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
                   autoComplete="name"
                 />
               </div>
@@ -280,7 +280,7 @@ export default function RegisterForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pl-9 pr-3.5 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
                   autoComplete="email"
                 />
               </div>
@@ -308,7 +308,7 @@ export default function RegisterForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Tối thiểu 6 ký tự"
-                  className="w-full pl-9 pr-10 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
+                  className="w-full pl-9 pr-10 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
                   autoComplete="new-password"
                 />
                 <button
@@ -344,7 +344,7 @@ export default function RegisterForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Nhập lại mật khẩu"
-                  className="w-full pl-9 pr-10 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
+                  className="w-full pl-9 pr-10 py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink text-xs sm:text-sm border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-ink-3"
                   autoComplete="new-password"
                 />
                 <button
@@ -368,7 +368,7 @@ export default function RegisterForm() {
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="mt-0.5 size-4 rounded border-line-strong text-primary focus:ring-primary cursor-pointer"
+                className="mt-0.5 size-4 border-line-strong text-primary focus:ring-primary cursor-pointer"
               />
               <label htmlFor="register-terms" className="text-xs text-ink-3 leading-snug cursor-pointer select-none">
                 Đồng ý với{" "}
@@ -382,7 +382,7 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-white bg-primary hover:bg-primary-hover shadow-e1 hover:shadow-e2 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full mt-1 py-2.5 px-4 font-bold text-xs sm:text-sm text-white bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <>
@@ -407,7 +407,7 @@ export default function RegisterForm() {
             onSubmit={handleSubmitOtp}
             className="space-y-4 animate-in fade-in duration-200"
           >
-            <div className="p-3.5 rounded-xl bg-surface-raised border border-line text-center">
+            <div className="p-3.5 bg-surface-raised border border-line text-center">
               <KeyRound className="w-6 h-6 text-primary mx-auto mb-1.5" />
               <p className="text-xs text-ink-3">Mã xác thực đã gửi tới:</p>
               <p className="text-xs sm:text-sm font-bold text-ink mt-0.5">{email}</p>
@@ -429,7 +429,7 @@ export default function RegisterForm() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 placeholder="123456"
-                className="w-full text-center tracking-[0.4em] text-xl font-mono py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink rounded-xl border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                className="w-full text-center tracking-[0.4em] text-xl font-mono py-2.5 bg-surface hover:bg-surface-raised focus:bg-surface text-ink border border-line-strong focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 autoComplete="one-time-code"
                 autoFocus
               />
@@ -462,7 +462,7 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={submitting || otp.length !== 6}
-              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-white bg-primary hover:bg-primary-hover shadow-e1 hover:shadow-e2 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-2.5 px-4 font-bold text-xs sm:text-sm text-white bg-primary hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <>
@@ -482,7 +482,7 @@ export default function RegisterForm() {
         {/* STEP 3: Success State */}
         {step === "success" && (
           <div className="py-4 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 rounded-full bg-primary-tint text-primary flex items-center justify-center mx-auto shadow-inner">
+            <div className="w-12 h-12 rounded-full bg-primary-tint text-primary flex items-center justify-center mx-auto">
               <Check className="w-6 h-6 stroke-[3]" />
             </div>
 
@@ -496,7 +496,7 @@ export default function RegisterForm() {
             <button
               type="button"
               onClick={() => router.push(`/login?registered=${encodeURIComponent(email)}`)}
-              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm text-white bg-primary hover:bg-primary-hover shadow-e1 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2.5 px-4 font-bold text-xs sm:text-sm text-white bg-primary hover:bg-primary-hover transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Đăng nhập ngay</span>
               <ArrowRight className="w-4 h-4" />

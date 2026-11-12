@@ -1,10 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { Page, PageScreenshotOptions } from "@playwright/test";
 
-type LiquidProbeWindow = Window & {
-  __liquidPerformanceReport?: { avgJsWorkMs: number; [key: string]: unknown };
-  __setLiquidProgress?: (progress: number, theme?: "light" | "dark") => void;
-};
 import fs from "fs";
 import path from "path";
 
@@ -207,17 +203,10 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     });
   });
 
-  test("1. Production Pilot Route /admin/rentals - Dark Mode Bounded Stage Verification (1920x1080)", async ({ page }) => {
+  test("1. Production Pilot Route /admin/rentals - Bounded Stage Verification (1920x1080)", async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/admin/rentals?rentalId=101");
     await page.waitForLoadState("networkidle");
-
-    // Ensure Dark Mode is set
-    await page.evaluate(() => {
-      document.documentElement.dataset.adminTheme = "dark";
-      document.documentElement.setAttribute("data-theme", "dark");
-    });
-    await page.waitForTimeout(400);
 
     // Verify workspace root and bounded stage
     const workspace = page.locator("#rentalWorkspaceRoot");
@@ -258,7 +247,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
       expect(step5Box.x + step5Box.width).toBeLessThanOrEqual(trackBox.x + trackBox.width + 2);
     }
 
-    // P1-A: Verify GPS Panel Heading & Text Contrast in Dark Mode (WCAG AA & AAA)
+    // P1-A: Verify GPS Panel Heading & Text Contrast (WCAG AA)
     const gpsData = await page.evaluate(() => {
       function srgbLuminance(r: number, g: number, b: number) {
         const [R, G, B] = [r, g, b].map((c) => {
@@ -296,160 +285,15 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     });
 
     expect(gpsData).not.toBeNull();
-    console.log(`[E2E DARK GPS CONTRAST] Title: ${gpsData!.h2Ratio.toFixed(2)}:1, Subtitle: ${gpsData!.pRatio.toFixed(2)}:1`);
+    console.log(`[E2E GPS CONTRAST] Title: ${gpsData!.h2Ratio.toFixed(2)}:1, Subtitle: ${gpsData!.pRatio.toFixed(2)}:1`);
     expect(gpsData!.h2Ratio).toBeGreaterThanOrEqual(4.5);
     expect(gpsData!.pRatio).toBeGreaterThanOrEqual(4.5);
 
     // Capture visual artifact
-    await saveMultiScreenshot(page, "pilot-rentals-a1.1-dark-1920x1080.png");
+    await saveMultiScreenshot(page, "pilot-rentals-a1.1-1920x1080.png");
   });
 
-  test("2. Production Pilot Route /admin/rentals - Light Mode Bounded Stage Verification (1920x1080)", async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto("/admin/rentals?rentalId=101");
-    await page.waitForLoadState("networkidle");
-
-    // Switch to Light Mode
-    await page.evaluate(() => {
-      document.documentElement.dataset.adminTheme = "light";
-      document.documentElement.setAttribute("data-theme", "light");
-    });
-    await page.waitForTimeout(400);
-
-    const workspace = page.locator("#rentalWorkspaceRoot");
-    await expect(workspace).toBeVisible();
-
-    // P1-B: Verify Rental Lifecycle Stepper in Light Mode
-    const stepperTrackLight = page.locator("[role='list']").first();
-    const step5Light = page.locator("[role='listitem']").nth(4);
-    await expect(step5Light).toBeVisible();
-    await expect(step5Light).toContainText("Hoàn tất");
-
-    const trackBoxLight = await stepperTrackLight.boundingBox();
-    const step5BoxLight = await step5Light.boundingBox();
-    expect(trackBoxLight).not.toBeNull();
-    expect(step5BoxLight).not.toBeNull();
-    if (trackBoxLight && step5BoxLight) {
-      expect(step5BoxLight.x + step5BoxLight.width).toBeLessThanOrEqual(trackBoxLight.x + trackBoxLight.width + 2);
-    }
-
-    // P1-A: Verify GPS Panel Heading & Text Contrast in Light Mode
-    const gpsDataLight = await page.evaluate(() => {
-      function srgbLuminance(r: number, g: number, b: number) {
-        const [R, G, B] = [r, g, b].map((c) => {
-          const val = c / 255;
-          return val <= 0.04045 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
-        });
-        return 0.2126 * R + 0.7152 * G + 0.0722 * B;
-      }
-      function parseRgb(str: string) {
-        const match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-        if (!match) return [255, 255, 255];
-        return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
-      }
-      const section = document.querySelector("section[aria-label*='Hành trình GPS']") as HTMLElement;
-      const h2 = section?.querySelector("h2") as HTMLElement;
-      const p = section?.querySelector("p") as HTMLElement;
-      if (!section || !h2 || !p) return null;
-
-      const bgColor = window.getComputedStyle(section).backgroundColor;
-      const h2Color = window.getComputedStyle(h2).color;
-      const pColor = window.getComputedStyle(p).color;
-
-      const [br, bg, bb] = parseRgb(bgColor);
-      const [hr, hg, hb] = parseRgb(h2Color);
-      const [pr, pg, pb] = parseRgb(pColor);
-
-      const lBg = srgbLuminance(br, bg, bb);
-      const lH2 = srgbLuminance(hr, hg, hb);
-      const lP = srgbLuminance(pr, pg, pb);
-
-      const h2Ratio = (Math.max(lBg, lH2) + 0.05) / (Math.min(lBg, lH2) + 0.05);
-      const pRatio = (Math.max(lBg, lP) + 0.05) / (Math.min(lBg, lP) + 0.05);
-
-      return { bgColor, h2Color, pColor, h2Ratio, pRatio };
-    });
-
-    expect(gpsDataLight).not.toBeNull();
-    console.log(`[E2E LIGHT GPS CONTRAST] Title: ${gpsDataLight!.h2Ratio.toFixed(2)}:1, Subtitle: ${gpsDataLight!.pRatio.toFixed(2)}:1`);
-    expect(gpsDataLight!.h2Ratio).toBeGreaterThanOrEqual(4.5);
-    expect(gpsDataLight!.pRatio).toBeGreaterThanOrEqual(4.5);
-
-    // Capture visual artifact
-    await saveMultiScreenshot(page, "pilot-rentals-a1.1-light-1920x1080.png");
-  });
-
-  test("3. Organic Liquid Flood Theme Transition Live Run & Performance Telemetry", async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto("/admin/rentals?rentalId=101");
-    await page.waitForLoadState("networkidle");
-
-    // Ensure Dark Mode initially
-    await page.evaluate(() => {
-      document.documentElement.dataset.adminTheme = "dark";
-      document.documentElement.setAttribute("data-theme", "dark");
-    });
-    await page.waitForTimeout(300);
-
-    // Trigger theme toggle via the theme toggle button
-    const themeBtn = page.locator("[data-testid='admin-theme-toggle']");
-    await expect(themeBtn).toBeVisible();
-    await themeBtn.click();
-
-    // Wait for the full 1050ms animation plus settle buffer
-    await page.waitForTimeout(1400);
-
-    // Verify theme switched to light
-    const currentTheme = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(currentTheme).toBe("light");
-
-    // Read real telemetry
-    const telemetry = await page.evaluate(() => (window as LiquidProbeWindow).__liquidPerformanceReport);
-    if (telemetry) {
-      expect(telemetry.avgJsWorkMs).toBeLessThan(5.0); // JS work well below frame budget
-      const telePath = path.join(targetDirs[0], "pilot-liquid-telemetry.json");
-      fs.writeFileSync(telePath, JSON.stringify(telemetry, null, 2));
-    }
-  });
-
-  test("4. Forensic Multi-Stage Progression Capture on Real Next.js Route (0% to 100%)", async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto("/admin/rentals?rentalId=101");
-    await page.waitForLoadState("networkidle");
-
-    // Ensure helper is present
-    const hasProgressHelper = await page.evaluate(() => typeof (window as LiquidProbeWindow).__setLiquidProgress === "function");
-    expect(hasProgressHelper).toBe(true);
-
-    const checkpoints = [
-      { p: 0.15, label: "015" },
-      { p: 0.35, label: "035" },
-      { p: 0.50, label: "050" },
-      { p: 0.66, label: "066" },
-      { p: 0.75, label: "075" },
-      { p: 0.90, label: "090" },
-      { p: 1.00, label: "100" },
-    ];
-
-    for (const cp of checkpoints) {
-      await page.evaluate(({ p }) => {
-        (window as LiquidProbeWindow).__setLiquidProgress?.(p, "light");
-      }, cp);
-      await page.waitForTimeout(100);
-
-      // Verify ZERO duplicate IDs during transition
-      const duplicateIdCount = await page.evaluate(() => {
-        const ids = Array.from(document.querySelectorAll("[id]")).map((el) => el.id);
-        const unique = new Set(ids);
-        return ids.length - unique.size;
-      });
-      expect(duplicateIdCount).toBe(0);
-
-      await saveMultiScreenshot(page, `pilot-liquid-progression-p${cp.label}.png`);
-    }
-  });
-
-  test("5. Laptop (1366x768) and Reflow (960x540) Responsive Validation", async ({ page }) => {
+  test("2. Laptop (1366x768) and Reflow (960x540) Responsive Validation", async ({ page }) => {
     // Laptop viewport
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto("/admin/rentals?rentalId=101");
@@ -484,26 +328,7 @@ test.describe("Thong Dong Transit Desk — Phase 3E A1.1 Production Pilot Suite"
     await saveMultiScreenshot(page, "pilot-rentals-reflow-960x540.png");
   });
 
-  test("6. Accessibility Fallback: Prefers-Reduced-Motion Instant Toggle", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/admin/rentals?rentalId=101");
-    await page.waitForLoadState("networkidle");
-
-    const themeBtn = page.locator("[data-testid='admin-theme-toggle']");
-    await expect(themeBtn).toBeVisible();
-
-    const initialTheme = await page.evaluate(() => document.documentElement.dataset.adminTheme || "light");
-    const expectedTheme = initialTheme === "dark" ? "light" : "dark";
-
-    // Toggle theme with reduced motion: switch must be instantaneous
-    await themeBtn.click();
-    await page.waitForTimeout(100);
-
-    const themeAfter = await page.evaluate(() => document.documentElement.dataset.adminTheme);
-    expect(themeAfter).toBe(expectedTheme);
-  });
-
-  test("7. Operational Async States: Not Found & Idle Handling", async ({ page }) => {
+  test("3. Operational Async States: Not Found & Idle Handling", async ({ page }) => {
     // 404 Not Found state
     await page.goto("/admin/rentals?rentalId=9999");
     await page.waitForLoadState("networkidle");

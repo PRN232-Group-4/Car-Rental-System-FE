@@ -1,6 +1,6 @@
 # Design System — Hệ Thống Thuê Xe Thong Dong (Vehicle Rental System)
 
-> **Phiên bản 3.1 — Light Editorial Automotive Blueprint, Warm Canvas, Zero-Gradient.**
+> **Phiên bản 4.0 — Constructivist Lithograph cho toàn hệ thống.** Landing theo A14, mọi trang còn lại theo A15 (giấy bone, khung mực ink, nhấn sun, góc vuông, một theme). Các mục A1–A13 còn hiệu lực ở phần không mâu thuẫn với A14/A15 (bố cục, mật độ, trợ năng, quy tắc admin); màu, kính, bo góc, theme tối và chuyển động điện ảnh trong A1–A13 đã được A14/A15 thay thế.
 >
 > Tài liệu gồm hai phần:
 >
@@ -484,9 +484,9 @@ Kỹ thuật & ngân sách:
 
 **Bảng màu (Palette A).** Light: `td-paper #FAF8F5`, `td-white #FFFFFF`, `td-ink #1F1B22`, `td-muted #58515E`, `td-rule rgba(31,27,34,.12)`, `td-oxide #B45309`, `td-teal #7A5B18`, `td-chalk #F0ECE6`. Dark: `td-paper #17161B`, `td-white #242126`, `td-ink #F5F1EC`, `td-muted #9E97A3`, `td-oxide #F6BA7C`, `td-teal #C8A96B`, `td-chalk #1C1A20`. `td-oxide` tham chiếu `--primary` ở cả hai theme; mọi cổng dùng chung cam amber. Chữ CTA dùng `--on-primary`: trắng ở light, `#17161B` ở dark.
 
-**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Nhãn phụ, số liệu, ID, ngày giờ và trạng thái render bằng `font-mono` chữ hoa nhỏ (`10–11px`, `tracking-wider`); tiêu đề folio nhấn bằng `<span class="text-td-teal">` (không dùng chữ in nghiêng).
+**Hình khối và mực.** Nút/control **4px**, ô nhập `.admin-input` **6px**, bề mặt hồ sơ **4px**; không dùng bo 12/16px cho phần tử mới. Phân tách bằng đường kẻ 1px `td-rule`, rule đầu bảng/khối bằng `td-ink`; **không** dùng `shadow-e1/e2` và không lồng card để trang trí. Chỉ dữ liệu (mã, biển số, tiền, ngày giờ) dùng `font-mono`; nhãn, tab, tiêu đề cột, chú thích và trạng thái rỗng dùng chữ sans viết thường. Tiêu đề không tách màu, không chữ in nghiêng.
 
-**Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: số chương + tag mono, kicker viết hoa, `h1` lớn (tối đa `text-5xl`), một câu mô tả, vùng phải chứa **một** số liệu tổng (`TransitFolioMetric`) và/hoặc **một** hành động chính có nhãn chữ. Mobile: vùng phải xuống dòng dưới tiêu đề.
+**Folio header.** Mỗi trang cấp 1 mở bằng `TransitFolio`: `h1` (`text-2xl`/`sm:text-3xl`) một màu mực, không dấu chấm cuối, một câu mô tả; vùng phải chứa tối đa **một** số liệu thật (`TransitFolioMetric`: nhãn thường + số `tabular-nums`, không đệm số 0) và/hoặc **một** hành động chính có nhãn chữ. Không số chương, không tag, không kicker phía trên tiêu đề. Tiêu đề bắt đầu cách đáy khung dính khoảng 24–40px. Mobile: vùng phải xuống dòng dưới tiêu đề.
 
 **Sổ mở thay cho card.** Danh sách render kiểu ledger: head mono chữ hoa với rule `td-ink`, hàng phân tách `td-rule`, hover `td-chalk`; bảng rộng cuộn trong wrapper, toàn trang không tràn ngang. Trạng thái hiển thị bằng **badge pill màu nền** — bo tròn, padding nhỏ, chữ nhỏ, glyph nhỏ + nhãn (`AdminStatusBadge`), cặp màu theo A2 và `status-tone.ts`; bảng ánh xạ duy nhất `status-rules.ts` với các domain `activity`, `vehicle`, `rental`, `maintenance`, `license`, `shift`, `report`, `review`.
 
@@ -631,39 +631,133 @@ main {
 
 ---
 
-## A14. Phân vùng Marketing Landing Surface (Riso Grand Tour — Siêu xe. Không vội.)
+## A14. Phân vùng Marketing Surface (v3.9 "Constructivist Lithograph Monograph")
 
-> **Áp dụng riêng cho:** Tuyến `/` thuộc nhóm `(marketing)`, được cô lập bằng `[data-surface="marketing"]` trong `globals.css`. Khu vực Dashboard, Staff và Transit Desk Admin (`[data-portal="admin"]`) giữ nguyên 100% quy chuẩn các phần A1–A13 trước đó.
+> **Áp dụng cho:**
+>
+> - Tuyến `/` thuộc nhóm `(marketing)`, cô lập bằng `[data-surface="marketing"]` trong `globals.css`. Toàn bộ A14 áp dụng.
+> - Khung điều hướng (`Navbar`) và chân trang (`Footer`) của các trang công khai còn lại trong `(marketing)`: `/find`, `/facilities`, `/inspection`, `/subscriptions`, `/vehicles/detail`. Chỉ A14.1, A14.2 và A14.3 áp dụng cho hai khung này (xem A14.7). Thân trang vẫn theo A1–A13.
+> - Dashboard khách, Staff và Transit Desk Admin (`[data-portal="admin"]`) giữ nguyên A1–A13.
 
-### A14.1 Bầu không khí & Màu sắc (Riso Print)
-- **Nền trang:** Cố định nền mực tối `ink-950 #0F1215` và `ink-800 #181D22` (không có toggle light/dark trên landing).
-- **Màu giấy:** `bone-100 #E9E4D8` dùng cho chữ chính và bề mặt các plate in.
-- **Mực in Riso:**
-  - `sun-600 #C84B20` (và `sun-400 #E0662F`) — mực cam mặt trời, CTA Booking Dock, theming Chương 3, 5.
-  - `lake-600 #1177A8` (và `lake-400 #3DA5D9`) — mực xanh hồ núi, rim light xe 3D, theming Chương 2.
-- **Chương Theming:** `data-chapter="lake"` và `data-chapter="sun"`. Văn bản trên hai nền này bắt buộc là chữ trắng (`#FFFFFF`) đạt chuẩn WCAG AA tương phản ≥ 4.5:1. Chữ thân không dùng màu sun-600.
+### A14.1 Bảng màu đảo cực (Alternating Polarity)
 
-### A14.2 Hình học & Bố cục
-- **Hình khối duy nhất:** Chỉ gồm đĩa tròn (`border-radius: 50%`) và hình chữ nhật góc vuông (`border-radius: 0px`).
-- **Cấm tuyệt đối trên landing:**
-  - Cấm card, cấm viền 1px bo góc.
-  - Cấm pill nav, pill tab, pill badge, chips.
-  - Cấm số ghost mờ sau tiêu đề.
-  - Cấm nhãn mono dạng HUD ("SECTION 01", "// TELEMETRY"). Tối đa 4 nhãn micro mỗi viewport.
-  - Cấm gradient mượt, cấm dấu chấm cam trang trí sau tiêu đề.
-  - Cấm cuộn ngang bị pin khóa màn hình.
+Landing xen kẽ nền mực tối và nền giấy theo từng section. Không có toggle sáng/tối trên landing. Chỉ dùng token khai báo trong `globals.css`, không viết mã hex tự do trong class Tailwind.
 
-### A14.3 Typography & Tỷ lệ
-- **Display Hero:** `Archivo` cỡ `clamp(4rem, 18vw, 22rem)`, `line-height ≥ 1.0` (chừa `padding-top: 0.15em` cho line-mask reveal).
-- **Từ nhấn:** `Cormorant Garamond italic` cho từ khóa nghệ thuật ("Không vội").
-- **Body & Micro:** `Be Vietnam Pro`.
-- Gỡ `Space Grotesk`, `JetBrains Mono`, `Geist Mono` khỏi bundle trang chủ.
+| Token                      | Hex       | Vai trò                                                                                         |
+| -------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| `ink-950`                  | `#0F1215` | Nền mực chủ đạo: Section 1 (Hero), Section 3, Section 5 + footer, `MenuOverlay`, `Navbar` marketing |
+| `ink-800`                  | `#181D22` | Nền thứ cấp: bề mặt nút, mặt lưng thẻ bài, viền phân tách trên nền tối                          |
+| `bone-100`                 | `#E9E4D8` | Nền giấy: Section 2, mặt trước thẻ bài Section 3, Section 4; chữ chính trên nền tối             |
+| `sun-600`                  | `#C84B20` | Mực cam: CTA chính, thanh laser chuyển cảnh, con dấu chỉ mục, viền đỉnh footer                  |
+| `sun-400`                  | `#E0662F` | Nhãn micro và chữ nhấn trên nền `ink-950`                                                       |
+| `lake-600`                 | `#1177A8` | Mực xanh: trục xương sống và khối két dữ kiện Section 4                                         |
+| `lake-400`                 | `#3DA5D9` | Số thứ tự và nhãn kỹ thuật trên nền tối                                                         |
 
-### A14.4 Động lực học & Chuyển đổi
-- **Hành động duy nhất:** Booking Dock (nút đĩa tròn `sun-600` 72px) cố định ở đáy màn hình sau hero; submit trực tiếp về `/find?...' (chuẩn `findFilterSchema`).
-- **Cảnh 3D duy nhất:** Porsche 911 Carrera 4S xử lý qua Lithograph Shader (`onBeforeCompile` trên MeshStandardMaterial, LUT 5–6 bậc + dither stipple 3–4px, blob shadow đen mép cứng, `preserveDrawingBuffer: false`).
-- **Chuyển chương:** Scroll Disc (đĩa tròn vector nở dần theo tiến độ cuộn).
-- **Trợ năng:** Tôn trọng `prefers-reduced-motion` (tắt camera move, parallax, hero thành poster tĩnh) và `prefers-reduced-transparency`.
+- Chữ thân không dùng `sun-600`. Trên nền `data-chapter="lake"` và `data-chapter="sun"`, chữ bắt buộc là trắng `#FFFFFF`.
+- Chữ trên nền `bone-100` dùng `ink-950`.
+
+### A14.2 Hình học & bố cục
+
+- **Chỉ hai hình khối:** đĩa tròn (`border-radius: 50%`) và hình chữ nhật góc vuông (`border-radius: 0`).
+- **Cấm trên landing và khung marketing:**
+  - Card UI bo góc có viền 1px. Thẻ bài Section 3 là bản in chữ nhật góc vuông, không phải card UI.
+  - Pill nav, pill tab, pill badge, chip.
+  - Số ghost mờ đặt sau tiêu đề.
+  - Gradient mượt, `backdrop-filter`, dấu chấm cam trang trí sau tiêu đề.
+  - Cuộn ngang bị pin khóa màn hình.
+- **Nhãn chỉ mục:** chỉ dùng dạng `NN // TÊN CHƯƠNG` (ví dụ `02 // GRAND TOURING MANIFESTO`) làm nhãn mở đầu một chương. Tối đa 4 nhãn micro mỗi viewport. Không dùng nhãn HUD đứng một mình làm khối đệm (ví dụ một dải trống chỉ chứa `SECTION 04 // …`).
+- **Chiều cao:** dùng `min-h-[100dvh]` hoặc `h-[100svh]`, không dùng `h-screen` hay `min-h-screen`.
+
+### A14.3 Typography & bảo vệ dấu tiếng Việt
+
+- **Display:** `Archivo` (`--font-archivo`), variable font có trục `wdth` từ 58 đến 122. Dùng cho mọi tiêu đề chương và số chỉ mục lớn (`01`–`06`). Hero dùng cỡ `clamp(4rem, 18vw, 22rem)`.
+- **Body & UI:** `Be Vietnam Pro` (`--font-be-vietnam`) cho văn bản, bảng thông số và điều hướng.
+- Không tải `Space Grotesk`, `JetBrains Mono`, `Geist Mono`, `Cormorant Garamond` cho landing.
+- **Mặt nạ chữ có dấu:** chữ hoa có dấu kép (`Ể`, `Ẫ`, `Ộ`, `Ắ`) cao hơn cap-height khoảng 18–22%. Mọi phần tử chữ dùng `overflow-hidden` cho hiệu ứng trượt phải bù đệm `pt-[0.2em] pb-[0.06em] -mt-[0.16em]` và giữ `line-height` trong khoảng 1.08–1.15.
+
+### A14.4 Cấu trúc trang & chuyển cảnh
+
+Landing gồm preloader, menu và 5 section. Mỗi đoạn chuyển và mỗi tiêu đề có một cơ chế riêng. Không tái sử dụng cùng một cơ chế cho hai đoạn chuyển.
+
+| Phân đoạn                       | Chuyển cảnh                                                                                     | Chuyển động chữ                                                       |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Preloader (`CinematicPreloader`) | Hai cánh cổng `bone-100` / `ink-950` tách đôi theo phương dọc                                   | Bộ đếm `000 → 100` đồng bộ thanh lăn mực                              |
+| Menu (`MenuOverlay`)             | Mặt nạ đa giác cắt chéo (`clip-path: polygon`)                                                  | 6 mục lật quanh bản lề trên, giãn `wdth` khi hover                     |
+| Section 1 (`HeroChapter`)        | Cảnh 7 lớp chiều sâu (Đà Lạt), phản hồi theo con trỏ                                             | Từng ký tự `SIÊU XE. KHÔNG VỘI.` lật quanh bản lề trên                 |
+| 1 → 2 (`SceneBSection` Act II)   | 5 cột bậc thang dâng lên và kéo nội dung Section 2 lên                                          | `ĐƯỜNG DÀI LÀ ĐỂ` / `«ĐI CHẬM.»` giãn trục `wdth` 58 → 122 theo cuộn   |
+| 2 → 3 (`SceneBSection` Act III)  | Tia laser ngang xẻ tâm, cổng đêm mở ra hai phía                                                 | Ký tự `NHẸ NHƯ KHÔNG.` quay kiểu đồng hồ cơ, lẻ/chẵn ngược chiều       |
+| Section 3 nội tại                | 3 thẻ bài úp, xòe quạt, dàn hàng, lật 180°                                                      | Không                                                                 |
+| 3 → 4 (`TrustChapter`)           | Đĩa giấy `bone-100` nở từ giữa mép trên (`clip-path: circle()`), phủ dần nền `ink-950`          | Từng từ `TIN CẬY BẰNG DỮ KIỆN.` đổ phối cảnh 3D                       |
+| Section 4 nội tại                | 4 két dữ kiện xoay 3D khóa vào trục `lake-600`, cửa chớp quét mở                                | Số `01–04` trượt lên từ mặt nạ                                        |
+| 4 → 5 (`BookingChapter`)         | 7 thanh chớp ngang lật mở 3D                                                                    | Ký tự `«ĐI THÔI.»` lật quanh trục Y; xe `b4-car` chạy đè lên footer    |
+
+- Đoạn chuyển phải dẫn thẳng vào tiêu đề của section sau. Không để khối đệm cố định chiều cao hay khoảng trống chết giữa hai section.
+- Nội dung bị dịch bằng `transform` theo cuộn (ví dụ `y: "-30svh"`) phải được bù lại trong bố cục (margin âm tương ứng), vì `transform` không thu hẹp hộp bố cục.
+
+### A14.5 Hợp đồng kỹ thuật bắt buộc
+
+- **Hòa tan nền poster (`multiply`):** hai poster `poster-mountain-grand-tour.webp` (Section 2) và `poster-bugatti-heritage.webp` (Section 4) có nền giấy `#EAE3D2`. Thẻ cha trực tiếp của `<img>` phải có `bg-bone-100` và `aspect-[16/9]`. `<img>` dùng `mix-blend-mode: multiply` cùng `filter: brightness(1.16) contrast(1.14)`. Không đặt `z-index` hay `will-change` trên `<img>` hoặc thẻ bọc trực tiếp của nó, vì stacking context riêng sẽ làm poster hiện thành hộp trắng.
+- **Chống kẹt cuộn (Lenis + GSAP):** khung poster khóa `aspect-[16/9]` và không dùng `loading="lazy"`. `src/app/(marketing)/page.tsx` theo dõi `document.body` bằng `ResizeObserver` để gọi `ScrollTrigger.refresh()`.
+- **Hành động duy nhất:** `BookingDock` cố định ở đáy màn hình, ẩn trong Section 1 và hiện từ Section 2, gửi thẳng về `/find?…` theo `findFilterSchema`.
+- **Trợ năng:** tôn trọng `prefers-reduced-motion` (tắt parallax, chuyển cảnh hiện ngay ở trạng thái cuối) và `prefers-reduced-transparency`.
+
+### A14.6 Cổng kiểm định
+
+Mọi thay đổi landing phải qua: `npm run typecheck`, `npm run lint:design`, `npm run build`, `npm run test:visual`, và `npm run test:e2e tests/landing.e2e.ts tests/search-console.e2e.ts`.
+
+### A14.7 Khung marketing trên các trang công khai
+
+Các trang công khai ngoài `/` dùng chung `Navbar` và `Footer` (`src/components/layout/`). Thân trang theo A15.
+
+- **Navbar:** thanh `ink-950` toàn chiều ngang, góc vuông, không kính. Logo `ThongDong.` bằng Archivo màu `bone-100`, dấu chấm `sun-600`. Liên kết chữ `bone-100/75`, hover `sun-400`. CTA đăng ký nền `primary` góc vuông.
+- **Footer:** nền `ink-950`, viền đỉnh 4px `sun-600`, bố cục 4 cột dùng chung `FooterContent` với footer landing. Liên kết trỏ tới route thật, không dùng anchor của landing (`#cong-nghe`, `#quy-trinh`…) trên trang khác.
+- Giữ nguyên `id`, `aria-*` và chức năng của khung (menu tài khoản, âm thanh, menu di động).
+
+## A15. Bề mặt ứng dụng (mọi trang ngoài landing)
+
+> **Áp dụng cho:** trang công khai (`/find`, `/facilities`, `/inspection`, `/subscriptions`, `/vehicles/detail`), đăng nhập/đăng ký, dashboard khách, cổng tài xế `/staff`, và Transit Desk `/admin`. Khi A15 mâu thuẫn với A1–A13, A15 thắng.
+
+### A15.1 Vai trò bề mặt
+
+| Bề mặt | Token | Dùng cho |
+| --- | --- | --- |
+| Thân trang (giấy) | `canvas` = `bone-100 #E9E4D8` | Nền mọi trang |
+| Bề mặt đặc | `surface #F4F1EA` | Ô nhập, thân bảng, thẻ, panel, popover |
+| Vùng lõm | `sunken #E1DBCE` | Đầu bảng, skeleton, ô disabled |
+| Khung mực | `ink-950 #0F1215` | Masthead admin/khách, sidebar cổng tài xế, Navbar/Footer công khai |
+| Chữ | `ink`, `ink-2`, `ink-3` | Chính, phụ, metadata (đều ≥ 4.5:1 trên giấy) |
+| Đường kẻ | `line`, `line-strong`; rule đậm `ink` | Hairline, viền ô nhập/thẻ; rule đầu khối |
+
+- **Màu nhấn trên giấy:** `primary` = `sun-700 #A83C16` cho CTA, link, trạng thái chọn, focus (chữ trắng trên nền primary 6.3:1). `sun-600` chỉ dùng cho mảng màu lớn hoặc đồ họa, không làm chữ nhỏ trên giấy (3.7:1).
+- **Nhấn phụ:** `td-teal` = `lake-700 #0D5F87` cho trạng thái thông tin và liên kết phụ; không dùng để tô nửa tiêu đề.
+- **Màu nhấn trên khung mực:** chữ `bone-100` / `bone-100/72`, hover và nhãn nhấn `sun-400`. Không dùng `primary` làm chữ trên nền mực.
+- **Trạng thái:** `success`, `warning`, `danger`, `info` và nền `*-bg` của chúng, luôn kèm icon + chữ.
+- Chỉ một theme sáng (giấy + mực). Không có chế độ tối, không có nút đổi theme.
+
+### A15.2 Hình học
+
+- Góc vuông cho mọi thứ: nút, ô nhập, thẻ, bảng, dialog, badge, tab. Thang `rounded-*` của Tailwind đã bị đặt về 0 trong `globals.css`.
+- `rounded-full` chỉ cho phần tử vuông thành đĩa: avatar, chấm trạng thái, nút icon trên khung mực. Không dùng cho phần tử chữ nhật (pill badge, pill tab, chip, nút pill).
+- Không kính, không `backdrop-filter`, không gradient. Các lớp `glass-*` là bề mặt đặc góc vuông.
+- Bóng chỉ cho lớp nổi (popover, dialog, drawer) qua `shadow-e2`/`shadow-e3`. Thẻ và panel phẳng, tách nhau bằng viền.
+
+### A15.3 Chữ
+
+- `h1`, `h2` dùng Archivo (`--font-display`) mặc định qua `globals.css`. Phần còn lại dùng Be Vietnam Pro.
+- `font-mono` chỉ cho dữ liệu: mã đơn, biển số, số liệu, thời gian. Không dùng nhãn mono kiểu HUD làm trang trí (ví dụ `SYS-INIT`, `// TELEMETRY`, toạ độ giả), không dùng mono cho nhãn, tab, nút, tiêu đề cột hay tên người.
+- Không kicker/eyebrow (dòng nhãn nhỏ viết hoa phía trên tiêu đề), không số chương/mục (`01`, `09 KH`) trừ khi thứ tự là dữ liệu, không tiêu đề tách hai màu, không dấu chấm "tuyên ngôn" cuối tiêu đề, không khối số to kiểu `TỔNG 00`.
+- Icon chỉ đi với hành động hoặc trạng thái (nút, ô nhập, badge, thao tác dòng, điều hướng). Không icon trang trí cạnh tiêu đề/nhãn, không ô icon + tiêu đề + một dòng làm khung trang, không viền màu bên trái/phải dày hơn 1px.
+
+### A15.4 Chuyển động
+
+Chỉ phản hồi chức năng (hover, focus, mở/đóng). Không parallax, không scroll-scrub, không chuyển cảnh điện ảnh trong trang app. Hiệu ứng đó chỉ thuộc landing (A14.4).
+
+### A15.5 Quy tắc viết code
+
+- Màu chỉ đi qua token trong `globals.css` (`bg-canvas`, `bg-surface`, `text-ink`, `bg-primary`, `td-*`, `ink-950`, `bone-100`, `sun-*`, `lake-*`). Không viết hex hay rgba trong class, style inline hoặc CSS module, trừ khi định nghĩa token.
+- Không thêm `border-radius` khác `0`/`50%` trong CSS module.
+- Đổi style không được đổi hành vi: giữ nguyên `id`, `aria-*`, `data-testid`, validation, phân quyền và request API.
+- Kiểm tra bằng `node scripts/design-sweep.mjs <tag> http://localhost:3000 <prefixes>`: số phần tử bo góc, kính và màu cũ trên mỗi route phải về 0, trừ đĩa hợp lệ; `kickers` phải rỗng và `headGap` (khoảng từ đáy khung dính tới `h1`) ≤ 48px, trừ trang trạng thái căn giữa và trang đăng nhập.
 
 ---
 
