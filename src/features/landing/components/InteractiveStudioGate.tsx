@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/Button";
+import { endRouteTransition } from "@/lib/route-transition";
 
 // Tải Three.js InteractiveStudio3D CHỈ khi có ý định (Intent-based loading)
 const InteractiveStudio3D = dynamic(
@@ -39,6 +40,8 @@ export default function InteractiveStudioGate() {
     }
 
     // Dưới 768px: KHÔNG tự động nạp chunk Three.js. Chỉ nạp khi người dùng bấm "Xem xe 3D".
+    // Không có gì để chờ ⇒ nhả loader chuyển trang ngay.
+    endRouteTransition();
   }, []);
 
   if (shouldLoad) {

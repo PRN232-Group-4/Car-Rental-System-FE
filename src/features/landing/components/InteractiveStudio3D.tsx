@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { useNavigationRouter } from "@/components/navigation/NavigationProvider";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
+import { endRouteTransition, holdRouteTransition, isRouteTransitionPending } from "@/lib/route-transition";
 import { 
   Rotate3d, 
   Loader2, 
@@ -33,6 +34,8 @@ interface ModelInfo {
   scale: number;
   initialY: number;
   tag: string;
+  /** Mesh phụ (bối cảnh/garage) đi kèm file GLB — ẩn và bỏ khỏi bbox để xe đứng đúng mặt sàn. */
+  hiddenMeshes?: string[];
 }
 
 const MODELS: ModelInfo[] = [
@@ -61,6 +64,9 @@ const MODELS: ModelInfo[] = [
     scale: 0.95,
     initialY: 0,
     tag: "Dòng xe thể thao cổ điển",
+    // 930 Turbo GLB kèm 5 mesh bối cảnh (cao 2.7–3.8, thò xuống dưới mặt sàn).
+    // Không lọc thì chúng kéo bbox xuống -1.09 ⇒ xe bị nhấc lên khỏi mặt đất.
+    hiddenMeshes: ["object_4", "object_5", "object_6", "object_8", "object_9"],
   },
 ];
 
@@ -119,13 +125,31 @@ const HOTSPOTS: Hotspot[] = [
   },
 ];
 
+/** Gỡ model khỏi scene phải giải phóng geometry/material, nếu không sẽ rò rỉ mỗi lần đổi xe. */
+function disposeObject3D(object: THREE.Object3D | null) {
+  if (!object) return;
+  object.traverse((child) => {
+    const mesh = child as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    mesh.geometry?.dispose();
+    const materials: THREE.Material[] = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const material of materials) {
+      if (!material) continue;
+      for (const value of Object.values(material)) {
+        if (value && (value as THREE.Texture).isTexture) (value as THREE.Texture).dispose();
+      }
+      material.dispose();
+    }
+  });
+}
+
 export default function InteractiveStudio3D() {
   const router = useNavigationRouter();
   const [selectedModelId, setSelectedModelId] = useState<string>("porsche-carrera-4s");
   const [selectedColor, setSelectedColor] = useState<string>("#f8fafc");
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>("exterior-ai");
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadedModelId, setLoadedModelId] = useState<string | null>(null);
   const [isAutoRotate, setIsAutoRotate] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isMobileActive, setIsMobileActive] = useState<boolean>(false);
@@ -475,16 +499,21 @@ export default function InteractiveStudio3D() {
   useEffect(() => {
     if (!sceneRef.current) return;
 
+    if (isRouteTransitionPending()) holdRouteTransition();
+
     const scene = sceneRef.current;
-    setIsLoading(true);
+    // Cờ huỷ: chặn callback của lượt tải cũ ghi vào scene sau khi đã đổi xe.
+    let cancelled = false;
     setLoadingProgress(0);
     setLoadError(null);
 
-    // Remove previous model if exists
-    if (currentObjectRef.current) {
+    const removeCurrent = () => {
+      if (!currentObjectRef.current) return;
       scene.remove(currentObjectRef.current);
+      disposeObject3D(currentObjectRef.current);
       currentObjectRef.current = null;
-    }
+    };
+    removeCurrent();
 
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
@@ -493,6 +522,10 @@ export default function InteractiveStudio3D() {
       activeModel.modelPath,
       (gltf) => {
         const object = gltf.scene;
+        if (cancelled) {
+          disposeObject3D(object);
+          return;
+        }
 
         object.updateMatrixWorld(true);
         const bbox = new THREE.Box3();
@@ -500,6 +533,10 @@ export default function InteractiveStudio3D() {
           if ((child as THREE.Mesh).isMesh) {
             const mesh = child as THREE.Mesh;
             const mName = (mesh.name || "").toLowerCase();
+            if (activeModel.hiddenMeshes?.includes(mName)) {
+              mesh.visible = false;
+              return;
+            }
             mesh.geometry?.computeBoundingBox();
             const gSize = mesh.geometry?.boundingBox?.getSize(new THREE.Vector3());
             const isFlatFloor = gSize ? gSize.y < 0.02 && (gSize.x > 2.2 || gSize.z > 2.2) : false;
@@ -536,13 +573,16 @@ export default function InteractiveStudio3D() {
 
         scene.add(rootGroup);
         currentObjectRef.current = rootGroup;
+        setLoadedModelId(activeModel.id);
+        // Model đã vào scene: nhả loader chuyển trang.
+        endRouteTransition();
         if (rendererRef.current && cameraRef.current) {
           rendererRef.current.render(scene, cameraRef.current);
         }
-        setIsLoading(false);
         notifyUserActivity();
       },
       (xhr) => {
+        if (cancelled) return;
         if (xhr.total > 0) {
           const percent = Math.min(100, Math.round((xhr.loaded / xhr.total) * 100));
           setLoadingProgress(percent);
@@ -551,11 +591,17 @@ export default function InteractiveStudio3D() {
         }
       },
       (err) => {
+        if (cancelled) return;
         console.error("[3D Studio Error]", err);
         setLoadError("Không thể tải mô hình 3D. Vui lòng thử lại sau.");
-        setIsLoading(false);
+        endRouteTransition();
       }
     );
+
+    return () => {
+      cancelled = true;
+      removeCurrent();
+    };
   }, [activeModel]);
 
   // 3. Toggle Auto-rotation
@@ -740,8 +786,8 @@ export default function InteractiveStudio3D() {
           </div>
         )}
 
-        {/* Loading Overlay with Progress Counter */}
-        {isLoading && (
+        {/* Loading Overlay with Progress Counter — chỉ tắt khi model đang chọn đã vào scene */}
+        {!loadError && loadedModelId !== activeModel.id && (
           <div className="absolute inset-0 glass-ink z-20 flex flex-col items-center justify-center p-6 text-center">
             <Loader2 className="w-10 h-10 text-sun-400 animate-spin mb-4" />
             <h4 className="font-display text-base font-bold text-white mb-1">
