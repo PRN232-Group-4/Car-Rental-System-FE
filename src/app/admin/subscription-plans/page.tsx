@@ -17,7 +17,7 @@ import {
   useDeletePlan,
 } from "@/features/admin/policies/hooks";
 import { calculateHourlyRate } from "@/features/admin/policies/pricing-calculator";
-import { PlanDrawer } from "@/features/admin/policies/components/PlanDrawer";
+import { PlanModal } from "@/features/admin/policies/components/PlanModal";
 import type { SubscriptionPlan } from "@/features/admin/policies/types";
 import { ApiProblemError } from "@/api";
 
@@ -234,8 +234,8 @@ export default function SubscriptionPlansPage() {
             />
           </div>
 
-          {/* Drawer Tạo / Sửa gói */}
-          <PlanDrawer
+          {/* Modal Tạo / Sửa gói */}
+          <PlanModal
             open={drawerOpen}
             onClose={() => {
               setDrawerOpen(false);

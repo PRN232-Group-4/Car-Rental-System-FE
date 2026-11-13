@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Drawer } from "@/components/ui/Drawer";
+import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
@@ -15,19 +15,19 @@ import { useCreatePolicy } from "../hooks";
 import { PolicyDiff } from "./PolicyDiff";
 import { ApiProblemError } from "@/api";
 
-interface PolicyDrawerProps {
+interface PolicyModalProps {
   open: boolean;
   onClose: () => void;
   vehicleTypes: VehicleTypeOption[];
   activePolicies: RentalPolicy[];
 }
 
-export function PolicyDrawer({
+export function PolicyModal({
   open,
   onClose,
   vehicleTypes,
   activePolicies,
-}: PolicyDrawerProps) {
+}: PolicyModalProps) {
   const [confirmPending, setConfirmPending] = useState<PolicyFormValues | null>(null);
   const createMutation = useCreatePolicy();
 
@@ -104,10 +104,10 @@ export function PolicyDrawer({
 
   return (
     <>
-      <Drawer
+      <Modal
         open={open}
         onOpenChange={(isOpen) => !isOpen && onClose()}
-        side="right"
+        size="lg"
         title="Tạo phiên bản chính sách thuê mới"
         description="Chính sách thuê là bất biến để bảo vệ hợp đồng đã ký. Mọi thay đổi đều được tạo dưới dạng phiên bản mới."
       >
@@ -214,7 +214,7 @@ export function PolicyDrawer({
           </div>
 
           {/* Công tắc áp dụng ngay */}
-          <div className="flex items-center justify-between p-3.5 bg-td-white rounded border border-td-rule">
+          <div className="flex items-center justify-between gap-4 p-3.5 bg-td-white rounded border border-td-rule">
             <div>
               <span className="text-sm font-bold text-td-ink block">Áp dụng ngay cho đơn mới</span>
               <span className="text-xs text-td-muted block">
@@ -266,7 +266,7 @@ export function PolicyDrawer({
             </Button>
           </div>
         </form>
-      </Drawer>
+      </Modal>
 
       {/* ConfirmDialog khi thay thế chính sách đang active */}
       {confirmPending && currentActivePolicy && (

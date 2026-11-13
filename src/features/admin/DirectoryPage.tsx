@@ -18,12 +18,13 @@ import {
   deleteStaff,
   getDepartments,
   getFacilities,
+  getRoles,
   getStaff,
   updateDepartment,
   updateFacility,
   updateStaff,
 } from "./api";
-import type { OrganizationUnitDto, StaffDto } from "./api";
+import type { OrganizationUnitDto, RoleDto, StaffDto } from "./api";
 import { useAuth } from "@/features/auth";
 import { notifyApiError, notifyError, notifySuccess } from "@/components/ui/Toaster";
 import { InlineInput, InlineSelect, ValidatedForm, useInlineValidation } from "@/components/forms/inline-validation";
@@ -113,56 +114,9 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           setTotalCount(0);
           return;
         }
-        let staffList: StaffDto[] = [];
-        try {
-          const firstPage = await getStaff({ page: 1, pageSize: 100 });
-          staffList = [...(firstPage.items ?? [])];
-          const extraPages = Math.ceil(firstPage.totalCount / 100) - 1;
-          if (extraPages > 0) {
-            const additional = await Promise.all(
-              Array.from({ length: extraPages }, (_, index) =>
-                getStaff({ page: index + 2, pageSize: 100 }),
-              ),
-            );
-            for (const staffPage of additional) staffList.push(...(staffPage.items ?? []));
-          }
-        } catch {
-          // If staff list fails to fetch, baseline roles will still be rendered
-        }
-
-        const SYSTEM_ROLES: { name: string; description: string }[] = [
-          { name: "Admin", description: "Quản trị viên toàn quyền hệ thống" },
-          { name: "Manager", description: "Quản lý đội xe, lịch trình và vận hành" },
-          { name: "CustomerService", description: "Chăm sóc khách hàng, duyệt GPLX và đối soát" },
-          { name: "Driver", description: "Tài xế vận hành các chuyến xe được giao" },
-          { name: "Maintenance", description: "Kỹ thuật viên kiểm định và bảo dưỡng xe" },
-          { name: "Staff", description: "Vai trò cơ sở cho nhân sự nội bộ" },
-          { name: "Customer", description: "Khách hàng sử dụng dịch vụ thuê xe" },
-        ];
-
-        const roleCounts = new Map<string, number>();
-        const roleActives = new Map<string, boolean>();
-        for (const staff of staffList) {
-          const role = staff.staffRole?.trim() || (staff.isDriver ? "Driver" : "");
-          if (role) {
-            roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
-            if (staff.isActive) roleActives.set(role, true);
-          }
-        }
-
-        const roleRows = SYSTEM_ROLES.map((sysRole, idx) => {
-          const count = roleCounts.get(sysRole.name) ?? 0;
-          return {
-            id: idx + 1,
-            name: sysRole.name,
-            description: sysRole.description,
-            detail: `${count} tài khoản`,
-            active: count > 0 ? (roleActives.get(sysRole.name) ?? false) : true,
-          };
-        });
-
-        setRows(roleRows);
-        setTotalCount(roleRows.length);
+        const rolePage = await getRoles({ page: 1, pageSize: 100 });
+        setRows((rolePage.items ?? []).map(toRoleRow));
+        setTotalCount(rolePage.totalCount);
       }
     } catch (loadError) {
       notifyApiError(loadError, `Không thể tải ${info.title.toLocaleLowerCase()}.`);
@@ -311,7 +265,7 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
           </button>
         )}
       </TransitFolio>
-      {directory === "roles" && <p className="pl-3 text-xs text-td-muted">Swagger chưa có API quản lý danh mục vai trò; danh sách được tổng hợp từ vai trò đang gán cho nhân viên.</p>}
+      {directory === "roles" && <p className="pl-3 text-xs text-td-muted">Số tài khoản là số người dùng được gán vai trò tương ứng (nguồn: /api/roles).</p>}
 
       {directory === "staffs" && <AdminFilterBar description="Tìm nhân viên theo tên hoặc email." actions={
         <AdminFilterButton variant="secondary" disabled={!search} onClick={() => { setSearch(""); setPage(1); }}>Đặt lại</AdminFilterButton>
@@ -436,5 +390,26 @@ function toStaffRow(staff: StaffDto): Row {
     detail: staff.facilityName ?? "Chưa phân công",
     active: staff.isActive,
     source: staff,
+  };
+}
+
+const roleDescriptions: Record<string, string> = {
+  Admin: "Quản trị viên toàn quyền hệ thống",
+  Manager: "Quản lý đội xe, lịch trình và vận hành",
+  CustomerService: "Chăm sóc khách hàng, duyệt GPLX và đối soát",
+  Driver: "Tài xế vận hành các chuyến xe được giao",
+  Maintenance: "Kỹ thuật viên kiểm định và bảo dưỡng xe",
+  Staff: "Vai trò cơ sở cho nhân sự nội bộ",
+  Customer: "Khách hàng sử dụng dịch vụ thuê xe",
+};
+
+function toRoleRow(role: RoleDto): Row {
+  return {
+    id: role.id,
+    name: role.name,
+    description: roleDescriptions[role.name] ?? (role.isSystem ? "" : "Vai trò tuỳ chỉnh"),
+    detail: `${role.userCount} tài khoản`,
+    // Danh mục vai trò không có trạng thái riêng; vai trò tồn tại nghĩa là đang dùng.
+    active: true,
   };
 }
