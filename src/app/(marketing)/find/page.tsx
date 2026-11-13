@@ -30,6 +30,7 @@ import { useQuery } from "@tanstack/react-query";
 import { VehiclePage } from "@/features/vehicles/types";
 import { Search, SlidersHorizontal, RotateCcw, MapPin } from "lucide-react";
 import { gsap } from "@/lib/motion/register";
+import { endRouteTransition, holdRouteTransition, isRouteTransitionPending } from "@/lib/route-transition";
 
 const SORT_OPTIONS = [
   { value: "price_asc", label: "Giá tăng dần" },
@@ -84,6 +85,16 @@ function FindCatalogContent() {
   }
 
   const gridContainerRef = useRef<HTMLDivElement>(null);
+
+  // Giữ loader chuyển trang cho tới khi danh sách xe tải xong.
+  useEffect(() => {
+    if (isRouteTransitionPending()) holdRouteTransition();
+  }, []);
+
+  // Chỉ nhả loader SAU khi lưới xe (hoặc empty state) đã render, không phải lúc fetch xong.
+  useEffect(() => {
+    if (!loading) endRouteTransition();
+  }, [loading]);
 
   useEffect(() => {
     let active = true;
