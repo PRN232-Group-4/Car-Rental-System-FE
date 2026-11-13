@@ -5,6 +5,7 @@ import { X, ArrowUpRight } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/motion/register";
 import { useAuth, hasAnyRole, STAFF_PORTAL_ROLES } from "@/features/auth";
+import { beginRouteTransition } from "@/lib/route-transition";
 
 interface MenuOverlayProps {
   isOpen: boolean;
@@ -97,20 +98,16 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
     : [...PUBLIC_ITEMS, ...GUEST_ITEMS];
   const [isRendered, setIsRendered] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [navigatingItem, setNavigatingItem] = useState<MenuItem | null>(null);
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const svgWheelRef = useRef<SVGSVGElement>(null);
   const bladeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const previewBoxRef = useRef<HTMLDivElement>(null);
-  const routeLoaderRef = useRef<HTMLDivElement>(null);
-  const routeBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setIsRendered(true);
-      setNavigatingItem(null);
     }
   }, [isOpen]);
 
@@ -178,7 +175,6 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
     item: MenuItem
   ) => {
     e.preventDefault();
-    setNavigatingItem(item);
 
     if (typeof window !== "undefined" && navigator.webdriver) {
       onClose();
@@ -187,44 +183,19 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
     }
 
     router.prefetch(item.href);
-
-    requestAnimationFrame(() => {
-      const navTl = gsap.timeline({
-        onComplete: () => {
-          // Same page: nothing will replace the loader, so close it here.
-          if (window.location.pathname === item.href) {
-            setIsRendered(false);
-            onClose();
-            return;
-          }
-          // Keep the loader up until the next page commits; this overlay lives in the
-          // page's own nav, so it unmounts together with the old page and the old page never flashes back.
-          router.push(item.href);
-        },
-      });
-
-      if (routeLoaderRef.current) {
-        navTl.fromTo(
-          routeLoaderRef.current,
-          { clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)" },
-          {
-            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-            duration: 0.42,
-            ease: "expo.out",
-          },
-          0
-        );
-      }
-
-      if (routeBarRef.current) {
-        navTl.fromTo(
-          routeBarRef.current,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 0.5, ease: "power3.inOut" },
-          0.12
-        );
-      }
-    });
+    // Overlay loader nằm ở root layout nên không chết khi đổi route: nó giữ nguyên
+    // cho tới khi trang đích gọi endRouteTransition() (xem lib/route-transition.ts).
+    beginRouteTransition(
+      {
+        index: item.index,
+        label: item.label,
+        sub: item.sub,
+        tag: item.tag,
+        href: item.href,
+      },
+      window.location.pathname,
+    );
+    router.push(item.href);
   };
 
   useEffect(() => {
@@ -494,60 +465,6 @@ export default function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
           <span>TP. HỒ CHÍ MINH · SUPPORT@VRS.VN</span>
         </div>
 
-        {/* 5. Route Transition Loading Screen for the 6 Menu Functions */}
-        {navigatingItem && (
-          <div
-            ref={routeLoaderRef}
-            style={{ zIndex: 100 }}
-            className="fixed inset-0 w-full h-[100dvh] bg-bone-100 text-ink-950 p-8 sm:p-16 flex flex-col justify-between will-change-transform"
-          >
-            <div className="flex items-center justify-between border-b-2 border-ink-950 pb-4 text-xs tracking-[0.28em] uppercase font-sans font-bold">
-              <span>THONG DONG // CHUYỂN TIẾP PHÂN KHU</span>
-              <span className="text-sun-600">{navigatingItem.tag}</span>
-            </div>
-
-            <div className="my-auto max-w-4xl space-y-6">
-              <span
-                style={{
-                  fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(4rem, 10vw, 10rem)",
-                  lineHeight: 0.85,
-                  fontVariationSettings: "'wdth' 66",
-                }}
-                className="font-black text-sun-600 block"
-              >
-                {navigatingItem.index}
-              </span>
-              <div
-                style={{
-                  fontFamily: "var(--font-archivo, sans-serif)",
-                  fontSize: "clamp(2.5rem, 6vw, 6.5rem)",
-                  lineHeight: 0.95,
-                  fontVariationSettings: "'wdth' 108",
-                }}
-                className="font-black uppercase tracking-tight text-ink-950"
-              >
-                {navigatingItem.label}
-              </div>
-              <p className="font-sans text-base sm:text-lg text-ink-950/80">
-                {navigatingItem.sub}
-              </p>
-
-              <div className="w-full max-w-xl h-2 bg-ink-950/15 overflow-hidden mt-8">
-                <div
-                  ref={routeBarRef}
-                  style={{ transformOrigin: "left center" }}
-                  className="w-full h-full bg-sun-600 will-change-transform"
-                />
-              </div>
-            </div>
-
-            <div className="border-t-2 border-ink-950 pt-4 flex items-center justify-between text-[11px] tracking-[0.24em] uppercase font-sans font-bold">
-              <span>ĐANG KHỞI TẠO KHÔNG GIAN...</span>
-              <span>{navigatingItem.href}</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

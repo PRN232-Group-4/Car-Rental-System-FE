@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { Providers } from "./providers";
+import { RouteTransitionOverlay } from "@/components/layout/RouteTransitionOverlay";
 import { siteConfig } from "@/config/site";
 import { archivo } from "./fonts";
 import "./globals.css";
@@ -57,7 +58,10 @@ export default function RootLayout({
               "(function(){try{if('scrollRestoration' in history)history.scrollRestoration='manual';var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'){if(location.hash)history.replaceState(null,'',location.pathname+location.search);var h=document.documentElement,p=h.style.scrollBehavior;h.style.scrollBehavior='auto';window.scrollTo(0,0);h.style.scrollBehavior=p;}}catch(e){}})();",
           }}
         />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <RouteTransitionOverlay />
+        </Providers>
       </body>
     </html>
   );

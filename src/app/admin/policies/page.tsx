@@ -12,7 +12,7 @@ import {
   usePolicies,
   useVehicleTypes,
 } from "@/features/admin/policies/hooks";
-import { PolicyDrawer } from "@/features/admin/policies/components/PolicyDrawer";
+import { PolicyModal } from "@/features/admin/policies/components/PolicyModal";
 import type { RentalPolicy } from "@/features/admin/policies/types";
 import { InlineSelect } from "@/components/forms/inline-validation";
 
@@ -194,8 +194,8 @@ export default function PoliciesPage() {
             />
           </div>
 
-          {/* Drawer tạo phiên bản mới */}
-          <PolicyDrawer
+          {/* Modal tạo phiên bản mới */}
+          <PolicyModal
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             vehicleTypes={vehicleTypes}
