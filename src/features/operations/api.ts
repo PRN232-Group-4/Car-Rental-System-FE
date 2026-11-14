@@ -8,6 +8,8 @@ export type OperationalRental = RentalContract & {
   isOverdue?: boolean;
   hasPassingPreInspection?: boolean;
   hasPostInspection?: boolean;
+  /** Biên bản trước thuê mới nhất của xe hiện tại không đạt; hệ thống đã tự hủy đơn. */
+  hasFailedPreInspection?: boolean;
 };
 
 export const canAssignRental = (status: string) => ["pre_inspection", "renting"].includes(status);

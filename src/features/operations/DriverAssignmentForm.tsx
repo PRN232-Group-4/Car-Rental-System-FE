@@ -10,7 +10,6 @@ import { mapIneligibleReason } from "@/features/admin/staff/license-utils";
 import type { AssignDriverReason } from "@/features/admin/staff/types";
 import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts";
 import { useOptionalSession } from "@/features/auth/AuthContext";
-import { DRIVER_SHIFT_MANAGEMENT_ENABLED } from "@/config/operational-features";
 import { canAssignRental, getOperationalDrivers, operationalError, operationsButton, operationsInput, operationsPanel, type OperationalRental } from "./api";
 
 export default function DriverAssignmentForm({ rental, refresh, canMutate = true, compact = false }: {
@@ -54,7 +53,7 @@ export default function DriverAssignmentForm({ rental, refresh, canMutate = true
   return <ValidatedForm validation={validation} validate={() => ({ driverStaffId: !driverId ? "Vui lòng chọn tài xế cho đơn thuê có tài xế." : !eligible.some(driver => String(driver.staffId) === driverId) ? "Tài xế không còn đủ điều kiện. Vui lòng tải lại và chọn tài xế khác." : undefined })} onSubmit={submit} className={compact ? "space-y-3" : operationsPanel}>
     {!compact && <h2 className="text-lg font-bold">Phân xe và tài xế</h2>}
     <div className="text-sm"><p className="mb-2 text-td-muted">Xe của đơn</p><VehicleName vehicleId={rental.vehicleId} /></div>
-    <p className="text-xs text-td-muted">Tài xế được phân cho xe theo từng đơn thuê.{!DRIVER_SHIFT_MANAGEMENT_ENABLED && " Chức năng phân công vẫn hoạt động khi xếp ca tạm khóa."}</p>
+    <p className="text-xs text-td-muted">Chỉ chọn được tài xế đang hoạt động, GPLX còn hạn và chưa được gán chuyến khác trùng thời gian.</p>
     {!canMutate ? <p className="text-xs text-td-muted">Tài khoản chỉ có quyền tra cứu, không thể phân công tài xế.</p> : <>
       <div><label htmlFor="assignment-driver" className="text-sm font-semibold">Tài xế nhận lệnh</label><InlineSelect id="assignment-driver" name="driverStaffId" required className={operationsInput} value={driverId} onChange={event => setDriverId(event.target.value)} disabled={busy || loading || !!loadError}><option value="">Chọn tài xế</option>{(candidates.data ?? []).map(driver => <option key={driver.staffId} value={driver.staffId} disabled={!driver.eligible}>{directory.data?.find(staff => staff.id === driver.staffId)?.email?.trim() || driver.fullName}{!driver.eligible ? ` — ${(driver.reasons ?? []).map(mapIneligibleReason).join("; ") || "Không đủ điều kiện"}` : ""}</option>)}</InlineSelect></div>
       {loading && <p role="status" className="text-xs text-td-muted">Đang kiểm tra tài xế khả dụng cho đơn thuê...</p>}

@@ -848,6 +848,12 @@ export function RentalWorkspaceV4() {
           ) : (
             <>
               {/* ADAPTIVE HORIZONTAL STEPPER RAIL (ZERO COLLISION) */}
+              {activeRental.hasFailedPreInspection && (
+                <div role="alert" className="mb-4 border border-danger/40 bg-danger-bg p-3 text-sm">
+                  <p className="font-bold text-danger">Xe không đạt kiểm tra trước thuê</p>
+                  <p className="mt-1 text-td-ink">{activeRental.status === "cancelled" ? "Hệ thống đã tự hủy đơn, miễn phí hủy và hoàn toàn bộ tiền đã thanh toán; khách đã được báo đặt xe khác. Xe được giữ ở trạng thái bảo trì." : "Xe không thể bàn giao. Đổi sang xe khác hoặc hủy đơn cho khách."}</p>
+                </div>
+              )}
               <RentalCancellationReason key={`cancel-reason-${activeRental.id}`} rental={activeRental} />
               <div className={styles.stepperContainer} aria-label="Tiến trình vòng đời hợp đồng">
                 <div className="flex items-center justify-between">

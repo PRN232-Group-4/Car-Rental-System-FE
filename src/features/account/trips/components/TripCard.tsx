@@ -74,9 +74,9 @@ export function TripCard({ trip }: TripCardProps) {
         {/* Trạng thái + thao tác */}
         <div className="col-span-2 flex flex-col items-end gap-1.5">
           <TripStatusBadge status={status} />
-          {trip.vehicleFailedCheck && <span role="status" className="border border-danger/40 bg-danger-bg px-2 py-0.5 text-[11px] font-bold text-danger">Xe không đạt kiểm tra · cần đổi xe</span>}
+          {trip.vehicleFailedCheck && <span role="status" className="border border-danger/40 bg-danger-bg px-2 py-0.5 text-[11px] font-bold text-danger">Xe không đạt kiểm tra · đã tự hủy</span>}
           <div className="flex flex-wrap justify-end items-center gap-2">
-            {["pending", "pre_inspection"].includes(status) && <button type="button" className="rounded border border-td-rule px-2 py-1 text-[11px] font-bold text-danger" aria-label={`Hủy đơn thuê #${trip.id}`} onClick={() => setCancelOpen(true)}>Hủy đơn</button>}
+            {["pending", "pre_inspection"].includes(status) && !trip.vehicleFailedCheck && <button type="button" className="rounded border border-td-rule px-2 py-1 text-[11px] font-bold text-danger" aria-label={`Hủy đơn thuê #${trip.id}`} onClick={() => setCancelOpen(true)}>Hủy đơn</button>}
             {trip.nextAction === "report_issue" && (
               <Link
                 href={`/report-incident?rentalId=${trip.id}`}
