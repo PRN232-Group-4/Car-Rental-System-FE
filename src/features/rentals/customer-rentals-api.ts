@@ -15,6 +15,8 @@ export interface CustomerRentalSummary {
   endTime: string;
   totalPrice: number;
   canCancel?: boolean;
+  /** VEHICLE_CHANGE_REQUIRED khi xe hiện tại không đạt kiểm tra trước thuê. */
+  nextAction?: string | null;
   /** FR-042: hạn duyệt + thanh toán của yêu cầu. */
   expireAt?: string | null;
 }
@@ -44,8 +46,8 @@ export interface CustomerRentalDetail {
   expireAt?: string | null;
 }
 
-export function getCustomerRentals(page = 1, tab = "") {
-  return backendApiClient.get<PagedResult<CustomerRentalSummary>>("rentals/mine", { page, pageSize: 20, tab: tab || undefined });
+export function getCustomerRentals(page = 1, tab = "", pageSize = 20) {
+  return backendApiClient.get<PagedResult<CustomerRentalSummary>>("rentals/mine", { page, pageSize, tab: tab || undefined });
 }
 
 export function getCustomerRental(id: number) {

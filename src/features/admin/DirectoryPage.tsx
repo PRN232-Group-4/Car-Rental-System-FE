@@ -256,7 +256,10 @@ export default function DirectoryPage({ directory }: { directory: Directory }) {
   };
 
   const remove = async (row: Row) => {
-    if (!window.confirm(`Xóa "${row.name}"?`)) return;
+    const note = directory === "facilities"
+      ? " Vùng geofence của chi nhánh sẽ bị xóa; nhân viên, xe và lịch bảo trì được gỡ khỏi chi nhánh (không bị xóa)."
+      : "";
+    if (!window.confirm(`Xóa "${row.name}"?${note}`)) return;
     try {
       if (directory === "departments") await deleteDepartment(row.id);
       else if (directory === "facilities") await deleteFacility(row.id);

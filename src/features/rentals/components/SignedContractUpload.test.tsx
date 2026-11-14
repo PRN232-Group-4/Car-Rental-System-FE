@@ -79,8 +79,8 @@ it.each([
   await waitFor(() => expect(api.uploadRentalContract).toHaveBeenCalledTimes(2));
 });
 
-it("shows a protected download and locks file changes after handover", () => {
+it("offers an inline preview and locks file changes after handover", () => {
   setup({ status: "renting", hasUploadedContract: true, signedAt: "2026-10-23T03:00:00Z", contractLink: "/api/rental/42/contract/document" });
-  expect(screen.getByRole("link", { name: "Tải hợp đồng đã ký" })).toHaveAttribute("href", "/api/rental/42/contract/document");
+  expect(screen.getByRole("button", { name: "Xem trước hợp đồng đã ký" })).toHaveAttribute("aria-expanded", "false");
   expect(screen.queryByLabelText("File hoặc ảnh hợp đồng đã ký (bắt buộc)")).not.toBeInTheDocument();
 });

@@ -37,6 +37,7 @@ export default function VehicleManagement() {
   const [facilities, setFacilities] = useState<OrganizationUnitDto[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [facilityFilter, setFacilityFilter] = useState("all");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -45,13 +46,14 @@ export default function VehicleManagement() {
   const [editingVehicleId, setEditingVehicleId] = useState<number | null>(null);
   const closeEdit = useCallback(() => setEditingVehicleId(null), []);
 
-  const loadPage = useCallback(async (currentPage: number, currentPageSize: number, typeFilter: string, statusFilter: string) => {
+  const loadPage = useCallback(async (currentPage: number, currentPageSize: number, typeFilter: string, statusFilter: string, facility: string) => {
     setLoading(true);
     try {
       const [response, types, facilityData] = await Promise.all([
         getVehicles({
           vehicleTypeId: typeFilter === "all" ? undefined : Number(typeFilter),
           status: statusFilter === "all" ? undefined : statusFilter,
+          facilityId: facility === "all" ? undefined : Number(facility),
           page: currentPage,
           pageSize: currentPageSize,
         }),
@@ -71,10 +73,10 @@ export default function VehicleManagement() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void loadPage(page, pageSize, category, status);
+      void loadPage(page, pageSize, category, status, facilityFilter);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [category, loadPage, page, pageSize, status]);
+  }, [category, facilityFilter, loadPage, page, pageSize, status]);
 
   const removeVehicle = async (vehicle: VehicleDto) => {
     if (!canManage || deletingId !== null || !window.confirm(`Xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}${vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ""}?`)) return;
@@ -83,7 +85,7 @@ export default function VehicleManagement() {
       await deleteVehicle(vehicle.id);
       notifySuccess(`Đã xóa xe ${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim() + ".");
       if (vehicles.length === 1 && page > 1) setPage(page - 1);
-      else await loadPage(page, pageSize, category, status);
+      else await loadPage(page, pageSize, category, status, facilityFilter);
     } catch (deleteError) {
       notifyApiError(deleteError, "Không thể xóa xe có lịch sử nghiệp vụ liên quan.");
     } finally {
@@ -119,12 +121,12 @@ export default function VehicleManagement() {
           <p className="mt-2 text-sm text-td-muted">Quản lý thông tin, hình ảnh, giá thuê và tình trạng phương tiện.</p>
         </div>
         {canManage && (
-          <CreateVehicleButton onSaved={() => { void loadPage(page, pageSize, category, status); }} />
+          <CreateVehicleButton onSaved={() => { void loadPage(page, pageSize, category, status, facilityFilter); }} />
         )}
       </div>
 
       <AdminFilterBar description="Tìm theo tên, biển số hoặc chi nhánh trên trang hiện tại." actions={
-        <AdminFilterButton variant="secondary" disabled={!search && category === "all" && status === "all"} onClick={() => { setSearch(""); setCategory("all"); setStatus("all"); setPage(1); }}>Đặt lại</AdminFilterButton>
+        <AdminFilterButton variant="secondary" disabled={!search && category === "all" && status === "all" && facilityFilter === "all"} onClick={() => { setSearch(""); setCategory("all"); setStatus("all"); setFacilityFilter("all"); setPage(1); }}>Đặt lại</AdminFilterButton>
       }>
         <AdminFilterField label="Tìm phương tiện" htmlFor="vehicle-filter-search" icon={Search}>
           <input id="vehicle-filter-search" value={search} onChange={(event) => { setSearch(event.currentTarget.value); setPage(1); }} placeholder="Tìm theo tên, biển số hoặc chi nhánh..." />
@@ -132,6 +134,11 @@ export default function VehicleManagement() {
         <AdminFilterField label="Loại phương tiện" htmlFor="vehicle-filter-type" select>
           <InlineSelect id="vehicle-filter-type" value={category} onChange={(event) => { setCategory(event.currentTarget.value); setPage(1); }}>
             <option value="all">Tất cả loại xe</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+          </InlineSelect>
+        </AdminFilterField>
+        <AdminFilterField label="Chi nhánh" htmlFor="vehicle-filter-facility" select>
+          <InlineSelect id="vehicle-filter-facility" value={facilityFilter} onChange={(event) => { setFacilityFilter(event.currentTarget.value); setPage(1); }}>
+            <option value="all">Tất cả chi nhánh</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
           </InlineSelect>
         </AdminFilterField>
         <AdminFilterField label="Trạng thái" htmlFor="vehicle-filter-status" select>
@@ -237,7 +244,7 @@ export default function VehicleManagement() {
           </nav>
         </div>
       </AdminTableCard>
-      {editingVehicleId !== null && <VehicleForm key={editingVehicleId} editingVehicleId={editingVehicleId} onClose={closeEdit} onSaved={() => { closeEdit(); void loadPage(page, pageSize, category, status); }} />}
+      {editingVehicleId !== null && <VehicleForm key={editingVehicleId} editingVehicleId={editingVehicleId} onClose={closeEdit} onSaved={() => { closeEdit(); void loadPage(page, pageSize, category, status, facilityFilter); }} />}
     </div>
   );
 }

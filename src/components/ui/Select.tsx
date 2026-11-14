@@ -66,6 +66,12 @@ export function Select({
   ...aria
 }: SelectProps) {
   const [inner, setInner] = useState(defaultValue ?? "");
+  // A native <dialog> opened with showModal() sits in the top layer, above anything portaled to <body>;
+  // render the panel inside that dialog so it is visible and clickable.
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+  const captureContainer = (node: HTMLElement | null) => {
+    if (node) setPortalContainer(node.closest<HTMLElement>("dialog[open]"));
+  };
   const current = value ?? inner;
   const emptyOption = options.find((o) => o.value === "");
 
@@ -83,6 +89,7 @@ export function Select({
       disabled={disabled}
     >
       <RSelect.Trigger
+        ref={captureContainer}
         id={id}
         title={title}
         data-select-for={selectFor}
@@ -103,7 +110,7 @@ export function Select({
         </RSelect.Icon>
       </RSelect.Trigger>
 
-      <RSelect.Portal>
+      <RSelect.Portal container={portalContainer}>
         <RSelect.Content
           position="popper"
           align="start"

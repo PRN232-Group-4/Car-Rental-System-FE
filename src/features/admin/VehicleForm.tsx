@@ -309,6 +309,10 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
         if (licenseTypes.length > 30 || licenseTypes.some((type) => !/^[A-Z0-9]{1,20}$/.test(type))) {
           errors.allowedLicenseTypes = "Chọn tối đa 30 hạng bằng. Hạng khác chỉ gồm 1–20 chữ cái hoặc chữ số, cách nhau bằng dấu phẩy.";
         }
+        const facilityId = Number(draft.facilityId);
+        if (!draft.facilityId || !facilities.some((item) => item.id === facilityId)) {
+          errors.facilityId = "Vui lòng chọn chi nhánh quản lý xe.";
+        }
         const typeId = Number(draft.vehicleTypeId);
         if (!Number.isInteger(typeId) || !vehicleTypes.some((item) => item.id === typeId)) {
           errors.vehicleTypeId = "Vui lòng chọn một loại phương tiện hợp lệ.";
@@ -350,7 +354,7 @@ export default function VehicleForm({ onClose, onSaved, editingVehicleId }: { on
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <Field label="Loại phương tiện" htmlFor="vehicleTypeId"><InlineSelect id="vehicleTypeId" name="vehicleTypeId" required value={draft.vehicleTypeId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn loại phương tiện</option>{vehicleTypes.map((item) => <option key={item.id} value={item.id}>{item.name} {item.fuelType ? `· ${item.fuelType}` : ""}</option>)}</InlineSelect></Field>
-            <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="">Chưa phân công</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>
+            <Field label="Chi nhánh" htmlFor="facilityId"><InlineSelect id="facilityId" name="facilityId" required value={draft.facilityId} onChange={updateDraft} className="admin-input"><option value="" disabled>Chọn chi nhánh</option>{facilities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</InlineSelect></Field>
             <Field label="Biển số" htmlFor="licensePlate"><InlineInput id="licensePlate" name="licensePlate" maxLength={255} value={draft.licensePlate} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Hãng xe" htmlFor="brand"><InlineInput id="brand" name="brand" required value={draft.brand} onChange={updateDraft} className="admin-input" /></Field>
             <Field label="Dòng xe / mẫu xe" htmlFor="model"><InlineInput id="model" name="model" required value={draft.model} onChange={updateDraft} className="admin-input" /></Field>

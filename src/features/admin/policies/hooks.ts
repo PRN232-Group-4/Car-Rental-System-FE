@@ -3,6 +3,7 @@ import {
   fetchVehicleTypes,
   fetchRentalPolicies,
   createRentalPolicy,
+  deleteRentalPolicy,
   fetchSubscriptionPlans,
   createSubscriptionPlan,
   updateSubscriptionPlan,
@@ -36,6 +37,16 @@ export function useCreatePolicy() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: PolicyInput) => createRentalPolicy(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: POLICY_KEYS.all });
+    },
+  });
+}
+
+export function useDeletePolicy() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteRentalPolicy(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POLICY_KEYS.all });
     },
