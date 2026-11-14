@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Edit2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Drawer } from "@/components/ui/Drawer";
+import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
 import { planSchema, type PlanFormValues, type SubscriptionPlan } from "../types";
@@ -12,13 +12,13 @@ import { useCreatePlan, useUpdatePlan } from "../hooks";
 import { PlanCardPreview } from "./PlanCardPreview";
 import { ApiProblemError } from "@/api";
 
-interface PlanDrawerProps {
+interface PlanModalProps {
   open: boolean;
   onClose: () => void;
   planToEdit: SubscriptionPlan | null;
 }
 
-export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
+export function PlanModal({ open, onClose, planToEdit }: PlanModalProps) {
   const isEditing = Boolean(planToEdit);
   const createMutation = useCreatePlan();
   const updateMutation = useUpdatePlan();
@@ -77,10 +77,10 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
   const isPending = createMutation.isPending || updateMutation.isPending || isSubmitting;
 
   return (
-    <Drawer
+    <Modal
       open={open}
       onOpenChange={(isOpen) => !isOpen && onClose()}
-      side="right"
+      size="lg"
       title={isEditing ? `Chỉnh sửa gói: ${planToEdit?.name}` : "Tạo gói thuê bao mới"}
       description="Quản lý hạn mức thời gian và giá thuê bao di chuyển linh hoạt cho khách hàng."
     >
@@ -169,7 +169,7 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
         </FormField>
 
         {/* Công tắc mở bán */}
-        <div className="flex items-center justify-between p-3.5 bg-td-white rounded border border-td-rule">
+        <div className="flex items-center justify-between gap-4 p-3.5 bg-td-white rounded border border-td-rule">
           <div>
             <span className="text-sm font-bold text-td-ink block">Mở bán gói thuê bao</span>
             <span className="text-xs text-td-muted block">
@@ -222,6 +222,6 @@ export function PlanDrawer({ open, onClose, planToEdit }: PlanDrawerProps) {
           </Button>
         </div>
       </form>
-    </Drawer>
+    </Modal>
   );
 }

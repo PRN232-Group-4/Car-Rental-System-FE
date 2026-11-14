@@ -234,8 +234,8 @@ export default function PoliciesPage() {
             />
           </div>
 
-          {/* Drawer tạo phiên bản mới */}
-          <PolicyDrawer
+          {/* Modal tạo phiên bản mới */}
+          <PolicyModal
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             vehicleTypes={vehicleTypes}

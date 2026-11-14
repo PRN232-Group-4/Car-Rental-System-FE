@@ -14,6 +14,13 @@ export interface OrganizationUnitDto {
   address: string | null;
 }
 
+export interface RoleDto {
+  id: number;
+  name: string;
+  isSystem: boolean;
+  userCount: number;
+}
+
 export interface RentalPolicyDto {
   id: number;
   vehicleTypeId: number | null;
@@ -278,6 +285,10 @@ export function uploadVehicleImage(file: File): Promise<unknown> {
 
 export function getStaff(params: { search?: string; page: number; pageSize: number }) {
   return backendApiClient.get<PagedResult<StaffDto>>("staff", params);
+}
+
+export function getRoles(params: { page: number; pageSize: number }) {
+  return backendApiClient.get<PagedResult<RoleDto>>("roles", params);
 }
 
 export function createStaff(body: CreateStaffRequest) {
