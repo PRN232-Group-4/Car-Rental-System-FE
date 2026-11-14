@@ -464,7 +464,8 @@ export function RentalWorkspaceV4() {
 
   // Filtered queue items
   const queueItems = useMemo(() => {
-    const items = queueData?.items ?? [];
+    // Đơn mới nhất (mã lớn nhất) luôn ở đầu hàng chờ.
+    const items = [...(queueData?.items ?? [])].sort((left, right) => Number(right.id) - Number(left.id));
     if (!queueSearch.trim()) return items;
     const lower = queueSearch.toLowerCase();
     return items.filter(

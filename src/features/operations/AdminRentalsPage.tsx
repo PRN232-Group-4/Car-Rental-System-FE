@@ -51,7 +51,7 @@ export default function AdminRentalsPage({ handovers = false }: { handovers?: bo
     }
   }, [query.error]);
   const filterErrors = Object.fromEntries(Object.entries(mapped.errors).filter(([key]) => draft[key as keyof typeof draft] === filter[key as keyof typeof filter]));
-  const items = query.error ? [] : query.data?.items ?? [];
+  const items = query.error ? [] : [...(query.data?.items ?? [])].sort((left, right) => right.id - left.id);
   if (isLoading) return <p role="status">Đang kiểm tra quyền truy cập...</p>;
   if (!allowed) return <p role="alert" className="text-sm text-danger">Bạn không có quyền xem danh sách này.</p>;
   return <div className="space-y-6">

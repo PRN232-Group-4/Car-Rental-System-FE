@@ -23,6 +23,10 @@ export function createRentalPolicy(input: PolicyInput): Promise<RentalPolicy> {
   return backendApiClient.post<RentalPolicy>("rental-policies", input);
 }
 
+export function deleteRentalPolicy(id: number): Promise<void> {
+  return backendApiClient.delete<void>(`rental-policy/${id}`);
+}
+
 export async function fetchSubscriptionPlans(includeAll = true): Promise<SubscriptionPlan[]> {
   return newestFirst(await backendApiClient.get<SubscriptionPlan[]>("subscription-plans", { all: includeAll }));
 }

@@ -146,6 +146,14 @@ function TripDetailContent() {
         </div>
       )}
 
+      {trip.vehicleFailedCheck && (
+        <div role="alert" className="space-y-2 border border-danger/40 bg-danger-bg p-4 text-sm">
+          <p className="font-bold text-danger">Xe không đạt kiểm tra trước thuê</p>
+          <p className="text-td-ink">Kỹ thuật viên đã kiểm tra và xe này không đủ điều kiện bàn giao. Vui lòng hủy đơn này rồi đặt xe khác, hoặc liên hệ cơ sở để được đổi sang xe khác.</p>
+          <Link href="/booking" className="inline-block font-semibold text-primary underline">Đặt xe khác</Link>
+        </div>
+      )}
+
       {/* Stepper tiến trình */}
       <TripStepper
         status={trip.status}

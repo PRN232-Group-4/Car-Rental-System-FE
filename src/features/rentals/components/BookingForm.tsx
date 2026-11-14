@@ -163,7 +163,7 @@ export default function BookingForm() {
     <div className="flex flex-wrap gap-3">
       {result.bookingId && <Link href={`/my-rentals?rentalId=${encodeURIComponent(result.bookingId)}#rental-progress`} className="rounded border border-td-rule px-4 py-3">Theo dõi tiến trình thuê xe</Link>}
       {result.bookingId && <Link href={`/report-incident?rentalId=${encodeURIComponent(result.bookingId)}`} className="rounded border border-td-rule px-4 py-3">Báo cáo sự cố của đơn</Link>}
-      {resultType === "longterm" && result.bookingId && <Link className="rounded bg-primary px-4 py-3 text-white" href={`/rental-contract?rentalId=${encodeURIComponent(result.bookingId)}`}>Tải hợp đồng đã ký</Link>}
+      {resultType === "longterm" && result.bookingId && <Link className="rounded bg-primary px-4 py-3 text-white" href={`/rental-contract?rentalId=${encodeURIComponent(result.bookingId)}`}>Xem hợp đồng thuê</Link>}
       {!resultIsSubscription && (invoiceId ? <Link className="rounded bg-primary px-4 py-3 text-white" href={`/invoices/${invoiceId}`}>Xem hóa đơn</Link> : result.bookingId && <button type="button" onClick={prepareInvoice} disabled={loadingInvoice} className="rounded border border-td-rule px-4 py-3 disabled:opacity-50">{loadingInvoice ? "Đang tra cứu hóa đơn..." : "Tra cứu hóa đơn"}</button>)}
       <Link href={resultIsSubscription ? "/my-subscriptions" : "/invoices"} className="rounded border border-td-rule px-4 py-3">{resultIsSubscription ? "Gói của tôi" : "Danh sách hóa đơn"}</Link>
       <button type="button" className="rounded border border-td-rule px-4 py-3" onClick={() => { setResult(null); setGeneralError(""); validation.reset(); }}>Tạo đơn khác</button>
@@ -214,7 +214,7 @@ export default function BookingForm() {
         </>}
         {generalError && <p role="alert" className="text-sm text-danger">{generalError}</p>}
         <button type="submit" disabled={submitting || facilitiesQuery.isFetching || vehiclesQuery.isFetching || vehiclesQuery.isError} className="w-full rounded bg-primary px-4 py-3 font-semibold text-white disabled:opacity-50">{submitting ? "Đang gửi yêu cầu..." : "Xác nhận đặt xe"}</button>
-        <Link href="/rental-contract" className="block text-center text-sm text-primary underline">Tra cứu hợp đồng thuê dài hạn</Link>
+        <Link href="/rental-contract" className="block text-center text-sm text-primary underline">Hợp đồng thuê dài hạn của tôi</Link>
       </aside>
     </ValidatedForm>
   </div>;

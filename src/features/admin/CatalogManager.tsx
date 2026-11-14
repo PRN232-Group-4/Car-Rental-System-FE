@@ -57,7 +57,7 @@ const catalogInfo: Record<CatalogKey, { title: string; description: string }> = 
 const fieldsByCatalog: Record<CatalogKey, Field[]> = {
   "vehicle-types": [
     { key: "name", label: "Tên loại phương tiện", required: true },
-    { key: "type", label: "Nhóm xe", type: "select", required: true, options: [{ value: "car", label: "Ô tô" }, { value: "motorbike", label: "Xe máy" }] },
+    { key: "type", label: "Nhóm xe", type: "select", required: true, options: [{ value: "car", label: "Ô tô" }] },
     {
       key: "fuelType",
       label: "Nhiên liệu",

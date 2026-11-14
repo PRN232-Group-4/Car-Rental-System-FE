@@ -8,6 +8,7 @@ import { formatAdminDateTime } from "@/lib/date-time";
 import { uploadRentalContract } from "../api";
 import { SIGNED_CONTRACT_ACCEPT, signedContractDocumentHref, signedContractFileError } from "../signed-contract";
 import type { RentalContract } from "../types";
+import ContractPreview from "./ContractPreview";
 
 export default function SignedContractUpload({ rental, refresh }: { rental: RentalContract; refresh?: () => Promise<unknown> }) {
   const cache = useQueryClient();
@@ -18,6 +19,7 @@ export default function SignedContractUpload({ rental, refresh }: { rental: Rent
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const validation = useInlineValidation();
   const href = signedContractDocumentHref(rental);
   const canUpload = ["pending", "pre_inspection"].includes(rental.status);
@@ -42,7 +44,8 @@ export default function SignedContractUpload({ rental, refresh }: { rental: Rent
     } finally { lock.current = false; setBusy(false); }
   };
   return <section className="min-w-0 space-y-3" aria-label="Hợp đồng đã ký">
-    {href && <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block text-sm font-semibold text-primary underline">{rental.hasUploadedContract ? "Tải hợp đồng đã ký" : "Mở tài liệu hợp đồng"}</a>}
+    {rental.hasUploadedContract && href ? <div className="space-y-2"><button type="button" aria-expanded={showPreview} onClick={() => setShowPreview((value) => !value)} className="text-sm font-semibold text-primary underline">{showPreview ? "Ẩn bản xem trước" : "Xem trước hợp đồng đã ký"}</button>{showPreview && <ContractPreview href={href} title={`Hợp đồng đã ký của đơn #${rental.id}`} />}</div>
+      : href && <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block text-sm font-semibold text-primary underline">Mở tài liệu hợp đồng</a>}
     {rental.hasUploadedContract ? <p className="text-sm text-td-muted">Đã tải hợp đồng đã ký lên hệ thống{rental.signedAt ? ` · Ký lúc ${formatAdminDateTime(rental.signedAt)}` : ""}.</p> : <p className="text-sm text-td-muted">Thuê dài hạn cần tải file hoặc ảnh hợp đồng đã ký trước khi bàn giao xe.</p>}
     {canUpload ? <ValidatedForm validation={validation} validate={() => ({ file: signedContractFileError(file), signedAt: !Number.isFinite(new Date(signedAt).getTime()) ? "Vui lòng chọn ngày giờ ký hợp đồng hợp lệ." : undefined })} onSubmit={submit} className="space-y-3">
       <fieldset disabled={busy} className="min-w-0 space-y-3">

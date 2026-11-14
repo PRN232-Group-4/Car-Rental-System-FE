@@ -27,6 +27,8 @@ export interface TripListItem {
   end: string; // ISO UTC
   totalPrice: number;
   nextAction?: "pay_deposit" | "view" | "report_issue" | "rebook";
+  /** Xe hiện tại không đạt kiểm tra trước thuê; khách cần đổi sang xe khác. */
+  vehicleFailedCheck?: boolean;
   canCancel: boolean;
   facility?: {
     id?: number;

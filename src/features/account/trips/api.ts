@@ -6,7 +6,7 @@ import type { TripListItem, TripDetail, TripTab, CancellationPreview, CancelTrip
 
 export interface PagedTripsResult { items: TripListItem[]; totalCount: number; page: number; pageSize: number }
 function mapSummary(item: CustomerRentalSummary): TripListItem {
-  return { id: item.id, orderId: item.orderId, status: item.status as TripStatus, rentalType: item.rentalType as TripListItem["rentalType"], isSubscription: item.isSubscription, vehicle: { id: item.vehicleId, brand: item.vehicleBrand ?? "", model: item.vehicleModel ?? "", mainImageUrl: item.vehicleImageUrl ?? undefined }, start: item.startTime, end: item.endTime, totalPrice: item.totalPrice, canCancel: item.canCancel === true && ["pending", "pre_inspection"].includes(item.status) };
+  return { id: item.id, orderId: item.orderId, status: item.status as TripStatus, rentalType: item.rentalType as TripListItem["rentalType"], isSubscription: item.isSubscription, vehicle: { id: item.vehicleId, brand: item.vehicleBrand ?? "", model: item.vehicleModel ?? "", mainImageUrl: item.vehicleImageUrl ?? undefined }, start: item.startTime, end: item.endTime, totalPrice: item.totalPrice, canCancel: item.canCancel === true && ["pending", "pre_inspection"].includes(item.status), vehicleFailedCheck: item.nextAction === "VEHICLE_CHANGE_REQUIRED" };
 }
 export async function fetchMyTrips(tab: TripTab = "upcoming", page = 1, pageSize = 12): Promise<PagedTripsResult> {
   const result = await backendApiClient.get<PagedResult<CustomerRentalSummary>>("rentals/mine", { tab, page, pageSize });
@@ -31,7 +31,7 @@ export async function fetchMyTripDetail(id: number): Promise<TripDetail> {
     id: item.id, orderId: item.orderId, status: item.status as TripStatus, rentalType: item.rentalType as TripDetail["rentalType"], isSubscription: item.isSubscription,
     vehicle: { ...item.vehicle, mainImageUrl: item.vehicle.mainImageUrl ?? undefined, brand: item.vehicle.brand ?? "", model: item.vehicle.model ?? "" },
     color: item.vehicle.color ?? undefined,
-    start: item.start, end: item.end, totalPrice: item.price.total, canCancel: item.canCancel,
+    start: item.start, end: item.end, totalPrice: item.price.total, canCancel: item.canCancel, vehicleFailedCheck: item.nextAction === "VEHICLE_CHANGE_REQUIRED",
     facility: item.facility ? { ...item.facility, phone: item.facility.phone ?? undefined } : undefined, hasDriver: item.hasDriver, pickup: item.pickup ?? undefined, driver: item.driver ? { ...item.driver, avatarUrl: item.driver.avatarUrl ?? undefined, rating: item.driver.rating ?? undefined } : null,
     price: item.price, invoice: item.invoice,
     inspections: (item.inspections ?? []).map((inspection) => ({ ...inspection, type: (inspection.type === "pre" ? "pre_rental" : inspection.type === "post" ? "post_rental" : inspection.type) as "pre_rental" | "post_rental", odometerKm: inspection.odometerKm ?? undefined, fuelBatteryLevel: inspection.fuelBatteryLevel ?? undefined, damageNotes: inspection.damageNotes ?? undefined, imgUrls: imageList(inspection.imgUrls) })),

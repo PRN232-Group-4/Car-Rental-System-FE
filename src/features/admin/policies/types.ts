@@ -9,6 +9,7 @@ export interface RentalPolicy {
   overtimeFeeRate: number;
   depositPercentage: number;
   isActive: boolean;
+  rentalCount?: number;
   managedBy?: string;
   createdAt?: string;
 }
