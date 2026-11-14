@@ -56,10 +56,10 @@ export default function CashReceiptPanel({ rental, refresh, compact = false, emb
     <button type="button" disabled={busy || query.isFetching} className="block text-sm font-semibold text-td-oxide underline disabled:opacity-50" onClick={() => void query.refetch()}>Cập nhật trạng thái thanh toán</button>
     {confirming && <FormDialog title="Xác nhận đã thanh toán tiền mặt" busy={busy} onClose={() => setConfirming(false)}>
       <ValidatedForm validation={validation} onSubmit={confirm} className="space-y-4">
-        <p>Xác nhận đã thực nhận đủ <strong>{invoice?.amount.toLocaleString("vi-VN")} đ</strong> cho đơn thuê #{rental.id}? Hệ thống lưu tài khoản người thu và thời điểm thu.</p>
+        <p>Bạn có chắc chắn đã thực nhận đủ <strong>{invoice?.amount.toLocaleString("vi-VN")} đ</strong> tiền mặt cho hóa đơn <strong>{invoice?.invoiceNumber}</strong> của đơn thuê #{rental.id}? Hệ thống lưu tài khoản người thu và thời điểm thu.</p>
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
         {!canConfirm && !busy && !query.isFetching && <p role="alert" className="text-sm text-danger">Hóa đơn không còn cho phép thu tiền mặt. Đóng cửa sổ và kiểm tra trạng thái mới.</p>}
-        <FormDialogFooter><button type="button" disabled={busy} onClick={() => setConfirming(false)} className="admin-input">Đóng</button><button type="submit" disabled={busy || !canConfirm} className={operationsButton}>{busy ? "Đang ghi nhận..." : "Xác nhận đã nhận đủ tiền"}</button></FormDialogFooter>
+        <FormDialogFooter><button type="button" disabled={busy} onClick={() => setConfirming(false)} className="admin-input">Hủy</button><button type="submit" disabled={busy || !canConfirm} className={operationsButton}>{busy ? "Đang ghi nhận..." : "Xác nhận đã nhận đủ tiền"}</button></FormDialogFooter>
       </ValidatedForm>
     </FormDialog>}
   </section>;
