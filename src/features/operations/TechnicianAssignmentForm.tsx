@@ -151,7 +151,7 @@ export default function TechnicianAssignmentForm({ rental, refresh, compact = fa
       {technicians.isSuccess && !options.length && <p className="text-xs text-td-muted">Chưa có nhân viên kỹ thuật đang hoạt động. Cập nhật vai trò Kỹ thuật tại mục Nhân sự.</p>}
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       {success && <p role="status" className="text-sm text-td-ink">{success}</p>}
-      <button type="submit" className={`${operationsButton} w-full`} disabled={busy || assignment.isPending || assignment.isError || technicians.isPending || technicians.isError || !options.length}>
+      <button type="submit" className={embedded ? "inline-flex min-h-10 w-full items-center justify-center border border-td-ink bg-transparent px-4 text-[13px] font-semibold text-td-ink transition-colors hover:bg-td-chalk disabled:cursor-not-allowed disabled:opacity-50" : `${operationsButton} w-full`} disabled={busy || assignment.isPending || assignment.isError || technicians.isPending || technicians.isError || !options.length}>
         {busy ? "Đang xử lý..." : compact ? inspectionAction === "checked" && canConfirm ? "Đã inspect" : "Xác nhận" : "Lưu phân công kiểm tra"}
       </button>
       {!compact && canConfirm && <button type="button" className={`${operationsButton} w-full`} disabled={busy || assignment.isPending || assignment.isError || technicians.isPending || technicians.isError || !options.length} onClick={() => {

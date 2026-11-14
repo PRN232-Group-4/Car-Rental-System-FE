@@ -9,7 +9,6 @@ import { ADMIN_NAVIGATION_COUNTS_KEY } from "@/features/admin/navigation-counts"
 import Link from "next/link";
 import {
   Search,
-  CheckCircle2,
   AlertTriangle,
   ArrowRight,
   ExternalLink,
@@ -401,7 +400,7 @@ export function RentalWorkspaceV4() {
     if (nextStatus === "renting" && paymentBlocker) { setStatusMessage(paymentBlocker); return; }
     if (nextStatus !== "cancelled" && (nextStatus !== checklist.nextStatus || !checklist.ready)) return;
 
-    if (nextStatus === "completed" || nextStatus === "cancelled") {
+    if (nextStatus === "completed" || nextStatus === "cancelled" || nextStatus === "renting") {
       setPendingTargetStatus(nextStatus);
       setIsConfirmOpen(true);
       return;
@@ -533,6 +532,8 @@ export function RentalWorkspaceV4() {
         return null;
     }
   }, [activeRental]);
+  const isHandoverStage = activeRental?.status === "pre_inspection" && nextRecommendedAction?.targetStatus === "renting";
+  const transitionBlocker = activeRental && nextRecommendedAction ? rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus) : null;
 
   return (
     <div className={styles.workspaceRoot} id="rentalWorkspaceRoot">
@@ -848,6 +849,12 @@ export function RentalWorkspaceV4() {
           ) : (
             <>
               {/* ADAPTIVE HORIZONTAL STEPPER RAIL (ZERO COLLISION) */}
+              {activeRental.hasFailedPreInspection && (
+                <div role="alert" className="mb-4 border border-danger/40 bg-danger-bg p-3 text-sm">
+                  <p className="font-bold text-danger">Xe không đạt kiểm tra trước thuê</p>
+                  <p className="mt-1 text-td-ink">{activeRental.status === "cancelled" ? "Hệ thống đã tự hủy đơn, miễn phí hủy và hoàn toàn bộ tiền đã thanh toán; khách đã được báo đặt xe khác. Xe được giữ ở trạng thái bảo trì." : "Xe không thể bàn giao. Đổi sang xe khác hoặc hủy đơn cho khách."}</p>
+                </div>
+              )}
               <RentalCancellationReason key={`cancel-reason-${activeRental.id}`} rental={activeRental} />
               <div className={styles.stepperContainer} aria-label="Tiến trình vòng đời hợp đồng">
                 <div className="flex items-center justify-between">
@@ -976,7 +983,7 @@ export function RentalWorkspaceV4() {
                   </div>
                 </div>
 
-                <VehiclePhotos vehicleId={activeRental.vehicleId} />
+                <div className={styles.vehiclePhotoFrame}><VehiclePhotos vehicleId={activeRental.vehicleId} /></div>
 
                 {/* FINANCIAL & SCHEDULE GRID */}
                 <div className={styles.financialGrid}>
@@ -1092,7 +1099,7 @@ export function RentalWorkspaceV4() {
         {/* ========================================================================= */}
         <aside className={styles.commandPanel} aria-label="Bảng lệnh điều phối">
           <div className="flex items-center justify-between pb-2 border-b border-[var(--v4-rule)]">
-            <span className="text-xs font-bold text-[var(--v4-ink)]">
+            <span className="text-[13px] font-bold text-[var(--v4-ink)]">
               Khu vực lệnh điều phối
             </span>
             <span className="text-[11px] text-[var(--v4-mineral)]">
@@ -1120,41 +1127,28 @@ export function RentalWorkspaceV4() {
             </div>
           ) : (
             <>
-              {/* SHELF 1: PRIMARY GUIDED LEGAL ACTION (TOPMOST IN DOM & ERGONOMICS) */}
-              <div className={`${styles.commandShelf} ${styles.primaryCommand}`}>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-[var(--color-champagne)]" />
-                  <span className="text-xs font-bold text-[var(--v4-ink)]">
-                    Thao tác đơn thuê
-                  </span>
+              {/* Tóm tắt bước tiếp theo của hồ sơ */}
+              {nextRecommendedAction ? (
+                <p className="text-[13px] font-medium text-[var(--v4-ink)]">{nextRecommendedAction.description}</p>
+              ) : (
+                <div className="text-[13px] p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)]">
+                  Hồ sơ hợp đồng đã ở trạng thái kết thúc ({activeRental.status}).
                 </div>
+              )}
 
-                {/* Contextual Primary Action Button */}
-                {nextRecommendedAction ? (
-                  <div className="p-3 rounded bg-[var(--v4-surface-muted)] space-y-2">
-                    <p className="text-xs font-medium text-[var(--v4-ink)]">
-                      {nextRecommendedAction.description}
-                    </p>
-                    <RentalWorkflowChecklist checklist={checklist} disabled={isUpdatingStatus || !canMutate} controls={{
+              {isHandoverStage && nextRecommendedAction ? (
+                <>
+                  {/* KHỐI 1: KIỂM TRA TRƯỚC THUÊ */}
+                  <section className={styles.commandBlock} aria-labelledby="command-block-inspection">
+                    <h2 id="command-block-inspection" className={styles.commandBlockTitle}>Kiểm tra trước thuê</h2>
+                    <RentalWorkflowChecklist checklist={checklist} include={["inspection", "contract"]} legend="Kết quả kiểm tra" showHint={false} statusLabels disabled={isUpdatingStatus || !canMutate} controls={{
                       contract: canMutate && <SignedContractUpload key={`contract-${activeRental.id}`} rental={activeRental} refresh={refetchRental} />,
                       inspection: <TechnicianAssignmentForm key={`${activeRental.id}-${activeRental.status}`} rental={activeRental} refresh={refetchRental} compact embedded showApprovalAction={false} />,
-                      payment: <CashReceiptPanel key={`payment-${activeRental.id}`} rental={activeRental} refresh={refetchRental} compact embedded />,
                     }} />
-                    <button
-                      id="rental-primary-action"
-                      aria-label={nextRecommendedAction.label}
-                      type="button"
-                      onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
-                      disabled={isUpdatingStatus || !canMutate || !checklist.ready}
-                      className={nextRecommendedAction.consequential ? styles.consequentialActionButton : styles.primaryActionButton}
-                    >
-                      {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.buttonLabel}
-                    </button>
-                    {nextRecommendedAction.targetStatus === "renting" && paymentBlocker && <p className="text-xs text-td-muted">{paymentBlocker}</p>}
-                    {rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus) && (
-                      <div className="space-y-2 text-xs text-[var(--v4-mineral)]">
-                        <p>{rentalTransitionBlocker(activeRental, nextRecommendedAction.targetStatus)}</p>
-                        <details><summary className="cursor-pointer font-semibold">Hướng dẫn kiểm tra</summary><Link href={`/admin/inspections?rentalId=${activeRental.id}`} className="block font-bold underline">
+                    {transitionBlocker && (
+                      <div className="space-y-2 text-[13px] text-[var(--v4-ink)]">
+                        <p>{transitionBlocker}</p>
+                        <details><summary className="cursor-pointer text-xs font-semibold">Hướng dẫn kiểm tra</summary><Link href={`/admin/inspections?rentalId=${activeRental.id}`} className="block font-bold underline">
                           Mở phiếu kiểm tra đơn #{activeRental.id}
                         </Link>
                         <button type="button" onClick={() => void refetchRental()} className={styles.secondaryActionButton}>
@@ -1163,41 +1157,116 @@ export function RentalWorkspaceV4() {
                         </details>
                       </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="text-xs p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-mineral)]">
-                    Hồ sơ hợp đồng đã ở trạng thái kết thúc ({activeRental.status}).
-                  </div>
-                )}
-                {["pending", "pre_inspection"].includes(activeRental.status) && <p className="text-xs text-td-muted">Xe chưa bắt đầu thuê. Nút “Đã trả xe” sẽ xuất hiện sau khi xác nhận bàn giao.</p>}
+                  </section>
 
-                {["pending", "pre_inspection"].includes(activeRental.status) && <button
-                  type="button"
-                  onClick={() => handleInitiateStatusChange("cancelled")}
-                  disabled={isUpdatingStatus || !canMutate}
-                  className={styles.secondaryActionButton}
-                >Hủy đơn thuê</button>}
+                  {/* KHỐI 2: THANH TOÁN */}
+                  {!activeRental.isSubscription && (
+                    <section className={styles.commandBlock} aria-labelledby="command-block-payment">
+                      <h2 id="command-block-payment" className={styles.commandBlockTitle}>Thanh toán</h2>
+                      <RentalWorkflowChecklist checklist={checklist} include={["payment"]} legend="Trạng thái hóa đơn" showHint={false} statusLabels disabled={isUpdatingStatus || !canMutate} controls={{
+                        payment: <CashReceiptPanel key={`payment-${activeRental.id}`} rental={activeRental} refresh={refetchRental} compact embedded />,
+                      }} />
+                    </section>
+                  )}
 
-                {statusMessage && (
-                  <div role={statusFailed ? "alert" : "status"} aria-live="polite" className="text-xs p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
-                    {statusMessage}
-                  </div>
-                )}
-              </div>
+                  {/* KHỐI 3: BÀN GIAO XE */}
+                  <section className={`${styles.commandBlock} ${styles.primaryCommand}`} aria-labelledby="command-block-handover">
+                    <h2 id="command-block-handover" className={styles.commandBlockTitle}>Bàn giao xe</h2>
+                    <RentalWorkflowChecklist checklist={checklist} include={["driver", "handover"]} legend="Điều kiện bàn giao" showHint={false} disabled={isUpdatingStatus || !canMutate} />
+                    <button
+                      id="rental-primary-action"
+                      aria-label={nextRecommendedAction.label}
+                      type="button"
+                      onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
+                      disabled={isUpdatingStatus || !canMutate || !checklist.ready}
+                      aria-describedby={!checklist.ready ? "handover-blocked-reason" : undefined}
+                      className={styles.primaryActionButton}
+                    >
+                      {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.buttonLabel}
+                    </button>
+                    {!checklist.ready && (
+                      <p id="handover-blocked-reason" className="text-xs text-[var(--v4-ink)]">
+                        {paymentBlocker ?? transitionBlocker ?? "Hoàn tất các điều kiện ở trên và đánh dấu đã đối chiếu để bàn giao xe."}
+                      </p>
+                    )}
+                    <p className="text-xs text-[var(--v4-mineral)]">Xe chưa bắt đầu thuê. Nút “Đã trả xe” sẽ xuất hiện sau khi xác nhận bàn giao.</p>
+                    {statusMessage && (
+                      <div role={statusFailed ? "alert" : "status"} aria-live="polite" className="text-[13px] p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
+                        {statusMessage}
+                      </div>
+                    )}
+                  </section>
+                </>
+              ) : nextRecommendedAction ? (
+                /* Các bước khác (duyệt yêu cầu, nhận lại xe, hoàn tất): một khối thao tác */
+                <section className={`${styles.commandBlock} ${styles.primaryCommand}`} aria-labelledby="command-block-next">
+                  <h2 id="command-block-next" className={styles.commandBlockTitle}>Thao tác đơn thuê</h2>
+                  <RentalWorkflowChecklist checklist={checklist} disabled={isUpdatingStatus || !canMutate} controls={{
+                    contract: canMutate && <SignedContractUpload key={`contract-${activeRental.id}`} rental={activeRental} refresh={refetchRental} />,
+                    inspection: <TechnicianAssignmentForm key={`${activeRental.id}-${activeRental.status}`} rental={activeRental} refresh={refetchRental} compact embedded showApprovalAction={false} />,
+                    payment: <CashReceiptPanel key={`payment-${activeRental.id}`} rental={activeRental} refresh={refetchRental} compact embedded />,
+                  }} />
+                  <button
+                    id="rental-primary-action"
+                    aria-label={nextRecommendedAction.label}
+                    type="button"
+                    onClick={() => handleInitiateStatusChange(nextRecommendedAction.targetStatus)}
+                    disabled={isUpdatingStatus || !canMutate || !checklist.ready}
+                    className={nextRecommendedAction.consequential ? styles.consequentialActionButton : styles.primaryActionButton}
+                  >
+                    {isUpdatingStatus ? "Đang xử lý..." : nextRecommendedAction.buttonLabel}
+                  </button>
+                  {transitionBlocker && (
+                    <div className="space-y-2 text-[13px] text-[var(--v4-ink)]">
+                      <p>{transitionBlocker}</p>
+                      <details><summary className="cursor-pointer text-xs font-semibold">Hướng dẫn kiểm tra</summary><Link href={`/admin/inspections?rentalId=${activeRental.id}`} className="block font-bold underline">
+                        Mở phiếu kiểm tra đơn #{activeRental.id}
+                      </Link>
+                      <button type="button" onClick={() => void refetchRental()} className={styles.secondaryActionButton}>
+                        Tải lại kết quả kiểm tra
+                      </button>
+                      </details>
+                    </div>
+                  )}
+                  {activeRental.status === "pending" && <p className="text-xs text-[var(--v4-mineral)]">Xe chưa bắt đầu thuê. Nút “Đã trả xe” sẽ xuất hiện sau khi xác nhận bàn giao.</p>}
+                  {statusMessage && (
+                    <div role={statusFailed ? "alert" : "status"} aria-live="polite" className="text-[13px] p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
+                      {statusMessage}
+                    </div>
+                  )}
+                </section>
+              ) : statusMessage && (
+                <div role={statusFailed ? "alert" : "status"} aria-live="polite" className="text-[13px] p-2 rounded bg-[var(--v4-surface-muted)] text-[var(--v4-ink)] font-medium">
+                  {statusMessage}
+                </div>
+              )}
 
-              {!["pre_inspection", "post_inspection"].includes(activeRental.status) && <details className={styles.commandShelf}><summary className="cursor-pointer text-xs font-bold text-td-ink">Kiểm tra phương tiện</summary>
+              {!["pre_inspection", "post_inspection"].includes(activeRental.status) && <details className={styles.commandShelf}><summary className="cursor-pointer text-[13px] font-bold text-td-ink">Kiểm tra phương tiện</summary>
               <TechnicianAssignmentForm key={`${activeRental.id}-${activeRental.status === "post_inspection" || activeRental.status === "completed" ? "post" : "pre"}`} rental={activeRental} refresh={refetchRental} compact showApprovalAction={false} />
               </details>}
-              {!activeRental.isSubscription && activeRental.status === "pending" && <details className={styles.commandShelf}><summary className="cursor-pointer text-xs font-bold text-td-ink">Thanh toán đơn thuê</summary>
+              {!activeRental.isSubscription && activeRental.status === "pending" && <details className={styles.commandShelf}><summary className="cursor-pointer text-[13px] font-bold text-td-ink">Thanh toán đơn thuê</summary>
               <CashReceiptPanel key={`payment-${activeRental.id}`} rental={activeRental} refresh={refetchRental} compact />
               </details>}
 
               {/* Driver assignment belongs to this rental and its selected vehicle. */}
               {activeRental.hasDriver === true && canAssignRental(activeRental.status) && <details key={`assignment-${activeRental.id}-${activeRental.status}`} className={styles.commandShelf}>
-                <summary className="cursor-pointer text-xs font-bold text-td-ink">Phân xe và tài xế</summary>
+                <summary className="cursor-pointer text-[13px] font-bold text-td-ink">Phân xe và tài xế</summary>
                 <DriverAssignmentForm key={activeRental.id} rental={activeRental} refresh={refetchRental} canMutate={canMutate} compact />
               </details>}
 
+              {/* KHỐI 4: HỦY ĐƠN THUÊ — tách riêng cuối panel */}
+              {["pending", "pre_inspection"].includes(activeRental.status) && (
+                <section className={styles.cancelBlock} aria-labelledby="command-block-cancel">
+                  <h2 id="command-block-cancel" className={styles.commandBlockTitle}>Hủy đơn thuê</h2>
+                  <p className="text-xs text-[var(--v4-mineral)]">Chỉ hủy được trước khi bàn giao xe. Phí hủy và hoàn tiền xử lý theo chính sách.</p>
+                  <button
+                    type="button"
+                    onClick={() => handleInitiateStatusChange("cancelled")}
+                    disabled={isUpdatingStatus || !canMutate}
+                    className={styles.dangerOutlineButton}
+                  >Hủy đơn thuê</button>
+                </section>
+              )}
             </>
           )}
         </aside>
@@ -1214,6 +1283,18 @@ export function RentalWorkspaceV4() {
         close={() => { setIsConfirmOpen(false); setPendingTargetStatus(null); }}
         refresh={refetchRental}
       />}
+      {isConfirmOpen && activeRental && pendingTargetStatus === "renting" && (
+        <FormDialog title="Xác nhận bàn giao xe" busy={isUpdatingStatus} onClose={() => { setIsConfirmOpen(false); setPendingTargetStatus(null); }}>
+          <ValidatedForm validation={statusValidation} onSubmit={() => executeStatusChange("renting")}>
+            <p className="text-sm text-td-ink">Bạn có chắc chắn bàn giao xe <strong><VehicleName vehicleId={activeRental.vehicleId} /></strong> cho đơn thuê <strong>#{activeRental.id}</strong>? Chuyến thuê bắt đầu ngay sau khi xác nhận.</p>
+            {statusFailed && statusMessage && <p role="alert" className="mt-3 text-sm text-danger">{statusMessage}</p>}
+            <FormDialogFooter>
+              <button type="button" disabled={isUpdatingStatus} onClick={() => { setIsConfirmOpen(false); setPendingTargetStatus(null); }} className={styles.secondaryActionButton}>Hủy</button>
+              <button type="submit" disabled={isUpdatingStatus || !checklist.ready} className={styles.primaryActionButton}>{isUpdatingStatus ? "Đang bàn giao..." : "Xác nhận bàn giao"}</button>
+            </FormDialogFooter>
+          </ValidatedForm>
+        </FormDialog>
+      )}
       {isConfirmOpen && activeRental && pendingTargetStatus === "completed" && (
         <FormDialog title="Xác nhận hoàn tất & quyết toán hợp đồng" busy={isUpdatingStatus} onClose={() => { setIsConfirmOpen(false); setPendingTargetStatus(null); }}>
           <ValidatedForm validation={statusValidation} onSubmit={() => executeStatusChange("completed")}>

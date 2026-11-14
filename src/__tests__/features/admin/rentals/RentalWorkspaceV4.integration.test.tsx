@@ -85,8 +85,11 @@ function renderWithClient(ui: React.ReactElement, session: SessionContextType | 
   return { ...rendered, queryClient };
 }
 
+/** Đánh dấu mọi xác nhận thủ công; giai đoạn bàn giao gom chúng vào khối "Điều kiện bàn giao". */
 function confirmManualChecklist() {
-  for (const checkbox of within(screen.getByRole("group", { name: "Điều kiện chuyển bước" })).getAllByRole("checkbox")) {
+  const groups = screen.getAllByRole("group").filter(group => ["Điều kiện chuyển bước", "Điều kiện bàn giao"].includes(group.querySelector("legend")?.textContent ?? ""));
+  expect(groups.length).toBeGreaterThan(0);
+  for (const group of groups) for (const checkbox of within(group).queryAllByRole("checkbox")) {
     if (!(checkbox as HTMLInputElement).disabled && !(checkbox as HTMLInputElement).checked) fireEvent.click(checkbox);
   }
 }
@@ -109,9 +112,10 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: false });
     vi.spyOn(invoiceApi, "getInvoiceById").mockResolvedValue({ id: 55, invoiceNumber: "INV-101", amount: 100000, status: "unpaid", paymentMethod: "cash", kind: "rental", canPay: true } as never);
     const { container } = renderWithClient(<RentalWorkspaceV4 />);
-    const checklist = await screen.findByRole("group", { name: "Điều kiện chuyển bước" });
-    const technician = within(checklist).getByRole("region", { name: "Phân công kiểm tra trước thuê" });
-    const payment = within(checklist).getByRole("region", { name: "Thanh toán đơn thuê" });
+    const inspectionBlock = await screen.findByRole("region", { name: "Kiểm tra trước thuê" });
+    const paymentBlock = screen.getByRole("region", { name: "Thanh toán" });
+    const technician = within(inspectionBlock).getByRole("region", { name: "Phân công kiểm tra trước thuê" });
+    const payment = within(paymentBlock).getByRole("region", { name: "Thanh toán đơn thuê" });
     expect(technician.closest('[data-workflow-condition="inspection"]')).not.toBeNull();
     expect(payment.closest('[data-workflow-condition="payment"]')).not.toBeNull();
     expect(technician.closest("details")).toBeNull();
@@ -120,6 +124,86 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
     expect(await within(payment).findByRole("button", { name: "Xác nhận đã thanh toán tiền mặt" })).toBeEnabled();
     expect(container.querySelector("form form")).toBeNull();
     expect(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" })).toBeDisabled();
+  });
+
+  describe("Khu vực lệnh điều phối chia khối", () => {
+    const handoverReady = () => {
+      mockSearchParams = new URLSearchParams("rentalId=101");
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: true });
+    };
+
+    it("orders the handover stage into inspection, payment, handover and a separate cancel block", async () => {
+      handoverReady();
+      renderWithClient(<RentalWorkspaceV4 />);
+      const panel = await screen.findByRole("complementary", { name: "Bảng lệnh điều phối" });
+      await within(panel).findByRole("region", { name: "Bàn giao xe" });
+      const titles = within(panel).getAllByRole("heading", { level: 2 }).map(node => node.textContent);
+      expect(titles.filter(title => ["Kiểm tra trước thuê", "Thanh toán", "Bàn giao xe", "Hủy đơn thuê"].includes(title ?? ""))).toEqual(["Kiểm tra trước thuê", "Thanh toán", "Bàn giao xe", "Hủy đơn thuê"]);
+      const inspection = within(panel).getByRole("region", { name: "Kiểm tra trước thuê" });
+      expect(within(inspection).queryByRole("checkbox")).not.toBeInTheDocument();
+      expect(within(inspection).getByRole("status")).toHaveTextContent("Đã đạt");
+      const handover = within(panel).getByRole("region", { name: "Bàn giao xe" });
+      expect(within(handover).getByRole("checkbox", { name: "Đã đối chiếu hồ sơ khách và bàn giao xe, chìa khóa" })).not.toBeChecked();
+      expect(within(handover).getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" })).toBeDisabled();
+      const reason = handover.querySelector("#handover-blocked-reason");
+      expect(reason?.textContent).toBeTruthy();
+      expect(within(handover).getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" })).toHaveAttribute("aria-describedby", "handover-blocked-reason");
+      expect(within(panel).getByRole("region", { name: "Hủy đơn thuê" })).toContainElement(within(panel).getByRole("button", { name: "Hủy đơn thuê" }));
+    });
+
+    it("shows the blocked reason inside the handover block next to its button", async () => {
+      mockSearchParams = new URLSearchParams("rentalId=101");
+      vi.spyOn(operationsApi, "getOperationalRental").mockResolvedValue({ ...RENTAL_101, status: "pre_inspection", hasPassingPreInspection: true });
+      vi.spyOn(invoiceApi, "getInvoiceById").mockResolvedValue({ id: 55, invoiceNumber: "INV-101", status: "unpaid", amount: 100000, paymentMethod: "cash", kind: "rental", canPay: true } as never);
+      renderWithClient(<RentalWorkspaceV4 />);
+      const handover = await screen.findByRole("region", { name: "Bàn giao xe" });
+      await waitFor(() => expect(within(handover).getByText("Cần thanh toán đủ hóa đơn trước khi bàn giao xe. Thao tác tại điều kiện Thanh toán đơn thuê.")).toBeInTheDocument());
+    });
+
+    it("asks before handing over, names the rental and vehicle, and cancelling the dialog does not start the trip", async () => {
+      handoverReady();
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus");
+      renderWithClient(<RentalWorkspaceV4 />);
+      const start = await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" });
+      confirmManualChecklist();
+      await waitFor(() => expect(start).toBeEnabled());
+      fireEvent.click(start);
+      const dialog = screen.getByRole("dialog");
+      expect(dialog).toHaveTextContent("#101");
+      expect(within(dialog).getByTestId("vehicle-name")).toBeInTheDocument();
+      fireEvent.click(within(dialog).getByRole("button", { name: "Hủy" }));
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(statusSpy).not.toHaveBeenCalled();
+    });
+
+    it("sends the handover once when the confirm button is pressed twice", async () => {
+      handoverReady();
+      let resolve!: (value: unknown) => void;
+      const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus").mockReturnValue(new Promise(done => { resolve = done; }) as never);
+      renderWithClient(<RentalWorkspaceV4 />);
+      const start = await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" });
+      confirmManualChecklist();
+      await waitFor(() => expect(start).toBeEnabled());
+      fireEvent.click(start);
+      const confirm = within(screen.getByRole("dialog")).getByRole("button", { name: "Xác nhận bàn giao" });
+      fireEvent.click(confirm);
+      fireEvent.click(confirm);
+      await waitFor(() => expect(statusSpy).toHaveBeenCalledTimes(1));
+      await act(async () => resolve({ ...RENTAL_101, status: "renting" }));
+      expect(statusSpy).toHaveBeenCalledExactlyOnceWith(101, "renting");
+    });
+
+    it("opens the cancel confirmation with the rental number and a red confirm button before cancelling", async () => {
+      handoverReady();
+      const cancelSpy = vi.spyOn(operationsApi, "cancelOperationalRental");
+      renderWithClient(<RentalWorkspaceV4 />);
+      fireEvent.click(await screen.findByRole("button", { name: "Hủy đơn thuê" }));
+      const dialog = await screen.findByRole("dialog");
+      expect(dialog).toHaveTextContent("#101");
+      expect(within(dialog).getByRole("button", { name: "Xác nhận hủy đơn" }).className).toMatch(/danger/);
+      fireEvent.click(within(dialog).getByRole("button", { name: "Đóng" }));
+      expect(cancelSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("Gate 1: Truthful States & Provenance", () => {
@@ -331,12 +415,12 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       const statusSpy = vi.spyOn(operationsApi, "changeRentalStatus");
       renderWithClient(<RentalWorkspaceV4 />);
       const next = await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" });
-      if (payment === "unpaid") await screen.findByText("Chưa thanh toán");
-      else await screen.findByText("Chưa kiểm tra được thanh toán. Vui lòng tải lại hóa đơn ở mục Thanh toán đơn thuê.");
+      if (payment === "unpaid") expect((await screen.findAllByText("Chưa thanh toán")).length).toBeGreaterThan(0);
+      else expect((await screen.findAllByText("Chưa kiểm tra được thanh toán. Vui lòng tải lại hóa đơn ở mục Thanh toán đơn thuê.")).length).toBeGreaterThan(0);
       confirmManualChecklist();
-      const paymentCheck = screen.getByRole("checkbox", { name: /Hóa đơn đã thanh toán đủ/ });
-      expect(paymentCheck).toBeDisabled();
-      expect(paymentCheck).not.toBeChecked();
+      const paymentBlock = screen.getByRole("region", { name: "Thanh toán" });
+      expect(within(paymentBlock).queryByRole("checkbox")).not.toBeInTheDocument();
+      expect(within(paymentBlock).getAllByRole("status").some(node => node.textContent?.includes("Chưa thanh toán"))).toBe(true);
       expect(next).toBeDisabled();
       fireEvent.click(next);
       expect(statusSpy).not.toHaveBeenCalled();
@@ -349,7 +433,7 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       const next = await screen.findByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" });
       confirmManualChecklist();
       expect(next).toBeEnabled();
-      expect(screen.queryByRole("checkbox", { name: /Hóa đơn đã thanh toán đủ/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole("region", { name: "Thanh toán" })).not.toBeInTheDocument();
       expect(invoiceApi.getInvoiceById).not.toHaveBeenCalled();
     });
 
@@ -399,6 +483,8 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       await waitFor(() => expect(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" })).toBeEnabled());
       rentalSpy.mockResolvedValue(renting);
       fireEvent.click(screen.getByRole("button", { name: "Bàn giao xe & Bắt đầu chuyến" }));
+      expect(statusSpy).not.toHaveBeenCalled();
+      fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Xác nhận bàn giao" }));
       await screen.findByRole("button", { name: "Xác nhận đã nhận lại xe" });
       expect(statusSpy).toHaveBeenCalledExactlyOnceWith(101, "renting");
       expect(await screen.findByText("Đã cập nhật đơn thuê sang trạng thái: Đang thuê")).toBeInTheDocument();
@@ -413,7 +499,8 @@ describe("V4.1B Rental Workspace Integration & Acceptance Suite", () => {
       confirmManualChecklist();
       await waitFor(() => expect(start).toBeEnabled());
       fireEvent.click(start);
-      expect(await screen.findByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.")).toBeInTheDocument();
+      fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Xác nhận bàn giao" }));
+      expect((await screen.findAllByText("Cần hoàn tất phiếu kiểm tra trước thuê với kết quả đạt trước khi bàn giao xe.")).length).toBeGreaterThan(0);
       expect(screen.queryByRole("button", { name: "Xác nhận đã nhận lại xe" })).not.toBeInTheDocument();
     });
 

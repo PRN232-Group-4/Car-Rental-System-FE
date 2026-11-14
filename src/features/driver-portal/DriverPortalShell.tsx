@@ -19,7 +19,7 @@ import AppPortalShell, { type PortalNavItem } from "@/components/layout/AppPorta
 const navigation: PortalNavItem[] = [
   { href: "/staff", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/staff/vehicles", label: "Phương tiện của tôi", icon: CarFront },
-  { href: "/staff/shifts", label: "Ca làm việc", icon: CalendarClock },
+  { href: "/staff/shifts", label: "Lịch chuyến", icon: CalendarClock },
   { href: "/staff/revenue", label: "Doanh thu", icon: CircleDollarSign },
   { href: "/staff/profile", label: "Hồ sơ của tôi", icon: CircleUserRound },
 ];

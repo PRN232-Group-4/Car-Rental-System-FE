@@ -8,7 +8,6 @@ import { Skeleton, SkeletonBlock } from "@/components/ui/Skeleton";
 import { useDriverPortalAccount } from "./DriverPortalShell";
 import { getDriverSchedule } from "./api";
 import type { DriverScheduleEntry } from "./api";
-import { DRIVER_SHIFT_MANAGEMENT_ENABLED } from "@/config/operational-features";
 
 function toDateInputValue(date: Date): string {
   const year = date.getFullYear();
@@ -158,7 +157,6 @@ export default function DriverShifts() {
           Làm mới
         </button>
       </TransitFolio>
-      {!DRIVER_SHIFT_MANAGEMENT_ENABLED && <p role="status" className="border-l border-td-oxide pl-3 text-sm text-td-muted">Chức năng quản lý ca trực tài xế đang tạm khóa. Các chuyến xe đã được phân công theo đơn thuê vẫn hiển thị bên dưới.</p>}
 
       <section className="flex flex-col gap-4 border-y border-td-rule py-3 sm:flex-row sm:items-end">
         <label className="flex-1 text-[11px] font-semibold text-td-muted">

@@ -66,7 +66,7 @@ export default function RentalCancelDialog({ rental, close, refresh, audience = 
       </div>}
       <div><label htmlFor={inputId} className="text-sm font-semibold">Lý do hủy *</label><InlineTextarea id={inputId} name="reason" required rows={3} className={operationsInput} value={reason} disabled={busy} onChange={(event) => setReason(event.target.value)} /></div>
       {(error || blocker) && <p role="alert" className="mt-3 text-sm text-danger">{error || blocker}</p>}
-      <FormDialogFooter><Button type="button" variant="secondary" onClick={close} disabled={busy}>Đóng</Button><Button type="submit" isLoading={busy} disabled={busy || Boolean(blocker) || previewBlocked}>Xác nhận hủy đơn</Button></FormDialogFooter>
+      <FormDialogFooter><Button type="button" variant="secondary" onClick={close} disabled={busy}>Đóng</Button><Button type="submit" variant="danger" isLoading={busy} disabled={busy || Boolean(blocker) || previewBlocked}>Xác nhận hủy đơn</Button></FormDialogFooter>
     </ValidatedForm>
   </FormDialog>;
 }

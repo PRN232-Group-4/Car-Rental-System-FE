@@ -13,7 +13,7 @@ import {
   usePolicies,
   useVehicleTypes,
 } from "@/features/admin/policies/hooks";
-import { PolicyDrawer } from "@/features/admin/policies/components/PolicyDrawer";
+import { PolicyModal } from "@/features/admin/policies/components/PolicyModal";
 import { PolicyDetailDrawer } from "@/features/admin/policies/components/PolicyDetailDrawer";
 import { AdminRowAction } from "@/components/admin/AdminRowAction";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
